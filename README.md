@@ -55,7 +55,7 @@ $ make build
 $ export PATH=$PATH:~/go/bin # You should put in your .profile or .bashrc
 $ wget https://releases.hashicorp.com/terraform/0.10.7/terraform_0.10.7_linux_amd64.zip
 $ unzip terraform_0.10.7_linux_amd64.zip
-$ mv terraform ~/go/bin
+$ mv terraform ~/go/bin/
 $ terraform version # to verify it runs and version #
 $ vi test.tf # paste in Quick Start contents, fix authentication information
 $ terraform init
