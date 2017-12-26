@@ -11,7 +11,7 @@ import (
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
 	"github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth"
-	"github.com/gophercloud/utils/huaweicloud/clientconfig"
+	"github.com/gophercloud/utils/openstack/clientconfig"
 	"github.com/hashicorp/terraform/helper/pathorcontents"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -90,7 +90,7 @@ func (c *Config) LoadAndValidate() error {
 		}
 	}
 
-	client, err := huaweicloud.NewClient(ao.IdentityEndpoint)
+	client, err := openstack.NewClient(ao.IdentityEndpoint)
 	if err != nil {
 		return err
 	}
@@ -149,7 +149,7 @@ func (c *Config) LoadAndValidate() error {
 
 	// If using Swift Authentication, there's no need to validate authentication normally.
 	if !c.Swauth {
-		err = huaweicloud.Authenticate(client, *ao)
+		err = openstack.Authenticate(client, *ao)
 		if err != nil {
 			return err
 		}
@@ -172,49 +172,49 @@ func (c *Config) determineRegion(region string) string {
 }
 
 func (c *Config) blockStorageV1Client(region string) (*gophercloud.ServiceClient, error) {
-	return huaweicloud.NewBlockStorageV1(c.OsClient, gophercloud.EndpointOpts{
+	return openstack.NewBlockStorageV1(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),
 	})
 }
 
 func (c *Config) blockStorageV2Client(region string) (*gophercloud.ServiceClient, error) {
-	return huaweicloud.NewBlockStorageV2(c.OsClient, gophercloud.EndpointOpts{
+	return openstack.NewBlockStorageV2(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),
 	})
 }
 
 func (c *Config) computeV2Client(region string) (*gophercloud.ServiceClient, error) {
-	return huaweicloud.NewComputeV2(c.OsClient, gophercloud.EndpointOpts{
+	return openstack.NewComputeV2(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),
 	})
 }
 
 func (c *Config) dnsV2Client(region string) (*gophercloud.ServiceClient, error) {
-	return huaweicloud.NewDNSV2(c.OsClient, gophercloud.EndpointOpts{
+	return openstack.NewDNSV2(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),
 	})
 }
 
 func (c *Config) identityV3Client(region string) (*gophercloud.ServiceClient, error) {
-	return huaweicloud.NewIdentityV3(c.OsClient, gophercloud.EndpointOpts{
+	return openstack.NewIdentityV3(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),
 	})
 }
 
 func (c *Config) imageV2Client(region string) (*gophercloud.ServiceClient, error) {
-	return huaweicloud.NewImageServiceV2(c.OsClient, gophercloud.EndpointOpts{
+	return openstack.NewImageServiceV2(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),
 	})
 }
 
 func (c *Config) networkingV2Client(region string) (*gophercloud.ServiceClient, error) {
-	return huaweicloud.NewNetworkV2(c.OsClient, gophercloud.EndpointOpts{
+	return openstack.NewNetworkV2(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),
 	})
@@ -229,21 +229,21 @@ func (c *Config) objectStorageV1Client(region string) (*gophercloud.ServiceClien
 		})
 	}
 
-	return huaweicloud.NewObjectStorageV1(c.OsClient, gophercloud.EndpointOpts{
+	return openstack.NewObjectStorageV1(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),
 	})
 }
 
 func (c *Config) loadBalancerV2Client(region string) (*gophercloud.ServiceClient, error) {
-	return huaweicloud.NewLoadBalancerV2(c.OsClient, gophercloud.EndpointOpts{
+	return openstack.NewLoadBalancerV2(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),
 	})
 }
 
 func (c *Config) databaseV1Client(region string) (*gophercloud.ServiceClient, error) {
-	return huaweicloud.NewDBV1(c.OsClient, gophercloud.EndpointOpts{
+	return openstack.NewDBV1(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),
 	})
