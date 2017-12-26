@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccNetworkingV2Network_importBasic(t *testing.T) {
-	resourceName := "openstack_networking_network_v2.network_1"
+	resourceName := "huaweicloud_networking_network_v2.network_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

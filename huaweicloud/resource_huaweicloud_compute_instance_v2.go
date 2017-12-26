@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"bytes"
@@ -80,7 +80,7 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
-				Removed:  "Use the openstack_compute_floatingip_associate_v2 resource instead",
+				Removed:  "Use the huaweicloud_compute_floatingip_associate_v2 resource instead",
 			},
 			"user_data": &schema.Schema{
 				Type:     schema.TypeString,
@@ -152,7 +152,7 @@ func resourceComputeInstanceV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
-							Removed:  "Use the openstack_compute_floatingip_associate_v2 resource instead",
+							Removed:  "Use the huaweicloud_compute_floatingip_associate_v2 resource instead",
 						},
 						"mac": &schema.Schema{
 							Type:     schema.TypeString,
@@ -245,7 +245,7 @@ func resourceComputeInstanceV2() *schema.Resource {
 			"volume": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
-				Removed:  "Use block_device or openstack_compute_volume_attach_v2 instead",
+				Removed:  "Use block_device or huaweicloud_compute_volume_attach_v2 instead",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": &schema.Schema{

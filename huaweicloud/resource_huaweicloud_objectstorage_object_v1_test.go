@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"crypto/md5"
@@ -40,45 +40,45 @@ func TestAccObjectStorageV1Object_basic(t *testing.T) {
 				Config: testAccObjectStorageV1Object_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObjectStorageV1ObjectExists(
-						"openstack_objectstorage_object_v1.myfile", &object),
+						"huaweicloud_objectstorage_object_v1.myfile", &object),
 					testAccCheckObjectStorageV1ObjectDeleteAtMatches(deleteAt, &object),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_container_v1.container_1", "name", "tf_test_container_1"),
+						"huaweicloud_objectstorage_container_v1.container_1", "name", "tf_test_container_1"),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "content_type", "text/plain"),
+						"huaweicloud_objectstorage_object_v1.myfile", "content_type", "text/plain"),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "content_length", "3"),
+						"huaweicloud_objectstorage_object_v1.myfile", "content_length", "3"),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "content_disposition", "foo"),
+						"huaweicloud_objectstorage_object_v1.myfile", "content_disposition", "foo"),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "content_encoding", "utf8"),
+						"huaweicloud_objectstorage_object_v1.myfile", "content_encoding", "utf8"),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "etag", fooMD5),
+						"huaweicloud_objectstorage_object_v1.myfile", "etag", fooMD5),
 				),
 			},
 			resource.TestStep{
 				Config: testAccObjectStorageV1Object_updateContentType,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "content_type", "application/octet-stream"),
+						"huaweicloud_objectstorage_object_v1.myfile", "content_type", "application/octet-stream"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccObjectStorageV1Object_updateContent,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "content_type", "application/octet-stream"),
+						"huaweicloud_objectstorage_object_v1.myfile", "content_type", "application/octet-stream"),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "etag", foobarMD5),
+						"huaweicloud_objectstorage_object_v1.myfile", "etag", foobarMD5),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "content_length", "6"),
+						"huaweicloud_objectstorage_object_v1.myfile", "content_length", "6"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccObjectStorageV1Object_updateDeleteAfter,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "delete_after", "3600"),
+						"huaweicloud_objectstorage_object_v1.myfile", "delete_after", "3600"),
 				),
 			},
 		},
@@ -110,13 +110,13 @@ func TestAccObjectStorageV1Object_fromSource(t *testing.T) {
 				Config: fmt.Sprintf(testAccObjectStorageV1Object_fromSource, tmpfile.Name()),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_container_v1.container_1", "name", "tf_test_container_1"),
+						"huaweicloud_objectstorage_container_v1.container_1", "name", "tf_test_container_1"),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "content_type", "text/plain"),
+						"huaweicloud_objectstorage_object_v1.myfile", "content_type", "text/plain"),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "content_length", fmt.Sprintf("%v", len(content))),
+						"huaweicloud_objectstorage_object_v1.myfile", "content_length", fmt.Sprintf("%v", len(content))),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "etag", fooMD5),
+						"huaweicloud_objectstorage_object_v1.myfile", "etag", fooMD5),
 				),
 			},
 		},
@@ -135,11 +135,11 @@ func TestAccObjectStorageV1Object_detectContentType(t *testing.T) {
 				Config: testAccObjectStorageV1Object_detectContentType,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_container_v1.container_1", "name", "tf_test_container_1"),
+						"huaweicloud_objectstorage_container_v1.container_1", "name", "tf_test_container_1"),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "content_type", "text/csv"),
+						"huaweicloud_objectstorage_object_v1.myfile", "content_type", "text/csv"),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "etag", fooMD5),
+						"huaweicloud_objectstorage_object_v1.myfile", "etag", fooMD5),
 				),
 			},
 		},
@@ -161,9 +161,9 @@ func TestAccObjectStorageV1Object_copyFrom(t *testing.T) {
 				Config: testAccObjectStorageV1Object_copyFrom,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfilesource", "etag", fooMD5),
+						"huaweicloud_objectstorage_object_v1.myfilesource", "etag", fooMD5),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfilecopied", "etag", fooMD5),
+						"huaweicloud_objectstorage_object_v1.myfilecopied", "etag", fooMD5),
 				),
 			},
 		},
@@ -192,11 +192,11 @@ func TestAccObjectStorageV1Object_objectManifest(t *testing.T) {
 				Config: testAccObjectStorageV1Object_objectManifest,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile_part1", "etag", fooMD5),
+						"huaweicloud_objectstorage_object_v1.myfile_part1", "etag", fooMD5),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile_part2", "etag", barMD5),
+						"huaweicloud_objectstorage_object_v1.myfile_part2", "etag", barMD5),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_object_v1.myfile", "etag", manifestMD5),
+						"huaweicloud_objectstorage_object_v1.myfile", "etag", manifestMD5),
 				),
 			},
 		},
@@ -212,7 +212,7 @@ func testAccCheckObjectStorageV1ObjectDestroy(s *terraform.State, objectname str
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_objectstorage_object_v1" {
+		if rs.Type != "huaweicloud_objectstorage_object_v1" {
 			continue
 		}
 
@@ -274,14 +274,14 @@ func testAccCheckObjectStorageV1ObjectDeleteAtMatches(expected string, object *o
 }
 
 var testAccObjectStorageV1Object_basic = fmt.Sprintf(`
-resource "openstack_objectstorage_container_v1" "container_1" {
+resource "huaweicloud_objectstorage_container_v1" "container_1" {
   name = "tf_test_container_1"
   content_type = "text/plain"
 }
 
-resource "openstack_objectstorage_object_v1" "myfile" {
+resource "huaweicloud_objectstorage_object_v1" "myfile" {
   name = "terraform/test/myfile.txt"
-  container_name = "${openstack_objectstorage_container_v1.container_1.name}"
+  container_name = "${huaweicloud_objectstorage_container_v1.container_1.name}"
   content = "foo"
 
   content_disposition = "foo"
@@ -291,14 +291,14 @@ resource "openstack_objectstorage_object_v1" "myfile" {
 `, deleteAt)
 
 var testAccObjectStorageV1Object_detectContentType = fmt.Sprintf(`
-resource "openstack_objectstorage_container_v1" "container_1" {
+resource "huaweicloud_objectstorage_container_v1" "container_1" {
   name = "tf_test_container_1"
   content_type = "text/plain"
 }
 
-resource "openstack_objectstorage_object_v1" "myfile" {
+resource "huaweicloud_objectstorage_object_v1" "myfile" {
   name = "terraform/test/myfile.csv"
-  container_name = "${openstack_objectstorage_container_v1.container_1.name}"
+  container_name = "${huaweicloud_objectstorage_container_v1.container_1.name}"
   detect_content_type = true
   content = "foo"
   content_disposition = "foo"
@@ -308,14 +308,14 @@ resource "openstack_objectstorage_object_v1" "myfile" {
 `, deleteAt)
 
 var testAccObjectStorageV1Object_updateContentType = fmt.Sprintf(`
-resource "openstack_objectstorage_container_v1" "container_1" {
+resource "huaweicloud_objectstorage_container_v1" "container_1" {
   name = "tf_test_container_1"
   content_type = "text/plain"
 }
 
-resource "openstack_objectstorage_object_v1" "myfile" {
+resource "huaweicloud_objectstorage_object_v1" "myfile" {
   name = "terraform/test/myfile.txt"
-  container_name = "${openstack_objectstorage_container_v1.container_1.name}"
+  container_name = "${huaweicloud_objectstorage_container_v1.container_1.name}"
   content_type = "application/octet-stream"
   content = "foo"
   content_disposition = "foo"
@@ -325,14 +325,14 @@ resource "openstack_objectstorage_object_v1" "myfile" {
 `, deleteAt)
 
 const testAccObjectStorageV1Object_updateDeleteAfter = `
-resource "openstack_objectstorage_container_v1" "container_1" {
+resource "huaweicloud_objectstorage_container_v1" "container_1" {
   name = "tf_test_container_1"
   content_type = "text/plain"
 }
 
-resource "openstack_objectstorage_object_v1" "myfile" {
+resource "huaweicloud_objectstorage_object_v1" "myfile" {
   name = "terraform/test/myfile.txt"
-  container_name = "${openstack_objectstorage_container_v1.container_1.name}"
+  container_name = "${huaweicloud_objectstorage_container_v1.container_1.name}"
   content_type = "application/octet-stream"
   content = "foo"
   content_encoding = "utf8"
@@ -341,14 +341,14 @@ resource "openstack_objectstorage_object_v1" "myfile" {
 `
 
 const testAccObjectStorageV1Object_updateContent = `
-resource "openstack_objectstorage_container_v1" "container_1" {
+resource "huaweicloud_objectstorage_container_v1" "container_1" {
   name = "tf_test_container_1"
   content_type = "text/plain"
 }
 
-resource "openstack_objectstorage_object_v1" "myfile" {
+resource "huaweicloud_objectstorage_object_v1" "myfile" {
   name = "terraform/test/myfile.txt"
-  container_name = "${openstack_objectstorage_container_v1.container_1.name}"
+  container_name = "${huaweicloud_objectstorage_container_v1.container_1.name}"
   content_type = "application/octet-stream"
   content = "foobar"
 
@@ -356,55 +356,55 @@ resource "openstack_objectstorage_object_v1" "myfile" {
 `
 
 const testAccObjectStorageV1Object_fromSource = `
-resource "openstack_objectstorage_container_v1" "container_1" {
+resource "huaweicloud_objectstorage_container_v1" "container_1" {
   name = "tf_test_container_1"
 }
 
-resource "openstack_objectstorage_object_v1" "myfile" {
+resource "huaweicloud_objectstorage_object_v1" "myfile" {
   name = "terraform/test/myfile.txt"
-  container_name = "${openstack_objectstorage_container_v1.container_1.name}"
+  container_name = "${huaweicloud_objectstorage_container_v1.container_1.name}"
   detect_content_type = true
   source = "%s"
 }
 `
 
 const testAccObjectStorageV1Object_copyFrom = `
-resource "openstack_objectstorage_container_v1" "container_1" {
+resource "huaweicloud_objectstorage_container_v1" "container_1" {
   name = "tf_test_container_1"
 }
 
-resource "openstack_objectstorage_object_v1" "myfilesource" {
+resource "huaweicloud_objectstorage_object_v1" "myfilesource" {
   name = "terraform/test/myfile.txt"
-  container_name = "${openstack_objectstorage_container_v1.container_1.name}"
+  container_name = "${huaweicloud_objectstorage_container_v1.container_1.name}"
   content = "foo"
 }
 
-resource "openstack_objectstorage_object_v1" "myfilecopied" {
+resource "huaweicloud_objectstorage_object_v1" "myfilecopied" {
   name = "terraform/test/myfilecopied.txt"
-  container_name = "${openstack_objectstorage_container_v1.container_1.name}"
-  copy_from = "${openstack_objectstorage_container_v1.container_1.name}/${openstack_objectstorage_object_v1.myfilesource.name}"
+  container_name = "${huaweicloud_objectstorage_container_v1.container_1.name}"
+  copy_from = "${huaweicloud_objectstorage_container_v1.container_1.name}/${huaweicloud_objectstorage_object_v1.myfilesource.name}"
 }
 `
 
 const testAccObjectStorageV1Object_objectManifest = `
-resource "openstack_objectstorage_container_v1" "container_1" {
+resource "huaweicloud_objectstorage_container_v1" "container_1" {
   name = "tf_test_container_1"
 }
 
-resource "openstack_objectstorage_object_v1" "myfile_part1" {
+resource "huaweicloud_objectstorage_object_v1" "myfile_part1" {
   name = "terraform/test.csv/part001"
-  container_name = "${openstack_objectstorage_container_v1.container_1.name}"
+  container_name = "${huaweicloud_objectstorage_container_v1.container_1.name}"
   content = "foo"
 }
-resource "openstack_objectstorage_object_v1" "myfile_part2" {
+resource "huaweicloud_objectstorage_object_v1" "myfile_part2" {
   name = "terraform/test.csv/part002"
-  container_name = "${openstack_objectstorage_container_v1.container_1.name}"
+  container_name = "${huaweicloud_objectstorage_container_v1.container_1.name}"
   content = "bar"
 }
 
-resource "openstack_objectstorage_object_v1" "myfile" {
+resource "huaweicloud_objectstorage_object_v1" "myfile" {
   name = "terraform/test.csv"
-  container_name = "${openstack_objectstorage_container_v1.container_1.name}"
-  object_manifest = "${format("%s/terraform/test.csv/part",openstack_objectstorage_container_v1.container_1.name)}"
+  container_name = "${huaweicloud_objectstorage_container_v1.container_1.name}"
+  object_manifest = "${format("%s/terraform/test.csv/part",huaweicloud_objectstorage_container_v1.container_1.name)}"
 }
 `

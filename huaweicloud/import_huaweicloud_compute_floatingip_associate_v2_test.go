@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccComputeV2FloatingIPAssociate_importBasic(t *testing.T) {
-	resourceName := "openstack_compute_floatingip_associate_v2.fip_1"
+	resourceName := "huaweicloud_compute_floatingip_associate_v2.fip_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

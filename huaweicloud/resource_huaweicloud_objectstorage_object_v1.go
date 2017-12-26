@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"bytes"
@@ -166,11 +166,11 @@ func resourceObjectStorageObjectV1Put(d *schema.ResourceData, meta interface{}) 
 		file, err := os.Open(path)
 		defer file.Close()
 		if err != nil {
-			return fmt.Errorf("Error opening openstack swift object source (%s): %s", source, err)
+			return fmt.Errorf("Error opening huaweicloud swift object source (%s): %s", source, err)
 		}
 		fileinfo, err := file.Stat()
 		if err != nil {
-			return fmt.Errorf("Error opening openstack swift object source (%s): %s", source, err)
+			return fmt.Errorf("Error opening huaweicloud swift object source (%s): %s", source, err)
 		}
 
 		createOpts.Content = file

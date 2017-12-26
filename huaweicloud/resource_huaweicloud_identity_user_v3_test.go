@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -29,52 +29,52 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccIdentityV3User_basic(projectName, userName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3UserExists("openstack_identity_user_v3.user_1", &user),
-					testAccCheckIdentityV3ProjectExists("openstack_identity_project_v3.project_1", &project),
+					testAccCheckIdentityV3UserExists("huaweicloud_identity_user_v3.user_1", &user),
+					testAccCheckIdentityV3ProjectExists("huaweicloud_identity_project_v3.project_1", &project),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "name", userName),
+						"huaweicloud_identity_user_v3.user_1", "name", userName),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "description", "A user"),
+						"huaweicloud_identity_user_v3.user_1", "description", "A user"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "enabled", "true"),
+						"huaweicloud_identity_user_v3.user_1", "enabled", "true"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "ignore_change_password_upon_first_use", "true"),
+						"huaweicloud_identity_user_v3.user_1", "ignore_change_password_upon_first_use", "true"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "multi_factor_auth_enabled", "true"),
+						"huaweicloud_identity_user_v3.user_1", "multi_factor_auth_enabled", "true"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "multi_factor_auth_rule.#", "2"),
+						"huaweicloud_identity_user_v3.user_1", "multi_factor_auth_rule.#", "2"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "multi_factor_auth_rule.0.rule.0", "password"),
+						"huaweicloud_identity_user_v3.user_1", "multi_factor_auth_rule.0.rule.0", "password"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "multi_factor_auth_rule.0.rule.1", "totp"),
+						"huaweicloud_identity_user_v3.user_1", "multi_factor_auth_rule.0.rule.1", "totp"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "multi_factor_auth_rule.1.rule.0", "password"),
+						"huaweicloud_identity_user_v3.user_1", "multi_factor_auth_rule.1.rule.0", "password"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "multi_factor_auth_rule.1.rule.1", "custom-auth-method"),
+						"huaweicloud_identity_user_v3.user_1", "multi_factor_auth_rule.1.rule.1", "custom-auth-method"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "extra.email", "jdoe@example.com"),
+						"huaweicloud_identity_user_v3.user_1", "extra.email", "jdoe@example.com"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccIdentityV3User_update(projectName, userName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3UserExists("openstack_identity_user_v3.user_1", &user),
+					testAccCheckIdentityV3UserExists("huaweicloud_identity_user_v3.user_1", &user),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "name", userName),
+						"huaweicloud_identity_user_v3.user_1", "name", userName),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "description", "Some user"),
+						"huaweicloud_identity_user_v3.user_1", "description", "Some user"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "enabled", "false"),
+						"huaweicloud_identity_user_v3.user_1", "enabled", "false"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "ignore_change_password_upon_first_use", "false"),
+						"huaweicloud_identity_user_v3.user_1", "ignore_change_password_upon_first_use", "false"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "multi_factor_auth_rule.#", "1"),
+						"huaweicloud_identity_user_v3.user_1", "multi_factor_auth_rule.#", "1"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "multi_factor_auth_rule.0.rule.0", "password"),
+						"huaweicloud_identity_user_v3.user_1", "multi_factor_auth_rule.0.rule.0", "password"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "multi_factor_auth_rule.0.rule.1", "totp"),
+						"huaweicloud_identity_user_v3.user_1", "multi_factor_auth_rule.0.rule.1", "totp"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_user_v3.user_1", "extra.email", "jdoe@foobar.com"),
+						"huaweicloud_identity_user_v3.user_1", "extra.email", "jdoe@foobar.com"),
 				),
 			},
 		},
@@ -89,7 +89,7 @@ func testAccCheckIdentityV3UserDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_identity_user_v3" {
+		if rs.Type != "huaweicloud_identity_user_v3" {
 			continue
 		}
 
@@ -136,12 +136,12 @@ func testAccCheckIdentityV3UserExists(n string, user *users.User) resource.TestC
 
 func testAccIdentityV3User_basic(projectName, userName string) string {
 	return fmt.Sprintf(`
-    resource "openstack_identity_project_v3" "project_1" {
+    resource "huaweicloud_identity_project_v3" "project_1" {
       name = "%s"
     }
 
-    resource "openstack_identity_user_v3" "user_1" {
-      default_project_id = "${openstack_identity_project_v3.project_1.id}"
+    resource "huaweicloud_identity_user_v3" "user_1" {
+      default_project_id = "${huaweicloud_identity_project_v3.project_1.id}"
       name = "%s"
       description = "A user"
       password = "password123"
@@ -165,12 +165,12 @@ func testAccIdentityV3User_basic(projectName, userName string) string {
 
 func testAccIdentityV3User_update(projectName, userName string) string {
 	return fmt.Sprintf(`
-    resource "openstack_identity_project_v3" "project_1" {
+    resource "huaweicloud_identity_project_v3" "project_1" {
       name = "%s"
     }
 
-    resource "openstack_identity_user_v3" "user_1" {
-      default_project_id = "${openstack_identity_project_v3.project_1.id}"
+    resource "huaweicloud_identity_user_v3" "user_1" {
+      default_project_id = "${huaweicloud_identity_project_v3.project_1.id}"
       name = "%s"
       description = "Some user"
       enabled = false

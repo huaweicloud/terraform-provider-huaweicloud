@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -24,8 +24,8 @@ func TestAccComputeV2FloatingIPAssociate_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2FloatingIPAssociate_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
-					testAccCheckNetworkingV2FloatingIPExists("openstack_networking_floatingip_v2.fip_1", &fip),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_1", &fip),
 					testAccCheckComputeV2FloatingIPAssociateAssociated(&fip, &instance, 1),
 				),
 			},
@@ -45,8 +45,8 @@ func TestAccComputeV2FloatingIPAssociate_fixedIP(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2FloatingIPAssociate_fixedIP,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
-					testAccCheckNetworkingV2FloatingIPExists("openstack_networking_floatingip_v2.fip_1", &fip),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_1", &fip),
 					testAccCheckComputeV2FloatingIPAssociateAssociated(&fip, &instance, 1),
 				),
 			},
@@ -66,8 +66,8 @@ func TestAccComputeV2FloatingIPAssociate_attachToFirstNetwork(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2FloatingIPAssociate_attachToFirstNetwork,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
-					testAccCheckNetworkingV2FloatingIPExists("openstack_networking_floatingip_v2.fip_1", &fip),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_1", &fip),
 					testAccCheckComputeV2FloatingIPAssociateAssociated(&fip, &instance, 1),
 				),
 			},
@@ -87,8 +87,8 @@ func TestAccComputeV2FloatingIPAssociate_attachToSecondNetwork(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2FloatingIPAssociate_attachToSecondNetwork,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
-					testAccCheckNetworkingV2FloatingIPExists("openstack_networking_floatingip_v2.fip_1", &fip),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_1", &fip),
 					testAccCheckComputeV2FloatingIPAssociateAssociated(&fip, &instance, 2),
 				),
 			},
@@ -109,18 +109,18 @@ func TestAccComputeV2FloatingIPAssociate_attachNew(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2FloatingIPAssociate_attachNew_1,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
-					testAccCheckNetworkingV2FloatingIPExists("openstack_networking_floatingip_v2.fip_1", &fip_1),
-					testAccCheckNetworkingV2FloatingIPExists("openstack_networking_floatingip_v2.fip_2", &fip_2),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_1", &fip_1),
+					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_2", &fip_2),
 					testAccCheckComputeV2FloatingIPAssociateAssociated(&fip_1, &instance, 1),
 				),
 			},
 			resource.TestStep{
 				Config: testAccComputeV2FloatingIPAssociate_attachNew_2,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
-					testAccCheckNetworkingV2FloatingIPExists("openstack_networking_floatingip_v2.fip_1", &fip_1),
-					testAccCheckNetworkingV2FloatingIPExists("openstack_networking_floatingip_v2.fip_2", &fip_2),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_1", &fip_1),
+					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_2", &fip_2),
 					testAccCheckComputeV2FloatingIPAssociateAssociated(&fip_2, &instance, 1),
 				),
 			},
@@ -136,7 +136,7 @@ func testAccCheckComputeV2FloatingIPAssociateDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_compute_floatingip_associate_v2" {
+		if rs.Type != "huaweicloud_compute_floatingip_associate_v2" {
 			continue
 		}
 
@@ -200,38 +200,38 @@ func testAccCheckComputeV2FloatingIPAssociateAssociated(
 }
 
 const testAccComputeV2FloatingIPAssociate_basic = `
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
 }
 
-resource "openstack_networking_floatingip_v2" "fip_1" {
+resource "huaweicloud_networking_floatingip_v2" "fip_1" {
 }
 
-resource "openstack_compute_floatingip_associate_v2" "fip_1" {
-  floating_ip = "${openstack_networking_floatingip_v2.fip_1.address}"
-  instance_id = "${openstack_compute_instance_v2.instance_1.id}"
+resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
+  floating_ip = "${huaweicloud_networking_floatingip_v2.fip_1.address}"
+  instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
 }
 `
 
 const testAccComputeV2FloatingIPAssociate_fixedIP = `
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
 }
 
-resource "openstack_networking_floatingip_v2" "fip_1" {
+resource "huaweicloud_networking_floatingip_v2" "fip_1" {
 }
 
-resource "openstack_compute_floatingip_associate_v2" "fip_1" {
-  floating_ip = "${openstack_networking_floatingip_v2.fip_1.address}"
-  instance_id = "${openstack_compute_instance_v2.instance_1.id}"
-  fixed_ip = "${openstack_compute_instance_v2.instance_1.access_ip_v4}"
+resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
+  floating_ip = "${huaweicloud_networking_floatingip_v2.fip_1.address}"
+  instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
+  fixed_ip = "${huaweicloud_compute_instance_v2.instance_1.access_ip_v4}"
 }
 `
 
 var testAccComputeV2FloatingIPAssociate_attachToFirstNetwork = fmt.Sprintf(`
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
 
@@ -240,36 +240,36 @@ resource "openstack_compute_instance_v2" "instance_1" {
   }
 }
 
-resource "openstack_networking_floatingip_v2" "fip_1" {
+resource "huaweicloud_networking_floatingip_v2" "fip_1" {
 }
 
-resource "openstack_compute_floatingip_associate_v2" "fip_1" {
-  floating_ip = "${openstack_networking_floatingip_v2.fip_1.address}"
-  instance_id = "${openstack_compute_instance_v2.instance_1.id}"
-  fixed_ip = "${openstack_compute_instance_v2.instance_1.network.0.fixed_ip_v4}"
+resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
+  floating_ip = "${huaweicloud_networking_floatingip_v2.fip_1.address}"
+  instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
+  fixed_ip = "${huaweicloud_compute_instance_v2.instance_1.network.0.fixed_ip_v4}"
 }
 `, OS_NETWORK_ID)
 
 var testAccComputeV2FloatingIPAssociate_attachToSecondNetwork = fmt.Sprintf(`
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   cidr = "192.168.1.0/24"
   ip_version = 4
   enable_dhcp = true
   no_gateway = true
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
 
   network {
-    uuid = "${openstack_networking_network_v2.network_1.id}"
+    uuid = "${huaweicloud_networking_network_v2.network_1.id}"
   }
 
   network {
@@ -277,48 +277,48 @@ resource "openstack_compute_instance_v2" "instance_1" {
   }
 }
 
-resource "openstack_networking_floatingip_v2" "fip_1" {
+resource "huaweicloud_networking_floatingip_v2" "fip_1" {
 }
 
-resource "openstack_compute_floatingip_associate_v2" "fip_1" {
-  floating_ip = "${openstack_networking_floatingip_v2.fip_1.address}"
-  instance_id = "${openstack_compute_instance_v2.instance_1.id}"
-  fixed_ip = "${openstack_compute_instance_v2.instance_1.network.1.fixed_ip_v4}"
+resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
+  floating_ip = "${huaweicloud_networking_floatingip_v2.fip_1.address}"
+  instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
+  fixed_ip = "${huaweicloud_compute_instance_v2.instance_1.network.1.fixed_ip_v4}"
 }
 `, OS_NETWORK_ID)
 
 const testAccComputeV2FloatingIPAssociate_attachNew_1 = `
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
 }
 
-resource "openstack_networking_floatingip_v2" "fip_1" {
+resource "huaweicloud_networking_floatingip_v2" "fip_1" {
 }
 
-resource "openstack_networking_floatingip_v2" "fip_2" {
+resource "huaweicloud_networking_floatingip_v2" "fip_2" {
 }
 
-resource "openstack_compute_floatingip_associate_v2" "fip_1" {
-  floating_ip = "${openstack_networking_floatingip_v2.fip_1.address}"
-  instance_id = "${openstack_compute_instance_v2.instance_1.id}"
+resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
+  floating_ip = "${huaweicloud_networking_floatingip_v2.fip_1.address}"
+  instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
 }
 `
 
 const testAccComputeV2FloatingIPAssociate_attachNew_2 = `
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
 }
 
-resource "openstack_networking_floatingip_v2" "fip_1" {
+resource "huaweicloud_networking_floatingip_v2" "fip_1" {
 }
 
-resource "openstack_networking_floatingip_v2" "fip_2" {
+resource "huaweicloud_networking_floatingip_v2" "fip_2" {
 }
 
-resource "openstack_compute_floatingip_associate_v2" "fip_1" {
-  floating_ip = "${openstack_networking_floatingip_v2.fip_2.address}"
-  instance_id = "${openstack_compute_instance_v2.instance_1.id}"
+resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
+  floating_ip = "${huaweicloud_networking_floatingip_v2.fip_2.address}"
+  instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
 }
 `

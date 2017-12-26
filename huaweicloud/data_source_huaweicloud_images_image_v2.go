@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -233,7 +233,7 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 
 // dataSourceImagesImageV2Attributes populates the fields of an Image resource.
 func dataSourceImagesImageV2Attributes(d *schema.ResourceData, image *images.Image) error {
-	log.Printf("[DEBUG] openstack_images_image details: %#v", image)
+	log.Printf("[DEBUG] huaweicloud_images_image details: %#v", image)
 
 	d.SetId(image.ID)
 	d.Set("name", image.Name)

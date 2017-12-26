@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -22,14 +22,14 @@ func TestAccFWFirewallV1_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccFWFirewallV1_basic_1,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFWFirewallV1("openstack_fw_firewall_v1.fw_1", "", "", policyID),
+					testAccCheckFWFirewallV1("huaweicloud_fw_firewall_v1.fw_1", "", "", policyID),
 				),
 			},
 			resource.TestStep{
 				Config: testAccFWFirewallV1_basic_2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWFirewallV1(
-						"openstack_fw_firewall_v1.fw_1", "fw_1", "terraform acceptance test", policyID),
+						"huaweicloud_fw_firewall_v1.fw_1", "fw_1", "terraform acceptance test", policyID),
 				),
 			},
 		},
@@ -47,7 +47,7 @@ func TestAccFWFirewallV1_router(t *testing.T) {
 			resource.TestStep{
 				Config: testAccFWFirewallV1_router,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFWFirewallV1Exists("openstack_fw_firewall_v1.fw_1", &firewall),
+					testAccCheckFWFirewallV1Exists("huaweicloud_fw_firewall_v1.fw_1", &firewall),
 					testAccCheckFWFirewallRouterCount(&firewall, 1),
 				),
 			},
@@ -66,8 +66,8 @@ func TestAccFWFirewallV1_no_router(t *testing.T) {
 			resource.TestStep{
 				Config: testAccFWFirewallV1_no_router,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFWFirewallV1Exists("openstack_fw_firewall_v1.fw_1", &firewall),
-					resource.TestCheckResourceAttr("openstack_fw_firewall_v1.fw_1", "description", "firewall router test"),
+					testAccCheckFWFirewallV1Exists("huaweicloud_fw_firewall_v1.fw_1", &firewall),
+					resource.TestCheckResourceAttr("huaweicloud_fw_firewall_v1.fw_1", "description", "firewall router test"),
 					testAccCheckFWFirewallRouterCount(&firewall, 0),
 				),
 			},
@@ -86,14 +86,14 @@ func TestAccFWFirewallV1_router_update(t *testing.T) {
 			resource.TestStep{
 				Config: testAccFWFirewallV1_router,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFWFirewallV1Exists("openstack_fw_firewall_v1.fw_1", &firewall),
+					testAccCheckFWFirewallV1Exists("huaweicloud_fw_firewall_v1.fw_1", &firewall),
 					testAccCheckFWFirewallRouterCount(&firewall, 1),
 				),
 			},
 			resource.TestStep{
 				Config: testAccFWFirewallV1_router_add,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFWFirewallV1Exists("openstack_fw_firewall_v1.fw_1", &firewall),
+					testAccCheckFWFirewallV1Exists("huaweicloud_fw_firewall_v1.fw_1", &firewall),
 					testAccCheckFWFirewallRouterCount(&firewall, 2),
 				),
 			},
@@ -112,14 +112,14 @@ func TestAccFWFirewallV1_router_remove(t *testing.T) {
 			resource.TestStep{
 				Config: testAccFWFirewallV1_router,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFWFirewallV1Exists("openstack_fw_firewall_v1.fw_1", &firewall),
+					testAccCheckFWFirewallV1Exists("huaweicloud_fw_firewall_v1.fw_1", &firewall),
 					testAccCheckFWFirewallRouterCount(&firewall, 1),
 				),
 			},
 			resource.TestStep{
 				Config: testAccFWFirewallV1_router_remove,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFWFirewallV1Exists("openstack_fw_firewall_v1.fw_1", &firewall),
+					testAccCheckFWFirewallV1Exists("huaweicloud_fw_firewall_v1.fw_1", &firewall),
 					testAccCheckFWFirewallRouterCount(&firewall, 0),
 				),
 			},
@@ -134,7 +134,7 @@ func testAccCheckFWFirewallV1Destroy(s *terraform.State) error {
 		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_firewall" {
+		if rs.Type != "huaweicloud_firewall" {
 			continue
 		}
 
@@ -248,8 +248,8 @@ func testAccCheckFWFirewallV1(n, expectedName, expectedDescription string, polic
 }
 
 const testAccFWFirewallV1_basic_1 = `
-resource "openstack_fw_firewall_v1" "fw_1" {
-  policy_id = "${openstack_fw_policy_v1.policy_1.id}"
+resource "huaweicloud_fw_firewall_v1" "fw_1" {
+  policy_id = "${huaweicloud_fw_policy_v1.policy_1.id}"
 
   timeouts {
     create = "5m"
@@ -258,16 +258,16 @@ resource "openstack_fw_firewall_v1" "fw_1" {
   }
 }
 
-resource "openstack_fw_policy_v1" "policy_1" {
+resource "huaweicloud_fw_policy_v1" "policy_1" {
   name = "policy_1"
 }
 `
 
 const testAccFWFirewallV1_basic_2 = `
-resource "openstack_fw_firewall_v1" "fw_1" {
+resource "huaweicloud_fw_firewall_v1" "fw_1" {
   name = "fw_1"
   description = "terraform acceptance test"
-  policy_id = "${openstack_fw_policy_v1.policy_2.id}"
+  policy_id = "${huaweicloud_fw_policy_v1.policy_2.id}"
   admin_state_up = true
 
   timeouts {
@@ -277,80 +277,80 @@ resource "openstack_fw_firewall_v1" "fw_1" {
   }
 }
 
-resource "openstack_fw_policy_v1" "policy_2" {
+resource "huaweicloud_fw_policy_v1" "policy_2" {
   name = "policy_2"
 }
 `
 
 const testAccFWFirewallV1_router = `
-resource "openstack_networking_router_v2" "router_1" {
+resource "huaweicloud_networking_router_v2" "router_1" {
   name = "router_1"
   admin_state_up = "true"
   distributed = "false"
 }
 
-resource "openstack_fw_policy_v1" "policy_1" {
+resource "huaweicloud_fw_policy_v1" "policy_1" {
   name = "policy_1"
 }
 
-resource "openstack_fw_firewall_v1" "fw_1" {
+resource "huaweicloud_fw_firewall_v1" "fw_1" {
   name = "firewall_1"
   description = "firewall router test"
-  policy_id = "${openstack_fw_policy_v1.policy_1.id}"
-  associated_routers = ["${openstack_networking_router_v2.router_1.id}"]
+  policy_id = "${huaweicloud_fw_policy_v1.policy_1.id}"
+  associated_routers = ["${huaweicloud_networking_router_v2.router_1.id}"]
 }
 `
 
 const testAccFWFirewallV1_router_add = `
-resource "openstack_networking_router_v2" "router_1" {
+resource "huaweicloud_networking_router_v2" "router_1" {
   name = "router_1"
   admin_state_up = "true"
   distributed = "false"
 }
 
-resource "openstack_networking_router_v2" "router_2" {
+resource "huaweicloud_networking_router_v2" "router_2" {
   name = "router_2"
   admin_state_up = "true"
   distributed = "false"
 }
 
-resource "openstack_fw_policy_v1" "policy_1" {
+resource "huaweicloud_fw_policy_v1" "policy_1" {
   name = "policy_1"
 }
 
-resource "openstack_fw_firewall_v1" "fw_1" {
+resource "huaweicloud_fw_firewall_v1" "fw_1" {
   name = "firewall_1"
   description = "firewall router test"
-  policy_id = "${openstack_fw_policy_v1.policy_1.id}"
+  policy_id = "${huaweicloud_fw_policy_v1.policy_1.id}"
   associated_routers = [
-    "${openstack_networking_router_v2.router_1.id}",
-    "${openstack_networking_router_v2.router_2.id}"
+    "${huaweicloud_networking_router_v2.router_1.id}",
+    "${huaweicloud_networking_router_v2.router_2.id}"
   ]
 }
 `
 
 const testAccFWFirewallV1_router_remove = `
-resource "openstack_fw_policy_v1" "policy_1" {
+resource "huaweicloud_fw_policy_v1" "policy_1" {
   name = "policy_1"
 }
 
-resource "openstack_fw_firewall_v1" "fw_1" {
+resource "huaweicloud_fw_firewall_v1" "fw_1" {
   name = "firewall_1"
   description = "firewall router test"
-  policy_id = "${openstack_fw_policy_v1.policy_1.id}"
+  policy_id = "${huaweicloud_fw_policy_v1.policy_1.id}"
   no_routers = true
 }
 `
 
 const testAccFWFirewallV1_no_router = `
-resource "openstack_fw_policy_v1" "policy_1" {
+resource "huaweicloud_fw_policy_v1" "policy_1" {
   name = "policy_1"
 }
 
-resource "openstack_fw_firewall_v1" "fw_1" {
+resource "huaweicloud_fw_firewall_v1" "fw_1" {
   name = "firewall_1"
   description = "firewall router test"
-  policy_id = "${openstack_fw_policy_v1.policy_1.id}"
+  policy_id = "${huaweicloud_fw_policy_v1.policy_1.id}"
   no_routers = true
 }
 `

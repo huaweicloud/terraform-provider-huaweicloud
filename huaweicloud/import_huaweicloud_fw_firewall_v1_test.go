@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccFWFirewallV1_importBasic(t *testing.T) {
-	resourceName := "openstack_fw_firewall_v1.fw_1"
+	resourceName := "huaweicloud_fw_firewall_v1.fw_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

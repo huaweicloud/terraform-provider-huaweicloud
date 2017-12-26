@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -24,36 +24,36 @@ func TestAccNetworkingV2RouterRoute_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccNetworkingV2RouterRoute_create,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2RouterExists("openstack_networking_router_v2.router_1", &router),
+					testAccCheckNetworkingV2RouterExists("huaweicloud_networking_router_v2.router_1", &router),
 					testAccCheckNetworkingV2NetworkExists(
-						"openstack_networking_network_v2.network_1", &network[0]),
+						"huaweicloud_networking_network_v2.network_1", &network[0]),
 					testAccCheckNetworkingV2SubnetExists(
-						"openstack_networking_subnet_v2.subnet_1", &subnet[0]),
+						"huaweicloud_networking_subnet_v2.subnet_1", &subnet[0]),
 					testAccCheckNetworkingV2NetworkExists(
-						"openstack_networking_network_v2.network_1", &network[1]),
+						"huaweicloud_networking_network_v2.network_1", &network[1]),
 					testAccCheckNetworkingV2SubnetExists(
-						"openstack_networking_subnet_v2.subnet_1", &subnet[1]),
+						"huaweicloud_networking_subnet_v2.subnet_1", &subnet[1]),
 					testAccCheckNetworkingV2RouterInterfaceExists(
-						"openstack_networking_router_interface_v2.int_1"),
+						"huaweicloud_networking_router_interface_v2.int_1"),
 					testAccCheckNetworkingV2RouterInterfaceExists(
-						"openstack_networking_router_interface_v2.int_2"),
+						"huaweicloud_networking_router_interface_v2.int_2"),
 					testAccCheckNetworkingV2RouterRouteExists(
-						"openstack_networking_router_route_v2.router_route_1"),
+						"huaweicloud_networking_router_route_v2.router_route_1"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccNetworkingV2RouterRoute_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2RouterRouteExists(
-						"openstack_networking_router_route_v2.router_route_1"),
+						"huaweicloud_networking_router_route_v2.router_route_1"),
 					testAccCheckNetworkingV2RouterRouteExists(
-						"openstack_networking_router_route_v2.router_route_2"),
+						"huaweicloud_networking_router_route_v2.router_route_2"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccNetworkingV2RouterRoute_destroy,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2RouterRouteEmpty("openstack_networking_router_v2.router_1"),
+					testAccCheckNetworkingV2RouterRouteEmpty("huaweicloud_networking_router_v2.router_1"),
 				),
 			},
 		},
@@ -142,7 +142,7 @@ func testAccCheckNetworkingV2RouterRouteDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_networking_router_route_v2" {
+		if rs.Type != "huaweicloud_networking_router_route_v2" {
 			continue
 		}
 
@@ -170,208 +170,208 @@ func testAccCheckNetworkingV2RouterRouteDestroy(s *terraform.State) error {
 }
 
 const testAccNetworkingV2RouterRoute_create = `
-resource "openstack_networking_router_v2" "router_1" {
+resource "huaweicloud_networking_router_v2" "router_1" {
   name = "router_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   cidr = "192.168.199.0/24"
   ip_version = 4
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
 }
 
-resource "openstack_networking_port_v2" "port_1" {
+resource "huaweicloud_networking_port_v2" "port_1" {
   name = "port_1"
   admin_state_up = "true"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
 
   fixed_ip {
-    subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+    subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
     ip_address = "192.168.199.1"
   }
 }
 
-resource "openstack_networking_router_interface_v2" "int_1" {
-  router_id = "${openstack_networking_router_v2.router_1.id}"
-  port_id = "${openstack_networking_port_v2.port_1.id}"
+resource "huaweicloud_networking_router_interface_v2" "int_1" {
+  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
+  port_id = "${huaweicloud_networking_port_v2.port_1.id}"
 }
 
-resource "openstack_networking_network_v2" "network_2" {
+resource "huaweicloud_networking_network_v2" "network_2" {
   name = "network_2"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_2" {
+resource "huaweicloud_networking_subnet_v2" "subnet_2" {
   cidr = "192.168.200.0/24"
   ip_version = 4
-  network_id = "${openstack_networking_network_v2.network_2.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_2.id}"
 }
 
-resource "openstack_networking_port_v2" "port_2" {
+resource "huaweicloud_networking_port_v2" "port_2" {
   name = "port_2"
   admin_state_up = "true"
-  network_id = "${openstack_networking_network_v2.network_2.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_2.id}"
 
   fixed_ip {
-    subnet_id = "${openstack_networking_subnet_v2.subnet_2.id}"
+    subnet_id = "${huaweicloud_networking_subnet_v2.subnet_2.id}"
     ip_address = "192.168.200.1"
   }
 }
 
-resource "openstack_networking_router_interface_v2" "int_2" {
-  router_id = "${openstack_networking_router_v2.router_1.id}"
-  port_id = "${openstack_networking_port_v2.port_2.id}"
+resource "huaweicloud_networking_router_interface_v2" "int_2" {
+  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
+  port_id = "${huaweicloud_networking_port_v2.port_2.id}"
 }
 
-resource "openstack_networking_router_route_v2" "router_route_1" {
+resource "huaweicloud_networking_router_route_v2" "router_route_1" {
   destination_cidr = "10.0.1.0/24"
   next_hop = "192.168.199.254"
 
-  depends_on = ["openstack_networking_router_interface_v2.int_1"]
-  router_id = "${openstack_networking_router_v2.router_1.id}"
+  depends_on = ["huaweicloud_networking_router_interface_v2.int_1"]
+  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
 }
 `
 
 const testAccNetworkingV2RouterRoute_update = `
-resource "openstack_networking_router_v2" "router_1" {
+resource "huaweicloud_networking_router_v2" "router_1" {
   name = "router_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   cidr = "192.168.199.0/24"
   ip_version = 4
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
 }
 
-resource "openstack_networking_port_v2" "port_1" {
+resource "huaweicloud_networking_port_v2" "port_1" {
   name = "port_1"
   admin_state_up = "true"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
 
   fixed_ip {
-    subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+    subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
     ip_address = "192.168.199.1"
   }
 }
 
-resource "openstack_networking_router_interface_v2" "int_1" {
-  router_id = "${openstack_networking_router_v2.router_1.id}"
-  port_id = "${openstack_networking_port_v2.port_1.id}"
+resource "huaweicloud_networking_router_interface_v2" "int_1" {
+  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
+  port_id = "${huaweicloud_networking_port_v2.port_1.id}"
 }
 
-resource "openstack_networking_network_v2" "network_2" {
+resource "huaweicloud_networking_network_v2" "network_2" {
   name = "network_2"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_2" {
+resource "huaweicloud_networking_subnet_v2" "subnet_2" {
   cidr = "192.168.200.0/24"
   ip_version = 4
-  network_id = "${openstack_networking_network_v2.network_2.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_2.id}"
 }
 
-resource "openstack_networking_port_v2" "port_2" {
+resource "huaweicloud_networking_port_v2" "port_2" {
   name = "port_2"
   admin_state_up = "true"
-  network_id = "${openstack_networking_network_v2.network_2.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_2.id}"
 
   fixed_ip {
-    subnet_id = "${openstack_networking_subnet_v2.subnet_2.id}"
+    subnet_id = "${huaweicloud_networking_subnet_v2.subnet_2.id}"
     ip_address = "192.168.200.1"
   }
 }
 
-resource "openstack_networking_router_interface_v2" "int_2" {
-  router_id = "${openstack_networking_router_v2.router_1.id}"
-  port_id = "${openstack_networking_port_v2.port_2.id}"
+resource "huaweicloud_networking_router_interface_v2" "int_2" {
+  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
+  port_id = "${huaweicloud_networking_port_v2.port_2.id}"
 }
 
-resource "openstack_networking_router_route_v2" "router_route_1" {
+resource "huaweicloud_networking_router_route_v2" "router_route_1" {
   destination_cidr = "10.0.1.0/24"
   next_hop = "192.168.199.254"
 
-  depends_on = ["openstack_networking_router_interface_v2.int_1"]
-  router_id = "${openstack_networking_router_v2.router_1.id}"
+  depends_on = ["huaweicloud_networking_router_interface_v2.int_1"]
+  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
 }
 
-resource "openstack_networking_router_route_v2" "router_route_2" {
+resource "huaweicloud_networking_router_route_v2" "router_route_2" {
   destination_cidr = "10.0.2.0/24"
   next_hop = "192.168.200.254"
 
-  depends_on = ["openstack_networking_router_interface_v2.int_2"]
-  router_id = "${openstack_networking_router_v2.router_1.id}"
+  depends_on = ["huaweicloud_networking_router_interface_v2.int_2"]
+  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
 }
 `
 
 const testAccNetworkingV2RouterRoute_destroy = `
-resource "openstack_networking_router_v2" "router_1" {
+resource "huaweicloud_networking_router_v2" "router_1" {
   name = "router_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   cidr = "192.168.199.0/24"
   ip_version = 4
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
 }
 
-resource "openstack_networking_port_v2" "port_1" {
+resource "huaweicloud_networking_port_v2" "port_1" {
   name = "port_1"
   admin_state_up = "true"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
 
   fixed_ip {
-    subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+    subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
     ip_address = "192.168.199.1"
   }
 }
 
-resource "openstack_networking_router_interface_v2" "int_1" {
-  router_id = "${openstack_networking_router_v2.router_1.id}"
-  port_id = "${openstack_networking_port_v2.port_1.id}"
+resource "huaweicloud_networking_router_interface_v2" "int_1" {
+  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
+  port_id = "${huaweicloud_networking_port_v2.port_1.id}"
 }
 
-resource "openstack_networking_network_v2" "network_2" {
+resource "huaweicloud_networking_network_v2" "network_2" {
   name = "network_2"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_2" {
+resource "huaweicloud_networking_subnet_v2" "subnet_2" {
   ip_version = 4
   cidr = "192.168.200.0/24"
-  network_id = "${openstack_networking_network_v2.network_2.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_2.id}"
 }
 
-resource "openstack_networking_port_v2" "port_2" {
+resource "huaweicloud_networking_port_v2" "port_2" {
   name = "port_2"
   admin_state_up = "true"
-  network_id = "${openstack_networking_network_v2.network_2.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_2.id}"
 
   fixed_ip {
-    subnet_id = "${openstack_networking_subnet_v2.subnet_2.id}"
+    subnet_id = "${huaweicloud_networking_subnet_v2.subnet_2.id}"
     ip_address = "192.168.200.1"
   }
 }
 
-resource "openstack_networking_router_interface_v2" "int_2" {
-  router_id = "${openstack_networking_router_v2.router_1.id}"
-  port_id = "${openstack_networking_port_v2.port_2.id}"
+resource "huaweicloud_networking_router_interface_v2" "int_2" {
+  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
+  port_id = "${huaweicloud_networking_port_v2.port_2.id}"
 }
 `

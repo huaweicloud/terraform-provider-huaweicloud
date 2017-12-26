@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -55,19 +55,19 @@ func TestAccFWRuleV1_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccFWRuleV1_basic_1,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFWRuleV1Exists("openstack_fw_rule_v1.rule_1", rule1),
+					testAccCheckFWRuleV1Exists("huaweicloud_fw_rule_v1.rule_1", rule1),
 				),
 			},
 			resource.TestStep{
 				Config: testAccFWRuleV1_basic_2,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFWRuleV1Exists("openstack_fw_rule_v1.rule_1", rule2),
+					testAccCheckFWRuleV1Exists("huaweicloud_fw_rule_v1.rule_1", rule2),
 				),
 			},
 			resource.TestStep{
 				Config: testAccFWRuleV1_basic_3,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFWRuleV1Exists("openstack_fw_rule_v1.rule_1", rule3),
+					testAccCheckFWRuleV1Exists("huaweicloud_fw_rule_v1.rule_1", rule3),
 				),
 			},
 		},
@@ -93,7 +93,7 @@ func TestAccFWRuleV1_anyProtocol(t *testing.T) {
 			resource.TestStep{
 				Config: testAccFWRuleV1_anyProtocol,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFWRuleV1Exists("openstack_fw_rule_v1.rule_1", rule),
+					testAccCheckFWRuleV1Exists("huaweicloud_fw_rule_v1.rule_1", rule),
 				),
 			},
 		},
@@ -108,7 +108,7 @@ func testAccCheckFWRuleV1Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_firewall_rule" {
+		if rs.Type != "huaweicloud_firewall_rule" {
 			continue
 		}
 		_, err = rules.Get(networkingClient, rs.Primary.ID).Extract()
@@ -168,7 +168,7 @@ func testAccCheckFWRuleV1Exists(n string, expected *rules.Rule) resource.TestChe
 }
 
 const testAccFWRuleV1_basic_1 = `
-resource "openstack_fw_rule_v1" "rule_1" {
+resource "huaweicloud_fw_rule_v1" "rule_1" {
 	name = "rule_1"
 	protocol = "udp"
 	action = "deny"
@@ -176,7 +176,7 @@ resource "openstack_fw_rule_v1" "rule_1" {
 `
 
 const testAccFWRuleV1_basic_2 = `
-resource "openstack_fw_rule_v1" "rule_1" {
+resource "huaweicloud_fw_rule_v1" "rule_1" {
 	name = "rule_1"
 	description = "Terraform accept test"
 	protocol = "udp"
@@ -191,7 +191,7 @@ resource "openstack_fw_rule_v1" "rule_1" {
 `
 
 const testAccFWRuleV1_basic_3 = `
-resource "openstack_fw_rule_v1" "rule_1" {
+resource "huaweicloud_fw_rule_v1" "rule_1" {
 	name = "rule_1"
 	description = "Terraform accept test updated"
 	protocol = "tcp"
@@ -206,7 +206,7 @@ resource "openstack_fw_rule_v1" "rule_1" {
 `
 
 const testAccFWRuleV1_anyProtocol = `
-resource "openstack_fw_rule_v1" "rule_1" {
+resource "huaweicloud_fw_rule_v1" "rule_1" {
 	name = "rule_1"
 	description = "Allow any protocol"
 	protocol = "any"

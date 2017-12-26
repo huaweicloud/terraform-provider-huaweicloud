@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccNetworkingV2Router_importBasic(t *testing.T) {
-	resourceName := "openstack_networking_router_v2.router_1"
+	resourceName := "huaweicloud_networking_router_v2.router_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

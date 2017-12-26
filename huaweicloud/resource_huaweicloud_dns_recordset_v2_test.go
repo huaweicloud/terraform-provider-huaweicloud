@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -28,23 +28,23 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccDNSV2RecordSet_basic(zoneName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2RecordSetExists("openstack_dns_recordset_v2.recordset_1", &recordset),
+					testAccCheckDNSV2RecordSetExists("huaweicloud_dns_recordset_v2.recordset_1", &recordset),
 					resource.TestCheckResourceAttr(
-						"openstack_dns_recordset_v2.recordset_1", "description", "a record set"),
+						"huaweicloud_dns_recordset_v2.recordset_1", "description", "a record set"),
 					resource.TestCheckResourceAttr(
-						"openstack_dns_recordset_v2.recordset_1", "records.0", "10.1.0.0"),
+						"huaweicloud_dns_recordset_v2.recordset_1", "records.0", "10.1.0.0"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccDNSV2RecordSet_update(zoneName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("openstack_dns_recordset_v2.recordset_1", "name", zoneName),
-					resource.TestCheckResourceAttr("openstack_dns_recordset_v2.recordset_1", "ttl", "6000"),
-					resource.TestCheckResourceAttr("openstack_dns_recordset_v2.recordset_1", "type", "A"),
+					resource.TestCheckResourceAttr("huaweicloud_dns_recordset_v2.recordset_1", "name", zoneName),
+					resource.TestCheckResourceAttr("huaweicloud_dns_recordset_v2.recordset_1", "ttl", "6000"),
+					resource.TestCheckResourceAttr("huaweicloud_dns_recordset_v2.recordset_1", "type", "A"),
 					resource.TestCheckResourceAttr(
-						"openstack_dns_recordset_v2.recordset_1", "description", "an updated record set"),
+						"huaweicloud_dns_recordset_v2.recordset_1", "description", "an updated record set"),
 					resource.TestCheckResourceAttr(
-						"openstack_dns_recordset_v2.recordset_1", "records.0", "10.1.0.1"),
+						"huaweicloud_dns_recordset_v2.recordset_1", "records.0", "10.1.0.1"),
 				),
 			},
 		},
@@ -63,9 +63,9 @@ func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 			resource.TestStep{
 				Config: testAccDNSV2RecordSet_readTTL(zoneName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2RecordSetExists("openstack_dns_recordset_v2.recordset_1", &recordset),
+					testAccCheckDNSV2RecordSetExists("huaweicloud_dns_recordset_v2.recordset_1", &recordset),
 					resource.TestMatchResourceAttr(
-						"openstack_dns_recordset_v2.recordset_1", "ttl", regexp.MustCompile("^[0-9]+$")),
+						"huaweicloud_dns_recordset_v2.recordset_1", "ttl", regexp.MustCompile("^[0-9]+$")),
 				),
 			},
 		},
@@ -84,7 +84,7 @@ func TestAccDNSV2RecordSet_timeout(t *testing.T) {
 			resource.TestStep{
 				Config: testAccDNSV2RecordSet_timeout(zoneName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2RecordSetExists("openstack_dns_recordset_v2.recordset_1", &recordset),
+					testAccCheckDNSV2RecordSetExists("huaweicloud_dns_recordset_v2.recordset_1", &recordset),
 				),
 			},
 		},
@@ -99,7 +99,7 @@ func testAccCheckDNSV2RecordSetDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_dns_recordset_v2" {
+		if rs.Type != "huaweicloud_dns_recordset_v2" {
 			continue
 		}
 
@@ -156,7 +156,7 @@ func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet)
 
 func testAccDNSV2RecordSet_basic(zoneName string) string {
 	return fmt.Sprintf(`
-		resource "openstack_dns_zone_v2" "zone_1" {
+		resource "huaweicloud_dns_zone_v2" "zone_1" {
 			name = "%s"
 			email = "email2@example.com"
 			description = "a zone"
@@ -164,8 +164,8 @@ func testAccDNSV2RecordSet_basic(zoneName string) string {
 			type = "PRIMARY"
 		}
 
-		resource "openstack_dns_recordset_v2" "recordset_1" {
-			zone_id = "${openstack_dns_zone_v2.zone_1.id}"
+		resource "huaweicloud_dns_recordset_v2" "recordset_1" {
+			zone_id = "${huaweicloud_dns_zone_v2.zone_1.id}"
 			name = "%s"
 			type = "A"
 			description = "a record set"
@@ -177,7 +177,7 @@ func testAccDNSV2RecordSet_basic(zoneName string) string {
 
 func testAccDNSV2RecordSet_update(zoneName string) string {
 	return fmt.Sprintf(`
-		resource "openstack_dns_zone_v2" "zone_1" {
+		resource "huaweicloud_dns_zone_v2" "zone_1" {
 			name = "%s"
 			email = "email2@example.com"
 			description = "an updated zone"
@@ -185,8 +185,8 @@ func testAccDNSV2RecordSet_update(zoneName string) string {
 			type = "PRIMARY"
 		}
 
-		resource "openstack_dns_recordset_v2" "recordset_1" {
-			zone_id = "${openstack_dns_zone_v2.zone_1.id}"
+		resource "huaweicloud_dns_recordset_v2" "recordset_1" {
+			zone_id = "${huaweicloud_dns_zone_v2.zone_1.id}"
 			name = "%s"
 			type = "A"
 			description = "an updated record set"
@@ -198,7 +198,7 @@ func testAccDNSV2RecordSet_update(zoneName string) string {
 
 func testAccDNSV2RecordSet_readTTL(zoneName string) string {
 	return fmt.Sprintf(`
-		resource "openstack_dns_zone_v2" "zone_1" {
+		resource "huaweicloud_dns_zone_v2" "zone_1" {
 			name = "%s"
 			email = "email2@example.com"
 			description = "an updated zone"
@@ -206,8 +206,8 @@ func testAccDNSV2RecordSet_readTTL(zoneName string) string {
 			type = "PRIMARY"
 		}
 
-		resource "openstack_dns_recordset_v2" "recordset_1" {
-			zone_id = "${openstack_dns_zone_v2.zone_1.id}"
+		resource "huaweicloud_dns_recordset_v2" "recordset_1" {
+			zone_id = "${huaweicloud_dns_zone_v2.zone_1.id}"
 			name = "%s"
 			type = "A"
 			records = ["10.1.0.2"]
@@ -217,7 +217,7 @@ func testAccDNSV2RecordSet_readTTL(zoneName string) string {
 
 func testAccDNSV2RecordSet_timeout(zoneName string) string {
 	return fmt.Sprintf(`
-		resource "openstack_dns_zone_v2" "zone_1" {
+		resource "huaweicloud_dns_zone_v2" "zone_1" {
 			name = "%s"
 			email = "email2@example.com"
 			description = "an updated zone"
@@ -225,8 +225,8 @@ func testAccDNSV2RecordSet_timeout(zoneName string) string {
 			type = "PRIMARY"
 		}
 
-		resource "openstack_dns_recordset_v2" "recordset_1" {
-			zone_id = "${openstack_dns_zone_v2.zone_1.id}"
+		resource "huaweicloud_dns_recordset_v2" "recordset_1" {
+			zone_id = "${huaweicloud_dns_zone_v2.zone_1.id}"
 			name = "%s"
 			type = "A"
 			ttl = 3000

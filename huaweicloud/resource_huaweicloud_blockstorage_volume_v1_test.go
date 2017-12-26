@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -22,19 +22,19 @@ func TestAccBlockStorageV1Volume_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccBlockStorageV1Volume_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBlockStorageV1VolumeExists("openstack_blockstorage_volume_v1.volume_1", &volume),
+					testAccCheckBlockStorageV1VolumeExists("huaweicloud_blockstorage_volume_v1.volume_1", &volume),
 					testAccCheckBlockStorageV1VolumeMetadata(&volume, "foo", "bar"),
 					resource.TestCheckResourceAttr(
-						"openstack_blockstorage_volume_v1.volume_1", "name", "volume_1"),
+						"huaweicloud_blockstorage_volume_v1.volume_1", "name", "volume_1"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccBlockStorageV1Volume_update,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBlockStorageV1VolumeExists("openstack_blockstorage_volume_v1.volume_1", &volume),
+					testAccCheckBlockStorageV1VolumeExists("huaweicloud_blockstorage_volume_v1.volume_1", &volume),
 					testAccCheckBlockStorageV1VolumeMetadata(&volume, "foo", "bar"),
 					resource.TestCheckResourceAttr(
-						"openstack_blockstorage_volume_v1.volume_1", "name", "volume_1-updated"),
+						"huaweicloud_blockstorage_volume_v1.volume_1", "name", "volume_1-updated"),
 				),
 			},
 		},
@@ -52,9 +52,9 @@ func TestAccBlockStorageV1Volume_image(t *testing.T) {
 			resource.TestStep{
 				Config: testAccBlockStorageV1Volume_image,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBlockStorageV1VolumeExists("openstack_blockstorage_volume_v1.volume_1", &volume),
+					testAccCheckBlockStorageV1VolumeExists("huaweicloud_blockstorage_volume_v1.volume_1", &volume),
 					resource.TestCheckResourceAttr(
-						"openstack_blockstorage_volume_v1.volume_1", "name", "volume_1"),
+						"huaweicloud_blockstorage_volume_v1.volume_1", "name", "volume_1"),
 				),
 			},
 		},
@@ -72,7 +72,7 @@ func TestAccBlockStorageV1Volume_timeout(t *testing.T) {
 			resource.TestStep{
 				Config: testAccBlockStorageV1Volume_timeout,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBlockStorageV1VolumeExists("openstack_blockstorage_volume_v1.volume_1", &volume),
+					testAccCheckBlockStorageV1VolumeExists("huaweicloud_blockstorage_volume_v1.volume_1", &volume),
 				),
 			},
 		},
@@ -87,7 +87,7 @@ func testAccCheckBlockStorageV1VolumeDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_blockstorage_volume_v1" {
+		if rs.Type != "huaweicloud_blockstorage_volume_v1" {
 			continue
 		}
 
@@ -177,7 +177,7 @@ func testAccCheckBlockStorageV1VolumeMetadata(
 }
 
 const testAccBlockStorageV1Volume_basic = `
-resource "openstack_blockstorage_volume_v1" "volume_1" {
+resource "huaweicloud_blockstorage_volume_v1" "volume_1" {
   name = "volume_1"
   description = "first test volume"
   availability_zone = "nova"
@@ -189,7 +189,7 @@ resource "openstack_blockstorage_volume_v1" "volume_1" {
 `
 
 const testAccBlockStorageV1Volume_update = `
-resource "openstack_blockstorage_volume_v1" "volume_1" {
+resource "huaweicloud_blockstorage_volume_v1" "volume_1" {
   name = "volume_1-updated"
   description = "first test volume"
   metadata {
@@ -200,7 +200,7 @@ resource "openstack_blockstorage_volume_v1" "volume_1" {
 `
 
 var testAccBlockStorageV1Volume_image = fmt.Sprintf(`
-resource "openstack_blockstorage_volume_v1" "volume_1" {
+resource "huaweicloud_blockstorage_volume_v1" "volume_1" {
   name = "volume_1"
   size = 5
   image_id = "%s"
@@ -208,7 +208,7 @@ resource "openstack_blockstorage_volume_v1" "volume_1" {
 `, OS_IMAGE_ID)
 
 const testAccBlockStorageV1Volume_timeout = `
-resource "openstack_blockstorage_volume_v1" "volume_1" {
+resource "huaweicloud_blockstorage_volume_v1" "volume_1" {
   name = "volume_1"
   description = "first test volume"
   size = 1

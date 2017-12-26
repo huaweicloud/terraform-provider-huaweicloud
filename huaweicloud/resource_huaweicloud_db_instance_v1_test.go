@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -21,25 +21,25 @@ func TestAccDatabaseV1Instance_basic(t *testing.T) {
 				Config: testAccDatabaseV1InstanceBasic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDatabaseV1InstanceExists(
-						"openstack_db_instance_v1.basic", &instance),
+						"huaweicloud_db_instance_v1.basic", &instance),
 					resource.TestCheckResourceAttr(
-						"openstack_db_instance_v1.basic", "name", "basic"),
+						"huaweicloud_db_instance_v1.basic", "name", "basic"),
 					resource.TestCheckResourceAttr(
-						"openstack_db_instance_v1.basic", "user.0.name", "testuser"),
+						"huaweicloud_db_instance_v1.basic", "user.0.name", "testuser"),
 					resource.TestCheckResourceAttr(
-						"openstack_db_instance_v1.basic", "user.0.password", "testpassword"),
+						"huaweicloud_db_instance_v1.basic", "user.0.password", "testpassword"),
 					resource.TestCheckResourceAttr(
-						"openstack_db_instance_v1.basic", "database.0.name", "testdb1"),
+						"huaweicloud_db_instance_v1.basic", "database.0.name", "testdb1"),
 					resource.TestCheckResourceAttr(
-						"openstack_db_instance_v1.basic", "database.0.charset", "utf8"),
+						"huaweicloud_db_instance_v1.basic", "database.0.charset", "utf8"),
 					resource.TestCheckResourceAttr(
-						"openstack_db_instance_v1.basic", "database.0.collate", "utf8_general_ci"),
+						"huaweicloud_db_instance_v1.basic", "database.0.collate", "utf8_general_ci"),
 					resource.TestCheckResourceAttr(
-						"openstack_db_instance_v1.basic", "database.1.name", "testdb2"),
+						"huaweicloud_db_instance_v1.basic", "database.1.name", "testdb2"),
 					resource.TestCheckResourceAttr(
-						"openstack_db_instance_v1.basic", "database.1.charset", "utf8"),
+						"huaweicloud_db_instance_v1.basic", "database.1.charset", "utf8"),
 					resource.TestCheckResourceAttr(
-						"openstack_db_instance_v1.basic", "database.1.collate", "utf8_general_ci"),
+						"huaweicloud_db_instance_v1.basic", "database.1.collate", "utf8_general_ci"),
 				),
 			},
 		},
@@ -79,7 +79,7 @@ func testAccCheckDatabaseV1InstanceExists(n string, instance *instances.Instance
 }
 
 var testAccDatabaseV1InstanceBasic = fmt.Sprintf(`
-resource "openstack_db_instance_v1" "basic" {
+resource "huaweicloud_db_instance_v1" "basic" {
   name = "basic"
 
   datastore {

@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccComputeV2Keypair_importBasic(t *testing.T) {
-	resourceName := "openstack_compute_keypair_v2.kp_1"
+	resourceName := "huaweicloud_compute_keypair_v2.kp_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

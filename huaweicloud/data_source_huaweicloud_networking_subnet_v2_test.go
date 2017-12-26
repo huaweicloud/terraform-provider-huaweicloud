@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -19,10 +19,10 @@ func TestAccNetworkingV2SubnetDataSource_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccOpenStackNetworkingSubnetV2DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingSubnetV2DataSourceID("data.openstack_networking_subnet_v2.subnet_1"),
-					testAccCheckNetworkingSubnetV2DataSourceGoodNetwork("data.openstack_networking_subnet_v2.subnet_1", "openstack_networking_network_v2.network_1"),
+					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
+					testAccCheckNetworkingSubnetV2DataSourceGoodNetwork("data.huaweicloud_networking_subnet_v2.subnet_1", "huaweicloud_networking_network_v2.network_1"),
 					resource.TestCheckResourceAttr(
-						"data.openstack_networking_subnet_v2.subnet_1", "name", "subnet_1"),
+						"data.huaweicloud_networking_subnet_v2.subnet_1", "name", "subnet_1"),
 				),
 			},
 		},
@@ -40,25 +40,25 @@ func TestAccNetworkingV2SubnetDataSource_testQueries(t *testing.T) {
 			resource.TestStep{
 				Config: testAccOpenStackNetworkingSubnetV2DataSource_cidr,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingSubnetV2DataSourceID("data.openstack_networking_subnet_v2.subnet_1"),
+					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccOpenStackNetworkingSubnetV2DataSource_dhcpEnabled,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingSubnetV2DataSourceID("data.openstack_networking_subnet_v2.subnet_1"),
+					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccOpenStackNetworkingSubnetV2DataSource_ipVersion,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingSubnetV2DataSourceID("data.openstack_networking_subnet_v2.subnet_1"),
+					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccOpenStackNetworkingSubnetV2DataSource_gatewayIP,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingSubnetV2DataSourceID("data.openstack_networking_subnet_v2.subnet_1"),
+					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
 				),
 			},
 		},
@@ -73,9 +73,9 @@ func TestAccNetworkingV2SubnetDataSource_networkIdAttribute(t *testing.T) {
 			resource.TestStep{
 				Config: testAccOpenStackNetworkingSubnetV2DataSource_networkIdAttribute,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingSubnetV2DataSourceID("data.openstack_networking_subnet_v2.subnet_1"),
-					testAccCheckNetworkingSubnetV2DataSourceGoodNetwork("data.openstack_networking_subnet_v2.subnet_1", "openstack_networking_network_v2.network_1"),
-					testAccCheckNetworkingPortV2ID("openstack_networking_port_v2.port_1"),
+					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
+					testAccCheckNetworkingSubnetV2DataSourceGoodNetwork("data.huaweicloud_networking_subnet_v2.subnet_1", "huaweicloud_networking_network_v2.network_1"),
+					testAccCheckNetworkingPortV2ID("huaweicloud_networking_port_v2.port_1"),
 				),
 			},
 		},
@@ -141,30 +141,30 @@ func testAccCheckNetworkingSubnetV2DataSourceGoodNetwork(n1, n2 string) resource
 }
 
 const testAccOpenStackNetworkingSubnetV2DataSource_subnet = `
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
   cidr = "192.168.199.0/24"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
 }
 `
 
 var testAccOpenStackNetworkingSubnetV2DataSource_basic = fmt.Sprintf(`
 %s
 
-data "openstack_networking_subnet_v2" "subnet_1" {
-	name = "${openstack_networking_subnet_v2.subnet_1.name}"
+data "huaweicloud_networking_subnet_v2" "subnet_1" {
+	name = "${huaweicloud_networking_subnet_v2.subnet_1.name}"
 }
 `, testAccOpenStackNetworkingSubnetV2DataSource_subnet)
 
 var testAccOpenStackNetworkingSubnetV2DataSource_cidr = fmt.Sprintf(`
 %s
 
-data "openstack_networking_subnet_v2" "subnet_1" {
+data "huaweicloud_networking_subnet_v2" "subnet_1" {
 	cidr = "192.168.199.0/24"
 }
 `, testAccOpenStackNetworkingSubnetV2DataSource_subnet)
@@ -172,8 +172,8 @@ data "openstack_networking_subnet_v2" "subnet_1" {
 var testAccOpenStackNetworkingSubnetV2DataSource_dhcpEnabled = fmt.Sprintf(`
 %s
 
-data "openstack_networking_subnet_v2" "subnet_1" {
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+data "huaweicloud_networking_subnet_v2" "subnet_1" {
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
 	dhcp_enabled = true
 }
 `, testAccOpenStackNetworkingSubnetV2DataSource_subnet)
@@ -181,8 +181,8 @@ data "openstack_networking_subnet_v2" "subnet_1" {
 var testAccOpenStackNetworkingSubnetV2DataSource_ipVersion = fmt.Sprintf(`
 %s
 
-data "openstack_networking_subnet_v2" "subnet_1" {
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+data "huaweicloud_networking_subnet_v2" "subnet_1" {
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   ip_version = 4
 }
 `, testAccOpenStackNetworkingSubnetV2DataSource_subnet)
@@ -190,21 +190,21 @@ data "openstack_networking_subnet_v2" "subnet_1" {
 var testAccOpenStackNetworkingSubnetV2DataSource_gatewayIP = fmt.Sprintf(`
 %s
 
-data "openstack_networking_subnet_v2" "subnet_1" {
-  gateway_ip = "${openstack_networking_subnet_v2.subnet_1.gateway_ip}"
+data "huaweicloud_networking_subnet_v2" "subnet_1" {
+  gateway_ip = "${huaweicloud_networking_subnet_v2.subnet_1.gateway_ip}"
 }
 `, testAccOpenStackNetworkingSubnetV2DataSource_subnet)
 
 var testAccOpenStackNetworkingSubnetV2DataSource_networkIdAttribute = fmt.Sprintf(`
 %s
 
-data "openstack_networking_subnet_v2" "subnet_1" {
-  subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+data "huaweicloud_networking_subnet_v2" "subnet_1" {
+  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
 }
 
-resource "openstack_networking_port_v2" "port_1" {
+resource "huaweicloud_networking_port_v2" "port_1" {
   name               = "test_port"
-  network_id         = "${data.openstack_networking_subnet_v2.subnet_1.network_id}"
+  network_id         = "${data.huaweicloud_networking_subnet_v2.subnet_1.network_id}"
   admin_state_up  = "true"
 }
 

@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -21,15 +21,15 @@ func TestAccLBV2Member_basic(t *testing.T) {
 			resource.TestStep{
 				Config: TestAccLBV2MemberConfig_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2MemberExists("openstack_lb_member_v2.member_1", &member_1),
-					testAccCheckLBV2MemberExists("openstack_lb_member_v2.member_2", &member_2),
+					testAccCheckLBV2MemberExists("huaweicloud_lb_member_v2.member_1", &member_1),
+					testAccCheckLBV2MemberExists("huaweicloud_lb_member_v2.member_2", &member_2),
 				),
 			},
 			resource.TestStep{
 				Config: TestAccLBV2MemberConfig_update,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("openstack_lb_member_v2.member_1", "weight", "10"),
-					resource.TestCheckResourceAttr("openstack_lb_member_v2.member_2", "weight", "15"),
+					resource.TestCheckResourceAttr("huaweicloud_lb_member_v2.member_1", "weight", "10"),
+					resource.TestCheckResourceAttr("huaweicloud_lb_member_v2.member_2", "weight", "15"),
 				),
 			},
 		},
@@ -44,7 +44,7 @@ func testAccCheckLBV2MemberDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_lb_member_v2" {
+		if rs.Type != "huaweicloud_lb_member_v2" {
 			continue
 		}
 
@@ -92,42 +92,42 @@ func testAccCheckLBV2MemberExists(n string, member *pools.Member) resource.TestC
 }
 
 const TestAccLBV2MemberConfig_basic = `
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   cidr = "192.168.199.0/24"
   ip_version = 4
 }
 
-resource "openstack_lb_loadbalancer_v2" "loadbalancer_1" {
+resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1"
-  vip_subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+  vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
 }
 
-resource "openstack_lb_listener_v2" "listener_1" {
+resource "huaweicloud_lb_listener_v2" "listener_1" {
   name = "listener_1"
   protocol = "HTTP"
   protocol_port = 8080
-  loadbalancer_id = "${openstack_lb_loadbalancer_v2.loadbalancer_1.id}"
+  loadbalancer_id = "${huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id}"
 }
 
-resource "openstack_lb_pool_v2" "pool_1" {
+resource "huaweicloud_lb_pool_v2" "pool_1" {
   name = "pool_1"
   protocol = "HTTP"
   lb_method = "ROUND_ROBIN"
-  listener_id = "${openstack_lb_listener_v2.listener_1.id}"
+  listener_id = "${huaweicloud_lb_listener_v2.listener_1.id}"
 }
 
-resource "openstack_lb_member_v2" "member_1" {
+resource "huaweicloud_lb_member_v2" "member_1" {
   address = "192.168.199.10"
   protocol_port = 8080
-  pool_id = "${openstack_lb_pool_v2.pool_1.id}"
-  subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+  pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
+  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
 
   timeouts {
     create = "5m"
@@ -136,11 +136,11 @@ resource "openstack_lb_member_v2" "member_1" {
   }
 }
 
-resource "openstack_lb_member_v2" "member_2" {
+resource "huaweicloud_lb_member_v2" "member_2" {
   address = "192.168.199.11"
   protocol_port = 8080
-  pool_id = "${openstack_lb_pool_v2.pool_1.id}"
-  subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+  pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
+  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
 
   timeouts {
     create = "5m"
@@ -151,44 +151,44 @@ resource "openstack_lb_member_v2" "member_2" {
 `
 
 const TestAccLBV2MemberConfig_update = `
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
   cidr = "192.168.199.0/24"
   ip_version = 4
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
 }
 
-resource "openstack_lb_loadbalancer_v2" "loadbalancer_1" {
+resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1"
-  vip_subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+  vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
 }
 
-resource "openstack_lb_listener_v2" "listener_1" {
+resource "huaweicloud_lb_listener_v2" "listener_1" {
   name = "listener_1"
   protocol = "HTTP"
   protocol_port = 8080
-  loadbalancer_id = "${openstack_lb_loadbalancer_v2.loadbalancer_1.id}"
+  loadbalancer_id = "${huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id}"
 }
 
-resource "openstack_lb_pool_v2" "pool_1" {
+resource "huaweicloud_lb_pool_v2" "pool_1" {
   name = "pool_1"
   protocol = "HTTP"
   lb_method = "ROUND_ROBIN"
-  listener_id = "${openstack_lb_listener_v2.listener_1.id}"
+  listener_id = "${huaweicloud_lb_listener_v2.listener_1.id}"
 }
 
-resource "openstack_lb_member_v2" "member_1" {
+resource "huaweicloud_lb_member_v2" "member_1" {
   address = "192.168.199.10"
   protocol_port = 8080
   weight = 10
   admin_state_up = "true"
-  pool_id = "${openstack_lb_pool_v2.pool_1.id}"
-  subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+  pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
+  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
 
   timeouts {
     create = "5m"
@@ -197,13 +197,13 @@ resource "openstack_lb_member_v2" "member_1" {
   }
 }
 
-resource "openstack_lb_member_v2" "member_2" {
+resource "huaweicloud_lb_member_v2" "member_2" {
   address = "192.168.199.11"
   protocol_port = 8080
   weight = 15
   admin_state_up = "true"
-  pool_id = "${openstack_lb_pool_v2.pool_1.id}"
-  subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+  pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
+  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
 
   timeouts {
     create = "5m"

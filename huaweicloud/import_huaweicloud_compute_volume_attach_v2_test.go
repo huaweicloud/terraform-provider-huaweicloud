@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccComputeV2VolumeAttach_importBasic(t *testing.T) {
-	resourceName := "openstack_compute_volume_attach_v2.va_1"
+	resourceName := "huaweicloud_compute_volume_attach_v2.va_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

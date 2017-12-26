@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccIdentityV3User_importBasic(t *testing.T) {
-	resourceName := "openstack_identity_user_v3.user_1"
+	resourceName := "huaweicloud_identity_user_v3.user_1"
 	var userName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
 	var projectName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
 

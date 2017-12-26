@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -22,13 +22,13 @@ func TestAccOpenStackDNSZoneV2DataSource_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccOpenStackDNSZoneV2DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSZoneV2DataSourceID("data.openstack_dns_zone_v2.z1"),
+					testAccCheckDNSZoneV2DataSourceID("data.huaweicloud_dns_zone_v2.z1"),
 					resource.TestCheckResourceAttr(
-						"data.openstack_dns_zone_v2.z1", "name", zoneName),
+						"data.huaweicloud_dns_zone_v2.z1", "name", zoneName),
 					resource.TestCheckResourceAttr(
-						"data.openstack_dns_zone_v2.z1", "type", "PRIMARY"),
+						"data.huaweicloud_dns_zone_v2.z1", "type", "PRIMARY"),
 					resource.TestCheckResourceAttr(
-						"data.openstack_dns_zone_v2.z1", "ttl", "7200"),
+						"data.huaweicloud_dns_zone_v2.z1", "ttl", "7200"),
 				),
 			},
 		},
@@ -51,7 +51,7 @@ func testAccCheckDNSZoneV2DataSourceID(n string) resource.TestCheckFunc {
 }
 
 var testAccOpenStackDNSZoneV2DataSource_zone = fmt.Sprintf(`
-resource "openstack_dns_zone_v2" "z1" {
+resource "huaweicloud_dns_zone_v2" "z1" {
   name = "%s"
   email = "terraform-dns-zone-v2-test-name@example.com"
   type = "PRIMARY"
@@ -60,7 +60,7 @@ resource "openstack_dns_zone_v2" "z1" {
 
 var testAccOpenStackDNSZoneV2DataSource_basic = fmt.Sprintf(`
 %s
-data "openstack_dns_zone_v2" "z1" {
-	name = "${openstack_dns_zone_v2.z1.name}"
+data "huaweicloud_dns_zone_v2" "z1" {
+	name = "${huaweicloud_dns_zone_v2.z1.name}"
 }
 `, testAccOpenStackDNSZoneV2DataSource_zone)

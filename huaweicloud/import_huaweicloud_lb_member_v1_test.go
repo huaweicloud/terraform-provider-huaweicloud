@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccLBV1Member_importBasic(t *testing.T) {
-	resourceName := "openstack_lb_member_v1.member_1"
+	resourceName := "huaweicloud_lb_member_v1.member_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },

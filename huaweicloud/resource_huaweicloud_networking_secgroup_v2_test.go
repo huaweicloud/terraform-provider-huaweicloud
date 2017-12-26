@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 				Config: testAccNetworkingV2SecGroup_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2SecGroupExists(
-						"openstack_networking_secgroup_v2.secgroup_1", &security_group),
+						"huaweicloud_networking_secgroup_v2.secgroup_1", &security_group),
 					testAccCheckNetworkingV2SecGroupRuleCount(&security_group, 2),
 				),
 			},
@@ -30,9 +30,9 @@ func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 				Config: testAccNetworkingV2SecGroup_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPtr(
-						"openstack_networking_secgroup_v2.secgroup_1", "id", &security_group.ID),
+						"huaweicloud_networking_secgroup_v2.secgroup_1", "id", &security_group.ID),
 					resource.TestCheckResourceAttr(
-						"openstack_networking_secgroup_v2.secgroup_1", "name", "security_group_2"),
+						"huaweicloud_networking_secgroup_v2.secgroup_1", "name", "security_group_2"),
 				),
 			},
 		},
@@ -51,7 +51,7 @@ func TestAccNetworkingV2SecGroup_noDefaultRules(t *testing.T) {
 				Config: testAccNetworkingV2SecGroup_noDefaultRules,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2SecGroupExists(
-						"openstack_networking_secgroup_v2.secgroup_1", &security_group),
+						"huaweicloud_networking_secgroup_v2.secgroup_1", &security_group),
 					testAccCheckNetworkingV2SecGroupRuleCount(&security_group, 0),
 				),
 			},
@@ -71,7 +71,7 @@ func TestAccNetworkingV2SecGroup_timeout(t *testing.T) {
 				Config: testAccNetworkingV2SecGroup_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2SecGroupExists(
-						"openstack_networking_secgroup_v2.secgroup_1", &security_group),
+						"huaweicloud_networking_secgroup_v2.secgroup_1", &security_group),
 				),
 			},
 		},
@@ -86,7 +86,7 @@ func testAccCheckNetworkingV2SecGroupDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_networking_secgroup_v2" {
+		if rs.Type != "huaweicloud_networking_secgroup_v2" {
 			continue
 		}
 
@@ -144,21 +144,21 @@ func testAccCheckNetworkingV2SecGroupRuleCount(
 }
 
 const testAccNetworkingV2SecGroup_basic = `
-resource "openstack_networking_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name = "security_group"
   description = "terraform security group acceptance test"
 }
 `
 
 const testAccNetworkingV2SecGroup_update = `
-resource "openstack_networking_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name = "security_group_2"
   description = "terraform security group acceptance test"
 }
 `
 
 const testAccNetworkingV2SecGroup_noDefaultRules = `
-resource "openstack_networking_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
 	name = "security_group_1"
 	description = "terraform security group acceptance test"
 	delete_default_rules = true
@@ -166,7 +166,7 @@ resource "openstack_networking_secgroup_v2" "secgroup_1" {
 `
 
 const testAccNetworkingV2SecGroup_timeout = `
-resource "openstack_networking_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name = "security_group"
   description = "terraform security group acceptance test"
 

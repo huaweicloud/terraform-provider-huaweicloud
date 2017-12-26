@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -19,11 +19,11 @@ func TestAccOpenStackNetworkingNetworkV2DataSource_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccOpenStackNetworkingNetworkV2DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingNetworkV2DataSourceID("data.openstack_networking_network_v2.net"),
+					testAccCheckNetworkingNetworkV2DataSourceID("data.huaweicloud_networking_network_v2.net"),
 					resource.TestCheckResourceAttr(
-						"data.openstack_networking_network_v2.net", "name", "tf_test_network"),
+						"data.huaweicloud_networking_network_v2.net", "name", "tf_test_network"),
 					resource.TestCheckResourceAttr(
-						"data.openstack_networking_network_v2.net", "admin_state_up", "true"),
+						"data.huaweicloud_networking_network_v2.net", "admin_state_up", "true"),
 				),
 			},
 		},
@@ -41,11 +41,11 @@ func TestAccOpenStackNetworkingNetworkV2DataSource_subnet(t *testing.T) {
 			resource.TestStep{
 				Config: testAccOpenStackNetworkingNetworkV2DataSource_subnet,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingNetworkV2DataSourceID("data.openstack_networking_network_v2.net"),
+					testAccCheckNetworkingNetworkV2DataSourceID("data.huaweicloud_networking_network_v2.net"),
 					resource.TestCheckResourceAttr(
-						"data.openstack_networking_network_v2.net", "name", "tf_test_network"),
+						"data.huaweicloud_networking_network_v2.net", "name", "tf_test_network"),
 					resource.TestCheckResourceAttr(
-						"data.openstack_networking_network_v2.net", "admin_state_up", "true"),
+						"data.huaweicloud_networking_network_v2.net", "admin_state_up", "true"),
 				),
 			},
 		},
@@ -63,11 +63,11 @@ func TestAccOpenStackNetworkingNetworkV2DataSource_networkID(t *testing.T) {
 			resource.TestStep{
 				Config: testAccOpenStackNetworkingNetworkV2DataSource_networkID,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingNetworkV2DataSourceID("data.openstack_networking_network_v2.net"),
+					testAccCheckNetworkingNetworkV2DataSourceID("data.huaweicloud_networking_network_v2.net"),
 					resource.TestCheckResourceAttr(
-						"data.openstack_networking_network_v2.net", "name", "tf_test_network"),
+						"data.huaweicloud_networking_network_v2.net", "name", "tf_test_network"),
 					resource.TestCheckResourceAttr(
-						"data.openstack_networking_network_v2.net", "admin_state_up", "true"),
+						"data.huaweicloud_networking_network_v2.net", "admin_state_up", "true"),
 				),
 			},
 		},
@@ -90,39 +90,39 @@ func testAccCheckNetworkingNetworkV2DataSourceID(n string) resource.TestCheckFun
 }
 
 const testAccOpenStackNetworkingNetworkV2DataSource_network = `
-resource "openstack_networking_network_v2" "net" {
+resource "huaweicloud_networking_network_v2" "net" {
         name = "tf_test_network"
         admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet" {
+resource "huaweicloud_networking_subnet_v2" "subnet" {
   name = "tf_test_subnet"
   cidr = "192.168.199.0/24"
   no_gateway = true
-  network_id = "${openstack_networking_network_v2.net.id}"
+  network_id = "${huaweicloud_networking_network_v2.net.id}"
 }
 `
 
 var testAccOpenStackNetworkingNetworkV2DataSource_basic = fmt.Sprintf(`
 %s
 
-data "openstack_networking_network_v2" "net" {
-	name = "${openstack_networking_network_v2.net.name}"
+data "huaweicloud_networking_network_v2" "net" {
+	name = "${huaweicloud_networking_network_v2.net.name}"
 }
 `, testAccOpenStackNetworkingNetworkV2DataSource_network)
 
 var testAccOpenStackNetworkingNetworkV2DataSource_subnet = fmt.Sprintf(`
 %s
 
-data "openstack_networking_network_v2" "net" {
-	matching_subnet_cidr = "${openstack_networking_subnet_v2.subnet.cidr}"
+data "huaweicloud_networking_network_v2" "net" {
+	matching_subnet_cidr = "${huaweicloud_networking_subnet_v2.subnet.cidr}"
 }
 `, testAccOpenStackNetworkingNetworkV2DataSource_network)
 
 var testAccOpenStackNetworkingNetworkV2DataSource_networkID = fmt.Sprintf(`
 %s
 
-data "openstack_networking_network_v2" "net" {
-	network_id = "${openstack_networking_network_v2.net.id}"
+data "huaweicloud_networking_network_v2" "net" {
+	network_id = "${huaweicloud_networking_network_v2.net.id}"
 }
 `, testAccOpenStackNetworkingNetworkV2DataSource_network)

@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ func TestAccComputeV2SecGroup_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2SecGroup_basic_orig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_1", &secgroup),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_1", &secgroup),
 				),
 			},
 		},
@@ -39,13 +39,13 @@ func TestAccComputeV2SecGroup_update(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2SecGroup_basic_orig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_1", &secgroup),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_1", &secgroup),
 				),
 			},
 			resource.TestStep{
 				Config: testAccComputeV2SecGroup_basic_update,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_1", &secgroup),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_1", &secgroup),
 					testAccCheckComputeV2SecGroupRuleCount(&secgroup, 2),
 				),
 			},
@@ -64,18 +64,18 @@ func TestAccComputeV2SecGroup_groupID(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2SecGroup_groupID_orig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_1", &secgroup1),
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_2", &secgroup2),
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_3", &secgroup3),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_1", &secgroup1),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_2", &secgroup2),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_3", &secgroup3),
 					testAccCheckComputeV2SecGroupGroupIDMatch(&secgroup1, &secgroup3),
 				),
 			},
 			resource.TestStep{
 				Config: testAccComputeV2SecGroup_groupID_update,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_1", &secgroup1),
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_2", &secgroup2),
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_3", &secgroup3),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_1", &secgroup1),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_2", &secgroup2),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_3", &secgroup3),
 					testAccCheckComputeV2SecGroupGroupIDMatch(&secgroup2, &secgroup3),
 				),
 			},
@@ -94,12 +94,12 @@ func TestAccComputeV2SecGroup_self(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2SecGroup_self,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_1", &secgroup),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_1", &secgroup),
 					testAccCheckComputeV2SecGroupGroupIDMatch(&secgroup, &secgroup),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_secgroup_v2.sg_1", "rule.3170486100.self", "true"),
+						"huaweicloud_compute_secgroup_v2.sg_1", "rule.3170486100.self", "true"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_secgroup_v2.sg_1", "rule.3170486100.from_group_id", ""),
+						"huaweicloud_compute_secgroup_v2.sg_1", "rule.3170486100.from_group_id", ""),
 				),
 			},
 		},
@@ -117,7 +117,7 @@ func TestAccComputeV2SecGroup_icmpZero(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2SecGroup_icmpZero,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_1", &secgroup),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_1", &secgroup),
 				),
 			},
 		},
@@ -135,9 +135,9 @@ func TestAccComputeV2SecGroup_lowerCaseCIDR(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2SecGroup_lowerCaseCIDR,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_1", &secgroup),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_1", &secgroup),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_secgroup_v2.sg_1", "rule.3862435458.cidr", "2001:558:fc00::/39"),
+						"huaweicloud_compute_secgroup_v2.sg_1", "rule.3862435458.cidr", "2001:558:fc00::/39"),
 				),
 			},
 		},
@@ -155,7 +155,7 @@ func TestAccComputeV2SecGroup_timeout(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2SecGroup_timeout,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists("openstack_compute_secgroup_v2.sg_1", &secgroup),
+					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_1", &secgroup),
 				),
 			},
 		},
@@ -170,7 +170,7 @@ func testAccCheckComputeV2SecGroupDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_compute_secgroup_v2" {
+		if rs.Type != "huaweicloud_compute_secgroup_v2" {
 			continue
 		}
 
@@ -240,7 +240,7 @@ func testAccCheckComputeV2SecGroupGroupIDMatch(sg1, sg2 *secgroups.SecurityGroup
 }
 
 const testAccComputeV2SecGroup_basic_orig = `
-resource "openstack_compute_secgroup_v2" "sg_1" {
+resource "huaweicloud_compute_secgroup_v2" "sg_1" {
   name = "sg_1"
   description = "first test security group"
   rule {
@@ -265,7 +265,7 @@ resource "openstack_compute_secgroup_v2" "sg_1" {
 `
 
 const testAccComputeV2SecGroup_basic_update = `
-resource "openstack_compute_secgroup_v2" "sg_1" {
+resource "huaweicloud_compute_secgroup_v2" "sg_1" {
   name = "sg_1"
   description = "first test security group"
   rule {
@@ -284,7 +284,7 @@ resource "openstack_compute_secgroup_v2" "sg_1" {
 `
 
 const testAccComputeV2SecGroup_groupID_orig = `
-resource "openstack_compute_secgroup_v2" "sg_1" {
+resource "huaweicloud_compute_secgroup_v2" "sg_1" {
   name = "sg_1"
   description = "first test security group"
   rule {
@@ -295,7 +295,7 @@ resource "openstack_compute_secgroup_v2" "sg_1" {
   }
 }
 
-resource "openstack_compute_secgroup_v2" "sg_2" {
+resource "huaweicloud_compute_secgroup_v2" "sg_2" {
   name = "sg_2"
   description = "second test security group"
   rule {
@@ -306,20 +306,20 @@ resource "openstack_compute_secgroup_v2" "sg_2" {
   }
 }
 
-resource "openstack_compute_secgroup_v2" "sg_3" {
+resource "huaweicloud_compute_secgroup_v2" "sg_3" {
   name = "sg_3"
   description = "third test security group"
   rule {
     from_port = 80
     to_port = 80
     ip_protocol = "tcp"
-    from_group_id = "${openstack_compute_secgroup_v2.sg_1.id}"
+    from_group_id = "${huaweicloud_compute_secgroup_v2.sg_1.id}"
   }
 }
 `
 
 const testAccComputeV2SecGroup_groupID_update = `
-resource "openstack_compute_secgroup_v2" "sg_1" {
+resource "huaweicloud_compute_secgroup_v2" "sg_1" {
   name = "sg_1"
   description = "first test security group"
   rule {
@@ -330,7 +330,7 @@ resource "openstack_compute_secgroup_v2" "sg_1" {
   }
 }
 
-resource "openstack_compute_secgroup_v2" "sg_2" {
+resource "huaweicloud_compute_secgroup_v2" "sg_2" {
   name = "sg_2"
   description = "second test security group"
   rule {
@@ -341,20 +341,20 @@ resource "openstack_compute_secgroup_v2" "sg_2" {
   }
 }
 
-resource "openstack_compute_secgroup_v2" "sg_3" {
+resource "huaweicloud_compute_secgroup_v2" "sg_3" {
   name = "sg_3"
   description = "third test security group"
   rule {
     from_port = 80
     to_port = 80
     ip_protocol = "tcp"
-    from_group_id = "${openstack_compute_secgroup_v2.sg_2.id}"
+    from_group_id = "${huaweicloud_compute_secgroup_v2.sg_2.id}"
   }
 }
 `
 
 const testAccComputeV2SecGroup_self = `
-resource "openstack_compute_secgroup_v2" "sg_1" {
+resource "huaweicloud_compute_secgroup_v2" "sg_1" {
   name = "sg_1"
   description = "first test security group"
   rule {
@@ -367,7 +367,7 @@ resource "openstack_compute_secgroup_v2" "sg_1" {
 `
 
 const testAccComputeV2SecGroup_icmpZero = `
-resource "openstack_compute_secgroup_v2" "sg_1" {
+resource "huaweicloud_compute_secgroup_v2" "sg_1" {
   name = "sg_1"
   description = "first test security group"
   rule {
@@ -380,7 +380,7 @@ resource "openstack_compute_secgroup_v2" "sg_1" {
 `
 
 const testAccComputeV2SecGroup_lowerCaseCIDR = `
-resource "openstack_compute_secgroup_v2" "sg_1" {
+resource "huaweicloud_compute_secgroup_v2" "sg_1" {
   name = "sg_1"
   description = "first test security group"
   rule {
@@ -393,7 +393,7 @@ resource "openstack_compute_secgroup_v2" "sg_1" {
 `
 
 const testAccComputeV2SecGroup_timeout = `
-resource "openstack_compute_secgroup_v2" "sg_1" {
+resource "huaweicloud_compute_secgroup_v2" "sg_1" {
   name = "sg_1"
   description = "first test security group"
   rule {

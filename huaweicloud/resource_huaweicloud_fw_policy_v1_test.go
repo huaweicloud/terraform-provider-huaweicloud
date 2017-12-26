@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ func TestAccFWPolicyV1_basic(t *testing.T) {
 				Config: testAccFWPolicyV1_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWPolicyV1Exists(
-						"openstack_fw_policy_v1.policy_1", "", "", 0),
+						"huaweicloud_fw_policy_v1.policy_1", "", "", 0),
 				),
 			},
 		},
@@ -38,7 +38,7 @@ func TestAccFWPolicyV1_addRules(t *testing.T) {
 				Config: testAccFWPolicyV1_addRules,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWPolicyV1Exists(
-						"openstack_fw_policy_v1.policy_1", "policy_1", "terraform acceptance test", 2),
+						"huaweicloud_fw_policy_v1.policy_1", "policy_1", "terraform acceptance test", 2),
 				),
 			},
 		},
@@ -55,7 +55,7 @@ func TestAccFWPolicyV1_deleteRules(t *testing.T) {
 				Config: testAccFWPolicyV1_deleteRules,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWPolicyV1Exists(
-						"openstack_fw_policy_v1.policy_1", "policy_1", "terraform acceptance test", 1),
+						"huaweicloud_fw_policy_v1.policy_1", "policy_1", "terraform acceptance test", 1),
 				),
 			},
 		},
@@ -72,7 +72,7 @@ func TestAccFWPolicyV1_timeout(t *testing.T) {
 				Config: testAccFWPolicyV1_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWPolicyV1Exists(
-						"openstack_fw_policy_v1.policy_1", "", "", 0),
+						"huaweicloud_fw_policy_v1.policy_1", "", "", 0),
 				),
 			},
 		},
@@ -86,7 +86,7 @@ func testAccCheckFWPolicyV1Destroy(s *terraform.State) error {
 		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_fw_policy_v1" {
+		if rs.Type != "huaweicloud_fw_policy_v1" {
 			continue
 		}
 		_, err = policies.Get(networkingClient, rs.Primary.ID).Extract()
@@ -150,48 +150,48 @@ func testAccCheckFWPolicyV1Exists(n, name, description string, ruleCount int) re
 }
 
 const testAccFWPolicyV1_basic = `
-resource "openstack_fw_policy_v1" "policy_1" {
+resource "huaweicloud_fw_policy_v1" "policy_1" {
 }
 `
 
 const testAccFWPolicyV1_addRules = `
-resource "openstack_fw_policy_v1" "policy_1" {
+resource "huaweicloud_fw_policy_v1" "policy_1" {
   name = "policy_1"
   description =  "terraform acceptance test"
   rules = [
-    "${openstack_fw_rule_v1.udp_deny.id}",
-    "${openstack_fw_rule_v1.tcp_allow.id}"
+    "${huaweicloud_fw_rule_v1.udp_deny.id}",
+    "${huaweicloud_fw_rule_v1.tcp_allow.id}"
   ]
 }
 
-resource "openstack_fw_rule_v1" "tcp_allow" {
+resource "huaweicloud_fw_rule_v1" "tcp_allow" {
   protocol = "tcp"
   action = "allow"
 }
 
-resource "openstack_fw_rule_v1" "udp_deny" {
+resource "huaweicloud_fw_rule_v1" "udp_deny" {
   protocol = "udp"
   action = "deny"
 }
 `
 
 const testAccFWPolicyV1_deleteRules = `
-resource "openstack_fw_policy_v1" "policy_1" {
+resource "huaweicloud_fw_policy_v1" "policy_1" {
   name = "policy_1"
   description =  "terraform acceptance test"
   rules = [
-    "${openstack_fw_rule_v1.udp_deny.id}"
+    "${huaweicloud_fw_rule_v1.udp_deny.id}"
   ]
 }
 
-resource "openstack_fw_rule_v1" "udp_deny" {
+resource "huaweicloud_fw_rule_v1" "udp_deny" {
   protocol = "udp"
   action = "deny"
 }
 `
 
 const testAccFWPolicyV1_timeout = `
-resource "openstack_fw_policy_v1" "policy_1" {
+resource "huaweicloud_fw_policy_v1" "policy_1" {
   timeouts {
     create = "5m"
   }

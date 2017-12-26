@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -22,16 +22,16 @@ func TestAccObjectStorageV1Container_basic(t *testing.T) {
 				Config: testAccObjectStorageV1Container_basic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_container_v1.container_1", "name", "container_1"),
+						"huaweicloud_objectstorage_container_v1.container_1", "name", "container_1"),
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_container_v1.container_1", "content_type", "application/json"),
+						"huaweicloud_objectstorage_container_v1.container_1", "content_type", "application/json"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccObjectStorageV1Container_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"openstack_objectstorage_container_v1.container_1", "content_type", "text/plain"),
+						"huaweicloud_objectstorage_container_v1.container_1", "content_type", "text/plain"),
 				),
 			},
 		},
@@ -46,7 +46,7 @@ func testAccCheckObjectStorageV1ContainerDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_objectstorage_container_v1" {
+		if rs.Type != "huaweicloud_objectstorage_container_v1" {
 			continue
 		}
 
@@ -60,7 +60,7 @@ func testAccCheckObjectStorageV1ContainerDestroy(s *terraform.State) error {
 }
 
 const testAccObjectStorageV1Container_basic = `
-resource "openstack_objectstorage_container_v1" "container_1" {
+resource "huaweicloud_objectstorage_container_v1" "container_1" {
   name = "container_1"
   metadata {
     test = "true"
@@ -70,7 +70,7 @@ resource "openstack_objectstorage_container_v1" "container_1" {
 `
 
 const testAccObjectStorageV1Container_update = `
-resource "openstack_objectstorage_container_v1" "container_1" {
+resource "huaweicloud_objectstorage_container_v1" "container_1" {
   name = "container_1"
   metadata {
     test = "true"

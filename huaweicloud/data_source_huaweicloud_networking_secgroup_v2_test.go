@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -19,9 +19,9 @@ func TestAccOpenStackNetworkingSecGroupV2DataSource_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccOpenStackNetworkingSecGroupV2DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingSecGroupV2DataSourceID("data.openstack_networking_secgroup_v2.secgroup_1"),
+					testAccCheckNetworkingSecGroupV2DataSourceID("data.huaweicloud_networking_secgroup_v2.secgroup_1"),
 					resource.TestCheckResourceAttr(
-						"data.openstack_networking_secgroup_v2.secgroup_1", "name", "secgroup_1"),
+						"data.huaweicloud_networking_secgroup_v2.secgroup_1", "name", "secgroup_1"),
 				),
 			},
 		},
@@ -39,9 +39,9 @@ func TestAccOpenStackNetworkingSecGroupV2DataSource_secGroupID(t *testing.T) {
 			resource.TestStep{
 				Config: testAccOpenStackNetworkingSecGroupV2DataSource_secGroupID,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingSecGroupV2DataSourceID("data.openstack_networking_secgroup_v2.secgroup_1"),
+					testAccCheckNetworkingSecGroupV2DataSourceID("data.huaweicloud_networking_secgroup_v2.secgroup_1"),
 					resource.TestCheckResourceAttr(
-						"data.openstack_networking_secgroup_v2.secgroup_1", "name", "secgroup_1"),
+						"data.huaweicloud_networking_secgroup_v2.secgroup_1", "name", "secgroup_1"),
 				),
 			},
 		},
@@ -64,7 +64,7 @@ func testAccCheckNetworkingSecGroupV2DataSourceID(n string) resource.TestCheckFu
 }
 
 const testAccOpenStackNetworkingSecGroupV2DataSource_group = `
-resource "openstack_networking_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
         name        = "secgroup_1"
 	description = "My neutron security group"
 }
@@ -73,15 +73,15 @@ resource "openstack_networking_secgroup_v2" "secgroup_1" {
 var testAccOpenStackNetworkingSecGroupV2DataSource_basic = fmt.Sprintf(`
 %s
 
-data "openstack_networking_secgroup_v2" "secgroup_1" {
-	name = "${openstack_networking_secgroup_v2.secgroup_1.name}"
+data "huaweicloud_networking_secgroup_v2" "secgroup_1" {
+	name = "${huaweicloud_networking_secgroup_v2.secgroup_1.name}"
 }
 `, testAccOpenStackNetworkingSecGroupV2DataSource_group)
 
 var testAccOpenStackNetworkingSecGroupV2DataSource_secGroupID = fmt.Sprintf(`
 %s
 
-data "openstack_networking_secgroup_v2" "secgroup_1" {
-	secgroup_id = "${openstack_networking_secgroup_v2.secgroup_1.id}"
+data "huaweicloud_networking_secgroup_v2" "secgroup_1" {
+	secgroup_id = "${huaweicloud_networking_secgroup_v2.secgroup_1.id}"
 }
 `, testAccOpenStackNetworkingSecGroupV2DataSource_group)

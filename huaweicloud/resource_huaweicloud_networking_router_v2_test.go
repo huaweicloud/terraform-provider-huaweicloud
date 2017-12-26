@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -21,14 +21,14 @@ func TestAccNetworkingV2Router_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccNetworkingV2Router_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2RouterExists("openstack_networking_router_v2.router_1", &router),
+					testAccCheckNetworkingV2RouterExists("huaweicloud_networking_router_v2.router_1", &router),
 				),
 			},
 			resource.TestStep{
 				Config: testAccNetworkingV2Router_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"openstack_networking_router_v2.router_1", "name", "router_2"),
+						"huaweicloud_networking_router_v2.router_1", "name", "router_2"),
 				),
 			},
 		},
@@ -46,14 +46,14 @@ func TestAccNetworkingV2Router_updateExternalGateway(t *testing.T) {
 			resource.TestStep{
 				Config: testAccNetworkingV2Router_updateExternalGateway1,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2RouterExists("openstack_networking_router_v2.router_1", &router),
+					testAccCheckNetworkingV2RouterExists("huaweicloud_networking_router_v2.router_1", &router),
 				),
 			},
 			resource.TestStep{
 				Config: testAccNetworkingV2Router_updateExternalGateway2,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"openstack_networking_router_v2.router_1", "external_network_id", OS_EXTGW_ID),
+						"huaweicloud_networking_router_v2.router_1", "external_network_id", OS_EXTGW_ID),
 				),
 			},
 		},
@@ -71,7 +71,7 @@ func TestAccNetworkingV2Router_timeout(t *testing.T) {
 			resource.TestStep{
 				Config: testAccNetworkingV2Router_timeout,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2RouterExists("openstack_networking_router_v2.router_1", &router),
+					testAccCheckNetworkingV2RouterExists("huaweicloud_networking_router_v2.router_1", &router),
 				),
 			},
 		},
@@ -86,7 +86,7 @@ func testAccCheckNetworkingV2RouterDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_networking_router_v2" {
+		if rs.Type != "huaweicloud_networking_router_v2" {
 			continue
 		}
 
@@ -132,7 +132,7 @@ func testAccCheckNetworkingV2RouterExists(n string, router *routers.Router) reso
 }
 
 const testAccNetworkingV2Router_basic = `
-resource "openstack_networking_router_v2" "router_1" {
+resource "huaweicloud_networking_router_v2" "router_1" {
 	name = "router_1"
 	admin_state_up = "true"
 	distributed = "false"
@@ -140,7 +140,7 @@ resource "openstack_networking_router_v2" "router_1" {
 `
 
 const testAccNetworkingV2Router_update = `
-resource "openstack_networking_router_v2" "router_1" {
+resource "huaweicloud_networking_router_v2" "router_1" {
 	name = "router_2"
 	admin_state_up = "true"
 	distributed = "false"
@@ -148,7 +148,7 @@ resource "openstack_networking_router_v2" "router_1" {
 `
 
 const testAccNetworkingV2Router_updateExternalGateway1 = `
-resource "openstack_networking_router_v2" "router_1" {
+resource "huaweicloud_networking_router_v2" "router_1" {
 	name = "router"
 	admin_state_up = "true"
 	distributed = "false"
@@ -156,7 +156,7 @@ resource "openstack_networking_router_v2" "router_1" {
 `
 
 var testAccNetworkingV2Router_updateExternalGateway2 = fmt.Sprintf(`
-resource "openstack_networking_router_v2" "router_1" {
+resource "huaweicloud_networking_router_v2" "router_1" {
 	name = "router"
 	admin_state_up = "true"
 	distributed = "false"
@@ -165,7 +165,7 @@ resource "openstack_networking_router_v2" "router_1" {
 `, OS_EXTGW_ID)
 
 const testAccNetworkingV2Router_timeout = `
-resource "openstack_networking_router_v2" "router_1" {
+resource "huaweicloud_networking_router_v2" "router_1" {
 	name = "router_1"
 	admin_state_up = "true"
 	distributed = "false"

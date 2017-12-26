@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ func TestAccComputeV2Flavor_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Flavor_basic(flavorName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2FlavorExists("openstack_compute_flavor_v2.flavor_1", &flavor),
+					testAccCheckComputeV2FlavorExists("huaweicloud_compute_flavor_v2.flavor_1", &flavor),
 				),
 			},
 		},
@@ -41,7 +41,7 @@ func testAccCheckComputeV2FlavorDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_compute_flavor_v2" {
+		if rs.Type != "huaweicloud_compute_flavor_v2" {
 			continue
 		}
 
@@ -88,7 +88,7 @@ func testAccCheckComputeV2FlavorExists(n string, flavor *flavors.Flavor) resourc
 
 func testAccComputeV2Flavor_basic(flavorName string) string {
 	return fmt.Sprintf(`
-    resource "openstack_compute_flavor_v2" "flavor_1" {
+    resource "huaweicloud_compute_flavor_v2" "flavor_1" {
       name = "%s"
       ram = 2048
       vcpus = 2

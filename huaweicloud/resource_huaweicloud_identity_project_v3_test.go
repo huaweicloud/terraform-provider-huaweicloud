@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -26,33 +26,33 @@ func TestAccIdentityV3Project_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccIdentityV3Project_basic(projectName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3ProjectExists("openstack_identity_project_v3.project_1", &project),
+					testAccCheckIdentityV3ProjectExists("huaweicloud_identity_project_v3.project_1", &project),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_project_v3.project_1", "name", projectName),
+						"huaweicloud_identity_project_v3.project_1", "name", projectName),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_project_v3.project_1", "description", "A project"),
+						"huaweicloud_identity_project_v3.project_1", "description", "A project"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_project_v3.project_1", "domain_id", "default"),
+						"huaweicloud_identity_project_v3.project_1", "domain_id", "default"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_project_v3.project_1", "enabled", "true"),
+						"huaweicloud_identity_project_v3.project_1", "enabled", "true"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_project_v3.project_1", "is_domain", "false"),
+						"huaweicloud_identity_project_v3.project_1", "is_domain", "false"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccIdentityV3Project_update(projectName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3ProjectExists("openstack_identity_project_v3.project_1", &project),
+					testAccCheckIdentityV3ProjectExists("huaweicloud_identity_project_v3.project_1", &project),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_project_v3.project_1", "name", projectName),
+						"huaweicloud_identity_project_v3.project_1", "name", projectName),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_project_v3.project_1", "description", "Some project"),
+						"huaweicloud_identity_project_v3.project_1", "description", "Some project"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_project_v3.project_1", "domain_id", "default"),
+						"huaweicloud_identity_project_v3.project_1", "domain_id", "default"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_project_v3.project_1", "enabled", "false"),
+						"huaweicloud_identity_project_v3.project_1", "enabled", "false"),
 					resource.TestCheckResourceAttr(
-						"openstack_identity_project_v3.project_1", "is_domain", "false"),
+						"huaweicloud_identity_project_v3.project_1", "is_domain", "false"),
 				),
 			},
 		},
@@ -67,7 +67,7 @@ func testAccCheckIdentityV3ProjectDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_identity_project_v3" {
+		if rs.Type != "huaweicloud_identity_project_v3" {
 			continue
 		}
 
@@ -114,7 +114,7 @@ func testAccCheckIdentityV3ProjectExists(n string, project *projects.Project) re
 
 func testAccIdentityV3Project_basic(projectName string) string {
 	return fmt.Sprintf(`
-    resource "openstack_identity_project_v3" "project_1" {
+    resource "huaweicloud_identity_project_v3" "project_1" {
       name = "%s"
       description = "A project"
     }
@@ -123,7 +123,7 @@ func testAccIdentityV3Project_basic(projectName string) string {
 
 func testAccIdentityV3Project_update(projectName string) string {
 	return fmt.Sprintf(`
-    resource "openstack_identity_project_v3" "project_1" {
+    resource "huaweicloud_identity_project_v3" "project_1" {
       name = "%s"
       description = "Some project"
       enabled = false

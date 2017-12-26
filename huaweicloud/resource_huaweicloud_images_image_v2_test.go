@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -21,19 +21,19 @@ func TestAccImagesImageV2_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccImagesImageV2_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesImageV2Exists("openstack_images_image_v2.image_1", &image),
+					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
 					resource.TestCheckResourceAttr(
-						"openstack_images_image_v2.image_1", "name", "Rancher TerraformAccTest"),
+						"huaweicloud_images_image_v2.image_1", "name", "Rancher TerraformAccTest"),
 					resource.TestCheckResourceAttr(
-						"openstack_images_image_v2.image_1", "container_format", "bare"),
+						"huaweicloud_images_image_v2.image_1", "container_format", "bare"),
 					resource.TestCheckResourceAttr(
-						"openstack_images_image_v2.image_1", "disk_format", "qcow2"),
+						"huaweicloud_images_image_v2.image_1", "disk_format", "qcow2"),
 					resource.TestCheckResourceAttr(
-						"openstack_images_image_v2.image_1", "schema", "/v2/schemas/image"),
+						"huaweicloud_images_image_v2.image_1", "schema", "/v2/schemas/image"),
 					resource.TestCheckResourceAttr(
-						"openstack_images_image_v2.image_1", "properties.foo", "bar"),
+						"huaweicloud_images_image_v2.image_1", "properties.foo", "bar"),
 					resource.TestCheckResourceAttr(
-						"openstack_images_image_v2.image_1", "properties.baz", "foo"),
+						"huaweicloud_images_image_v2.image_1", "properties.baz", "foo"),
 				),
 			},
 		},
@@ -51,17 +51,17 @@ func TestAccImagesImageV2_name(t *testing.T) {
 			resource.TestStep{
 				Config: testAccImagesImageV2_name_1,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesImageV2Exists("openstack_images_image_v2.image_1", &image),
+					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
 					resource.TestCheckResourceAttr(
-						"openstack_images_image_v2.image_1", "name", "Rancher TerraformAccTest"),
+						"huaweicloud_images_image_v2.image_1", "name", "Rancher TerraformAccTest"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccImagesImageV2_name_2,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesImageV2Exists("openstack_images_image_v2.image_1", &image),
+					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
 					resource.TestCheckResourceAttr(
-						"openstack_images_image_v2.image_1", "name", "TerraformAccTest Rancher"),
+						"huaweicloud_images_image_v2.image_1", "name", "TerraformAccTest Rancher"),
 				),
 			},
 		},
@@ -79,29 +79,29 @@ func TestAccImagesImageV2_tags(t *testing.T) {
 			resource.TestStep{
 				Config: testAccImagesImageV2_tags_1,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesImageV2Exists("openstack_images_image_v2.image_1", &image),
-					testAccCheckImagesImageV2HasTag("openstack_images_image_v2.image_1", "foo"),
-					testAccCheckImagesImageV2HasTag("openstack_images_image_v2.image_1", "bar"),
-					testAccCheckImagesImageV2TagCount("openstack_images_image_v2.image_1", 2),
+					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
+					testAccCheckImagesImageV2HasTag("huaweicloud_images_image_v2.image_1", "foo"),
+					testAccCheckImagesImageV2HasTag("huaweicloud_images_image_v2.image_1", "bar"),
+					testAccCheckImagesImageV2TagCount("huaweicloud_images_image_v2.image_1", 2),
 				),
 			},
 			resource.TestStep{
 				Config: testAccImagesImageV2_tags_2,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesImageV2Exists("openstack_images_image_v2.image_1", &image),
-					testAccCheckImagesImageV2HasTag("openstack_images_image_v2.image_1", "foo"),
-					testAccCheckImagesImageV2HasTag("openstack_images_image_v2.image_1", "bar"),
-					testAccCheckImagesImageV2HasTag("openstack_images_image_v2.image_1", "baz"),
-					testAccCheckImagesImageV2TagCount("openstack_images_image_v2.image_1", 3),
+					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
+					testAccCheckImagesImageV2HasTag("huaweicloud_images_image_v2.image_1", "foo"),
+					testAccCheckImagesImageV2HasTag("huaweicloud_images_image_v2.image_1", "bar"),
+					testAccCheckImagesImageV2HasTag("huaweicloud_images_image_v2.image_1", "baz"),
+					testAccCheckImagesImageV2TagCount("huaweicloud_images_image_v2.image_1", 3),
 				),
 			},
 			resource.TestStep{
 				Config: testAccImagesImageV2_tags_3,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesImageV2Exists("openstack_images_image_v2.image_1", &image),
-					testAccCheckImagesImageV2HasTag("openstack_images_image_v2.image_1", "foo"),
-					testAccCheckImagesImageV2HasTag("openstack_images_image_v2.image_1", "baz"),
-					testAccCheckImagesImageV2TagCount("openstack_images_image_v2.image_1", 2),
+					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
+					testAccCheckImagesImageV2HasTag("huaweicloud_images_image_v2.image_1", "foo"),
+					testAccCheckImagesImageV2HasTag("huaweicloud_images_image_v2.image_1", "baz"),
+					testAccCheckImagesImageV2TagCount("huaweicloud_images_image_v2.image_1", 2),
 				),
 			},
 		},
@@ -122,17 +122,17 @@ func TestAccImagesImageV2_visibility(t *testing.T) {
 			resource.TestStep{
 				Config: testAccImagesImageV2_visibility_1,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesImageV2Exists("openstack_images_image_v2.image_1", &image),
+					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
 					resource.TestCheckResourceAttr(
-						"openstack_images_image_v2.image_1", "visibility", "private"),
+						"huaweicloud_images_image_v2.image_1", "visibility", "private"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccImagesImageV2_visibility_2,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesImageV2Exists("openstack_images_image_v2.image_1", &image),
+					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
 					resource.TestCheckResourceAttr(
-						"openstack_images_image_v2.image_1", "visibility", "public"),
+						"huaweicloud_images_image_v2.image_1", "visibility", "public"),
 				),
 			},
 		},
@@ -150,7 +150,7 @@ func TestAccImagesImageV2_timeout(t *testing.T) {
 			resource.TestStep{
 				Config: testAccImagesImageV2_timeout,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesImageV2Exists("openstack_images_image_v2.image_1", &image),
+					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
 				),
 			},
 		},
@@ -165,7 +165,7 @@ func testAccCheckImagesImageV2Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_images_image_v2" {
+		if rs.Type != "huaweicloud_images_image_v2" {
 			continue
 		}
 
@@ -281,9 +281,9 @@ func testAccCheckImagesImageV2TagCount(n string, expected int) resource.TestChec
 }
 
 var testAccImagesImageV2_basic = `
-  resource "openstack_images_image_v2" "image_1" {
+  resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-openstack.img"
+      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
       container_format = "bare"
       disk_format = "qcow2"
       properties {
@@ -293,70 +293,70 @@ var testAccImagesImageV2_basic = `
   }`
 
 var testAccImagesImageV2_name_1 = `
-  resource "openstack_images_image_v2" "image_1" {
+  resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-openstack.img"
+      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
       container_format = "bare"
       disk_format = "qcow2"
   }`
 
 var testAccImagesImageV2_name_2 = `
-  resource "openstack_images_image_v2" "image_1" {
+  resource "huaweicloud_images_image_v2" "image_1" {
       name   = "TerraformAccTest Rancher"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-openstack.img"
+      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
       container_format = "bare"
       disk_format = "qcow2"
   }`
 
 var testAccImagesImageV2_tags_1 = `
-  resource "openstack_images_image_v2" "image_1" {
+  resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-openstack.img"
+      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
       container_format = "bare"
       disk_format = "qcow2"
       tags = ["foo","bar"]
   }`
 
 var testAccImagesImageV2_tags_2 = `
-  resource "openstack_images_image_v2" "image_1" {
+  resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-openstack.img"
+      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
       container_format = "bare"
       disk_format = "qcow2"
       tags = ["foo","bar","baz"]
   }`
 
 var testAccImagesImageV2_tags_3 = `
-  resource "openstack_images_image_v2" "image_1" {
+  resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-openstack.img"
+      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
       container_format = "bare"
       disk_format = "qcow2"
       tags = ["foo","baz"]
   }`
 
 var testAccImagesImageV2_visibility_1 = `
-  resource "openstack_images_image_v2" "image_1" {
+  resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-openstack.img"
+      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
       container_format = "bare"
       disk_format = "qcow2"
       visibility = "private"
   }`
 
 var testAccImagesImageV2_visibility_2 = `
-  resource "openstack_images_image_v2" "image_1" {
+  resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-openstack.img"
+      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
       container_format = "bare"
       disk_format = "qcow2"
       visibility = "public"
   }`
 
 var testAccImagesImageV2_timeout = `
-  resource "openstack_images_image_v2" "image_1" {
+  resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-openstack.img"
+      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
       container_format = "bare"
       disk_format = "qcow2"
 

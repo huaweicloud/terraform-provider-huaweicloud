@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 
 func TestAccDNSV2RecordSet_importBasic(t *testing.T) {
 	zoneName := randomZoneName()
-	resourceName := "openstack_dns_recordset_v2.recordset_1"
+	resourceName := "huaweicloud_dns_recordset_v2.recordset_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDNS(t) },

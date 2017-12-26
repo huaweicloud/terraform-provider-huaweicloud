@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -24,16 +24,16 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccLBV2LoadBalancerConfig_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2LoadBalancerExists("openstack_lb_loadbalancer_v2.loadbalancer_1", &lb),
+					testAccCheckLBV2LoadBalancerExists("huaweicloud_lb_loadbalancer_v2.loadbalancer_1", &lb),
 				),
 			},
 			resource.TestStep{
 				Config: testAccLBV2LoadBalancerConfig_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"openstack_lb_loadbalancer_v2.loadbalancer_1", "name", "loadbalancer_1_updated"),
+						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", "name", "loadbalancer_1_updated"),
 					resource.TestMatchResourceAttr(
-						"openstack_lb_loadbalancer_v2.loadbalancer_1", "vip_port_id",
+						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", "vip_port_id",
 						regexp.MustCompile("^[a-f0-9-]+")),
 				),
 			},
@@ -54,13 +54,13 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 				Config: testAccLBV2LoadBalancer_secGroup,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2LoadBalancerExists(
-						"openstack_lb_loadbalancer_v2.loadbalancer_1", &lb),
+						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", &lb),
 					testAccCheckNetworkingV2SecGroupExists(
-						"openstack_networking_secgroup_v2.secgroup_1", &sg_1),
+						"huaweicloud_networking_secgroup_v2.secgroup_1", &sg_1),
 					testAccCheckNetworkingV2SecGroupExists(
-						"openstack_networking_secgroup_v2.secgroup_1", &sg_2),
+						"huaweicloud_networking_secgroup_v2.secgroup_1", &sg_2),
 					resource.TestCheckResourceAttr(
-						"openstack_lb_loadbalancer_v2.loadbalancer_1", "security_group_ids.#", "1"),
+						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", "security_group_ids.#", "1"),
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_1),
 				),
 			},
@@ -68,13 +68,13 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 				Config: testAccLBV2LoadBalancer_secGroup_update1,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2LoadBalancerExists(
-						"openstack_lb_loadbalancer_v2.loadbalancer_1", &lb),
+						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", &lb),
 					testAccCheckNetworkingV2SecGroupExists(
-						"openstack_networking_secgroup_v2.secgroup_2", &sg_1),
+						"huaweicloud_networking_secgroup_v2.secgroup_2", &sg_1),
 					testAccCheckNetworkingV2SecGroupExists(
-						"openstack_networking_secgroup_v2.secgroup_2", &sg_2),
+						"huaweicloud_networking_secgroup_v2.secgroup_2", &sg_2),
 					resource.TestCheckResourceAttr(
-						"openstack_lb_loadbalancer_v2.loadbalancer_1", "security_group_ids.#", "2"),
+						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", "security_group_ids.#", "2"),
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_1),
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_2),
 				),
@@ -83,13 +83,13 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 				Config: testAccLBV2LoadBalancer_secGroup_update2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2LoadBalancerExists(
-						"openstack_lb_loadbalancer_v2.loadbalancer_1", &lb),
+						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", &lb),
 					testAccCheckNetworkingV2SecGroupExists(
-						"openstack_networking_secgroup_v2.secgroup_2", &sg_1),
+						"huaweicloud_networking_secgroup_v2.secgroup_2", &sg_1),
 					testAccCheckNetworkingV2SecGroupExists(
-						"openstack_networking_secgroup_v2.secgroup_2", &sg_2),
+						"huaweicloud_networking_secgroup_v2.secgroup_2", &sg_2),
 					resource.TestCheckResourceAttr(
-						"openstack_lb_loadbalancer_v2.loadbalancer_1", "security_group_ids.#", "1"),
+						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", "security_group_ids.#", "1"),
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_2),
 				),
 			},
@@ -105,7 +105,7 @@ func testAccCheckLBV2LoadBalancerDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_lb_loadbalancer_v2" {
+		if rs.Type != "huaweicloud_lb_loadbalancer_v2" {
 			continue
 		}
 
@@ -176,22 +176,22 @@ func testAccCheckLBV2LoadBalancerHasSecGroup(
 }
 
 const testAccLBV2LoadBalancerConfig_basic = `
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
   cidr = "192.168.199.0/24"
   ip_version = 4
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
 }
 
-resource "openstack_lb_loadbalancer_v2" "loadbalancer_1" {
+resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1"
   loadbalancer_provider = "haproxy"
-  vip_subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+  vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
 
   timeouts {
     create = "5m"
@@ -202,23 +202,23 @@ resource "openstack_lb_loadbalancer_v2" "loadbalancer_1" {
 `
 
 const testAccLBV2LoadBalancerConfig_update = `
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
   cidr = "192.168.199.0/24"
   ip_version = 4
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
 }
 
-resource "openstack_lb_loadbalancer_v2" "loadbalancer_1" {
+resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1_updated"
   loadbalancer_provider = "haproxy"
   admin_state_up = "true"
-  vip_subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+  vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
 
   timeouts {
     create = "5m"
@@ -229,96 +229,96 @@ resource "openstack_lb_loadbalancer_v2" "loadbalancer_1" {
 `
 
 const testAccLBV2LoadBalancer_secGroup = `
-resource "openstack_networking_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name = "secgroup_1"
   description = "secgroup_1"
 }
 
-resource "openstack_networking_secgroup_v2" "secgroup_2" {
+resource "huaweicloud_networking_secgroup_v2" "secgroup_2" {
   name = "secgroup_2"
   description = "secgroup_2"
 }
 
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   cidr = "192.168.199.0/24"
 }
 
-resource "openstack_lb_loadbalancer_v2" "loadbalancer_1" {
+resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
     name = "loadbalancer_1"
-    vip_subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+    vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
     security_group_ids = [
-      "${openstack_networking_secgroup_v2.secgroup_1.id}"
+      "${huaweicloud_networking_secgroup_v2.secgroup_1.id}"
     ]
 }
 `
 
 const testAccLBV2LoadBalancer_secGroup_update1 = `
-resource "openstack_networking_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name = "secgroup_1"
   description = "secgroup_1"
 }
 
-resource "openstack_networking_secgroup_v2" "secgroup_2" {
+resource "huaweicloud_networking_secgroup_v2" "secgroup_2" {
   name = "secgroup_2"
   description = "secgroup_2"
 }
 
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   cidr = "192.168.199.0/24"
 }
 
-resource "openstack_lb_loadbalancer_v2" "loadbalancer_1" {
+resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
     name = "loadbalancer_1"
-    vip_subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+    vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
     security_group_ids = [
-      "${openstack_networking_secgroup_v2.secgroup_1.id}",
-      "${openstack_networking_secgroup_v2.secgroup_2.id}"
+      "${huaweicloud_networking_secgroup_v2.secgroup_1.id}",
+      "${huaweicloud_networking_secgroup_v2.secgroup_2.id}"
     ]
 }
 `
 
 const testAccLBV2LoadBalancer_secGroup_update2 = `
-resource "openstack_networking_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name = "secgroup_1"
   description = "secgroup_1"
 }
 
-resource "openstack_networking_secgroup_v2" "secgroup_2" {
+resource "huaweicloud_networking_secgroup_v2" "secgroup_2" {
   name = "secgroup_2"
   description = "secgroup_2"
 }
 
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   cidr = "192.168.199.0/24"
 }
 
-resource "openstack_lb_loadbalancer_v2" "loadbalancer_1" {
+resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
     name = "loadbalancer_1"
-    vip_subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+    vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
     security_group_ids = [
-      "${openstack_networking_secgroup_v2.secgroup_2.id}"
+      "${huaweicloud_networking_secgroup_v2.secgroup_2.id}"
     ]
-    depends_on = ["openstack_networking_secgroup_v2.secgroup_1"]
+    depends_on = ["huaweicloud_networking_secgroup_v2.secgroup_1"]
 }
 `

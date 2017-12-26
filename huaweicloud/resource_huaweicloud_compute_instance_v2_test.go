@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -28,12 +28,12 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 					testAccCheckComputeV2InstanceMetadata(&instance, "foo", "bar"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "all_metadata.foo", "bar"),
+						"huaweicloud_compute_instance_v2.instance_1", "all_metadata.foo", "bar"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "availability_zone", "nova"),
+						"huaweicloud_compute_instance_v2.instance_1", "availability_zone", "nova"),
 				),
 			},
 		},
@@ -53,9 +53,9 @@ func TestAccComputeV2Instance_secgroupMulti(t *testing.T) {
 				Config: testAccComputeV2Instance_secgroupMulti,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2SecGroupExists(
-						"openstack_compute_secgroup_v2.secgroup_1", &secgroup_1),
+						"huaweicloud_compute_secgroup_v2.secgroup_1", &secgroup_1),
 					testAccCheckComputeV2InstanceExists(
-						"openstack_compute_instance_v2.instance_1", &instance_1),
+						"huaweicloud_compute_instance_v2.instance_1", &instance_1),
 				),
 			},
 		},
@@ -75,22 +75,22 @@ func TestAccComputeV2Instance_secgroupMultiUpdate(t *testing.T) {
 				Config: testAccComputeV2Instance_secgroupMultiUpdate_1,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2SecGroupExists(
-						"openstack_compute_secgroup_v2.secgroup_1", &secgroup_1),
+						"huaweicloud_compute_secgroup_v2.secgroup_1", &secgroup_1),
 					testAccCheckComputeV2SecGroupExists(
-						"openstack_compute_secgroup_v2.secgroup_2", &secgroup_2),
+						"huaweicloud_compute_secgroup_v2.secgroup_2", &secgroup_2),
 					testAccCheckComputeV2InstanceExists(
-						"openstack_compute_instance_v2.instance_1", &instance_1),
+						"huaweicloud_compute_instance_v2.instance_1", &instance_1),
 				),
 			},
 			resource.TestStep{
 				Config: testAccComputeV2Instance_secgroupMultiUpdate_2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2SecGroupExists(
-						"openstack_compute_secgroup_v2.secgroup_1", &secgroup_1),
+						"huaweicloud_compute_secgroup_v2.secgroup_1", &secgroup_1),
 					testAccCheckComputeV2SecGroupExists(
-						"openstack_compute_secgroup_v2.secgroup_2", &secgroup_2),
+						"huaweicloud_compute_secgroup_v2.secgroup_2", &secgroup_2),
 					testAccCheckComputeV2InstanceExists(
-						"openstack_compute_instance_v2.instance_1", &instance_1),
+						"huaweicloud_compute_instance_v2.instance_1", &instance_1),
 				),
 			},
 		},
@@ -108,7 +108,7 @@ func TestAccComputeV2Instance_bootFromVolumeImage(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_bootFromVolumeImage,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 					testAccCheckComputeV2InstanceBootVolumeAttachment(&instance),
 				),
 			},
@@ -127,7 +127,7 @@ func TestAccComputeV2Instance_bootFromVolumeVolume(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_bootFromVolumeVolume,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 					testAccCheckComputeV2InstanceBootVolumeAttachment(&instance),
 				),
 			},
@@ -148,14 +148,14 @@ func TestAccComputeV2Instance_bootFromVolumeForceNew(t *testing.T) {
 				Config: testAccComputeV2Instance_bootFromVolumeForceNew_1,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists(
-						"openstack_compute_instance_v2.instance_1", &instance1_1),
+						"huaweicloud_compute_instance_v2.instance_1", &instance1_1),
 				),
 			},
 			resource.TestStep{
 				Config: testAccComputeV2Instance_bootFromVolumeForceNew_2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists(
-						"openstack_compute_instance_v2.instance_1", &instance1_2),
+						"huaweicloud_compute_instance_v2.instance_1", &instance1_2),
 					testAccCheckComputeV2InstanceInstanceIDsDoNotMatch(&instance1_1, &instance1_2),
 				),
 			},
@@ -174,7 +174,7 @@ func TestAccComputeV2Instance_blockDeviceNewVolume(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_blockDeviceNewVolume,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 				),
 			},
 		},
@@ -193,9 +193,9 @@ func TestAccComputeV2Instance_blockDeviceExistingVolume(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_blockDeviceExistingVolume,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 					testAccCheckBlockStorageV2VolumeExists(
-						"openstack_blockstorage_volume_v2.volume_1", &volume),
+						"huaweicloud_blockstorage_volume_v2.volume_1", &volume),
 				),
 			},
 		},
@@ -214,7 +214,7 @@ func TestAccComputeV2Instance_personality(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_personality,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 				),
 			},
 		},
@@ -233,7 +233,7 @@ func TestAccComputeV2Instance_multiEphemeral(t *testing.T) {
 				Config: testAccComputeV2Instance_multiEphemeral,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists(
-						"openstack_compute_instance_v2.instance_1", &instance),
+						"huaweicloud_compute_instance_v2.instance_1", &instance),
 				),
 			},
 		},
@@ -251,9 +251,9 @@ func TestAccComputeV2Instance_accessIPv4(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_accessIPv4,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "access_ip_v4", "192.168.1.100"),
+						"huaweicloud_compute_instance_v2.instance_1", "access_ip_v4", "192.168.1.100"),
 				),
 			},
 		},
@@ -273,14 +273,14 @@ func TestAccComputeV2Instance_changeFixedIP(t *testing.T) {
 				Config: testAccComputeV2Instance_changeFixedIP_1,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists(
-						"openstack_compute_instance_v2.instance_1", &instance1_1),
+						"huaweicloud_compute_instance_v2.instance_1", &instance1_1),
 				),
 			},
 			resource.TestStep{
 				Config: testAccComputeV2Instance_changeFixedIP_2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists(
-						"openstack_compute_instance_v2.instance_1", &instance1_2),
+						"huaweicloud_compute_instance_v2.instance_1", &instance1_2),
 					testAccCheckComputeV2InstanceInstanceIDsDoNotMatch(&instance1_1, &instance1_2),
 				),
 			},
@@ -298,7 +298,7 @@ func TestAccComputeV2Instance_stopBeforeDestroy(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_stopBeforeDestroy,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 				),
 			},
 		},
@@ -316,26 +316,26 @@ func TestAccComputeV2Instance_metadataRemove(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_metadataRemove_1,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 					testAccCheckComputeV2InstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeV2InstanceMetadata(&instance, "abc", "def"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "all_metadata.foo", "bar"),
+						"huaweicloud_compute_instance_v2.instance_1", "all_metadata.foo", "bar"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "all_metadata.abc", "def"),
+						"huaweicloud_compute_instance_v2.instance_1", "all_metadata.abc", "def"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccComputeV2Instance_metadataRemove_2,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 					testAccCheckComputeV2InstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeV2InstanceMetadata(&instance, "ghi", "jkl"),
 					testAccCheckComputeV2InstanceNoMetadataKey(&instance, "abc"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "all_metadata.foo", "bar"),
+						"huaweicloud_compute_instance_v2.instance_1", "all_metadata.foo", "bar"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "all_metadata.ghi", "jkl"),
+						"huaweicloud_compute_instance_v2.instance_1", "all_metadata.ghi", "jkl"),
 				),
 			},
 		},
@@ -352,7 +352,7 @@ func TestAccComputeV2Instance_forceDelete(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_forceDelete,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 				),
 			},
 		},
@@ -369,7 +369,7 @@ func TestAccComputeV2Instance_timeout(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_timeout,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 				),
 			},
 		},
@@ -387,10 +387,10 @@ func TestAccComputeV2Instance_networkNameToID(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_networkNameToID,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
-					testAccCheckNetworkingV2NetworkExists("openstack_networking_network_v2.network_1", &network),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckNetworkingV2NetworkExists("huaweicloud_networking_network_v2.network_1", &network),
 					resource.TestCheckResourceAttrPtr(
-						"openstack_compute_instance_v2.instance_1", "network.1.uuid", &network.ID),
+						"huaweicloud_compute_instance_v2.instance_1", "network.1.uuid", &network.ID),
 				),
 			},
 		},
@@ -414,63 +414,63 @@ func TestAccComputeV2Instance_crazyNICs(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2Instance_crazyNICs,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("openstack_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 					testAccCheckNetworkingV2NetworkExists(
-						"openstack_networking_network_v2.network_1", &network_1),
+						"huaweicloud_networking_network_v2.network_1", &network_1),
 					testAccCheckNetworkingV2NetworkExists(
-						"openstack_networking_network_v2.network_2", &network_2),
+						"huaweicloud_networking_network_v2.network_2", &network_2),
 					testAccCheckNetworkingV2PortExists(
-						"openstack_networking_port_v2.port_1", &port_1),
+						"huaweicloud_networking_port_v2.port_1", &port_1),
 					testAccCheckNetworkingV2PortExists(
-						"openstack_networking_port_v2.port_2", &port_2),
+						"huaweicloud_networking_port_v2.port_2", &port_2),
 					testAccCheckNetworkingV2PortExists(
-						"openstack_networking_port_v2.port_3", &port_3),
+						"huaweicloud_networking_port_v2.port_3", &port_3),
 					testAccCheckNetworkingV2PortExists(
-						"openstack_networking_port_v2.port_4", &port_4),
+						"huaweicloud_networking_port_v2.port_4", &port_4),
 					resource.TestCheckResourceAttrPtr(
-						"openstack_compute_instance_v2.instance_1", "network.1.uuid", &network_1.ID),
+						"huaweicloud_compute_instance_v2.instance_1", "network.1.uuid", &network_1.ID),
 					resource.TestCheckResourceAttrPtr(
-						"openstack_compute_instance_v2.instance_1", "network.2.uuid", &network_2.ID),
+						"huaweicloud_compute_instance_v2.instance_1", "network.2.uuid", &network_2.ID),
 					resource.TestCheckResourceAttrPtr(
-						"openstack_compute_instance_v2.instance_1", "network.3.uuid", &network_1.ID),
+						"huaweicloud_compute_instance_v2.instance_1", "network.3.uuid", &network_1.ID),
 					resource.TestCheckResourceAttrPtr(
-						"openstack_compute_instance_v2.instance_1", "network.4.uuid", &network_2.ID),
+						"huaweicloud_compute_instance_v2.instance_1", "network.4.uuid", &network_2.ID),
 					resource.TestCheckResourceAttrPtr(
-						"openstack_compute_instance_v2.instance_1", "network.5.uuid", &network_1.ID),
+						"huaweicloud_compute_instance_v2.instance_1", "network.5.uuid", &network_1.ID),
 					resource.TestCheckResourceAttrPtr(
-						"openstack_compute_instance_v2.instance_1", "network.6.uuid", &network_2.ID),
+						"huaweicloud_compute_instance_v2.instance_1", "network.6.uuid", &network_2.ID),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "network.1.name", "network_1"),
+						"huaweicloud_compute_instance_v2.instance_1", "network.1.name", "network_1"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "network.2.name", "network_2"),
+						"huaweicloud_compute_instance_v2.instance_1", "network.2.name", "network_2"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "network.3.name", "network_1"),
+						"huaweicloud_compute_instance_v2.instance_1", "network.3.name", "network_1"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "network.4.name", "network_2"),
+						"huaweicloud_compute_instance_v2.instance_1", "network.4.name", "network_2"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "network.5.name", "network_1"),
+						"huaweicloud_compute_instance_v2.instance_1", "network.5.name", "network_1"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "network.6.name", "network_2"),
+						"huaweicloud_compute_instance_v2.instance_1", "network.6.name", "network_2"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "network.7.name", "network_1"),
+						"huaweicloud_compute_instance_v2.instance_1", "network.7.name", "network_1"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "network.8.name", "network_2"),
+						"huaweicloud_compute_instance_v2.instance_1", "network.8.name", "network_2"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "network.1.fixed_ip_v4", "192.168.1.100"),
+						"huaweicloud_compute_instance_v2.instance_1", "network.1.fixed_ip_v4", "192.168.1.100"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "network.2.fixed_ip_v4", "192.168.2.100"),
+						"huaweicloud_compute_instance_v2.instance_1", "network.2.fixed_ip_v4", "192.168.2.100"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "network.3.fixed_ip_v4", "192.168.1.101"),
+						"huaweicloud_compute_instance_v2.instance_1", "network.3.fixed_ip_v4", "192.168.1.101"),
 					resource.TestCheckResourceAttr(
-						"openstack_compute_instance_v2.instance_1", "network.4.fixed_ip_v4", "192.168.2.101"),
+						"huaweicloud_compute_instance_v2.instance_1", "network.4.fixed_ip_v4", "192.168.2.101"),
 					resource.TestCheckResourceAttrPtr(
-						"openstack_compute_instance_v2.instance_1", "network.5.port", &port_1.ID),
+						"huaweicloud_compute_instance_v2.instance_1", "network.5.port", &port_1.ID),
 					resource.TestCheckResourceAttrPtr(
-						"openstack_compute_instance_v2.instance_1", "network.6.port", &port_2.ID),
+						"huaweicloud_compute_instance_v2.instance_1", "network.6.port", &port_2.ID),
 					resource.TestCheckResourceAttrPtr(
-						"openstack_compute_instance_v2.instance_1", "network.7.port", &port_3.ID),
+						"huaweicloud_compute_instance_v2.instance_1", "network.7.port", &port_3.ID),
 					resource.TestCheckResourceAttrPtr(
-						"openstack_compute_instance_v2.instance_1", "network.8.port", &port_4.ID),
+						"huaweicloud_compute_instance_v2.instance_1", "network.8.port", &port_4.ID),
 				),
 			},
 		},
@@ -485,7 +485,7 @@ func testAccCheckComputeV2InstanceDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_compute_instance_v2" {
+		if rs.Type != "huaweicloud_compute_instance_v2" {
 			continue
 		}
 
@@ -635,7 +635,7 @@ func testAccCheckComputeV2InstanceInstanceIDsDoNotMatch(
 }
 
 const testAccComputeV2Instance_basic = `
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   metadata {
@@ -645,7 +645,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `
 
 const testAccComputeV2Instance_secgroupMulti = `
-resource "openstack_compute_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
   name = "secgroup_1"
   description = "a security group"
   rule {
@@ -656,14 +656,14 @@ resource "openstack_compute_secgroup_v2" "secgroup_1" {
   }
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default", "${openstack_compute_secgroup_v2.secgroup_1.name}"]
+  security_groups = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
 }
 `
 
 const testAccComputeV2Instance_secgroupMultiUpdate_1 = `
-resource "openstack_compute_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
   name = "secgroup_1"
   description = "a security group"
   rule {
@@ -674,7 +674,7 @@ resource "openstack_compute_secgroup_v2" "secgroup_1" {
   }
 }
 
-resource "openstack_compute_secgroup_v2" "secgroup_2" {
+resource "huaweicloud_compute_secgroup_v2" "secgroup_2" {
   name = "secgroup_2"
   description = "another security group"
   rule {
@@ -685,14 +685,14 @@ resource "openstack_compute_secgroup_v2" "secgroup_2" {
   }
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
 }
 `
 
 const testAccComputeV2Instance_secgroupMultiUpdate_2 = `
-resource "openstack_compute_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
   name = "secgroup_1"
   description = "a security group"
   rule {
@@ -703,7 +703,7 @@ resource "openstack_compute_secgroup_v2" "secgroup_1" {
   }
 }
 
-resource "openstack_compute_secgroup_v2" "secgroup_2" {
+resource "huaweicloud_compute_secgroup_v2" "secgroup_2" {
   name = "secgroup_2"
   description = "another security group"
   rule {
@@ -714,14 +714,14 @@ resource "openstack_compute_secgroup_v2" "secgroup_2" {
   }
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default", "${openstack_compute_secgroup_v2.secgroup_1.name}", "${openstack_compute_secgroup_v2.secgroup_2.name}"]
+  security_groups = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}", "${huaweicloud_compute_secgroup_v2.secgroup_2.name}"]
 }
 `
 
 var testAccComputeV2Instance_bootFromVolumeImage = fmt.Sprintf(`
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   block_device {
@@ -736,17 +736,17 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `, OS_IMAGE_ID)
 
 var testAccComputeV2Instance_bootFromVolumeVolume = fmt.Sprintf(`
-resource "openstack_blockstorage_volume_v2" "vol_1" {
+resource "huaweicloud_blockstorage_volume_v2" "vol_1" {
   name = "vol_1"
   size = 5
   image_id = "%s"
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   block_device {
-    uuid = "${openstack_blockstorage_volume_v2.vol_1.id}"
+    uuid = "${huaweicloud_blockstorage_volume_v2.vol_1.id}"
     source_type = "volume"
     boot_index = 0
     destination_type = "volume"
@@ -756,7 +756,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `, OS_IMAGE_ID)
 
 var testAccComputeV2Instance_bootFromVolumeForceNew_1 = fmt.Sprintf(`
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   block_device {
@@ -771,7 +771,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `, OS_IMAGE_ID)
 
 var testAccComputeV2Instance_bootFromVolumeForceNew_2 = fmt.Sprintf(`
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   block_device {
@@ -786,7 +786,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `, OS_IMAGE_ID)
 
 var testAccComputeV2Instance_blockDeviceNewVolume = fmt.Sprintf(`
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   block_device {
@@ -807,12 +807,12 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `, OS_IMAGE_ID)
 
 var testAccComputeV2Instance_blockDeviceExistingVolume = fmt.Sprintf(`
-resource "openstack_blockstorage_volume_v2" "volume_1" {
+resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 1
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   block_device {
@@ -823,7 +823,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
     delete_on_termination = true
   }
   block_device {
-    uuid = "${openstack_blockstorage_volume_v2.volume_1.id}"
+    uuid = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
     source_type = "volume"
     destination_type = "volume"
     boot_index = 1
@@ -833,7 +833,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `, OS_IMAGE_ID)
 
 const testAccComputeV2Instance_personality = `
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   personality {
@@ -848,7 +848,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `
 
 var testAccComputeV2Instance_multiEphemeral = fmt.Sprintf(`
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "terraform-test"
   security_groups = ["default"]
   block_device {
@@ -876,21 +876,21 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `, OS_IMAGE_ID)
 
 var testAccComputeV2Instance_accessIPv4 = fmt.Sprintf(`
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   cidr = "192.168.1.0/24"
   ip_version = 4
   enable_dhcp = true
   no_gateway = true
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
-  depends_on = ["openstack_networking_subnet_v2.subnet_1"]
+resource "huaweicloud_compute_instance_v2" "instance_1" {
+  depends_on = ["huaweicloud_networking_subnet_v2.subnet_1"]
 
   name = "instance_1"
   security_groups = ["default"]
@@ -900,7 +900,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
   }
 
   network {
-    uuid = "${openstack_networking_network_v2.network_1.id}"
+    uuid = "${huaweicloud_networking_network_v2.network_1.id}"
     fixed_ip_v4 = "192.168.1.100"
     access_network = true
   }
@@ -908,7 +908,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_changeFixedIP_1 = fmt.Sprintf(`
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   network {
@@ -919,7 +919,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_changeFixedIP_2 = fmt.Sprintf(`
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   network {
@@ -930,7 +930,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `, OS_NETWORK_ID)
 
 const testAccComputeV2Instance_stopBeforeDestroy = `
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   stop_before_destroy = true
@@ -938,7 +938,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `
 
 const testAccComputeV2Instance_metadataRemove_1 = `
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   metadata {
@@ -949,7 +949,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `
 
 const testAccComputeV2Instance_metadataRemove_2 = `
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   metadata {
@@ -960,7 +960,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `
 
 const testAccComputeV2Instance_forceDelete = `
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   force_delete = true
@@ -968,7 +968,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `
 
 const testAccComputeV2Instance_timeout = `
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
 
@@ -979,21 +979,21 @@ resource "openstack_compute_instance_v2" "instance_1" {
 `
 
 var testAccComputeV2Instance_networkNameToID = fmt.Sprintf(`
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   cidr = "192.168.1.0/24"
   ip_version = 4
   enable_dhcp = true
   no_gateway = true
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
-  depends_on = ["openstack_networking_subnet_v2.subnet_1"]
+resource "huaweicloud_compute_instance_v2" "instance_1" {
+  depends_on = ["huaweicloud_networking_subnet_v2.subnet_1"]
 
   name = "instance_1"
   security_groups = ["default"]
@@ -1003,89 +1003,89 @@ resource "openstack_compute_instance_v2" "instance_1" {
   }
 
   network {
-    name = "${openstack_networking_network_v2.network_1.name}"
+    name = "${huaweicloud_networking_network_v2.network_1.name}"
   }
 
 }
 `, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_crazyNICs = fmt.Sprintf(`
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   cidr = "192.168.1.0/24"
   ip_version = 4
   enable_dhcp = true
   no_gateway = true
 }
 
-resource "openstack_networking_network_v2" "network_2" {
+resource "huaweicloud_networking_network_v2" "network_2" {
   name = "network_2"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_2" {
+resource "huaweicloud_networking_subnet_v2" "subnet_2" {
   name = "subnet_2"
-  network_id = "${openstack_networking_network_v2.network_2.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_2.id}"
   cidr = "192.168.2.0/24"
   ip_version = 4
   enable_dhcp = true
   no_gateway = true
 }
 
-resource "openstack_networking_port_v2" "port_1" {
+resource "huaweicloud_networking_port_v2" "port_1" {
   name = "port_1"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   admin_state_up = "true"
 
   fixed_ip {
-    subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+    subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
     ip_address = "192.168.1.103"
   }
 }
 
-resource "openstack_networking_port_v2" "port_2" {
+resource "huaweicloud_networking_port_v2" "port_2" {
   name = "port_2"
-  network_id = "${openstack_networking_network_v2.network_2.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_2.id}"
   admin_state_up = "true"
 
   fixed_ip {
-    subnet_id = "${openstack_networking_subnet_v2.subnet_2.id}"
+    subnet_id = "${huaweicloud_networking_subnet_v2.subnet_2.id}"
     ip_address = "192.168.2.103"
   }
 }
 
-resource "openstack_networking_port_v2" "port_3" {
+resource "huaweicloud_networking_port_v2" "port_3" {
   name = "port_3"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   admin_state_up = "true"
 
   fixed_ip {
-    subnet_id = "${openstack_networking_subnet_v2.subnet_1.id}"
+    subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
     ip_address = "192.168.1.104"
   }
 }
 
-resource "openstack_networking_port_v2" "port_4" {
+resource "huaweicloud_networking_port_v2" "port_4" {
   name = "port_4"
-  network_id = "${openstack_networking_network_v2.network_2.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_2.id}"
   admin_state_up = "true"
 
   fixed_ip {
-    subnet_id = "${openstack_networking_subnet_v2.subnet_2.id}"
+    subnet_id = "${huaweicloud_networking_subnet_v2.subnet_2.id}"
     ip_address = "192.168.2.104"
   }
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   depends_on = [
-    "openstack_networking_subnet_v2.subnet_1",
-    "openstack_networking_subnet_v2.subnet_2",
-    "openstack_networking_port_v2.port_1",
-    "openstack_networking_port_v2.port_2",
+    "huaweicloud_networking_subnet_v2.subnet_1",
+    "huaweicloud_networking_subnet_v2.subnet_2",
+    "huaweicloud_networking_port_v2.port_1",
+    "huaweicloud_networking_port_v2.port_2",
   ]
 
   name = "instance_1"
@@ -1096,39 +1096,39 @@ resource "openstack_compute_instance_v2" "instance_1" {
   }
 
   network {
-    uuid = "${openstack_networking_network_v2.network_1.id}"
+    uuid = "${huaweicloud_networking_network_v2.network_1.id}"
     fixed_ip_v4 = "192.168.1.100"
   }
 
   network {
-    uuid = "${openstack_networking_network_v2.network_2.id}"
+    uuid = "${huaweicloud_networking_network_v2.network_2.id}"
     fixed_ip_v4 = "192.168.2.100"
   }
 
   network {
-    uuid = "${openstack_networking_network_v2.network_1.id}"
+    uuid = "${huaweicloud_networking_network_v2.network_1.id}"
     fixed_ip_v4 = "192.168.1.101"
   }
 
   network {
-    uuid = "${openstack_networking_network_v2.network_2.id}"
+    uuid = "${huaweicloud_networking_network_v2.network_2.id}"
     fixed_ip_v4 = "192.168.2.101"
   }
 
   network {
-    port = "${openstack_networking_port_v2.port_1.id}"
+    port = "${huaweicloud_networking_port_v2.port_1.id}"
   }
 
   network {
-    port = "${openstack_networking_port_v2.port_2.id}"
+    port = "${huaweicloud_networking_port_v2.port_2.id}"
   }
 
   network {
-    port = "${openstack_networking_port_v2.port_3.id}"
+    port = "${huaweicloud_networking_port_v2.port_3.id}"
   }
 
   network {
-    port = "${openstack_networking_port_v2.port_4.id}"
+    port = "${huaweicloud_networking_port_v2.port_4.id}"
   }
 }
 `, OS_NETWORK_ID)

@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func TestAccBlockStorageVolumeAttachV2_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccBlockStorageVolumeAttachV2_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBlockStorageVolumeAttachV2Exists("openstack_blockstorage_volume_attach_v2.va_1", &va),
+					testAccCheckBlockStorageVolumeAttachV2Exists("huaweicloud_blockstorage_volume_attach_v2.va_1", &va),
 				),
 			},
 		},
@@ -40,7 +40,7 @@ func TestAccBlockStorageVolumeAttachV2_timeout(t *testing.T) {
 			resource.TestStep{
 				Config: testAccBlockStorageVolumeAttachV2_timeout,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBlockStorageVolumeAttachV2Exists("openstack_blockstorage_volume_attach_v2.va_1", &va),
+					testAccCheckBlockStorageVolumeAttachV2Exists("huaweicloud_blockstorage_volume_attach_v2.va_1", &va),
 				),
 			},
 		},
@@ -55,7 +55,7 @@ func testAccCheckBlockStorageVolumeAttachV2Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_blockstorage_volume_attach_v2" {
+		if rs.Type != "huaweicloud_blockstorage_volume_attach_v2" {
 			continue
 		}
 
@@ -126,13 +126,13 @@ func testAccCheckBlockStorageVolumeAttachV2Exists(n string, va *volumes.Attachme
 }
 
 const testAccBlockStorageVolumeAttachV2_basic = `
-resource "openstack_blockstorage_volume_v2" "volume_1" {
+resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 1
 }
 
-resource "openstack_blockstorage_volume_attach_v2" "va_1" {
-  volume_id = "${openstack_blockstorage_volume_v2.volume_1.id}"
+resource "huaweicloud_blockstorage_volume_attach_v2" "va_1" {
+  volume_id = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
   device = "auto"
 
   host_name = "devstack"
@@ -144,13 +144,13 @@ resource "openstack_blockstorage_volume_attach_v2" "va_1" {
 `
 
 const testAccBlockStorageVolumeAttachV2_timeout = `
-resource "openstack_blockstorage_volume_v2" "volume_1" {
+resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 1
 }
 
-resource "openstack_blockstorage_volume_attach_v2" "va_1" {
-  volume_id = "${openstack_blockstorage_volume_v2.volume_1.id}"
+resource "huaweicloud_blockstorage_volume_attach_v2" "va_1" {
+  volume_id = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
   device = "auto"
 
   host_name = "devstack"

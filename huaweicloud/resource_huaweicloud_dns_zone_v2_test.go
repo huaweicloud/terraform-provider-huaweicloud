@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -24,20 +24,20 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccDNSV2Zone_basic(zoneName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2ZoneExists("openstack_dns_zone_v2.zone_1", &zone),
+					testAccCheckDNSV2ZoneExists("huaweicloud_dns_zone_v2.zone_1", &zone),
 					resource.TestCheckResourceAttr(
-						"openstack_dns_zone_v2.zone_1", "description", "a zone"),
+						"huaweicloud_dns_zone_v2.zone_1", "description", "a zone"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccDNSV2Zone_update(zoneName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("openstack_dns_zone_v2.zone_1", "name", zoneName),
-					resource.TestCheckResourceAttr("openstack_dns_zone_v2.zone_1", "email", "email2@example.com"),
-					resource.TestCheckResourceAttr("openstack_dns_zone_v2.zone_1", "ttl", "6000"),
-					resource.TestCheckResourceAttr("openstack_dns_zone_v2.zone_1", "type", "PRIMARY"),
+					resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "name", zoneName),
+					resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "email", "email2@example.com"),
+					resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "ttl", "6000"),
+					resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "type", "PRIMARY"),
 					resource.TestCheckResourceAttr(
-						"openstack_dns_zone_v2.zone_1", "description", "an updated zone"),
+						"huaweicloud_dns_zone_v2.zone_1", "description", "an updated zone"),
 				),
 			},
 		},
@@ -56,10 +56,10 @@ func TestAccDNSV2Zone_readTTL(t *testing.T) {
 			resource.TestStep{
 				Config: testAccDNSV2Zone_readTTL(zoneName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2ZoneExists("openstack_dns_zone_v2.zone_1", &zone),
-					resource.TestCheckResourceAttr("openstack_dns_zone_v2.zone_1", "type", "PRIMARY"),
+					testAccCheckDNSV2ZoneExists("huaweicloud_dns_zone_v2.zone_1", &zone),
+					resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "type", "PRIMARY"),
 					resource.TestMatchResourceAttr(
-						"openstack_dns_zone_v2.zone_1", "ttl", regexp.MustCompile("^[0-9]+$")),
+						"huaweicloud_dns_zone_v2.zone_1", "ttl", regexp.MustCompile("^[0-9]+$")),
 				),
 			},
 		},
@@ -78,7 +78,7 @@ func TestAccDNSV2Zone_timeout(t *testing.T) {
 			resource.TestStep{
 				Config: testAccDNSV2Zone_timeout(zoneName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2ZoneExists("openstack_dns_zone_v2.zone_1", &zone),
+					testAccCheckDNSV2ZoneExists("huaweicloud_dns_zone_v2.zone_1", &zone),
 				),
 			},
 		},
@@ -93,7 +93,7 @@ func testAccCheckDNSV2ZoneDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_dns_zone_v2" {
+		if rs.Type != "huaweicloud_dns_zone_v2" {
 			continue
 		}
 
@@ -140,7 +140,7 @@ func testAccCheckDNSV2ZoneExists(n string, zone *zones.Zone) resource.TestCheckF
 
 func testAccDNSV2Zone_basic(zoneName string) string {
 	return fmt.Sprintf(`
-		resource "openstack_dns_zone_v2" "zone_1" {
+		resource "huaweicloud_dns_zone_v2" "zone_1" {
 			name = "%s"
 			email = "email1@example.com"
 			description = "a zone"
@@ -152,7 +152,7 @@ func testAccDNSV2Zone_basic(zoneName string) string {
 
 func testAccDNSV2Zone_update(zoneName string) string {
 	return fmt.Sprintf(`
-		resource "openstack_dns_zone_v2" "zone_1" {
+		resource "huaweicloud_dns_zone_v2" "zone_1" {
 			name = "%s"
 			email = "email2@example.com"
 			description = "an updated zone"
@@ -164,7 +164,7 @@ func testAccDNSV2Zone_update(zoneName string) string {
 
 func testAccDNSV2Zone_readTTL(zoneName string) string {
 	return fmt.Sprintf(`
-		resource "openstack_dns_zone_v2" "zone_1" {
+		resource "huaweicloud_dns_zone_v2" "zone_1" {
 			name = "%s"
 			email = "email1@example.com"
 		}
@@ -173,7 +173,7 @@ func testAccDNSV2Zone_readTTL(zoneName string) string {
 
 func testAccDNSV2Zone_timeout(zoneName string) string {
 	return fmt.Sprintf(`
-		resource "openstack_dns_zone_v2" "zone_1" {
+		resource "huaweicloud_dns_zone_v2" "zone_1" {
 			name = "%s"
 			email = "email@example.com"
 			ttl = 3000

@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ func TestAccComputeV2FloatingIP_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccComputeV2FloatingIP_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2FloatingIPExists("openstack_compute_floatingip_v2.fip_1", &fip),
+					testAccCheckComputeV2FloatingIPExists("huaweicloud_compute_floatingip_v2.fip_1", &fip),
 				),
 			},
 		},
@@ -36,7 +36,7 @@ func testAccCheckComputeV2FloatingIPDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_compute_floatingip_v2" {
+		if rs.Type != "huaweicloud_compute_floatingip_v2" {
 			continue
 		}
 
@@ -82,6 +82,6 @@ func testAccCheckComputeV2FloatingIPExists(n string, kp *floatingips.FloatingIP)
 }
 
 const testAccComputeV2FloatingIP_basic = `
-resource "openstack_compute_floatingip_v2" "fip_1" {
+resource "huaweicloud_compute_floatingip_v2" "fip_1" {
 }
 `

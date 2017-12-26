@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccFWRuleV1_importBasic(t *testing.T) {
-	resourceName := "openstack_fw_rule_v1.rule_1"
+	resourceName := "huaweicloud_fw_rule_v1.rule_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

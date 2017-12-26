@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -21,13 +21,13 @@ func TestAccLBV1Monitor_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccLBV1Monitor_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV1MonitorExists("openstack_lb_monitor_v1.monitor_1", &monitor),
+					testAccCheckLBV1MonitorExists("huaweicloud_lb_monitor_v1.monitor_1", &monitor),
 				),
 			},
 			resource.TestStep{
 				Config: testAccLBV1Monitor_update,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("openstack_lb_monitor_v1.monitor_1", "delay", "20"),
+					resource.TestCheckResourceAttr("huaweicloud_lb_monitor_v1.monitor_1", "delay", "20"),
 				),
 			},
 		},
@@ -45,7 +45,7 @@ func TestAccLBV1Monitor_timeout(t *testing.T) {
 			resource.TestStep{
 				Config: testAccLBV1Monitor_timeout,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV1MonitorExists("openstack_lb_monitor_v1.monitor_1", &monitor),
+					testAccCheckLBV1MonitorExists("huaweicloud_lb_monitor_v1.monitor_1", &monitor),
 				),
 			},
 		},
@@ -60,7 +60,7 @@ func testAccCheckLBV1MonitorDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "openstack_lb_monitor_v1" {
+		if rs.Type != "huaweicloud_lb_monitor_v1" {
 			continue
 		}
 
@@ -106,7 +106,7 @@ func testAccCheckLBV1MonitorExists(n string, monitor *monitors.Monitor) resource
 }
 
 const testAccLBV1Monitor_basic = `
-resource "openstack_lb_monitor_v1" "monitor_1" {
+resource "huaweicloud_lb_monitor_v1" "monitor_1" {
   type = "PING"
   delay = 30
   timeout = 5
@@ -116,7 +116,7 @@ resource "openstack_lb_monitor_v1" "monitor_1" {
 `
 
 const testAccLBV1Monitor_update = `
-resource "openstack_lb_monitor_v1" "monitor_1" {
+resource "huaweicloud_lb_monitor_v1" "monitor_1" {
   type = "PING"
   delay = 20
   timeout = 5
@@ -126,7 +126,7 @@ resource "openstack_lb_monitor_v1" "monitor_1" {
 `
 
 const testAccLBV1Monitor_timeout = `
-resource "openstack_lb_monitor_v1" "monitor_1" {
+resource "huaweicloud_lb_monitor_v1" "monitor_1" {
   type = "PING"
   delay = 30
   timeout = 5

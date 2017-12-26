@@ -1,4 +1,4 @@
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
@@ -71,7 +71,7 @@ func resourceLBPoolV1() *schema.Resource {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Optional: true,
-				Removed:  "Use openstack_lb_member_v1 instead.",
+				Removed:  "Use huaweicloud_lb_member_v1 instead.",
 			},
 			"monitor_ids": &schema.Schema{
 				Type:     schema.TypeSet,

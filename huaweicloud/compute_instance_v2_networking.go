@@ -1,5 +1,5 @@
 // This set of code handles all functions required to configure networking
-// on an openstack_compute_instance_v2 resource.
+// on an huaweicloud_compute_instance_v2 resource.
 //
 // This is a complicated task because it's not possible to obtain all
 // information in a single API call. In fact, it even traverses multiple
@@ -7,7 +7,7 @@
 //
 // The end result, from the user's point of view, is a structured set of
 // understandable network information within the instance resource.
-package openstack
+package huaweicloud
 
 import (
 	"fmt"
