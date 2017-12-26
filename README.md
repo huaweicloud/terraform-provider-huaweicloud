@@ -1,5 +1,5 @@
-Terraform OpenStack Provider
-============================
+Terraform HuaweiCloud Provider
+==============================
 
 - Website: https://www.terraform.io
 - [![Gitter chat](https://badges.gitter.im/hashicorp-terraform/Lobby.png)](https://gitter.im/hashicorp-terraform/Lobby)
@@ -12,8 +12,11 @@ Maintainers
 
 This provider plugin is maintained by:
 
-* Gavin Williams ([@fatmcgav](https://github.com/fatmcgav))
-* Joe Topjian ([@jtopjian](https://github.com/jtopjian))
+* Edward Lee ([@freesky-edward](https://github.com/freesky-edward))
+* zengchen ([@zengchen1024](https://github.com/zengchen1024))
+* Zhenguo Niu ([@niuzhenguo](https://github.com/niuzhenguo))
+* huangtianhua ([@h00130372](https://github.com/h00130372))
+* Chen Ying ([@chenyingkof](https://github.com/chenyingkof))
 
 Requirements
 ------------
@@ -24,25 +27,76 @@ Requirements
 Building The Provider
 ---------------------
 
-Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-$PROVIDER_NAME`
+Clone repository to: `$GOPATH/src/github.com/huawei-clouds/terraform-provider-huaweicloud`
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-$ git clone https://github.com/terraform-providers/terraform-provider-$PROVIDER_NAME
+$ mkdir -p $GOPATH/src/github.com/huawei-clouds; cd $GOPATH/src/github.com/huawei-clouds
+$ git clone https://github.com/huawei-clouds/terraform-provider-huaweicloud
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-$ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-$PROVIDER_NAME
+$ cd $GOPATH/src/github.com/huawei-clouds/terraform-provider-huaweicloud
 $ make build
 ```
 
+## Exact steps on clean Ubuntu 16.04
+
+```sh
+# prerequisites are sudo privileges, unzip, make, wget and git.  Use apt install if missing.
+$ wget https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz
+$ sudo tar -C /usr/local -xzf go1.9.1.linux-amd64.tar.gz
+$ export PATH=$PATH:/usr/local/go/bin # You should put in your .profile or .bashrc
+$ go version # to verify it runs and version #
+$ go get github.com/huawei-clouds/terraform-provider-huaweicloud
+$ cd ~/go/src/github.com/huawei-clouds/terraform-provider-huaweicloud
+$ make build
+$ export PATH=$PATH:~/go/bin # You should put in your .profile or .bashrc
+$ wget https://releases.hashicorp.com/terraform/0.10.7/terraform_0.10.7_linux_amd64.zip
+$ unzip terraform_0.10.7_linux_amd64.zip
+$ mv terraform ~/go/bin
+$ terraform version # to verify it runs and version #
+$ vi test.tf # paste in Quick Start contents, fix authentication information
+$ terraform init
+$ terraform plan
+$ terraform apply # Should all work if everything is correct.
+
+```
+
+## Quick Start
+
+```hcl
+# Configure the HuaweiCloud Provider
+# This will work with a single defined/default network, otherwise you need to specify network
+# to fix errrors about multiple networks found.
+provider "huaweicloud" {
+  user_name   = "user"
+  tenant_name = "tenant"
+  domain_name = "domain"
+  password    = "pwd"
+  auth_url    = "https://iam.eu-de.otc.t-systems.com/v3"
+  region      = "eu-de"
+}
+
+# Create a web server
+resource "huaweicloud_compute_instance_v2" "test-server" {
+  name		  = "test-server"
+  image_name  = "Standard_CentOS_7_latest"
+  flavor_name = "s1.medium"
+}
+```
+
+### Full Example
+----------------------
+Please see full example at https://github.com/huawei-clouds/terraform-provider-huaweicloud/tree/master/examples, 
+you must fill in the required variables in variables.tf.
+
 Using the provider
 ----------------------
-Please see the documentation at [terraform.io](https://www.terraform.io/docs/providers/openstack/index.html).
+Please see the documentation at [provider usage](website/docs/index.html.markdown).
 
-Or you can browse the documentation within this repo [here](https://github.com/terraform-providers/terraform-provider-openstack/tree/master/website/docs).
+Or you can browse the documentation within this repo [here](https://github.com/huawei-clouds/terraform-provider-huaweicloud/tree/master/website/docs).
 
 Developing the Provider
 ---------------------------
@@ -54,7 +108,7 @@ To compile the provider, run `make build`. This will build the provider and put 
 ```sh
 $ make build
 ...
-$ $GOPATH/bin/terraform-provider-$PROVIDER_NAME
+$ $GOPATH/bin/terraform-provider-huaweicloud
 ...
 ```
 
@@ -71,22 +125,3 @@ In order to run the full suite of Acceptance tests, run `make testacc`.
 ```sh
 $ make testacc
 ```
-
-Thank You
----------
-
-We'd like to extend special thanks and appreciation to the following:
-
-### OpenLab
-
-<a href="http://openlabtesting.org/"><img src="assets/openlab.png" width="600px"></a>
-
-OpenLab is providing a full CI environment to test each PR and merge for a variety of OpenStack releases.
-
-### VEXXHOST
-
-<a href="https://vexxhost.com/"><img src="assets/vexxhost.png" width="600px"></a>
-
-VEXXHOST is providing their services to assist with the development and testing of this provider.
-
-
