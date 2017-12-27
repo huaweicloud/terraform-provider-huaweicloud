@@ -50,7 +50,7 @@ func resourceDNSRecordSetV2() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     false,
-				ValidateFunc: resourceRecordsetValidateDescription,
+				ValidateFunc: resourceValidateDescription,
 			},
 			"records": &schema.Schema{
 				Type:     schema.TypeList,
@@ -65,7 +65,7 @@ func resourceDNSRecordSetV2() *schema.Resource {
 				Computed:     true,
 				ForceNew:     false,
 				Default:      300,
-				ValidateFunc: resourceRecordsetValidateTTL,
+				ValidateFunc: resourceValidateTTL,
 			},
 			"type": &schema.Schema{
 				Type:         schema.TypeString,
@@ -270,6 +270,7 @@ func resourceDNSRecordSetV2Delete(d *schema.ResourceData, meta interface{}) erro
 
 func parseStatus(rawStatus string) string {
 	splits := strings.Split(rawStatus, "_")
+	// rawStatus maybe one of PENDING_CREATE, PENDING_UPDATE, PENDING_DELETE, ACTIVE, or ERROR
 	return splits[0]
 }
 
@@ -301,7 +302,7 @@ func parseDNSV2RecordSetID(id string) (string, string, error) {
 	return zoneID, recordsetID, nil
 }
 
-func resourceRecordsetValidateDescription(v interface{}, k string) (ws []string, errors []error) {
+func resourceValidateDescription(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 255 {
 		errors = append(errors, fmt.Errorf("%q must less than 255 characters", k))
@@ -324,7 +325,7 @@ func resourceRecordsetValidateType(v interface{}, k string) (ws []string, errors
 	return
 }
 
-func resourceRecordsetValidateTTL(v interface{}, k string) (ws []string, errors []error) {
+func resourceValidateTTL(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(int)
 	if 300 <= value && value <= 2147483647 {
 		return

@@ -29,17 +29,18 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 						"huaweicloud_dns_zone_v2.zone_1", "description", "a zone"),
 				),
 			},
-			resource.TestStep{
-				Config: testAccDNSV2Zone_update(zoneName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "name", zoneName),
-					resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "email", "email2@example.com"),
-					resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "ttl", "6000"),
-					resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "type", "PRIMARY"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dns_zone_v2.zone_1", "description", "an updated zone"),
-				),
-			},
+			// huaweicloud dns zone doesn't support update
+			//resource.TestStep{
+			//	Config: testAccDNSV2Zone_update(zoneName),
+			//	Check: resource.ComposeTestCheckFunc(
+			//		resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "name", zoneName),
+			//		resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "email", "email2@example.com"),
+			//		resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "ttl", "6000"),
+			//		resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "type", "PRIMARY"),
+			//		resource.TestCheckResourceAttr(
+			//			"huaweicloud_dns_zone_v2.zone_1", "description", "an updated zone"),
+			//	),
+			//},
 		},
 	})
 }
@@ -89,7 +90,7 @@ func testAccCheckDNSV2ZoneDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	dnsClient, err := config.dnsV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack DNS client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -120,7 +121,7 @@ func testAccCheckDNSV2ZoneExists(n string, zone *zones.Zone) resource.TestCheckF
 		config := testAccProvider.Meta().(*Config)
 		dnsClient, err := config.dnsV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack DNS client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 		}
 
 		found, err := zones.Get(dnsClient, rs.Primary.ID).Extract()
@@ -145,7 +146,7 @@ func testAccDNSV2Zone_basic(zoneName string) string {
 			email = "email1@example.com"
 			description = "a zone"
 			ttl = 3000
-			type = "PRIMARY"
+			#type = "PRIMARY"
 		}
 	`, zoneName)
 }
@@ -157,7 +158,7 @@ func testAccDNSV2Zone_update(zoneName string) string {
 			email = "email2@example.com"
 			description = "an updated zone"
 			ttl = 6000
-			type = "PRIMARY"
+			#type = "PRIMARY"
 		}
 	`, zoneName)
 }
