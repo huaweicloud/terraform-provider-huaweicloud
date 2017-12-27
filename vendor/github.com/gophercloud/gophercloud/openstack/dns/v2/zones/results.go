@@ -103,6 +103,7 @@ type Zone struct {
 	// Secondary zones are slaved from another DNS Server.
 	// Defaults to Primary.
 	Type string `json:"type"`
+	ZoneType string `json:"zone_type"`
 
 	// Masters is the servers for slave servers to get DNS information from.
 	Masters []string `json:"masters"`
