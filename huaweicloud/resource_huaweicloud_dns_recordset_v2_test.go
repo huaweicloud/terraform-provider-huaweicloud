@@ -95,7 +95,7 @@ func testAccCheckDNSV2RecordSetDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	dnsClient, err := config.dnsV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack DNS client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -131,7 +131,7 @@ func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet)
 		config := testAccProvider.Meta().(*Config)
 		dnsClient, err := config.dnsV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack DNS client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 		}
 
 		zoneID, recordsetID, err := parseDNSV2RecordSetID(rs.Primary.ID)
@@ -161,7 +161,7 @@ func testAccDNSV2RecordSet_basic(zoneName string) string {
 			email = "email2@example.com"
 			description = "a zone"
 			ttl = 6000
-			type = "PRIMARY"
+			#type = "PRIMARY"
 		}
 
 		resource "huaweicloud_dns_recordset_v2" "recordset_1" {
@@ -182,7 +182,7 @@ func testAccDNSV2RecordSet_update(zoneName string) string {
 			email = "email2@example.com"
 			description = "an updated zone"
 			ttl = 6000
-			type = "PRIMARY"
+			#type = "PRIMARY"
 		}
 
 		resource "huaweicloud_dns_recordset_v2" "recordset_1" {
@@ -203,7 +203,7 @@ func testAccDNSV2RecordSet_readTTL(zoneName string) string {
 			email = "email2@example.com"
 			description = "an updated zone"
 			ttl = 6000
-			type = "PRIMARY"
+			#type = "PRIMARY"
 		}
 
 		resource "huaweicloud_dns_recordset_v2" "recordset_1" {
@@ -222,7 +222,7 @@ func testAccDNSV2RecordSet_timeout(zoneName string) string {
 			email = "email2@example.com"
 			description = "an updated zone"
 			ttl = 6000
-			type = "PRIMARY"
+			#type = "PRIMARY"
 		}
 
 		resource "huaweicloud_dns_recordset_v2" "recordset_1" {
