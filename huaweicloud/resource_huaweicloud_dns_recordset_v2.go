@@ -270,11 +270,7 @@ func resourceDNSRecordSetV2Delete(d *schema.ResourceData, meta interface{}) erro
 
 func parseStatus(rawStatus string) string {
 	splits := strings.Split(rawStatus, "_")
-	if len(splits) > 1 {
-		return splits[0]
-	} else {
-		return rawStatus
-	}
+	return splits[0]
 }
 
 func waitForDNSRecordSet(dnsClient *gophercloud.ServiceClient, zoneID, recordsetId string) resource.StateRefreshFunc {
