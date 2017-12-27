@@ -330,7 +330,7 @@ func (opts SubnetCreateOpts) ToSubnetCreateMap() (map[string]interface{}, error)
 // ZoneCreateOpts represents the attributes used when creating a new DNS zone.
 type ZoneCreateOpts struct {
 	zones.CreateOpts
-	ValueSpecs map[string]string `json:"value_specs,omitempty"`
+	ValueSpecs map[string]interface{} `json:"value_specs,omitempty"`
 }
 
 // ToZoneCreateMap casts a CreateOpts struct to a map.
