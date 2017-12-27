@@ -250,7 +250,7 @@ func resourceDNSRecordSetV2Delete(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Waiting for DNS record set (%s) to be deleted", recordsetID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"DELETED"},
-		Pending:    []string{"ACTIVE", "PENDING"},
+		Pending:    []string{"ACTIVE", "PENDING", "ERROR"},
 		Refresh:    waitForDNSRecordSet(dnsClient, zoneID, recordsetID),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
