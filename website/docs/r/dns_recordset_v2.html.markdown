@@ -1,7 +1,7 @@
 ---
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicluod_dns_recordset_v2"
-sidebar_current: "docs-huaweicluod-resource-dns-recordset-v2"
+page_title: "HuaweiCloud: huaweicloud_dns_recordset_v2"
+sidebar_current: "docs-huaweicloud-resource-dns-recordset-v2"
 description: |-
   Manages a DNS record set in the HuaweiCloud DNS Service
 ---
