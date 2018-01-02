@@ -67,7 +67,6 @@ func resourceDNSZoneV2() *schema.Resource {
 			"ttl": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Computed:     true,
 				ForceNew:     true,
 				Default:      300,
 				ValidateFunc: resourceValidateTTL,
