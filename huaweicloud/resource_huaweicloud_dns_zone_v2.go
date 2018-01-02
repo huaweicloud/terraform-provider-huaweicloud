@@ -149,9 +149,18 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 		attrs[k] = v.(string)
 	} */
 
+	zone_type := d.Get("zone_type").(string)
+	router := d.Get("router").(*schema.Set).List()
+
+	// router is required when creating private zone
+	if zone_type == "private" {
+		if len(router) < 1 {
+			return fmt.Errorf("The argument (router) is required when creating HuaweiCloud DNS private zone")
+		}
+	}
 	vs := MapResourceProp(d, "value_specs")
 	// Add zone_type to the list.  We do this to keep GopherCloud OpenStack standard.
-	vs["zone_type"] = d.Get("zone_type").(string)
+	vs["zone_type"] = zone_type
 	vs["router"] = resourceDNSRouter(d)
 	createOpts := ZoneCreateOpts{
 		zones.CreateOpts{
