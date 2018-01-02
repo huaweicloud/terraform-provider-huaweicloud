@@ -62,7 +62,6 @@ func resourceDNSRecordSetV2() *schema.Resource {
 			"ttl": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Computed:     true,
 				ForceNew:     false,
 				Default:      300,
 				ValidateFunc: resourceValidateTTL,
@@ -70,7 +69,6 @@ func resourceDNSRecordSetV2() *schema.Resource {
 			"type": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
-				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: resourceRecordsetValidateType,
 			},
