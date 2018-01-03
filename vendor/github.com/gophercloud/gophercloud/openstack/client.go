@@ -342,9 +342,15 @@ func NewDNSV2(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (
 // NewImageServiceV2 creates a ServiceClient that may be used to access the v2
 // image service.
 func NewImageServiceV2(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
-	sc, err := initClientOpts(client, eo, "image")
-	sc.ResourceBase = sc.Endpoint + "v2/"
-	return sc, err
+	//sc, err := initClientOpts(client, eo, "image")
+	sc := new(gophercloud.ServiceClient)
+	sc.ProviderClient = client
+	sc.Type = "image"
+
+	//sc.ResourceBase = sc.Endpoint + "v2/"
+	sc.Endpoint = "https://ims.cn-north-1.myhwclouds.com"
+	sc.ResourceBase = sc.Endpoint
+	return sc, nil
 }
 
 // NewLoadBalancerV2 creates a ServiceClient that may be used to access the v2

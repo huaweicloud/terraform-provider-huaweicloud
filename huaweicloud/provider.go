@@ -13,6 +13,20 @@ var osMutexKV = mutexkv.NewMutexKV()
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
+			"access_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("OS_ACCESS_KEY", ""),
+				Description: descriptions["access_key"],
+			},
+
+			"secret_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("OS_SECRET_KEY", ""),
+				Description: descriptions["secret_key"],
+			},
+
 			"auth_url": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -161,6 +175,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_networking_network_v2":  dataSourceNetworkingNetworkV2(),
 			"huaweicloud_networking_subnet_v2":   dataSourceNetworkingSubnetV2(),
 			"huaweicloud_networking_secgroup_v2": dataSourceNetworkingSecGroupV2(),
+			"huaweicloud_s3_bucket_object":       dataSourceS3BucketObject(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -204,6 +219,9 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_networking_secgroup_rule_v2":     resourceNetworkingSecGroupRuleV2(),
 			"huaweicloud_objectstorage_container_v1":      resourceObjectStorageContainerV1(),
 			"huaweicloud_objectstorage_object_v1":         resourceObjectStorageObjectV1(),
+			"huaweicloud_s3_bucket":                       resourceS3Bucket(),
+			"huaweicloud_s3_bucket_policy":                resourceS3BucketPolicy(),
+			"huaweicloud_s3_bucket_object":                resourceS3BucketObject(),
 		},
 
 		ConfigureFunc: configureProvider,
@@ -258,6 +276,8 @@ func init() {
 
 func configureProvider(d *schema.ResourceData) (interface{}, error) {
 	config := Config{
+		AccessKey:        d.Get("access_key").(string),
+		SecretKey:        d.Get("secret_key").(string),
 		CACertFile:       d.Get("cacert_file").(string),
 		ClientCertFile:   d.Get("cert").(string),
 		ClientKeyFile:    d.Get("key").(string),
