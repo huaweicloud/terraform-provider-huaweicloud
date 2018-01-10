@@ -75,8 +75,9 @@ provider "huaweicloud" {
   tenant_name = "tenant"
   domain_name = "domain"
   password    = "pwd"
-  auth_url    = "https://iam.eu-de.otc.t-systems.com/v3"
-  region      = "eu-de"
+  # the auth url format follows: https://iam.{region_id}.myhwclouds.com:443/v3
+  auth_url    = "https://iam.cn-north-1.myhwclouds.com:443/v3"
+  region      = "cn-north-1"
 }
 
 # Create a web server
