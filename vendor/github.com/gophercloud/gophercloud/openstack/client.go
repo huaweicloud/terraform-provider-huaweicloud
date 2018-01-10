@@ -214,6 +214,65 @@ func v3auth(client *gophercloud.ProviderClient, endpoint string, opts tokens3.Au
 	return nil
 }
 
+func GetProjectId(client *gophercloud.ProviderClient) (string, error) {
+	versions := []*utils.Version{
+		{ID: v2, Priority: 20, Suffix: "/v2.0/"},
+		{ID: v3, Priority: 30, Suffix: "/v3/"},
+	}
+
+	chosen, endpoint, err := utils.ChooseVersion(client, versions)
+	if err != nil {
+		return "", err
+	}
+
+	switch chosen.ID {
+	case v2:
+		return getV2ProjectId(client, endpoint)
+	case v3:
+		return getV3ProjectId(client, endpoint)
+	default:
+		return "", fmt.Errorf("Unrecognized identity version: %s", chosen.ID)
+	}
+}
+
+func getV2ProjectId(client *gophercloud.ProviderClient, endpoint string) (string, error) {
+	v2Client, err := NewIdentityV2(client, gophercloud.EndpointOpts{})
+	if err != nil {
+		return "", err
+	}
+
+	if endpoint != "" {
+		v2Client.Endpoint = endpoint
+	}
+
+	result := tokens2.Get(v2Client, client.TokenID)
+	token, err := result.ExtractToken()
+	if err != nil {
+		return "", err
+	}
+
+	return token.Tenant.ID, nil
+}
+
+func getV3ProjectId(client *gophercloud.ProviderClient, endpoint string) (string, error) {
+	v3Client, err := NewIdentityV3(client, gophercloud.EndpointOpts{})
+	if err != nil {
+		return "", err
+	}
+
+	if endpoint != "" {
+		v3Client.Endpoint = endpoint
+	}
+
+	result := tokens3.Get(v3Client, client.TokenID)
+	project, err := result.ExtractProject()
+	if err != nil {
+		return "", err
+	}
+
+	return project.ID, nil
+}
+
 // NewIdentityV2 creates a ServiceClient that may be used to interact with the
 // v2 identity service.
 func NewIdentityV2(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
@@ -273,6 +332,23 @@ func initClientOpts(client *gophercloud.ProviderClient, eo gophercloud.EndpointO
 	sc.ProviderClient = client
 	sc.Endpoint = url
 	sc.Type = clientType
+	return sc, nil
+}
+
+func initClientOpts1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts, clientType string) (*gophercloud.ServiceClient1, error) {
+	pid, e := GetProjectId(client)
+	if e != nil {
+		return nil, e
+	}
+
+	c, e := initClientOpts(client, eo, clientType)
+	if e != nil {
+		return nil, e
+	}
+
+	sc := new(gophercloud.ServiceClient1)
+	sc.ServiceClient = c
+	sc.ProjectID = pid
 	return sc, nil
 }
 
@@ -369,5 +445,13 @@ func NewKmsKeyV3(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts
 	sc.Endpoint = strings.Replace(sc.Endpoint, "v2", "v1.0", 1)
 	sc.ResourceBase = sc.Endpoint + "kms/"
 	sc.Type = "kms"
+	return sc, err
+}
+
+func NewElasticLoadBalancer(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient1, error) {
+	//sc, err := initClientOpts1(client, eo, "elb")
+	sc, err := initClientOpts1(client, eo, "vpc")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "elb", 1)
+	sc.ResourceBase = sc.Endpoint
 	return sc, err
 }

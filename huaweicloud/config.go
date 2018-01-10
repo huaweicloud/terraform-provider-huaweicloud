@@ -339,6 +339,13 @@ func (c *Config) databaseV1Client(region string) (*gophercloud.ServiceClient, er
 	})
 }
 
+func (c *Config) loadElasticLoadBalancerClient(region string) (*gophercloud.ServiceClient1, error) {
+	return openstack.NewElasticLoadBalancer(c.OsClient, gophercloud.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getEndpointType(),
+	})
+}
+
 func (c *Config) kmsKeyV3Client(region string) (*gophercloud.ServiceClient, error) {
 	return openstack.NewKmsKeyV3(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
