@@ -248,12 +248,12 @@ func (c *Config) computeS3conn(region string) (*s3.S3, error) {
 		return nil, fmt.Errorf("Missing credentials for Swift S3 Provider, need access_key and secret_key values for provider.")
 	}
 
-	client, err := openstack.NewImageServiceV2(c.OsClient, gophercloud.EndpointOpts{
+	client, err := openstack.NewNetworkV2(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),
 	})
 	// Bit of a hack, seems the only way to compute this.
-	endpoint := strings.Replace(client.Endpoint, "//ims", "//obs", 1)
+	endpoint := strings.Replace(client.Endpoint, "//vpc", "//obs", 1)
 
 	awsS3Sess := c.s3sess.Copy(&aws.Config{Endpoint: aws.String(endpoint)})
 	s3conn := s3.New(awsS3Sess)
