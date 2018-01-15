@@ -6,7 +6,7 @@ description: |-
   Attaches a Block Storage Volume to an Instance.
 ---
 
-# openstack\_compute\_volume_attach_v2
+# huaweicloud\_compute\_volume_attach_v2
 
 Attaches a Block Storage Volume to an Instance using the HuaweiCloud
 Compute (Nova) v2 API.

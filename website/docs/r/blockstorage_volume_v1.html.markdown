@@ -6,7 +6,7 @@ description: |-
   Manages a V1 volume resource within HuaweiCloud.
 ---
 
-# openstack\_blockstorage\_volume_v1
+# huaweicloud\_blockstorage\_volume_v1
 
 Manages a V1 volume resource within HuaweiCloud.
 

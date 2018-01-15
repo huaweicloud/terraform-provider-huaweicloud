@@ -6,7 +6,7 @@ description: |-
   Manages a V3 Project resource within HuaweiCloud Keystone.
 ---
 
-# openstack\_identity\_project_v3
+# huaweicloud\_identity\_project_v3
 
 Manages a V3 Project resource within HuaweiCloud Keystone.
 

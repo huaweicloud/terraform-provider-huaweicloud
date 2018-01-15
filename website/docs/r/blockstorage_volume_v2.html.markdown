@@ -6,7 +6,7 @@ description: |-
   Manages a V2 volume resource within HuaweiCloud.
 ---
 
-# openstack\_blockstorage\_volume_v2
+# huaweicloud\_blockstorage\_volume_v2
 
 Manages a V2 volume resource within HuaweiCloud.
 

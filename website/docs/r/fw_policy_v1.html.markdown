@@ -6,7 +6,7 @@ description: |-
   Manages a v1 firewall policy resource within HuaweiCloud.
 ---
 
-# openstack\_fw\_policy_v1
+# huaweicloud\_fw\_policy_v1
 
 Manages a v1 firewall policy resource within HuaweiCloud.
 

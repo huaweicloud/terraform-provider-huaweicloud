@@ -6,7 +6,7 @@ description: |-
   Manages a V3 User resource within HuaweiCloud Keystone.
 ---
 
-# openstack\_identity\_user_v3
+# huaweicloud\_identity\_user_v3
 
 Manages a V3 User resource within HuaweiCloud Keystone.
 

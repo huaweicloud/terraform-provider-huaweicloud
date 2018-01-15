@@ -6,7 +6,7 @@ description: |-
   Manages a V2 pool resource within HuaweiCloud.
 ---
 
-# openstack\_lb\_pool\_v2
+# huaweicloud\_lb\_pool\_v2
 
 Manages a V2 pool resource within HuaweiCloud.
 

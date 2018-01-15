@@ -6,7 +6,7 @@ description: |-
   Manages a V2 flavor resource within HuaweiCloud.
 ---
 
-# openstack\_compute\_flavor_v2
+# huaweicloud\_compute\_flavor_v2
 
 Manages a V2 flavor resource within HuaweiCloud.
 

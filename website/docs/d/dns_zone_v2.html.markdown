@@ -6,7 +6,7 @@ description: |-
   Get information on an HuaweiCloud DNS Zone.
 ---
 
-# openstack\_dns\_zone\_v2
+# huaweicloud\_dns\_zone\_v2
 
 Use this data source to get the ID of an available HuaweiCloud DNS zone.
 

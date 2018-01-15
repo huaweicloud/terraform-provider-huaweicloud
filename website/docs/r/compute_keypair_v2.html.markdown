@@ -6,7 +6,7 @@ description: |-
   Manages a V2 keypair resource within HuaweiCloud.
 ---
 
-# openstack\_compute\_keypair_v2
+# huaweicloud\_compute\_keypair_v2
 
 Manages a V2 keypair resource within HuaweiCloud.
 

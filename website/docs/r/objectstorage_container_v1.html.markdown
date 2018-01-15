@@ -6,7 +6,7 @@ description: |-
   Manages a V1 container resource within HuaweiCloud.
 ---
 
-# openstack\_objectstorage\_container_v1
+# huaweicloud\_objectstorage\_container_v1
 
 Manages a V1 container resource within HuaweiCloud.
 

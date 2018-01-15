@@ -6,7 +6,7 @@ description: |-
   Manages a V1 load balancer monitor resource within HuaweiCloud.
 ---
 
-# openstack\_lb\_monitor_v1
+# huaweicloud\_lb\_monitor_v1
 
 Manages a V1 load balancer monitor resource within HuaweiCloud.
 

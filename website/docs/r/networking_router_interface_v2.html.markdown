@@ -6,7 +6,7 @@ description: |-
   Manages a V2 router interface resource within HuaweiCloud.
 ---
 
-# openstack\_networking\_router_interface_v2
+# huaweicloud\_networking\_router_interface_v2
 
 Manages a V2 router interface resource within HuaweiCloud.
 

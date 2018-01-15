@@ -6,7 +6,7 @@ description: |-
   Creates an attachment connection to a Block Storage volume
 ---
 
-# openstack\_blockstorage\_volume\_attach\_v2
+# huaweicloud\_blockstorage\_volume\_attach\_v2
 
 This resource is experimental and may be removed in the future! Feedback
 is requested if you find this resource useful or if you find any problems

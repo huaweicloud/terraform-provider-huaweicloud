@@ -6,7 +6,7 @@ description: |-
   Manages a V2 loadbalancer resource within HuaweiCloud.
 ---
 
-# openstack\_lb\_loadbalancer\_v2
+# huaweicloud\_lb\_loadbalancer\_v2
 
 Manages a V2 loadbalancer resource within HuaweiCloud.
 

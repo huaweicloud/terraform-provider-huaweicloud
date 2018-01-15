@@ -6,7 +6,7 @@ description: |-
   Manages a V2 Server Group resource within HuaweiCloud.
 ---
 
-# openstack\_compute\_servergroup_v2
+# huaweicloud\_compute\_servergroup_v2
 
 Manages a V2 Server Group resource within HuaweiCloud.
 

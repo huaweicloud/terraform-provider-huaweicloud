@@ -6,7 +6,7 @@ description: |-
   Manages a V1 load balancer member resource within HuaweiCloud.
 ---
 
-# openstack\_lb\_member_v1
+# huaweicloud\_lb\_member_v1
 
 Manages a V1 load balancer member resource within HuaweiCloud.
 

@@ -6,7 +6,7 @@ description: |-
   Manages a V2 listener resource within HuaweiCloud.
 ---
 
-# openstack\_lb\_listener\_v2
+# huaweicloud\_lb\_listener\_v2
 
 Manages a V2 listener resource within HuaweiCloud.
 

@@ -6,7 +6,7 @@ description: |-
   Get information on an HuaweiCloud Image.
 ---
 
-# openstack\_images\_image\_v2
+# huaweicloud\_images\_image\_v2
 
 Use this data source to get the ID of an available HuaweiCloud image.
 

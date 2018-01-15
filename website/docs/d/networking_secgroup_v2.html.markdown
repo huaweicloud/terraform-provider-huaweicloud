@@ -6,7 +6,7 @@ description: |-
   Get information on an HuaweiCloud Security Group.
 ---
 
-# openstack\_networking\_secgroup\_v2
+# huaweicloud\_networking\_secgroup\_v2
 
 Use this data source to get the ID of an available HuaweiCloud security group.
 

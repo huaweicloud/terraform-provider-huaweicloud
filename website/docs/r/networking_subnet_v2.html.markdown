@@ -6,7 +6,7 @@ description: |-
   Manages a V2 Neutron subnet resource within HuaweiCloud.
 ---
 
-# openstack\_networking\_subnet_v2
+# huaweicloud\_networking\_subnet_v2
 
 Manages a V2 Neutron subnet resource within HuaweiCloud.
 

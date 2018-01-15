@@ -6,7 +6,7 @@ description: |-
   Manages a V2 security group resource within HuaweiCloud.
 ---
 
-# openstack\_compute\_secgroup_v2
+# huaweicloud\_compute\_secgroup_v2
 
 Manages a V2 security group resource within HuaweiCloud.
 

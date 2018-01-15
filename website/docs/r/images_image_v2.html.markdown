@@ -6,7 +6,7 @@ description: |-
   Manages a V2 Image resource within HuaweiCloud Glance.
 ---
 
-# openstack\_images\_image_v2
+# huaweicloud\_images\_image_v2
 
 Manages a V2 Image resource within HuaweiCloud Glance.
 

@@ -6,7 +6,7 @@ description: |-
   Manages a V2 Neutron security group rule resource within HuaweiCloud.
 ---
 
-# openstack\_networking\_secgroup\_rule_v2
+# huaweicloud\_networking\_secgroup\_rule_v2
 
 Manages a V2 neutron security group rule resource within HuaweiCloud.
 Unlike Nova security groups, neutron separates the group from the rules

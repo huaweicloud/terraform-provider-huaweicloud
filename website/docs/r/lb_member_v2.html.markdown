@@ -6,7 +6,7 @@ description: |-
   Manages a V2 member resource within HuaweiCloud.
 ---
 
-# openstack\_lb\_member\_v2
+# huaweicloud\_lb\_member\_v2
 
 Manages a V2 member resource within HuaweiCloud.
 

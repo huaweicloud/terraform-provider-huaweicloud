@@ -6,7 +6,7 @@ description: |-
   Associate a floating IP to an instance
 ---
 
-# openstack\_compute\_floatingip_associate_v2
+# huaweicloud\_compute\_floatingip_associate_v2
 
 Associate a floating IP to an instance. This can be used instead of the
 `floating_ip` options in `huaweicloud_compute_instance_v2`.

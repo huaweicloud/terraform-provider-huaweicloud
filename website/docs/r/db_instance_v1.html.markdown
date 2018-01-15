@@ -6,7 +6,7 @@ description: |-
   Manages a V1 DB instance resource within HuaweiCloud.
 ---
 
-# openstack\_db\_instance_v1
+# huaweicloud\_db\_instance_v1
 
 Manages a V1 DB instance resource within HuaweiCloud.
 

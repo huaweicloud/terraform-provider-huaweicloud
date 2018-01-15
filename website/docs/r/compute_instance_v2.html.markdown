@@ -6,7 +6,7 @@ description: |-
   Manages a V2 VM instance resource within HuaweiCloud.
 ---
 
-# openstack\_compute\_instance_v2
+# huaweicloud\_compute\_instance_v2
 
 Manages a V2 VM instance resource within HuaweiCloud.
 

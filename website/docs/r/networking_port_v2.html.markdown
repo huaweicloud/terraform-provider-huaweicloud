@@ -6,7 +6,7 @@ description: |-
   Manages a V2 port resource within HuaweiCloud.
 ---
 
-# openstack\_networking\_port_v2
+# huaweicloud\_networking\_port_v2
 
 Manages a V2 port resource within HuaweiCloud.
 
