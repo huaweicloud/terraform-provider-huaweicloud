@@ -1,6 +1,6 @@
 ---
 layout: "huaweicloud"
-page_title: "OpenStack: huaweicloud_elb_backendecs"
+page_title: "HuaweiCloud: huaweicloud_elb_backendecs"
 sidebar_current: "docs-huaweicloud-resource-elb-backendecs"
 description: |-
   Manages an elastic loadbalancer backendecs resource within huawei cloud.

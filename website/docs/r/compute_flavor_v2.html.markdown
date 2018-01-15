@@ -1,14 +1,14 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: huaweicloud_compute_flavor_v2"
+page_title: "HuaweiCloud: huaweicloud_compute_flavor_v2"
 sidebar_current: "docs-openstack-resource-compute-flavor-v2"
 description: |-
-  Manages a V2 flavor resource within OpenStack.
+  Manages a V2 flavor resource within HuaweiCloud.
 ---
 
 # openstack\_compute\_flavor_v2
 
-Manages a V2 flavor resource within OpenStack.
+Manages a V2 flavor resource within HuaweiCloud.
 
 ## Example Usage
 

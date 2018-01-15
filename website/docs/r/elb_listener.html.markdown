@@ -1,6 +1,6 @@
 ---
 layout: "huaweicloud"
-page_title: "OpenStack: huaweicloud_elb_listener"
+page_title: "HuaweiCloud: huaweicloud_elb_listener"
 sidebar_current: "docs-huaweicloud-resource-elb-listener"
 description: |-
   Manages an elastic loadbalancer listener resource within huawei cloud.

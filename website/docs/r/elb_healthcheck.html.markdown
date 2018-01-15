@@ -1,6 +1,6 @@
 ---
 layout: "huaweicloud"
-page_title: "OpenStack: huaweicloud_elb_healthcheck"
+page_title: "HuaweiCloud: huaweicloud_elb_healthcheck"
 sidebar_current: "docs-huaweicloud-resource-elb-healthcheck"
 description: |-
   Manages an elastic loadbalancer healthcheck resource within huawei cloud.

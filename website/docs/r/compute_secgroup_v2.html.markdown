@@ -1,20 +1,20 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: huaweicloud_compute_secgroup_v2"
+page_title: "HuaweiCloud: huaweicloud_compute_secgroup_v2"
 sidebar_current: "docs-openstack-resource-compute-secgroup-v2"
 description: |-
-  Manages a V2 security group resource within OpenStack.
+  Manages a V2 security group resource within HuaweiCloud.
 ---
 
 # openstack\_compute\_secgroup_v2
 
-Manages a V2 security group resource within OpenStack.
+Manages a V2 security group resource within HuaweiCloud.
 
-Please note that managing security groups through the OpenStack Compute API
-has been deprecated. Unless you are using an older OpenStack environment, it is
+Please note that managing security groups through the HuaweiCloud Compute API
+has been deprecated. Unless you are using an older HuaweiCloud environment, it is
 recommended to use the [`huaweicloud_networking_secgroup_v2`](networking_secgroup_v2.html)
 and [`huaweicloud_networking_secgroup_rule_v2`](networking_secgroup_rule_v2.html)
-resources instead, which uses the OpenStack Networking API.
+resources instead, which uses the HuaweiCloud Networking API.
 
 ## Example Usage
 

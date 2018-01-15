@@ -1,14 +1,14 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: huaweicloud_compute_instance_v2"
+page_title: "HuaweiCloud: huaweicloud_compute_instance_v2"
 sidebar_current: "docs-openstack-resource-compute-instance-v2"
 description: |-
-  Manages a V2 VM instance resource within OpenStack.
+  Manages a V2 VM instance resource within HuaweiCloud.
 ---
 
 # openstack\_compute\_instance_v2
 
-Manages a V2 VM instance resource within OpenStack.
+Manages a V2 VM instance resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -350,7 +350,7 @@ The following arguments are supported:
     before destroying it, thus giving chance for guest OS daemons to stop correctly.
     If instance doesn't stop within timeout, it will be destroyed anyway.
 
-* `force_delete` - (Optional) Whether to force the OpenStack instance to be
+* `force_delete` - (Optional) Whether to force the HuaweiCloud instance to be
     forcefully deleted. This is useful for environments that have reclaim / soft
     deletion enabled.
 
@@ -496,7 +496,7 @@ resource "huaweicloud_compute_instance_v2" "foo" {
 Neutron Ports are a great feature and provide a lot of functionality. However,
 there are some notes to be aware of when mixing Instances and Ports:
 
-* In OpenStack environments prior to the Kilo release, deleting or recreating
+* In HuaweiCloud environments prior to the Kilo release, deleting or recreating
 an Instance will cause the Instance's Port(s) to be deleted. One way of working
 around this is to taint any Port(s) used in Instances which are to be recreated.
 See [here](https://review.openstack.org/#/c/126309/) for further information.
@@ -504,7 +504,7 @@ See [here](https://review.openstack.org/#/c/126309/) for further information.
 * When attaching an Instance to one or more networks using Ports, place the
 security groups on the Port and not the Instance. If you place the security
 groups on the Instance, the security groups will not be applied upon creation,
-but they will be applied upon a refresh. This is a known OpenStack bug.
+but they will be applied upon a refresh. This is a known HuaweiCloud bug.
 
 * Network IP information is not available within an instance for networks that
 are attached with Ports. This is mostly due to the flexibility Neutron Ports

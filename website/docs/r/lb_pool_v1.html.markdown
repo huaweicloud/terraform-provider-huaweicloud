@@ -1,14 +1,14 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: huaweicloud_lb_pool_v1"
+page_title: "HuaweiCloud: huaweicloud_lb_pool_v1"
 sidebar_current: "docs-openstack-resource-lb-pool-v1"
 description: |-
-  Manages a V1 load balancer pool resource within OpenStack.
+  Manages a V1 load balancer pool resource within HuaweiCloud.
 ---
 
 # openstack\_lb\_pool_v1
 
-Manages a V1 load balancer pool resource within OpenStack.
+Manages a V1 load balancer pool resource within HuaweiCloud.
 
 ## Example Usage
 

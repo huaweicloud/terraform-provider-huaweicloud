@@ -1,14 +1,14 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: huaweicloud_dns_zone_v2"
+page_title: "HuaweiCloud: huaweicloud_dns_zone_v2"
 sidebar_current: "docs-openstack-datasource-dns-zone-v2"
 description: |-
-  Get information on an OpenStack DNS Zone.
+  Get information on an HuaweiCloud DNS Zone.
 ---
 
 # openstack\_dns\_zone\_v2
 
-Use this data source to get the ID of an available OpenStack DNS zone.
+Use this data source to get the ID of an available HuaweiCloud DNS zone.
 
 ## Example Usage
 

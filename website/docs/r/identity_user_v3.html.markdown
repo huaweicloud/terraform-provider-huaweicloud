@@ -1,16 +1,16 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: huaweicloud_identity_user_v3"
+page_title: "HuaweiCloud: huaweicloud_identity_user_v3"
 sidebar_current: "docs-openstack-resource-identity-user-v3"
 description: |-
-  Manages a V3 User resource within OpenStack Keystone.
+  Manages a V3 User resource within HuaweiCloud Keystone.
 ---
 
 # openstack\_identity\_user_v3
 
-Manages a V3 User resource within OpenStack Keystone.
+Manages a V3 User resource within HuaweiCloud Keystone.
 
-Note: You _must_ have admin privileges in your OpenStack cloud to use
+Note: You _must_ have admin privileges in your HuaweiCloud cloud to use
 this resource.
 
 ## Example Usage

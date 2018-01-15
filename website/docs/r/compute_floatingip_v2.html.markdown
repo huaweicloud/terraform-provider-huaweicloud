@@ -1,20 +1,20 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: huaweicloud_compute_floatingip_v2"
+page_title: "HuaweiCloud: huaweicloud_compute_floatingip_v2"
 sidebar_current: "docs-openstack-resource-compute-floatingip-v2"
 description: |-
-  Manages a V2 floating IP resource within OpenStack Nova (compute).
+  Manages a V2 floating IP resource within HuaweiCloud Nova (compute).
 ---
 
 # openstack\_compute\_floatingip_v2
 
-Manages a V2 floating IP resource within OpenStack Nova (compute)
+Manages a V2 floating IP resource within HuaweiCloud Nova (compute)
 that can be used for compute instances.
 
-Please note that managing floating IPs through the OpenStack Compute API has
-been deprecated. Unless you are using an older OpenStack environment, it is
+Please note that managing floating IPs through the HuaweiCloud Compute API has
+been deprecated. Unless you are using an older HuaweiCloud environment, it is
 recommended to use the [`huaweicloud_networking_floatingip_v2`](networking_floatingip_v2.html)
-resource instead, which uses the OpenStack Networking API.
+resource instead, which uses the HuaweiCloud Networking API.
 
 ## Example Usage
 

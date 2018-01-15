@@ -1,14 +1,14 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: huaweicloud_networking_floatingip_v2"
+page_title: "HuaweiCloud: huaweicloud_networking_floatingip_v2"
 sidebar_current: "docs-openstack-resource-networking-floatingip-v2"
 description: |-
-  Manages a V2 floating IP resource within OpenStack Neutron (networking).
+  Manages a V2 floating IP resource within HuaweiCloud Neutron (networking).
 ---
 
 # openstack\_networking\_floatingip_v2
 
-Manages a V2 floating IP resource within OpenStack Neutron (networking)
+Manages a V2 floating IP resource within HuaweiCloud Neutron (networking)
 that can be used for load balancers.
 These are similar to Nova (compute) floating IP resources,
 but only compute floating IPs can be used with compute instances.

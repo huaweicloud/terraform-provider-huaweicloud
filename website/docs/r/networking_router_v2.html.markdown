@@ -1,14 +1,14 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: huaweicloud_networking_router_v2"
+page_title: "HuaweiCloud: huaweicloud_networking_router_v2"
 sidebar_current: "docs-openstack-resource-networking-router-v2"
 description: |-
-  Manages a V2 router resource within OpenStack.
+  Manages a V2 router resource within HuaweiCloud.
 ---
 
 # openstack\_networking\_router_v2
 
-Manages a V2 router resource within OpenStack.
+Manages a V2 router resource within HuaweiCloud.
 
 ## Example Usage
 

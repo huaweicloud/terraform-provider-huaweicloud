@@ -1,14 +1,14 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: huaweicloud_fw_policy_v1"
+page_title: "HuaweiCloud: huaweicloud_fw_policy_v1"
 sidebar_current: "docs-openstack-resource-fw-policy-v1"
 description: |-
-  Manages a v1 firewall policy resource within OpenStack.
+  Manages a v1 firewall policy resource within HuaweiCloud.
 ---
 
 # openstack\_fw\_policy_v1
 
-Manages a v1 firewall policy resource within OpenStack.
+Manages a v1 firewall policy resource within HuaweiCloud.
 
 ## Example Usage
 

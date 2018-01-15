@@ -1,14 +1,14 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: huaweicloud_images_image_v2"
+page_title: "HuaweiCloud: huaweicloud_images_image_v2"
 sidebar_current: "docs-openstack-resource-images-image-v2"
 description: |-
-  Manages a V2 Image resource within OpenStack Glance.
+  Manages a V2 Image resource within HuaweiCloud Glance.
 ---
 
 # openstack\_images\_image_v2
 
-Manages a V2 Image resource within OpenStack Glance.
+Manages a V2 Image resource within HuaweiCloud Glance.
 
 ## Example Usage
 
@@ -72,7 +72,7 @@ The following arguments are supported:
 
 * `visibility` - (Optional) The visibility of the image. Must be one of
    "public", "private", "community", or "shared". The ability to set the
-   visibility depends upon the configuration of the OpenStack cloud.
+   visibility depends upon the configuration of the HuaweiCloud cloud.
 
 ## Attributes Reference
 

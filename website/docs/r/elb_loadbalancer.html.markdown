@@ -1,6 +1,6 @@
 ---
 layout: "huaweicloud"
-page_title: "OpenStack: huaweicloud_elb_loadbalancer"
+page_title: "HuaweiCloud: huaweicloud_elb_loadbalancer"
 sidebar_current: "docs-huaweicloud-resource-elb-loadbalancer"
 description: |-
   Manages an elastic loadbalancer resource within huawei cloud.

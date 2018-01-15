@@ -1,14 +1,14 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: huaweicloud_images_image_v2"
+page_title: "HuaweiCloud: huaweicloud_images_image_v2"
 sidebar_current: "docs-openstack-datasource-images-image-v2"
 description: |-
-  Get information on an OpenStack Image.
+  Get information on an HuaweiCloud Image.
 ---
 
 # openstack\_images\_image\_v2
 
-Use this data source to get the ID of an available OpenStack image.
+Use this data source to get the ID of an available HuaweiCloud image.
 
 ## Example Usage
 
