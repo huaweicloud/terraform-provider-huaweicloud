@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_fw_rule_v1"
+page_title: "OpenStack: huaweicloud_fw_rule_v1"
 sidebar_current: "docs-openstack-resource-fw-rule-v1"
 description: |-
   Manages a v1 firewall rule resource within OpenStack.
@@ -13,7 +13,7 @@ Manages a v1 firewall rule resource within OpenStack.
 ## Example Usage
 
 ```hcl
-resource "openstack_fw_rule_v1" "rule_1" {
+resource "huaweicloud_fw_rule_v1" "rule_1" {
   name             = "my_rule"
   description      = "drop TELNET traffic"
   action           = "deny"
@@ -97,5 +97,5 @@ The following attributes are exported:
 Firewall Rules can be imported using the `id`, e.g.
 
 ```
-$ terraform import openstack_fw_rule_v1.rule_1 8dbc0c28-e49c-463f-b712-5c5d1bbac327
+$ terraform import huaweicloud_fw_rule_v1.rule_1 8dbc0c28-e49c-463f-b712-5c5d1bbac327
 ```

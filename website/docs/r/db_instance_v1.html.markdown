@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_db_instance_v1"
+page_title: "OpenStack: huaweicloud_db_instance_v1"
 sidebar_current: "docs-openstack-resource-db-instance-v1"
 description: |-
   Manages a V1 DB instance resource within OpenStack.
@@ -15,7 +15,7 @@ Manages a V1 DB instance resource within OpenStack.
 ### Instance
 
 ```hcl
-resource "openstack_db_instance_v1" "test" {
+resource "huaweicloud_db_instance_v1" "test" {
   region    = "region-test"
   name      = "test"
   flavor_id = "31792d21-c355-4587-9290-56c1ed0ca376"

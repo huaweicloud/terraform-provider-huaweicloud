@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_lb_loadbalancer_v2"
+page_title: "OpenStack: huaweicloud_lb_loadbalancer_v2"
 sidebar_current: "docs-openstack-resource-lb-loadbalancer-v2"
 description: |-
   Manages a V2 loadbalancer resource within OpenStack.
@@ -13,7 +13,7 @@ Manages a V2 loadbalancer resource within OpenStack.
 ## Example Usage
 
 ```hcl
-resource "openstack_lb_loadbalancer_v2" "lb_1" {
+resource "huaweicloud_lb_loadbalancer_v2" "lb_1" {
   vip_subnet_id = "d9415786-5f1a-428b-b35f-2f1523e146d2"
 }
 ```

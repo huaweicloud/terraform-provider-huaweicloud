@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_blockstorage_volume_v1"
+page_title: "OpenStack: huaweicloud_blockstorage_volume_v1"
 sidebar_current: "docs-openstack-resource-blockstorage-volume-v1"
 description: |-
   Manages a V1 volume resource within OpenStack.
@@ -13,7 +13,7 @@ Manages a V1 volume resource within OpenStack.
 ## Example Usage
 
 ```hcl
-resource "openstack_blockstorage_volume_v1" "volume_1" {
+resource "huaweicloud_blockstorage_volume_v1" "volume_1" {
   region      = "RegionOne"
   name        = "tf-test-volume"
   description = "first test volume"
@@ -79,5 +79,5 @@ The following attributes are exported:
 Volumes can be imported using the `id`, e.g.
 
 ```
-$ terraform import openstack_blockstorage_volume_v1.volume_1 ea257959-eeb1-4c10-8d33-26f0409a755d
+$ terraform import huaweicloud_blockstorage_volume_v1.volume_1 ea257959-eeb1-4c10-8d33-26f0409a755d
 ```

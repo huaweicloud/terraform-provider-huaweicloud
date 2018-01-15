@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_lb_member_v2"
+page_title: "OpenStack: huaweicloud_lb_member_v2"
 sidebar_current: "docs-openstack-resource-lb-member-v2"
 description: |-
   Manages a V2 member resource within OpenStack.
@@ -13,7 +13,7 @@ Manages a V2 member resource within OpenStack.
 ## Example Usage
 
 ```hcl
-resource "openstack_lb_member_v2" "member_1" {
+resource "huaweicloud_lb_member_v2" "member_1" {
   address       = "192.168.199.23"
   protocol_port = 8080
 }

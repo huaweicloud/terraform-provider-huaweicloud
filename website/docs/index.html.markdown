@@ -27,7 +27,7 @@ provider "openstack" {
 }
 
 # Create a web server
-resource "openstack_compute_instance_v2" "test-server" {
+resource "huaweicloud_compute_instance_v2" "test-server" {
   # ...
 }
 ```
@@ -143,7 +143,7 @@ all other resources is either untested or known to not work.
 instances as shown below:
 
 ```
-resource "openstack_compute_instance_v2" "my_instance" {
+resource "huaweicloud_compute_instance_v2" "my_instance" {
   name      = "my_instance"
   region    = "DFW"
   image_id  = "fabe045f-43f8-4991-9e6c-5cabd617538c"

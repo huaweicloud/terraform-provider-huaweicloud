@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_lb_vip_v1"
+page_title: "OpenStack: huaweicloud_lb_vip_v1"
 sidebar_current: "docs-openstack-resource-lb-vip-v1"
 description: |-
   Manages a V1 load balancer vip resource within OpenStack.
@@ -13,7 +13,7 @@ Manages a V1 load balancer vip resource within OpenStack.
 ## Example Usage
 
 ```hcl
-resource "openstack_lb_vip_v1" "vip_1" {
+resource "huaweicloud_lb_vip_v1" "vip_1" {
   name      = "tf_test_lb_vip"
   subnet_id = "12345"
   protocol  = "HTTP"
@@ -104,5 +104,5 @@ The following attributes are exported:
 Load Balancer VIPs can be imported using the `id`, e.g.
 
 ```
-$ terraform import openstack_lb_vip_v1.vip_1 50e16b26-89c1-475e-a492-76167182511e
+$ terraform import huaweicloud_lb_vip_v1.vip_1 50e16b26-89c1-475e-a492-76167182511e
 ```

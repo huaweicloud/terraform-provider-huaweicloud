@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_compute_flavor_v2"
+page_title: "OpenStack: huaweicloud_compute_flavor_v2"
 sidebar_current: "docs-openstack-resource-compute-flavor-v2"
 description: |-
   Manages a V2 flavor resource within OpenStack.
@@ -13,7 +13,7 @@ Manages a V2 flavor resource within OpenStack.
 ## Example Usage
 
 ```hcl
-resource "openstack_compute_flavor_v2" "test-flavor" {
+resource "huaweicloud_compute_flavor_v2" "test-flavor" {
   name  = "my-flavor"
   ram   = "8"
   vcpus = "2"
@@ -69,5 +69,5 @@ The following attributes are exported:
 Flavors can be imported using the `ID`, e.g.
 
 ```
-$ terraform import openstack_compute_flavor_v2.my-flavor 4142e64b-1b35-44a0-9b1e-5affc7af1106
+$ terraform import huaweicloud_compute_flavor_v2.my-flavor 4142e64b-1b35-44a0-9b1e-5affc7af1106
 ```

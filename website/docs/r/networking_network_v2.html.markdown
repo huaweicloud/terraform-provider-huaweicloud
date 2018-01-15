@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_networking_network_v2"
+page_title: "OpenStack: huaweicloud_networking_network_v2"
 sidebar_current: "docs-openstack-resource-networking-network-v2"
 description: |-
   Manages a V2 Neutron network resource within OpenStack.
@@ -13,19 +13,19 @@ Manages a V2 Neutron network resource within OpenStack.
 ## Example Usage
 
 ```hcl
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name           = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   name       = "subnet_1"
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   cidr       = "192.168.199.0/24"
   ip_version = 4
 }
 
-resource "openstack_compute_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
   name        = "secgroup_1"
   description = "a security group"
 
@@ -37,24 +37,24 @@ resource "openstack_compute_secgroup_v2" "secgroup_1" {
   }
 }
 
-resource "openstack_networking_port_v2" "port_1" {
+resource "huaweicloud_networking_port_v2" "port_1" {
   name               = "port_1"
-  network_id         = "${openstack_networking_network_v2.network_1.id}"
+  network_id         = "${huaweicloud_networking_network_v2.network_1.id}"
   admin_state_up     = "true"
-  security_group_ids = ["${openstack_compute_secgroup_v2.secgroup_1.id}"]
+  security_group_ids = ["${huaweicloud_compute_secgroup_v2.secgroup_1.id}"]
 
   fixed_ip {
-    "subnet_id"  = "${openstack_networking_subnet_v2.subnet_1.id}"
+    "subnet_id"  = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
     "ip_address" = "192.168.199.10"
   }
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name            = "instance_1"
-  security_groups = ["${openstack_compute_secgroup_v2.secgroup_1.name}"]
+  security_groups = ["${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
 
   network {
-    port = "${openstack_networking_port_v2.port_1.id}"
+    port = "${huaweicloud_networking_port_v2.port_1.id}"
   }
 }
 ```
@@ -113,5 +113,5 @@ The following attributes are exported:
 Networks can be imported using the `id`, e.g.
 
 ```
-$ terraform import openstack_networking_network_v2.network_1 d90ce693-5ccf-4136-a0ed-152ce412b6b9
+$ terraform import huaweicloud_networking_network_v2.network_1 d90ce693-5ccf-4136-a0ed-152ce412b6b9
 ```

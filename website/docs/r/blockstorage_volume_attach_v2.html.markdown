@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_blockstorage_volume_attach_v2"
+page_title: "OpenStack: huaweicloud_blockstorage_volume_attach_v2"
 sidebar_current: "docs-openstack-resource-blockstorage-volume-attach-v2"
 description: |-
   Creates an attachment connection to a Block Storage volume
@@ -20,18 +20,18 @@ such as a bare-metal server or a remote virtual machine in a
 different cloud provider.
 
 This does not actually attach a volume to an instance. Please use
-the `openstack_compute_volume_attach_v2` resource for that.
+the `huaweicloud_compute_volume_attach_v2` resource for that.
 
 ## Example Usage
 
 ```hcl
-resource "openstack_blockstorage_volume_v2" "volume_1" {
+resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 1
 }
 
-resource "openstack_blockstorage_volume_attach_v2" "va_1" {
-  volume_id = "${openstack_blockstorage_volume_v2.volume_1.id}"
+resource "huaweicloud_blockstorage_volume_attach_v2" "va_1" {
+  volume_id = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
   device = "auto"
   host_name = "devstack"
   ip_address = "192.168.255.10"

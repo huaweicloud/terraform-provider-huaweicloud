@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_identity_user_v3"
+page_title: "OpenStack: huaweicloud_identity_user_v3"
 sidebar_current: "docs-openstack-resource-identity-user-v3"
 description: |-
   Manages a V3 User resource within OpenStack Keystone.
@@ -16,12 +16,12 @@ this resource.
 ## Example Usage
 
 ```hcl
-resource "openstack_identity_project_v3" "project_1" {
+resource "huaweicloud_identity_project_v3" "project_1" {
   name = "project_1"
 }
 
-resource "openstack_identity_user_v3" "user_1" {
-  default_project_id = "${openstack_identity_project_v3.project_1.id}"
+resource "huaweicloud_identity_user_v3" "user_1" {
+  default_project_id = "${huaweicloud_identity_project_v3.project_1.id}"
   name = "user_1"
   description = "A user"
 
@@ -101,5 +101,5 @@ The following attributes are exported:
 Users can be imported using the `id`, e.g.
 
 ```
-$ terraform import openstack_identity_user_v3.user_1 89c60255-9bd6-460c-822a-e2b959ede9d2
+$ terraform import huaweicloud_identity_user_v3.user_1 89c60255-9bd6-460c-822a-e2b959ede9d2
 ```

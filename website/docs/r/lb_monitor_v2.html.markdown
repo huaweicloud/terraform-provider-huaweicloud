@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_lb_monitor_v2"
+page_title: "OpenStack: huaweicloud_lb_monitor_v2"
 sidebar_current: "docs-openstack-resource-lb-monitor-v2"
 description: |-
   Manages a V2 monitor resource within OpenStack.
@@ -13,8 +13,8 @@ Manages a V2 monitor resource within OpenStack.
 ## Example Usage
 
 ```hcl
-resource "openstack_lb_monitor_v2" "monitor_1" {
-  pool_id     = "${openstack_lb_pool_v2.pool_1.id}"
+resource "huaweicloud_lb_monitor_v2" "monitor_1" {
+  pool_id     = "${huaweicloud_lb_pool_v2.pool_1.id}"
   type        = "PING"
   delay       = 20
   timeout     = 10

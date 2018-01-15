@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_networking_port_v2"
+page_title: "OpenStack: huaweicloud_networking_port_v2"
 sidebar_current: "docs-openstack-resource-networking-port-v2"
 description: |-
   Manages a V2 port resource within OpenStack.
@@ -13,14 +13,14 @@ Manages a V2 port resource within OpenStack.
 ## Example Usage
 
 ```hcl
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name           = "network_1"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_port_v2" "port_1" {
+resource "huaweicloud_networking_port_v2" "port_1" {
   name           = "port_1"
-  network_id     = "${openstack_networking_network_v2.network_1.id}"
+  network_id     = "${huaweicloud_networking_network_v2.network_1.id}"
   admin_state_up = "true"
 }
 ```
@@ -115,7 +115,7 @@ The following attributes are exported:
 Ports can be imported using the `id`, e.g.
 
 ```
-$ terraform import openstack_networking_port_v2.port_1 eae26a3e-1c33-4cc1-9c31-0cd729c438a1
+$ terraform import huaweicloud_networking_port_v2.port_1 eae26a3e-1c33-4cc1-9c31-0cd729c438a1
 ```
 
 ## Notes
@@ -123,5 +123,5 @@ $ terraform import openstack_networking_port_v2.port_1 eae26a3e-1c33-4cc1-9c31-0
 ### Ports and Instances
 
 There are some notes to consider when connecting Instances to networks using
-Ports. Please see the `openstack_compute_instance_v2` documentation for further
+Ports. Please see the `huaweicloud_compute_instance_v2` documentation for further
 documentation.

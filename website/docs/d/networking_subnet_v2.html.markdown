@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_networking_subnet_v2"
+page_title: "OpenStack: huaweicloud_networking_subnet_v2"
 sidebar_current: "docs-openstack-datasource-networking-subnet-v2"
 description: |-
   Get information on an OpenStack Subnet.
@@ -13,7 +13,7 @@ Use this data source to get the ID of an available OpenStack subnet.
 ## Example Usage
 
 ```hcl
-data "openstack_networking_subnet_v2" "subnet_1" {
+data "huaweicloud_networking_subnet_v2" "subnet_1" {
   name = "subnet_1"
 }
 ```

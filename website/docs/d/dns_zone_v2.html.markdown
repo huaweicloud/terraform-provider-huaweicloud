@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_dns_zone_v2"
+page_title: "OpenStack: huaweicloud_dns_zone_v2"
 sidebar_current: "docs-openstack-datasource-dns-zone-v2"
 description: |-
   Get information on an OpenStack DNS Zone.
@@ -13,7 +13,7 @@ Use this data source to get the ID of an available OpenStack DNS zone.
 ## Example Usage
 
 ```hcl
-data "openstack_dns_zone_v2" "zone_1" {
+data "huaweicloud_dns_zone_v2" "zone_1" {
   name = "example.com"
 }
 ```

@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_objectstorage_container_v1"
+page_title: "OpenStack: huaweicloud_objectstorage_container_v1"
 sidebar_current: "docs-openstack-resource-objectstorage-container-v1"
 description: |-
   Manages a V1 container resource within OpenStack.
@@ -13,7 +13,7 @@ Manages a V1 container resource within OpenStack.
 ## Example Usage
 
 ```hcl
-resource "openstack_objectstorage_container_v1" "container_1" {
+resource "huaweicloud_objectstorage_container_v1" "container_1" {
   region = "RegionOne"
   name   = "tf-test-container-1"
 

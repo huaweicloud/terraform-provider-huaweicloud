@@ -1,6 +1,6 @@
 ---
 layout: "openstack"
-page_title: "OpenStack: openstack_networking_network_v2"
+page_title: "OpenStack: huaweicloud_networking_network_v2"
 sidebar_current: "docs-openstack-datasource-networking-network-v2"
 description: |-
   Get information on an OpenStack Network.
@@ -13,7 +13,7 @@ Use this data source to get the ID of an available OpenStack network.
 ## Example Usage
 
 ```hcl
-data "openstack_networking_network_v2" "network" {
+data "huaweicloud_networking_network_v2" "network" {
   name = "tf_test_network"
 }
 ```
