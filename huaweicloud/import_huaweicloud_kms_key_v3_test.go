@@ -3,9 +3,9 @@ package huaweicloud
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
 	"fmt"
 	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestAccKmsV3Key_importBasic(t *testing.T) {

@@ -54,10 +54,10 @@ func testAccCheckKmsV3KeyDestroy(s *terraform.State) error {
 			continue
 		}
 		getOpts := &keys.ListOpts{
-			KeyID:   rs.Primary.ID,
+			KeyID: rs.Primary.ID,
 		}
 		v, err := keys.Get(kmsClient, getOpts).ExtractKeyInfo()
-		if  err != nil {
+		if err != nil {
 			return err
 		}
 		if v.KeyState != "4" {
@@ -84,7 +84,7 @@ func testAccCheckKmsV3keyExists(n string, key *keys.Key) resource.TestCheckFunc 
 			return fmt.Errorf("Error creating OpenStack kms client: %s", err)
 		}
 		getOpts := &keys.ListOpts{
-			KeyID:   rs.Primary.ID,
+			KeyID: rs.Primary.ID,
 		}
 		found, err := keys.Get(kmsClient, getOpts).ExtractKeyInfo()
 		if err != nil {
@@ -98,7 +98,6 @@ func testAccCheckKmsV3keyExists(n string, key *keys.Key) resource.TestCheckFunc 
 		return nil
 	}
 }
-
 
 func testAccKmsV3Key_basic(keyAlias string) string {
 	return fmt.Sprintf(`

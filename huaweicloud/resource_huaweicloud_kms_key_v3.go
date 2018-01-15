@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gophercloud/gophercloud/openstack/kms/v3/keys"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/resource"
-	"time"
 	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/openstack/kms/v3/keys"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/helper/schema"
+	"time"
 )
 
 const WaitingForEnableState = "1"
@@ -125,13 +125,13 @@ func resourceKmsKeyV3Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	createOpts := &keys.CreateOpts{
-		KeyAlias:          d.Get("key_alias").(string),
-		KeyDescription:    d.Get("key_description").(string),
-		Realm:             d.Get("realm").(string),
-		KeyPolicy:         d.Get("key_policy").(string),
-		KeyUsage:          d.Get("key_usage").(string),
-		KeyType:           d.Get("key_type").(string),
-		Sequence:          d.Get("sequence").(string),
+		KeyAlias:       d.Get("key_alias").(string),
+		KeyDescription: d.Get("key_description").(string),
+		Realm:          d.Get("realm").(string),
+		KeyPolicy:      d.Get("key_policy").(string),
+		KeyUsage:       d.Get("key_usage").(string),
+		KeyType:        d.Get("key_type").(string),
+		Sequence:       d.Get("sequence").(string),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -175,7 +175,7 @@ func resourceKmsKeyV3Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating OpenStack kms key client: %s", err)
 	}
 	getOpts := &keys.ListOpts{
-		KeyID:   d.Id(),
+		KeyID: d.Id(),
 	}
 	v, err := keys.Get(kmsKeyV3Client, getOpts).ExtractKeyInfo()
 	if err != nil {
@@ -227,7 +227,7 @@ func resourceKmsKeyV3Update(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("key_description") {
 		updateDesOpts := keys.UpdateDesOpts{
-			KeyID:    d.Id(),
+			KeyID:          d.Id(),
 			KeyDescription: d.Get("key_description").(string),
 		}
 		_, err = keys.UpdateDes(kmsKeyV3Client, updateDesOpts).ExtractKeyInfo()
@@ -247,7 +247,7 @@ func resourceKmsKeyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	getOpts := &keys.ListOpts{
-		KeyID:  d.Id(),
+		KeyID: d.Id(),
 	}
 	v, err := keys.Get(kmsKeyV3Client, getOpts).ExtractKeyInfo()
 	if err != nil {
@@ -255,7 +255,7 @@ func resourceKmsKeyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	deleteOpts := &keys.DeleteOpts{
-		KeyID:            d.Id(),
+		KeyID: d.Id(),
 	}
 	if v, ok := d.GetOk("pending_days"); ok {
 		deleteOpts.PendingDays = v.(string)
@@ -269,7 +269,7 @@ func resourceKmsKeyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	// If this is true, just move on. It'll eventually delete.
 	if v.KeyState != PendingDeletionState {
 		v, err = keys.Delete(kmsKeyV3Client, deleteOpts).Extract()
-		if  err != nil {
+		if err != nil {
 			return err
 		}
 
