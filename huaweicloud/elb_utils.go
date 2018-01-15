@@ -115,6 +115,11 @@ func isELBResourceNotFound(err error) bool {
 	return ok
 }
 
+func hasFilledParam(d *schema.ResourceData, param string) bool {
+	_, b := d.GetOkExists(param)
+	return b
+}
+
 func buildELBCreateParam(opts interface{}, d *schema.ResourceData) error {
 	return buildELBCUParam(opts, d, false)
 }
