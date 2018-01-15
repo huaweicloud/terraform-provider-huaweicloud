@@ -443,7 +443,14 @@ func NewKmsKeyV3(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts
 }
 
 func NewElasticLoadBalancer(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient1, error) {
-	sc, err := initClientOpts1(client, eo, "elb")
+	//sc, err := initClientOpts1(client, eo, "elb")
+	sc, err := initClientOpts1(client, eo, "compute")
+	if err != nil {
+		return sc, err
+	}
+	sc.Endpoint = strings.Replace(sc.Endpoint, "ecs", "elb", 1)
+	sc.Endpoint = sc.Endpoint[:strings.LastIndex(sc.Endpoint, "v2")+3]
+	sc.Endpoint = strings.Replace(sc.Endpoint, "v2", "v1.0", 1)
 	sc.ResourceBase = sc.Endpoint
 	return sc, err
 }
