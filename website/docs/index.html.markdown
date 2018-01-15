@@ -18,7 +18,7 @@ Use the navigation to the left to read about the available resources.
 
 ```hcl
 # Configure the HuaweiCloud Provider
-provider "openstack" {
+provider "huaweicloud" {
   user_name   = "admin"
   tenant_name = "admin"
   password    = "pwd"
