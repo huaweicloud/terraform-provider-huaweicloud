@@ -284,7 +284,8 @@ func (c *Config) computeV2Client(region string) (*gophercloud.ServiceClient, err
 
 func (c *Config) dnsV2Client(region string) (*gophercloud.ServiceClient, error) {
 	return openstack.NewDNSV2(c.OsClient, gophercloud.EndpointOpts{
-		Region:       c.determineRegion(region),
+		//Region:       c.determineRegion(region),
+		Region:       "",
 		Availability: c.getEndpointType(),
 	})
 }
