@@ -177,19 +177,19 @@ func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Create %s Options: %#v", nameELBLB, opts)
 
 	switch {
-	case opts.Type == "External" && d.Get("bandwidth") == nil:
+	case opts.Type == "External" && !hasFilledParam(d, "bandwidth"):
 		return fmt.Errorf("bandwidth is mandatory when type is set to External")
 
-	case opts.Type == "Internal" && d.Get("vip_subnet_id") == nil:
+	case opts.Type == "Internal" && !hasFilledParam(d, "vip_subnet_id"):
 		return fmt.Errorf("vip_subnet_id is mandatory when type is set to Internal")
 
-	case opts.Type == "Internal" && d.Get("az") == nil:
+	case opts.Type == "Internal" && !hasFilledParam(d, "az"):
 		return fmt.Errorf("az is mandatory when type is set to Internal")
 
-	case opts.Type == "Internal" && d.Get("security_group_id") == nil:
+	case opts.Type == "Internal" && !hasFilledParam(d, "security_group_id"):
 		return fmt.Errorf("security_group_id is mandatory when type is set to Internal")
 
-	case opts.Type == "Internal" && d.Get("tenantid") == nil:
+	case opts.Type == "Internal" && !hasFilledParam(d, "tenantid"):
 		return fmt.Errorf("tenantid is mandatory when type is set to Internal")
 	}
 
