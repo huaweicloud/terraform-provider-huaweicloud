@@ -104,7 +104,7 @@ func testAccCheckFWRuleV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -136,7 +136,7 @@ func testAccCheckFWRuleV1Exists(n string, expected *rules.Rule) resource.TestChe
 		config := testAccProvider.Meta().(*Config)
 		networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		var found *rules.Rule

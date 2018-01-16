@@ -46,7 +46,7 @@ func testAccCheckKmsV3KeyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	kmsClient, err := config.kmsKeyV3Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack kms client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud kms client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -81,7 +81,7 @@ func testAccCheckKmsV3keyExists(n string, key *keys.Key) resource.TestCheckFunc 
 		config := testAccProvider.Meta().(*Config)
 		kmsClient, err := config.kmsKeyV3Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack kms client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud kms client: %s", err)
 		}
 		getOpts := &keys.ListOpts{
 			KeyID: rs.Primary.ID,

@@ -131,7 +131,7 @@ func testAccCheckFWFirewallV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_firewall" {
@@ -163,7 +163,7 @@ func testAccCheckFWFirewallV1Exists(n string, firewall *Firewall) resource.TestC
 		config := testAccProvider.Meta().(*Config)
 		networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Exists) Error creating OpenStack networking client: %s", err)
+			return fmt.Errorf("Exists) Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		var found Firewall
@@ -206,7 +206,7 @@ func testAccCheckFWFirewallV1(n, expectedName, expectedDescription string, polic
 		config := testAccProvider.Meta().(*Config)
 		networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Exists) Error creating OpenStack networking client: %s", err)
+			return fmt.Errorf("Exists) Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		var found *firewalls.Firewall

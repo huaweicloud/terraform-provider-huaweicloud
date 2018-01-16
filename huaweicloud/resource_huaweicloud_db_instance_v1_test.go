@@ -60,7 +60,7 @@ func testAccCheckDatabaseV1InstanceExists(n string, instance *instances.Instance
 		config := testAccProvider.Meta().(*Config)
 		databaseV1Client, err := config.databaseV1Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
 		found, err := instances.Get(databaseV1Client, rs.Primary.ID).Extract()

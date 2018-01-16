@@ -239,7 +239,7 @@ func (c *Config) determineRegion(region string) string {
 		region = c.Region
 	}
 
-	log.Printf("[DEBUG] OpenStack Region is: %s", region)
+	log.Printf("[DEBUG] HuaweiCloud Region is: %s", region)
 	return region
 }
 

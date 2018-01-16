@@ -37,7 +37,7 @@ func testAccCheckComputeV2FlavorDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	computeClient, err := config.computeV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -68,7 +68,7 @@ func testAccCheckComputeV2FlavorExists(n string, flavor *flavors.Flavor) resourc
 		config := testAccProvider.Meta().(*Config)
 		computeClient, err := config.computeV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
 		found, err := flavors.Get(computeClient, rs.Primary.ID).Extract()

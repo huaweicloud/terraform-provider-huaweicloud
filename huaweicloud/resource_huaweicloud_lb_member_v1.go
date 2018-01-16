@@ -73,7 +73,7 @@ func resourceLBMemberV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	createOpts := members.CreateOpts{
@@ -83,14 +83,14 @@ func resourceLBMemberV1Create(d *schema.ResourceData, meta interface{}) error {
 		ProtocolPort: d.Get("port").(int),
 	}
 
-	log.Printf("[DEBUG] OpenStack LB Member Create Options: %#v", createOpts)
+	log.Printf("[DEBUG] HuaweiCloud LB Member Create Options: %#v", createOpts)
 	m, err := members.Create(networkingClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack LB member: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud LB member: %s", err)
 	}
 	log.Printf("[INFO] LB member ID: %s", m.ID)
 
-	log.Printf("[DEBUG] Waiting for OpenStack LB member (%s) to become available.", m.ID)
+	log.Printf("[DEBUG] Waiting for HuaweiCloud LB member (%s) to become available.", m.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"PENDING_CREATE"},
@@ -114,10 +114,10 @@ func resourceLBMemberV1Create(d *schema.ResourceData, meta interface{}) error {
 		AdminStateUp: &asu,
 	}
 
-	log.Printf("[DEBUG] OpenStack LB Member Update Options: %#v", createOpts)
+	log.Printf("[DEBUG] HuaweiCloud LB Member Update Options: %#v", createOpts)
 	m, err = members.Update(networkingClient, m.ID, updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating OpenStack LB member: %s", err)
+		return fmt.Errorf("Error updating HuaweiCloud LB member: %s", err)
 	}
 
 	return resourceLBMemberV1Read(d, meta)
@@ -127,7 +127,7 @@ func resourceLBMemberV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	m, err := members.Get(networkingClient, d.Id()).Extract()
@@ -135,7 +135,7 @@ func resourceLBMemberV1Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "LB member")
 	}
 
-	log.Printf("[DEBUG] Retrieved OpenStack LB member %s: %+v", d.Id(), m)
+	log.Printf("[DEBUG] Retrieved HuaweiCloud LB member %s: %+v", d.Id(), m)
 
 	d.Set("address", m.Address)
 	d.Set("pool_id", m.PoolID)
@@ -151,7 +151,7 @@ func resourceLBMemberV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var updateOpts members.UpdateOpts
@@ -164,7 +164,7 @@ func resourceLBMemberV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = members.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating OpenStack LB member: %s", err)
+		return fmt.Errorf("Error updating HuaweiCloud LB member: %s", err)
 	}
 
 	return resourceLBMemberV1Read(d, meta)
@@ -174,7 +174,7 @@ func resourceLBMemberV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	err = members.Delete(networkingClient, d.Id()).ExtractErr()
@@ -193,7 +193,7 @@ func resourceLBMemberV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack LB member: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud LB member: %s", err)
 	}
 
 	d.SetId("")
@@ -207,7 +207,7 @@ func waitForLBMemberActive(networkingClient *gophercloud.ServiceClient, memberId
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] OpenStack LB member: %+v", m)
+		log.Printf("[DEBUG] HuaweiCloud LB member: %+v", m)
 		if m.Status == "ACTIVE" {
 			return m, "ACTIVE", nil
 		}
@@ -218,18 +218,18 @@ func waitForLBMemberActive(networkingClient *gophercloud.ServiceClient, memberId
 
 func waitForLBMemberDelete(networkingClient *gophercloud.ServiceClient, memberId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete OpenStack LB member %s", memberId)
+		log.Printf("[DEBUG] Attempting to delete HuaweiCloud LB member %s", memberId)
 
 		m, err := members.Get(networkingClient, memberId).Extract()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack LB member %s", memberId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud LB member %s", memberId)
 				return m, "DELETED", nil
 			}
 			return m, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] OpenStack LB member %s still active.", memberId)
+		log.Printf("[DEBUG] HuaweiCloud LB member %s still active.", memberId)
 		return m, "ACTIVE", nil
 	}
 

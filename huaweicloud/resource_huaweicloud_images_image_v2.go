@@ -177,7 +177,7 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	imageClient, err := config.imageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack image client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	protected := d.Get("protected").(bool)
@@ -259,7 +259,7 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	imageClient, err := config.imageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack image client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	img, err := images.Get(imageClient, d.Id()).Extract()
@@ -298,7 +298,7 @@ func resourceImagesImageV2Update(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	imageClient, err := config.imageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack image client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	updateOpts := make(images.UpdateOpts, 0)
@@ -336,7 +336,7 @@ func resourceImagesImageV2Delete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	imageClient, err := config.imageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack image client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Deleting Image %s", d.Id())
@@ -495,7 +495,7 @@ func resourceImagesImageV2RefreshFunc(client *gophercloud.ServiceClient, id stri
 		if err != nil {
 			return nil, "", err
 		}
-		log.Printf("[DEBUG] OpenStack image status is: %s", img.Status)
+		log.Printf("[DEBUG] HuaweiCloud image status is: %s", img.Status)
 
 		if img.Checksum != checksum || int64(img.SizeBytes) != fileSize {
 			return img, fmt.Sprintf("%s", img.Status), fmt.Errorf("Error wrong size %v or checksum %q", img.SizeBytes, img.Checksum)

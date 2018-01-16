@@ -42,7 +42,7 @@ func testAccCheckObjectStorageV1ContainerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	objectStorageClient, err := config.objectStorageV1Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack object storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud object storage client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {

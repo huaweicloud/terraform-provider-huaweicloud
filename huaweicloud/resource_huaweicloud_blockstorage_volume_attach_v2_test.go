@@ -51,7 +51,7 @@ func testAccCheckBlockStorageVolumeAttachV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	client, err := config.blockStorageV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack block storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -96,7 +96,7 @@ func testAccCheckBlockStorageVolumeAttachV2Exists(n string, va *volumes.Attachme
 		config := testAccProvider.Meta().(*Config)
 		client, err := config.blockStorageV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack block storage client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 		}
 
 		volumeId, attachmentId, err := blockStorageVolumeAttachV2ParseId(rs.Primary.ID)

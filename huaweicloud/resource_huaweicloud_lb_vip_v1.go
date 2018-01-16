@@ -112,7 +112,7 @@ func resourceLBVipV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	createOpts := vips.CreateOpts{
@@ -134,11 +134,11 @@ func resourceLBVipV1Create(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	p, err := vips.Create(networkingClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack LB VIP: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud LB VIP: %s", err)
 	}
 	log.Printf("[INFO] LB VIP ID: %s", p.ID)
 
-	log.Printf("[DEBUG] Waiting for OpenStack LB VIP (%s) to become available.", p.ID)
+	log.Printf("[DEBUG] Waiting for HuaweiCloud LB VIP (%s) to become available.", p.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"PENDING_CREATE"},
@@ -168,7 +168,7 @@ func resourceLBVipV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	p, err := vips.Get(networkingClient, d.Id()).Extract()
@@ -176,7 +176,7 @@ func resourceLBVipV1Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "LB VIP")
 	}
 
-	log.Printf("[DEBUG] Retrieved OpenStack LB VIP %s: %+v", d.Id(), p)
+	log.Printf("[DEBUG] Retrieved HuaweiCloud LB VIP %s: %+v", d.Id(), p)
 
 	d.Set("name", p.Name)
 	d.Set("subnet_id", p.SubnetID)
@@ -209,7 +209,7 @@ func resourceLBVipV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var updateOpts vips.UpdateOpts
@@ -275,11 +275,11 @@ func resourceLBVipV1Update(d *schema.ResourceData, meta interface{}) error {
 	// Persistence has to be included, even if it hasn't changed.
 	updateOpts.Persistence = resourceVipPersistenceV1(d)
 
-	log.Printf("[DEBUG] Updating OpenStack LB VIP %s with options: %+v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating HuaweiCloud LB VIP %s with options: %+v", d.Id(), updateOpts)
 
 	_, err = vips.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating OpenStack LB VIP: %s", err)
+		return fmt.Errorf("Error updating HuaweiCloud LB VIP: %s", err)
 	}
 
 	return resourceLBVipV1Read(d, meta)
@@ -289,7 +289,7 @@ func resourceLBVipV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -303,7 +303,7 @@ func resourceLBVipV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack LB VIP: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud LB VIP: %s", err)
 	}
 
 	d.SetId("")
@@ -362,7 +362,7 @@ func waitForLBVIPActive(networkingClient *gophercloud.ServiceClient, vipId strin
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] OpenStack LB VIP: %+v", p)
+		log.Printf("[DEBUG] HuaweiCloud LB VIP: %+v", p)
 		if p.Status == "ACTIVE" {
 			return p, "ACTIVE", nil
 		}
@@ -373,28 +373,28 @@ func waitForLBVIPActive(networkingClient *gophercloud.ServiceClient, vipId strin
 
 func waitForLBVIPDelete(networkingClient *gophercloud.ServiceClient, vipId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete OpenStack LB VIP %s", vipId)
+		log.Printf("[DEBUG] Attempting to delete HuaweiCloud LB VIP %s", vipId)
 
 		p, err := vips.Get(networkingClient, vipId).Extract()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack LB VIP %s", vipId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud LB VIP %s", vipId)
 				return p, "DELETED", nil
 			}
 			return p, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] OpenStack LB VIP: %+v", p)
+		log.Printf("[DEBUG] HuaweiCloud LB VIP: %+v", p)
 		err = vips.Delete(networkingClient, vipId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack LB VIP %s", vipId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud LB VIP %s", vipId)
 				return p, "DELETED", nil
 			}
 			return p, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] OpenStack LB VIP %s still active.", vipId)
+		log.Printf("[DEBUG] HuaweiCloud LB VIP %s still active.", vipId)
 		return p, "ACTIVE", nil
 	}
 

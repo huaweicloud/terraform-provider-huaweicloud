@@ -166,7 +166,7 @@ func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*Config)
 	networkingClient, err := chooseELBClient(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var opts loadbalancers.CreateOpts
@@ -237,7 +237,7 @@ func resourceELBLoadBalancerRead(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	networkingClient, err := chooseELBClient(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	lb, err := loadbalancers.Get(networkingClient, d.Id()).Extract()
@@ -253,7 +253,7 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*Config)
 	networkingClient, err := chooseELBClient(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	lbId := d.Id()
@@ -306,7 +306,7 @@ func resourceELBLoadBalancerDelete(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*Config)
 	networkingClient, err := chooseELBClient(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	lbId := d.Id()

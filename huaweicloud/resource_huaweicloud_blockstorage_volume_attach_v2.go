@@ -138,7 +138,7 @@ func resourceBlockStorageVolumeAttachV2Create(d *schema.ResourceData, meta inter
 	config := meta.(*Config)
 	client, err := config.blockStorageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack block storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}
 
 	// initialize the connection
@@ -278,7 +278,7 @@ func resourceBlockStorageVolumeAttachV2Read(d *schema.ResourceData, meta interfa
 	config := meta.(*Config)
 	client, err := config.blockStorageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack block storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}
 
 	volumeId, attachmentId, err := blockStorageVolumeAttachV2ParseId(d.Id())
@@ -309,7 +309,7 @@ func resourceBlockStorageVolumeAttachV2Delete(d *schema.ResourceData, meta inter
 	config := meta.(*Config)
 	client, err := config.blockStorageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack block storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}
 
 	volumeId, attachmentId, err := blockStorageVolumeAttachV2ParseId(d.Id())

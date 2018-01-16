@@ -8,16 +8,16 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccOpenStackImagesV2ImageDataSource_basic(t *testing.T) {
+func TestAccHuaweiCloudImagesV2ImageDataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccOpenStackImagesV2ImageDataSource_cirros,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_cirros,
 			},
 			resource.TestStep{
-				Config: testAccOpenStackImagesV2ImageDataSource_basic,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesV2DataSourceID("data.huaweicloud_images_image_v2.image_1"),
 					resource.TestCheckResourceAttr(
@@ -40,40 +40,40 @@ func TestAccOpenStackImagesV2ImageDataSource_basic(t *testing.T) {
 	})
 }
 
-func TestAccOpenStackImagesV2ImageDataSource_testQueries(t *testing.T) {
+func TestAccHuaweiCloudImagesV2ImageDataSource_testQueries(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccOpenStackImagesV2ImageDataSource_cirros,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_cirros,
 			},
 			resource.TestStep{
-				Config: testAccOpenStackImagesV2ImageDataSource_queryTag,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_queryTag,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesV2DataSourceID("data.huaweicloud_images_image_v2.image_1"),
 				),
 			},
 			resource.TestStep{
-				Config: testAccOpenStackImagesV2ImageDataSource_querySizeMin,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_querySizeMin,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesV2DataSourceID("data.huaweicloud_images_image_v2.image_1"),
 				),
 			},
 			resource.TestStep{
-				Config: testAccOpenStackImagesV2ImageDataSource_querySizeMax,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_querySizeMax,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesV2DataSourceID("data.huaweicloud_images_image_v2.image_1"),
 				),
 			},
 			resource.TestStep{
-				Config: testAccOpenStackImagesV2ImageDataSource_property,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_property,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesV2DataSourceID("data.huaweicloud_images_image_v2.image_1"),
 				),
 			},
 			resource.TestStep{
-				Config: testAccOpenStackImagesV2ImageDataSource_cirros,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_cirros,
 			},
 		},
 	})
@@ -95,7 +95,7 @@ func testAccCheckImagesV2DataSourceID(n string) resource.TestCheckFunc {
 }
 
 // Standard CirrOS image
-const testAccOpenStackImagesV2ImageDataSource_cirros = `
+const testAccHuaweiCloudImagesV2ImageDataSource_cirros = `
 resource "huaweicloud_images_image_v2" "image_1" {
   name = "CirrOS-tf_1"
   container_format = "bare"
@@ -120,16 +120,16 @@ resource "huaweicloud_images_image_v2" "image_2" {
 }
 `
 
-var testAccOpenStackImagesV2ImageDataSource_basic = fmt.Sprintf(`
+var testAccHuaweiCloudImagesV2ImageDataSource_basic = fmt.Sprintf(`
 %s
 
 data "huaweicloud_images_image_v2" "image_1" {
 	most_recent = true
 	name = "${huaweicloud_images_image_v2.image_1.name}"
 }
-`, testAccOpenStackImagesV2ImageDataSource_cirros)
+`, testAccHuaweiCloudImagesV2ImageDataSource_cirros)
 
-var testAccOpenStackImagesV2ImageDataSource_queryTag = fmt.Sprintf(`
+var testAccHuaweiCloudImagesV2ImageDataSource_queryTag = fmt.Sprintf(`
 %s
 
 data "huaweicloud_images_image_v2" "image_1" {
@@ -137,9 +137,9 @@ data "huaweicloud_images_image_v2" "image_1" {
 	visibility = "private"
 	tag = "cirros-tf_1"
 }
-`, testAccOpenStackImagesV2ImageDataSource_cirros)
+`, testAccHuaweiCloudImagesV2ImageDataSource_cirros)
 
-var testAccOpenStackImagesV2ImageDataSource_querySizeMin = fmt.Sprintf(`
+var testAccHuaweiCloudImagesV2ImageDataSource_querySizeMin = fmt.Sprintf(`
 %s
 
 data "huaweicloud_images_image_v2" "image_1" {
@@ -147,9 +147,9 @@ data "huaweicloud_images_image_v2" "image_1" {
 	visibility = "private"
 	size_min = "13000000"
 }
-`, testAccOpenStackImagesV2ImageDataSource_cirros)
+`, testAccHuaweiCloudImagesV2ImageDataSource_cirros)
 
-var testAccOpenStackImagesV2ImageDataSource_querySizeMax = fmt.Sprintf(`
+var testAccHuaweiCloudImagesV2ImageDataSource_querySizeMax = fmt.Sprintf(`
 %s
 
 data "huaweicloud_images_image_v2" "image_1" {
@@ -157,9 +157,9 @@ data "huaweicloud_images_image_v2" "image_1" {
 	visibility = "private"
 	size_max = "23000000"
 }
-`, testAccOpenStackImagesV2ImageDataSource_cirros)
+`, testAccHuaweiCloudImagesV2ImageDataSource_cirros)
 
-var testAccOpenStackImagesV2ImageDataSource_property = fmt.Sprintf(`
+var testAccHuaweiCloudImagesV2ImageDataSource_property = fmt.Sprintf(`
 %s
 
 data "huaweicloud_images_image_v2" "image_1" {
@@ -168,4 +168,4 @@ data "huaweicloud_images_image_v2" "image_1" {
     bar = "foo"
   }
 }
-`, testAccOpenStackImagesV2ImageDataSource_cirros)
+`, testAccHuaweiCloudImagesV2ImageDataSource_cirros)

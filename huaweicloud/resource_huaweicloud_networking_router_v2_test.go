@@ -82,7 +82,7 @@ func testAccCheckNetworkingV2RouterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -113,7 +113,7 @@ func testAccCheckNetworkingV2RouterExists(n string, router *routers.Router) reso
 		config := testAccProvider.Meta().(*Config)
 		networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		found, err := routers.Get(networkingClient, rs.Primary.ID).Extract()

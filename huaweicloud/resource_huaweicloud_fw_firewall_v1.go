@@ -85,7 +85,7 @@ func resourceFWFirewallV1Create(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var createOpts firewalls.CreateOptsBuilder
@@ -158,7 +158,7 @@ func resourceFWFirewallV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var firewall Firewall
@@ -167,7 +167,7 @@ func resourceFWFirewallV1Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "firewall")
 	}
 
-	log.Printf("[DEBUG] Read OpenStack Firewall %s: %#v", d.Id(), firewall)
+	log.Printf("[DEBUG] Read HuaweiCloud Firewall %s: %#v", d.Id(), firewall)
 
 	d.Set("name", firewall.Name)
 	d.Set("description", firewall.Description)
@@ -185,7 +185,7 @@ func resourceFWFirewallV1Update(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	// PolicyID is required
@@ -255,7 +255,7 @@ func resourceFWFirewallV1Delete(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	// Ensure the firewall was fully created/updated before being deleted.

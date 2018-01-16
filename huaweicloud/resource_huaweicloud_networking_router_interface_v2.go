@@ -59,7 +59,7 @@ func resourceNetworkingRouterInterfaceV2Create(d *schema.ResourceData, meta inte
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	createOpts := routers.AddInterfaceOpts{
@@ -70,7 +70,7 @@ func resourceNetworkingRouterInterfaceV2Create(d *schema.ResourceData, meta inte
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := routers.AddInterface(networkingClient, d.Get("router_id").(string), createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack Neutron router interface: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud Neutron router interface: %s", err)
 	}
 	log.Printf("[INFO] Router interface Port ID: %s", n.PortID)
 
@@ -96,7 +96,7 @@ func resourceNetworkingRouterInterfaceV2Read(d *schema.ResourceData, meta interf
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	n, err := ports.Get(networkingClient, d.Id()).Extract()
@@ -106,7 +106,7 @@ func resourceNetworkingRouterInterfaceV2Read(d *schema.ResourceData, meta interf
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving OpenStack Neutron Router Interface: %s", err)
+		return fmt.Errorf("Error retrieving HuaweiCloud Neutron Router Interface: %s", err)
 	}
 
 	log.Printf("[DEBUG] Retrieved Router Interface %s: %+v", d.Id(), n)
@@ -132,7 +132,7 @@ func resourceNetworkingRouterInterfaceV2Delete(d *schema.ResourceData, meta inte
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -146,7 +146,7 @@ func resourceNetworkingRouterInterfaceV2Delete(d *schema.ResourceData, meta inte
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack Neutron Router Interface: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud Neutron Router Interface: %s", err)
 	}
 
 	d.SetId("")
@@ -160,7 +160,7 @@ func waitForRouterInterfaceActive(networkingClient *gophercloud.ServiceClient, r
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] OpenStack Neutron Router Interface: %+v", r)
+		log.Printf("[DEBUG] HuaweiCloud Neutron Router Interface: %+v", r)
 		return r, r.Status, nil
 	}
 }
@@ -170,7 +170,7 @@ func waitForRouterInterfaceDelete(networkingClient *gophercloud.ServiceClient, d
 		routerId := d.Get("router_id").(string)
 		routerInterfaceId := d.Id()
 
-		log.Printf("[DEBUG] Attempting to delete OpenStack Router Interface %s.", routerInterfaceId)
+		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Router Interface %s.", routerInterfaceId)
 
 		removeOpts := routers.RemoveInterfaceOpts{
 			SubnetID: d.Get("subnet_id").(string),
@@ -180,7 +180,7 @@ func waitForRouterInterfaceDelete(networkingClient *gophercloud.ServiceClient, d
 		r, err := ports.Get(networkingClient, routerInterfaceId).Extract()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack Router Interface %s", routerInterfaceId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Router Interface %s", routerInterfaceId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
@@ -189,7 +189,7 @@ func waitForRouterInterfaceDelete(networkingClient *gophercloud.ServiceClient, d
 		_, err = routers.RemoveInterface(networkingClient, routerId, removeOpts).Extract()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack Router Interface %s.", routerInterfaceId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Router Interface %s.", routerInterfaceId)
 				return r, "DELETED", nil
 			}
 			if errCode, ok := err.(gophercloud.ErrUnexpectedResponseCode); ok {
@@ -202,7 +202,7 @@ func waitForRouterInterfaceDelete(networkingClient *gophercloud.ServiceClient, d
 			return r, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] OpenStack Router Interface %s is still active.", routerInterfaceId)
+		log.Printf("[DEBUG] HuaweiCloud Router Interface %s is still active.", routerInterfaceId)
 		return r, "ACTIVE", nil
 	}
 }

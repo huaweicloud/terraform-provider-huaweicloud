@@ -75,7 +75,7 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack network client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	poolID, err := getNetworkID(d, meta, d.Get("pool").(string))
@@ -101,7 +101,7 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error allocating floating IP: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for OpenStack Neutron Floating IP (%s) to become available.", floatingIP.ID)
+	log.Printf("[DEBUG] Waiting for HuaweiCloud Neutron Floating IP (%s) to become available.", floatingIP.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
@@ -113,7 +113,7 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack Neutron Floating IP: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud Neutron Floating IP: %s", err)
 	}
 
 	d.SetId(floatingIP.ID)
@@ -125,7 +125,7 @@ func resourceNetworkFloatingIPV2Read(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack network client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	floatingIP, err := floatingips.Get(networkingClient, d.Id()).Extract()
@@ -152,7 +152,7 @@ func resourceNetworkFloatingIPV2Update(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack network client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	var updateOpts floatingips.UpdateOpts
@@ -176,7 +176,7 @@ func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack network client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -190,7 +190,7 @@ func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack Neutron Floating IP: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud Neutron Floating IP: %s", err)
 	}
 
 	d.SetId("")
@@ -201,7 +201,7 @@ func getNetworkID(d *schema.ResourceData, meta interface{}, networkName string) 
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return "", fmt.Errorf("Error creating OpenStack network client: %s", err)
+		return "", fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	opts := networks.ListOpts{Name: networkName}
@@ -231,7 +231,7 @@ func getNetworkName(d *schema.ResourceData, meta interface{}, networkID string) 
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return "", fmt.Errorf("Error creating OpenStack network client: %s", err)
+		return "", fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	opts := networks.ListOpts{ID: networkID}
@@ -264,7 +264,7 @@ func waitForFloatingIPActive(networkingClient *gophercloud.ServiceClient, fId st
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] OpenStack Neutron Floating IP: %+v", f)
+		log.Printf("[DEBUG] HuaweiCloud Neutron Floating IP: %+v", f)
 		if f.Status == "DOWN" || f.Status == "ACTIVE" {
 			return f, "ACTIVE", nil
 		}
@@ -275,12 +275,12 @@ func waitForFloatingIPActive(networkingClient *gophercloud.ServiceClient, fId st
 
 func waitForFloatingIPDelete(networkingClient *gophercloud.ServiceClient, fId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete OpenStack Floating IP %s.\n", fId)
+		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Floating IP %s.\n", fId)
 
 		f, err := floatingips.Get(networkingClient, fId).Extract()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack Floating IP %s", fId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Floating IP %s", fId)
 				return f, "DELETED", nil
 			}
 			return f, "ACTIVE", err
@@ -289,13 +289,13 @@ func waitForFloatingIPDelete(networkingClient *gophercloud.ServiceClient, fId st
 		err = floatingips.Delete(networkingClient, fId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack Floating IP %s", fId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Floating IP %s", fId)
 				return f, "DELETED", nil
 			}
 			return f, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] OpenStack Floating IP %s still active.\n", fId)
+		log.Printf("[DEBUG] HuaweiCloud Floating IP %s still active.\n", fId)
 		return f, "ACTIVE", nil
 	}
 }

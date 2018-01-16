@@ -88,7 +88,7 @@ func resourceLBPoolV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	createOpts := pools.CreateOpts{
@@ -111,11 +111,11 @@ func resourceLBPoolV1Create(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	p, err := pools.Create(networkingClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack LB pool: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud LB pool: %s", err)
 	}
 	log.Printf("[INFO] LB Pool ID: %s", p.ID)
 
-	log.Printf("[DEBUG] Waiting for OpenStack LB pool (%s) to become available.", p.ID)
+	log.Printf("[DEBUG] Waiting for HuaweiCloud LB pool (%s) to become available.", p.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"PENDING_CREATE"},
@@ -137,7 +137,7 @@ func resourceLBPoolV1Create(d *schema.ResourceData, meta interface{}) error {
 		for _, mID := range mIDs {
 			_, err := pools.AssociateMonitor(networkingClient, p.ID, mID).Extract()
 			if err != nil {
-				return fmt.Errorf("Error associating monitor (%s) with OpenStack LB pool (%s): %s", mID, p.ID, err)
+				return fmt.Errorf("Error associating monitor (%s) with HuaweiCloud LB pool (%s): %s", mID, p.ID, err)
 			}
 		}
 	}
@@ -149,7 +149,7 @@ func resourceLBPoolV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	p, err := pools.Get(networkingClient, d.Id()).Extract()
@@ -157,7 +157,7 @@ func resourceLBPoolV1Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "LB pool")
 	}
 
-	log.Printf("[DEBUG] Retrieved OpenStack LB Pool %s: %+v", d.Id(), p)
+	log.Printf("[DEBUG] Retrieved HuaweiCloud LB Pool %s: %+v", d.Id(), p)
 
 	d.Set("name", p.Name)
 	d.Set("protocol", p.Protocol)
@@ -175,7 +175,7 @@ func resourceLBPoolV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var updateOpts pools.UpdateOpts
@@ -188,11 +188,11 @@ func resourceLBPoolV1Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.LBMethod = lbMethod
 	}
 
-	log.Printf("[DEBUG] Updating OpenStack LB Pool %s with options: %+v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating HuaweiCloud LB Pool %s with options: %+v", d.Id(), updateOpts)
 
 	_, err = pools.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating OpenStack LB Pool: %s", err)
+		return fmt.Errorf("Error updating HuaweiCloud LB Pool: %s", err)
 	}
 
 	if d.HasChange("monitor_ids") {
@@ -208,7 +208,7 @@ func resourceLBPoolV1Update(d *schema.ResourceData, meta interface{}) error {
 		for _, m := range monitorsToAdd.List() {
 			_, err := pools.AssociateMonitor(networkingClient, d.Id(), m.(string)).Extract()
 			if err != nil {
-				return fmt.Errorf("Error associating monitor (%s) with OpenStack server (%s): %s", m.(string), d.Id(), err)
+				return fmt.Errorf("Error associating monitor (%s) with HuaweiCloud server (%s): %s", m.(string), d.Id(), err)
 			}
 			log.Printf("[DEBUG] Associated monitor (%s) with pool (%s)", m.(string), d.Id())
 		}
@@ -216,7 +216,7 @@ func resourceLBPoolV1Update(d *schema.ResourceData, meta interface{}) error {
 		for _, m := range monitorsToRemove.List() {
 			_, err := pools.DisassociateMonitor(networkingClient, d.Id(), m.(string)).Extract()
 			if err != nil {
-				return fmt.Errorf("Error disassociating monitor (%s) from OpenStack server (%s): %s", m.(string), d.Id(), err)
+				return fmt.Errorf("Error disassociating monitor (%s) from HuaweiCloud server (%s): %s", m.(string), d.Id(), err)
 			}
 			log.Printf("[DEBUG] Disassociated monitor (%s) from pool (%s)", m.(string), d.Id())
 		}
@@ -229,7 +229,7 @@ func resourceLBPoolV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	// Make sure all monitors are disassociated first
@@ -256,7 +256,7 @@ func resourceLBPoolV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack LB Pool: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud LB Pool: %s", err)
 	}
 
 	d.SetId("")
@@ -305,7 +305,7 @@ func waitForLBPoolActive(networkingClient *gophercloud.ServiceClient, poolId str
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] OpenStack LB Pool: %+v", p)
+		log.Printf("[DEBUG] HuaweiCloud LB Pool: %+v", p)
 		if p.Status == "ACTIVE" {
 			return p, "ACTIVE", nil
 		}
@@ -316,28 +316,28 @@ func waitForLBPoolActive(networkingClient *gophercloud.ServiceClient, poolId str
 
 func waitForLBPoolDelete(networkingClient *gophercloud.ServiceClient, poolId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete OpenStack LB Pool %s", poolId)
+		log.Printf("[DEBUG] Attempting to delete HuaweiCloud LB Pool %s", poolId)
 
 		p, err := pools.Get(networkingClient, poolId).Extract()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack LB Pool %s", poolId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud LB Pool %s", poolId)
 				return p, "DELETED", nil
 			}
 			return p, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] OpenStack LB Pool: %+v", p)
+		log.Printf("[DEBUG] HuaweiCloud LB Pool: %+v", p)
 		err = pools.Delete(networkingClient, poolId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack LB Pool %s", poolId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud LB Pool %s", poolId)
 				return p, "DELETED", nil
 			}
 			return p, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] OpenStack LB Pool %s still active.", poolId)
+		log.Printf("[DEBUG] HuaweiCloud LB Pool %s still active.", poolId)
 		return p, "ACTIVE", nil
 	}
 

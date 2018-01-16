@@ -132,7 +132,7 @@ func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	lbClient, err := chooseLBV2Client(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	adminStateUp := d.Get("admin_state_up").(bool)
@@ -228,7 +228,7 @@ func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	lbClient, err := chooseLBV2Client(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	pool, err := pools.Get(lbClient, d.Id()).Extract()
@@ -254,7 +254,7 @@ func resourcePoolV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	lbClient, err := chooseLBV2Client(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var updateOpts pools.UpdateOpts
@@ -314,7 +314,7 @@ func resourcePoolV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	lbClient, err := chooseLBV2Client(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing

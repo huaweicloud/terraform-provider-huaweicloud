@@ -52,7 +52,7 @@ func resourceComputeFloatingIPAssociateV2Create(d *schema.ResourceData, meta int
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	floatingIP := d.Get("floating_ip").(string)
@@ -86,7 +86,7 @@ func resourceComputeFloatingIPAssociateV2Read(d *schema.ResourceData, meta inter
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	// Obtain relevant info from parsing the ID
@@ -156,7 +156,7 @@ func resourceComputeFloatingIPAssociateV2Delete(d *schema.ResourceData, meta int
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	floatingIP := d.Get("floating_ip").(string)

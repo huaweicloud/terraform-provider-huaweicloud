@@ -145,7 +145,7 @@ func resourceELBHealthCheckCreate(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 	networkingClient, err := chooseELBClient(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var createOpts healthcheck.CreateOpts
@@ -171,7 +171,7 @@ func resourceELBHealthCheckRead(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*Config)
 	networkingClient, err := chooseELBClient(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	hc, err := healthcheck.Get(networkingClient, d.Id()).Extract()
@@ -187,7 +187,7 @@ func resourceELBHealthCheckUpdate(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 	networkingClient, err := chooseELBClient(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	hcId := d.Id()
@@ -226,7 +226,7 @@ func resourceELBHealthCheckDelete(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 	networkingClient, err := chooseELBClient(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	hcId := d.Id()

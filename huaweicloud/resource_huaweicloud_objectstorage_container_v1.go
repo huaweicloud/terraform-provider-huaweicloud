@@ -65,7 +65,7 @@ func resourceObjectStorageContainerV1Create(d *schema.ResourceData, meta interfa
 	config := meta.(*Config)
 	objectStorageClient, err := config.objectStorageV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack object storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud object storage client: %s", err)
 	}
 
 	cn := d.Get("name").(string)
@@ -82,7 +82,7 @@ func resourceObjectStorageContainerV1Create(d *schema.ResourceData, meta interfa
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	_, err = containers.Create(objectStorageClient, cn, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack container: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud container: %s", err)
 	}
 	log.Printf("[INFO] Container ID: %s", cn)
 
@@ -103,7 +103,7 @@ func resourceObjectStorageContainerV1Update(d *schema.ResourceData, meta interfa
 	config := meta.(*Config)
 	objectStorageClient, err := config.objectStorageV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack object storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud object storage client: %s", err)
 	}
 
 	updateOpts := containers.UpdateOpts{
@@ -120,7 +120,7 @@ func resourceObjectStorageContainerV1Update(d *schema.ResourceData, meta interfa
 
 	_, err = containers.Update(objectStorageClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating OpenStack container: %s", err)
+		return fmt.Errorf("Error updating HuaweiCloud container: %s", err)
 	}
 
 	return resourceObjectStorageContainerV1Read(d, meta)
@@ -130,12 +130,12 @@ func resourceObjectStorageContainerV1Delete(d *schema.ResourceData, meta interfa
 	config := meta.(*Config)
 	objectStorageClient, err := config.objectStorageV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack object storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud object storage client: %s", err)
 	}
 
 	_, err = containers.Delete(objectStorageClient, d.Id()).Extract()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack container: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud container: %s", err)
 	}
 
 	d.SetId("")

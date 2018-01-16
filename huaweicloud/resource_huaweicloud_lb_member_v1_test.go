@@ -55,7 +55,7 @@ func testAccCheckLBV1MemberDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -86,7 +86,7 @@ func testAccCheckLBV1MemberExists(n string, member *members.Member) resource.Tes
 		config := testAccProvider.Meta().(*Config)
 		networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		found, err := members.Get(networkingClient, rs.Primary.ID).Extract()

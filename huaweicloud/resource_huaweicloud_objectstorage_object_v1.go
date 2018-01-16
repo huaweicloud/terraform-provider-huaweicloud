@@ -144,7 +144,7 @@ func resourceObjectStorageObjectV1Put(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*Config)
 	objectStorageClient, err := config.objectStorageV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack object storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud object storage client: %s", err)
 	}
 
 	name := d.Get("name").(string)
@@ -237,7 +237,7 @@ func resourceObjectStorageObjectV1Put(d *schema.ResourceData, meta interface{}) 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	result, err := objects.Create(objectStorageClient, cn, name, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack container object: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud container object: %s", err)
 	}
 	log.Printf("[INFO] Object %s has been added to container : %s", name, cn)
 
@@ -262,7 +262,7 @@ func resourceObjectStorageObjectV1Read(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 	objectStorageClient, err := config.objectStorageV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack object storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud object storage client: %s", err)
 	}
 
 	name := d.Get("name").(string)
@@ -280,7 +280,7 @@ func resourceObjectStorageObjectV1Read(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Get Options: %#v", getOpts)
 	result, err := objects.Get(objectStorageClient, cn, name, getOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error getting OpenStack container object: %s", err)
+		return fmt.Errorf("Error getting HuaweiCloud container object: %s", err)
 	}
 	log.Printf("[INFO] Object %s has been added to container : %s", name, cn)
 
@@ -308,7 +308,7 @@ func resourceObjectStorageObjectV1Delete(d *schema.ResourceData, meta interface{
 	config := meta.(*Config)
 	objectStorageClient, err := config.objectStorageV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack object storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud object storage client: %s", err)
 	}
 
 	name := d.Get("name").(string)
@@ -317,7 +317,7 @@ func resourceObjectStorageObjectV1Delete(d *schema.ResourceData, meta interface{
 
 	_, err = objects.Delete(objectStorageClient, cn, name, deleteOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error getting OpenStack container object: %s", err)
+		return fmt.Errorf("Error getting HuaweiCloud container object: %s", err)
 	}
 	return nil
 }

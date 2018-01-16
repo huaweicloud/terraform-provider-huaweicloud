@@ -9,7 +9,7 @@ import (
 // This is a global MutexKV for use within this plugin.
 var osMutexKV = mutexkv.NewMutexKV()
 
-// Provider returns a schema.Provider for OpenStack.
+// Provider returns a schema.Provider for HuaweiCloud.
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
@@ -239,7 +239,7 @@ func init() {
 	descriptions = map[string]string{
 		"auth_url": "The Identity authentication URL.",
 
-		"region": "The OpenStack region to connect to.",
+		"region": "The HuaweiCloud region to connect to.",
 
 		"user_name": "Username to login with.",
 

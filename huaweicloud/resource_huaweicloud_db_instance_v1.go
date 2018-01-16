@@ -278,7 +278,7 @@ func resourceDatabaseInstanceV1Read(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*Config)
 	databaseV1Client, err := config.databaseV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack cloud database client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud cloud database client: %s", err)
 	}
 
 	instance, err := instances.Get(databaseV1Client, d.Id()).Extract()

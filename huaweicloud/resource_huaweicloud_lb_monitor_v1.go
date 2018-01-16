@@ -90,7 +90,7 @@ func resourceLBMonitorV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	createOpts := monitors.CreateOpts{
@@ -120,11 +120,11 @@ func resourceLBMonitorV1Create(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	m, err := monitors.Create(networkingClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack LB Monitor: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud LB Monitor: %s", err)
 	}
 	log.Printf("[INFO] LB Monitor ID: %s", m.ID)
 
-	log.Printf("[DEBUG] Waiting for OpenStack LB Monitor (%s) to become available.", m.ID)
+	log.Printf("[DEBUG] Waiting for HuaweiCloud LB Monitor (%s) to become available.", m.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"PENDING_CREATE"},
@@ -149,7 +149,7 @@ func resourceLBMonitorV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	m, err := monitors.Get(networkingClient, d.Id()).Extract()
@@ -157,7 +157,7 @@ func resourceLBMonitorV1Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "LB monitor")
 	}
 
-	log.Printf("[DEBUG] Retrieved OpenStack LB Monitor %s: %+v", d.Id(), m)
+	log.Printf("[DEBUG] Retrieved HuaweiCloud LB Monitor %s: %+v", d.Id(), m)
 
 	d.Set("type", m.Type)
 	d.Set("delay", m.Delay)
@@ -177,7 +177,7 @@ func resourceLBMonitorV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	updateOpts := monitors.UpdateOpts{
@@ -200,11 +200,11 @@ func resourceLBMonitorV1Update(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	log.Printf("[DEBUG] Updating OpenStack LB Monitor %s with options: %+v", d.Id(), updateOpts)
+	log.Printf("[DEBUG] Updating HuaweiCloud LB Monitor %s with options: %+v", d.Id(), updateOpts)
 
 	_, err = monitors.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating OpenStack LB Monitor: %s", err)
+		return fmt.Errorf("Error updating HuaweiCloud LB Monitor: %s", err)
 	}
 
 	return resourceLBMonitorV1Read(d, meta)
@@ -214,7 +214,7 @@ func resourceLBMonitorV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -228,7 +228,7 @@ func resourceLBMonitorV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack LB Monitor: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud LB Monitor: %s", err)
 	}
 
 	d.SetId("")
@@ -259,25 +259,25 @@ func waitForLBMonitorActive(networkingClient *gophercloud.ServiceClient, monitor
 		}
 
 		// The monitor resource has no Status attribute, so a successful Get is the best we can do
-		log.Printf("[DEBUG] OpenStack LB Monitor: %+v", m)
+		log.Printf("[DEBUG] HuaweiCloud LB Monitor: %+v", m)
 		return m, "ACTIVE", nil
 	}
 }
 
 func waitForLBMonitorDelete(networkingClient *gophercloud.ServiceClient, monitorId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete OpenStack LB Monitor %s", monitorId)
+		log.Printf("[DEBUG] Attempting to delete HuaweiCloud LB Monitor %s", monitorId)
 
 		m, err := monitors.Get(networkingClient, monitorId).Extract()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack LB Monitor %s", monitorId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud LB Monitor %s", monitorId)
 				return m, "DELETED", nil
 			}
 
 			if errCode, ok := err.(gophercloud.ErrUnexpectedResponseCode); ok {
 				if errCode.Actual == 409 {
-					log.Printf("[DEBUG] OpenStack LB Monitor (%s) is waiting for Pool to delete.", monitorId)
+					log.Printf("[DEBUG] HuaweiCloud LB Monitor (%s) is waiting for Pool to delete.", monitorId)
 					return m, "PENDING", nil
 				}
 			}
@@ -285,17 +285,17 @@ func waitForLBMonitorDelete(networkingClient *gophercloud.ServiceClient, monitor
 			return m, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] OpenStack LB Monitor: %+v", m)
+		log.Printf("[DEBUG] HuaweiCloud LB Monitor: %+v", m)
 		err = monitors.Delete(networkingClient, monitorId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack LB Monitor %s", monitorId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud LB Monitor %s", monitorId)
 				return m, "DELETED", nil
 			}
 
 			if errCode, ok := err.(gophercloud.ErrUnexpectedResponseCode); ok {
 				if errCode.Actual == 409 {
-					log.Printf("[DEBUG] OpenStack LB Monitor (%s) is waiting for Pool to delete.", monitorId)
+					log.Printf("[DEBUG] HuaweiCloud LB Monitor (%s) is waiting for Pool to delete.", monitorId)
 					return m, "PENDING", nil
 				}
 			}
@@ -303,7 +303,7 @@ func waitForLBMonitorDelete(networkingClient *gophercloud.ServiceClient, monitor
 			return m, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] OpenStack LB Monitor %s still active.", monitorId)
+		log.Printf("[DEBUG] HuaweiCloud LB Monitor %s still active.", monitorId)
 		return m, "ACTIVE", nil
 	}
 

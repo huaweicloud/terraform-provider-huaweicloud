@@ -73,7 +73,7 @@ func resourceComputeFlavorV2Create(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	disk := d.Get("disk").(int)
@@ -94,7 +94,7 @@ func resourceComputeFlavorV2Create(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	fl, err := flavors.Create(computeClient, &createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack flavor: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud flavor: %s", err)
 	}
 
 	d.SetId(fl.ID)
@@ -106,7 +106,7 @@ func resourceComputeFlavorV2Read(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	fl, err := flavors.Get(computeClient, d.Id()).Extract()
@@ -131,12 +131,12 @@ func resourceComputeFlavorV2Delete(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	err = flavors.Delete(computeClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack flavor: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud flavor: %s", err)
 	}
 	d.SetId("")
 	return nil

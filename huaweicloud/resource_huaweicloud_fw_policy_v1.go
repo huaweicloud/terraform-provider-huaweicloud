@@ -73,7 +73,7 @@ func resourceFWPolicyV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	v := d.Get("rules").([]interface{})
@@ -124,7 +124,7 @@ func resourceFWPolicyV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	policy, err := policies.Get(networkingClient, d.Id()).Extract()
@@ -132,7 +132,7 @@ func resourceFWPolicyV1Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "FW policy")
 	}
 
-	log.Printf("[DEBUG] Read OpenStack Firewall Policy %s: %#v", d.Id(), policy)
+	log.Printf("[DEBUG] Read HuaweiCloud Firewall Policy %s: %#v", d.Id(), policy)
 
 	d.Set("name", policy.Name)
 	d.Set("description", policy.Description)
@@ -149,7 +149,7 @@ func resourceFWPolicyV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	opts := policies.UpdateOpts{}
@@ -191,7 +191,7 @@ func resourceFWPolicyV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{

@@ -60,7 +60,7 @@ func resourceComputeVolumeAttachV2Create(d *schema.ResourceData, meta interface{
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	instanceId := d.Get("instance_id").(string)
@@ -93,7 +93,7 @@ func resourceComputeVolumeAttachV2Create(d *schema.ResourceData, meta interface{
 	}
 
 	if _, err = stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("Error attaching OpenStack volume: %s", err)
+		return fmt.Errorf("Error attaching HuaweiCloud volume: %s", err)
 	}
 
 	log.Printf("[DEBUG] Created volume attachment: %#v", attachment)
@@ -111,7 +111,7 @@ func resourceComputeVolumeAttachV2Read(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	instanceId, attachmentId, err := parseComputeVolumeAttachmentId(d.Id())
@@ -138,7 +138,7 @@ func resourceComputeVolumeAttachV2Delete(d *schema.ResourceData, meta interface{
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	instanceId, attachmentId, err := parseComputeVolumeAttachmentId(d.Id())
@@ -156,7 +156,7 @@ func resourceComputeVolumeAttachV2Delete(d *schema.ResourceData, meta interface{
 	}
 
 	if _, err = stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("Error detaching OpenStack volume: %s", err)
+		return fmt.Errorf("Error detaching HuaweiCloud volume: %s", err)
 	}
 
 	return nil
@@ -180,7 +180,7 @@ func resourceComputeVolumeAttachV2AttachFunc(
 func resourceComputeVolumeAttachV2DetachFunc(
 	computeClient *gophercloud.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to detach OpenStack volume %s from instance %s",
+		log.Printf("[DEBUG] Attempting to detach HuaweiCloud volume %s from instance %s",
 			attachmentId, instanceId)
 
 		va, err := volumeattach.Get(computeClient, instanceId, attachmentId).Extract()
@@ -204,7 +204,7 @@ func resourceComputeVolumeAttachV2DetachFunc(
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] OpenStack Volume Attachment (%s) is still active.", attachmentId)
+		log.Printf("[DEBUG] HuaweiCloud Volume Attachment (%s) is still active.", attachmentId)
 		return nil, "", nil
 	}
 }

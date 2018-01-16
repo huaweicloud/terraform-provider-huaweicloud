@@ -347,7 +347,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	var createOpts servers.CreateOptsBuilder
@@ -439,7 +439,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack server: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
 	}
 	log.Printf("[INFO] Instance ID: %s", server.ID)
 
@@ -475,7 +475,7 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	server, err := servers.Get(computeClient, d.Id()).Extract()
@@ -496,7 +496,7 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	// Determine the best IPv4 and IPv6 addresses to access the instance with
 	hostv4, hostv6 := getInstanceAccessAddresses(d, networks)
 
-	// AccessIPv4/v6 isn't standard in OpenStack, but there have been reports
+	// AccessIPv4/v6 isn't standard in HuaweiCloud, but there have been reports
 	// of them being used in some environments.
 	if server.AccessIPv4 != "" && hostv4 == "" {
 		hostv4 = server.AccessIPv4
@@ -537,7 +537,7 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 
 	flavorId, ok := server.Flavor["id"].(string)
 	if !ok {
-		return fmt.Errorf("Error setting OpenStack server's flavor: %v", server.Flavor)
+		return fmt.Errorf("Error setting HuaweiCloud server's flavor: %v", server.Flavor)
 	}
 	d.Set("flavor_id", flavorId)
 
@@ -577,7 +577,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	var updateOpts servers.UpdateOpts
@@ -588,7 +588,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 	if updateOpts != (servers.UpdateOpts{}) {
 		_, err := servers.Update(computeClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating OpenStack server: %s", err)
+			return fmt.Errorf("Error updating HuaweiCloud server: %s", err)
 		}
 	}
 
@@ -626,7 +626,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 
 		_, err := servers.UpdateMetadata(computeClient, d.Id(), metadataOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating OpenStack server (%s) metadata: %s", d.Id(), err)
+			return fmt.Errorf("Error updating HuaweiCloud server (%s) metadata: %s", d.Id(), err)
 		}
 	}
 
@@ -648,7 +648,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 					continue
 				}
 
-				return fmt.Errorf("Error removing security group (%s) from OpenStack server (%s): %s", g, d.Id(), err)
+				return fmt.Errorf("Error removing security group (%s) from HuaweiCloud server (%s): %s", g, d.Id(), err)
 			} else {
 				log.Printf("[DEBUG] Removed security group (%s) from instance (%s)", g, d.Id())
 			}
@@ -657,7 +657,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 		for _, g := range secgroupsToAdd.List() {
 			err := secgroups.AddServer(computeClient, d.Id(), g.(string)).ExtractErr()
 			if err != nil && err.Error() != "EOF" {
-				return fmt.Errorf("Error adding security group (%s) to OpenStack server (%s): %s", g, d.Id(), err)
+				return fmt.Errorf("Error adding security group (%s) to HuaweiCloud server (%s): %s", g, d.Id(), err)
 			}
 			log.Printf("[DEBUG] Added security group (%s) to instance (%s)", g, d.Id())
 		}
@@ -667,7 +667,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 		if newPwd, ok := d.Get("admin_pass").(string); ok {
 			err := servers.ChangeAdminPassword(computeClient, d.Id(), newPwd).ExtractErr()
 			if err != nil {
-				return fmt.Errorf("Error changing admin password of OpenStack server (%s): %s", d.Id(), err)
+				return fmt.Errorf("Error changing admin password of HuaweiCloud server (%s): %s", d.Id(), err)
 			}
 		}
 	}
@@ -691,7 +691,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 		log.Printf("[DEBUG] Resize configuration: %#v", resizeOpts)
 		err = servers.Resize(computeClient, d.Id(), resizeOpts).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error resizing OpenStack server: %s", err)
+			return fmt.Errorf("Error resizing HuaweiCloud server: %s", err)
 		}
 
 		// Wait for the instance to finish resizing.
@@ -715,7 +715,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 		log.Printf("[DEBUG] Confirming resize")
 		err = servers.ConfirmResize(computeClient, d.Id()).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error confirming resize of OpenStack server: %s", err)
+			return fmt.Errorf("Error confirming resize of HuaweiCloud server: %s", err)
 		}
 
 		stateConf = &resource.StateChangeConf{
@@ -740,13 +740,13 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	if d.Get("stop_before_destroy").(bool) {
 		err = startstop.Stop(computeClient, d.Id()).ExtractErr()
 		if err != nil {
-			log.Printf("[WARN] Error stopping OpenStack instance: %s", err)
+			log.Printf("[WARN] Error stopping HuaweiCloud instance: %s", err)
 		} else {
 			stopStateConf := &resource.StateChangeConf{
 				Pending:    []string{"ACTIVE"},
@@ -765,16 +765,16 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if d.Get("force_delete").(bool) {
-		log.Printf("[DEBUG] Force deleting OpenStack Instance %s", d.Id())
+		log.Printf("[DEBUG] Force deleting HuaweiCloud Instance %s", d.Id())
 		err = servers.ForceDelete(computeClient, d.Id()).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error deleting OpenStack server: %s", err)
+			return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
 		}
 	} else {
-		log.Printf("[DEBUG] Deleting OpenStack Instance %s", d.Id())
+		log.Printf("[DEBUG] Deleting HuaweiCloud Instance %s", d.Id())
 		err = servers.Delete(computeClient, d.Id()).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error deleting OpenStack server: %s", err)
+			return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
 		}
 	}
 
@@ -802,7 +802,7 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 }
 
 // ServerV2StateRefreshFunc returns a resource.StateRefreshFunc that is used to watch
-// an OpenStack instance.
+// an HuaweiCloud instance.
 func ServerV2StateRefreshFunc(client *gophercloud.ServiceClient, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		s, err := servers.Get(client, instanceID).Extract()
@@ -1071,7 +1071,7 @@ func resourceInstancePersonalityV2(d *schema.ResourceData) servers.Personality {
 					Contents: []byte(rawPersonality["content"].(string)),
 				}
 
-				log.Printf("[DEBUG] OpenStack Compute Instance Personality: %+v", file)
+				log.Printf("[DEBUG] HuaweiCloud Compute Instance Personality: %+v", file)
 
 				personalities = append(personalities, &file)
 			}

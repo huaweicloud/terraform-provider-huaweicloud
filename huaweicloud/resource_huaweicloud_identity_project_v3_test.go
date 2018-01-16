@@ -63,7 +63,7 @@ func testAccCheckIdentityV3ProjectDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	identityClient, err := config.identityV3Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack identity client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -94,7 +94,7 @@ func testAccCheckIdentityV3ProjectExists(n string, project *projects.Project) re
 		config := testAccProvider.Meta().(*Config)
 		identityClient, err := config.identityV3Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack identity client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}
 
 		found, err := projects.Get(identityClient, rs.Primary.ID).Extract()

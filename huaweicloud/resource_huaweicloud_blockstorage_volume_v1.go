@@ -114,7 +114,7 @@ func resourceBlockStorageVolumeV1Create(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 	blockStorageClient, err := config.blockStorageV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack block storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}
 
 	createOpts := &volumes.CreateOpts{
@@ -132,7 +132,7 @@ func resourceBlockStorageVolumeV1Create(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := volumes.Create(blockStorageClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack volume: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud volume: %s", err)
 	}
 	log.Printf("[INFO] Volume ID: %s", v.ID)
 
@@ -168,7 +168,7 @@ func resourceBlockStorageVolumeV1Read(d *schema.ResourceData, meta interface{}) 
 
 	blockStorageClient, err := config.blockStorageV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack block storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}
 
 	v, err := volumes.Get(blockStorageClient, d.Id()).Extract()
@@ -205,7 +205,7 @@ func resourceBlockStorageVolumeV1Update(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 	blockStorageClient, err := config.blockStorageV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack block storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}
 
 	updateOpts := volumes.UpdateOpts{
@@ -219,7 +219,7 @@ func resourceBlockStorageVolumeV1Update(d *schema.ResourceData, meta interface{}
 
 	_, err = volumes.Update(blockStorageClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating OpenStack volume: %s", err)
+		return fmt.Errorf("Error updating HuaweiCloud volume: %s", err)
 	}
 
 	return resourceBlockStorageVolumeV1Read(d, meta)
@@ -229,7 +229,7 @@ func resourceBlockStorageVolumeV1Delete(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 	blockStorageClient, err := config.blockStorageV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack block storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}
 
 	v, err := volumes.Get(blockStorageClient, d.Id()).Extract()
@@ -309,7 +309,7 @@ func resourceVolumeMetadataV1(d *schema.ResourceData) map[string]string {
 }
 
 // VolumeV1StateRefreshFunc returns a resource.StateRefreshFunc that is used to watch
-// an OpenStack volume.
+// an HuaweiCloud volume.
 func VolumeV1StateRefreshFunc(client *gophercloud.ServiceClient, volumeID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		v, err := volumes.Get(client, volumeID).Extract()

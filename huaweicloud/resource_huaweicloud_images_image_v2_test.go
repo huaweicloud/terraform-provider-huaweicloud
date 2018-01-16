@@ -161,7 +161,7 @@ func testAccCheckImagesImageV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	imageClient, err := config.imageV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack Image: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -192,7 +192,7 @@ func testAccCheckImagesImageV2Exists(n string, image *images.Image) resource.Tes
 		config := testAccProvider.Meta().(*Config)
 		imageClient, err := config.imageV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack Image: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
 
 		found, err := images.Get(imageClient, rs.Primary.ID).Extract()
@@ -224,7 +224,7 @@ func testAccCheckImagesImageV2HasTag(n, tag string) resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*Config)
 		imageClient, err := config.imageV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack Image: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
 
 		found, err := images.Get(imageClient, rs.Primary.ID).Extract()
@@ -260,7 +260,7 @@ func testAccCheckImagesImageV2TagCount(n string, expected int) resource.TestChec
 		config := testAccProvider.Meta().(*Config)
 		imageClient, err := config.imageV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack Image: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
 
 		found, err := images.Get(imageClient, rs.Primary.ID).Extract()

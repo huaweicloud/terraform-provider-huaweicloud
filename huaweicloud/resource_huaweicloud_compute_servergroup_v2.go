@@ -55,7 +55,7 @@ func resourceComputeServerGroupV2Create(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	createOpts := ServerGroupCreateOpts{
@@ -81,7 +81,7 @@ func resourceComputeServerGroupV2Read(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	sg, err := servergroups.Get(computeClient, d.Id()).Extract()
@@ -117,7 +117,7 @@ func resourceComputeServerGroupV2Delete(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Deleting ServerGroup %s", d.Id())

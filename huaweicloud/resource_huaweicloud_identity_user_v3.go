@@ -116,7 +116,7 @@ func resourceIdentityUserV3Create(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 	identityClient, err := config.identityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack identity client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	enabled := d.Get("enabled").(bool)
@@ -152,7 +152,7 @@ func resourceIdentityUserV3Create(d *schema.ResourceData, meta interface{}) erro
 
 	user, err := users.Create(identityClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack user: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud user: %s", err)
 	}
 
 	d.SetId(user.ID)
@@ -164,7 +164,7 @@ func resourceIdentityUserV3Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*Config)
 	identityClient, err := config.identityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack identity client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	user, err := users.Get(identityClient, d.Id()).Extract()
@@ -172,7 +172,7 @@ func resourceIdentityUserV3Read(d *schema.ResourceData, meta interface{}) error 
 		return CheckDeleted(d, err, "user")
 	}
 
-	log.Printf("[DEBUG] Retrieved OpenStack user: %#v", user)
+	log.Printf("[DEBUG] Retrieved HuaweiCloud user: %#v", user)
 
 	d.Set("default_project_id", user.DefaultProjectID)
 	d.Set("description", user.Description)
@@ -208,7 +208,7 @@ func resourceIdentityUserV3Update(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 	identityClient, err := config.identityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack identity client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	var hasChange bool
@@ -276,7 +276,7 @@ func resourceIdentityUserV3Update(d *schema.ResourceData, meta interface{}) erro
 	if hasChange {
 		_, err := users.Update(identityClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating OpenStack user: %s", err)
+			return fmt.Errorf("Error updating HuaweiCloud user: %s", err)
 		}
 	}
 
@@ -287,12 +287,12 @@ func resourceIdentityUserV3Delete(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 	identityClient, err := config.identityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack identity client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	err = users.Delete(identityClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack user: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud user: %s", err)
 	}
 
 	return nil

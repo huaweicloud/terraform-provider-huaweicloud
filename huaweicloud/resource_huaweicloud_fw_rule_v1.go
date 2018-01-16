@@ -88,7 +88,7 @@ func resourceFWRuleV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	enabled := d.Get("enabled").(bool)
@@ -133,7 +133,7 @@ func resourceFWRuleV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	rule, err := rules.Get(networkingClient, d.Id()).Extract()
@@ -141,7 +141,7 @@ func resourceFWRuleV1Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "FW rule")
 	}
 
-	log.Printf("[DEBUG] Read OpenStack Firewall Rule %s: %#v", d.Id(), rule)
+	log.Printf("[DEBUG] Read HuaweiCloud Firewall Rule %s: %#v", d.Id(), rule)
 
 	d.Set("action", rule.Action)
 	d.Set("name", rule.Name)
@@ -168,7 +168,7 @@ func resourceFWRuleV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	name := d.Get("name").(string)
@@ -210,7 +210,7 @@ func resourceFWRuleV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	rule, err := rules.Get(networkingClient, d.Id()).Extract()

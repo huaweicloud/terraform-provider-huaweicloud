@@ -95,7 +95,7 @@ func resourceELBBackendECSCreate(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	networkingClient, err := chooseELBClient(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var createOpts backendecs.CreateOpts
@@ -150,7 +150,7 @@ func resourceELBBackendECSRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := chooseELBClient(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	lId := d.Get("listener_id").(string)
@@ -167,7 +167,7 @@ func resourceELBBackendECSDelete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	networkingClient, err := chooseELBClient(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	bId := d.Id()

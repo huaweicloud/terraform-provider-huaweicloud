@@ -208,7 +208,7 @@ func testAccCheckObjectStorageV1ObjectDestroy(s *terraform.State, objectname str
 	objectStorageClient, err := config.objectStorageV1Client(OS_REGION_NAME)
 	if err != nil {
 
-		return fmt.Errorf("Error creating OpenStack object storage client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud object storage client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -239,7 +239,7 @@ func testAccCheckObjectStorageV1ObjectExists(n string, object *objects.GetHeader
 		config := testAccProvider.Meta().(*Config)
 		objectStorageClient, err := config.objectStorageV1Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack object storage client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud object storage client: %s", err)
 		}
 
 		parts := strings.SplitN(rs.Primary.ID, "/", 2)

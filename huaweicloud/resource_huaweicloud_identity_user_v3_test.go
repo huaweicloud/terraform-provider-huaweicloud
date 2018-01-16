@@ -85,7 +85,7 @@ func testAccCheckIdentityV3UserDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	identityClient, err := config.identityV3Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack identity client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -116,7 +116,7 @@ func testAccCheckIdentityV3UserExists(n string, user *users.User) resource.TestC
 		config := testAccProvider.Meta().(*Config)
 		identityClient, err := config.identityV3Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack identity client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}
 
 		found, err := users.Get(identityClient, rs.Primary.ID).Extract()

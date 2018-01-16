@@ -158,7 +158,7 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	vs := MapResourceProp(d, "value_specs")
-	// Add zone_type to the list.  We do this to keep GopherCloud OpenStack standard.
+	// Add zone_type to the list.  We do this to keep GopherCloud HuaweiCloud standard.
 	vs["zone_type"] = zone_type
 	vs["router"] = resourceDNSRouter(d)
 	createOpts := ZoneCreateOpts{

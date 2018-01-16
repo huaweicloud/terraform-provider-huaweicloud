@@ -121,7 +121,7 @@ func resourceKmsKeyV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	kmsKeyV3Client, err := config.kmsKeyV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack kms key client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
 
 	createOpts := &keys.CreateOpts{
@@ -137,7 +137,7 @@ func resourceKmsKeyV3Create(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := keys.Create(kmsKeyV3Client, createOpts).ExtractKeyInfo()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack key: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud key: %s", err)
 	}
 	log.Printf("[INFO] Key ID: %s", v.KeyID)
 
@@ -172,7 +172,7 @@ func resourceKmsKeyV3Read(d *schema.ResourceData, meta interface{}) error {
 
 	kmsKeyV3Client, err := config.kmsKeyV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack kms key client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
 	getOpts := &keys.ListOpts{
 		KeyID: d.Id(),
@@ -211,7 +211,7 @@ func resourceKmsKeyV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	kmsKeyV3Client, err := config.kmsKeyV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack kms key client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
 
 	if d.HasChange("key_alias") {
@@ -221,7 +221,7 @@ func resourceKmsKeyV3Update(d *schema.ResourceData, meta interface{}) error {
 		}
 		_, err = keys.UpdateAlias(kmsKeyV3Client, updateAliasOpts).ExtractKeyInfo()
 		if err != nil {
-			return fmt.Errorf("Error updating OpenStack key: %s", err)
+			return fmt.Errorf("Error updating HuaweiCloud key: %s", err)
 		}
 	}
 
@@ -232,7 +232,7 @@ func resourceKmsKeyV3Update(d *schema.ResourceData, meta interface{}) error {
 		}
 		_, err = keys.UpdateDes(kmsKeyV3Client, updateDesOpts).ExtractKeyInfo()
 		if err != nil {
-			return fmt.Errorf("Error updating OpenStack key: %s", err)
+			return fmt.Errorf("Error updating HuaweiCloud key: %s", err)
 		}
 	}
 
@@ -243,7 +243,7 @@ func resourceKmsKeyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	kmsKeyV3Client, err := config.kmsKeyV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack kms key client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
 
 	getOpts := &keys.ListOpts{
