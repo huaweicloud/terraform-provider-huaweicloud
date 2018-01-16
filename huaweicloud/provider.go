@@ -179,7 +179,6 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"huaweicloud_blockstorage_volume_v1":          resourceBlockStorageVolumeV1(),
 			"huaweicloud_blockstorage_volume_v2":          resourceBlockStorageVolumeV2(),
 			"huaweicloud_blockstorage_volume_attach_v2":   resourceBlockStorageVolumeAttachV2(),
 			"huaweicloud_compute_flavor_v2":               resourceComputeFlavorV2(),
@@ -204,10 +203,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_elb_listener":                    resourceELBListener(),
 			"huaweicloud_elb_healthcheck":                 resourceELBHealthCheck(),
 			"huaweicloud_elb_backendecs":                  resourceELBBackendECS(),
-			"huaweicloud_lb_member_v1":                    resourceLBMemberV1(),
-			"huaweicloud_lb_monitor_v1":                   resourceLBMonitorV1(),
-			"huaweicloud_lb_pool_v1":                      resourceLBPoolV1(),
-			"huaweicloud_lb_vip_v1":                       resourceLBVipV1(),
 			"huaweicloud_lb_loadbalancer_v2":              resourceLoadBalancerV2(),
 			"huaweicloud_lb_listener_v2":                  resourceListenerV2(),
 			"huaweicloud_lb_pool_v2":                      resourcePoolV2(),
