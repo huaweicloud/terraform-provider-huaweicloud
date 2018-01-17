@@ -181,7 +181,6 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"huaweicloud_blockstorage_volume_v2":          resourceBlockStorageVolumeV2(),
 			"huaweicloud_blockstorage_volume_attach_v2":   resourceBlockStorageVolumeAttachV2(),
-			"huaweicloud_compute_flavor_v2":               resourceComputeFlavorV2(),
 			"huaweicloud_compute_instance_v2":             resourceComputeInstanceV2(),
 			"huaweicloud_compute_keypair_v2":              resourceComputeKeypairV2(),
 			"huaweicloud_compute_secgroup_v2":             resourceComputeSecGroupV2(),
@@ -195,8 +194,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_fw_firewall_v1":                  resourceFWFirewallV1(),
 			"huaweicloud_fw_policy_v1":                    resourceFWPolicyV1(),
 			"huaweicloud_fw_rule_v1":                      resourceFWRuleV1(),
-			"huaweicloud_identity_project_v3":             resourceIdentityProjectV3(),
-			"huaweicloud_identity_user_v3":                resourceIdentityUserV3(),
 			"huaweicloud_images_image_v2":                 resourceImagesImageV2(),
 			"huaweicloud_kms_key_v3":                      resourceKmsKeyV3(),
 			"huaweicloud_elb_loadbalancer":                resourceELBLoadBalancer(),
