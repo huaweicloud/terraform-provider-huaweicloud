@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_db_instance_v1"
-sidebar_current: "docs-openstack-resource-db-instance-v1"
+sidebar_current: "docs-huaweicloud-resource-db-instance-v1"
 description: |-
   Manages a V1 DB instance resource within HuaweiCloud.
 ---

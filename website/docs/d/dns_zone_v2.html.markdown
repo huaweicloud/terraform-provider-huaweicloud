@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dns_zone_v2"
-sidebar_current: "docs-openstack-datasource-dns-zone-v2"
+sidebar_current: "docs-huaweicloud-datasource-dns-zone-v2"
 description: |-
   Get information on an HuaweiCloud DNS Zone.
 ---

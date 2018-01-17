@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_compute_volume_attach_v2"
-sidebar_current: "docs-openstack-resource-compute-volume-attach-v2"
+sidebar_current: "docs-huaweicloud-resource-compute-volume-attach-v2"
 description: |-
   Attaches a Block Storage Volume to an Instance.
 ---

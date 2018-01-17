@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_networking_secgroup_v2"
-sidebar_current: "docs-openstack-datasource-networking-secgroup-v2"
+sidebar_current: "docs-huaweicloud-datasource-networking-secgroup-v2"
 description: |-
   Get information on an HuaweiCloud Security Group.
 ---

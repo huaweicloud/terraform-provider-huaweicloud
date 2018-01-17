@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lb_loadbalancer_v2"
-sidebar_current: "docs-openstack-resource-lb-loadbalancer-v2"
+sidebar_current: "docs-huaweicloud-resource-lb-loadbalancer-v2"
 description: |-
   Manages a V2 loadbalancer resource within HuaweiCloud.
 ---

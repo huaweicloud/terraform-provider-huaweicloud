@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_blockstorage_volume_attach_v2"
-sidebar_current: "docs-openstack-resource-blockstorage-volume-attach-v2"
+sidebar_current: "docs-huaweicloud-resource-blockstorage-volume-attach-v2"
 description: |-
   Creates an attachment connection to a Block Storage volume
 ---
@@ -102,7 +102,7 @@ data.access_mode = rw
 data.auth_method = CHAP
 data.auth_password = xUhbGKQ8QCwKmHQ2
 data.auth_username = Sphn5X4EoyFUUMYVYSA4
-data.target_iqn = iqn.2010-10.org.openstack:volume-2d87ed25-c312-4f42-be1d-3b36b014561d
+data.target_iqn = iqn.2010-10.org.huaweicloud:volume-2d87ed25-c312-4f42-be1d-3b36b014561d
 data.target_portal = 192.168.255.10:3260
 data.volume_id = 2d87ed25-c312-4f42-be1d-3b36b014561d
 ```

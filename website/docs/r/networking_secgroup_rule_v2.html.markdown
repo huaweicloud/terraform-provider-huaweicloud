@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_networking_secgroup_rule_v2"
-sidebar_current: "docs-openstack-resource-networking-secgroup-rule-v2"
+sidebar_current: "docs-huaweicloud-resource-networking-secgroup-rule-v2"
 description: |-
   Manages a V2 Neutron security group rule resource within HuaweiCloud.
 ---

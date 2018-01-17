@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "Provider: HuaweiCloud"
-sidebar_current: "docs-openstack-index"
+sidebar_current: "docs-huaweicloud-index"
 description: |-
   The HuaweiCloud provider is used to interact with the many resources supported by HuaweiCloud. The provider needs to be configured with the proper credentials before it can be used.
 ---
@@ -38,12 +38,6 @@ The following arguments are supported:
 
 * `auth_url` - (Optional; required if `cloud` is not specified) The Identity
   authentication URL. If omitted, the `OS_AUTH_URL` environment variable is used.
-
-* `cloud` - (Optional; required if `auth_url` is not specified) An entry in a
-  `clouds.yaml` file. See the HuaweiCloud `os-client-config`
-  [documentation](https://docs.openstack.org/os-client-config/latest/user/configuration.html)
-  for more information about `clouds.yaml` files. If omitted, the `OS_CLOUD`
-  environment variable is used.
 
 * `region` - (Optional) The region of the HuaweiCloud cloud to use. If omitted,
   the `OS_REGION_NAME` environment variable is used. If `OS_REGION_NAME` is

@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_networking_network_v2"
-sidebar_current: "docs-openstack-datasource-networking-network-v2"
+sidebar_current: "docs-huaweicloud-datasource-networking-network-v2"
 description: |-
   Get information on an HuaweiCloud Network.
 ---

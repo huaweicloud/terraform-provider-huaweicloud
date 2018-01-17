@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_compute_floatingip_associate_v2"
-sidebar_current: "docs-openstack-resource-compute-floatingip-associate-v2"
+sidebar_current: "docs-huaweicloud-resource-compute-floatingip-associate-v2"
 description: |-
   Associate a floating IP to an instance
 ---

@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_compute_floatingip_v2"
-sidebar_current: "docs-openstack-resource-compute-floatingip-v2"
+sidebar_current: "docs-huaweicloud-resource-compute-floatingip-v2"
 description: |-
   Manages a V2 floating IP resource within HuaweiCloud Nova (compute).
 ---

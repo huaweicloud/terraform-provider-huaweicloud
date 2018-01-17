@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lb_pool_v2"
-sidebar_current: "docs-openstack-resource-lb-pool-v2"
+sidebar_current: "docs-huaweicloud-resource-lb-pool-v2"
 description: |-
   Manages a V2 pool resource within HuaweiCloud.
 ---

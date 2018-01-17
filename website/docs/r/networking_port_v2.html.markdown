@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_networking_port_v2"
-sidebar_current: "docs-openstack-resource-networking-port-v2"
+sidebar_current: "docs-huaweicloud-resource-networking-port-v2"
 description: |-
   Manages a V2 port resource within HuaweiCloud.
 ---

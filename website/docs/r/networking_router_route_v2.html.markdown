@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_networking_router_route_v2"
-sidebar_current: "docs-openstack-resource-networking-router-route-v2"
+sidebar_current: "docs-huaweicloud-resource-networking-router-route-v2"
 description: |-
   Creates a routing entry on a HuaweiCloud V2 router.
 ---

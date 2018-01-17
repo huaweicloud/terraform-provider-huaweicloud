@@ -1,7 +1,7 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_objectstorage_object_v1"
-sidebar_current: "docs-openstack-resource-objectstorage-object-v1"
+sidebar_current: "docs-huaweicloud-resource-objectstorage-object-v1"
 description: |-
   Manages a V1 container object resource within HuaweiCloud.
 ---

@@ -1,5 +1,5 @@
 ---
-layout: "openstack"
+layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_kms-key-v3"
 sidebar_current: "docs-huaweicloud-resource-kms-key-v3"
 description: |-
