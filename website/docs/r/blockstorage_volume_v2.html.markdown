@@ -58,8 +58,8 @@ The following arguments are supported:
 * `source_vol_id` - (Optional) The volume ID from which to create the volume.
     Changing this creates a new volume.
 
-* `volume_type` - (Optional) The type of volume to create.
-    Changing this creates a new volume.
+* `volume_type` - (Optional) The type of volume to create. Available types are
+    `SSD`, `SAS` and `SATA`. Changing this creates a new volume.
 
 ## Attributes Reference
 
