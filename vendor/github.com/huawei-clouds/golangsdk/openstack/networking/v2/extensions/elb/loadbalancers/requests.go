@@ -5,6 +5,7 @@ import (
 
 	"github.com/huawei-clouds/golangsdk"
 	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb"
+	"github.com/huawei-clouds/golangsdk/openstack/utils"
 )
 
 // CreateOptsBuilder is the interface options structs have to satisfy in order
@@ -81,20 +82,12 @@ type UpdateOpts struct {
 	// Optional. Human-readable name for the Loadbalancer. Does not have to be unique.
 	Name string `json:"name,omitempty"`
 	// Optional. Human-readable description for the Loadbalancer.
-	Description string `json:"description,omitempty"`
+	Description string `json:"description"`
 
 	BandWidth int `json:"bandwidth,omitempty"`
 	// Optional. The administrative state of the Loadbalancer. A valid value is true (UP)
 	// or false (DOWN).
-	AdminStateUp int `json:"admin_state_up,omitempty"`
-}
-
-func (u UpdateOpts) IsNeedUpdate() (bool, error) {
-	d, e := u.ToLoadBalancerUpdateMap()
-	if e == nil {
-		return len(d) != 0, nil
-	}
-	return false, e
+	AdminStateUp int `json:"admin_state_up"`
 }
 
 // ToLoadBalancerUpdateMap casts a UpdateOpts struct to a map.
@@ -103,12 +96,13 @@ func (opts UpdateOpts) ToLoadBalancerUpdateMap() (map[string]interface{}, error)
 }
 
 // Update is an operation which modifies the attributes of the specified LoadBalancer.
-func Update(c *golangsdk.ServiceClientExtension, id string, opts UpdateOpts) (r elb.JobResult) {
+func Update(c *golangsdk.ServiceClientExtension, id string, opts UpdateOpts, not_pass_param []string) (r elb.JobResult) {
 	b, err := opts.ToLoadBalancerUpdateMap()
 	if err != nil {
 		r.Err = err
 		return
 	}
+	utils.DeleteNotPassParams(&b, not_pass_param)
 	_, r.Err = c.Put(resourceURL(c, id), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{200},
 	})

@@ -89,6 +89,13 @@ func resourceELBLoadBalancer() *schema.Resource {
 			"admin_state_up": &schema.Schema{
 				Type:     schema.TypeInt,
 				Required: true,
+				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+					value := v.(int)
+					if value < 0 || value > 2 {
+						errors = append(errors, fmt.Errorf("%s must be in [0, 2]", k))
+					}
+					return
+				},
 			},
 
 			"vip_subnet_id": &schema.Schema{
@@ -107,16 +114,24 @@ func resourceELBLoadBalancer() *schema.Resource {
 				Optional: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
-					if value != "traffic" {
-						errors = append(errors, fmt.Errorf("%s must be traffic", k))
+					if value != "traffic" || value != "bandwidth" {
+						errors = append(errors, fmt.Errorf("%s must be traffic or bandwidth", k))
 					}
 					return
 				},
+				Default: "bandwidth",
 			},
 
 			"eip_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+					value := v.(string)
+					if value != "5_telcom" || value != "5_union" || value != "5_bgp" {
+						errors = append(errors, fmt.Errorf("%s must be 5_telcom, 5_union, or 5_bgp", k))
+					}
+					return
+				},
 			},
 
 			"security_group_id": &schema.Schema{
@@ -259,17 +274,9 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 	lbId := d.Id()
 
 	var updateOpts loadbalancers.UpdateOpts
-	err, _ = buildUpdateParam(&updateOpts, d)
+	err, not_pass_param := buildUpdateParam(&updateOpts, d)
 	if err != nil {
 		return fmt.Errorf("Error updating %s %s: building parameter failed:%s", nameELBLB, lbId, err)
-	}
-	b, err := updateOpts.IsNeedUpdate()
-	if err != nil {
-		return err
-	}
-	if !b {
-		log.Printf("[INFO] Updating %s %s with no changes", nameELBLB, lbId)
-		return nil
 	}
 
 	// Wait for LoadBalancer to become active before continuing
@@ -282,7 +289,7 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Updating %s %s with options: %#v", nameELBLB, lbId, updateOpts)
 	var job *elb.Job
 	err = resource.Retry(timeout, func() *resource.RetryError {
-		j, err := loadbalancers.Update(networkingClient, lbId, updateOpts).Extract()
+		j, err := loadbalancers.Update(networkingClient, lbId, updateOpts, not_pass_param).Extract()
 		if err != nil {
 			return checkForRetryableError(err)
 		}
