@@ -848,10 +848,10 @@
 			"revisionTime": "2018-01-31T09:43:40Z"
 		},
 		{
-			"checksumSHA1": "juSQAHkz6iWsuPOzAkaSCdmjweo=",
+			"checksumSHA1": "enW6H448w7dN1S7NmKPO/7Lylr4=",
 			"path": "github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb/listeners",
-			"revision": "f89ec8ecd5baa5abfc28f98720e628b06252bff4",
-			"revisionTime": "2018-01-31T09:43:40Z"
+			"revision": "d30a241f622896ff926125a2fa39ee67cff23470",
+			"revisionTime": "2018-02-03T10:14:45Z"
 		},
 		{
 			"checksumSHA1": "qXqsstLPxCYN3gWG2WH/5FpCPP4=",
