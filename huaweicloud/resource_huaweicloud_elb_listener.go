@@ -204,6 +204,13 @@ func resourceELBListener() *schema.Resource {
 				Computed: true,
 			},
 
+			"certificates": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
 			"udp_timeout": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -292,7 +299,7 @@ func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var opts listeners.CreateOpts
-	err, _ = buildCreateParam(&opts, d)
+	err, not_pass_params := buildCreateParam(&opts, d)
 	if err != nil {
 		return fmt.Errorf("Error creating %s: building parameter failed:%s", nameELBListener, err)
 	}
@@ -302,7 +309,7 @@ func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
 	case opts.Protocol == "HTTPS" || opts.Protocol == "SSL" && !hasFilledParam(d, "certificate_id"):
 		return fmt.Errorf("certificate_id is mandatory when protocol is set to HTTPS or SSL")
 	}
-	l, err := listeners.Create(networkingClient, opts).Extract()
+	l, err := listeners.Create(networkingClient, opts, not_pass_params).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creating %s: %s", nameELBListener, err)
 	}
@@ -351,18 +358,11 @@ func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 	lId := d.Id()
 
 	var opts listeners.UpdateOpts
-	err, _ = buildUpdateParam(&opts, d)
+	err, not_pass_params := buildUpdateParam(&opts, d)
 	if err != nil {
 		return fmt.Errorf("Error updating %s %s: building parameter failed:%s", nameELBListener, lId, err)
 	}
-	b, err := opts.IsNeedUpdate()
-	if err != nil {
-		return err
-	}
-	if !b {
-		log.Printf("[INFO] Updating %s %s with no changes", nameELBListener, lId)
-		return nil
-	}
+
 	protocol := d.Get("protocol").(string)
 	switch {
 	case protocol == "HTTPS" || protocol == "SSL" && !hasFilledParam(d, "certificate_id"):
@@ -377,7 +377,7 @@ func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Updating %s %s with options: %#v", nameELBListener, lId, opts)
 	err = resource.Retry(timeout, func() *resource.RetryError {
-		_, err := listeners.Update(networkingClient, lId, opts).Extract()
+		_, err := listeners.Update(networkingClient, lId, opts, not_pass_params).Extract()
 		if err != nil {
 			return checkForRetryableError(err)
 		}
