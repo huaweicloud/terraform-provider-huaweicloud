@@ -51,20 +51,11 @@ func resourceNetworkingRouterV2() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"external_gateway": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      false,
-				Computed:      true,
-				Deprecated:    "use external_network_id instead",
-				ConflictsWith: []string{"external_network_id"},
-			},
 			"external_network_id": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      false,
-				Computed:      true,
-				ConflictsWith: []string{"external_gateway"},
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+				Computed: true,
 			},
 			"enable_snat": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -140,10 +131,6 @@ func resourceNetworkingRouterV2Create(d *schema.ResourceData, meta interface{}) 
 
 	// Gateway settings
 	var externalNetworkID string
-	if v := d.Get("external_gateway").(string); v != "" {
-		externalNetworkID = v
-	}
-
 	if v := d.Get("external_network_id").(string); v != "" {
 		externalNetworkID = v
 	}
@@ -225,7 +212,6 @@ func resourceNetworkingRouterV2Read(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Gateway settings
-	d.Set("external_gateway", n.GatewayInfo.NetworkID)
 	d.Set("external_network_id", n.GatewayInfo.NetworkID)
 	d.Set("enable_snat", n.GatewayInfo.EnableSNAT)
 
@@ -269,20 +255,12 @@ func resourceNetworkingRouterV2Update(d *schema.ResourceData, meta interface{}) 
 	var externalNetworkID string
 	gatewayInfo := routers.GatewayInfo{}
 
-	if v := d.Get("external_gateway").(string); v != "" {
-		externalNetworkID = v
-	}
-
 	if v := d.Get("external_network_id").(string); v != "" {
 		externalNetworkID = v
 	}
 
 	if externalNetworkID != "" {
 		gatewayInfo.NetworkID = externalNetworkID
-	}
-
-	if d.HasChange("external_gateway") {
-		updateGatewaySettings = true
 	}
 
 	if d.HasChange("external_network_id") {
