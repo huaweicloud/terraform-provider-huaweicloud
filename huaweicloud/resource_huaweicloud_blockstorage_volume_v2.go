@@ -132,7 +132,7 @@ func resourceBlockStorageVolumeV2Create(d *schema.ResourceData, meta interface{}
 		ConsistencyGroupID: d.Get("consistency_group_id").(string),
 		Description:        d.Get("description").(string),
 		ImageID:            d.Get("image_id").(string),
-		Metadata:           resourceContainerMetadataV2(d),
+		Metadata:           resourceVolumeMetadataV2(d),
 		Name:               d.Get("name").(string),
 		Size:               d.Get("size").(int),
 		SnapshotID:         d.Get("snapshot_id").(string),
