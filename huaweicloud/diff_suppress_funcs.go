@@ -13,3 +13,13 @@ func suppressEquivalentAwsPolicyDiffs(k, old, new string, d *schema.ResourceData
 
 	return equivalent
 }
+
+// Suppress all changes?
+func suppressDiffAll(k, old, new string, d *schema.ResourceData) bool {
+	return true
+}
+
+// Suppress changes if we get a computed min_disk_gb if value is unspecified (default 0)
+func suppressMinDisk(k, old, new string, d *schema.ResourceData) bool {
+	return new == "0" || old == new
+}

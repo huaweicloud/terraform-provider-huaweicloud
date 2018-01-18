@@ -24,10 +24,10 @@ func TestAccHuaweiCloudImagesV2ImageDataSource_basic(t *testing.T) {
 						"data.huaweicloud_images_image_v2.image_1", "name", "CirrOS-tf_1"),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_images_image_v2.image_1", "container_format", "bare"),
-					resource.TestCheckResourceAttr(
+					/*resource.TestCheckResourceAttr(
 						"data.huaweicloud_images_image_v2.image_1", "disk_format", "qcow2"),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloud_images_image_v2.image_1", "min_disk_gb", "0"),
+						"data.huaweicloud_images_image_v2.image_1", "min_disk_gb", "0"),*/
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_images_image_v2.image_1", "min_ram_mb", "0"),
 					resource.TestCheckResourceAttr(
@@ -67,12 +67,6 @@ func TestAccHuaweiCloudImagesV2ImageDataSource_testQueries(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testAccHuaweiCloudImagesV2ImageDataSource_property,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesV2DataSourceID("data.huaweicloud_images_image_v2.image_1"),
-				),
-			},
-			resource.TestStep{
 				Config: testAccHuaweiCloudImagesV2ImageDataSource_cirros,
 			},
 		},
@@ -102,10 +96,6 @@ resource "huaweicloud_images_image_v2" "image_1" {
   disk_format = "qcow2"
   image_source_url = "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
   tags = ["cirros-tf_1"]
-  properties {
-    foo = "bar"
-    bar = "foo"
-  }
 }
 
 resource "huaweicloud_images_image_v2" "image_2" {
@@ -114,9 +104,6 @@ resource "huaweicloud_images_image_v2" "image_2" {
   disk_format = "qcow2"
   image_source_url = "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
   tags = ["cirros-tf_2"]
-  properties {
-    foo = "bar"
-  }
 }
 `
 
@@ -156,16 +143,5 @@ data "huaweicloud_images_image_v2" "image_1" {
 	most_recent = true
 	visibility = "private"
 	size_max = "23000000"
-}
-`, testAccHuaweiCloudImagesV2ImageDataSource_cirros)
-
-var testAccHuaweiCloudImagesV2ImageDataSource_property = fmt.Sprintf(`
-%s
-
-data "huaweicloud_images_image_v2" "image_1" {
-  properties {
-    foo = "bar"
-    bar = "foo"
-  }
 }
 `, testAccHuaweiCloudImagesV2ImageDataSource_cirros)

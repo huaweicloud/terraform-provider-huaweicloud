@@ -80,12 +80,6 @@ func dataSourceImagesImageV2() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"properties": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-			},
-
 			// Computed values
 			"container_format": {
 				Type:     schema.TypeString,
@@ -180,34 +174,6 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Unable to retrieve images: %s", err)
 	}
 
-	properties := d.Get("properties").(map[string]interface{})
-	imageProperties := resourceImagesImageV2ExpandProperties(properties)
-	if len(allImages) > 1 && len(imageProperties) > 0 {
-		var filteredImages []images.Image
-		for _, image := range allImages {
-			if len(image.Properties) > 0 {
-				match := true
-				for searchKey, searchValue := range imageProperties {
-					imageValue, ok := image.Properties[searchKey]
-					if !ok {
-						match = false
-						break
-					}
-
-					if searchValue != imageValue {
-						match = false
-						break
-					}
-				}
-
-				if match {
-					filteredImages = append(filteredImages, image)
-				}
-			}
-		}
-		allImages = filteredImages
-	}
-
 	if len(allImages) < 1 {
 		return fmt.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
@@ -247,7 +213,9 @@ func dataSourceImagesImageV2Attributes(d *schema.ResourceData, image *images.Ima
 	d.Set("visibility", image.Visibility)
 	d.Set("checksum", image.Checksum)
 	d.Set("size_bytes", image.SizeBytes)
-	d.Set("metadata", image.Metadata)
+	if err := d.Set("metadata", image.Metadata); err != nil {
+		return fmt.Errorf("[DEBUG] Error saving metadata to state for OpenTelekomCloud image (%s): %s", d.Id(), err)
+	}
 	d.Set("created_at", image.CreatedAt)
 	d.Set("updated_at", image.UpdatedAt)
 	d.Set("file", image.File)

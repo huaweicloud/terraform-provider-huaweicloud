@@ -3,12 +3,12 @@ layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_images_image_v2"
 sidebar_current: "docs-huaweicloud-resource-images-image-v2"
 description: |-
-  Manages a V2 Image resource within HuaweiCloud Glance.
+  Manages a V2 Image resource within HuaweiCloud IMS.
 ---
 
 # huaweicloud\_images\_image_v2
 
-Manages a V2 Image resource within HuaweiCloud Glance.
+Manages a V2 Image resource within HuaweiCloud IMS.
 
 ## Example Usage
 
@@ -18,10 +18,7 @@ resource "huaweicloud_images_image_v2" "rancheros" {
   image_source_url = "https://releases.rancher.com/os/latest/rancheros-openstack.img"
   container_format = "bare"
   disk_format = "qcow2"
-
-  properties {
-    key = "value"
-  }
+  tags = ["foo.bar", "tag.value"]
 }
 ```
 
@@ -29,11 +26,9 @@ resource "huaweicloud_images_image_v2" "rancheros" {
 
 The following arguments are supported:
 
-* `container_format` - (Required) The container format. Must be one of
-   "ami", "ari", "aki", "bare", "ovf".
+* `container_format` - (Required) The container format. Must be "bare".
 
-* `disk_format` - (Required) The disk format. Must be one of
-   "ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2", "vdi", "iso".
+* `disk_format` - (Required) The disk format. Must be one of "qcow2", "vhd".
 
 * `local_file_path` - (Optional) This is the filepath of the raw image file
    that will be uploaded to Glance. Conflicts with `image_source_url`.
@@ -56,9 +51,6 @@ The following arguments are supported:
 
 * `name` - (Required) The name of the image.
 
-* `properties` - (Optional) A map of key/value pairs to set freeform
-    information about an image.
-
 * `protected` - (Optional) If true, image will not be deletable.
    Defaults to false.
 
@@ -70,9 +62,12 @@ The following arguments are supported:
 * `tags` - (Optional) The tags of the image. It must be a list of strings.
     At this time, it is not possible to delete all tags of an image.
 
-* `visibility` - (Optional) The visibility of the image. Must be one of
-   "public", "private", "community", or "shared". The ability to set the
-   visibility depends upon the configuration of the HuaweiCloud cloud.
+* `visibility` - (Optional) The visibility of the image. Must be "private".
+   The ability to set the visibility depends upon the configuration of
+   the HuaweiCloud cloud.
+
+Note: The `properties` attribute handling in the gophercloud library is currently buggy
+and needs to be fixed before being implemented in this resource.
 
 ## Attributes Reference
 
@@ -93,7 +88,6 @@ The following attributes are exported:
 * `min_ram_mb` - See Argument Reference above.
 * `name` - See Argument Reference above.
 * `owner` - The id of the huaweicloud user who owns the image.
-* `properties` - See Argument Reference above.
 * `protected` - See Argument Reference above.
 * `region` - See Argument Reference above.
 * `schema` - The path to the JSON-schema that represent
