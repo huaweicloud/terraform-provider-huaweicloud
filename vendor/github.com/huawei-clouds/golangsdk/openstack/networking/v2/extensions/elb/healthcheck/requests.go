@@ -17,7 +17,7 @@ type CreateOptsBuilder interface {
 // CreateOpts is the common options struct used in this package's Create
 // operation.
 type CreateOpts struct {
-	HealthCheckID          string `json:"listener_id" required:"true"`
+	ListenerID             string `json:"listener_id" required:"true"`
 	HealthcheckProtocol    string `json:"healthcheck_protocol,omitempty"`
 	HealthcheckUri         string `json:"healthcheck_uri,omitempty"`
 	HealthcheckConnectPort int    `json:"healthcheck_connect_port,omitempty"`
