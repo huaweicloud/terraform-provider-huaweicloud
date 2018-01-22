@@ -16,11 +16,12 @@ Manages a V2 VM instance resource within HuaweiCloud.
 
 ```hcl
 resource "huaweicloud_compute_instance_v2" "basic" {
-  name            = "basic"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+  name              = "basic"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   metadata {
     this = "that"
@@ -41,11 +42,12 @@ resource "huaweicloud_blockstorage_volume_v2" "myvol" {
 }
 
 resource "huaweicloud_compute_instance_v2" "myinstance" {
-  name            = "myinstance"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+  name              = "myinstance"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   network {
     name = "my_network"
@@ -62,10 +64,11 @@ resource "huaweicloud_compute_volume_attach_v2" "attached" {
 
 ```hcl
 resource "huaweicloud_compute_instance_v2" "boot-from-volume" {
-  name            = "boot-from-volume"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+  name              = "boot-from-volume"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   block_device {
     uuid                  = "<image-id>"
@@ -92,10 +95,11 @@ resource "huaweicloud_blockstorage_volume_v1" "myvol" {
 }
 
 resource "huaweicloud_compute_instance_v2" "boot-from-volume" {
-  name            = "bootfromvolume"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+  name              = "bootfromvolume"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   block_device {
     uuid                  = "${huaweicloud_blockstorage_volume_v1.myvol.id}"
@@ -115,11 +119,12 @@ resource "huaweicloud_compute_instance_v2" "boot-from-volume" {
 
 ```hcl
 resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name            = "instance_1"
-  image_id        = "<image-id>"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+  name              = "instance_1"
+  image_id          = "<image-id>"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   block_device {
     uuid                  = "<image-id>"
@@ -148,11 +153,12 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 }
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name            = "instance_1"
-  image_id        = "<image-id>"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+  name              = "instance_1"
+  image_id          = "<image-id>"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   block_device {
     uuid                  = "<image-id>"
@@ -180,11 +186,12 @@ resource "huaweicloud_networking_floatingip_v2" "myip" {
 }
 
 resource "huaweicloud_compute_instance_v2" "multi-net" {
-  name            = "multi-net"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+  name              = "multi-net"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   network {
     name = "my_first_network"
@@ -206,11 +213,12 @@ resource "huaweicloud_compute_floatingip_associate_v2" "myip" {
 
 ```hcl
 resource "huaweicloud_compute_instance_v2" "personality" {
-  name            = "personality"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+  name              = "personality"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   personality {
     file    = "/path/to/file/on/instance.txt"
@@ -227,11 +235,12 @@ resource "huaweicloud_compute_instance_v2" "personality" {
 
 ```hcl
 resource "huaweicloud_compute_instance_v2" "multi-eph" {
-  name            = "multi_eph"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+  name              = "multi_eph"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   block_device {
     boot_index            = 0
@@ -263,12 +272,13 @@ resource "huaweicloud_compute_instance_v2" "multi-eph" {
 
 ```hcl
 resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name            = "basic"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
-  user_data       = "#cloud-config\nhostname: instance_1.example.com\nfqdn: instance_1.example.com"
+  name              = "basic"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
+  user_data         = "#cloud-config\nhostname: instance_1.example.com\nfqdn: instance_1.example.com"
 
   network {
     name = "my_network"
@@ -312,7 +322,7 @@ The following arguments are supported:
     instance to networks using Ports, place the security groups on the Port
     and not the instance.
 
-* `availability_zone` - (Optional) The availability zone in which to create
+* `availability_zone` - (Required) The availability zone in which to create
     the server. Changing this creates a new server.
 
 * `network` - (Optional) An array of one or more networks to attach to the
