@@ -821,7 +821,11 @@ func resourceInstanceSecGroupsV2(d *schema.ResourceData) []string {
 	rawSecGroups := d.Get("security_groups").(*schema.Set).List()
 	secgroups := make([]string, len(rawSecGroups))
 	for i, raw := range rawSecGroups {
-		secgroups[i] = raw.(string)
+		sg := raw.(string)
+		if sg == "default" {
+			sg = "Sys-default"
+		}
+		secgroups[i] = sg
 	}
 	return secgroups
 }
