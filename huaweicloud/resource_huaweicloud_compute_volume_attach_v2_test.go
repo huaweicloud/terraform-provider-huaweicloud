@@ -149,6 +149,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
   }
@@ -158,7 +159,7 @@ resource "huaweicloud_compute_volume_attach_v2" "va_1" {
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
   volume_id = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2VolumeAttach_device = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
@@ -169,6 +170,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
   }
@@ -179,7 +181,7 @@ resource "huaweicloud_compute_volume_attach_v2" "va_1" {
   volume_id = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
   device = "/dev/vdc"
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2VolumeAttach_timeout = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
@@ -190,6 +192,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
   }
@@ -204,4 +207,4 @@ resource "huaweicloud_compute_volume_attach_v2" "va_1" {
     delete = "5m"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)

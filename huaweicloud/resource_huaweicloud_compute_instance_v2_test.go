@@ -33,7 +33,7 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"huaweicloud_compute_instance_v2.instance_1", "all_metadata.foo", "bar"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_compute_instance_v2.instance_1", "availability_zone", "nova"),
+						"huaweicloud_compute_instance_v2.instance_1", "availability_zone", OS_AVAILABILITY_ZONE),
 				),
 			},
 		},
@@ -638,6 +638,7 @@ var testAccComputeV2Instance_basic = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   metadata {
     foo = "bar"
   }
@@ -645,7 +646,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_secgroupMulti = fmt.Sprintf(`
 resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
@@ -662,11 +663,12 @@ resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_secgroupMultiUpdate_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
@@ -694,11 +696,12 @@ resource "huaweicloud_compute_secgroup_v2" "secgroup_2" {
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_secgroupMultiUpdate_2 = fmt.Sprintf(`
 resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
@@ -726,16 +729,18 @@ resource "huaweicloud_compute_secgroup_v2" "secgroup_2" {
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}", "${huaweicloud_compute_secgroup_v2.secgroup_2.name}"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_bootFromVolumeImage = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   block_device {
     uuid = "%s"
     source_type = "image"
@@ -748,7 +753,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_IMAGE_ID, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_bootFromVolumeVolume = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "vol_1" {
@@ -760,6 +765,7 @@ resource "huaweicloud_blockstorage_volume_v2" "vol_1" {
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   block_device {
     uuid = "${huaweicloud_blockstorage_volume_v2.vol_1.id}"
     source_type = "volume"
@@ -771,12 +777,13 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_IMAGE_ID, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_bootFromVolumeForceNew_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   block_device {
     uuid = "%s"
     source_type = "image"
@@ -789,12 +796,13 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_IMAGE_ID, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_bootFromVolumeForceNew_2 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   block_device {
     uuid = "%s"
     source_type = "image"
@@ -807,12 +815,13 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_IMAGE_ID, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_blockDeviceNewVolume = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   block_device {
     uuid = "%s"
     source_type = "image"
@@ -831,7 +840,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_IMAGE_ID, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_blockDeviceExistingVolume = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
@@ -842,6 +851,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   block_device {
     uuid = "%s"
     source_type = "image"
@@ -860,12 +870,13 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_IMAGE_ID, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_personality = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   personality {
     file = "/tmp/foobar.txt"
     content = "happy"
@@ -878,12 +889,13 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_multiEphemeral = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "terraform-test"
   security_groups = ["default"]
+  availability_zone = "%s"
   block_device {
     boot_index = 0
     delete_on_termination = true
@@ -909,7 +921,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_IMAGE_ID, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_accessIPv4 = fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
@@ -930,6 +942,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
 
   network {
     uuid = "%s"
@@ -941,45 +954,49 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     access_network = true
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_changeFixedIP_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
     fixed_ip_v4 = "10.0.0.24"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_changeFixedIP_2 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
     fixed_ip_v4 = "10.0.0.25"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_stopBeforeDestroy = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   stop_before_destroy = true
   network {
     uuid = "%s"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_metadataRemove_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   metadata {
     foo = "bar"
     abc = "def"
@@ -988,12 +1005,13 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_metadataRemove_2 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   metadata {
     foo = "bar"
     ghi = "jkl"
@@ -1002,23 +1020,25 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_forceDelete = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   force_delete = true
   network {
     uuid = "%s"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_timeout = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
   }
@@ -1027,7 +1047,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     create = "10m"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_networkNameToID = fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
@@ -1048,6 +1068,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
 
   network {
     uuid = "%s"
@@ -1058,7 +1079,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   }
 
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_crazyNICs = fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
@@ -1141,6 +1162,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
 
   network {
     uuid = "%s"
@@ -1182,4 +1204,4 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     port = "${huaweicloud_networking_port_v2.port_4.id}"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)

@@ -203,6 +203,7 @@ var testAccComputeV2FloatingIPAssociate_basic = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
   }
@@ -215,12 +216,13 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
   floating_ip = "${huaweicloud_networking_floatingip_v2.fip_1.address}"
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2FloatingIPAssociate_fixedIP = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
   }
@@ -234,12 +236,13 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
   fixed_ip = "${huaweicloud_compute_instance_v2.instance_1.access_ip_v4}"
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2FloatingIPAssociate_attachToFirstNetwork = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
 
   network {
     uuid = "%s"
@@ -254,7 +257,7 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
   fixed_ip = "${huaweicloud_compute_instance_v2.instance_1.network.0.fixed_ip_v4}"
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2FloatingIPAssociate_attachToSecondNetwork = fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
@@ -273,6 +276,7 @@ resource "huaweicloud_networking_subnet_v2" "subnet_1" {
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
 
   network {
     uuid = "${huaweicloud_networking_network_v2.network_1.id}"
@@ -291,12 +295,13 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
   fixed_ip = "${huaweicloud_compute_instance_v2.instance_1.network.1.fixed_ip_v4}"
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2FloatingIPAssociate_attachNew_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
   }
@@ -312,12 +317,16 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
   floating_ip = "${huaweicloud_networking_floatingip_v2.fip_1.address}"
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
-const testAccComputeV2FloatingIPAssociate_attachNew_2 = `
+var testAccComputeV2FloatingIPAssociate_attachNew_2 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
 }
 
 resource "huaweicloud_networking_floatingip_v2" "fip_1" {
@@ -330,4 +339,4 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
   floating_ip = "${huaweicloud_networking_floatingip_v2.fip_2.address}"
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
 }
-`
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)

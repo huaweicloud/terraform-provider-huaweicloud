@@ -133,6 +133,7 @@ resource "huaweicloud_compute_servergroup_v2" "sg_1" {
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   scheduler_hints {
     group = "${huaweicloud_compute_servergroup_v2.sg_1.id}"
   }
@@ -140,4 +141,4 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
