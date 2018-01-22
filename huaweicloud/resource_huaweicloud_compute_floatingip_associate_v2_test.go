@@ -202,7 +202,7 @@ func testAccCheckComputeV2FloatingIPAssociateAssociated(
 var testAccComputeV2FloatingIPAssociate_basic = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["Sys-default"]
+  security_groups = ["default"]
   network {
     uuid = "%s"
   }
@@ -220,7 +220,7 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
 var testAccComputeV2FloatingIPAssociate_fixedIP = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["Sys-default"]
+  security_groups = ["default"]
   network {
     uuid = "%s"
   }
@@ -239,7 +239,7 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
 var testAccComputeV2FloatingIPAssociate_attachToFirstNetwork = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["Sys-default"]
+  security_groups = ["default"]
 
   network {
     uuid = "%s"
@@ -272,7 +272,7 @@ resource "huaweicloud_networking_subnet_v2" "subnet_1" {
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["Sys-default"]
+  security_groups = ["default"]
 
   network {
     uuid = "${huaweicloud_networking_network_v2.network_1.id}"
@@ -296,7 +296,7 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
 var testAccComputeV2FloatingIPAssociate_attachNew_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["Sys-default"]
+  security_groups = ["default"]
   network {
     uuid = "%s"
   }
@@ -317,7 +317,7 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
 const testAccComputeV2FloatingIPAssociate_attachNew_2 = `
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["Sys-default"]
+  security_groups = ["default"]
 }
 
 resource "huaweicloud_networking_floatingip_v2" "fip_1" {
