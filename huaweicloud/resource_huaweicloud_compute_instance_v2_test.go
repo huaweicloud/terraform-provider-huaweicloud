@@ -637,7 +637,7 @@ func testAccCheckComputeV2InstanceInstanceIDsDoNotMatch(
 var testAccComputeV2Instance_basic = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   metadata {
     foo = "bar"
   }
@@ -661,7 +661,7 @@ resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
+  security_groups = ["Sys-default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
   network {
     uuid = "%s"
   }
@@ -693,7 +693,7 @@ resource "huaweicloud_compute_secgroup_v2" "secgroup_2" {
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   network {
     uuid = "%s"
   }
@@ -725,7 +725,7 @@ resource "huaweicloud_compute_secgroup_v2" "secgroup_2" {
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}", "${huaweicloud_compute_secgroup_v2.secgroup_2.name}"]
+  security_groups = ["Sys-default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}", "${huaweicloud_compute_secgroup_v2.secgroup_2.name}"]
   network {
     uuid = "%s"
   }
@@ -735,7 +735,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_bootFromVolumeImage = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   block_device {
     uuid = "%s"
     source_type = "image"
@@ -759,7 +759,7 @@ resource "huaweicloud_blockstorage_volume_v2" "vol_1" {
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   block_device {
     uuid = "${huaweicloud_blockstorage_volume_v2.vol_1.id}"
     source_type = "volume"
@@ -776,7 +776,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_bootFromVolumeForceNew_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   block_device {
     uuid = "%s"
     source_type = "image"
@@ -794,7 +794,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_bootFromVolumeForceNew_2 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   block_device {
     uuid = "%s"
     source_type = "image"
@@ -812,7 +812,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_blockDeviceNewVolume = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   block_device {
     uuid = "%s"
     source_type = "image"
@@ -841,7 +841,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   block_device {
     uuid = "%s"
     source_type = "image"
@@ -865,7 +865,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_personality = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   personality {
     file = "/tmp/foobar.txt"
     content = "happy"
@@ -883,7 +883,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_multiEphemeral = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "terraform-test"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   block_device {
     boot_index = 0
     delete_on_termination = true
@@ -929,7 +929,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   depends_on = ["huaweicloud_networking_subnet_v2.subnet_1"]
 
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
 
   network {
     uuid = "%s"
@@ -946,7 +946,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_changeFixedIP_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   network {
     uuid = "%s"
     fixed_ip_v4 = "10.0.0.24"
@@ -957,7 +957,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_changeFixedIP_2 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   network {
     uuid = "%s"
     fixed_ip_v4 = "10.0.0.25"
@@ -968,7 +968,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_stopBeforeDestroy = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   stop_before_destroy = true
   network {
     uuid = "%s"
@@ -979,7 +979,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_metadataRemove_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   metadata {
     foo = "bar"
     abc = "def"
@@ -993,7 +993,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_metadataRemove_2 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   metadata {
     foo = "bar"
     ghi = "jkl"
@@ -1007,7 +1007,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_forceDelete = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   force_delete = true
   network {
     uuid = "%s"
@@ -1018,7 +1018,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 var testAccComputeV2Instance_timeout = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   network {
     uuid = "%s"
   }
@@ -1047,7 +1047,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   depends_on = ["huaweicloud_networking_subnet_v2.subnet_1"]
 
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
 
   network {
     uuid = "%s"
@@ -1140,7 +1140,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   ]
 
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
 
   network {
     uuid = "%s"

@@ -148,7 +148,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   network {
     uuid = "%s"
   }
@@ -168,7 +168,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   network {
     uuid = "%s"
   }
@@ -189,7 +189,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
-  security_groups = ["default"]
+  security_groups = ["Sys-default"]
   network {
     uuid = "%s"
   }
