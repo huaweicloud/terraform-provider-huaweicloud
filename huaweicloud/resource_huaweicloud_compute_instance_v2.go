@@ -329,11 +329,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
-			"force_delete": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
 			"all_metadata": &schema.Schema{
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -767,18 +762,10 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	if d.Get("force_delete").(bool) {
-		log.Printf("[DEBUG] Force deleting HuaweiCloud Instance %s", d.Id())
-		err = servers.ForceDelete(computeClient, d.Id()).ExtractErr()
-		if err != nil {
-			return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
-		}
-	} else {
-		log.Printf("[DEBUG] Deleting HuaweiCloud Instance %s", d.Id())
-		err = servers.Delete(computeClient, d.Id()).ExtractErr()
-		if err != nil {
-			return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
-		}
+	log.Printf("[DEBUG] Deleting HuaweiCloud Instance %s", d.Id())
+	err = servers.Delete(computeClient, d.Id()).ExtractErr()
+	if err != nil {
+		return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
 	}
 
 	// Wait for the instance to delete before moving on.
