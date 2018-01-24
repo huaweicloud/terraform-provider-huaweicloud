@@ -255,7 +255,7 @@ func NewServiceClient(service string, opts *ClientOpts) (*gophercloud.ServiceCli
 	case "image":
 		return openstack.NewImageServiceV2(pClient, eo)
 	case "kms":
-		return openstack.NewKmsKeyV3(pClient, eo)
+		return openstack.NewKmsKeyV1(pClient, eo)
 	case "network":
 		return openstack.NewNetworkV2(pClient, eo)
 	case "object-store":
