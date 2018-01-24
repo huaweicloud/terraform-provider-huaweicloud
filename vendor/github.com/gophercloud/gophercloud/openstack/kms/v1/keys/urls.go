@@ -22,3 +22,22 @@ func updateDesURL(c *gophercloud.ServiceClient) string {
 	return c.ServiceURL("update-key-description")
 }
 
+func dataEncryptURL(c *gophercloud.ServiceClient) string {
+	return c.ServiceURL("create-datakey")
+}
+
+func encryptDEKURL(c *gophercloud.ServiceClient) string {
+	return c.ServiceURL("encrypt-datakey")
+}
+
+func enableKeyURL(c *gophercloud.ServiceClient) string {
+	return c.ServiceURL("enable-key")
+}
+
+func disableKeyURL(c *gophercloud.ServiceClient) string {
+	return c.ServiceURL("disable-key")
+}
+
+func listURL(c *gophercloud.ServiceClient) string {
+	return c.ServiceURL("list-keys")
+}

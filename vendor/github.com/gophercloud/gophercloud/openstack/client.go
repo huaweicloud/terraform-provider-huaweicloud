@@ -431,9 +431,9 @@ func NewLoadBalancerV2(client *gophercloud.ProviderClient, eo gophercloud.Endpoi
 	return sc, err
 }
 
-// NewKmsKeyV3 creates a ServiceClient that may be used to access the v3
+// NewKmsKeyV1 creates a ServiceClient that may be used to access the v3
 // kms key service.
-func NewKmsKeyV3(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
+func NewKmsKeyV1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "compute")
 	sc.Endpoint = strings.Replace(sc.Endpoint, "ecs", "kms", 1)
 	sc.Endpoint = strings.Replace(sc.Endpoint, "v2", "v1.0", 1)
