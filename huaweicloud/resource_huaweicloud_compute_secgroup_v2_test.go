@@ -124,26 +124,6 @@ func TestAccComputeV2SecGroup_icmpZero(t *testing.T) {
 	})
 }
 
-func TestAccComputeV2SecGroup_lowerCaseCIDR(t *testing.T) {
-	var secgroup secgroups.SecurityGroup
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2SecGroupDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeV2SecGroup_lowerCaseCIDR,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_1", &secgroup),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_compute_secgroup_v2.sg_1", "rule.3862435458.cidr", "2001:558:fc00::/39"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccComputeV2SecGroup_timeout(t *testing.T) {
 	var secgroup secgroups.SecurityGroup
 
@@ -375,19 +355,6 @@ resource "huaweicloud_compute_secgroup_v2" "sg_1" {
     to_port = 0
     ip_protocol = "icmp"
     cidr = "0.0.0.0/0"
-  }
-}
-`
-
-const testAccComputeV2SecGroup_lowerCaseCIDR = `
-resource "huaweicloud_compute_secgroup_v2" "sg_1" {
-  name = "sg_1"
-  description = "first test security group"
-  rule {
-    from_port = 0
-    to_port = 0
-    ip_protocol = "icmp"
-    cidr = "2001:558:FC00::/39"
   }
 }
 `
