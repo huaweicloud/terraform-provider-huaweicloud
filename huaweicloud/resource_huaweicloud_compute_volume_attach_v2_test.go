@@ -40,7 +40,8 @@ func TestAccComputeV2VolumeAttach_device(t *testing.T) {
 				Config: testAccComputeV2VolumeAttach_device,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2VolumeAttachExists("huaweicloud_compute_volume_attach_v2.va_1", &va),
-					testAccCheckComputeV2VolumeAttachDevice(&va, "/dev/vdc"),
+					// NOTE: we can not ensure which device it used to attach the volume
+					//testAccCheckComputeV2VolumeAttachDevice(&va, "/dev/vdb"),
 				),
 			},
 		},
@@ -144,6 +145,7 @@ var testAccComputeV2VolumeAttach_basic = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 1
+  availability_zone = "%s"
 }
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
@@ -159,12 +161,13 @@ resource "huaweicloud_compute_volume_attach_v2" "va_1" {
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
   volume_id = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2VolumeAttach_device = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 1
+  availability_zone = "%s"
 }
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
@@ -179,14 +182,15 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 resource "huaweicloud_compute_volume_attach_v2" "va_1" {
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
   volume_id = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
-  device = "/dev/vdc"
+  device = "/dev/vdb"
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2VolumeAttach_timeout = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 1
+  availability_zone = "%s"
 }
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
@@ -207,4 +211,4 @@ resource "huaweicloud_compute_volume_attach_v2" "va_1" {
     delete = "5m"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)

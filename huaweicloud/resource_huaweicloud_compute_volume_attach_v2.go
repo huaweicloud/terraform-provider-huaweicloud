@@ -48,9 +48,10 @@ func resourceComputeVolumeAttachV2() *schema.Resource {
 			},
 
 			"device": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				DiffSuppressFunc: suppressDiffAll,
 			},
 		},
 	}
@@ -119,6 +120,7 @@ func resourceComputeVolumeAttachV2Read(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	time.Sleep(2 * time.Second)
 	attachment, err := volumeattach.Get(computeClient, instanceId, attachmentId).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "compute_volume_attach")
