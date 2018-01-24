@@ -1,19 +1,19 @@
 ---
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_kms-key-v3"
-sidebar_current: "docs-huaweicloud-resource-kms-key-v3"
+page_title: "HuaweiCloud: huaweicloud_kms-key-v1"
+sidebar_current: "docs-huaweicloud-resource-kms-key-v1"
 description: |-
   Manages a V3 key resource within KMS.
 ---
 
 # huaweicloud\_kms\_key_v3
 
-Manages a V3 key resource within KMS.
+Manages a V1 key resource within KMS.
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_kms_key_v3" "key_1" {
+resource "huaweicloud_kms_key_v1" "key_1" {
   key_alias        =  "key_1"
   pending_days     =  "7"
   key_description  = "first test key"
@@ -32,15 +32,6 @@ The following arguments are supported:
 
 * `realm` - (Optional) Region where a CMK resides.
 
-* `key_policy` - (Optional) Key policy (This parameter is an extension field.)
-
-* `key_usage` - (Optional) Specifies the intended use of the key.
-    Defaults to ENCRYPT_DECRYPT, and only symmetric encryption and decryption are supported.
-
-* `key_type` - (Optional) Type of a CMK.
-
-* `sequence` - (Optional) 36-byte serial number of a request message.
-
 * `pending_days` - (Optional) Duration in days after which the key is deleted
     after destruction of the resource, must be between 7 and 1096 days. It doesn't
     have default value.
@@ -53,9 +44,6 @@ The following attributes are exported:
 * `key_alias` - See Argument Reference above.
 * `key_description` - See Argument Reference above.
 * `realm` - See Argument Reference above.
-* `key_policy` - See Argument Reference above.
-* `key_usage` - See Argument Reference above.
-* `key_type` - See Argument Reference above.
 * `key_id` - The globally unique identifier for the key.
 * `default_key_flag` - Identification of a Master Key. The value 1 indicates a Default
     Master Key, and the value 0 indicates a key
@@ -71,5 +59,5 @@ The following attributes are exported:
 KMS Keys can be imported using the `id`, e.g.
 
 ```
-$ terraform import huaweicloud_kms_key_v3.key_1 7056d636-ac60-4663-8a6c-82d3c32c1c64
+$ terraform import huaweicloud_kms_key_v1.key_1 7056d636-ac60-4663-8a6c-82d3c32c1c64
 ```
