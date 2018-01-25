@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccKmsV1Key_importBasic(t *testing.T) {
-	resourceName := "huaweicloud_kms_key_v1.key_1"
+	resourceName := "huaweicloud_kms_key_v1.key_2"
 	var keyAlias = fmt.Sprintf("kms_%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
