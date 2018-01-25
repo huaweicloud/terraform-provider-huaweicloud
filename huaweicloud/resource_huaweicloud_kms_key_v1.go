@@ -30,29 +30,26 @@ func resourceKmsKeyV1() *schema.Resource {
 			"key_alias": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"key_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: false,
 			},
 			"key_description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"realm": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 			"key_usage": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
-				Default:  "Encrypt_Decrypt",
+				Default: "Encrypt_Decrypt",
 			},
 			"domain_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -77,7 +74,6 @@ func resourceKmsKeyV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: false,
 			},
 			"expiration_time": &schema.Schema{
 				Type:     schema.TypeString,
@@ -87,7 +83,6 @@ func resourceKmsKeyV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: false,
 			},
 			"pending_days": &schema.Schema{
 				Type:     schema.TypeString,

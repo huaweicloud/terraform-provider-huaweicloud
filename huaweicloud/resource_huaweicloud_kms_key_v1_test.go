@@ -14,6 +14,7 @@ import (
 func TestAccKmsKeyV1_basic(t *testing.T) {
 	var key keys.Key
 	var keyAlias = fmt.Sprintf("kms_%s", acctest.RandString(5))
+	var keyAliasUpdate = fmt.Sprintf("kms_updated_%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -23,19 +24,19 @@ func TestAccKmsKeyV1_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccKmsV1Key_basic(keyAlias),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_V1.key_2", &key),
+					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_v1.key_2", &key),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_kms_key_V1.key_2", "key_alias", keyAlias),
+						"huaweicloud_kms_key_v1.key_2", "key_alias", keyAlias),
 				),
 			},
 			resource.TestStep{
-				Config: testAccKmsV1Key_update,
+				Config: testAccKmsV1Key_update(keyAliasUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_V1.key_2", &key),
+					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_v1.key_2", &key),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_kms_key_V1.key_2", "key_alias", "key_2-updated"),
+						"huaweicloud_kms_key_v1.key_2", "key_alias", keyAliasUpdate),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_kms_key_V1.key_2", "key_description", "key_2-description-updated"),
+						"huaweicloud_kms_key_v1.key_2", "key_description", "key update description"),
 				),
 			},
 		},
@@ -50,7 +51,7 @@ func testAccCheckKmsV1KeyDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_kms_key_V1" {
+		if rs.Type != "huaweicloud_kms_key_v1" {
 			continue
 		}
 		v, err := keys.Get(kmsClient, rs.Primary.ID).ExtractKeyInfo()
@@ -103,9 +104,13 @@ func testAccKmsV1Key_basic(keyAlias string) string {
 	`, keyAlias)
 }
 
-const testAccKmsV1Key_update = `
-resource "huaweicloud_kms_key_v1" "key_2" {
-  key_description = "key_2-description-updated"
-  key_alias = "key_2-updated"
+func testAccKmsV1Key_update(keyAliasUpdate string) string {
+	return fmt.Sprintf(`
+		resource "huaweicloud_kms_key_v1" "key_2" {
+           key_alias       = "%s"
+           key_description = "key update description"
+           pending_days = "7"
+		}
+	`, keyAliasUpdate)
 }
-`
+
