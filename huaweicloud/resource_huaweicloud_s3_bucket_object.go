@@ -91,6 +91,12 @@ func resourceS3BucketObject() *schema.Resource {
 				Computed:     true,
 			},
 
+			"sse_kms_key_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+			},
+
 			"etag": {
 				Type: schema.TypeString,
 				// This will conflict with SSE-C and SSE-KMS encryption and multi-part upload
@@ -174,6 +180,10 @@ func resourceS3BucketObjectPut(d *schema.ResourceData, meta interface{}) error {
 
 	if v, ok := d.GetOk("server_side_encryption"); ok {
 		putInput.ServerSideEncryption = aws.String(v.(string))
+	}
+
+	if v, ok := d.GetOk("sse_kms_key_id"); ok {
+		putInput.SSEKMSKeyId = aws.String(v.(string))
 	}
 
 	if v, ok := d.GetOk("website_redirect"); ok {
