@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-var keyAlias = fmt.Sprintf("key_alias_%s.", acctest.RandString(5))
+var keyAlias = fmt.Sprintf("key_alias_%s", acctest.RandString(5))
 
 func TestAccKmsKeyV1DataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -35,11 +35,11 @@ func testAccCheckKmsKeyV1DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find DNS Zone data source: %s", n)
+			return fmt.Errorf("Can't find Kms key data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("DNS Zone data source ID not set")
+			return fmt.Errorf("Kms key data source ID not set")
 		}
 
 		return nil
