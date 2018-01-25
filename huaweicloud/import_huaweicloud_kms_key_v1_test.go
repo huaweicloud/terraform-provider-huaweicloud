@@ -25,6 +25,10 @@ func TestAccKmsV1Key_importBasic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"key_usage",
+					"pending_days",
+				},
 			},
 		},
 	})
