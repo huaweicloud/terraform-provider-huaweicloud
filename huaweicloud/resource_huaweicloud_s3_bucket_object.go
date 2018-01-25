@@ -92,9 +92,9 @@ func resourceS3BucketObject() *schema.Resource {
 			},
 
 			"sse_kms_key_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 
 			"etag": {

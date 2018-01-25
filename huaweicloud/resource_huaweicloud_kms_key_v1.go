@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gophercloud/gophercloud/openstack/kms/v1/keys"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/openstack/kms/v1/keys"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/helper/schema"
 	"time"
 )
 
@@ -52,7 +52,7 @@ func resourceKmsKeyV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default: "Encrypt_Decrypt",
+				Default:  "Encrypt_Decrypt",
 			},
 			"domain_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -105,10 +105,10 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	createOpts := &keys.CreateOpts{
-		KeyAlias:          d.Get("key_alias").(string),
-		KeyDescription:    d.Get("key_description").(string),
-		Realm:             d.Get("realm").(string),
-		KeyUsage:          d.Get("key_usage").(string),
+		KeyAlias:       d.Get("key_alias").(string),
+		KeyDescription: d.Get("key_description").(string),
+		Realm:          d.Get("realm").(string),
+		KeyUsage:       d.Get("key_usage").(string),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -199,7 +199,7 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("key_description") {
 		updateDesOpts := keys.UpdateDesOpts{
-			KeyID:    d.Id(),
+			KeyID:          d.Id(),
 			KeyDescription: d.Get("key_description").(string),
 		}
 		_, err = keys.UpdateDes(kmsKeyV1Client, updateDesOpts).ExtractKeyInfo()
@@ -251,7 +251,7 @@ func resourceKmsKeyV1Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	deleteOpts := &keys.DeleteOpts{
-		KeyID:            d.Id(),
+		KeyID: d.Id(),
 	}
 	if v, ok := d.GetOk("pending_days"); ok {
 		deleteOpts.PendingDays = v.(string)
@@ -262,7 +262,7 @@ func resourceKmsKeyV1Delete(d *schema.ResourceData, meta interface{}) error {
 	// If this is true, just move on. It'll eventually delete.
 	if v.KeyState != PendingDeletionState {
 		v, err = keys.Delete(kmsKeyV1Client, deleteOpts).Extract()
-		if  err != nil {
+		if err != nil {
 			return err
 		}
 

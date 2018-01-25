@@ -54,7 +54,7 @@ func testAccCheckKmsV1KeyDestroy(s *terraform.State) error {
 			continue
 		}
 		v, err := keys.Get(kmsClient, rs.Primary.ID).ExtractKeyInfo()
-		if  err != nil {
+		if err != nil {
 			return err
 		}
 		if v.KeyState != "4" {
@@ -92,7 +92,6 @@ func testAccCheckKmsV1KeyExists(n string, key *keys.Key) resource.TestCheckFunc 
 		return nil
 	}
 }
-
 
 func testAccKmsV1Key_basic(keyAlias string) string {
 	return fmt.Sprintf(`

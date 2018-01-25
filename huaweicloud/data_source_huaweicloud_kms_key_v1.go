@@ -5,8 +5,8 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/gophercloud/gophercloud/openstack/kms/v1/keys"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func dataSourceKmsKeyV1() *schema.Resource {
@@ -81,12 +81,12 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	allKeys := []keys.Key{}
 	for is_list_key {
 		req := &keys.ListOpts{
-			KeyState:    d.Get("key_state").(string),
-			Limit:       "",
-			Marker: next_marker,
+			KeyState: d.Get("key_state").(string),
+			Limit:    "",
+			Marker:   next_marker,
 		}
 
-		v, err:= keys.List(kmsKeyV1Client, req).ExtractListKey()
+		v, err := keys.List(kmsKeyV1Client, req).ExtractListKey()
 		if err != nil {
 			return err
 		}
