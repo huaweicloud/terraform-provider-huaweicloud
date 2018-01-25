@@ -15,7 +15,6 @@ import (
 var (
 	OS_AVAILABILITY_ZONE      = os.Getenv("OS_AVAILABILITY_ZONE")
 	OS_DEPRECATED_ENVIRONMENT = os.Getenv("OS_DEPRECATED_ENVIRONMENT")
-	OS_DNS_ENVIRONMENT        = os.Getenv("OS_DNS_ENVIRONMENT")
 	OS_EXTGW_ID               = os.Getenv("OS_EXTGW_ID")
 	OS_FLAVOR_ID              = os.Getenv("OS_FLAVOR_ID")
 	OS_FLAVOR_NAME            = os.Getenv("OS_FLAVOR_NAME")
@@ -83,11 +82,6 @@ func testAccPreCheck(t *testing.T) {
 	if OS_DEPRECATED_ENVIRONMENT != "" {
 		t.Skip("This environment only runs deprecated tests")
 	}
-
-	// Do not run the test if this is a standalone DNS environment.
-	if OS_DNS_ENVIRONMENT != "" {
-		t.Skip("This environment only runs DNS tests")
-	}
 }
 
 func testAccPreCheckDeprecated(t *testing.T) {
@@ -95,14 +89,6 @@ func testAccPreCheckDeprecated(t *testing.T) {
 
 	if OS_DEPRECATED_ENVIRONMENT == "" {
 		t.Skip("This environment does not support deprecated tests")
-	}
-}
-
-func testAccPreCheckDNS(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
-	if OS_DNS_ENVIRONMENT == "" {
-		t.Skip("This environment does not support DNS tests")
 	}
 }
 

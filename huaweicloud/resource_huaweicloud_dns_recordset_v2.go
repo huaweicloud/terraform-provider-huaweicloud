@@ -53,7 +53,7 @@ func resourceDNSRecordSetV2() *schema.Resource {
 				ValidateFunc: resourceValidateDescription,
 			},
 			"records": &schema.Schema{
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -88,7 +88,7 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
-	recordsraw := d.Get("records").(*schema.Set).List()
+	recordsraw := d.Get("records").([]interface{})
 	records := make([]string, len(recordsraw))
 	for i, recordraw := range recordsraw {
 		records[i] = recordraw.(string)
@@ -151,6 +151,7 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
+	time.Sleep(2 * time.Second)
 	n, err := recordsets.Get(dnsClient, zoneID, recordsetID).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "record_set")
@@ -162,7 +163,9 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("description", n.Description)
 	d.Set("ttl", n.TTL)
 	d.Set("type", n.Type)
-	d.Set("records", n.Records)
+	if err := d.Set("records", n.Records); err != nil {
+		return fmt.Errorf("[DEBUG] Error saving records to state for OpenTelekomCloud DNS record set (%s): %s", d.Id(), err)
+	}
 	d.Set("region", GetRegion(d, config))
 	d.Set("zone_id", zoneID)
 

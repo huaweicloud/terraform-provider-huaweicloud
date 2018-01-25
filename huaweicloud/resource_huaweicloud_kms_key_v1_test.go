@@ -113,4 +113,3 @@ func testAccKmsV1Key_update(keyAliasUpdate string) string {
 		}
 	`, keyAliasUpdate)
 }
-

@@ -49,7 +49,7 @@ func resourceKmsKeyV1() *schema.Resource {
 			"key_usage": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Default: "Encrypt_Decrypt",
+				Default:  "Encrypt_Decrypt",
 			},
 			"domain_id": &schema.Schema{
 				Type:     schema.TypeString,
