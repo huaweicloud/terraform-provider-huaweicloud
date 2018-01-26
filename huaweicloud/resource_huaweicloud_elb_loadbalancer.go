@@ -170,7 +170,7 @@ func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	var opts loadbalancers.CreateOpts
-	err = buildELBCreateParam(&opts, d)
+	err, _ = buildCreateParam(&opts, d)
 	if err != nil {
 		return fmt.Errorf("Error creating %s: building parameter failed:%s", nameELBLB, err)
 	}
@@ -259,7 +259,7 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 	lbId := d.Id()
 
 	var updateOpts loadbalancers.UpdateOpts
-	err = buildELBUpdateParam(&updateOpts, d)
+	err, _ = buildUpdateParam(&updateOpts, d)
 	if err != nil {
 		return fmt.Errorf("Error updating %s %s: building parameter failed:%s", nameELBLB, lbId, err)
 	}
@@ -323,7 +323,7 @@ func resourceELBLoadBalancerDelete(d *schema.ResourceData, meta interface{}) err
 		return nil
 	})
 	if err != nil {
-		if isELBResourceNotFound(err) {
+		if isResourceNotFound(err) {
 			log.Printf("[INFO] deleting an unavailable %s: %s", nameELBLB, lbId)
 			return nil
 		}

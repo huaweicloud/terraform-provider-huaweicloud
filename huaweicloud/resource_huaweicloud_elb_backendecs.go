@@ -99,7 +99,7 @@ func resourceELBBackendECSCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	var createOpts backendecs.CreateOpts
-	err = buildELBCreateParam(&createOpts, d)
+	err, _ = buildCreateParam(&createOpts, d)
 	if err != nil {
 		return fmt.Errorf("Error creating %s: building parameter failed:%s", nameELBBackend, err)
 	}
@@ -188,7 +188,7 @@ func resourceELBBackendECSDelete(d *schema.ResourceData, meta interface{}) error
 		return nil
 	})
 	if err != nil {
-		if isELBResourceNotFound(err) {
+		if isResourceNotFound(err) {
 			log.Printf("[INFO] deleting an unavailable %s: %s", nameELBBackend, bId)
 			return nil
 		}

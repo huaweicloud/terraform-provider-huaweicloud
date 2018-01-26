@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -107,7 +108,7 @@ func chooseELBClient(d *schema.ResourceData, config *Config) (*gophercloud.Servi
 	return config.loadElasticLoadBalancerClient(GetRegion(d, config))
 }
 
-func isELBResourceNotFound(err error) bool {
+func isResourceNotFound(err error) bool {
 	if err == nil {
 		return false
 	}
@@ -115,20 +116,78 @@ func isELBResourceNotFound(err error) bool {
 	return ok
 }
 
+// The result may be not correct when the type of param is string and user config it to 'param=""'
+// but, there is no other way.
 func hasFilledParam(d *schema.ResourceData, param string) bool {
 	_, b := d.GetOkExists(param)
 	return b
 }
 
-func buildELBCreateParam(opts interface{}, d *schema.ResourceData) error {
-	return buildELBCUParam(opts, d, false)
+func getParamTag(key string, tag reflect.StructTag) string {
+	v, ok := tag.Lookup(key)
+	if ok {
+		return v
+	}
+	return "tag_not_set"
 }
 
-func buildELBUpdateParam(opts interface{}, d *schema.ResourceData) error {
-	return buildELBCUParam(opts, d, true)
+func get_param_name_from_tag(name string) string {
+	return strings.ToLower(name)
 }
 
-func buildELBCUParam(opts interface{}, d *schema.ResourceData, buildUpdate bool) error {
+type skipParamParsing func(param string, jsonTags []string, tag reflect.StructTag) bool
+
+func buildCreateParam(opts interface{}, d *schema.ResourceData) (error, []string) {
+	var not_pass_params []string
+	var h skipParamParsing
+	h = func(param string, jsonTags []string, tag reflect.StructTag) bool {
+		if getParamTag("required", tag) == "true" {
+			return false
+		}
+
+		// For Create operation, it should not pass the parameter in the request, which match all the following situations.
+		// a. Parameter is optional, which means it is not set 'required' in the tag.
+		// b. Parameter's default value is allowed, which menas it is not set 'omitempty' in the tag of 'json'. The default value is like this, '0' for int and 'false' for bool
+		// c. Parameter is not set default value in schema. It did not find a way to check whether it was set default value in the schema. so, add a new tag of "no_default" to mark it.
+		// d. User did not set that parameter in the configuration file, which means the return value of 'hasFilledParam' is false.
+		if (len(jsonTags) == 1 || jsonTags[1] == "-") && getParamTag("no_default", tag) == "y" && !hasFilledParam(d, param) {
+			not_pass_params = append(not_pass_params, param)
+			return true
+		}
+
+		return false
+	}
+
+	return buildCUParam(opts, d, h), not_pass_params
+}
+
+func buildUpdateParam(opts interface{}, d *schema.ResourceData) (error, []string) {
+	hasUpdatedItems := false
+	var not_pass_params []string
+
+	var h skipParamParsing
+	h = func(param string, jsonTags []string, tag reflect.StructTag) bool {
+		// filter the unchanged parameters
+		if !d.HasChange(param) {
+			not_pass_params = append(not_pass_params, param)
+			return true
+		} else if !hasUpdatedItems {
+			hasUpdatedItems = true
+		}
+
+		return false
+	}
+	err := buildCUParam(opts, d, h)
+	if err != nil {
+		return err, not_pass_params
+	}
+	if !hasUpdatedItems {
+		return fmt.Errorf("no changes happened"), not_pass_params
+	}
+	return nil, not_pass_params
+}
+
+func buildCUParam(opts interface{}, d *schema.ResourceData, skip skipParamParsing) error {
 	optsValue := reflect.ValueOf(opts)
 	if optsValue.Kind() != reflect.Ptr {
 		return fmt.Errorf("parameter of opts should be a pointer")
@@ -140,6 +199,39 @@ func buildELBCUParam(opts interface{}, d *schema.ResourceData, buildUpdate bool)
 
 	optsType := reflect.TypeOf(opts)
 	optsType = optsType.Elem()
+	value := make(map[string]interface{})
+
+	for i := 0; i < optsValue.NumField(); i++ {
+		v := optsValue.Field(i)
+		f := optsType.Field(i)
+		tag := getParamTag("json", f.Tag)
+		if tag == "" {
+			return fmt.Errorf("can not convert for item %v: without of json tag", v)
+		}
+		tags := strings.Split(tag, ",")
+		param := get_param_name_from_tag(tags[0])
+		// Only check the parameters in top struct.
+		// If the parameters in sub-struct need skip, it will miss.
+		// If it happens, need refactor here.
+		if skip(param, tags, f.Tag) {
+			continue
+		}
+		pv := d.Get(param)
+		if pv == nil {
+			log.Printf("[DEBUG] param:%s is not set", param)
+			continue
+		}
+		value[param] = pv
+	}
+	if len(value) == 0 {
+		log.Printf("[WARN]no parameter was set")
+		return nil
+	}
+	return buildStruct(&optsValue, optsType, value)
+}
+
+func buildStruct(optsValue *reflect.Value, optsType reflect.Type, value map[string]interface{}) error {
+	log.Printf("[DEBUG] buildStruct:: optsValue=%v, optsType=%v, value=%#v\n", optsValue, optsType, value)
 
 	for i := 0; i < optsValue.NumField(); i++ {
 		v := optsValue.Field(i)
@@ -148,24 +240,24 @@ func buildELBCUParam(opts interface{}, d *schema.ResourceData, buildUpdate bool)
 		if tag == "" {
 			return fmt.Errorf("can not convert for item %v: without of json tag", v)
 		}
-		param := strings.Split(tag, ",")[0]
-		if buildUpdate && !d.HasChange(param) {
-			continue
-		}
-
-		if d.Get(param) == nil {
+		param := get_param_name_from_tag(strings.Split(tag, ",")[0])
+		log.Printf("[DEBUG] buildStruct:: convert for param:%s", param)
+		if _, e := value[param]; !e {
+			log.Printf("[DEBUG] param:%s was not supplied", param)
 			continue
 		}
 
 		switch v.Kind() {
 		case reflect.String:
-			v.SetString(d.Get(param).(string))
+			v.SetString(value[param].(string))
 		case reflect.Int:
-			v.SetInt(int64(d.Get(param).(int)))
+			v.SetInt(int64(value[param].(int)))
+		case reflect.Int64:
+			v.SetInt(value[param].(int64))
 		case reflect.Bool:
-			v.SetBool(d.Get(param).(bool))
+			v.SetBool(value[param].(bool))
 		case reflect.Slice:
-			s := d.Get(param).([]interface{})
+			s := value[param].([]interface{})
 
 			switch v.Type().Elem().Kind() {
 			case reflect.String:
@@ -174,8 +266,38 @@ func buildELBCUParam(opts interface{}, d *schema.ResourceData, buildUpdate bool)
 					t[i] = iv.(string)
 				}
 				v.Set(reflect.ValueOf(t))
+			case reflect.Struct:
+				t := reflect.MakeSlice(f.Type, len(s), len(s))
+				for i, iv := range s {
+					rv := t.Index(i)
+					e := buildStruct(&rv, f.Type.Elem(), iv.(map[string]interface{}))
+					if e != nil {
+						return e
+					}
+				}
+				v.Set(t)
+
 			default:
 				return fmt.Errorf("unknown type of item %v: %v", v, v.Type().Elem().Kind())
+			}
+		case reflect.Struct:
+			log.Printf("[DEBUG] buildStruct:: convert struct for param %s: %#v", param, value[param])
+			var p map[string]interface{}
+
+			// If the type of parameter is Struct, then the corresponding type in Schema is TypeList
+			v0, ok := value[param].([]interface{})
+			if ok {
+				p, ok = v0[0].(map[string]interface{})
+			} else {
+				p, ok = value[param].(map[string]interface{})
+			}
+			if !ok {
+				return fmt.Errorf("can not convert to (map[string]interface{}) for param %s: %#v", param, value[param])
+			}
+
+			e := buildStruct(&v, f.Type, p)
+			if e != nil {
+				return e
 			}
 
 		default:
@@ -185,11 +307,28 @@ func buildELBCUParam(opts interface{}, d *schema.ResourceData, buildUpdate bool)
 	return nil
 }
 
+func changeKeyToLowercase(b []byte) {
+	m := regexp.MustCompile(`"([a-z0-9_]*[A-Z]+[a-z0-9_]*)+":`)
+	for {
+		bs := fmt.Sprintf("%s", b)
+		index := m.FindStringIndex(bs)
+		if index == nil {
+			break
+		}
+		for i := index[0] + 1; i < index[1]-1; i++ {
+			if b[i] > 0x40 && b[i] < 0x5B {
+				b[i] = b[i] + 0x20
+			}
+		}
+	}
+}
+
 func refreshResourceData(resource interface{}, d *schema.ResourceData) error {
 	b, err := json.Marshal(resource)
 	if err != nil {
 		return fmt.Errorf("refreshResourceData:: marshal failed:%v", err)
 	}
+	changeKeyToLowercase(b)
 
 	p := make(map[string]interface{})
 	err = json.Unmarshal(b, &p)
@@ -219,7 +358,7 @@ func readStruct(resource interface{}, value map[string]interface{}, d *schema.Re
 		if tag == "" {
 			return fmt.Errorf("can not convert for item %v: without of json tag", v)
 		}
-		param := strings.Split(tag, ",")[0]
+		param := get_param_name_from_tag(strings.Split(tag, ",")[0])
 		if param == "id" {
 			continue
 		}
