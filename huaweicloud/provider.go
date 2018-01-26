@@ -170,7 +170,6 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"huaweicloud_dns_zone_v2":            dataSourceDNSZoneV2(),
 			"huaweicloud_images_image_v2":        dataSourceImagesImageV2(),
 			"huaweicloud_networking_network_v2":  dataSourceNetworkingNetworkV2(),
 			"huaweicloud_networking_subnet_v2":   dataSourceNetworkingSubnetV2(),
