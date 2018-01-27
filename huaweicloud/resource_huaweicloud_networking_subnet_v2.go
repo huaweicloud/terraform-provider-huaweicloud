@@ -93,10 +93,11 @@ func resourceNetworkingSubnetV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"enable_dhcp": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-				Default:  true,
+				Type:         schema.TypeBool,
+				Optional:     true,
+				ForceNew:     false,
+				Default:      true,
+				ValidateFunc: validateTrueOnly,
 			},
 			"dns_nameservers": &schema.Schema{
 				Type:     schema.TypeSet,

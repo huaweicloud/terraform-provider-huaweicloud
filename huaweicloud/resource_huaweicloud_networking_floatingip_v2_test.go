@@ -41,7 +41,7 @@ func TestAccNetworkingV2FloatingIP_fixedip_bind(t *testing.T) {
 				Config: testAccNetworkingV2FloatingIP_fixedip_bind,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_1", &fip),
-					testAccCheckNetworkingV2FloatingIPBoundToCorrectIP(&fip, "192.168.199.20"),
+					testAccCheckNetworkingV2FloatingIPBoundToCorrectIP(&fip, "192.168.199.10"),
 				),
 			},
 		},
@@ -187,17 +187,12 @@ resource "huaweicloud_networking_port_v2" "port_1" {
     subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
     ip_address = "192.168.199.10"
   }
-
-  fixed_ip {
-    subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
-    ip_address = "192.168.199.20"
-  }
 }
 
 resource "huaweicloud_networking_floatingip_v2" "fip_1" {
   pool = "%s"
   port_id = "${huaweicloud_networking_port_v2.port_1.id}"
-  fixed_ip = "${huaweicloud_networking_port_v2.port_1.fixed_ip.1.ip_address}"
+  fixed_ip = "${huaweicloud_networking_port_v2.port_1.fixed_ip.0.ip_address}"
 }
 `, OS_EXTGW_ID, OS_POOL_NAME)
 

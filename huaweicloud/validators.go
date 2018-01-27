@@ -16,6 +16,17 @@ func validateS3BucketLifecycleTimestamp(v interface{}, k string) (ws []string, e
 	return
 }
 
+func validateTrueOnly(v interface{}, k string) (ws []string, errors []error) {
+	if b, ok := v.(bool); ok && b {
+		return
+	}
+	if v, ok := v.(string); ok && v == "true" {
+		return
+	}
+	errors = append(errors, fmt.Errorf("%q must be true", k))
+	return
+}
+
 func validateS3BucketLifecycleExpirationDays(v interface{}, k string) (ws []string, errors []error) {
 	if v.(int) <= 0 {
 		errors = append(errors, fmt.Errorf(
