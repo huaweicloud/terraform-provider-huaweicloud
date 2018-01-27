@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/kms/v1/keys"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/huawei-clouds/golangsdk"
+	"github.com/huawei-clouds/golangsdk/openstack/kms/v1/keys"
 	"time"
 )
 
@@ -271,11 +271,11 @@ func resourceKmsKeyV1Delete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func KeyV1StateRefreshFunc(client *gophercloud.ServiceClient, keyID string) resource.StateRefreshFunc {
+func KeyV1StateRefreshFunc(client *golangsdk.ServiceClient, keyID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		v, err := keys.Get(client, keyID).ExtractKeyInfo()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return v, PendingDeletionState, nil
 			}
 			return nil, "", err

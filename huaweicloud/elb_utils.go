@@ -9,15 +9,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/elb"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/elb/listeners"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/elb/loadbalancers"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/huawei-clouds/golangsdk"
+	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb"
+	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb/listeners"
+	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb/loadbalancers"
 )
 
-func waitForELBJobSuccess(networkingClient *gophercloud.ServiceClient1, j *elb.Job, timeout time.Duration) (*elb.JobInfo, error) {
+func waitForELBJobSuccess(networkingClient *golangsdk.ServiceClientExtension, j *elb.Job, timeout time.Duration) (*elb.JobInfo, error) {
 	jobId := j.JobId
 	target := "SUCCESS"
 	pending := []string{"INIT", "RUNNING"}
@@ -31,7 +31,7 @@ func waitForELBJobSuccess(networkingClient *gophercloud.ServiceClient1, j *elb.J
 	return nil, err
 }
 
-func getELBJobInfo(networkingClient *gophercloud.ServiceClient1, uri string) resource.StateRefreshFunc {
+func getELBJobInfo(networkingClient *golangsdk.ServiceClientExtension, uri string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		info, err := elb.QueryJobInfo(networkingClient, uri).Extract()
 		if err != nil {
@@ -42,7 +42,7 @@ func getELBJobInfo(networkingClient *gophercloud.ServiceClient1, uri string) res
 	}
 }
 
-func waitForELBLoadBalancerActive(networkingClient *gophercloud.ServiceClient1, id string, timeout time.Duration) error {
+func waitForELBLoadBalancerActive(networkingClient *golangsdk.ServiceClientExtension, id string, timeout time.Duration) error {
 	target := "ACTIVE"
 
 	log.Printf("[DEBUG] Waiting for elb %s to become %s.", id, target)
@@ -51,7 +51,7 @@ func waitForELBLoadBalancerActive(networkingClient *gophercloud.ServiceClient1, 
 	return err
 }
 
-func getELBLoadBalancer(networkingClient *gophercloud.ServiceClient1, id string) resource.StateRefreshFunc {
+func getELBLoadBalancer(networkingClient *golangsdk.ServiceClientExtension, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		lb, err := loadbalancers.Get(networkingClient, id).Extract()
 		if err != nil {
@@ -61,7 +61,7 @@ func getELBLoadBalancer(networkingClient *gophercloud.ServiceClient1, id string)
 	}
 }
 
-func waitForELBListenerActive(networkingClient *gophercloud.ServiceClient1, id string, timeout time.Duration) error {
+func waitForELBListenerActive(networkingClient *golangsdk.ServiceClientExtension, id string, timeout time.Duration) error {
 	target := "ACTIVE"
 
 	log.Printf("[DEBUG] Waiting for elb-listener %s to become %s.", id, target)
@@ -70,7 +70,7 @@ func waitForELBListenerActive(networkingClient *gophercloud.ServiceClient1, id s
 	return err
 }
 
-func getELBListener(networkingClient *gophercloud.ServiceClient1, id string) resource.StateRefreshFunc {
+func getELBListener(networkingClient *golangsdk.ServiceClientExtension, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		l, err := listeners.Get(networkingClient, id).Extract()
 		if err != nil {
@@ -80,9 +80,9 @@ func getELBListener(networkingClient *gophercloud.ServiceClient1, id string) res
 	}
 }
 
-type getELBResource func(networkingClient *gophercloud.ServiceClient1, id string) resource.StateRefreshFunc
+type getELBResource func(networkingClient *golangsdk.ServiceClientExtension, id string) resource.StateRefreshFunc
 
-func waitForELBResource(networkingClient *gophercloud.ServiceClient1, name string, id string, target string, pending []string, timeout time.Duration, f getELBResource) (interface{}, error) {
+func waitForELBResource(networkingClient *golangsdk.ServiceClientExtension, name string, id string, target string, pending []string, timeout time.Duration, f getELBResource) (interface{}, error) {
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
@@ -95,7 +95,7 @@ func waitForELBResource(networkingClient *gophercloud.ServiceClient1, name strin
 
 	o, err := stateConf.WaitForState()
 	if err != nil {
-		if _, ok := err.(gophercloud.ErrDefault404); ok {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			return nil, fmt.Errorf("Error: elb %s %s not found: %s", name, id, err)
 		}
 		return nil, fmt.Errorf("Error waiting for elb %s %s to become %s: %s", name, id, target, err)
@@ -104,7 +104,7 @@ func waitForELBResource(networkingClient *gophercloud.ServiceClient1, name strin
 	return o, nil
 }
 
-func chooseELBClient(d *schema.ResourceData, config *Config) (*gophercloud.ServiceClient1, error) {
+func chooseELBClient(d *schema.ResourceData, config *Config) (*golangsdk.ServiceClientExtension, error) {
 	return config.loadElasticLoadBalancerClient(GetRegion(d, config))
 }
 
@@ -112,7 +112,7 @@ func isResourceNotFound(err error) bool {
 	if err == nil {
 		return false
 	}
-	_, ok := err.(gophercloud.ErrDefault404)
+	_, ok := err.(golangsdk.ErrDefault404)
 	return ok
 }
 

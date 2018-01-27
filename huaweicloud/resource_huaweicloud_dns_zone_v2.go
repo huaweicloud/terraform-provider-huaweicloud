@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/dns/v2/zones"
+	"github.com/huawei-clouds/golangsdk"
+	"github.com/huawei-clouds/golangsdk/openstack/dns/v2/zones"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -335,11 +335,11 @@ func resourceDNSZoneV2ValidType(v interface{}, k string) (ws []string, errors []
 	return
 }
 
-func waitForDNSZone(dnsClient *gophercloud.ServiceClient, zoneId string) resource.StateRefreshFunc {
+func waitForDNSZone(dnsClient *golangsdk.ServiceClient, zoneId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		zone, err := zones.Get(dnsClient, zoneId).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return zone, "DELETED", nil
 			}
 

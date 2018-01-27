@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/dns/v2/recordsets"
+	"github.com/huawei-clouds/golangsdk"
+	"github.com/huawei-clouds/golangsdk/openstack/dns/v2/recordsets"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -275,11 +275,11 @@ func parseStatus(rawStatus string) string {
 	return splits[0]
 }
 
-func waitForDNSRecordSet(dnsClient *gophercloud.ServiceClient, zoneID, recordsetId string) resource.StateRefreshFunc {
+func waitForDNSRecordSet(dnsClient *golangsdk.ServiceClient, zoneID, recordsetId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		recordset, err := recordsets.Get(dnsClient, zoneID, recordsetId).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return recordset, "DELETED", nil
 			}
 

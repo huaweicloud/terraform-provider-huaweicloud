@@ -5,8 +5,8 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/gophercloud/gophercloud/openstack/kms/v1/keys"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/huawei-clouds/golangsdk/openstack/kms/v1/keys"
 )
 
 func dataSourceKmsKeyV1() *schema.Resource {
