@@ -176,6 +176,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_networking_secgroup_v2": dataSourceNetworkingSecGroupV2(),
 			"huaweicloud_s3_bucket_object":       dataSourceS3BucketObject(),
 			"huaweicloud_kms_key_v1":             dataSourceKmsKeyV1(),
+			"huaweicloud_kms_data_key_v1":        dataSourceKmsDataKeyV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{

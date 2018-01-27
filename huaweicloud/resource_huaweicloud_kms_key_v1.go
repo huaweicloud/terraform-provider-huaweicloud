@@ -114,7 +114,7 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Key ID: %s", v.KeyID)
 
 	// Wait for the key to become enabled.
-	log.Printf("[DEBUG] Waiting for leu (%s) to become enabled", v.KeyID)
+	log.Printf("[DEBUG] Waiting for key (%s) to become enabled", v.KeyID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{WaitingForEnableState, DisabledState},

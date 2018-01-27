@@ -94,11 +94,58 @@ func testAccCheckKmsV1KeyExists(n string, key *keys.Key) resource.TestCheckFunc 
 	}
 }
 
+func TestAccKmsKey_isEnabled(t *testing.T) {
+	var key1, key2, key3 keys.Key
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKmsV1KeyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKmsKey_enabled(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_v1.bar", &key1),
+					resource.TestCheckResourceAttr("huaweicloud_kms_key_v1.bar", "is_enabled", "true"),
+					testAccCheckKmsKeyIsEnabled(&key1, true),
+				),
+			},
+			{
+				Config: testAccKmsKey_disabled(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_v1.bar", &key2),
+					resource.TestCheckResourceAttr("huaweicloud_kms_key_v1.bar", "is_enabled", "false"),
+					testAccCheckKmsKeyIsEnabled(&key2, false),
+				),
+			},
+			{
+				Config: testAccKmsKey_enabled(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_v1.bar", &key3),
+					resource.TestCheckResourceAttr("huaweicloud_kms_key_v1.bar", "is_enabled", "true"),
+					testAccCheckKmsKeyIsEnabled(&key3, true),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckKmsKeyIsEnabled(key *keys.Key, isEnabled bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if (key.KeyState == EnabledState) != isEnabled {
+			return fmt.Errorf("Expected key %q to have is_enabled=%t, given %t",
+				key.KeyID, isEnabled, key.KeyState)
+		}
+
+		return nil
+	}
+}
+
 func testAccKmsV1Key_basic(keyAlias string) string {
 	return fmt.Sprintf(`
 		resource "huaweicloud_kms_key_v1" "key_2" {
 			key_alias = "%s"
-
 			pending_days = "7"
 		}
 	`, keyAlias)
@@ -112,4 +159,23 @@ func testAccKmsV1Key_update(keyAliasUpdate string) string {
            pending_days = "7"
 		}
 	`, keyAliasUpdate)
+}
+
+func testAccKmsKey_enabled(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key_v1" "bar" {
+    key_description = "Terraform acc test is_enabled %s"
+    pending_days    = "7"
+    key_alias       = "tf-acc-test-kms-key-%s"
+}`, rName, rName)
+}
+
+func testAccKmsKey_disabled(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key_v1" "bar" {
+    key_description = "Terraform acc test is_enabled %s"
+    pending_days    = "7"
+    key_alias       = "tf-acc-test-kms-key-%s"
+    is_enabled      = false
+}`, rName, rName)
 }

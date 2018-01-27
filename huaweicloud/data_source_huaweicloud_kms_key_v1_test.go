@@ -48,13 +48,18 @@ func testAccCheckKmsKeyV1DataSourceID(n string) resource.TestCheckFunc {
 
 var testAccKmsKeyV1DataSource_key = fmt.Sprintf(`
 resource "huaweicloud_kms_key_v1" "key1" {
-  key_alias    = "%s"
-  pending_days = "7"
+  key_alias       = "%s"
+  key_description = "test description"
+  pending_days    = "7"
+  is_enabled      = true
 }`, keyAlias)
 
 var testAccKmsKeyV1DataSource_basic = fmt.Sprintf(`
 %s
 data "huaweicloud_kms_key_v1" "key1" {
-	key_alias = "${huaweicloud_kms_key_v1.key1.key_alias}"
+  key_alias       = "${huaweicloud_kms_key_v1.key1.key_alias}"
+  key_id          = "${huaweicloud_kms_key_v1.key1.id}"
+  key_description = "test description"
+  key_state       = "2"
 }
 `, testAccKmsKeyV1DataSource_key)
