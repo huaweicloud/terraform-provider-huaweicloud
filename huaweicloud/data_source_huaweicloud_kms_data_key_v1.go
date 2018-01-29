@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/huawei-clouds/golangsdk/openstack/kms/v1/keys"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/huawei-clouds/golangsdk/openstack/kms/v1/keys"
 	"time"
 )
 
-
 func dataSourceKmsDataKeyV1() *schema.Resource {
 	return &schema.Resource{
-		Read:   resourceKmsDataKeyV1Read,
+		Read: resourceKmsDataKeyV1Read,
 
 		Schema: map[string]*schema.Schema{
 			"key_id": &schema.Schema{
@@ -53,9 +52,9 @@ func resourceKmsDataKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	req := &keys.DataEncryptOpts{
-		KeyID:     d.Get("key_id").(string),
+		KeyID:             d.Get("key_id").(string),
 		EncryptionContext: d.Get("encryption_context").(string),
-		DatakeyLength: d.Get("datakey_length").(string),
+		DatakeyLength:     d.Get("datakey_length").(string),
 	}
 	log.Printf("[DEBUG] KMS get data key for key: %s", d.Get("key_id").(string))
 	v, err := keys.DataEncryptGet(KmsDataKeyV1Client, req).ExtractDataKey()
