@@ -184,8 +184,8 @@ func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 		Target:     []string{"DELETED"},
 		Refresh:    waitForFloatingIPDelete(networkingClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Delay:      10 * time.Second,
+		MinTimeout: 8 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()

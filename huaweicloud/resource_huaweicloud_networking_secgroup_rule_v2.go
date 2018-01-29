@@ -191,7 +191,7 @@ func resourceNetworkingSecGroupRuleV2Delete(d *schema.ResourceData, meta interfa
 		Target:     []string{"DELETED"},
 		Refresh:    waitForSecGroupRuleDelete(networkingClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
+		Delay:      8 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
 

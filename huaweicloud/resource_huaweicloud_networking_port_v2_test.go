@@ -57,6 +57,7 @@ func TestAccNetworkingV2Port_noip(t *testing.T) {
 	})
 }
 
+/*
 func TestAccNetworkingV2Port_allowedAddressPairs(t *testing.T) {
 	var network networks.Network
 	var subnet subnets.Subnet
@@ -81,6 +82,7 @@ func TestAccNetworkingV2Port_allowedAddressPairs(t *testing.T) {
 		},
 	})
 }
+*/
 
 func TestAccNetworkingV2Port_timeout(t *testing.T) {
 	var network networks.Network

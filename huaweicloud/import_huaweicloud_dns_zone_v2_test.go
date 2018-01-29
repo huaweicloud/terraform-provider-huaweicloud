@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccDNSV2Zone_importBasic(t *testing.T) {
-	var zoneName = fmt.Sprintf("ACPTTEST%s.com.", acctest.RandString(5))
+	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
 	resourceName := "huaweicloud_dns_zone_v2.zone_1"
 
 	resource.Test(t, resource.TestCase{

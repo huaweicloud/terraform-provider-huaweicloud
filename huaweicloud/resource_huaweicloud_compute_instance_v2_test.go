@@ -645,7 +645,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   availability_zone = "%s"
   network {
     uuid = "%s"
-    fixed_ip_v4 = "10.0.0.24"
+    fixed_ip_v4 = "192.168.1.24"
   }
 }
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
@@ -657,7 +657,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   availability_zone = "%s"
   network {
     uuid = "%s"
-    fixed_ip_v4 = "10.0.0.25"
+    fixed_ip_v4 = "192.168.1.25"
   }
 }
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
