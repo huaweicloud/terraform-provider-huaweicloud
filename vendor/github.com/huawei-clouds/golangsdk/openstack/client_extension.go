@@ -115,3 +115,12 @@ func NewElasticLoadBalancer(client *golangsdk.ProviderClient, eo golangsdk.Endpo
 	sc.ResourceBase = sc.Endpoint
 	return sc, err
 }
+
+// NewVpcV2 creates a ServiceClient that may be used with the v2 vpc package.
+func NewVpcV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "nat", 1)
+	sc.Endpoint = strings.Replace(sc.Endpoint, "myhwclouds", "myhuaweicloud", 1)
+	sc.ResourceBase = sc.Endpoint + "v2.0/"
+	return sc, err
+}
