@@ -115,7 +115,7 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 		keyProperties["DefaultKeyFlag"] = v.(string)
 	}
 	if v, ok := d.GetOk("domain_id"); ok {
-		keyProperties["DomainId"] = v.(string)
+		keyProperties["DomainID"] = v.(string)
 	}
 	if v, ok := d.GetOk("origin"); ok {
 		keyProperties["Origin"] = v.(string)
