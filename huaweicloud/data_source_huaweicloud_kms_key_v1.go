@@ -17,13 +17,11 @@ func dataSourceKmsKeyV1() *schema.Resource {
 			"key_alias": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 				ForceNew: true,
 			},
 			"key_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 				ForceNew: true,
 			},
 			"key_description": &schema.Schema{
@@ -42,28 +40,32 @@ func dataSourceKmsKeyV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"creation_date": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 			"key_state": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: false,
+				ForceNew: true,
+				ValidateFunc: validateKmsKeyStatus,
 			},
 			"default_key_flag": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: false,
+				ForceNew: true,
 			},
 			"origin": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: false,
+				ForceNew: true,
+			},
+			"creation_date": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"scheduled_deletion_date": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -109,6 +111,15 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	if v, ok := d.GetOk("key_alias"); ok {
 		keyProperties["KeyAlias"] = v.(string)
 	}
+	if v, ok := d.GetOk("default_key_flag"); ok {
+		keyProperties["DefaultKeyFlag"] = v.(string)
+	}
+	if v, ok := d.GetOk("domain_id"); ok {
+		keyProperties["DomainId"] = v.(string)
+	}
+	if v, ok := d.GetOk("origin"); ok {
+		keyProperties["Origin"] = v.(string)
+	}
 
 	if len(allKeys) > 1 && len(keyProperties) > 0 {
 		var filteredKeys []keys.Key
@@ -148,11 +159,6 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	key := allKeys[0]
 	log.Printf("[DEBUG] Kms key : %+v", key)
-	if key.KeyState == PendingDeletionState {
-		log.Printf("[WARN] Removing KMS key %s because it's already gone", d.Id())
-		d.SetId("")
-		return nil
-	}
 
 	d.SetId(key.KeyID)
 	d.Set("key_id", key.KeyID)
