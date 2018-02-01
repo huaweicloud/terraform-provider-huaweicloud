@@ -214,6 +214,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_s3_bucket_policy":                resourceS3BucketPolicy(),
 			"huaweicloud_s3_bucket_object":                resourceS3BucketObject(),
 			"huaweicloud_vpc_nat_gateway_v2":              resourceVpcNatGatewayV2(),
+			"huaweicloud_vpc_snat_rule_v2":                resourceVpcSnatRuleV2(),
 		},
 
 		ConfigureFunc: configureProvider,
