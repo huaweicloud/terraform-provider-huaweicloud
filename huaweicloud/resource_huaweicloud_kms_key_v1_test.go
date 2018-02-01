@@ -134,7 +134,7 @@ func TestAccKmsKey_isEnabled(t *testing.T) {
 func testAccCheckKmsKeyIsEnabled(key *keys.Key, isEnabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if (key.KeyState == EnabledState) != isEnabled {
-			return fmt.Errorf("Expected key %q to have is_enabled=%t, given %t",
+			return fmt.Errorf("Expected key %s to have is_enabled=%t, given %s",
 				key.KeyID, isEnabled, key.KeyState)
 		}
 

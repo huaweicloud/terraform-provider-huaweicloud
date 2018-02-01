@@ -33,7 +33,6 @@ func resourceKmsKeyV1() *schema.Resource {
 			},
 			"key_id": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"key_description": &schema.Schema{
@@ -53,17 +52,15 @@ func resourceKmsKeyV1() *schema.Resource {
 			},
 			"domain_id": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"creation_date": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"scheduled_deletion_date": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"is_enabled": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -72,16 +69,14 @@ func resourceKmsKeyV1() *schema.Resource {
 			},
 			"default_key_flag": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"expiration_time": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"origin": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"pending_days": &schema.Schema{
@@ -206,26 +201,26 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("is_enabled") {
 		v, err := keys.Get(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 		if err != nil {
-			return fmt.Errorf("DescribeKey got an error: %#v.", err)
+			return fmt.Errorf("DescribeKey got an error: %s.", err)
 		}
 
 		if d.Get("is_enabled").(bool) && v.KeyState == DisabledState {
 			key, err := keys.EnableKey(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 			if err != nil {
-				return fmt.Errorf("Error enabling key: %#v.", err)
+				return fmt.Errorf("Error enabling key: %s.", err)
 			}
 			if key.KeyState != EnabledState {
-				return fmt.Errorf("Error enabling key, the key state is: ", key.KeyState)
+				return fmt.Errorf("Error enabling key, the key state is: %s", key.KeyState)
 			}
 		}
 
 		if !d.Get("is_enabled").(bool) && v.KeyState == EnabledState {
 			key, err := keys.DisableKey(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 			if err != nil {
-				return fmt.Errorf("Error disabling key: %#v.", err)
+				return fmt.Errorf("Error disabling key: %s.", err)
 			}
 			if key.KeyState != DisabledState {
-				return fmt.Errorf("Error disabling key, the key state is: ", key.KeyState)
+				return fmt.Errorf("Error disabling key, the key state is: %s", key.KeyState)
 			}
 		}
 	}
