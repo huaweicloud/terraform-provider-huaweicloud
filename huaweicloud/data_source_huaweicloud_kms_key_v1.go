@@ -41,10 +41,10 @@ func dataSourceKmsKeyV1() *schema.Resource {
 				Computed: true,
 			},
 			"key_state": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
 				ValidateFunc: validateKmsKeyStatus,
 			},
 			"default_key_flag": &schema.Schema{
