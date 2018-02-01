@@ -114,7 +114,7 @@ func resourceELBLoadBalancer() *schema.Resource {
 				Optional: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
-					if value != "traffic" || value != "bandwidth" {
+					if value != "traffic" && value != "bandwidth" {
 						errors = append(errors, fmt.Errorf("%s must be traffic or bandwidth", k))
 					}
 					return
@@ -127,7 +127,7 @@ func resourceELBLoadBalancer() *schema.Resource {
 				Optional: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
-					if value != "5_telcom" || value != "5_union" || value != "5_bgp" {
+					if value != "5_telcom" && value != "5_union" && value != "5_bgp" {
 						errors = append(errors, fmt.Errorf("%s must be 5_telcom, 5_union, or 5_bgp", k))
 					}
 					return

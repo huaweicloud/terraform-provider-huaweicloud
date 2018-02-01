@@ -57,7 +57,7 @@ func resourceELBHealthCheck() *schema.Resource {
 					value := v.(string)
 					vv := regexp.MustCompile("^/[a-zA-Z0-9-/.%?#&_=]{0,79}$")
 					if !vv.MatchString(value) {
-						errors = append(errors, fmt.Errorf("%s is a string of 1 to 80 characters that must start with a slash (/) and can only contain letters, digits, and special characters such as -/.%?#&_=", k))
+						errors = append(errors, fmt.Errorf("%s is a string of 1 to 80 characters that must start with a slash (/) and can only contain letters, digits, and special characters such as -/.%%?#&_=", k))
 					}
 					return
 				},
