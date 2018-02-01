@@ -872,6 +872,12 @@
 			"revisionTime": "2018-01-31T09:43:40Z"
 		},
 		{
+			"checksumSHA1": "M8qf6AmtZ96OD1Te8ai1YVKUsGg=",
+			"path": "github.com/huawei-clouds/golangsdk/openstack/vpc/v2/snatrules",
+			"revision": "3fac2bc8b2af75ea3bb5aa65b3ddc5d6e92c72f0",
+			"revisionTime": "2018-02-01T03:00:06Z"
+		},
+		{
 			"checksumSHA1": "pSrDwD6zRk4uut7wdda1T8hVm9w=",
 			"path": "github.com/huawei-clouds/golangsdk/pagination",
 			"revision": "f89ec8ecd5baa5abfc28f98720e628b06252bff4",
