@@ -103,7 +103,7 @@ func resourceLoadBalancerV2Create(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 	lbClient, err := chooseLBV2Client(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var lbProvider string
@@ -138,7 +138,7 @@ func resourceLoadBalancerV2Create(d *schema.ResourceData, meta interface{}) erro
 
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 	// Once the loadbalancer has been created, apply any requested security groups
 	// to the port that was created behind the scenes.
@@ -156,7 +156,7 @@ func resourceLoadBalancerV2Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*Config)
 	lbClient, err := chooseLBV2Client(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	lb, err := loadbalancers.Get(lbClient, d.Id()).Extract()
@@ -181,7 +181,7 @@ func resourceLoadBalancerV2Read(d *schema.ResourceData, meta interface{}) error 
 	if lb.VipPortID != "" {
 		networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 		port, err := ports.Get(networkingClient, lb.VipPortID).Extract()
 		if err != nil {
@@ -198,7 +198,7 @@ func resourceLoadBalancerV2Update(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 	lbClient, err := chooseLBV2Client(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var updateOpts loadbalancers.UpdateOpts
@@ -239,7 +239,7 @@ func resourceLoadBalancerV2Update(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("security_group_ids") {
 		networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 		vipPortID := d.Get("vip_port_id").(string)
 		if err := resourceLoadBalancerV2SecurityGroups(networkingClient, vipPortID, d); err != nil {
@@ -254,7 +254,7 @@ func resourceLoadBalancerV2Delete(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 	lbClient, err := chooseLBV2Client(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Deleting loadbalancer %s", d.Id())

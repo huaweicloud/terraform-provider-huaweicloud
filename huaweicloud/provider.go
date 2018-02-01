@@ -9,10 +9,24 @@ import (
 // This is a global MutexKV for use within this plugin.
 var osMutexKV = mutexkv.NewMutexKV()
 
-// Provider returns a schema.Provider for OpenStack.
+// Provider returns a schema.Provider for HuaweiCloud.
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
+			"access_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("OS_ACCESS_KEY", ""),
+				Description: descriptions["access_key"],
+			},
+
+			"secret_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("OS_SECRET_KEY", ""),
+				Description: descriptions["secret_key"],
+			},
+
 			"auth_url": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -156,18 +170,17 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"huaweicloud_dns_zone_v2":            dataSourceDNSZoneV2(),
 			"huaweicloud_images_image_v2":        dataSourceImagesImageV2(),
 			"huaweicloud_networking_network_v2":  dataSourceNetworkingNetworkV2(),
 			"huaweicloud_networking_subnet_v2":   dataSourceNetworkingSubnetV2(),
 			"huaweicloud_networking_secgroup_v2": dataSourceNetworkingSecGroupV2(),
+			"huaweicloud_s3_bucket_object":       dataSourceS3BucketObject(),
+			"huaweicloud_kms_key_v1":             dataSourceKmsKeyV1(),
+			"huaweicloud_kms_data_key_v1":        dataSourceKmsDataKeyV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"huaweicloud_blockstorage_volume_v1":          resourceBlockStorageVolumeV1(),
 			"huaweicloud_blockstorage_volume_v2":          resourceBlockStorageVolumeV2(),
-			"huaweicloud_blockstorage_volume_attach_v2":   resourceBlockStorageVolumeAttachV2(),
-			"huaweicloud_compute_flavor_v2":               resourceComputeFlavorV2(),
 			"huaweicloud_compute_instance_v2":             resourceComputeInstanceV2(),
 			"huaweicloud_compute_keypair_v2":              resourceComputeKeypairV2(),
 			"huaweicloud_compute_secgroup_v2":             resourceComputeSecGroupV2(),
@@ -175,19 +188,14 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_compute_floatingip_v2":           resourceComputeFloatingIPV2(),
 			"huaweicloud_compute_floatingip_associate_v2": resourceComputeFloatingIPAssociateV2(),
 			"huaweicloud_compute_volume_attach_v2":        resourceComputeVolumeAttachV2(),
-			"huaweicloud_db_instance_v1":                  resourceDatabaseInstanceV1(),
 			"huaweicloud_dns_recordset_v2":                resourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone_v2":                     resourceDNSZoneV2(),
-			"huaweicloud_fw_firewall_v1":                  resourceFWFirewallV1(),
-			"huaweicloud_fw_policy_v1":                    resourceFWPolicyV1(),
-			"huaweicloud_fw_rule_v1":                      resourceFWRuleV1(),
-			"huaweicloud_identity_project_v3":             resourceIdentityProjectV3(),
-			"huaweicloud_identity_user_v3":                resourceIdentityUserV3(),
 			"huaweicloud_images_image_v2":                 resourceImagesImageV2(),
-			"huaweicloud_lb_member_v1":                    resourceLBMemberV1(),
-			"huaweicloud_lb_monitor_v1":                   resourceLBMonitorV1(),
-			"huaweicloud_lb_pool_v1":                      resourceLBPoolV1(),
-			"huaweicloud_lb_vip_v1":                       resourceLBVipV1(),
+			"huaweicloud_kms_key_v1":                      resourceKmsKeyV1(),
+			"huaweicloud_elb_loadbalancer":                resourceELBLoadBalancer(),
+			"huaweicloud_elb_listener":                    resourceELBListener(),
+			"huaweicloud_elb_healthcheck":                 resourceELBHealthCheck(),
+			"huaweicloud_elb_backendecs":                  resourceELBBackendECS(),
 			"huaweicloud_lb_loadbalancer_v2":              resourceLoadBalancerV2(),
 			"huaweicloud_lb_listener_v2":                  resourceListenerV2(),
 			"huaweicloud_lb_pool_v2":                      resourcePoolV2(),
@@ -202,8 +210,10 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_networking_router_route_v2":      resourceNetworkingRouterRouteV2(),
 			"huaweicloud_networking_secgroup_v2":          resourceNetworkingSecGroupV2(),
 			"huaweicloud_networking_secgroup_rule_v2":     resourceNetworkingSecGroupRuleV2(),
-			"huaweicloud_objectstorage_container_v1":      resourceObjectStorageContainerV1(),
-			"huaweicloud_objectstorage_object_v1":         resourceObjectStorageObjectV1(),
+			"huaweicloud_s3_bucket":                       resourceS3Bucket(),
+			"huaweicloud_s3_bucket_policy":                resourceS3BucketPolicy(),
+			"huaweicloud_s3_bucket_object":                resourceS3BucketObject(),
+			"huaweicloud_vpc_nat_gateway_v2":              resourceVpcNatGatewayV2(),
 		},
 
 		ConfigureFunc: configureProvider,
@@ -216,7 +226,7 @@ func init() {
 	descriptions = map[string]string{
 		"auth_url": "The Identity authentication URL.",
 
-		"region": "The OpenStack region to connect to.",
+		"region": "The HuaweiCloud region to connect to.",
 
 		"user_name": "Username to login with.",
 
@@ -258,6 +268,8 @@ func init() {
 
 func configureProvider(d *schema.ResourceData) (interface{}, error) {
 	config := Config{
+		AccessKey:        d.Get("access_key").(string),
+		SecretKey:        d.Get("secret_key").(string),
 		CACertFile:       d.Get("cacert_file").(string),
 		ClientCertFile:   d.Get("cert").(string),
 		ClientKeyFile:    d.Get("key").(string),

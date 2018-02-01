@@ -41,7 +41,7 @@ func TestAccNetworkingV2FloatingIP_fixedip_bind(t *testing.T) {
 				Config: testAccNetworkingV2FloatingIP_fixedip_bind,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_1", &fip),
-					testAccCheckNetworkingV2FloatingIPBoundToCorrectIP(&fip, "192.168.199.20"),
+					testAccCheckNetworkingV2FloatingIPBoundToCorrectIP(&fip, "192.168.199.10"),
 				),
 			},
 		},
@@ -70,7 +70,7 @@ func testAccCheckNetworkingV2FloatingIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	networkClient, err := config.networkingV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack floating IP: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud floating IP: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -101,7 +101,7 @@ func testAccCheckNetworkingV2FloatingIPExists(n string, kp *floatingips.Floating
 		config := testAccProvider.Meta().(*Config)
 		networkClient, err := config.networkingV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		found, err := floatingips.Get(networkClient, rs.Primary.ID).Extract()
@@ -176,7 +176,7 @@ resource "huaweicloud_networking_router_interface_v2" "router_interface_1" {
 
 resource "huaweicloud_networking_router_v2" "router_1" {
   name = "router_1"
-  external_gateway = "%s"
+  external_network_id = "%s"
 }
 
 resource "huaweicloud_networking_port_v2" "port_1" {
@@ -187,17 +187,12 @@ resource "huaweicloud_networking_port_v2" "port_1" {
     subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
     ip_address = "192.168.199.10"
   }
-
-  fixed_ip {
-    subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
-    ip_address = "192.168.199.20"
-  }
 }
 
 resource "huaweicloud_networking_floatingip_v2" "fip_1" {
   pool = "%s"
   port_id = "${huaweicloud_networking_port_v2.port_1.id}"
-  fixed_ip = "${huaweicloud_networking_port_v2.port_1.fixed_ip.1.ip_address}"
+  fixed_ip = "${huaweicloud_networking_port_v2.port_1.fixed_ip.0.ip_address}"
 }
 `, OS_EXTGW_ID, OS_POOL_NAME)
 

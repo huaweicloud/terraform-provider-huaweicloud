@@ -1,14 +1,14 @@
 ---
-layout: "openstack"
-page_title: "OpenStack: openstack_compute_volume_attach_v2"
-sidebar_current: "docs-openstack-resource-compute-volume-attach-v2"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_compute_volume_attach_v2"
+sidebar_current: "docs-huaweicloud-resource-compute-volume-attach-v2"
 description: |-
   Attaches a Block Storage Volume to an Instance.
 ---
 
-# openstack\_compute\_volume_attach_v2
+# huaweicloud\_compute\_volume_attach_v2
 
-Attaches a Block Storage Volume to an Instance using the OpenStack
+Attaches a Block Storage Volume to an Instance using the HuaweiCloud
 Compute (Nova) v2 API.
 
 ## Example Usage
@@ -16,44 +16,44 @@ Compute (Nova) v2 API.
 ### Basic attachment of a single volume to a single instance
 
 ```hcl
-resource "openstack_blockstorage_volume_v2" "volume_1" {
+resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 1
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name            = "instance_1"
   security_groups = ["default"]
 }
 
-resource "openstack_compute_volume_attach_v2" "va_1" {
-  instance_id = "${openstack_compute_instance_v2.instance_1.id}"
-  volume_id   = "${openstack_blockstorage_volume_v2.volume_1.id}"
+resource "huaweicloud_compute_volume_attach_v2" "va_1" {
+  instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
+  volume_id   = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
 }
 ```
 
 ### Attaching multiple volumes to a single instance
 
 ```hcl
-resource "openstack_blockstorage_volume_v2" "volumes" {
+resource "huaweicloud_blockstorage_volume_v2" "volumes" {
   count = 2
   name  = "${format("vol-%02d", count.index + 1)}"
   size  = 1
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name            = "instance_1"
   security_groups = ["default"]
 }
 
-resource "openstack_compute_volume_attach_v2" "attachments" {
+resource "huaweicloud_compute_volume_attach_v2" "attachments" {
   count       = 2
-  instance_id = "${openstack_compute_instance_v2.instance_1.id}"
-  volume_id   = "${element(openstack_blockstorage_volume_v2.volumes.*.id, count.index)}"
+  instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
+  volume_id   = "${element(huaweicloud_blockstorage_volume_v2.volumes.*.id, count.index)}"
 }
 
 output "volume devices" {
-  value = "${openstack_compute_volume_attach_v2.attachments.*.device}"
+  value = "${huaweicloud_compute_volume_attach_v2.attachments.*.device}"
 }
 ```
 
@@ -94,5 +94,5 @@ Volume Attachments can be imported using the Instance ID and Volume ID
 separated by a slash, e.g.
 
 ```
-$ terraform import openstack_compute_volume_attach_v2.va_1 89c60255-9bd6-460c-822a-e2b959ede9d2/45670584-225f-46c3-b33e-6707b589b666
+$ terraform import huaweicloud_compute_volume_attach_v2.va_1 89c60255-9bd6-460c-822a-e2b959ede9d2/45670584-225f-46c3-b33e-6707b589b666
 ```

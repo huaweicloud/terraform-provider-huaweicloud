@@ -1,19 +1,19 @@
 ---
-layout: "openstack"
-page_title: "OpenStack: openstack_networking_router_v2"
-sidebar_current: "docs-openstack-resource-networking-router-v2"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_networking_router_v2"
+sidebar_current: "docs-huaweicloud-resource-networking-router-v2"
 description: |-
-  Manages a V2 router resource within OpenStack.
+  Manages a V2 router resource within HuaweiCloud.
 ---
 
-# openstack\_networking\_router_v2
+# huaweicloud\_networking\_router_v2
 
-Manages a V2 router resource within OpenStack.
+Manages a V2 router resource within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
-resource "openstack_networking_router_v2" "router_1" {
+resource "huaweicloud_networking_router_v2" "router_1" {
   name                = "my_router"
   admin_state_up      = true
   external_network_id = "f67f0d72-0ddf-11e4-9d95-e1f29f417e2f"
@@ -39,12 +39,6 @@ The following arguments are supported:
 * `distributed` - (Optional) Indicates whether or not to create a
     distributed router. The default policy setting in Neutron restricts
     usage of this property to administrative users only.
-
-* `external_gateway` - (Deprecated - use `external_network_id` instead) The
-    network UUID of an external gateway for the router. A router with an
-    external gateway is required if any compute instances or load balancers
-    will be using floating IPs. Changing this updates the external gateway
-    of an existing router.
 
 * `external_network_id` - (Optional) The network UUID of an external gateway
     for the router. A router with an external gateway is required if any
@@ -83,7 +77,6 @@ The following attributes are exported:
 * `region` - See Argument Reference above.
 * `name` - See Argument Reference above.
 * `admin_state_up` - See Argument Reference above.
-* `external_gateway` - See Argument Reference above.
 * `external_network_id` - See Argument Reference above.
 * `enable_snat` - See Argument Reference above.
 * `external_fixed_ip` - See Argument Reference above.
@@ -96,5 +89,5 @@ The following attributes are exported:
 Routers can be imported using the `id`, e.g.
 
 ```
-$ terraform import openstack_networking_router_v2.router_1 014395cd-89fc-4c9b-96b7-13d1ee79dad2
+$ terraform import huaweicloud_networking_router_v2.router_1 014395cd-89fc-4c9b-96b7-13d1ee79dad2
 ```

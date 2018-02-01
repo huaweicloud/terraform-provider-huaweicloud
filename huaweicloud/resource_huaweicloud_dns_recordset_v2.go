@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/dns/v2/recordsets"
+	"github.com/huawei-clouds/golangsdk"
+	"github.com/huawei-clouds/golangsdk/openstack/dns/v2/recordsets"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -47,27 +47,30 @@ func resourceDNSRecordSetV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"description": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     false,
+				ValidateFunc: resourceValidateDescription,
 			},
 			"records": &schema.Schema{
 				Type:     schema.TypeList,
-				Optional: true,
+				Required: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+				MinItems: 1,
 			},
 			"ttl": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				ForceNew: false,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     false,
+				Default:      300,
+				ValidateFunc: resourceValidateTTL,
 			},
 			"type": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: resourceRecordsetValidateType,
 			},
 			"value_specs": &schema.Schema{
 				Type:     schema.TypeMap,
@@ -82,7 +85,7 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 	dnsClient, err := config.dnsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack DNS client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	recordsraw := d.Get("records").([]interface{})
@@ -107,7 +110,7 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := recordsets.Create(dnsClient, zoneID, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack DNS record set: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud DNS record set: %s", err)
 	}
 
 	log.Printf("[DEBUG] Waiting for DNS record set (%s) to become available", n.ID)
@@ -122,10 +125,16 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 
 	_, err = stateConf.WaitForState()
 
+	if err != nil {
+		return fmt.Errorf(
+			"Error waiting for record set (%s) to become ACTIVE for creation: %s",
+			n.ID, err)
+	}
+
 	id := fmt.Sprintf("%s/%s", zoneID, n.ID)
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Created OpenStack DNS record set %s: %#v", n.ID, n)
+	log.Printf("[DEBUG] Created HuaweiCloud DNS record set %s: %#v", n.ID, n)
 	return resourceDNSRecordSetV2Read(d, meta)
 }
 
@@ -133,7 +142,7 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*Config)
 	dnsClient, err := config.dnsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack DNS client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	// Obtain relevant info from parsing the ID
@@ -142,6 +151,7 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
+	time.Sleep(2 * time.Second)
 	n, err := recordsets.Get(dnsClient, zoneID, recordsetID).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "record_set")
@@ -153,7 +163,9 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("description", n.Description)
 	d.Set("ttl", n.TTL)
 	d.Set("type", n.Type)
-	d.Set("records", n.Records)
+	if err := d.Set("records", n.Records); err != nil {
+		return fmt.Errorf("[DEBUG] Error saving records to state for OpenTelekomCloud DNS record set (%s): %s", d.Id(), err)
+	}
 	d.Set("region", GetRegion(d, config))
 	d.Set("zone_id", zoneID)
 
@@ -164,7 +176,7 @@ func resourceDNSRecordSetV2Update(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 	dnsClient, err := config.dnsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack DNS client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	var updateOpts recordsets.UpdateOpts
@@ -173,7 +185,7 @@ func resourceDNSRecordSetV2Update(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if d.HasChange("records") {
-		recordsraw := d.Get("records").([]interface{})
+		recordsraw := d.Get("records").(*schema.Set).List()
 		records := make([]string, len(recordsraw))
 		for i, recordraw := range recordsraw {
 			records[i] = recordraw.(string)
@@ -195,7 +207,7 @@ func resourceDNSRecordSetV2Update(d *schema.ResourceData, meta interface{}) erro
 
 	_, err = recordsets.Update(dnsClient, zoneID, recordsetID, updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating OpenStack DNS  record set: %s", err)
+		return fmt.Errorf("Error updating HuaweiCloud DNS  record set: %s", err)
 	}
 
 	log.Printf("[DEBUG] Waiting for DNS record set (%s) to update", recordsetID)
@@ -209,6 +221,11 @@ func resourceDNSRecordSetV2Update(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf(
+			"Error waiting for record set (%s) to become ACTIVE for updation: %s",
+			recordsetID, err)
+	}
 
 	return resourceDNSRecordSetV2Read(d, meta)
 }
@@ -217,7 +234,7 @@ func resourceDNSRecordSetV2Delete(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*Config)
 	dnsClient, err := config.dnsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack DNS client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	// Obtain relevant info from parsing the ID
@@ -228,13 +245,13 @@ func resourceDNSRecordSetV2Delete(d *schema.ResourceData, meta interface{}) erro
 
 	err = recordsets.Delete(dnsClient, zoneID, recordsetID).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack DNS  record set: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud DNS record set: %s", err)
 	}
 
 	log.Printf("[DEBUG] Waiting for DNS record set (%s) to be deleted", recordsetID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"DELETED"},
-		Pending:    []string{"ACTIVE", "PENDING"},
+		Pending:    []string{"ACTIVE", "PENDING", "ERROR"},
 		Refresh:    waitForDNSRecordSet(dnsClient, zoneID, recordsetID),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
@@ -242,24 +259,35 @@ func resourceDNSRecordSetV2Delete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf(
+			"Error waiting for record set (%s) to become DELETED for deletion: %s",
+			recordsetID, err)
+	}
 
 	d.SetId("")
 	return nil
 }
 
-func waitForDNSRecordSet(dnsClient *gophercloud.ServiceClient, zoneID, recordsetId string) resource.StateRefreshFunc {
+func parseStatus(rawStatus string) string {
+	splits := strings.Split(rawStatus, "_")
+	// rawStatus maybe one of PENDING_CREATE, PENDING_UPDATE, PENDING_DELETE, ACTIVE, or ERROR
+	return splits[0]
+}
+
+func waitForDNSRecordSet(dnsClient *golangsdk.ServiceClient, zoneID, recordsetId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		recordset, err := recordsets.Get(dnsClient, zoneID, recordsetId).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return recordset, "DELETED", nil
 			}
 
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] OpenStack DNS record set (%s) current status: %s", recordset.ID, recordset.Status)
-		return recordset, recordset.Status, nil
+		log.Printf("[DEBUG] HuaweiCloud DNS record set (%s) current status: %s", recordset.ID, recordset.Status)
+		return recordset, parseStatus(recordset.Status), nil
 	}
 }
 
@@ -273,4 +301,36 @@ func parseDNSV2RecordSetID(id string) (string, string, error) {
 	recordsetID := idParts[1]
 
 	return zoneID, recordsetID, nil
+}
+
+func resourceValidateDescription(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if len(value) > 255 {
+		errors = append(errors, fmt.Errorf("%q must less than 255 characters", k))
+	}
+
+	return
+}
+
+var recordSetTypes = [7]string{"A", "AAAA", "MX", "CNAME", "TXT", "NS", "SRV"}
+
+func resourceRecordsetValidateType(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	for i := range recordSetTypes {
+		if value == recordSetTypes[i] {
+			return
+		}
+	}
+	errors = append(errors, fmt.Errorf("%q must be one of %v", k, recordSetTypes))
+
+	return
+}
+
+func resourceValidateTTL(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(int)
+	if 300 <= value && value <= 2147483647 {
+		return
+	}
+	errors = append(errors, fmt.Errorf("%q must be [300, 2147483647]", k))
+	return
 }

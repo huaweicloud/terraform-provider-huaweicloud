@@ -75,6 +75,8 @@ func TestAccComputeV2FloatingIPAssociate_attachToFirstNetwork(t *testing.T) {
 	})
 }
 
+// UNSUPPORTED:  Can't connect instance to network without being in a VPC?
+/*
 func TestAccComputeV2FloatingIPAssociate_attachToSecondNetwork(t *testing.T) {
 	var instance servers.Server
 	var fip floatingips.FloatingIP
@@ -95,6 +97,7 @@ func TestAccComputeV2FloatingIPAssociate_attachToSecondNetwork(t *testing.T) {
 		},
 	})
 }
+*/
 
 func TestAccComputeV2FloatingIPAssociate_attachNew(t *testing.T) {
 	var instance servers.Server
@@ -132,7 +135,7 @@ func testAccCheckComputeV2FloatingIPAssociateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	computeClient, err := config.computeV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -160,7 +163,7 @@ func testAccCheckComputeV2FloatingIPAssociateDestroy(s *terraform.State) error {
 		for _, networkAddresses := range instance.Addresses {
 			for _, element := range networkAddresses.([]interface{}) {
 				address := element.(map[string]interface{})
-				if address["OS-EXT-IPS:type"] == "floating" {
+				if address["OS-EXT-IPS:type"] == "floating" || address["OS-EXT-IPS:type"] == "fixed" {
 					return fmt.Errorf("Floating IP %s is still attached to instance %s", floatingIP, instanceId)
 				}
 			}
@@ -190,7 +193,8 @@ func testAccCheckComputeV2FloatingIPAssociateAssociated(
 			}
 			for _, element := range networkAddresses.([]interface{}) {
 				address := element.(map[string]interface{})
-				if address["OS-EXT-IPS:type"] == "floating" && address["addr"] == fip.FloatingIP {
+				if (address["OS-EXT-IPS:type"] == "floating" && address["addr"] == fip.FloatingIP) ||
+					(address["OS-EXT-IPS:type"] == "fixed" && address["addr"] == fip.FixedIP) {
 					return nil
 				}
 			}
@@ -199,10 +203,14 @@ func testAccCheckComputeV2FloatingIPAssociateAssociated(
 	}
 }
 
-const testAccComputeV2FloatingIPAssociate_basic = `
+var testAccComputeV2FloatingIPAssociate_basic = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
 }
 
 resource "huaweicloud_networking_floatingip_v2" "fip_1" {
@@ -212,12 +220,16 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
   floating_ip = "${huaweicloud_networking_floatingip_v2.fip_1.address}"
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
 }
-`
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
-const testAccComputeV2FloatingIPAssociate_fixedIP = `
+var testAccComputeV2FloatingIPAssociate_fixedIP = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
 }
 
 resource "huaweicloud_networking_floatingip_v2" "fip_1" {
@@ -228,12 +240,13 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
   fixed_ip = "${huaweicloud_compute_instance_v2.instance_1.access_ip_v4}"
 }
-`
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2FloatingIPAssociate_attachToFirstNetwork = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
 
   network {
     uuid = "%s"
@@ -248,7 +261,7 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
   fixed_ip = "${huaweicloud_compute_instance_v2.instance_1.network.0.fixed_ip_v4}"
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2FloatingIPAssociate_attachToSecondNetwork = fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
@@ -267,6 +280,7 @@ resource "huaweicloud_networking_subnet_v2" "subnet_1" {
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
 
   network {
     uuid = "${huaweicloud_networking_network_v2.network_1.id}"
@@ -285,12 +299,16 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
   fixed_ip = "${huaweicloud_compute_instance_v2.instance_1.network.1.fixed_ip_v4}"
 }
-`, OS_NETWORK_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
-const testAccComputeV2FloatingIPAssociate_attachNew_1 = `
+var testAccComputeV2FloatingIPAssociate_attachNew_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
 }
 
 resource "huaweicloud_networking_floatingip_v2" "fip_1" {
@@ -303,12 +321,16 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
   floating_ip = "${huaweicloud_networking_floatingip_v2.fip_1.address}"
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
 }
-`
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
-const testAccComputeV2FloatingIPAssociate_attachNew_2 = `
+var testAccComputeV2FloatingIPAssociate_attachNew_2 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
 }
 
 resource "huaweicloud_networking_floatingip_v2" "fip_1" {
@@ -321,4 +343,4 @@ resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
   floating_ip = "${huaweicloud_networking_floatingip_v2.fip_2.address}"
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
 }
-`
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)

@@ -1,19 +1,19 @@
 ---
-layout: "openstack"
-page_title: "OpenStack: openstack_blockstorage_volume_v2"
-sidebar_current: "docs-openstack-resource-blockstorage-volume-v2"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_blockstorage_volume_v2"
+sidebar_current: "docs-huaweicloud-resource-blockstorage-volume-v2"
 description: |-
-  Manages a V2 volume resource within OpenStack.
+  Manages a V2 volume resource within HuaweiCloud.
 ---
 
-# openstack\_blockstorage\_volume_v2
+# huaweicloud\_blockstorage\_volume_v2
 
-Manages a V2 volume resource within OpenStack.
+Manages a V2 volume resource within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
-resource "openstack_blockstorage_volume_v2" "volume_1" {
+resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   region      = "RegionOne"
   name        = "volume_1"
   description = "first test volume"
@@ -58,8 +58,8 @@ The following arguments are supported:
 * `source_vol_id` - (Optional) The volume ID from which to create the volume.
     Changing this creates a new volume.
 
-* `volume_type` - (Optional) The type of volume to create.
-    Changing this creates a new volume.
+* `volume_type` - (Optional) The type of volume to create. Available types are
+    `SSD`, `SAS` and `SATA`. Changing this creates a new volume.
 
 ## Attributes Reference
 
@@ -84,5 +84,5 @@ The following attributes are exported:
 Volumes can be imported using the `id`, e.g.
 
 ```
-$ terraform import openstack_blockstorage_volume_v2.volume_1 ea257959-eeb1-4c10-8d33-26f0409a755d
+$ terraform import huaweicloud_blockstorage_volume_v2.volume_1 ea257959-eeb1-4c10-8d33-26f0409a755d
 ```

@@ -59,10 +59,11 @@ func resourceImagesImageV2() *schema.Resource {
 			},
 
 			"disk_format": &schema.Schema{
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: resourceImagesImageV2ValidateDiskFormat,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				ValidateFunc:     resourceImagesImageV2ValidateDiskFormat,
+				DiffSuppressFunc: suppressDiffAll, // NOTE: HEC appears broken here, so hack work-around...
 			},
 
 			"file": &schema.Schema{
@@ -96,11 +97,12 @@ func resourceImagesImageV2() *schema.Resource {
 			},
 
 			"min_disk_gb": &schema.Schema{
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validatePositiveInt,
-				Default:      0,
+				Type:             schema.TypeInt,
+				Optional:         true,
+				ForceNew:         true,
+				ValidateFunc:     validatePositiveInt,
+				Default:          0,
+				DiffSuppressFunc: suppressMinDisk,
 			},
 
 			"min_ram_mb": &schema.Schema{
@@ -163,12 +165,6 @@ func resourceImagesImageV2() *schema.Resource {
 				ValidateFunc: resourceImagesImageV2ValidateVisibility,
 				Default:      "private",
 			},
-
-			"properties": &schema.Schema{
-				Type:     schema.TypeMap,
-				Optional: true,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -177,15 +173,11 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	imageClient, err := config.imageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack image client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	protected := d.Get("protected").(bool)
 	visibility := resourceImagesImageV2VisibilityFromString(d.Get("visibility").(string))
-
-	properties := d.Get("properties").(map[string]interface{})
-	imageProperties := resourceImagesImageV2ExpandProperties(properties)
-
 	createOpts := &images.CreateOpts{
 		Name:            d.Get("name").(string),
 		ContainerFormat: d.Get("container_format").(string),
@@ -194,7 +186,6 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 		MinRAM:          d.Get("min_ram_mb").(int),
 		Protected:       &protected,
 		Visibility:      &visibility,
-		Properties:      imageProperties,
 	}
 
 	if v, ok := d.GetOk("tags"); ok {
@@ -259,7 +250,7 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	imageClient, err := config.imageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack image client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	img, err := images.Get(imageClient, d.Id()).Extract()
@@ -275,7 +266,9 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("schema", img.Schema)
 	d.Set("checksum", img.Checksum)
 	d.Set("size_bytes", img.SizeBytes)
-	d.Set("metadata", img.Metadata)
+	if err := d.Set("metadata", img.Metadata); err != nil {
+		return fmt.Errorf("[DEBUG] Error saving metadata to state for OpenTelekomCloud image (%s): %s", d.Id(), err)
+	}
 	d.Set("created_at", img.CreatedAt)
 	d.Set("update_at", img.UpdatedAt)
 	d.Set("container_format", img.ContainerFormat)
@@ -286,9 +279,10 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", img.Name)
 	d.Set("protected", img.Protected)
 	d.Set("size_bytes", img.SizeBytes)
-	d.Set("tags", img.Tags)
+	if err := d.Set("tags", img.Tags); err != nil {
+		return fmt.Errorf("[DEBUG] Error saving tags to state for OpenTelekomCloud image (%s): %s", d.Id(), err)
+	}
 	d.Set("visibility", img.Visibility)
-	d.Set("properties", img.Properties)
 	d.Set("region", GetRegion(d, config))
 
 	return nil
@@ -298,7 +292,7 @@ func resourceImagesImageV2Update(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	imageClient, err := config.imageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack image client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	updateOpts := make(images.UpdateOpts, 0)
@@ -336,7 +330,7 @@ func resourceImagesImageV2Delete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	imageClient, err := config.imageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack image client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Deleting Image %s", d.Id())
@@ -351,10 +345,7 @@ func resourceImagesImageV2Delete(d *schema.ResourceData, meta interface{}) error
 func resourceImagesImageV2ValidateVisibility(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	validVisibilities := []string{
-		"public",
 		"private",
-		"shared",
-		"community",
 	}
 
 	for _, v := range validVisibilities {
@@ -377,7 +368,7 @@ func validatePositiveInt(v interface{}, k string) (ws []string, errors []error) 
 	return
 }
 
-var DiskFormats = [9]string{"ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2", "vdi", "iso"}
+var DiskFormats = [2]string{"vhd", "qcow2"}
 
 func resourceImagesImageV2ValidateDiskFormat(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
@@ -390,7 +381,7 @@ func resourceImagesImageV2ValidateDiskFormat(v interface{}, k string) (ws []stri
 	return
 }
 
-var ContainerFormats = [9]string{"ami", "ari", "aki", "bare", "ovf"}
+var ContainerFormats = [1]string{"bare"}
 
 func resourceImagesImageV2ValidateContainerFormat(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
@@ -495,12 +486,14 @@ func resourceImagesImageV2RefreshFunc(client *gophercloud.ServiceClient, id stri
 		if err != nil {
 			return nil, "", err
 		}
-		log.Printf("[DEBUG] OpenStack image status is: %s", img.Status)
+		log.Printf("[DEBUG] HuaweiCloud image status is: %s", img.Status)
 
-		if img.Checksum != checksum || int64(img.SizeBytes) != fileSize {
-			return img, fmt.Sprintf("%s", img.Status), fmt.Errorf("Error wrong size %v or checksum %q", img.SizeBytes, img.Checksum)
-		}
-
+		// Huawei Provider doesn't have this set initially.
+		/*
+			if img.Checksum != checksum || int64(img.SizeBytes) != fileSize {
+				return img, fmt.Sprintf("%s", img.Status), fmt.Errorf("Error wrong size %v or checksum %q", img.SizeBytes, img.Checksum)
+			}
+		*/
 		return img, fmt.Sprintf("%s", img.Status), nil
 	}
 }
@@ -512,15 +505,4 @@ func resourceImagesImageV2BuildTags(v []interface{}) []string {
 	}
 
 	return tags
-}
-
-func resourceImagesImageV2ExpandProperties(v map[string]interface{}) map[string]string {
-	properties := map[string]string{}
-	for key, value := range v {
-		if v, ok := value.(string); ok {
-			properties[key] = v
-		}
-	}
-
-	return properties
 }

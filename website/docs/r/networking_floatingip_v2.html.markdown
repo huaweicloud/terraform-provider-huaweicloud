@@ -1,14 +1,14 @@
 ---
-layout: "openstack"
-page_title: "OpenStack: openstack_networking_floatingip_v2"
-sidebar_current: "docs-openstack-resource-networking-floatingip-v2"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_networking_floatingip_v2"
+sidebar_current: "docs-huaweicloud-resource-networking-floatingip-v2"
 description: |-
-  Manages a V2 floating IP resource within OpenStack Neutron (networking).
+  Manages a V2 floating IP resource within HuaweiCloud Neutron (networking).
 ---
 
-# openstack\_networking\_floatingip_v2
+# huaweicloud\_networking\_floatingip_v2
 
-Manages a V2 floating IP resource within OpenStack Neutron (networking)
+Manages a V2 floating IP resource within HuaweiCloud Neutron (networking)
 that can be used for load balancers.
 These are similar to Nova (compute) floating IP resources,
 but only compute floating IPs can be used with compute instances.
@@ -16,7 +16,7 @@ but only compute floating IPs can be used with compute instances.
 ## Example Usage
 
 ```hcl
-resource "openstack_networking_floatingip_v2" "floatip_1" {
+resource "huaweicloud_networking_floatingip_v2" "floatip_1" {
   pool = "public"
 }
 ```
@@ -63,5 +63,5 @@ The following attributes are exported:
 Floating IPs can be imported using the `id`, e.g.
 
 ```
-$ terraform import openstack_networking_floatingip_v2.floatip_1 2c7f39f3-702b-48d1-940c-b50384177ee1
+$ terraform import huaweicloud_networking_floatingip_v2.floatip_1 2c7f39f3-702b-48d1-940c-b50384177ee1
 ```

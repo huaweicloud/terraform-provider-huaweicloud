@@ -102,7 +102,7 @@ func resourceComputeSecGroupV2Create(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	// Before creating the security group, make sure all rules are valid.
@@ -119,7 +119,7 @@ func resourceComputeSecGroupV2Create(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	sg, err := secgroups.Create(computeClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack security group: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud security group: %s", err)
 	}
 
 	d.SetId(sg.ID)
@@ -129,7 +129,7 @@ func resourceComputeSecGroupV2Create(d *schema.ResourceData, meta interface{}) e
 	for _, createRuleOpts := range createRuleOptsList {
 		_, err := secgroups.CreateRule(computeClient, createRuleOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack security group rule: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud security group rule: %s", err)
 		}
 	}
 
@@ -140,7 +140,7 @@ func resourceComputeSecGroupV2Read(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	sg, err := secgroups.Get(computeClient, d.Id()).Extract()
@@ -167,7 +167,7 @@ func resourceComputeSecGroupV2Update(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	updateOpts := secgroups.UpdateOpts{
@@ -179,7 +179,7 @@ func resourceComputeSecGroupV2Update(d *schema.ResourceData, meta interface{}) e
 
 	_, err = secgroups.Update(computeClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating OpenStack security group (%s): %s", d.Id(), err)
+		return fmt.Errorf("Error updating HuaweiCloud security group (%s): %s", d.Id(), err)
 	}
 
 	if d.HasChange("rule") {
@@ -195,9 +195,9 @@ func resourceComputeSecGroupV2Update(d *schema.ResourceData, meta interface{}) e
 			createRuleOpts := resourceSecGroupRuleCreateOptsV2(d, rawRule)
 			rule, err := secgroups.CreateRule(computeClient, createRuleOpts).Extract()
 			if err != nil {
-				return fmt.Errorf("Error adding rule to OpenStack security group (%s): %s", d.Id(), err)
+				return fmt.Errorf("Error adding rule to HuaweiCloud security group (%s): %s", d.Id(), err)
 			}
-			log.Printf("[DEBUG] Added rule (%s) to OpenStack security group (%s) ", rule.ID, d.Id())
+			log.Printf("[DEBUG] Added rule (%s) to HuaweiCloud security group (%s) ", rule.ID, d.Id())
 		}
 
 		for _, r := range secgrouprulesToRemove.List() {
@@ -208,9 +208,9 @@ func resourceComputeSecGroupV2Update(d *schema.ResourceData, meta interface{}) e
 					continue
 				}
 
-				return fmt.Errorf("Error removing rule (%s) from OpenStack security group (%s)", rule.ID, d.Id())
+				return fmt.Errorf("Error removing rule (%s) from HuaweiCloud security group (%s)", rule.ID, d.Id())
 			} else {
-				log.Printf("[DEBUG] Removed rule (%s) from OpenStack security group (%s): %s", rule.ID, d.Id(), err)
+				log.Printf("[DEBUG] Removed rule (%s) from HuaweiCloud security group (%s): %s", rule.ID, d.Id(), err)
 			}
 		}
 	}
@@ -222,7 +222,7 @@ func resourceComputeSecGroupV2Delete(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -236,7 +236,7 @@ func resourceComputeSecGroupV2Delete(d *schema.ResourceData, meta interface{}) e
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack security group: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud security group: %s", err)
 	}
 
 	d.SetId("")

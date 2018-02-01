@@ -124,26 +124,6 @@ func TestAccComputeV2SecGroup_icmpZero(t *testing.T) {
 	})
 }
 
-func TestAccComputeV2SecGroup_lowerCaseCIDR(t *testing.T) {
-	var secgroup secgroups.SecurityGroup
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2SecGroupDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeV2SecGroup_lowerCaseCIDR,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_1", &secgroup),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_compute_secgroup_v2.sg_1", "rule.3862435458.cidr", "2001:558:fc00::/39"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccComputeV2SecGroup_timeout(t *testing.T) {
 	var secgroup secgroups.SecurityGroup
 
@@ -166,7 +146,7 @@ func testAccCheckComputeV2SecGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	computeClient, err := config.computeV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -197,7 +177,7 @@ func testAccCheckComputeV2SecGroupExists(n string, secgroup *secgroups.SecurityG
 		config := testAccProvider.Meta().(*Config)
 		computeClient, err := config.computeV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
 		found, err := secgroups.Get(computeClient, rs.Primary.ID).Extract()
@@ -375,19 +355,6 @@ resource "huaweicloud_compute_secgroup_v2" "sg_1" {
     to_port = 0
     ip_protocol = "icmp"
     cidr = "0.0.0.0/0"
-  }
-}
-`
-
-const testAccComputeV2SecGroup_lowerCaseCIDR = `
-resource "huaweicloud_compute_secgroup_v2" "sg_1" {
-  name = "sg_1"
-  description = "first test security group"
-  rule {
-    from_port = 0
-    to_port = 0
-    ip_protocol = "icmp"
-    cidr = "2001:558:FC00::/39"
   }
 }
 `

@@ -26,14 +26,10 @@ func TestAccImagesImageV2_basic(t *testing.T) {
 						"huaweicloud_images_image_v2.image_1", "name", "Rancher TerraformAccTest"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_images_image_v2.image_1", "container_format", "bare"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_images_image_v2.image_1", "disk_format", "qcow2"),
+					/*resource.TestCheckResourceAttr(
+					"huaweicloud_images_image_v2.image_1", "disk_format", "qcow2"),*/
 					resource.TestCheckResourceAttr(
 						"huaweicloud_images_image_v2.image_1", "schema", "/v2/schemas/image"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_images_image_v2.image_1", "properties.foo", "bar"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_images_image_v2.image_1", "properties.baz", "foo"),
 				),
 			},
 		},
@@ -120,19 +116,11 @@ func TestAccImagesImageV2_visibility(t *testing.T) {
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccImagesImageV2_visibility_1,
+				Config: testAccImagesImageV2_visibility,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_images_image_v2.image_1", "visibility", "private"),
-				),
-			},
-			resource.TestStep{
-				Config: testAccImagesImageV2_visibility_2,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_images_image_v2.image_1", "visibility", "public"),
 				),
 			},
 		},
@@ -161,7 +149,7 @@ func testAccCheckImagesImageV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	imageClient, err := config.imageV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack Image: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -192,7 +180,7 @@ func testAccCheckImagesImageV2Exists(n string, image *images.Image) resource.Tes
 		config := testAccProvider.Meta().(*Config)
 		imageClient, err := config.imageV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack Image: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
 
 		found, err := images.Get(imageClient, rs.Primary.ID).Extract()
@@ -224,7 +212,7 @@ func testAccCheckImagesImageV2HasTag(n, tag string) resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*Config)
 		imageClient, err := config.imageV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack Image: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
 
 		found, err := images.Get(imageClient, rs.Primary.ID).Extract()
@@ -260,7 +248,7 @@ func testAccCheckImagesImageV2TagCount(n string, expected int) resource.TestChec
 		config := testAccProvider.Meta().(*Config)
 		imageClient, err := config.imageV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack Image: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
 
 		found, err := images.Get(imageClient, rs.Primary.ID).Extract()
@@ -283,19 +271,15 @@ func testAccCheckImagesImageV2TagCount(n string, expected int) resource.TestChec
 var testAccImagesImageV2_basic = `
   resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
+      image_source_url = "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
       container_format = "bare"
       disk_format = "qcow2"
-      properties {
-        foo = "bar"
-        baz = "foo"
-      }
   }`
 
 var testAccImagesImageV2_name_1 = `
   resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
+      image_source_url = "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
       container_format = "bare"
       disk_format = "qcow2"
   }`
@@ -303,7 +287,7 @@ var testAccImagesImageV2_name_1 = `
 var testAccImagesImageV2_name_2 = `
   resource "huaweicloud_images_image_v2" "image_1" {
       name   = "TerraformAccTest Rancher"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
+      image_source_url = "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
       container_format = "bare"
       disk_format = "qcow2"
   }`
@@ -311,7 +295,7 @@ var testAccImagesImageV2_name_2 = `
 var testAccImagesImageV2_tags_1 = `
   resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
+      image_source_url = "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
       container_format = "bare"
       disk_format = "qcow2"
       tags = ["foo","bar"]
@@ -320,7 +304,7 @@ var testAccImagesImageV2_tags_1 = `
 var testAccImagesImageV2_tags_2 = `
   resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
+      image_source_url = "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
       container_format = "bare"
       disk_format = "qcow2"
       tags = ["foo","bar","baz"]
@@ -329,34 +313,25 @@ var testAccImagesImageV2_tags_2 = `
 var testAccImagesImageV2_tags_3 = `
   resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
+      image_source_url = "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
       container_format = "bare"
       disk_format = "qcow2"
       tags = ["foo","baz"]
   }`
 
-var testAccImagesImageV2_visibility_1 = `
+var testAccImagesImageV2_visibility = `
   resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
+      image_source_url = "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
       container_format = "bare"
       disk_format = "qcow2"
       visibility = "private"
   }`
 
-var testAccImagesImageV2_visibility_2 = `
-  resource "huaweicloud_images_image_v2" "image_1" {
-      name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
-      container_format = "bare"
-      disk_format = "qcow2"
-      visibility = "public"
-  }`
-
 var testAccImagesImageV2_timeout = `
   resource "huaweicloud_images_image_v2" "image_1" {
       name   = "Rancher TerraformAccTest"
-      image_source_url = "https://releases.rancher.com/os/latest/rancheros-huaweicloud.img"
+      image_source_url = "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
       container_format = "bare"
       disk_format = "qcow2"
 

@@ -63,26 +63,6 @@ func TestAccNetworkingV2Subnet_enableDHCP(t *testing.T) {
 	})
 }
 
-func TestAccNetworkingV2Subnet_disableDHCP(t *testing.T) {
-	var subnet subnets.Subnet
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2SubnetDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccNetworkingV2Subnet_disableDHCP,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2SubnetExists("huaweicloud_networking_subnet_v2.subnet_1", &subnet),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_networking_subnet_v2.subnet_1", "enable_dhcp", "false"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccNetworkingV2Subnet_noGateway(t *testing.T) {
 	var subnet subnets.Subnet
 
@@ -145,7 +125,7 @@ func testAccCheckNetworkingV2SubnetDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -176,7 +156,7 @@ func testAccCheckNetworkingV2SubnetExists(n string, subnet *subnets.Subnet) reso
 		config := testAccProvider.Meta().(*Config)
 		networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		found, err := subnets.Get(networkingClient, rs.Primary.ID).Extract()
@@ -241,20 +221,6 @@ resource "huaweicloud_networking_subnet_v2" "subnet_1" {
   cidr = "192.168.199.0/24"
   gateway_ip = "192.168.199.1"
   enable_dhcp = true
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-}
-`
-
-const testAccNetworkingV2Subnet_disableDHCP = `
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  cidr = "192.168.199.0/24"
-  enable_dhcp = false
   network_id = "${huaweicloud_networking_network_v2.network_1.id}"
 }
 `

@@ -103,7 +103,7 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	createOpts := NetworkCreateOpts{
@@ -149,7 +149,7 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 	}
 
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack Neutron network: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud Neutron network: %s", err)
 	}
 
 	log.Printf("[INFO] Network ID: %s", n.ID)
@@ -176,7 +176,7 @@ func resourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	n, err := networks.Get(networkingClient, d.Id()).Extract()
@@ -203,7 +203,7 @@ func resourceNetworkingNetworkV2Update(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var updateOpts networks.UpdateOpts
@@ -235,7 +235,7 @@ func resourceNetworkingNetworkV2Update(d *schema.ResourceData, meta interface{})
 
 	_, err = networks.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating OpenStack Neutron Network: %s", err)
+		return fmt.Errorf("Error updating HuaweiCloud Neutron Network: %s", err)
 	}
 
 	return resourceNetworkingNetworkV2Read(d, meta)
@@ -245,7 +245,7 @@ func resourceNetworkingNetworkV2Delete(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -259,7 +259,7 @@ func resourceNetworkingNetworkV2Delete(d *schema.ResourceData, meta interface{})
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack Neutron Network: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud Neutron Network: %s", err)
 	}
 
 	d.SetId("")
@@ -296,7 +296,7 @@ func waitForNetworkActive(networkingClient *gophercloud.ServiceClient, networkId
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] OpenStack Neutron Network: %+v", n)
+		log.Printf("[DEBUG] HuaweiCloud Neutron Network: %+v", n)
 		if n.Status == "DOWN" || n.Status == "ACTIVE" {
 			return n, "ACTIVE", nil
 		}
@@ -307,12 +307,12 @@ func waitForNetworkActive(networkingClient *gophercloud.ServiceClient, networkId
 
 func waitForNetworkDelete(networkingClient *gophercloud.ServiceClient, networkId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete OpenStack Network %s.\n", networkId)
+		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Network %s.\n", networkId)
 
 		n, err := networks.Get(networkingClient, networkId).Extract()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack Network %s", networkId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Network %s", networkId)
 				return n, "DELETED", nil
 			}
 			return n, "ACTIVE", err
@@ -321,7 +321,7 @@ func waitForNetworkDelete(networkingClient *gophercloud.ServiceClient, networkId
 		err = networks.Delete(networkingClient, networkId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack Network %s", networkId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Network %s", networkId)
 				return n, "DELETED", nil
 			}
 			if errCode, ok := err.(gophercloud.ErrUnexpectedResponseCode); ok {
@@ -332,7 +332,7 @@ func waitForNetworkDelete(networkingClient *gophercloud.ServiceClient, networkId
 			return n, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] OpenStack Network %s still active.\n", networkId)
+		log.Printf("[DEBUG] HuaweiCloud Network %s still active.\n", networkId)
 		return n, "ACTIVE", nil
 	}
 }

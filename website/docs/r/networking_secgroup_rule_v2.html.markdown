@@ -1,33 +1,33 @@
 ---
-layout: "openstack"
-page_title: "OpenStack: openstack_networking_secgroup_rule_v2"
-sidebar_current: "docs-openstack-resource-networking-secgroup-rule-v2"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_networking_secgroup_rule_v2"
+sidebar_current: "docs-huaweicloud-resource-networking-secgroup-rule-v2"
 description: |-
-  Manages a V2 Neutron security group rule resource within OpenStack.
+  Manages a V2 Neutron security group rule resource within HuaweiCloud.
 ---
 
-# openstack\_networking\_secgroup\_rule_v2
+# huaweicloud\_networking\_secgroup\_rule_v2
 
-Manages a V2 neutron security group rule resource within OpenStack.
+Manages a V2 neutron security group rule resource within HuaweiCloud.
 Unlike Nova security groups, neutron separates the group from the rules
 and also allows an admin to target a specific tenant_id.
 
 ## Example Usage
 
 ```hcl
-resource "openstack_networking_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name        = "secgroup_1"
   description = "My neutron security group"
 }
 
-resource "openstack_networking_secgroup_rule_v2" "secgroup_rule_1" {
+resource "huaweicloud_networking_secgroup_rule_v2" "secgroup_rule_1" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 22
   port_range_max    = 22
   remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = "${openstack_networking_secgroup_v2.secgroup_1.id}"
+  security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup_1.id}"
 }
 ```
 
@@ -112,5 +112,5 @@ The following attributes are exported:
 Security Group Rules can be imported using the `id`, e.g.
 
 ```
-$ terraform import openstack_networking_secgroup_rule_v2.secgroup_rule_1 aeb68ee3-6e9d-4256-955c-9584a6212745
+$ terraform import huaweicloud_networking_secgroup_rule_v2.secgroup_rule_1 aeb68ee3-6e9d-4256-955c-9584a6212745
 ```

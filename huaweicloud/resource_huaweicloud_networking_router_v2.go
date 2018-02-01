@@ -51,20 +51,11 @@ func resourceNetworkingRouterV2() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"external_gateway": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      false,
-				Computed:      true,
-				Deprecated:    "use external_network_id instead",
-				ConflictsWith: []string{"external_network_id"},
-			},
 			"external_network_id": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      false,
-				Computed:      true,
-				ConflictsWith: []string{"external_gateway"},
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+				Computed: true,
 			},
 			"enable_snat": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -116,7 +107,7 @@ func resourceNetworkingRouterV2Create(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	createOpts := RouterCreateOpts{
@@ -140,10 +131,6 @@ func resourceNetworkingRouterV2Create(d *schema.ResourceData, meta interface{}) 
 
 	// Gateway settings
 	var externalNetworkID string
-	if v := d.Get("external_gateway").(string); v != "" {
-		externalNetworkID = v
-	}
-
 	if v := d.Get("external_network_id").(string); v != "" {
 		externalNetworkID = v
 	}
@@ -174,11 +161,11 @@ func resourceNetworkingRouterV2Create(d *schema.ResourceData, meta interface{}) 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := routers.Create(networkingClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack Neutron router: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud Neutron router: %s", err)
 	}
 	log.Printf("[INFO] Router ID: %s", n.ID)
 
-	log.Printf("[DEBUG] Waiting for OpenStack Neutron Router (%s) to become available", n.ID)
+	log.Printf("[DEBUG] Waiting for HuaweiCloud Neutron Router (%s) to become available", n.ID)
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"BUILD", "PENDING_CREATE", "PENDING_UPDATE"},
 		Target:     []string{"ACTIVE"},
@@ -199,7 +186,7 @@ func resourceNetworkingRouterV2Read(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	n, err := routers.Get(networkingClient, d.Id()).Extract()
@@ -209,7 +196,7 @@ func resourceNetworkingRouterV2Read(d *schema.ResourceData, meta interface{}) er
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving OpenStack Neutron Router: %s", err)
+		return fmt.Errorf("Error retrieving HuaweiCloud Neutron Router: %s", err)
 	}
 
 	log.Printf("[DEBUG] Retrieved Router %s: %+v", d.Id(), n)
@@ -225,7 +212,6 @@ func resourceNetworkingRouterV2Read(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Gateway settings
-	d.Set("external_gateway", n.GatewayInfo.NetworkID)
 	d.Set("external_network_id", n.GatewayInfo.NetworkID)
 	d.Set("enable_snat", n.GatewayInfo.EnableSNAT)
 
@@ -252,7 +238,7 @@ func resourceNetworkingRouterV2Update(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var updateOpts routers.UpdateOpts
@@ -269,20 +255,12 @@ func resourceNetworkingRouterV2Update(d *schema.ResourceData, meta interface{}) 
 	var externalNetworkID string
 	gatewayInfo := routers.GatewayInfo{}
 
-	if v := d.Get("external_gateway").(string); v != "" {
-		externalNetworkID = v
-	}
-
 	if v := d.Get("external_network_id").(string); v != "" {
 		externalNetworkID = v
 	}
 
 	if externalNetworkID != "" {
 		gatewayInfo.NetworkID = externalNetworkID
-	}
-
-	if d.HasChange("external_gateway") {
-		updateGatewaySettings = true
 	}
 
 	if d.HasChange("external_network_id") {
@@ -319,7 +297,7 @@ func resourceNetworkingRouterV2Update(d *schema.ResourceData, meta interface{}) 
 
 	_, err = routers.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating OpenStack Neutron Router: %s", err)
+		return fmt.Errorf("Error updating HuaweiCloud Neutron Router: %s", err)
 	}
 
 	return resourceNetworkingRouterV2Read(d, meta)
@@ -329,7 +307,7 @@ func resourceNetworkingRouterV2Delete(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -337,13 +315,13 @@ func resourceNetworkingRouterV2Delete(d *schema.ResourceData, meta interface{}) 
 		Target:     []string{"DELETED"},
 		Refresh:    waitForRouterDelete(networkingClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
+		Delay:      8 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenStack Neutron Router: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud Neutron Router: %s", err)
 	}
 
 	d.SetId("")
@@ -357,19 +335,19 @@ func waitForRouterActive(networkingClient *gophercloud.ServiceClient, routerId s
 			return nil, r.Status, err
 		}
 
-		log.Printf("[DEBUG] OpenStack Neutron Router: %+v", r)
+		log.Printf("[DEBUG] HuaweiCloud Neutron Router: %+v", r)
 		return r, r.Status, nil
 	}
 }
 
 func waitForRouterDelete(networkingClient *gophercloud.ServiceClient, routerId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete OpenStack Router %s.\n", routerId)
+		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Router %s.\n", routerId)
 
 		r, err := routers.Get(networkingClient, routerId).Extract()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack Router %s", routerId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Router %s", routerId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
@@ -378,13 +356,13 @@ func waitForRouterDelete(networkingClient *gophercloud.ServiceClient, routerId s
 		err = routers.Delete(networkingClient, routerId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenStack Router %s", routerId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Router %s", routerId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] OpenStack Router %s still active.\n", routerId)
+		log.Printf("[DEBUG] HuaweiCloud Router %s still active.\n", routerId)
 		return r, "ACTIVE", nil
 	}
 }

@@ -70,6 +70,15 @@ func MapValueSpecs(d *schema.ResourceData) map[string]string {
 	return m
 }
 
+// MapResourceProp converts ResourceData property into a map
+func MapResourceProp(d *schema.ResourceData, prop string) map[string]interface{} {
+	m := make(map[string]interface{})
+	for key, val := range d.Get(prop).(map[string]interface{}) {
+		m[key] = val.(string)
+	}
+	return m
+}
+
 // List of headers that need to be redacted
 var REDACT_HEADERS = []string{"x-auth-token", "x-auth-key", "x-service-token",
 	"x-storage-token", "x-account-meta-temp-url-key", "x-account-meta-temp-url-key-2",

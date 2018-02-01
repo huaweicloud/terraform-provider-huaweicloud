@@ -1,19 +1,19 @@
 ---
-layout: "openstack"
-page_title: "OpenStack: openstack_images_image_v2"
-sidebar_current: "docs-openstack-datasource-images-image-v2"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_images_image_v2"
+sidebar_current: "docs-huaweicloud-datasource-images-image-v2"
 description: |-
-  Get information on an OpenStack Image.
+  Get information on an HuaweiCloud Image.
 ---
 
-# openstack\_images\_image\_v2
+# huaweicloud\_images\_image\_v2
 
-Use this data source to get the ID of an available OpenStack image.
+Use this data source to get the ID of an available HuaweiCloud image.
 
 ## Example Usage
 
 ```hcl
-data "openstack_images_image_v2" "ubuntu" {
+data "huaweicloud_images_image_v2" "ubuntu" {
   name = "Ubuntu 16.04"
   most_recent = true
 
@@ -67,7 +67,7 @@ are exported:
 location of the image or the path to retrieve it.
 * `metadata` - The metadata associated with the image.
    Image metadata allow for meaningfully define the image properties
-   and tags. See http://docs.openstack.org/developer/glance/metadefs-concepts.html.
+   and tags. See http://docs.huaweicloud.org/developer/glance/metadefs-concepts.html.
 * `min_disk_gb` - The minimum amount of disk space required to use the image.
 * `min_ram_mb` - The minimum amount of ram required to use the image.
 * `properties` - Freeform information about the image.

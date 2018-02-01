@@ -54,7 +54,7 @@ func testAccCheckComputeV2ServerGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	computeClient, err := config.computeV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -85,7 +85,7 @@ func testAccCheckComputeV2ServerGroupExists(n string, kp *servergroups.ServerGro
 		config := testAccProvider.Meta().(*Config)
 		computeClient, err := config.computeV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
 		found, err := servergroups.Get(computeClient, rs.Primary.ID).Extract()
@@ -124,7 +124,7 @@ resource "huaweicloud_compute_servergroup_v2" "sg_1" {
 }
 `
 
-const testAccComputeV2ServerGroup_affinity = `
+var testAccComputeV2ServerGroup_affinity = fmt.Sprintf(`
 resource "huaweicloud_compute_servergroup_v2" "sg_1" {
   name = "sg_1"
   policies = ["affinity"]
@@ -133,8 +133,12 @@ resource "huaweicloud_compute_servergroup_v2" "sg_1" {
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
   scheduler_hints {
     group = "${huaweicloud_compute_servergroup_v2.sg_1.id}"
   }
+  network {
+    uuid = "%s"
+  }
 }
-`
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)

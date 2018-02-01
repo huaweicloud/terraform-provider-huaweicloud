@@ -40,7 +40,8 @@ func TestAccComputeV2VolumeAttach_device(t *testing.T) {
 				Config: testAccComputeV2VolumeAttach_device,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2VolumeAttachExists("huaweicloud_compute_volume_attach_v2.va_1", &va),
-					testAccCheckComputeV2VolumeAttachDevice(&va, "/dev/vdc"),
+					// NOTE: we can not ensure which device it used to attach the volume
+					//testAccCheckComputeV2VolumeAttachDevice(&va, "/dev/vdb"),
 				),
 			},
 		},
@@ -69,7 +70,7 @@ func testAccCheckComputeV2VolumeAttachDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	computeClient, err := config.computeV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -105,7 +106,7 @@ func testAccCheckComputeV2VolumeAttachExists(n string, va *volumeattach.VolumeAt
 		config := testAccProvider.Meta().(*Config)
 		computeClient, err := config.computeV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenStack compute client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
 		instanceId, volumeId, err := parseComputeVolumeAttachmentId(rs.Primary.ID)
@@ -140,50 +141,65 @@ func testAccCheckComputeV2VolumeAttachDevice(
 	}
 }
 
-const testAccComputeV2VolumeAttach_basic = `
+var testAccComputeV2VolumeAttach_basic = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 1
+  availability_zone = "%s"
 }
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
 }
 
 resource "huaweicloud_compute_volume_attach_v2" "va_1" {
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
   volume_id = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
 }
-`
+`, OS_AVAILABILITY_ZONE, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
-const testAccComputeV2VolumeAttach_device = `
+var testAccComputeV2VolumeAttach_device = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 1
+  availability_zone = "%s"
 }
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
 }
 
 resource "huaweicloud_compute_volume_attach_v2" "va_1" {
   instance_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
   volume_id = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
-  device = "/dev/vdc"
+  device = "/dev/vdb"
 }
-`
+`, OS_AVAILABILITY_ZONE, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
-const testAccComputeV2VolumeAttach_timeout = `
+var testAccComputeV2VolumeAttach_timeout = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 1
+  availability_zone = "%s"
 }
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
 }
 
 resource "huaweicloud_compute_volume_attach_v2" "va_1" {
@@ -195,4 +211,4 @@ resource "huaweicloud_compute_volume_attach_v2" "va_1" {
     delete = "5m"
   }
 }
-`
+`, OS_AVAILABILITY_ZONE, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)

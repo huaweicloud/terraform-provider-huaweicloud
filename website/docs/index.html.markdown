@@ -1,15 +1,15 @@
 ---
-layout: "openstack"
-page_title: "Provider: OpenStack"
-sidebar_current: "docs-openstack-index"
+layout: "huaweicloud"
+page_title: "Provider: HuaweiCloud"
+sidebar_current: "docs-huaweicloud-index"
 description: |-
-  The OpenStack provider is used to interact with the many resources supported by OpenStack. The provider needs to be configured with the proper credentials before it can be used.
+  The HuaweiCloud provider is used to interact with the many resources supported by HuaweiCloud. The provider needs to be configured with the proper credentials before it can be used.
 ---
 
-# OpenStack Provider
+# HuaweiCloud Provider
 
-The OpenStack provider is used to interact with the
-many resources supported by OpenStack. The provider needs to be configured
+The HuaweiCloud provider is used to interact with the
+many resources supported by HuaweiCloud. The provider needs to be configured
 with the proper credentials before it can be used.
 
 Use the navigation to the left to read about the available resources.
@@ -17,8 +17,8 @@ Use the navigation to the left to read about the available resources.
 ## Example Usage
 
 ```hcl
-# Configure the OpenStack Provider
-provider "openstack" {
+# Configure the HuaweiCloud Provider
+provider "huaweicloud" {
   user_name   = "admin"
   tenant_name = "admin"
   password    = "pwd"
@@ -27,7 +27,7 @@ provider "openstack" {
 }
 
 # Create a web server
-resource "openstack_compute_instance_v2" "test-server" {
+resource "huaweicloud_compute_instance_v2" "test-server" {
   # ...
 }
 ```
@@ -39,17 +39,11 @@ The following arguments are supported:
 * `auth_url` - (Optional; required if `cloud` is not specified) The Identity
   authentication URL. If omitted, the `OS_AUTH_URL` environment variable is used.
 
-* `cloud` - (Optional; required if `auth_url` is not specified) An entry in a
-  `clouds.yaml` file. See the OpenStack `os-client-config`
-  [documentation](https://docs.openstack.org/os-client-config/latest/user/configuration.html)
-  for more information about `clouds.yaml` files. If omitted, the `OS_CLOUD`
-  environment variable is used.
-
-* `region` - (Optional) The region of the OpenStack cloud to use. If omitted,
+* `region` - (Optional) The region of the HuaweiCloud cloud to use. If omitted,
   the `OS_REGION_NAME` environment variable is used. If `OS_REGION_NAME` is
   not set, then no region will be used. It should be possible to omit the
-  region in single-region OpenStack environments, but this behavior may vary
-  depending on the OpenStack environment being used.
+  region in single-region HuaweiCloud environments, but this behavior may vary
+  depending on the HuaweiCloud environment being used.
 
 * `user_name` - (Optional) The Username to login with. If omitted, the
   `OS_USERNAME` environment variable is used.
@@ -107,7 +101,7 @@ The following arguments are supported:
   variable is used. You must also set `username` to the Swauth/Swift username
   such as `username:project`. Set the `password` to the Swauth/Swift key.
   Finally, set `auth_url` as the location of the Swift service. Note that this
-  will only work when used with the OpenStack Object Storage resources.
+  will only work when used with the HuaweiCloud Object Storage resources.
 
 * `use_octavia` - (Optional) If set to `true`, API requests will go the Load Balancer
   service (Octavia) instead of the Networking service (Neutron).
@@ -115,7 +109,7 @@ The following arguments are supported:
 ## Additional Logging
 
 This provider has the ability to log all HTTP requests and responses between
-Terraform and the OpenStack cloud which is useful for troubleshooting and
+Terraform and the HuaweiCloud cloud which is useful for troubleshooting and
 debugging.
 
 To enable these logs, set the `OS_DEBUG` environment variable to `1` along
@@ -130,7 +124,7 @@ information has been scrubbed first!
 
 ## Rackspace Compatibility
 
-Using this OpenStack provider with Rackspace is not supported and not
+Using this HuaweiCloud provider with Rackspace is not supported and not
 guaranteed to work; however, users have reported success with the
 following notes in mind:
 
@@ -143,7 +137,7 @@ all other resources is either untested or known to not work.
 instances as shown below:
 
 ```
-resource "openstack_compute_instance_v2" "my_instance" {
+resource "huaweicloud_compute_instance_v2" "my_instance" {
   name      = "my_instance"
   region    = "DFW"
   image_id  = "fabe045f-43f8-4991-9e6c-5cabd617538c"
@@ -188,15 +182,15 @@ variables must also be set:
 
 * `OS_EXTGW_ID` - The UUID of the external gateway.
 
-You should be able to use any OpenStack environment to develop on as long as the
+You should be able to use any HuaweiCloud environment to develop on as long as the
 above environment variables are set.
 
-Most of Terraform's OpenStack support is done in a standardized Packstack
+Most of Terraform's HuaweiCloud support is done in a standardized Packstack
 all-in-one environment. You can find the scripts to build this environment
 [here](https://github.com/jtopjian/terraform-devstack/tree/master/packstack-standard).
 The included `main.tf` file will need to be modified for your specific
 environment. Once it's up and running, you will have access to a standard,
-up-to-date OpenStack environment with the latest OpenStack services.
+up-to-date HuaweiCloud environment with the latest HuaweiCloud services.
 
 If you require access to deprecated services, such as Keystone v2 and
 LBaaS v1, you can use the "legacy" environment

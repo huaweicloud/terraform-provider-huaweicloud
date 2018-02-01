@@ -1,25 +1,25 @@
 ---
-layout: "openstack"
-page_title: "OpenStack: openstack_networking_subnet_v2"
-sidebar_current: "docs-openstack-resource-networking-subnet-v2"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_networking_subnet_v2"
+sidebar_current: "docs-huaweicloud-resource-networking-subnet-v2"
 description: |-
-  Manages a V2 Neutron subnet resource within OpenStack.
+  Manages a V2 Neutron subnet resource within HuaweiCloud.
 ---
 
-# openstack\_networking\_subnet_v2
+# huaweicloud\_networking\_subnet_v2
 
-Manages a V2 Neutron subnet resource within OpenStack.
+Manages a V2 Neutron subnet resource within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
-resource "openstack_networking_network_v2" "network_1" {
+resource "huaweicloud_networking_network_v2" "network_1" {
   name           = "tf_test_network"
   admin_state_up = "true"
 }
 
-resource "openstack_networking_subnet_v2" "subnet_1" {
-  network_id = "${openstack_networking_network_v2.network_1.id}"
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   cidr       = "192.168.199.0/24"
 }
 ```
@@ -61,8 +61,7 @@ The following arguments are supported:
     this removes or adds a default gateway IP of the existing subnet.
 
 * `enable_dhcp` - (Optional) The administrative state of the network.
-    Acceptable values are "true" and "false". Changing this value enables or
-    disables the DHCP capabilities of the existing subnet. Defaults to true.
+    The value must be "true".
 
 * `dns_nameservers` - (Optional) An array of DNS name server names used by hosts
     in this subnet. Changing this updates the DNS name servers for the existing
@@ -108,5 +107,5 @@ The following attributes are exported:
 Subnets can be imported using the `id`, e.g.
 
 ```
-$ terraform import openstack_networking_subnet_v2.subnet_1 da4faf16-5546-41e4-8330-4d0002b74048
+$ terraform import huaweicloud_networking_subnet_v2.subnet_1 da4faf16-5546-41e4-8330-4d0002b74048
 ```

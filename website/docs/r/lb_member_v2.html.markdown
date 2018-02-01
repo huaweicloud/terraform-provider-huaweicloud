@@ -1,19 +1,19 @@
 ---
-layout: "openstack"
-page_title: "OpenStack: openstack_lb_member_v2"
-sidebar_current: "docs-openstack-resource-lb-member-v2"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_lb_member_v2"
+sidebar_current: "docs-huaweicloud-resource-lb-member-v2"
 description: |-
-  Manages a V2 member resource within OpenStack.
+  Manages a V2 member resource within HuaweiCloud.
 ---
 
-# openstack\_lb\_member\_v2
+# huaweicloud\_lb\_member\_v2
 
-Manages a V2 member resource within OpenStack.
+Manages a V2 member resource within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
-resource "openstack_lb_member_v2" "member_1" {
+resource "huaweicloud_lb_member_v2" "member_1" {
   address       = "192.168.199.23"
   protocol_port = 8080
 }

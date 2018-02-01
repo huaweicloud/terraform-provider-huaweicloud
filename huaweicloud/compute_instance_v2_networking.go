@@ -3,7 +3,7 @@
 //
 // This is a complicated task because it's not possible to obtain all
 // information in a single API call. In fact, it even traverses multiple
-// OpenStack services.
+// HuaweiCloud services.
 //
 // The end result, from the user's point of view, is a structured set of
 // understandable network information within the instance resource.
@@ -50,16 +50,16 @@ type InstanceNetwork struct {
 
 // getAllInstanceNetworks loops through the networks defined in the Terraform
 // configuration and structures that information into something standard that
-// can be consumed by both OpenStack and Terraform.
+// can be consumed by both HuaweiCloud and Terraform.
 //
 // This would be simple, except we have ensure both the network name and
 // network ID have been determined. This isn't just for the convenience of a
 // user specifying a human-readable network name, but the network information
-// returned by an OpenStack instance only has the network name set! So if a
+// returned by an HuaweiCloud instance only has the network name set! So if a
 // user specified a network ID, there's no way to correlate it to the instance
 // unless we know both the name and ID.
 //
-// Not only that, but we have to account for two OpenStack network services
+// Not only that, but we have to account for two HuaweiCloud network services
 // running: nova-network (legacy) and Neutron (current).
 //
 // In addition, if a port was specified, not all of the port information
@@ -166,7 +166,7 @@ func getInstanceNetworkInfo(
 
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return nil, fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return nil, fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	networkInfo, err := getInstanceNetworkInfoNovaNet(computeClient, queryType, queryTerm)
@@ -385,7 +385,7 @@ func flattenInstanceNetworks(
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return nil, fmt.Errorf("Error creating OpenStack compute client: %s", err)
+		return nil, fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	server, err := servers.Get(computeClient, d.Id()).Extract()
@@ -482,7 +482,7 @@ func getInstanceAccessAddresses(
 		}
 	}
 
-	log.Printf("[DEBUG] OpenStack Instance Network Access Addresses: %s, %s", hostv4, hostv6)
+	log.Printf("[DEBUG] HuaweiCloud Instance Network Access Addresses: %s, %s", hostv4, hostv6)
 
 	return hostv4, hostv6
 }

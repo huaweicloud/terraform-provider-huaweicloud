@@ -12,8 +12,6 @@ import (
 
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/keypairs"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/servergroups"
-	"github.com/gophercloud/gophercloud/openstack/dns/v2/recordsets"
-	"github.com/gophercloud/gophercloud/openstack/dns/v2/zones"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/fwaas/firewalls"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/fwaas/policies"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/fwaas/routerinsertion"
@@ -23,6 +21,8 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/ports"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
+	"github.com/huawei-clouds/golangsdk/openstack/dns/v2/recordsets"
+	"github.com/huawei-clouds/golangsdk/openstack/dns/v2/zones"
 )
 
 // LogRoundTripper satisfies the http.RoundTripper interface and is used to
@@ -46,7 +46,7 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 	var err error
 
 	if lrt.OsDebug {
-		log.Printf("[DEBUG] OpenStack Request URL: %s %s", request.Method, request.URL)
+		log.Printf("[DEBUG] HuaweiCloud Request URL: %s %s", request.Method, request.URL)
 		log.Printf("[DEBUG] Openstack Request Headers:\n%s", FormatHeaders(request.Header, "\n"))
 
 		if request.Body != nil {
@@ -86,9 +86,9 @@ func (lrt *LogRoundTripper) logRequest(original io.ReadCloser, contentType strin
 	// Handle request contentType
 	if strings.HasPrefix(contentType, "application/json") {
 		debugInfo := lrt.formatJSON(bs.Bytes())
-		log.Printf("[DEBUG] OpenStack Request Body: %s", debugInfo)
+		log.Printf("[DEBUG] HuaweiCloud Request Body: %s", debugInfo)
 	} else {
-		log.Printf("[DEBUG] OpenStack Request Body: %s", bs.String())
+		log.Printf("[DEBUG] HuaweiCloud Request Body: %s", bs.String())
 	}
 
 	return ioutil.NopCloser(strings.NewReader(bs.String())), nil
@@ -106,12 +106,12 @@ func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType stri
 		}
 		debugInfo := lrt.formatJSON(bs.Bytes())
 		if debugInfo != "" {
-			log.Printf("[DEBUG] OpenStack Response Body: %s", debugInfo)
+			log.Printf("[DEBUG] HuaweiCloud Response Body: %s", debugInfo)
 		}
 		return ioutil.NopCloser(strings.NewReader(bs.String())), nil
 	}
 
-	log.Printf("[DEBUG] Not logging because OpenStack response body isn't JSON")
+	log.Printf("[DEBUG] Not logging because HuaweiCloud response body isn't JSON")
 	return original, nil
 }
 
@@ -122,7 +122,7 @@ func (lrt *LogRoundTripper) formatJSON(raw []byte) string {
 
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
-		log.Printf("[DEBUG] Unable to parse OpenStack JSON: %s", err)
+		log.Printf("[DEBUG] Unable to parse HuaweiCloud JSON: %s", err)
 		return string(raw)
 	}
 
@@ -146,14 +146,14 @@ func (lrt *LogRoundTripper) formatJSON(raw []byte) string {
 
 	pretty, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		log.Printf("[DEBUG] Unable to re-marshal OpenStack JSON: %s", err)
+		log.Printf("[DEBUG] Unable to re-marshal HuaweiCloud JSON: %s", err)
 		return string(raw)
 	}
 
 	return string(pretty)
 }
 
-// Firewall is an OpenStack firewall.
+// Firewall is an HuaweiCloud firewall.
 type Firewall struct {
 	firewalls.Firewall
 	routerinsertion.FirewallExt
@@ -330,7 +330,7 @@ func (opts SubnetCreateOpts) ToSubnetCreateMap() (map[string]interface{}, error)
 // ZoneCreateOpts represents the attributes used when creating a new DNS zone.
 type ZoneCreateOpts struct {
 	zones.CreateOpts
-	ValueSpecs map[string]string `json:"value_specs,omitempty"`
+	ValueSpecs map[string]interface{} `json:"value_specs,omitempty"`
 }
 
 // ToZoneCreateMap casts a CreateOpts struct to a map.

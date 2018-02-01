@@ -1,26 +1,27 @@
 ---
-layout: "openstack"
-page_title: "OpenStack: openstack_compute_instance_v2"
-sidebar_current: "docs-openstack-resource-compute-instance-v2"
+layout: "huaweicloud"
+page_title: "HuaweiCloud: huaweicloud_compute_instance_v2"
+sidebar_current: "docs-huaweicloud-resource-compute-instance-v2"
 description: |-
-  Manages a V2 VM instance resource within OpenStack.
+  Manages a V2 VM instance resource within HuaweiCloud.
 ---
 
-# openstack\_compute\_instance_v2
+# huaweicloud\_compute\_instance_v2
 
-Manages a V2 VM instance resource within OpenStack.
+Manages a V2 VM instance resource within HuaweiCloud.
 
 ## Example Usage
 
 ### Basic Instance
 
 ```hcl
-resource "openstack_compute_instance_v2" "basic" {
-  name            = "basic"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance_v2" "basic" {
+  name              = "basic"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   metadata {
     this = "that"
@@ -35,37 +36,39 @@ resource "openstack_compute_instance_v2" "basic" {
 ### Instance With Attached Volume
 
 ```hcl
-resource "openstack_blockstorage_volume_v2" "myvol" {
+resource "huaweicloud_blockstorage_volume_v2" "myvol" {
   name = "myvol"
   size = 1
 }
 
-resource "openstack_compute_instance_v2" "myinstance" {
-  name            = "myinstance"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance_v2" "myinstance" {
+  name              = "myinstance"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   network {
     name = "my_network"
   }
 }
 
-resource "openstack_compute_volume_attach_v2" "attached" {
-  compute_id = "${openstack_compute_instance_v2.myinstance.id}"
-  volume_id = "${openstack_blockstorage_volume_v2.myvol.id}"
+resource "huaweicloud_compute_volume_attach_v2" "attached" {
+  compute_id = "${huaweicloud_compute_instance_v2.myinstance.id}"
+  volume_id = "${huaweicloud_blockstorage_volume_v2.myvol.id}"
 }
 ```
 
 ### Boot From Volume
 
 ```hcl
-resource "openstack_compute_instance_v2" "boot-from-volume" {
-  name            = "boot-from-volume"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance_v2" "boot-from-volume" {
+  name              = "boot-from-volume"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   block_device {
     uuid                  = "<image-id>"
@@ -85,20 +88,21 @@ resource "openstack_compute_instance_v2" "boot-from-volume" {
 ### Boot From an Existing Volume
 
 ```hcl
-resource "openstack_blockstorage_volume_v1" "myvol" {
+resource "huaweicloud_blockstorage_volume_v1" "myvol" {
   name     = "myvol"
   size     = 5
   image_id = "<image-id>"
 }
 
-resource "openstack_compute_instance_v2" "boot-from-volume" {
-  name            = "bootfromvolume"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance_v2" "boot-from-volume" {
+  name              = "bootfromvolume"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   block_device {
-    uuid                  = "${openstack_blockstorage_volume_v1.myvol.id}"
+    uuid                  = "${huaweicloud_blockstorage_volume_v1.myvol.id}"
     source_type           = "volume"
     boot_index            = 0
     destination_type      = "volume"
@@ -114,12 +118,13 @@ resource "openstack_compute_instance_v2" "boot-from-volume" {
 ### Boot Instance, Create Volume, and Attach Volume as a Block Device
 
 ```hcl
-resource "openstack_compute_instance_v2" "instance_1" {
-  name            = "instance_1"
-  image_id        = "<image-id>"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance_v2" "instance_1" {
+  name              = "instance_1"
+  image_id          = "<image-id>"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   block_device {
     uuid                  = "<image-id>"
@@ -142,17 +147,18 @@ resource "openstack_compute_instance_v2" "instance_1" {
 ### Boot Instance and Attach Existing Volume as a Block Device
 
 ```hcl
-resource "openstack_blockstorage_volume_v2" "volume_1" {
+resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 1
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
-  name            = "instance_1"
-  image_id        = "<image-id>"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance_v2" "instance_1" {
+  name              = "instance_1"
+  image_id          = "<image-id>"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   block_device {
     uuid                  = "<image-id>"
@@ -163,7 +169,7 @@ resource "openstack_compute_instance_v2" "instance_1" {
   }
 
   block_device {
-    uuid                  = "${openstack_blockstorage_volume_v2.volume_1.id}"
+    uuid                  = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
     source_type           = "volume"
     destination_type      = "volume"
     boot_index            = 1
@@ -175,16 +181,17 @@ resource "openstack_compute_instance_v2" "instance_1" {
 ### Instance With Multiple Networks
 
 ```hcl
-resource "openstack_networking_floatingip_v2" "myip" {
+resource "huaweicloud_networking_floatingip_v2" "myip" {
   pool = "my_pool"
 }
 
-resource "openstack_compute_instance_v2" "multi-net" {
-  name            = "multi-net"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance_v2" "multi-net" {
+  name              = "multi-net"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   network {
     name = "my_first_network"
@@ -195,22 +202,23 @@ resource "openstack_compute_instance_v2" "multi-net" {
   }
 }
 
-resource "openstack_compute_floatingip_associate_v2" "myip" {
-  floating_ip = "${openstack_networking_floatingip_v2.myip.address}"
-  instance_id = "${openstack_compute_instance_v2.multi-net.id}"
-  fixed_ip = "${openstack_compute_instance_v2.multi-net.network.1.fixed_ip_v4}"
+resource "huaweicloud_compute_floatingip_associate_v2" "myip" {
+  floating_ip = "${huaweicloud_networking_floatingip_v2.myip.address}"
+  instance_id = "${huaweicloud_compute_instance_v2.multi-net.id}"
+  fixed_ip = "${huaweicloud_compute_instance_v2.multi-net.network.1.fixed_ip_v4}"
 }
 ```
 
 ### Instance With Personality
 
 ```hcl
-resource "openstack_compute_instance_v2" "personality" {
-  name            = "personality"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance_v2" "personality" {
+  name              = "personality"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   personality {
     file    = "/path/to/file/on/instance.txt"
@@ -226,12 +234,13 @@ resource "openstack_compute_instance_v2" "personality" {
 ### Instance with Multiple Ephemeral Disks
 
 ```hcl
-resource "openstack_compute_instance_v2" "multi-eph" {
-  name            = "multi_eph"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance_v2" "multi-eph" {
+  name              = "multi_eph"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
 
   block_device {
     boot_index            = 0
@@ -262,13 +271,14 @@ resource "openstack_compute_instance_v2" "multi-eph" {
 ### Instance with User Data (cloud-init)
 
 ```hcl
-resource "openstack_compute_instance_v2" "instance_1" {
-  name            = "basic"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = "3"
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
-  user_data       = "#cloud-config\nhostname: instance_1.example.com\nfqdn: instance_1.example.com"
+resource "huaweicloud_compute_instance_v2" "instance_1" {
+  name              = "basic"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "3"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "az"
+  user_data         = "#cloud-config\nhostname: instance_1.example.com\nfqdn: instance_1.example.com"
 
   network {
     name = "my_network"
@@ -312,7 +322,7 @@ The following arguments are supported:
     instance to networks using Ports, place the security groups on the Port
     and not the instance.
 
-* `availability_zone` - (Optional) The availability zone in which to create
+* `availability_zone` - (Required) The availability zone in which to create
     the server. Changing this creates a new server.
 
 * `network` - (Optional) An array of one or more networks to attach to the
@@ -349,10 +359,6 @@ The following arguments are supported:
 * `stop_before_destroy` - (Optional) Whether to try stop instance gracefully
     before destroying it, thus giving chance for guest OS daemons to stop correctly.
     If instance doesn't stop within timeout, it will be destroyed anyway.
-
-* `force_delete` - (Optional) Whether to force the OpenStack instance to be
-    forcefully deleted. This is useful for environments that have reclaim / soft
-    deletion enabled.
 
 
 The `network` block supports:
@@ -461,7 +467,7 @@ The following example shows how to create an instance with multiple ephemeral
 disks:
 
 ```
-resource "openstack_compute_instance_v2" "foo" {
+resource "huaweicloud_compute_instance_v2" "foo" {
   name            = "terraform-test"
   security_groups = ["default"]
 
@@ -496,15 +502,10 @@ resource "openstack_compute_instance_v2" "foo" {
 Neutron Ports are a great feature and provide a lot of functionality. However,
 there are some notes to be aware of when mixing Instances and Ports:
 
-* In OpenStack environments prior to the Kilo release, deleting or recreating
-an Instance will cause the Instance's Port(s) to be deleted. One way of working
-around this is to taint any Port(s) used in Instances which are to be recreated.
-See [here](https://review.openstack.org/#/c/126309/) for further information.
-
 * When attaching an Instance to one or more networks using Ports, place the
 security groups on the Port and not the Instance. If you place the security
 groups on the Instance, the security groups will not be applied upon creation,
-but they will be applied upon a refresh. This is a known OpenStack bug.
+but they will be applied upon a refresh. This is a known HuaweiCloud bug.
 
 * Network IP information is not available within an instance for networks that
 are attached with Ports. This is mostly due to the flexibility Neutron Ports
@@ -515,7 +516,7 @@ information. Therefore, in order for a Provisioner to connect to an Instance
 via it's network Port, customize the `connection` information:
 
 ```hcl
-resource "openstack_networking_port_v2" "port_1" {
+resource "huaweicloud_networking_port_v2" "port_1" {
   name           = "port_1"
   admin_state_up = "true"
 
@@ -527,16 +528,16 @@ resource "openstack_networking_port_v2" "port_1" {
   ]
 }
 
-resource "openstack_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
 
   network {
-    port = "${openstack_networking_port_v2.port_1.id}"
+    port = "${huaweicloud_networking_port_v2.port_1.id}"
   }
 
   connection {
     user        = "root"
-    host        = "${openstack_networking_port_v2.port_1.fixed_ip.0.ip_address}"
+    host        = "${huaweicloud_networking_port_v2.port_1.fixed_ip.0.ip_address}"
     private_key = "~/path/to/key"
   }
 

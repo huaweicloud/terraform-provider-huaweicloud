@@ -13,11 +13,8 @@ import (
 )
 
 var (
-	OS_DB_ENVIRONMENT         = os.Getenv("OS_DB_ENVIRONMENT")
-	OS_DB_DATASTORE_VERSION   = os.Getenv("OS_DB_DATASTORE_VERSION")
-	OS_DB_DATASTORE_TYPE      = os.Getenv("OS_DB_DATASTORE_TYPE")
+	OS_AVAILABILITY_ZONE      = os.Getenv("OS_AVAILABILITY_ZONE")
 	OS_DEPRECATED_ENVIRONMENT = os.Getenv("OS_DEPRECATED_ENVIRONMENT")
-	OS_DNS_ENVIRONMENT        = os.Getenv("OS_DNS_ENVIRONMENT")
 	OS_EXTGW_ID               = os.Getenv("OS_EXTGW_ID")
 	OS_FLAVOR_ID              = os.Getenv("OS_FLAVOR_ID")
 	OS_FLAVOR_NAME            = os.Getenv("OS_FLAVOR_NAME")
@@ -26,7 +23,11 @@ var (
 	OS_NETWORK_ID             = os.Getenv("OS_NETWORK_ID")
 	OS_POOL_NAME              = os.Getenv("OS_POOL_NAME")
 	OS_REGION_NAME            = os.Getenv("OS_REGION_NAME")
-	OS_SWIFT_ENVIRONMENT      = os.Getenv("OS_SWIFT_ENVIRONMENT")
+	OS_ACCESS_KEY             = os.Getenv("OS_ACCESS_KEY")
+	OS_SECRET_KEY             = os.Getenv("OS_SECRET_KEY")
+	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
+	OS_AZ_ID                  = os.Getenv("OS_AZ_ID")
+	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -53,6 +54,17 @@ func testAccPreCheckRequiredEnvVars(t *testing.T) {
 		t.Fatal("OS_POOL_NAME must be set for acceptance tests")
 	}
 
+	if OS_AVAILABILITY_ZONE == "" {
+		t.Fatal("OS_AVAILABILITY_ZONE must be set for acceptance tests")
+	}
+
+	if OS_ACCESS_KEY == "" {
+		t.Fatal("OS_ACCESS_KEY must be set for acceptance tests")
+	}
+
+	if OS_SECRET_KEY == "" {
+		t.Fatal("OS_SECRET_KEY must be set for acceptance tests")
+	}
 	if OS_FLAVOR_ID == "" && OS_FLAVOR_NAME == "" {
 		t.Fatal("OS_FLAVOR_ID or OS_FLAVOR_NAME must be set for acceptance tests")
 	}
@@ -73,11 +85,6 @@ func testAccPreCheck(t *testing.T) {
 	if OS_DEPRECATED_ENVIRONMENT != "" {
 		t.Skip("This environment only runs deprecated tests")
 	}
-
-	// Do not run the test if this is a standalone DNS environment.
-	if OS_DNS_ENVIRONMENT != "" {
-		t.Skip("This environment only runs DNS tests")
-	}
 }
 
 func testAccPreCheckDeprecated(t *testing.T) {
@@ -85,30 +92,6 @@ func testAccPreCheckDeprecated(t *testing.T) {
 
 	if OS_DEPRECATED_ENVIRONMENT == "" {
 		t.Skip("This environment does not support deprecated tests")
-	}
-}
-
-func testAccPreCheckDNS(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
-	if OS_DNS_ENVIRONMENT == "" {
-		t.Skip("This environment does not support DNS tests")
-	}
-}
-
-func testAccPreCheckSwift(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
-	if OS_SWIFT_ENVIRONMENT == "" {
-		t.Skip("This environment does not support Swift tests")
-	}
-}
-
-func testAccPreCheckDatabase(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
-	if OS_DB_ENVIRONMENT == "" {
-		t.Skip("This environment does not support Database tests")
 	}
 }
 
@@ -129,14 +112,14 @@ func TestProvider_impl(t *testing.T) {
 	var _ terraform.ResourceProvider = Provider()
 }
 
-// Steps for configuring OpenStack with SSL validation are here:
+// Steps for configuring HuaweiCloud with SSL validation are here:
 // https://github.com/hashicorp/terraform/pull/6279#issuecomment-219020144
 func TestAccProvider_caCertFile(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" || os.Getenv("OS_SSL_TESTS") == "" {
-		t.Skip("TF_ACC or OS_SSL_TESTS not set, skipping OpenStack SSL test.")
+		t.Skip("TF_ACC or OS_SSL_TESTS not set, skipping HuaweiCloud SSL test.")
 	}
 	if os.Getenv("OS_CACERT") == "" {
-		t.Skip("OS_CACERT is not set; skipping OpenStack CA test.")
+		t.Skip("OS_CACERT is not set; skipping HuaweiCloud CA test.")
 	}
 
 	p := Provider()
@@ -157,16 +140,16 @@ func TestAccProvider_caCertFile(t *testing.T) {
 
 	err = p.Configure(terraform.NewResourceConfig(rawConfig))
 	if err != nil {
-		t.Fatalf("Unexpected err when specifying OpenStack CA by file: %s", err)
+		t.Fatalf("Unexpected err when specifying HuaweiCloud CA by file: %s", err)
 	}
 }
 
 func TestAccProvider_caCertString(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" || os.Getenv("OS_SSL_TESTS") == "" {
-		t.Skip("TF_ACC or OS_SSL_TESTS not set, skipping OpenStack SSL test.")
+		t.Skip("TF_ACC or OS_SSL_TESTS not set, skipping HuaweiCloud SSL test.")
 	}
 	if os.Getenv("OS_CACERT") == "" {
-		t.Skip("OS_CACERT is not set; skipping OpenStack CA test.")
+		t.Skip("OS_CACERT is not set; skipping HuaweiCloud CA test.")
 	}
 
 	p := Provider()
@@ -185,16 +168,16 @@ func TestAccProvider_caCertString(t *testing.T) {
 
 	err = p.Configure(terraform.NewResourceConfig(rawConfig))
 	if err != nil {
-		t.Fatalf("Unexpected err when specifying OpenStack CA by string: %s", err)
+		t.Fatalf("Unexpected err when specifying HuaweiCloud CA by string: %s", err)
 	}
 }
 
 func TestAccProvider_clientCertFile(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" || os.Getenv("OS_SSL_TESTS") == "" {
-		t.Skip("TF_ACC or OS_SSL_TESTS not set, skipping OpenStack SSL test.")
+		t.Skip("TF_ACC or OS_SSL_TESTS not set, skipping HuaweiCloud SSL test.")
 	}
 	if os.Getenv("OS_CERT") == "" || os.Getenv("OS_KEY") == "" {
-		t.Skip("OS_CERT or OS_KEY is not set; skipping OpenStack client SSL auth test.")
+		t.Skip("OS_CERT or OS_KEY is not set; skipping HuaweiCloud client SSL auth test.")
 	}
 
 	p := Provider()
@@ -221,16 +204,16 @@ func TestAccProvider_clientCertFile(t *testing.T) {
 
 	err = p.Configure(terraform.NewResourceConfig(rawConfig))
 	if err != nil {
-		t.Fatalf("Unexpected err when specifying OpenStack Client keypair by file: %s", err)
+		t.Fatalf("Unexpected err when specifying HuaweiCloud Client keypair by file: %s", err)
 	}
 }
 
 func TestAccProvider_clientCertString(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" || os.Getenv("OS_SSL_TESTS") == "" {
-		t.Skip("TF_ACC or OS_SSL_TESTS not set, skipping OpenStack SSL test.")
+		t.Skip("TF_ACC or OS_SSL_TESTS not set, skipping HuaweiCloud SSL test.")
 	}
 	if os.Getenv("OS_CERT") == "" || os.Getenv("OS_KEY") == "" {
-		t.Skip("OS_CERT or OS_KEY is not set; skipping OpenStack client SSL auth test.")
+		t.Skip("OS_CERT or OS_KEY is not set; skipping HuaweiCloud client SSL auth test.")
 	}
 
 	p := Provider()
@@ -255,7 +238,7 @@ func TestAccProvider_clientCertString(t *testing.T) {
 
 	err = p.Configure(terraform.NewResourceConfig(rawConfig))
 	if err != nil {
-		t.Fatalf("Unexpected err when specifying OpenStack Client keypair by contents: %s", err)
+		t.Fatalf("Unexpected err when specifying HuaweiCloud Client keypair by contents: %s", err)
 	}
 }
 
