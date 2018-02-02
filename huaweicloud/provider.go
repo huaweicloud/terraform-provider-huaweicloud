@@ -177,6 +177,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_s3_bucket_object":       dataSourceS3BucketObject(),
 			"huaweicloud_kms_key_v1":             dataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key_v1":        dataSourceKmsDataKeyV1(),
+			"huaweicloud_rds_flavors_v1":         dataSourceRdsFlavorV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -213,6 +214,9 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_s3_bucket":                       resourceS3Bucket(),
 			"huaweicloud_s3_bucket_policy":                resourceS3BucketPolicy(),
 			"huaweicloud_s3_bucket_object":                resourceS3BucketObject(),
+			"huaweicloud_smn_topic_v2":                    resourceTopic(),
+			"huaweicloud_smn_subscription_v2":             resourceSubscription(),
+			"huaweicloud_rds_instance_v1":                 resourceRdsInstance(),
 			"huaweicloud_vpc_nat_gateway_v2":              resourceVpcNatGatewayV2(),
 		},
 

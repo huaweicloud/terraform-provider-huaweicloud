@@ -5,6 +5,17 @@ import (
 	"time"
 )
 
+func ValidateStringList(v interface{}, k string, l []string) (ws []string, errors []error) {
+	value := v.(string)
+	for i := range l {
+		if value == l[i] {
+			return
+		}
+	}
+	errors = append(errors, fmt.Errorf("%q must be one of %v", k, l))
+	return
+}
+
 func validateS3BucketLifecycleTimestamp(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	_, err := time.Parse(time.RFC3339, fmt.Sprintf("%sT00:00:00Z", value))
