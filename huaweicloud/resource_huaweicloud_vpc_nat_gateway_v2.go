@@ -43,9 +43,10 @@ func resourceVpcNatGatewayV2() *schema.Resource {
 				ForceNew: false,
 			},
 			"spec": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: false,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     false,
+				ValidateFunc: resourceNatGatewayV2ValidateSpec,
 			},
 			"tenant_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -195,7 +196,7 @@ func waitForNatGatewayActive(vpcV2Client *golangsdk.ServiceClient, nId string) r
 		}
 
 		log.Printf("[DEBUG] HuaweiCloud Nat Gateway: %+v", n)
-		if n.Status == "DOWN" || n.Status == "ACTIVE" {
+		if n.Status == "ACTIVE" {
 			return n, "ACTIVE", nil
 		}
 
@@ -228,4 +229,17 @@ func waitForNatGatewayDelete(vpcV2Client *golangsdk.ServiceClient, nId string) r
 		log.Printf("[DEBUG] HuaweiCloud Nat Gateway %s still active.\n", nId)
 		return n, "ACTIVE", nil
 	}
+}
+
+var Specs = [4]string{"1", "2", "3", "4"}
+
+func resourceNatGatewayV2ValidateSpec(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	for i := range Specs {
+		if value == Specs[i] {
+			return
+		}
+	}
+	errors = append(errors, fmt.Errorf("%q must be one of %v", k, Specs))
+	return
 }
