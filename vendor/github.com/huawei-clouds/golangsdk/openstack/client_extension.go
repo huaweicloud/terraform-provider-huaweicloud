@@ -2,11 +2,12 @@ package openstack
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/huawei-clouds/golangsdk"
 	tokens2 "github.com/huawei-clouds/golangsdk/openstack/identity/v2/tokens"
 	tokens3 "github.com/huawei-clouds/golangsdk/openstack/identity/v3/tokens"
 	"github.com/huawei-clouds/golangsdk/openstack/utils"
-	"strings"
 )
 
 func GetProjectId(client *golangsdk.ProviderClient) (string, error) {
