@@ -45,11 +45,6 @@ func resourceKmsKeyV1() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"key_usage": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "Encrypt_Decrypt",
-			},
 			"domain_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -98,7 +93,6 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 		KeyAlias:       d.Get("key_alias").(string),
 		KeyDescription: d.Get("key_description").(string),
 		Realm:          d.Get("realm").(string),
-		KeyUsage:       d.Get("key_usage").(string),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -125,6 +119,17 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf(
 			"Error waiting for key (%s) to become ready: %s",
 			v.KeyID, err)
+	}
+
+	if !d.Get("is_enabled").(bool) {
+		key, err := keys.DisableKey(kmsKeyV1Client, v.KeyID).ExtractKeyInfo()
+		if err != nil {
+			return fmt.Errorf("Error disabling key: %s.", err)
+		}
+
+		if key.KeyState != DisabledState {
+			return fmt.Errorf("Error disabling key, the key state is: %s", key.KeyState)
+		}
 	}
 
 	// Store the key ID now
