@@ -15,6 +15,7 @@ import (
 var (
 	OS_AVAILABILITY_ZONE      = os.Getenv("OS_AVAILABILITY_ZONE")
 	OS_DEPRECATED_ENVIRONMENT = os.Getenv("OS_DEPRECATED_ENVIRONMENT")
+	OS_DNS_ENVIRONMENT        = os.Getenv("OS_DNS_ENVIRONMENT")
 	OS_EXTGW_ID               = os.Getenv("OS_EXTGW_ID")
 	OS_FLAVOR_ID              = os.Getenv("OS_FLAVOR_ID")
 	OS_FLAVOR_NAME            = os.Getenv("OS_FLAVOR_NAME")
@@ -28,6 +29,7 @@ var (
 	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
 	OS_AZ_ID                  = os.Getenv("OS_AZ_ID")
 	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
+	OS_ULB_ENVIRONMENT        = os.Getenv("OS_ULB_ENVIRONMENT")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -99,6 +101,22 @@ func testAccPreCheckAdminOnly(t *testing.T) {
 	v := os.Getenv("OS_USERNAME")
 	if v != "admin" {
 		t.Skip("Skipping test because it requires the admin user")
+	}
+}
+
+func testAccPreCheckDNS(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_DNS_ENVIRONMENT == "" {
+		t.Skip("This environment does not support DNS tests")
+	}
+}
+
+func testAccPreCheckULB(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_ULB_ENVIRONMENT == "" {
+		t.Skip("This environment does not support ULB tests")
 	}
 }
 
