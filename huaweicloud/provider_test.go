@@ -27,7 +27,6 @@ var (
 	OS_ACCESS_KEY             = os.Getenv("OS_ACCESS_KEY")
 	OS_SECRET_KEY             = os.Getenv("OS_SECRET_KEY")
 	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
-	OS_AZ_ID                  = os.Getenv("OS_AZ_ID")
 	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
 	OS_ULB_ENVIRONMENT        = os.Getenv("OS_ULB_ENVIRONMENT")
 )
@@ -78,6 +77,9 @@ func testAccPreCheckRequiredEnvVars(t *testing.T) {
 	if OS_EXTGW_ID == "" {
 		t.Fatal("OS_EXTGW_ID must be set for acceptance tests")
 	}
+	if OS_VPC_ID == "" {
+		t.Fatal("OS_VPC_ID must be set for acceptance tests")
+	}
 }
 
 func testAccPreCheck(t *testing.T) {
@@ -117,6 +119,14 @@ func testAccPreCheckULB(t *testing.T) {
 
 	if OS_ULB_ENVIRONMENT == "" {
 		t.Skip("This environment does not support ULB tests")
+	}
+}
+
+func testAccPreCheckELB(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_TENANT_ID == "" {
+		t.Skip("This environment does not support ELB tests")
 	}
 }
 
