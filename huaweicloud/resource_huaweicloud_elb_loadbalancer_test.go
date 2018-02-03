@@ -15,7 +15,7 @@ func TestAccELBLoadBalancer_basic(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckELB(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckELBLoadBalancerDestroy,
 		Steps: []resource.TestStep{
@@ -43,7 +43,7 @@ func TestAccELBLoadBalancer_secGroup(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckELB(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckELBLoadBalancerDestroy,
 		Steps: []resource.TestStep{
@@ -188,7 +188,7 @@ resource "huaweicloud_elb_loadbalancer" "loadbalancer_1" {
   security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup_1.id}"
   depends_on = ["huaweicloud_networking_router_interface_v2.interface"]
 }
-`, OS_VPC_ID, OS_VPC_ID, OS_AZ_ID, OS_TENANT_ID)
+`, OS_VPC_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE, OS_TENANT_ID)
 
 var testAccELBLoadBalancer_internal_update = fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
@@ -223,4 +223,4 @@ resource "huaweicloud_elb_loadbalancer" "loadbalancer_1" {
   security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup_1.id}"
   depends_on = ["huaweicloud_networking_router_interface_v2.interface"]
 }
-`, OS_VPC_ID, OS_VPC_ID, OS_AZ_ID, OS_TENANT_ID)
+`, OS_VPC_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE, OS_TENANT_ID)
