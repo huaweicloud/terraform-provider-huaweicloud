@@ -184,8 +184,8 @@ func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 		Target:     []string{"DELETED"},
 		Refresh:    waitForFloatingIPDelete(networkingClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      10 * time.Second,
-		MinTimeout: 8 * time.Second,
+		Delay:      5 * time.Second,
+		MinTimeout: 3 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()
@@ -283,6 +283,10 @@ func waitForFloatingIPDelete(networkingClient *gophercloud.ServiceClient, fId st
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Floating IP %s", fId)
 				return f, "DELETED", nil
 			}
+			if _, ok := err.(gophercloud.ErrDefault500); ok {
+				log.Printf("[DEBUG] Got 500 error when delting HuaweiCloud Floating IP %s, it should be stream control on API server, try again later", fId)
+				return f, "ACTIVE", nil
+			}
 			return f, "ACTIVE", err
 		}
 
@@ -291,6 +295,10 @@ func waitForFloatingIPDelete(networkingClient *gophercloud.ServiceClient, fId st
 			if _, ok := err.(gophercloud.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Floating IP %s", fId)
 				return f, "DELETED", nil
+			}
+			if _, ok := err.(gophercloud.ErrDefault500); ok {
+				log.Printf("[DEBUG] Got 500 error when delting HuaweiCloud Floating IP %s, it should be stream control on API server, try again later", fId)
+				return f, "ACTIVE", nil
 			}
 			return f, "ACTIVE", err
 		}
