@@ -1,19 +1,19 @@
 ---
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_vpc_nat_gateway_v2"
-sidebar_current: "docs-huaweicloud-resource-vpc-nat-gateway-v2"
+page_title: "HuaweiCloud: huaweicloud_nat_gateway_v2"
+sidebar_current: "docs-huaweicloud-resource-nat-gateway-v2"
 description: |-
-  Manages a V2 nat gateway resource within HuaweiCloud VPC.
+  Manages a V2 nat gateway resource within HuaweiCloud Nat.
 ---
 
-# huaweicloud\_vpc\_nat\_gateway_v2
+# huaweicloud\_nat\_gateway_v2
 
-Manages a V2 nat gateway resource within HuaweiCloud VPC
+Manages a V2 nat gateway resource within HuaweiCloud Nat
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_vpc_nat_gateway_v2" "nat_1" {
+resource "huaweicloud_nat_gateway_v2" "nat_1" {
   name   = "Terraform"
   description = "test for terraform2"
   spec = "3"
@@ -26,7 +26,7 @@ resource "huaweicloud_vpc_nat_gateway_v2" "nat_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 VPC client.
+* `region` - (Optional) The region in which to obtain the V2 nat client.
     If omitted, the `region` argument of the provider is used. Changing this
     creates a new nat gateway.
 

@@ -784,14 +784,14 @@
 		{
 			"checksumSHA1": "ekKUkWESKh0z4semIaQzL78WZpQ=",
 			"path": "github.com/huawei-clouds/golangsdk",
-			"revision": "f89ec8ecd5baa5abfc28f98720e628b06252bff4",
-			"revisionTime": "2018-01-31T09:43:40Z"
+			"revision": "7157f438d0c63cfb1f3f2df21eab9c3dba138a05",
+			"revisionTime": "2018-02-03T08:05:02Z"
 		},
 		{
-			"checksumSHA1": "n3D8aLoibG0vsF7ocfFNBw8ou4k=",
+			"checksumSHA1": "C9QqaHdKvgE3OBrBOgY3+0+URWM=",
 			"path": "github.com/huawei-clouds/golangsdk/openstack",
-			"revision": "b2b972e40354f0e003b4b5727c96c53d7b4624b4",
-			"revisionTime": "2018-02-02T13:34:17Z"
+			"revision": "7157f438d0c63cfb1f3f2df21eab9c3dba138a05",
+			"revisionTime": "2018-02-03T08:05:02Z"
 		},
 		{
 			"checksumSHA1": "JFcRnFQw8hL69q06qHAOnNHP5ac=",
@@ -860,6 +860,18 @@
 			"revisionTime": "2018-01-31T09:43:40Z"
 		},
 		{
+			"checksumSHA1": "fZJMoX+8GTvDxYDjAklcE5rDjBU=",
+			"path": "github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/natgateways",
+			"revision": "7157f438d0c63cfb1f3f2df21eab9c3dba138a05",
+			"revisionTime": "2018-02-03T08:05:02Z"
+		},
+		{
+			"checksumSHA1": "aOReQ2naw0bHztbeHe/mphCfkl8=",
+			"path": "github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/snatrules",
+			"revision": "7157f438d0c63cfb1f3f2df21eab9c3dba138a05",
+			"revisionTime": "2018-02-03T08:05:02Z"
+		},
+		{
 			"checksumSHA1": "sV8JoChkwct1Bj03TWpBdhTwdqE=",
 			"path": "github.com/huawei-clouds/golangsdk/openstack/rds/v1/datastores",
 			"revision": "b2b972e40354f0e003b4b5727c96c53d7b4624b4",
@@ -894,18 +906,6 @@
 			"path": "github.com/huawei-clouds/golangsdk/openstack/utils",
 			"revision": "f89ec8ecd5baa5abfc28f98720e628b06252bff4",
 			"revisionTime": "2018-01-31T09:43:40Z"
-		},
-		{
-			"checksumSHA1": "FSM36F+2r/t8zfyQ3PFIwlDQ5CE=",
-			"path": "github.com/huawei-clouds/golangsdk/openstack/vpc/v2/natgateways",
-			"revision": "f89ec8ecd5baa5abfc28f98720e628b06252bff4",
-			"revisionTime": "2018-01-31T09:43:40Z"
-		},
-		{
-			"checksumSHA1": "M8qf6AmtZ96OD1Te8ai1YVKUsGg=",
-			"path": "github.com/huawei-clouds/golangsdk/openstack/vpc/v2/snatrules",
-			"revision": "3fac2bc8b2af75ea3bb5aa65b3ddc5d6e92c72f0",
-			"revisionTime": "2018-02-01T03:00:06Z"
 		},
 		{
 			"checksumSHA1": "pSrDwD6zRk4uut7wdda1T8hVm9w=",

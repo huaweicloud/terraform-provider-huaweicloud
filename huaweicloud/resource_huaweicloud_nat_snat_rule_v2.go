@@ -9,14 +9,14 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"github.com/huawei-clouds/golangsdk"
-	"github.com/huawei-clouds/golangsdk/openstack/vpc/v2/snatrules"
+	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/snatrules"
 )
 
-func resourceVpcSnatRuleV2() *schema.Resource {
+func resourceNatSnatRuleV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceVpcSnatRuleV2Create,
-		Read:   resourceVpcSnatRuleV2Read,
-		Delete: resourceVpcSnatRuleV2Delete,
+		Create: resourceNatSnatRuleV2Create,
+		Read:   resourceNatSnatRuleV2Read,
+		Delete: resourceNatSnatRuleV2Delete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -49,11 +49,11 @@ func resourceVpcSnatRuleV2() *schema.Resource {
 	}
 }
 
-func resourceVpcSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error {
+func resourceNatSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vpcV2Client, err := config.vpcV2Client(GetRegion(d, config))
+	natV2Client, err := config.natV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud vpc client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
 	createOpts := &snatrules.CreateOpts{
@@ -63,7 +63,7 @@ func resourceVpcSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	snatRule, err := snatrules.Create(vpcV2Client, createOpts).Extract()
+	snatRule, err := snatrules.Create(natV2Client, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creatting Snat Rule: %s", err)
 	}
@@ -72,7 +72,7 @@ func resourceVpcSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
-		Refresh:    waitForSnatRuleActive(vpcV2Client, snatRule.ID),
+		Refresh:    waitForSnatRuleActive(natV2Client, snatRule.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -85,17 +85,17 @@ func resourceVpcSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error
 
 	d.SetId(snatRule.ID)
 
-	return resourceVpcSnatRuleV2Read(d, meta)
+	return resourceNatSnatRuleV2Read(d, meta)
 }
 
-func resourceVpcSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
+func resourceNatSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vpcV2Client, err := config.vpcV2Client(GetRegion(d, config))
+	natV2Client, err := config.natV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud vpc client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
-	snatRule, err := snatrules.Get(vpcV2Client, d.Id()).Extract()
+	snatRule, err := snatrules.Get(natV2Client, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "Snat Rule")
 	}
@@ -109,17 +109,17 @@ func resourceVpcSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceVpcSnatRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceNatSnatRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vpcV2Client, err := config.vpcV2Client(GetRegion(d, config))
+	natV2Client, err := config.natV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud vpc client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
-		Refresh:    waitForSnatRuleDelete(vpcV2Client, d.Id()),
+		Refresh:    waitForSnatRuleDelete(natV2Client, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -134,9 +134,9 @@ func resourceVpcSnatRuleV2Delete(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-func waitForSnatRuleActive(vpcV2Client *golangsdk.ServiceClient, nId string) resource.StateRefreshFunc {
+func waitForSnatRuleActive(natV2Client *golangsdk.ServiceClient, nId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		n, err := snatrules.Get(vpcV2Client, nId).Extract()
+		n, err := snatrules.Get(natV2Client, nId).Extract()
 		if err != nil {
 			return nil, "", err
 		}
@@ -150,11 +150,11 @@ func waitForSnatRuleActive(vpcV2Client *golangsdk.ServiceClient, nId string) res
 	}
 }
 
-func waitForSnatRuleDelete(vpcV2Client *golangsdk.ServiceClient, nId string) resource.StateRefreshFunc {
+func waitForSnatRuleDelete(natV2Client *golangsdk.ServiceClient, nId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Snat Rule %s.\n", nId)
 
-		n, err := snatrules.Get(vpcV2Client, nId).Extract()
+		n, err := snatrules.Get(natV2Client, nId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Snat Rule %s", nId)
@@ -163,7 +163,7 @@ func waitForSnatRuleDelete(vpcV2Client *golangsdk.ServiceClient, nId string) res
 			return n, "ACTIVE", err
 		}
 
-		err = snatrules.Delete(vpcV2Client, nId).ExtractErr()
+		err = snatrules.Delete(natV2Client, nId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Snat Rule %s", nId)

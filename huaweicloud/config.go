@@ -437,8 +437,8 @@ func (c *Config) kmsKeyV1Client(region string) (*golangsdk.ServiceClient, error)
 	})
 }
 
-func (c *Config) vpcV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewVpcV2(c.HwClient, golangsdk.EndpointOpts{
+func (c *Config) natV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.NewNatV2(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getHwEndpointType(),
 	})
