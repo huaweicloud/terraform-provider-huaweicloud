@@ -86,6 +86,7 @@ func testAccCheckELBBackendExists(n string, backend *backendecs.Backend) resourc
 var TestAccELBBackendConfig_basic = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "vm_1" {
   name = "instance_1"
+  availability_zone = "%s"
   network {
     uuid = "%s"
   }
@@ -122,4 +123,4 @@ resource "huaweicloud_elb_backendecs" "backend_1" {
   listener_id = "${huaweicloud_elb_listener.listener_1.id}"
   server_id = "${huaweicloud_compute_instance_v2.vm_1.id}"
 }
-`, OS_NETWORK_ID, OS_VPC_ID)
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID, OS_VPC_ID)
