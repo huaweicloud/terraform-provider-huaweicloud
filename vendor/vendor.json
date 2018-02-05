@@ -842,10 +842,10 @@
 			"revisionTime": "2018-01-31T09:43:40Z"
 		},
 		{
-			"checksumSHA1": "4WRmfnSdURe6GLxCDz7wON38kes=",
+			"checksumSHA1": "SZZM5w97sHHccJuCBplTQRhfHlc=",
 			"path": "github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb/healthcheck",
-			"revision": "f89ec8ecd5baa5abfc28f98720e628b06252bff4",
-			"revisionTime": "2018-01-31T09:43:40Z"
+			"revision": "911aa27362aa65bb40692cc0d5ea935275d5a038",
+			"revisionTime": "2018-02-05T01:46:04Z"
 		},
 		{
 			"checksumSHA1": "enW6H448w7dN1S7NmKPO/7Lylr4=",
