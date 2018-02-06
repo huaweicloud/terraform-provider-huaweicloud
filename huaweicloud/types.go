@@ -12,10 +12,6 @@ import (
 
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/keypairs"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/servergroups"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/fwaas/firewalls"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/fwaas/policies"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/fwaas/routerinsertion"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/fwaas/rules"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
@@ -23,6 +19,10 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
 	"github.com/huawei-clouds/golangsdk/openstack/dns/v2/recordsets"
 	"github.com/huawei-clouds/golangsdk/openstack/dns/v2/zones"
+	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/fwaas_v2/firewall_groups"
+	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
+	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/fwaas_v2/routerinsertion"
+	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules"
 )
 
 // LogRoundTripper satisfies the http.RoundTripper interface and is used to
@@ -153,30 +153,30 @@ func (lrt *LogRoundTripper) formatJSON(raw []byte) string {
 	return string(pretty)
 }
 
-// Firewall is an HuaweiCloud firewall.
-type Firewall struct {
-	firewalls.Firewall
-	routerinsertion.FirewallExt
+// FirewallGroup is an OpenTelekomCloud firewall group.
+type FirewallGroup struct {
+	firewall_groups.FirewallGroup
+	routerinsertion.FirewallGroupExt
 }
 
-// FirewallCreateOpts represents the attributes used when creating a new firewall.
-type FirewallCreateOpts struct {
-	firewalls.CreateOpts
+// FirewallGroupCreateOpts represents the attributes used when creating a new firewall.
+type FirewallGroupCreateOpts struct {
+	firewall_groups.CreateOpts
 	ValueSpecs map[string]string `json:"value_specs,omitempty"`
 }
 
 // ToFirewallCreateMap casts a CreateOptsExt struct to a map.
 // It overrides firewalls.ToFirewallCreateMap to add the ValueSpecs field.
-func (opts FirewallCreateOpts) ToFirewallCreateMap() (map[string]interface{}, error) {
-	return BuildRequest(opts, "firewall")
+func (opts FirewallGroupCreateOpts) ToFirewallCreateMap() (map[string]interface{}, error) {
+	return BuildRequest(opts, "firewall_group")
 }
 
 //FirewallUpdateOpts
-type FirewallUpdateOpts struct {
-	firewalls.UpdateOptsBuilder
+type FirewallGroupUpdateOpts struct {
+	firewall_groups.UpdateOptsBuilder
 }
 
-func (opts FirewallUpdateOpts) ToFirewallUpdateMap() (map[string]interface{}, error) {
+func (opts FirewallGroupUpdateOpts) ToFirewallUpdateMap() (map[string]interface{}, error) {
 	return BuildRequest(opts, "firewall")
 }
 
