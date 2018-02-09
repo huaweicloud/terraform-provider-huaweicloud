@@ -3,10 +3,10 @@ layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_kms-key-v1"
 sidebar_current: "docs-huaweicloud-resource-kms-key-v1"
 description: |-
-  Manages a V3 key resource within KMS.
+  Manages a V1 key resource within KMS.
 ---
 
-# huaweicloud\_kms\_key_v3
+# huaweicloud\_kms\_key_v1
 
 Manages a V1 key resource within KMS.
 
@@ -14,9 +14,9 @@ Manages a V1 key resource within KMS.
 
 ```hcl
 resource "huaweicloud_kms_key_v1" "key_1" {
-  key_alias        =  "key_1"
-  pending_days     =  "7"
-  key_description  = "first test key"
+  key_alias       = "key_1"
+  pending_days    = "7"
+  key_description = "first test key"
 }
 ```
 
