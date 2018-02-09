@@ -59,15 +59,13 @@ type EncryptDEKOpts struct {
 	PlainText string `json:"plain_text" required:"true"`
 }
 
-
-
 // ListOpts holds options for listing Volumes. It is passed to the volumes.List
 // function.
 type ListOpts struct {
 	// State of a CMK
 	KeyState string `json:"key_state,omitempty"`
-	Limit string `json:"limit,omitempty"`
-	Marker string `json:"marker,omitempty"`
+	Limit    string `json:"limit,omitempty"`
+	Marker   string `json:"marker,omitempty"`
 }
 
 // ToKeyCreateMap assembles a request body based on the contents of a
@@ -167,7 +165,7 @@ func Delete(client *golangsdk.ServiceClient, opts DeleteOptsBuilder) (r DeleteRe
 		return
 	}
 	_, r.Err = client.Post(deleteURL(client), b, &r.Body, &golangsdk.RequestOpts{
-		OkCodes: []int{200},
+		OkCodes:      []int{200},
 		JSONResponse: &r.Body,
 	})
 	return
@@ -249,7 +247,6 @@ func DisableKey(client *golangsdk.ServiceClient, id string) (r ExtractUpdateKeyS
 	return
 }
 
-
 func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) (r ListResult) {
 	b, err := opts.ToKeyListMap()
 	if err != nil {
@@ -273,7 +270,6 @@ func ListAllKeys(client *golangsdk.ServiceClient, opts ListOptsBuilder) (r ListR
 	})
 	return
 }
-
 
 //func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) (r GetResult) {
 //	//url := listURL(client)
