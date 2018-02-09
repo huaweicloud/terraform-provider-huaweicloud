@@ -17,6 +17,8 @@ resource "huaweicloud_kms_key_v1" "key_1" {
   key_alias       = "key_1"
   pending_days    = "7"
   key_description = "first test key"
+  realm           = "cn-north-1"
+  is_enabled      = true
 }
 ```
 
@@ -37,7 +39,7 @@ The following arguments are supported:
     have default value. It only be used when delete a key.
 
 * `is_enabled` - (Optional) Specifies whether the key is enabled. Defaults to true.
-    Changing this updates the existing key's state.
+    Changing this updates the state of existing key.
 
 
 ## Attributes Reference
