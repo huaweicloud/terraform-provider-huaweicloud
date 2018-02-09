@@ -6,9 +6,10 @@ description: |-
   Get information on an HuaweiCloud KMS data encryption key.
 ---
 
-# huaweicloud\_kms\_data_key\_v1
+# huaweicloud\_kms\_data_key_v1
 
-Use this data source to get the ID of an available HuaweiCloud KMS data encryption key.
+Use this data source to get the plaintext and the ciphertext of an available
+HuaweiCloud KMS DEK (data encryption key).
 
 ## Example Usage
 
@@ -43,7 +44,7 @@ data "huaweicloud_kms_data_key_v1" "kms_datakey1" {
 
 ## Attributes Reference
 
-`id` is set to the ID of the found data key. In addition, the following attributes
+`id` is set to the date of the found data key. In addition, the following attributes
 are exported:
 
 * `plain_text` - The plaintext of a DEK is expressed in hexadecimal format, and two

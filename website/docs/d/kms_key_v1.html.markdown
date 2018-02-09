@@ -6,7 +6,7 @@ description: |-
   Get information on an HuaweiCloud KMS Key.
 ---
 
-# huaweicloud\_kms\_key\_v1
+# huaweicloud\_kms\_key_v1
 
 Use this data source to get the ID of an available HuaweiCloud KMS key.
 
@@ -15,10 +15,14 @@ Use this data source to get the ID of an available HuaweiCloud KMS key.
 ```hcl
 
 data "huaweicloud_kms_key_v1" "key_1" {
-  key_alias       = "test_key"
-  key_description = "test key description"
-  key_state       = "2"
-  key_id          = "${huaweicloud_kms_key_v1.key1.id}"
+  key_alias        = "test_key"
+  key_description  = "test key description"
+  key_state        = "2"
+  key_id           = "af650527-a0ff-4527-aef3-c493df1f3012"
+  realm            = "cn-north-1"
+  default_key_flag = "0"
+  domain_id        = "b168fe00ff56492495a7d22974df2d0b"
+  origin           = "kms"
 }
 ```
 
@@ -34,16 +38,16 @@ data "huaweicloud_kms_key_v1" "key_1" {
 
 * `key_id` - (Optional) The globally unique identifier for the key. Changing this gets the new key.
 
-* `default_key_flag` - (Optional) Identification of a Master Key. The value 1 indicates a Default
-    Master Key, and the value 0 indicates a key. Changing this gets the new key.
+* `default_key_flag` - (Optional) Identification of a Master Key. The value "1" indicates a Default
+    Master Key, and the value "0" indicates a key. Changing this gets a new key.
 
 * `key_state` - (Optional) The state of a key. "1" indicates that the key is waiting to be activated.
     "2" indicates that the key is enabled. "3" indicates that the key is disabled. "4" indicates that
-    the key is scheduled for deletion. Changing this gets the new key.
+    the key is scheduled for deletion. Changing this gets a new key.
 
-* `domain_id` - (Optional)  - ID of a user domain for the key. Changing this gets the new key.
+* `domain_id` - (Optional)  - ID of a user domain for the key. Changing this gets a new key.
 
-* `origin` - Origin of a key. such as: kms. Changing this gets the new key.
+* `origin` - Origin of a key. such as: kms. Changing this gets a new key.
 
 ## Attributes Reference
 
