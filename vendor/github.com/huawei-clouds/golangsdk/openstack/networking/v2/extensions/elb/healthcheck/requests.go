@@ -39,7 +39,7 @@ func (opts CreateOpts) ToHealthCheckCreateMap() (map[string]interface{}, error) 
 //
 // Users with an admin role can create loadbalancers on behalf of other tenants by
 // specifying a TenantID attribute different than their own.
-func Create(c *golangsdk.ServiceClientExtension, opts CreateOptsBuilder) (r CreateResult) {
+func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult) {
 	b, err := opts.ToHealthCheckCreateMap()
 	if err != nil {
 		r.Err = err
@@ -52,7 +52,7 @@ func Create(c *golangsdk.ServiceClientExtension, opts CreateOptsBuilder) (r Crea
 }
 
 // Get retrieves a particular Loadbalancer based on its unique ID.
-func Get(c *golangsdk.ServiceClientExtension, id string) (r GetResult) {
+func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
 	_, r.Err = c.Get(resourceURL(c, id), &r.Body, nil)
 	return
 }
@@ -91,7 +91,7 @@ func (opts UpdateOpts) ToHealthCheckUpdateMap() (map[string]interface{}, error) 
 }
 
 // Update is an operation which modifies the attributes of the specified HealthCheck.
-func Update(c *golangsdk.ServiceClientExtension, id string, opts UpdateOpts) (r UpdateResult) {
+func Update(c *golangsdk.ServiceClient, id string, opts UpdateOpts) (r UpdateResult) {
 	b, err := opts.ToHealthCheckUpdateMap()
 	if err != nil {
 		r.Err = err
@@ -104,7 +104,7 @@ func Update(c *golangsdk.ServiceClientExtension, id string, opts UpdateOpts) (r 
 }
 
 // Delete will permanently delete a particular HealthCheck based on its unique ID.
-func Delete(c *golangsdk.ServiceClientExtension, id string) (r DeleteResult) {
+func Delete(c *golangsdk.ServiceClient, id string) (r DeleteResult) {
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{204}}
 	_, r.Err = c.Delete(resourceURL(c, id), reqOpt)
 	return

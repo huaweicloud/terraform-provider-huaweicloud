@@ -8,10 +8,10 @@ const (
 	memberPath   = "members"
 )
 
-func rootURL(c *golangsdk.ServiceClientExtension, lId string) string {
+func rootURL(c *golangsdk.ServiceClient, lId string) string {
 	return c.ServiceURL(c.ProjectID, rootPath, resourcePath, lId, memberPath)
 }
 
-func actionURL(c *golangsdk.ServiceClientExtension, lId string) string {
+func actionURL(c *golangsdk.ServiceClient, lId string) string {
 	return c.ServiceURL(c.ProjectID, rootPath, resourcePath, lId, memberPath, "action")
 }

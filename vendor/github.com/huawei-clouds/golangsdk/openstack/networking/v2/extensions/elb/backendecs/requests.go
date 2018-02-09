@@ -34,7 +34,7 @@ func (opts CreateOpts) ToBackendECSCreateMap() (map[string]interface{}, error) {
 //
 // Users with an admin role can create loadbalancers on behalf of other tenants by
 // specifying a TenantID attribute different than their own.
-func Create(c *golangsdk.ServiceClientExtension, opts CreateOptsBuilder, lId string) (r elb.JobResult) {
+func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder, lId string) (r elb.JobResult) {
 	b, err := opts.ToBackendECSCreateMap()
 	if err != nil {
 		r.Err = err
@@ -68,7 +68,7 @@ func (opts getOpts) ToBackendECSListQuery() (string, error) {
 }
 
 // Get retrieves a particular Loadbalancer based on its unique ID.
-func Get(c *golangsdk.ServiceClientExtension, lId string, backendId string) (r GetResult) {
+func Get(c *golangsdk.ServiceClient, lId string, backendId string) (r GetResult) {
 	url := rootURL(c, lId)
 	opts := getOpts{ID: backendId}
 	query, err := opts.ToBackendECSListQuery()
@@ -116,7 +116,7 @@ func (opts DeleteOpts) ToBackendECSDeleteMap() (map[string]interface{}, error) {
 }
 
 // Update is an operation which modifies the attributes of the specified BackendECS.
-func Delete(c *golangsdk.ServiceClientExtension, lId string, opts DeleteOpts) (r elb.JobResult) {
+func Delete(c *golangsdk.ServiceClient, lId string, opts DeleteOpts) (r elb.JobResult) {
 	b, err := opts.ToBackendECSDeleteMap()
 	if err != nil {
 		r.Err = err

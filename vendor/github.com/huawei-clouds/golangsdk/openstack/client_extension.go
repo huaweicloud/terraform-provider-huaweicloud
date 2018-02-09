@@ -88,8 +88,8 @@ func initClientOptsExtension(client *golangsdk.ProviderClient, eo golangsdk.Endp
 
 //NewAutoScalingService creates a ServiceClient that may be used to access the
 //auto-scaling service of huawei public cloud
-func NewAutoScalingService(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClientExtension, error) {
-	sc, err := initClientOptsExtension(client, eo, "as")
+func NewAutoScalingService(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "as")
 	return sc, err
 }
 
@@ -104,9 +104,9 @@ func NewKmsKeyV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*
 	return sc, err
 }
 
-func NewElasticLoadBalancer(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClientExtension, error) {
+func NewElasticLoadBalancer(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	//sc, err := initClientOpts1(client, eo, "elb")
-	sc, err := initClientOptsExtension(client, eo, "compute")
+	sc, err := initClientOpts(client, eo, "compute")
 	if err != nil {
 		return sc, err
 	}

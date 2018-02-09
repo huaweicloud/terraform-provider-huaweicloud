@@ -56,6 +56,9 @@ type ProviderClient struct {
 	// To safely read or write this value, call `Token` or `SetToken`, respectively
 	TokenID string
 
+	// ProjectID is the ID of project to which User is authorized.
+	ProjectID string
+
 	// EndpointLocator describes how this provider discovers the endpoints for
 	// its constituent services.
 	EndpointLocator EndpointLocator

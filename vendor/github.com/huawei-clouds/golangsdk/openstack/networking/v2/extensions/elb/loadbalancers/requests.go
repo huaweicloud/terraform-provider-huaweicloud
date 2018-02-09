@@ -46,7 +46,7 @@ func (opts CreateOpts) ToLoadBalancerCreateMap() (map[string]interface{}, error)
 //
 // Users with an admin role can create loadbalancers on behalf of other tenants by
 // specifying a TenantID attribute different than their own.
-func Create(c *golangsdk.ServiceClientExtension, opts CreateOptsBuilder) (r elb.JobResult) {
+func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r elb.JobResult) {
 	b, err := opts.ToLoadBalancerCreateMap()
 	if err != nil {
 		r.Err = err
@@ -63,7 +63,7 @@ func Create(c *golangsdk.ServiceClientExtension, opts CreateOptsBuilder) (r elb.
 }
 
 // Get retrieves a particular Loadbalancer based on its unique ID.
-func Get(c *golangsdk.ServiceClientExtension, id string) (r GetResult) {
+func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
 	_, r.Err = c.Get(resourceURL(c, id), &r.Body, nil)
 	return
 }
@@ -96,7 +96,7 @@ func (opts UpdateOpts) ToLoadBalancerUpdateMap() (map[string]interface{}, error)
 }
 
 // Update is an operation which modifies the attributes of the specified LoadBalancer.
-func Update(c *golangsdk.ServiceClientExtension, id string, opts UpdateOpts, not_pass_param []string) (r elb.JobResult) {
+func Update(c *golangsdk.ServiceClient, id string, opts UpdateOpts, not_pass_param []string) (r elb.JobResult) {
 	b, err := opts.ToLoadBalancerUpdateMap()
 	if err != nil {
 		r.Err = err
@@ -110,7 +110,7 @@ func Update(c *golangsdk.ServiceClientExtension, id string, opts UpdateOpts, not
 }
 
 // Delete will permanently delete a particular LoadBalancer based on its unique ID.
-func Delete(c *golangsdk.ServiceClientExtension, id string) (r elb.JobResult) {
+func Delete(c *golangsdk.ServiceClient, id string) (r elb.JobResult) {
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
 	_, r.Err = c.Delete2(resourceURL(c, id), &r.Body, reqOpt)
 	return

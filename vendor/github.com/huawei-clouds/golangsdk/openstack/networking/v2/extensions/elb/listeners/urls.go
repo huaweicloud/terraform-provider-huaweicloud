@@ -7,10 +7,10 @@ const (
 	resourcePath = "listeners"
 )
 
-func rootURL(c *golangsdk.ServiceClientExtension) string {
+func rootURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL(c.ProjectID, rootPath, resourcePath)
 }
 
-func resourceURL(c *golangsdk.ServiceClientExtension, id string) string {
+func resourceURL(c *golangsdk.ServiceClient, id string) string {
 	return c.ServiceURL(c.ProjectID, rootPath, resourcePath, id)
 }

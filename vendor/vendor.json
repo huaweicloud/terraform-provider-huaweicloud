@@ -782,16 +782,16 @@
 			"revisionTime": "2016-07-20T23:31:40Z"
 		},
 		{
-			"checksumSHA1": "ekKUkWESKh0z4semIaQzL78WZpQ=",
+			"checksumSHA1": "MLT5ZJdHpi2ML2HTLe5llD2nkdI=",
 			"path": "github.com/huawei-clouds/golangsdk",
-			"revision": "7157f438d0c63cfb1f3f2df21eab9c3dba138a05",
-			"revisionTime": "2018-02-03T08:05:02Z"
+			"revision": "9c93de178fe061d52ca61233d83b23dcd24de9c6",
+			"revisionTime": "2018-02-09T02:52:28Z"
 		},
 		{
-			"checksumSHA1": "C9QqaHdKvgE3OBrBOgY3+0+URWM=",
+			"checksumSHA1": "vyvmi818y2g0ChuOm02o+o4SVEs=",
 			"path": "github.com/huawei-clouds/golangsdk/openstack",
-			"revision": "7157f438d0c63cfb1f3f2df21eab9c3dba138a05",
-			"revisionTime": "2018-02-03T08:05:02Z"
+			"revision": "9c93de178fe061d52ca61233d83b23dcd24de9c6",
+			"revisionTime": "2018-02-09T02:52:28Z"
 		},
 		{
 			"checksumSHA1": "JFcRnFQw8hL69q06qHAOnNHP5ac=",
@@ -830,34 +830,34 @@
 			"revisionTime": "2018-01-31T09:43:40Z"
 		},
 		{
-			"checksumSHA1": "44v1K9dDMzA6Cljt0kmJHjTvlL4=",
+			"checksumSHA1": "tYxfNGuhXJy/SLqYE1bif1qbr5I=",
 			"path": "github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb",
-			"revision": "f89ec8ecd5baa5abfc28f98720e628b06252bff4",
-			"revisionTime": "2018-01-31T09:43:40Z"
+			"revision": "9c93de178fe061d52ca61233d83b23dcd24de9c6",
+			"revisionTime": "2018-02-09T02:52:28Z"
 		},
 		{
-			"checksumSHA1": "YL7ywSp+ySIe7YlbBd2NufXAwus=",
+			"checksumSHA1": "9GA1LKRv3Fev5Vzo5ED5XKYEBho=",
 			"path": "github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb/backendecs",
-			"revision": "f89ec8ecd5baa5abfc28f98720e628b06252bff4",
-			"revisionTime": "2018-01-31T09:43:40Z"
+			"revision": "9c93de178fe061d52ca61233d83b23dcd24de9c6",
+			"revisionTime": "2018-02-09T02:52:28Z"
 		},
 		{
-			"checksumSHA1": "SZZM5w97sHHccJuCBplTQRhfHlc=",
+			"checksumSHA1": "mowq0oSHqQGbqPma24cTqIJ5z08=",
 			"path": "github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb/healthcheck",
-			"revision": "911aa27362aa65bb40692cc0d5ea935275d5a038",
-			"revisionTime": "2018-02-05T01:46:04Z"
+			"revision": "9c93de178fe061d52ca61233d83b23dcd24de9c6",
+			"revisionTime": "2018-02-09T02:52:28Z"
 		},
 		{
-			"checksumSHA1": "enW6H448w7dN1S7NmKPO/7Lylr4=",
+			"checksumSHA1": "yDObpIihOUukHSPHGG+Pw441qo4=",
 			"path": "github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb/listeners",
-			"revision": "d30a241f622896ff926125a2fa39ee67cff23470",
-			"revisionTime": "2018-02-03T10:14:45Z"
+			"revision": "9c93de178fe061d52ca61233d83b23dcd24de9c6",
+			"revisionTime": "2018-02-09T02:52:28Z"
 		},
 		{
-			"checksumSHA1": "qXqsstLPxCYN3gWG2WH/5FpCPP4=",
+			"checksumSHA1": "eUB6uZ5KeqWiW89fWgp4aiLZIBE=",
 			"path": "github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb/loadbalancers",
-			"revision": "f89ec8ecd5baa5abfc28f98720e628b06252bff4",
-			"revisionTime": "2018-01-31T09:43:40Z"
+			"revision": "9c93de178fe061d52ca61233d83b23dcd24de9c6",
+			"revisionTime": "2018-02-09T02:52:28Z"
 		},
 		{
 			"checksumSHA1": "fZJMoX+8GTvDxYDjAklcE5rDjBU=",

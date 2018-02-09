@@ -8,7 +8,7 @@ import (
 )
 
 type Job struct {
-	Uri   string `json: "uri"`
+	Uri   string `json:"uri"`
 	JobId string `json:"job_id"`
 }
 
@@ -46,7 +46,7 @@ func (r JobInfoResult) Extract() (*JobInfo, error) {
 	return j, err
 }
 
-func QueryJobInfo(c *golangsdk.ServiceClientExtension, uri string) (r JobInfoResult) {
+func QueryJobInfo(c *golangsdk.ServiceClient, uri string) (r JobInfoResult) {
 	vv := regexp.MustCompile("/v[0-9]+\\.?[0-9]*/?$")
 	e := c.ResourceBaseURL()
 	if vv.MatchString(e) {
