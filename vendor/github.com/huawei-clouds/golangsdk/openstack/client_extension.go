@@ -96,8 +96,7 @@ func NewAutoScalingService(client *golangsdk.ProviderClient, eo golangsdk.Endpoi
 // NewKmsKeyV1 creates a ServiceClient that may be used to access the v1
 // kms key service.
 func NewKmsKeyV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
-        sc, err := initClientOpts(client, eo, "kms")
-        sc.ResourceBase = sc.Endpoint
+	sc, err := initClientOpts(client, eo, "kms")
 	return sc, err
 }
 
