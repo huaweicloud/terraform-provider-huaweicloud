@@ -196,8 +196,22 @@ func resourceBlockStorageVolumeV2Read(d *schema.ResourceData, meta interface{}) 
 	d.Set("snapshot_id", v.SnapshotID)
 	d.Set("source_vol_id", v.SourceVolID)
 	d.Set("volume_type", v.VolumeType)
-	d.Set("metadata", v.Metadata)
 	d.Set("region", GetRegion(d, config))
+
+	// NOTE: This tries to remove system metadata on huawei cloud :(
+	md := make(map[string]string)
+	var sys_keys = [3]string{"billing", "resourceSpecCode", "resourceType"}
+
+OUTER:
+	for key, val := range v.Metadata {
+		for i := range sys_keys {
+			if key == sys_keys[i] {
+				continue OUTER
+			}
+		}
+		md[key] = val
+	}
+	d.Set("metadata", md)
 
 	attachments := make([]map[string]interface{}, len(v.Attachments))
 	for i, attachment := range v.Attachments {
