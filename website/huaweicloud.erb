@@ -199,6 +199,49 @@
           </ul>
         </li>
 
+        <li<%= sidebar_current("docs-huaweicloud-s3") %>>
+          <a href="#">S3 Resource</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-huaweicloud-s3_bucket") %>>
+              <a href="/docs/providers/huaweicloud/r/s3_bucket.html">huaweicloud_s3_bucket</a>
+            </li>
+            <li<%= sidebar_current("docs-huaweicloud-s3-bucket-object") %>>
+              <a href="/docs/providers/huaweicloud/r/s3_bucket_object.html">huaweicloud_s3-bucket-object</a>
+            </li>
+            <li<%= sidebar_current("docs-huaweicloud-s3-bucket-policy") %>>
+              <a href="/docs/providers/huaweicloud/r/s3_bucket_policy.html">huaweicloud_s3_object_policy</a>
+            </li>
+          </ul>
+        </li>
+
+        <li<%= sidebar_current("docs-huaweicloud-smn") %>>
+          <a href="#">SMN Resource</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-huaweicloud-smn-subscription-v2") %>>
+              <a href="/docs/providers/huaweicloud/r/smn_subscription_v2.html">huaweicloud_smn_subscription_v2</a>
+            </li>
+            <li<%= sidebar_current("docs-huaweicloud-smn-topic-v2") %>>
+              <a href="/docs/providers/huaweicloud/r/smn_topic_v2.html">huaweicloud_smn_topic_v2</a>
+            </li>
+          </ul>
+        </li>
+
+        <li<%= sidebar_current("docs-huaweicloud-rds") %>>
+          <a href="#">RDS Resource</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-huaweicloud-rds-instance-v1") %>>
+              <a href="/docs/providers/huaweicloud/r/rds_instance_v1.html">huaweicloud_rds_instance_v1</a>
+            </li>
+          </ul>
+        </li>
+
+      </ul>
+    </div>
+  <% end %>
+
+  <%= yield %>
+  <% end %>
+
       </ul>
     </div>
   <% end %>
