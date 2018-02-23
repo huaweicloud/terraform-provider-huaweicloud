@@ -205,8 +205,8 @@ The `datastore` block supports:
 
 type | version
 ---- | ---
-PostgreSQL | 9.5.5 <br> 9.6.3 <br> 9.6.5
-MySQL| 5.6.33 <br>5.6.30  <br>5.6.34 <br>5.6.35 <br>5.6.36 <br>5.7.17 <br>5.7.20
+PostgreSQL | 9.5.5 <br> 9.6.3
+MySQL| 5.6.33 <br>5.6.30  <br>5.6.34 <br>5.6.35 <br>5.6.36 <br>5.7.17
 SQLServer| 2014 SP2 SE
 
 
