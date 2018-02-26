@@ -14,7 +14,6 @@ install:
 
 script:
 - make test
-- make vendor-status
 - make vet
 
 branches:
