@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+# This script helps new contributors set up their local workstation for
+# golangsdk development and contributions.
+
+# Create the environment
+export GOPATH=$HOME/go/golangsdk
+mkdir -p $GOPATH
+
+# Download golangsdk into that environment
+go get github.com/huaweicloud/golangsdk
+cd $GOPATH/src/github.com/huaweicloud/golangsdk
+git checkout master
+
+# Write out the env.sh convenience file.
+cd $GOPATH
+cat <<EOF >env.sh
+#!/bin/bash
+export GOPATH=$(pwd)
+export GOPHERCLOUD=$GOPATH/src/github.com/huaweicloud/golangsdk
+EOF
+chmod a+x env.sh
+
+# Make changes immediately available as a convenience.
+. ./env.sh
