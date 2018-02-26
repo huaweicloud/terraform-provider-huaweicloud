@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 
-	"github.com/huawei-clouds/golangsdk/openstack/dns/v2/zones"
+	"github.com/huaweicloud/golangsdk/openstack/dns/v2/zones"
 )
 
 func TestAccDNSV2Zone_basic(t *testing.T) {

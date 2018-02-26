@@ -8,8 +8,8 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb"
-	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb/backendecs"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/backendecs"
 )
 
 const nameELBBackend = "ELB-BackendECS"

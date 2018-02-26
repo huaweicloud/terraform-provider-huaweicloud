@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/huawei-clouds/golangsdk/openstack/smn/v2/topics"
+	"github.com/huaweicloud/golangsdk/openstack/smn/v2/topics"
 )
 
 // PASS

@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/huawei-clouds/golangsdk/openstack/kms/v1/keys"
+	"github.com/huaweicloud/golangsdk/openstack/kms/v1/keys"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 )

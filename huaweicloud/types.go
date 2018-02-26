@@ -17,12 +17,12 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/ports"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
-	"github.com/huawei-clouds/golangsdk/openstack/dns/v2/recordsets"
-	"github.com/huawei-clouds/golangsdk/openstack/dns/v2/zones"
-	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/fwaas_v2/firewall_groups"
-	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
-	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/fwaas_v2/routerinsertion"
-	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules"
+	"github.com/huaweicloud/golangsdk/openstack/dns/v2/recordsets"
+	"github.com/huaweicloud/golangsdk/openstack/dns/v2/zones"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/firewall_groups"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/routerinsertion"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules"
 )
 
 // LogRoundTripper satisfies the http.RoundTripper interface and is used to
