@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb/healthcheck"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/healthcheck"
 )
 
 const nameELBHC = "ELB-HealthCheck"

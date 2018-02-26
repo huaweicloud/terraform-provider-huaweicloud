@@ -11,10 +11,10 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/huawei-clouds/golangsdk"
-	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb"
-	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb/listeners"
-	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/elb/loadbalancers"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/listeners"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/loadbalancers"
 )
 
 func waitForELBJobSuccess(networkingClient *golangsdk.ServiceClient, j *elb.Job, timeout time.Duration) (*elb.JobInfo, error) {

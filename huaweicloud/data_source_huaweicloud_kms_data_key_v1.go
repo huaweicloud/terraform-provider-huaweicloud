@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/huawei-clouds/golangsdk/openstack/kms/v1/keys"
+	"github.com/huaweicloud/golangsdk/openstack/kms/v1/keys"
 	"time"
 )
 

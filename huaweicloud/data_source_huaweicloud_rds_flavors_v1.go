@@ -6,8 +6,8 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/huawei-clouds/golangsdk/openstack/rds/v1/datastores"
-	"github.com/huawei-clouds/golangsdk/openstack/rds/v1/flavors"
+	"github.com/huaweicloud/golangsdk/openstack/rds/v1/datastores"
+	"github.com/huaweicloud/golangsdk/openstack/rds/v1/flavors"
 )
 
 func dataSourceRdsFlavorV1() *schema.Resource {

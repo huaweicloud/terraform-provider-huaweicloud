@@ -10,7 +10,7 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
-	"github.com/huawei-clouds/golangsdk/openstack/networking/v2/extensions/natgateways"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/natgateways"
 )
 
 func TestAccNatGateway_basic(t *testing.T) {
