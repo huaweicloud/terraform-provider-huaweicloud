@@ -154,7 +154,7 @@ The following arguments are supported:
 * `versioning` - (Optional) A state of [versioning](https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html) (documented below)
 * `logging` - (Optional) A settings of [bucket logging](https://docs.aws.amazon.com/AmazonS3/latest/UG/ManagingBucketLogging.html) (documented below).
 * `lifecycle_rule` - (Optional) A configuration of [object lifecycle management](http://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html) (documented below).
-* `region` - (Optional) If specified, the AWS region this bucket should reside in. Otherwise, the region used by the callee.
+* `region` - (Optional) If specified, the region this bucket should reside in. Otherwise, the region used by the callee.
 
 The `website` object supports the following:
 
@@ -223,7 +223,7 @@ The following attributes are exported:
 * `arn` - The ARN of the bucket. Will be of format `arn:aws:s3:::bucketname`.
 * `bucket_domain_name` - The bucket domain name. Will be of format `bucketname.s3.amazonaws.com`.
 * `hosted_zone_id` - The [Route 53 Hosted Zone ID](https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_website_region_endpoints) for this bucket's region.
-* `region` - The AWS region this bucket resides in.
+* `region` - The region this bucket resides in.
 * `website_endpoint` - The website endpoint, if the bucket is configured with a website. If not, this will be an empty string.
 * `website_domain` - The domain of the website endpoint, if the bucket is configured with a website. If not, this will be an empty string. This is used to create Route 53 alias records.
 
