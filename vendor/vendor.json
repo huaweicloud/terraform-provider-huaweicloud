@@ -782,10 +782,22 @@
 			"revisionTime": "2016-07-20T23:31:40Z"
 		},
 		{
-			"checksumSHA1": "FbGvK1+hHFDA71nmf/5LzcI3A0o=",
-			"path": "github.com/huaweicloud/golangsdk/openstack",
+			"checksumSHA1": "IA4E+nb1/qO+x5aqVFAekCf9ESQ=",
+			"path": "github.com/huaweicloud/golangsdk",
 			"revision": "888f77744ab7c65bb4d448d5b5313edba29e76c7",
 			"revisionTime": "2018-02-24T07:23:49Z"
+		},
+		{
+			"checksumSHA1": "l7k3D1MR0PFMNGMkCaRCvEr4Yp8=",
+			"path": "github.com/huaweicloud/golangsdk/openstack",
+			"revision": "98f31e4f21bec892b331ee55c5a5fff72d407abc",
+			"revisionTime": "2018-02-26T07:57:01Z"
+		},
+		{
+			"checksumSHA1": "rxzrL96yNxCPSnCzErD87sSpcLs=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/cloudeyeservice/alarmrule",
+			"revision": "98f31e4f21bec892b331ee55c5a5fff72d407abc",
+			"revisionTime": "2018-02-26T07:57:01Z"
 		},
 		{
 			"checksumSHA1": "plsG8kyRJhFGnhGfO0scQk5kRLw=",
@@ -907,13 +919,6 @@
 			"revision": "888f77744ab7c65bb4d448d5b5313edba29e76c7",
 			"revisionTime": "2018-02-24T07:23:49Z"
 		},
-		{
-                        "checksumSHA1": "IA4E+nb1/qO+x5aqVFAekCf9ESQ=",
-                        "path": "github.com/huaweicloud/golangsdk",
-                        "revision": "888f77744ab7c65bb4d448d5b5313edba29e76c7",
-                        "revisionTime": "2018-02-24T07:23:49Z"
-                },
-
 		{
 			"checksumSHA1": "sVczcCYWr12ttrbXRFz/QOyDyWg=",
 			"path": "github.com/jen20/awspolicyequivalence",

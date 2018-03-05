@@ -398,3 +398,12 @@ func NewRdsServiceV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts
 	newsc.Type = "rds"
 	return newsc, err
 }
+
+func NewCESClient(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "ces")
+	if err != nil {
+		return nil, err
+	}
+	sc.ResourceBase = sc.Endpoint
+	return sc, err
+}

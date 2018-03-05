@@ -108,6 +108,10 @@ func chooseELBClient(d *schema.ResourceData, config *Config) (*golangsdk.Service
 	return config.loadElasticLoadBalancerClient(GetRegion(d, config))
 }
 
+func chooseCESClient(d *schema.ResourceData, config *Config) (*golangsdk.ServiceClient, error) {
+	return config.loadCESClient(GetRegion(d, config))
+}
+
 func isResourceNotFound(err error) bool {
 	if err == nil {
 		return false
