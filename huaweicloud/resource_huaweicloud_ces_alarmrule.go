@@ -210,7 +210,7 @@ func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var createOpts alarmrule.CreateOpts
-	err, _ = buildCreateParam(&createOpts, d)
+	_, err = buildCreateParam(&createOpts, d, &map[string]string{"notificationList": "notification_list"})
 	if err != nil {
 		return fmt.Errorf("Error creating %s: building parameter failed:%s", nameCESAR, err)
 	}
@@ -240,7 +240,7 @@ func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	log.Printf("[DEBUG] Retrieved %s %s: %#v", nameCESAR, d.Id(), r)
 
-	return refreshResourceData(r, d)
+	return refreshResourceData(r, d, &map[string]string{"notificationList": "notification_list"})
 }
 
 func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -253,7 +253,7 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	arId := d.Id()
 
 	var updateOpts alarmrule.UpdateOpts
-	err, _ = buildUpdateParam(&updateOpts, d)
+	_, err = buildUpdateParam(&updateOpts, d, &map[string]string{"notificationList": "notification_list"})
 	if err != nil {
 		return fmt.Errorf("Error updating %s %s: building parameter failed:%s", nameCESAR, arId, err)
 	}

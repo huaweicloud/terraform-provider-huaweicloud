@@ -299,14 +299,14 @@ func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var opts listeners.CreateOpts
-	err, not_pass_params := buildCreateParam(&opts, d)
+	not_pass_params, err := buildCreateParam(&opts, d, nil)
 	if err != nil {
 		return fmt.Errorf("Error creating %s: building parameter failed:%s", nameELBListener, err)
 	}
 	log.Printf("[DEBUG] Create %s Options: %#v", nameELBListener, opts)
 
 	switch {
-	case opts.Protocol == "HTTPS" || opts.Protocol == "SSL" && !hasFilledParam(d, "certificate_id"):
+	case opts.Protocol == "HTTPS" || opts.Protocol == "SSL" && !hasFilledOpt(d, "certificate_id"):
 		return fmt.Errorf("certificate_id is mandatory when protocol is set to HTTPS or SSL")
 	}
 	l, err := listeners.Create(networkingClient, opts, not_pass_params).Extract()
@@ -345,7 +345,7 @@ func resourceELBListenerRead(d *schema.ResourceData, meta interface{}) error {
 	if l.SslProtocols == "" && sp != nil {
 		l.SslProtocols = sp.(string)
 	}
-	return refreshResourceData(l, d)
+	return refreshResourceData(l, d, nil)
 }
 
 func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -358,14 +358,14 @@ func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 	lId := d.Id()
 
 	var opts listeners.UpdateOpts
-	err, not_pass_params := buildUpdateParam(&opts, d)
+	not_pass_params, err := buildUpdateParam(&opts, d, nil)
 	if err != nil {
 		return fmt.Errorf("Error updating %s %s: building parameter failed:%s", nameELBListener, lId, err)
 	}
 
 	protocol := d.Get("protocol").(string)
 	switch {
-	case protocol == "HTTPS" || protocol == "SSL" && !hasFilledParam(d, "certificate_id"):
+	case protocol == "HTTPS" || protocol == "SSL" && !hasFilledOpt(d, "certificate_id"):
 		return fmt.Errorf("certificate_id is mandatory when protocol is set to HTTPS or SSL")
 	}
 	// Wait for Listener to become active before continuing

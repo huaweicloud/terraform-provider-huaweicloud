@@ -185,26 +185,26 @@ func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	var opts loadbalancers.CreateOpts
-	err, _ = buildCreateParam(&opts, d)
+	_, err = buildCreateParam(&opts, d, nil)
 	if err != nil {
 		return fmt.Errorf("Error creating %s: building parameter failed:%s", nameELBLB, err)
 	}
 	log.Printf("[DEBUG] Create %s Options: %#v", nameELBLB, opts)
 
 	switch {
-	case opts.Type == "External" && !hasFilledParam(d, "bandwidth"):
+	case opts.Type == "External" && !hasFilledOpt(d, "bandwidth"):
 		return fmt.Errorf("bandwidth is mandatory when type is set to External")
 
-	case opts.Type == "Internal" && !hasFilledParam(d, "vip_subnet_id"):
+	case opts.Type == "Internal" && !hasFilledOpt(d, "vip_subnet_id"):
 		return fmt.Errorf("vip_subnet_id is mandatory when type is set to Internal")
 
-	case opts.Type == "Internal" && !hasFilledParam(d, "az"):
+	case opts.Type == "Internal" && !hasFilledOpt(d, "az"):
 		return fmt.Errorf("az is mandatory when type is set to Internal")
 
-	case opts.Type == "Internal" && !hasFilledParam(d, "security_group_id"):
+	case opts.Type == "Internal" && !hasFilledOpt(d, "security_group_id"):
 		return fmt.Errorf("security_group_id is mandatory when type is set to Internal")
 
-	case opts.Type == "Internal" && !hasFilledParam(d, "tenantid"):
+	case opts.Type == "Internal" && !hasFilledOpt(d, "tenantid"):
 		return fmt.Errorf("tenantid is mandatory when type is set to Internal")
 	}
 
@@ -261,7 +261,7 @@ func resourceELBLoadBalancerRead(d *schema.ResourceData, meta interface{}) error
 	}
 	log.Printf("[DEBUG] Retrieved %s %s: %#v", nameELBLB, d.Id(), lb)
 
-	return refreshResourceData(lb, d)
+	return refreshResourceData(lb, d, nil)
 }
 
 func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -274,7 +274,7 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 	lbId := d.Id()
 
 	var updateOpts loadbalancers.UpdateOpts
-	err, not_pass_param := buildUpdateParam(&updateOpts, d)
+	not_pass_param, err := buildUpdateParam(&updateOpts, d, nil)
 	if err != nil {
 		return fmt.Errorf("Error updating %s %s: building parameter failed:%s", nameELBLB, lbId, err)
 	}

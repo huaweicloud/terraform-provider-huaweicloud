@@ -31,7 +31,7 @@ type CreateOpts struct {
 	EipType         string `json:"eip_type,omitempty"`
 	SecurityGroupID string `json:"security_group_id,omitempty"`
 	VipAddress      string `json:"vip_address,omitempty"`
-	TenantID        string `json:"tenantid,omitempty"`
+	TenantID        string `json:"tenantId,omitempty"`
 }
 
 // ToLoadBalancerCreateMap casts a CreateOpts struct to a map.
@@ -51,10 +51,6 @@ func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r elb.JobResult
 	if err != nil {
 		r.Err = err
 		return
-	}
-	if v, ok := b["tenantid"]; ok {
-		delete(b, "tenantid")
-		b["tenantId"] = v
 	}
 	log.Printf("[DEBUG] create ELB-LoadBalancer url:%q, body=%#v", rootURL(c), b)
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}

@@ -99,7 +99,7 @@ func resourceELBBackendECSCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	var createOpts backendecs.CreateOpts
-	err, _ = buildCreateParam(&createOpts, d)
+	_, err = buildCreateParam(&createOpts, d, &(map[string]string{"address": "private_address"}))
 	if err != nil {
 		return fmt.Errorf("Error creating %s: building parameter failed:%s", nameELBBackend, err)
 	}
@@ -160,7 +160,7 @@ func resourceELBBackendECSRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	log.Printf("[DEBUG] Retrieved %s(%s): %#v", nameELBBackend, d.Id(), b)
 
-	return refreshResourceData(b, d)
+	return refreshResourceData(b, d, &(map[string]string{"server_address": "private_address", "address": "public_address"}))
 }
 
 func resourceELBBackendECSDelete(d *schema.ResourceData, meta interface{}) error {

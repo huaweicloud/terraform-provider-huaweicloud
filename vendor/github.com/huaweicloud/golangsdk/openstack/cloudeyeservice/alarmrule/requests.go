@@ -1,7 +1,6 @@
 package alarmrule
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/huaweicloud/golangsdk"
@@ -33,7 +32,7 @@ type ConditionOpts struct {
 
 type ActionOpts struct {
 	Type             string   `json:"type" required:"true"`
-	NotificationList []string `json:"notification_list" required:"true"`
+	NotificationList []string `json:"notificationList" required:"true"`
 }
 
 type CreateOpts struct {
@@ -49,64 +48,16 @@ type CreateOpts struct {
 }
 
 func (opts CreateOpts) ToAlarmRuleCreateMap() (map[string]interface{}, error) {
-	return nil, fmt.Errorf("no need implement")
-}
-
-type realActionOpts struct {
-	Type             string   `json:"type" required:"true"`
-	NotificationList []string `json:"notificationList" required:"true"`
-}
-
-type createOpts struct {
-	AlarmName               string           `json:"alarm_name" required:"true"`
-	AlarmDescription        string           `json:"alarm_description,omitempty"`
-	Metric                  MetricOpts       `json:"metric" required:"true"`
-	Condition               ConditionOpts    `json:"condition" required:"true"`
-	AlarmActions            []realActionOpts `json:"alarm_actions,omitempty"`
-	InsufficientdataActions []realActionOpts `json:"insufficientdata_actions,omitempty"`
-	OkActions               []realActionOpts `json:"ok_actions,omitempty"`
-	AlarmEnabled            bool             `json:"alarm_enabled"`
-	AlarmActionEnabled      bool             `json:"alarm_action_enabled"`
-}
-
-func (opts createOpts) ToAlarmRuleCreateMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "")
 }
 
-func copyActionOpts(src []ActionOpts) []realActionOpts {
-	if len(src) == 0 {
-		return nil
-	}
-
-	dest := make([]realActionOpts, len(src), len(src))
-	for i, s := range src {
-		d := &dest[i]
-		d.Type = s.Type
-		d.NotificationList = s.NotificationList
-	}
-	log.Printf("[DEBUG] copyActionOpts:: src = %#v, dest = %#v", src, dest)
-	return dest
-}
-
 func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult) {
-	opt := opts.(CreateOpts)
-	opts1 := createOpts{
-		AlarmName:               opt.AlarmName,
-		AlarmDescription:        opt.AlarmDescription,
-		Metric:                  opt.Metric,
-		Condition:               opt.Condition,
-		AlarmActions:            copyActionOpts(opt.AlarmActions),
-		InsufficientdataActions: copyActionOpts(opt.InsufficientdataActions),
-		OkActions:               copyActionOpts(opt.OkActions),
-		AlarmEnabled:            opt.AlarmEnabled,
-		AlarmActionEnabled:      opt.AlarmActionEnabled,
-	}
-	b, err := opts1.ToAlarmRuleCreateMap()
+	b, err := opts.ToAlarmRuleCreateMap()
 	if err != nil {
 		r.Err = err
 		return
 	}
-	log.Printf("[DEBUG] create AlarmRule url:%q, body=%#v, opt=%#v", rootURL(c), b, opts1)
+	log.Printf("[DEBUG] create AlarmRule url:%q, body=%#v, opt=%#v", rootURL(c), b, opts)
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{201}}
 	_, r.Err = c.Post(rootURL(c), b, &r.Body, reqOpt)
 	return

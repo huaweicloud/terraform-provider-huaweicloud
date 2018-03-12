@@ -794,10 +794,10 @@
 			"revisionTime": "2018-02-26T07:57:01Z"
 		},
 		{
-			"checksumSHA1": "rxzrL96yNxCPSnCzErD87sSpcLs=",
+			"checksumSHA1": "lpp6hBnX9xBhrnxXc0i/5fHHoWY=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/cloudeyeservice/alarmrule",
-			"revision": "98f31e4f21bec892b331ee55c5a5fff72d407abc",
-			"revisionTime": "2018-02-26T07:57:01Z"
+			"revision": "f751fd90605bf71b96f3e7a5ae5f994a7f98984c",
+			"revisionTime": "2018-03-12T11:45:12Z"
 		},
 		{
 			"checksumSHA1": "plsG8kyRJhFGnhGfO0scQk5kRLw=",
@@ -842,10 +842,10 @@
 			"revisionTime": "2018-02-24T07:23:49Z"
 		},
 		{
-			"checksumSHA1": "i5LCSv2+xPjnRsaRGO6PODHlOfs=",
+			"checksumSHA1": "P3moeIdaCWwX6OfiOiOjL+MfSUI=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/backendecs",
-			"revision": "888f77744ab7c65bb4d448d5b5313edba29e76c7",
-			"revisionTime": "2018-02-24T07:23:49Z"
+			"revision": "f751fd90605bf71b96f3e7a5ae5f994a7f98984c",
+			"revisionTime": "2018-03-12T11:45:12Z"
 		},
 		{
 			"checksumSHA1": "c5rZWcUUrvRDRvHyZx/sKn5ypjY=",
@@ -860,10 +860,10 @@
 			"revisionTime": "2018-02-24T07:23:49Z"
 		},
 		{
-			"checksumSHA1": "Q5dl/0MOw7tf0r2aDEhEZlBu9+g=",
+			"checksumSHA1": "yHFT0nE0C7UExuB2Dbr8kB6qqUw=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/loadbalancers",
-			"revision": "888f77744ab7c65bb4d448d5b5313edba29e76c7",
-			"revisionTime": "2018-02-24T07:23:49Z"
+			"revision": "f751fd90605bf71b96f3e7a5ae5f994a7f98984c",
+			"revisionTime": "2018-03-12T11:45:12Z"
 		},
 		{
 			"checksumSHA1": "iIyMq76Jzg/JVWZf/qfgJYz8e+k=",

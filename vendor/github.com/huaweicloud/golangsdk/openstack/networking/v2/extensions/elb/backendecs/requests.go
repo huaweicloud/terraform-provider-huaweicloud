@@ -19,7 +19,7 @@ type CreateOptsBuilder interface {
 // operation.
 type CreateOpts struct {
 	ServerId string `json:"server_id" required:"true"`
-	Address  string `json:"private_address" required:"true"`
+	Address  string `json:"address" required:"true"`
 }
 
 // ToBackendECSCreateMap casts a CreateOpts struct to a map.
@@ -41,10 +41,6 @@ func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder, lId string) (r e
 		return
 	}
 
-	if v, ok := b["private_address"]; ok {
-		delete(b, "private_address")
-		b["address"] = v
-	}
 	//API takes an array of these...
 	body := []map[string]interface{}{b}
 	log.Printf("[DEBUG] create ELB-BackendECS url:%q, body=%#v", rootURL(c, lId), body)
