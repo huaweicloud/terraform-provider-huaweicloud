@@ -36,10 +36,16 @@ resource "huaweicloud_compute_instance_v2" "test-server" {
 
 The following arguments are supported:
 
+* `access_key` - (Optional) The access key of the HuaweiCloud to use.
+  If omitted, the `OS_ACCESS_KEY` environment variable is used.
+
+* `secret_key` - (Optional) The secret key of the HuaweiCloud to use.
+  If omitted, the `OS_SECRET_KEY` environment variable is used.
+
 * `auth_url` - (Required) The Identity authentication URL. If omitted, the
   `OS_AUTH_URL` environment variable is used.
 
-* `region` - (Optional) The region of the HuaweiCloud cloud to use. If omitted,
+* `region` - (Optional) The region of the HuaweiCloud to use. If omitted,
   the `OS_REGION_NAME` environment variable is used. If `OS_REGION_NAME` is
   not set, then no region will be used. It should be possible to omit the
   region in single-region HuaweiCloud environments, but this behavior may vary
