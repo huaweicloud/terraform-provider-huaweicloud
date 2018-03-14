@@ -71,7 +71,7 @@ The following arguments are supported:
 * `etag` - (Optional) Used to trigger updates. The only meaningful value is `${md5(file("path/to/file"))}`.
 This attribute is not compatible with `kms_key_id`.
 * `server_side_encryption` - (Optional) Specifies server-side encryption of the object in S3. Valid values are "`AES256`" and "`aws:kms`".
-* `tags` - (Optional) A mapping of tags to assign to the object.
+* `sse_kms_key_id` - (Optional) The ID of the kms key.
 
 Either `source` or `content` must be provided to specify the bucket content.
 These two arguments are mutually-exclusive.
