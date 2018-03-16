@@ -170,7 +170,6 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"huaweicloud_images_image_v2":        dataSourceImagesImageV2(),
 			"huaweicloud_networking_network_v2":  dataSourceNetworkingNetworkV2(),
 			"huaweicloud_networking_subnet_v2":   dataSourceNetworkingSubnetV2(),
 			"huaweicloud_networking_secgroup_v2": dataSourceNetworkingSecGroupV2(),
@@ -194,7 +193,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_fw_firewall_group_v2":            resourceFWFirewallGroupV2(),
 			"huaweicloud_fw_policy_v2":                    resourceFWPolicyV2(),
 			"huaweicloud_fw_rule_v2":                      resourceFWRuleV2(),
-			"huaweicloud_images_image_v2":                 resourceImagesImageV2(),
 			"huaweicloud_kms_key_v1":                      resourceKmsKeyV1(),
 			"huaweicloud_elb_loadbalancer":                resourceELBLoadBalancer(),
 			"huaweicloud_elb_listener":                    resourceELBListener(),
