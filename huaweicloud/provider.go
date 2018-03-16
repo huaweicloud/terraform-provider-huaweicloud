@@ -222,7 +222,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_rds_instance_v1":                 resourceRdsInstance(),
 			"huaweicloud_nat_gateway_v2":                  resourceNatGatewayV2(),
 			"huaweicloud_nat_snat_rule_v2":                resourceNatSnatRuleV2(),
-			"huaweicloud_ces_alarmrule":                   resourceAlarmRule(),
 		},
 
 		ConfigureFunc: configureProvider,
