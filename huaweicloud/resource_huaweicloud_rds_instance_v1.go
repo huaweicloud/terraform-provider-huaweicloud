@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v1/instances"
-	"strings"
 	"time"
 )
 
@@ -376,13 +375,16 @@ func resourceInstanceRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
 
-	if instance.Name != "" {
-		nameList := strings.Split(instance.Name, "-"+instance.DataStore.Type)
-		log.Printf("[DEBUG] Retrieved nameList %#v", nameList)
-		if len(nameList) > 0 {
-			d.Set("name", nameList[0])
+	//NOTE: temporarily mask this in case of state diff issue
+	/*
+		if instance.Name != "" {
+			nameList := strings.Split(instance.Name, "-"+instance.DataStore.Type)
+			log.Printf("[DEBUG] Retrieved nameList %#v", nameList)
+			if len(nameList) > 0 {
+				d.Set("name", nameList[0])
+			}
 		}
-	}
+	*/
 
 	d.Set("hostname", instance.HostName)
 	d.Set("type", instance.Type)
