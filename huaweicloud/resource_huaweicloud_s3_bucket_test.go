@@ -1217,11 +1217,11 @@ func testAccS3BucketConfigWithLogging(randInt int) string {
 resource "huaweicloud_s3_bucket" "log_bucket" {
 	bucket = "tf-test-log-bucket-%d"
 	acl = "log-delivery-write"
+	force_destroy = "true"
 }
 resource "huaweicloud_s3_bucket" "bucket" {
 	bucket = "tf-test-bucket-%d"
 	acl = "private"
-	force_destroy = "true"
 	logging {
 		target_bucket = "${huaweicloud_s3_bucket.log_bucket.id}"
 		target_prefix = "log/"
