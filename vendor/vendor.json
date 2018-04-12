@@ -782,16 +782,16 @@
 			"revisionTime": "2016-07-20T23:31:40Z"
 		},
 		{
-			"checksumSHA1": "IA4E+nb1/qO+x5aqVFAekCf9ESQ=",
+			"checksumSHA1": "bxyNTlhb+f8yYAyCqB7B5eNGUAE=",
 			"path": "github.com/huaweicloud/golangsdk",
-			"revision": "888f77744ab7c65bb4d448d5b5313edba29e76c7",
-			"revisionTime": "2018-02-24T07:23:49Z"
+			"revision": "096fe3ef4dc29cf1a49de7dcd3ef7bbe9e8a8f04",
+			"revisionTime": "2018-04-12T03:23:24Z"
 		},
 		{
-			"checksumSHA1": "bOajzlje4WzV/t+TnInfXU9DcD0=",
+			"checksumSHA1": "kYm7CSczSJAJV/tWTpFvFek3l5E=",
 			"path": "github.com/huaweicloud/golangsdk/openstack",
-			"revision": "905e6703b7fe2a30eff9b6c877ad678e50a6a88c",
-			"revisionTime": "2018-04-09T05:07:25Z"
+			"revision": "096fe3ef4dc29cf1a49de7dcd3ef7bbe9e8a8f04",
+			"revisionTime": "2018-04-12T03:23:24Z"
 		},
 		{
 			"checksumSHA1": "lpp6hBnX9xBhrnxXc0i/5fHHoWY=",
@@ -838,14 +838,14 @@
 		{
 			"checksumSHA1": "S03meuz/zX857hIqfpgyCUfrcFs=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths",
-			"revision": "905e6703b7fe2a30eff9b6c877ad678e50a6a88c",
-			"revisionTime": "2018-04-09T05:07:25Z"
+			"revision": "096fe3ef4dc29cf1a49de7dcd3ef7bbe9e8a8f04",
+			"revisionTime": "2018-04-12T03:23:24Z"
 		},
 		{
 			"checksumSHA1": "YwqIuSKttODj68oAvmk6JBj31y8=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/networking/v1/eips",
-			"revision": "905e6703b7fe2a30eff9b6c877ad678e50a6a88c",
-			"revisionTime": "2018-04-09T05:07:25Z"
+			"revision": "096fe3ef4dc29cf1a49de7dcd3ef7bbe9e8a8f04",
+			"revisionTime": "2018-04-12T03:23:24Z"
 		},
 		{
 			"checksumSHA1": "sTcp7qY7oxqXeTiUWr/LUhFXYWM=",
