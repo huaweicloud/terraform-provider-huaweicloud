@@ -17,7 +17,7 @@ but only compute floating IPs can be used with compute instances.
 
 ```hcl
 resource "huaweicloud_networking_floatingip_v2" "floatip_1" {
-  pool = "public"
+  pool = "admin_external_net"
 }
 ```
 
