@@ -323,7 +323,8 @@ The following arguments are supported:
     and not the instance.
 
 * `availability_zone` - (Required) The availability zone in which to create
-    the server. Changing this creates a new server.
+    the server. Please refer to https://developer.huaweicloud.com/endpoint
+    for the values. Changing this creates a new server.
 
 * `network` - (Optional) An array of one or more networks to attach to the
     instance. The network object structure is documented below. Changing this
