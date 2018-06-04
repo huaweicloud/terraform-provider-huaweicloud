@@ -34,7 +34,7 @@ resource "huaweicloud_compute_instance_v2" "test-server" {
 
 ## Configuration Reference
 
-The following arguments are supported:
+The domain_name, project_name, and project_id can be get from [Huawei Cloud My Credential](https://support.huaweicloud.com/en-us/devg-sdk/en-us_topic_0070637164.html). The following arguments are supported:
 
 * `access_key` - (Optional) The access key of the HuaweiCloud to use.
   If omitted, the `OS_ACCESS_KEY` environment variable is used.
