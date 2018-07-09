@@ -221,10 +221,6 @@ func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("email", n.Email)
 	d.Set("description", n.Description)
 	d.Set("ttl", n.TTL)
-	/* d.Set("type", n.Type)
-	if err := d.Set("attributes", n.Attributes); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving attributes to state for OpenTelekomCloud DNS zone (%s): %s", d.Id(), err)
-	} */
 	if err = d.Set("masters", n.Masters); err != nil {
 		return fmt.Errorf("[DEBUG] Error saving masters to state for HuaweiCloud DNS zone (%s): %s", d.Id(), err)
 	}
