@@ -9,7 +9,6 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/listeners"
 )
 
-// PASS
 func TestAccELBListener_basic(t *testing.T) {
 	var listener listeners.Listener
 

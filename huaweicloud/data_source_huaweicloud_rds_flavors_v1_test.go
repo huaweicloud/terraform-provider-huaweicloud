@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-// PASS
 func TestAccHuaweiCloudRdsFlavorV1DataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -30,7 +29,6 @@ func TestAccHuaweiCloudRdsFlavorV1DataSource_basic(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccHuaweiCloudRdsFlavorV1DataSource_speccode(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

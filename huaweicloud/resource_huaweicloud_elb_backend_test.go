@@ -10,7 +10,6 @@ import (
 	"log"
 )
 
-// PASS with diff
 func TestAccELBBackend_basic(t *testing.T) {
 	var backend backendecs.Backend
 

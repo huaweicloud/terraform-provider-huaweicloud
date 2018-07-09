@@ -12,7 +12,6 @@ import (
 	"github.com/jen20/awspolicyequivalence"
 )
 
-// PASS
 func TestAccS3BucketPolicy_basic(t *testing.T) {
 	name := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 
@@ -36,7 +35,6 @@ func TestAccS3BucketPolicy_basic(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccS3BucketPolicy_policyUpdate(t *testing.T) {
 	name := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 

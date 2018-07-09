@@ -9,7 +9,6 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/smn/v2/topics"
 )
 
-// PASS
 func TestAccSMNV2Topic_basic(t *testing.T) {
 	var topic topics.TopicGet
 

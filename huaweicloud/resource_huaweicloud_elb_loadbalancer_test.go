@@ -10,7 +10,6 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/loadbalancers"
 )
 
-// PASS
 func TestAccELBLoadBalancer_basic(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
 
@@ -38,7 +37,6 @@ func TestAccELBLoadBalancer_basic(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccELBLoadBalancer_secGroup(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
 

@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-// PASS
 func TestAccDataSourceS3BucketObject_basic(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceOnlyConf, conf := testAccDataSourceS3ObjectConfig_basic(rInt)
@@ -47,7 +46,6 @@ func TestAccDataSourceS3BucketObject_basic(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccDataSourceS3BucketObject_readableBody(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceOnlyConf, conf := testAccDataSourceS3ObjectConfig_readableBody(rInt)
@@ -82,7 +80,6 @@ func TestAccDataSourceS3BucketObject_readableBody(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccDataSourceAWSS3BucketObject_allParams(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceOnlyConf, conf := testAccDataSourceS3ObjectConfig_allParams(rInt)

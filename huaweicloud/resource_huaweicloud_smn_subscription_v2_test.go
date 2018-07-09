@@ -9,7 +9,6 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/smn/v2/subscriptions"
 )
 
-// PASS
 func TestAccSMNV2Subscription_basic(t *testing.T) {
 	var subscription1 subscriptions.SubscriptionGet
 	var subscription2 subscriptions.SubscriptionGet

@@ -10,7 +10,6 @@ import (
 	"time"
 )
 
-// PASS
 func TestAccRDSV1Instance_basic(t *testing.T) {
 	var instance instances.Instance
 

@@ -24,7 +24,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-// PASS
 func TestAccS3Bucket_basic(t *testing.T) {
 	rInt := acctest.RandInt()
 	//arnRegexp := regexp.MustCompile("^arn:aws:s3:::")
@@ -74,7 +73,6 @@ func TestAccS3MultiBucket_withTags(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccS3Bucket_namePrefix(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -93,7 +91,6 @@ func TestAccS3Bucket_namePrefix(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccS3Bucket_generatedName(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -110,7 +107,6 @@ func TestAccS3Bucket_generatedName(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccS3Bucket_region(t *testing.T) {
 	rInt := acctest.RandInt()
 
@@ -130,7 +126,6 @@ func TestAccS3Bucket_region(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccS3Bucket_Policy(t *testing.T) {
 	rInt := acctest.RandInt()
 
@@ -167,7 +162,6 @@ func TestAccS3Bucket_Policy(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccS3Bucket_UpdateAcl(t *testing.T) {
 	ri := acctest.RandInt()
 	preConfig := fmt.Sprintf(testAccS3BucketConfigWithAcl, ri)
@@ -198,7 +192,6 @@ func TestAccS3Bucket_UpdateAcl(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccS3Bucket_Website_Simple(t *testing.T) {
 	rInt := acctest.RandInt()
 	resource.Test(t, resource.TestCase{
@@ -240,7 +233,6 @@ func TestAccS3Bucket_Website_Simple(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccS3Bucket_WebsiteRedirect(t *testing.T) {
 	rInt := acctest.RandInt()
 	resource.Test(t, resource.TestCase{
@@ -282,7 +274,6 @@ func TestAccS3Bucket_WebsiteRedirect(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccS3Bucket_WebsiteRoutingRules(t *testing.T) {
 	rInt := acctest.RandInt()
 	resource.Test(t, resource.TestCase{
@@ -331,7 +322,6 @@ func TestAccS3Bucket_WebsiteRoutingRules(t *testing.T) {
 // Test TestAccS3Bucket_shouldFailNotFound is designed to fail with a "plan
 // not empty" error in Terraform, to check against regresssions.
 // See https://github.com/hashicorp/terraform/pull/2925
-// PASS
 func TestAccS3Bucket_shouldFailNotFound(t *testing.T) {
 	rInt := acctest.RandInt()
 	resource.Test(t, resource.TestCase{
@@ -351,7 +341,6 @@ func TestAccS3Bucket_shouldFailNotFound(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccS3Bucket_Versioning(t *testing.T) {
 	rInt := acctest.RandInt()
 	resource.Test(t, resource.TestCase{
@@ -387,7 +376,6 @@ func TestAccS3Bucket_Versioning(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccS3Bucket_Cors(t *testing.T) {
 	rInt := acctest.RandInt()
 
@@ -493,7 +481,6 @@ func TestAccS3Bucket_Logging(t *testing.T) {
 }
 */
 
-// PASS
 func TestAccS3Bucket_Lifecycle(t *testing.T) {
 	rInt := acctest.RandInt()
 	resource.Test(t, resource.TestCase{
