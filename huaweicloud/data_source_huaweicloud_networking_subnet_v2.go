@@ -18,7 +18,6 @@ func dataSourceNetworkingSubnetV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"name": &schema.Schema{
@@ -137,14 +136,12 @@ func dataSourceNetworkingSubnetV2() *schema.Resource {
 			"ipv6_address_mode": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				Computed:     true,
 				ValidateFunc: validateSubnetV2IPv6Mode,
 			},
 			"ipv6_ra_mode": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				Computed:     true,
 				ValidateFunc: validateSubnetV2IPv6Mode,
 			},

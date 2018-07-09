@@ -21,7 +21,6 @@ func dataSourceNetworkingNetworkV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"network_id": &schema.Schema{
 				Type:     schema.TypeString,

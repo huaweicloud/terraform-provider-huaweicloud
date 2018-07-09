@@ -18,7 +18,6 @@ func dataSourceNetworkingSecGroupV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"secgroup_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -31,7 +30,6 @@ func dataSourceNetworkingSecGroupV2() *schema.Resource {
 			"tenant_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 		},

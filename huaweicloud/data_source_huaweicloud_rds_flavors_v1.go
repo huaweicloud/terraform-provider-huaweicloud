@@ -19,7 +19,6 @@ func dataSourceRdsFlavorV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"datastore_name": &schema.Schema{
 				Type:     schema.TypeString,
