@@ -16,7 +16,6 @@ func resourceDNSZoneV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDNSZoneV2Create,
 		Read:   resourceDNSZoneV2Read,
-		//Update: resourceDNSZoneV2Update,
 		Delete: resourceDNSZoneV2Delete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -52,18 +51,6 @@ func resourceDNSZoneV2() *schema.Resource {
 				Default:      "public",
 				ValidateFunc: resourceZoneValidateType,
 			},
-			/* "type": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ValidateFunc: resourceDNSZoneV2ValidType,
-			}, */
-			/* "attributes": &schema.Schema{
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-			}, */
 			"ttl": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -78,11 +65,9 @@ func resourceDNSZoneV2() *schema.Resource {
 				ValidateFunc: resourceValidateDescription,
 			},
 			"masters": &schema.Schema{
-				Type: schema.TypeSet,
-				//Optional: true,
+				Type:     schema.TypeSet,
 				Computed: true,
-				//ForceNew: false,
-				Elem: &schema.Schema{Type: schema.TypeString},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"router": {
 				Type:     schema.TypeSet,
@@ -136,18 +121,6 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
-	/* mastersraw := d.Get("masters").(*schema.Set).List()
-	masters := make([]string, len(mastersraw))
-	for i, masterraw := range mastersraw {
-		masters[i] = masterraw.(string)
-	} */
-
-	/* attrsraw := d.Get("attributes").(map[string]interface{})
-	attrs := make(map[string]string, len(attrsraw))
-	for k, v := range attrsraw {
-		attrs[k] = v.(string)
-	} */
-
 	zone_type := d.Get("zone_type").(string)
 	router := d.Get("router").(*schema.Set).List()
 
@@ -163,13 +136,10 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 	vs["router"] = resourceDNSRouter(d)
 	createOpts := ZoneCreateOpts{
 		zones.CreateOpts{
-			Name: d.Get("name").(string),
-			//Type:        d.Get("type").(string),
-			//Attributes:  attrs,
+			Name:        d.Get("name").(string),
 			TTL:         d.Get("ttl").(int),
 			Email:       d.Get("email").(string),
 			Description: d.Get("description").(string),
-			//Masters:     masters,
 		},
 		vs,
 	}
@@ -226,7 +196,6 @@ func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("region", GetRegion(d, config))
 	d.Set("zone_type", n.ZoneType)
-	//log.Printf("[DEBUG] resourceDNSZoneV2Read: %+v", n)
 
 	return nil
 }
@@ -245,14 +214,6 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("ttl") {
 		updateOpts.TTL = d.Get("ttl").(int)
 	}
-	/* if d.HasChange("masters") {
-		mastersraw := d.Get("masters").(*schema.Set).List()
-		masters := make([]string, len(mastersraw))
-		for i, masterraw := range mastersraw {
-			masters[i] = masterraw.(string)
-		}
-		updateOpts.Masters = masters
-	} */
 	if d.HasChange("description") {
 		updateOpts.Description = d.Get("description").(string)
 	}

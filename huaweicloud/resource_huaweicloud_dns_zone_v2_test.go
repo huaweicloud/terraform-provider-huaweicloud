@@ -30,18 +30,6 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 						"huaweicloud_dns_zone_v2.zone_1", "description", "a zone"),
 				),
 			},
-			// huaweicloud dns zone doesn't support update
-			//resource.TestStep{
-			//	Config: testAccDNSV2Zone_update(zoneName),
-			//	Check: resource.ComposeTestCheckFunc(
-			//		resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "name", zoneName),
-			//		resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "email", "email2@example.com"),
-			//		resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "ttl", "6000"),
-			//		resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "type", "PRIMARY"),
-			//		resource.TestCheckResourceAttr(
-			//			"huaweicloud_dns_zone_v2.zone_1", "description", "an updated zone"),
-			//	),
-			//},
 		},
 	})
 }
@@ -59,7 +47,6 @@ func TestAccDNSV2Zone_readTTL(t *testing.T) {
 				Config: testAccDNSV2Zone_readTTL(zoneName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDNSV2ZoneExists("huaweicloud_dns_zone_v2.zone_1", &zone),
-					//resource.TestCheckResourceAttr("huaweicloud_dns_zone_v2.zone_1", "type", "PRIMARY"),
 					resource.TestMatchResourceAttr(
 						"huaweicloud_dns_zone_v2.zone_1", "ttl", regexp.MustCompile("^[0-9]+$")),
 				),

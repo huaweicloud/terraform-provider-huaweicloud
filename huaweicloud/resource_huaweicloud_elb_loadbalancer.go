@@ -235,13 +235,6 @@ func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error creating %s: get elb id from job entity failed", nameELBLB)
 	}
 
-	/*
-		// Once the loadbalancer has been created, apply any requested security groups
-		// to the port that was created behind the scenes.
-		if err := resourceELBLoadBalancerSecurityGroups(networkingClient, lb.VipPortID, d); err != nil {
-			return err
-		}*/
-
 	// If all has been successful, set the ID on the resource
 	d.SetId(eid.(string))
 

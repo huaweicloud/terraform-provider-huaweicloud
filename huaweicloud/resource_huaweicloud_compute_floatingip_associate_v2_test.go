@@ -75,30 +75,6 @@ func TestAccComputeV2FloatingIPAssociate_attachToFirstNetwork(t *testing.T) {
 	})
 }
 
-// UNSUPPORTED:  Can't connect instance to network without being in a VPC?
-/*
-func TestAccComputeV2FloatingIPAssociate_attachToSecondNetwork(t *testing.T) {
-	var instance servers.Server
-	var fip floatingips.FloatingIP
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2FloatingIPAssociateDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccComputeV2FloatingIPAssociate_attachToSecondNetwork,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
-					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_1", &fip),
-					testAccCheckComputeV2FloatingIPAssociateAssociated(&fip, &instance, 2),
-				),
-			},
-		},
-	})
-}
-*/
-
 func TestAccComputeV2FloatingIPAssociate_attachNew(t *testing.T) {
 	var instance servers.Server
 	var fip_1 floatingips.FloatingIP

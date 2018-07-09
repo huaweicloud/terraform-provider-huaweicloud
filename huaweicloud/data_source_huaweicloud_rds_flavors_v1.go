@@ -54,9 +54,6 @@ func dataSourceRdsFlavorV1() *schema.Resource {
 
 func dataSourcedataSourceRdsFlavorV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	//log.Printf("[DEBUG] dataSourcedataSourceRdsFlavorV1Read config.OsClient %+v ", config.OsClient)
-	//log.Printf("[DEBUG] dataSourcedataSourceRdsFlavorV1Read config %+v ", config)
-	//log.Printf("[DEBUG] dataSourcedataSourceRdsFlavorV1Read d %+v ", d)
 
 	rdsClient, err := config.RdsV1Client(GetRegion(d, config))
 	if err != nil {
