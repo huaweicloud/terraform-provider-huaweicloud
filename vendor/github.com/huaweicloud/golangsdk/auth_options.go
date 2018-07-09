@@ -81,6 +81,15 @@ type AuthOptions struct {
 	// TokenID allows users to authenticate (possibly as another user) with an
 	// authentication token ID.
 	TokenID string `json:"-"`
+
+	// AgencyNmae is the name of agnecy
+	AgencyName string `json:"-"`
+
+	// AgencyDomainName is the name of domain who created the agency
+	AgencyDomainName string `json:"-"`
+
+	// DelegatedProject is the name of delegated project
+	DelegatedProject string `json:"-"`
 }
 
 // ToTokenV2CreateMap allows AuthOptions to satisfy the AuthOptionsBuilder
@@ -263,13 +272,7 @@ func (opts *AuthOptions) ToTokenV3CreateMap(scope map[string]interface{}) (map[s
 }
 
 func (opts *AuthOptions) ToTokenV3ScopeMap() (map[string]interface{}, error) {
-
-	var scope struct {
-		ProjectID   string
-		ProjectName string
-		DomainID    string
-		DomainName  string
-	}
+	var scope scopeInfo
 
 	if opts.TenantID != "" {
 		scope.ProjectID = opts.TenantID
@@ -278,9 +281,31 @@ func (opts *AuthOptions) ToTokenV3ScopeMap() (map[string]interface{}, error) {
 			scope.ProjectName = opts.TenantName
 			scope.DomainID = opts.DomainID
 			scope.DomainName = opts.DomainName
+		} else {
+			// support scoping to domain
+			scope.DomainID = opts.DomainID
+			scope.DomainName = opts.DomainName
 		}
 	}
+	return scope.BuildTokenV3ScopeMap()
+}
 
+func (opts *AuthOptions) CanReauth() bool {
+	return opts.AllowReauth
+}
+
+func (opts *AuthOptions) AuthTokenID() string {
+	return ""
+}
+
+type scopeInfo struct {
+	ProjectID   string
+	ProjectName string
+	DomainID    string
+	DomainName  string
+}
+
+func (scope *scopeInfo) BuildTokenV3ScopeMap() (map[string]interface{}, error) {
 	if scope.ProjectName != "" {
 		// ProjectName provided: either DomainID or DomainName must also be supplied.
 		// ProjectID may not be supplied.
@@ -349,6 +374,58 @@ func (opts *AuthOptions) ToTokenV3ScopeMap() (map[string]interface{}, error) {
 	return nil, nil
 }
 
-func (opts AuthOptions) CanReauth() bool {
-	return opts.AllowReauth
+type AgencyAuthOptions struct {
+	TokenID          string
+	AgencyName       string
+	AgencyDomainName string
+	DelegatedProject string
+}
+
+func (opts *AgencyAuthOptions) CanReauth() bool {
+	return false
+}
+
+func (opts *AgencyAuthOptions) AuthTokenID() string {
+	return opts.TokenID
+}
+
+func (opts *AgencyAuthOptions) ToTokenV3ScopeMap() (map[string]interface{}, error) {
+	scope := scopeInfo{
+		ProjectName: opts.DelegatedProject,
+		DomainName:  opts.AgencyDomainName,
+	}
+
+	return scope.BuildTokenV3ScopeMap()
+}
+
+func (opts *AgencyAuthOptions) ToTokenV3CreateMap(scope map[string]interface{}) (map[string]interface{}, error) {
+	type assumeRoleReq struct {
+		DomainName string `json:"domain_name"`
+		AgencyName string `json:"xrole_name"`
+	}
+
+	type identityReq struct {
+		Methods    []string      `json:"methods"`
+		AssumeRole assumeRoleReq `json:"assume_role"`
+	}
+
+	type authReq struct {
+		Identity identityReq `json:"identity"`
+	}
+
+	var req authReq
+	req.Identity.Methods = []string{"assume_role"}
+	req.Identity.AssumeRole = assumeRoleReq{
+		DomainName: opts.AgencyDomainName,
+		AgencyName: opts.AgencyName,
+	}
+	r, err := BuildRequestBody(req, "auth")
+	if err != nil {
+		return r, err
+	}
+
+	if len(scope) != 0 {
+		r["auth"].(map[string]interface{})["scope"] = scope
+	}
+	return r, nil
 }

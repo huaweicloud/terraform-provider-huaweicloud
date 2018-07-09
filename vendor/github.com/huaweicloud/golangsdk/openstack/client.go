@@ -196,6 +196,21 @@ func v3auth(client *golangsdk.ProviderClient, endpoint string, opts tokens3.Auth
 		return err
 	}
 
+	opts1, ok := opts.(*golangsdk.AuthOptions)
+	if ok && opts1.AgencyDomainName != "" && opts1.AgencyName != "" {
+		opts2 := golangsdk.AgencyAuthOptions{
+			TokenID:          token.ID,
+			AgencyName:       opts1.AgencyName,
+			AgencyDomainName: opts1.AgencyDomainName,
+			DelegatedProject: opts1.DelegatedProject,
+		}
+		result = tokens3.Create(v3Client, &opts2)
+		token, err = result.ExtractToken()
+		if err != nil {
+			return err
+		}
+	}
+
 	project, err := result.ExtractProject()
 	if err != nil {
 		return err
@@ -207,7 +222,9 @@ func v3auth(client *golangsdk.ProviderClient, endpoint string, opts tokens3.Auth
 	}
 
 	client.TokenID = token.ID
-	client.ProjectID = project.ID
+	if project != nil {
+		client.ProjectID = project.ID
+	}
 
 	if opts.CanReauth() {
 		client.ReauthFunc = func() error {
@@ -468,5 +485,64 @@ func NewNatV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "nat", 1)
 	sc.Endpoint = strings.Replace(sc.Endpoint, "myhwclouds", "myhuaweicloud", 1)
 	sc.ResourceBase = sc.Endpoint + "v2.0/"
+	return sc, err
+}
+
+// NewMapReduceV1 creates a ServiceClient that may be used with the v1 MapReduce service.
+func NewMapReduceV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "mrs")
+	sc.ResourceBase = sc.Endpoint + client.ProjectID + "/"
+	return sc, err
+}
+
+// NewAntiDDoSV1 creates a ServiceClient that may be used with the v1 Anti DDoS Service
+// package.
+func NewAntiDDoSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "antiddos")
+	sc.ResourceBase = sc.Endpoint + "v1/" + client.ProjectID + "/"
+	return sc, err
+}
+
+// NewAntiDDoSV2 creates a ServiceClient that may be used with the v2 Anti DDoS Service
+// package.
+func NewAntiDDoSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "antiddos")
+	sc.ResourceBase = sc.Endpoint + "v2/" + client.ProjectID + "/"
+	return sc, err
+}
+
+// NewDMSServiceV1 creates a ServiceClient that may be used to access the v1 Distributed Message Service.
+func NewDMSServiceV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "dms", 1)
+	sc.ResourceBase = sc.Endpoint + "v1.0/" + client.ProjectID + "/"
+	return sc, err
+}
+
+// NewDCSServiceV1 creates a ServiceClient that may be used to access the v1 Distributed Cache Service.
+func NewDCSServiceV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "dcs", 1)
+	sc.ResourceBase = sc.Endpoint + "v1.0/" + client.ProjectID + "/"
+	return sc, err
+}
+
+// NewOBSService creates a ServiceClient that may be used to access the Object Storage Service.
+func NewOBSService(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "object")
+	return sc, err
+}
+
+//TODO: Need to change to sfs client type from evs once available
+//NewSFSV2 creates a service client that is used for Huawei cloud  for SFS , it replaces the EVS type.
+func NewHwSFSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "evs")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "evs", "sfs", 1)
+	return sc, err
+}
+
+// NewDeHServiceV1 creates a ServiceClient that may be used to access the v1 Dedicated Hosts service.
+func NewDeHServiceV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "deh")
 	return sc, err
 }

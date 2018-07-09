@@ -45,6 +45,9 @@ type Config struct {
 	Username         string
 	UserID           string
 	useOctavia       bool
+	AgencyName       string
+	AgencyDomainName string
+	DelegatedProject string
 
 	OsClient *gophercloud.ProviderClient
 	HwClient *golangsdk.ProviderClient
@@ -227,6 +230,9 @@ func newhwClient(c *Config) error {
 		TokenID:          c.Token,
 		Username:         c.Username,
 		UserID:           c.UserID,
+		AgencyName:       c.AgencyName,
+		AgencyDomainName: c.AgencyDomainName,
+		DelegatedProject: c.DelegatedProject,
 	}
 
 	client, err := huaweisdk.NewClient(ao.IdentityEndpoint)
