@@ -159,9 +159,9 @@ func newopenstackClient(c *Config) error {
 	c.OsClient = client
 	//fmt.Printf("[DEBUG] Region: %s.\n", c.Region)
 
-	// Don't get AWS session unless we need it for Accesskey, SecretKey.
+	// Don't get session unless we need it for Accesskey, SecretKey.
 	if c.AccessKey != "" && c.SecretKey != "" {
-		// Setup AWS/S3 client/config information for Swift S3 buckets
+		// Setup S3 client/config information for Swift S3 buckets
 		log.Println("[INFO] Building Swift S3 auth structure")
 		creds, err := GetCredentials(c)
 		if err != nil {
@@ -171,37 +171,35 @@ func newopenstackClient(c *Config) error {
 		// error, and we can present it nicely to the user
 		cp, err := creds.Get()
 		if err != nil {
-			if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
-				return fmt.Errorf(`No valid credential sources found for Swift S3 Provider.
-																																																																																																																																																																																																																																																																																																																																																																																																														  Please see https://terraform.io/docs/providers/aws/index.html for more information on
-																																																																																																																																																																																																																																																																																																																																																																																																														  																																																																																																																																																																																																							    providing credentials for the S3 Provider`)
+			if sErr, ok := err.(awserr.Error); ok && sErr.Code() == "NoCredentialProviders" {
+				return fmt.Errorf("No valid credential sources found for S3 Provider.")
 			}
 
-			return fmt.Errorf("Error loading credentials for Swift S3 Provider: %s", err)
+			return fmt.Errorf("Error loading credentials for S3 Provider: %s", err)
 		}
 
-		log.Printf("[INFO] Swift S3 Auth provider used: %q", cp.ProviderName)
+		log.Printf("[INFO] S3 Auth provider used: %q", cp.ProviderName)
 
-		awsConfig := &aws.Config{
+		sConfig := &aws.Config{
 			Credentials: creds,
 			Region:      aws.String(c.Region),
 			HTTPClient:  cleanhttp.DefaultClient(),
 		}
 
 		if osDebug {
-			awsConfig.LogLevel = aws.LogLevel(aws.LogDebugWithHTTPBody | aws.LogDebugWithRequestRetries | aws.LogDebugWithRequestErrors)
-			awsConfig.Logger = awsLogger{}
+			sConfig.LogLevel = aws.LogLevel(aws.LogDebugWithHTTPBody | aws.LogDebugWithRequestRetries | aws.LogDebugWithRequestErrors)
+			sConfig.Logger = sLogger{}
 		}
 
 		if c.Insecure {
-			transport := awsConfig.HTTPClient.Transport.(*http.Transport)
+			transport := sConfig.HTTPClient.Transport.(*http.Transport)
 			transport.TLSClientConfig = &tls.Config{
 				InsecureSkipVerify: true,
 			}
 		}
 
-		// Set up base session for AWS/Swift S3
-		c.s3sess, err = session.NewSession(awsConfig)
+		// Set up base session for S3
+		c.s3sess, err = session.NewSession(sConfig)
 		if err != nil {
 			return errwrap.Wrapf("Error creating Swift S3 session: {{err}}", err)
 		}
@@ -293,9 +291,9 @@ func newhwClient(c *Config) error {
 	return nil
 }
 
-type awsLogger struct{}
+type sLogger struct{}
 
-func (l awsLogger) Log(args ...interface{}) {
+func (l sLogger) Log(args ...interface{}) {
 	tokens := make([]string, 0, len(args))
 	for _, arg := range args {
 		if token, ok := arg.(string); ok {
@@ -328,8 +326,8 @@ func (c *Config) computeS3conn(region string) (*s3.S3, error) {
 	// Bit of a hack, seems the only way to compute this.
 	endpoint := strings.Replace(client.Endpoint, "//vpc", "//obs", 1)
 
-	awsS3Sess := c.s3sess.Copy(&aws.Config{Endpoint: aws.String(endpoint)})
-	s3conn := s3.New(awsS3Sess)
+	S3Sess := c.s3sess.Copy(&aws.Config{Endpoint: aws.String(endpoint)})
+	s3conn := s3.New(S3Sess)
 
 	return s3conn, err
 }
