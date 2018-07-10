@@ -325,6 +325,7 @@ func (c *Config) computeS3conn(region string) (*s3.S3, error) {
 	})
 	// Bit of a hack, seems the only way to compute this.
 	endpoint := strings.Replace(client.Endpoint, "//vpc", "//obs", 1)
+	endpoint = strings.Replace(endpoint, "myhuaweicloud", "myhwclouds", 1)
 
 	S3Sess := c.s3sess.Copy(&aws.Config{Endpoint: aws.String(endpoint)})
 	s3conn := s3.New(S3Sess)
