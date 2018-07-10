@@ -70,10 +70,6 @@ func resourceKmsKeyV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"origin": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"pending_days": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -169,7 +165,6 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("is_enabled", v.KeyState == EnabledState)
 	d.Set("default_key_flag", v.DefaultKeyFlag)
 	d.Set("expiration_time", v.ExpirationTime)
-	d.Set("origin", v.Origin)
 
 	return nil
 }

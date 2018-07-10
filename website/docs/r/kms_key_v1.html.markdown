@@ -52,7 +52,6 @@ The following attributes are exported:
 * `key_id` - The globally unique identifier for the key.
 * `default_key_flag` - Identification of a Master Key. The value 1 indicates a Default
     Master Key, and the value 0 indicates a key.
-* `origin` - Origin of a key. The default value is kms.
 * `scheduled_deletion_date` - Scheduled deletion time (time stamp) of a key.
 * `domain_id` - ID of a user domain for the key.
 * `expiration_time` - Expiration time.

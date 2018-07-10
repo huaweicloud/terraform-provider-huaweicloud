@@ -53,12 +53,6 @@ func dataSourceKmsKeyV1() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"origin": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
 			"creation_date": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -117,10 +111,6 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	if v, ok := d.GetOk("domain_id"); ok {
 		keyProperties["DomainID"] = v.(string)
 	}
-	if v, ok := d.GetOk("origin"); ok {
-		keyProperties["Origin"] = v.(string)
-	}
-
 	if len(allKeys) > 1 && len(keyProperties) > 0 {
 		var filteredKeys []keys.Key
 		for _, key := range allKeys {
@@ -171,7 +161,6 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("key_state", key.KeyState)
 	d.Set("default_key_flag", key.DefaultKeyFlag)
 	d.Set("expiration_time", key.ExpirationTime)
-	d.Set("origin", key.Origin)
 
 	return nil
 }
