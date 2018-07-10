@@ -185,9 +185,7 @@ func newopenstackClient(c *Config) error {
 		awsConfig := &aws.Config{
 			Credentials: creds,
 			Region:      aws.String(c.Region),
-			//MaxRetries:       aws.Int(c.MaxRetries),
-			HTTPClient: cleanhttp.DefaultClient(),
-			//S3ForcePathStyle: aws.Bool(c.S3ForcePathStyle),
+			HTTPClient:  cleanhttp.DefaultClient(),
 		}
 
 		if osDebug {
@@ -291,7 +289,6 @@ func newhwClient(c *Config) error {
 	}
 
 	c.HwClient = client
-	//fmt.Printf("[DEBUG] Region: %s.\n", c.Region)
 
 	return nil
 }
@@ -360,7 +357,6 @@ func (c *Config) computeV2Client(region string) (*gophercloud.ServiceClient, err
 
 func (c *Config) dnsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return huaweisdk.NewDNSV2(c.HwClient, golangsdk.EndpointOpts{
-		//Region:       c.determineRegion(region),
 		Region:       "",
 		Availability: c.getHwEndpointType(),
 	})
