@@ -3,10 +3,10 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/kms/v1/keys"
-	"time"
 )
 
 func dataSourceKmsDataKeyV1() *schema.Resource {

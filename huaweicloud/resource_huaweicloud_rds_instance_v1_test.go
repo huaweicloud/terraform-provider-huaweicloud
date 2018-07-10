@@ -3,11 +3,11 @@ package huaweicloud
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v1/instances"
-	"time"
 )
 
 func TestAccRDSV1Instance_basic(t *testing.T) {
