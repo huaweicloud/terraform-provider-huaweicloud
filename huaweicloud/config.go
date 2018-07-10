@@ -69,12 +69,14 @@ func (c *Config) LoadAndValidate() error {
 	if !validEndpoint {
 		return fmt.Errorf("Invalid endpoint type provided")
 	}
-	err := newopenstackClient(c)
+	// newhwClient(c) must be invoked at here, because newopenstackClient
+	// will use c.HwClient
+	err := newhwClient(c)
 	if err != nil {
 		return err
 	}
 
-	return newhwClient(c)
+	return newopenstackClient(c)
 
 }
 
@@ -150,9 +152,15 @@ func newopenstackClient(c *Config) error {
 
 	// If using Swift Authentication, there's no need to validate authentication normally.
 	if !c.Swauth {
-		err = openstack.Authenticate(client, ao)
-		if err != nil {
-			return err
+		client.TokenID = c.HwClient.TokenID
+		client.EndpointLocator = func(opts gophercloud.EndpointOpts) (string, error) {
+			opts1 := golangsdk.EndpointOpts{
+				Type:         opts.Type,
+				Name:         opts.Name,
+				Region:       opts.Region,
+				Availability: golangsdk.Availability(string(opts.Availability)),
+			}
+			return c.HwClient.EndpointLocator(opts1)
 		}
 	}
 
