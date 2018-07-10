@@ -40,8 +40,6 @@ func TestAccComputeV2VolumeAttach_device(t *testing.T) {
 				Config: testAccComputeV2VolumeAttach_device,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2VolumeAttachExists("huaweicloud_compute_volume_attach_v2.va_1", &va),
-					// NOTE: we can not ensure which device it used to attach the volume
-					//testAccCheckComputeV2VolumeAttachDevice(&va, "/dev/vdb"),
 				),
 			},
 		},

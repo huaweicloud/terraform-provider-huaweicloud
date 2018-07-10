@@ -57,33 +57,6 @@ func TestAccNetworkingV2Port_noip(t *testing.T) {
 	})
 }
 
-/*
-func TestAccNetworkingV2Port_allowedAddressPairs(t *testing.T) {
-	var network networks.Network
-	var subnet subnets.Subnet
-	var vrrp_port_1, vrrp_port_2, instance_port ports.Port
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2PortDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccNetworkingV2Port_allowedAddressPairs,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2SubnetExists("huaweicloud_networking_subnet_v2.vrrp_subnet", &subnet),
-					testAccCheckNetworkingV2NetworkExists("huaweicloud_networking_network_v2.vrrp_network", &network),
-					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port_v2.vrrp_port_1", &vrrp_port_1),
-					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port_v2.vrrp_port_2", &vrrp_port_2),
-					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port_v2.instance_port", &instance_port),
-					testAccCheckNetworkingV2PortCountAllowedAddressPairs(&instance_port, 2),
-				),
-			},
-		},
-	})
-}
-*/
-
 func TestAccNetworkingV2Port_timeout(t *testing.T) {
 	var network networks.Network
 	var port ports.Port

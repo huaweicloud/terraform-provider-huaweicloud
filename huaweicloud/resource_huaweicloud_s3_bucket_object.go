@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	//"net/url"
 	"os"
 	"sort"
 	"strings"
@@ -15,7 +14,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	//"github.com/aws/aws-sdk-go/service/kms"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
@@ -104,7 +102,6 @@ func resourceS3BucketObject() *schema.Resource {
 				// See http://docs.aws.amazon.com/AmazonS3/latest/API/RESTCommonResponseHeaders.html
 				Optional: true,
 				Computed: true,
-				//ConflictsWith: []string{"kms_key_id", "server_side_encryption"},
 			},
 
 			"version_id": {
@@ -209,8 +206,6 @@ func resourceS3BucketObjectRead(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 	}
-
-	//restricted := false //meta.(*AWSClient).IsGovCloud() || meta.(*AWSClient).IsChinaCloud()
 
 	bucket := d.Get("bucket").(string)
 	key := d.Get("key").(string)

@@ -523,16 +523,6 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 
 	d.Set("all_metadata", server.Metadata)
 
-	// NOTE: As HuaweiCloud returns security group description with the instance
-	// We disable security_groups setting here as a workaround.
-	/*
-		secGrpNames := []string{}
-		for _, sg := range server.SecurityGroups {
-			secGrpNames = append(secGrpNames, sg["name"].(string))
-		}
-		d.Set("security_groups", secGrpNames)
-	*/
-
 	flavorId, ok := server.Flavor["id"].(string)
 	if !ok {
 		return fmt.Errorf("Error setting HuaweiCloud server's flavor: %v", server.Flavor)

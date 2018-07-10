@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	//"bytes"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -16,24 +15,18 @@ import (
 
 	"strings"
 
+	"bytes"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	//"github.com/aws/aws-sdk-go/service/ec2"
-	"bytes"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func TestAccS3Bucket_basic(t *testing.T) {
 	rInt := acctest.RandInt()
-	//arnRegexp := regexp.MustCompile("^arn:aws:s3:::")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck: func() { testAccPreCheck(t) },
-		/*
-			IDRefreshName:   "huaweicloud_s3_bucket.bucket",
-			IDRefreshIgnore: []string{"force_destroy"},
-		*/
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
 		Steps: []resource.TestStep{
@@ -41,14 +34,10 @@ func TestAccS3Bucket_basic(t *testing.T) {
 				Config: testAccS3BucketConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3BucketExists("huaweicloud_s3_bucket.bucket"),
-					/*resource.TestCheckResourceAttr(
-					"huaweicloud_s3_bucket.bucket", "hosted_zone_id", HostedZoneIDForRegion("us-west-2")), */
 					resource.TestCheckResourceAttr(
 						"huaweicloud_s3_bucket.bucket", "region", OS_REGION_NAME),
 					resource.TestCheckNoResourceAttr(
 						"huaweicloud_s3_bucket.bucket", "website_endpoint"),
-					/*resource.TestMatchResourceAttr(
-					"huaweicloud_s3_bucket.bucket", "arn", arnRegexp), */
 					resource.TestCheckResourceAttr(
 						"huaweicloud_s3_bucket.bucket", "bucket", testAccBucketName(rInt)),
 					resource.TestCheckResourceAttr(
@@ -64,7 +53,6 @@ func TestAccS3MultiBucket_withTags(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		//CheckDestroy: testAccCheckS3BucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccS3MultiBucketConfigWithTags(rInt),
@@ -459,28 +447,6 @@ func TestAccS3Bucket_Cors(t *testing.T) {
 	})
 }
 
-// This fails occasionally, need to dig more.
-/*
-func TestAccS3Bucket_Logging(t *testing.T) {
-	rInt := acctest.RandInt()
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckS3BucketDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccS3BucketConfigWithLogging(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckS3BucketExists("huaweicloud_s3_bucket.bucket"),
-					testAccCheckS3BucketLogging(
-						"huaweicloud_s3_bucket.bucket", "huaweicloud_s3_bucket.log_bucket", "log/"),
-				),
-			},
-		},
-	})
-}
-*/
-
 func TestAccS3Bucket_Lifecycle(t *testing.T) {
 	rInt := acctest.RandInt()
 	resource.Test(t, resource.TestCase{
@@ -622,7 +588,6 @@ func TestS3BucketName(t *testing.T) {
 
 func testAccCheckS3BucketDestroy(s *terraform.State) error {
 	// UNDONE: Why instance check?
-	//return testAccCheckInstanceDestroyWithProvider(s, testAccProvider)
 	return nil
 }
 
