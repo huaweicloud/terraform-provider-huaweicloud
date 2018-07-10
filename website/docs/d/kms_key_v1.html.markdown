@@ -22,7 +22,6 @@ data "huaweicloud_kms_key_v1" "key_1" {
   realm            = "cn-north-1"
   default_key_flag = "0"
   domain_id        = "b168fe00ff56492495a7d22974df2d0b"
-  origin           = "kms"
 }
 ```
 
@@ -47,7 +46,6 @@ data "huaweicloud_kms_key_v1" "key_1" {
 
 * `domain_id` - (Optional)  - ID of a user domain for the key. Changing this gets a new key.
 
-* `origin` - Origin of a key. such as: kms. Changing this gets a new key.
 
 ## Attributes Reference
 
@@ -59,7 +57,6 @@ are exported:
 * `realm` - See Argument Reference above.
 * `key_id` - See Argument Reference above.
 * `default_key_flag` - See Argument Reference above.
-* `origin` - See Argument Reference above.
 * `scheduled_deletion_date` - Scheduled deletion time (time stamp) of a key.
 * `domain_id` - See Argument Reference above.
 * `expiration_time` - Expiration time.
