@@ -38,14 +38,7 @@ func resourceELBHealthCheck() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					switch value {
-					case "HTTP":
-					case "TCP":
-					default:
-						errors = append(errors, fmt.Errorf("The valid value of %s is: HTTP, TCP", k))
-					}
-					return
+					return ValidateStringList(v, k, []string{"HTTP", "TCP"})
 				},
 			},
 
@@ -68,11 +61,7 @@ func resourceELBHealthCheck() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(int)
-					if value < 1 || value > 65535 {
-						errors = append(errors, fmt.Errorf("The value of %s must be in [1, 65535]", k))
-					}
-					return
+					return ValidateIntRange(v, k, 1, 65535)
 				},
 			},
 
@@ -81,11 +70,7 @@ func resourceELBHealthCheck() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(int)
-					if value < 1 || value > 10 {
-						errors = append(errors, fmt.Errorf("The value of %s must be in [1, 10]", k))
-					}
-					return
+					return ValidateIntRange(v, k, 1, 10)
 				},
 			},
 
@@ -94,11 +79,7 @@ func resourceELBHealthCheck() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(int)
-					if value < 1 || value > 10 {
-						errors = append(errors, fmt.Errorf("The value of %s must be in [1, 10]", k))
-					}
-					return
+					return ValidateIntRange(v, k, 1, 10)
 				},
 			},
 
@@ -107,11 +88,7 @@ func resourceELBHealthCheck() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(int)
-					if value < 1 || value > 50 {
-						errors = append(errors, fmt.Errorf("The value of %s must be in [1, 50]", k))
-					}
-					return
+					return ValidateIntRange(v, k, 1, 50)
 				},
 			},
 
@@ -120,11 +97,7 @@ func resourceELBHealthCheck() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(int)
-					if value < 1 || value > 5 {
-						errors = append(errors, fmt.Errorf("The value of %s must be in [1, 5]", k))
-					}
-					return
+					return ValidateIntRange(v, k, 1, 5)
 				},
 			},
 

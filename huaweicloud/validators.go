@@ -16,6 +16,19 @@ func ValidateStringList(v interface{}, k string, l []string) (ws []string, error
 	return
 }
 
+func ValidateIntRange(v interface{}, k string, l int, h int) (ws []string, errors []error) {
+	i, ok := v.(int)
+	if !ok {
+		errors = append(errors, fmt.Errorf("%q must be an integer", k))
+		return
+	}
+	if i < l || i > h {
+		errors = append(errors, fmt.Errorf("%q must be between %d and %d", k, l, h))
+		return
+	}
+	return
+}
+
 func validateS3BucketLifecycleTimestamp(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	_, err := time.Parse(time.RFC3339, fmt.Sprintf("%sT00:00:00Z", value))
