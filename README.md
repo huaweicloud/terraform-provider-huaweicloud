@@ -16,17 +16,17 @@ Requirements
 Building The Provider
 ---------------------
 
-Clone repository to: `$GOPATH/src/github.com/huaweicloud/terraform-provider-huaweicloud`
+Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-huaweicloud`
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/huaweicloud; cd $GOPATH/src/github.com/huaweicloud
-$ git clone https://github.com/huaweicloud/terraform-provider-huaweicloud
+$ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
+$ git clone https://github.com/terraform-providers/terraform-provider-huaweicloud
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-$ cd $GOPATH/src/github.com/huaweicloud/terraform-provider-huaweicloud
+$ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-huaweicloud
 $ make build
 ```
 
@@ -38,8 +38,8 @@ $ wget https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz
 $ sudo tar -C /usr/local -xzf go1.9.1.linux-amd64.tar.gz
 $ export PATH=$PATH:/usr/local/go/bin # You should put in your .profile or .bashrc
 $ go version # to verify it runs and version #
-$ go get github.com/huaweicloud/terraform-provider-huaweicloud
-$ cd ~/go/src/github.com/huaweicloud/terraform-provider-huaweicloud
+$ go get github.com/terraform-providers/terraform-provider-huaweicloud
+$ cd ~/go/src/github.com/terraform-providers/terraform-provider-huaweicloud
 $ make build
 $ export PATH=$PATH:~/go/bin # You should put in your .profile or .bashrc
 $ wget https://releases.hashicorp.com/terraform/0.10.7/terraform_0.10.7_linux_amd64.zip
@@ -79,14 +79,14 @@ resource "huaweicloud_compute_instance_v2" "test-server" {
 
 ### Full Example
 ----------------------
-Please see full example at https://github.com/huaweicloud/terraform-provider-huaweicloud/tree/master/examples, 
+Please see full example at https://github.com/terraform-providers/terraform-provider-huaweicloud/tree/master/examples, 
 you must fill in the required variables in variables.tf.
 
 Using the provider
 ----------------------
 Please see the documentation at [provider usage](website/docs/index.html.markdown).
 
-Or you can browse the documentation within this repo [here](https://github.com/huaweicloud/terraform-provider-huaweicloud/tree/master/website/docs).
+Or you can browse the documentation within this repo [here](https://github.com/terraform-providers/terraform-provider-huaweicloud/tree/master/website/docs).
 
 Developing the Provider
 ---------------------------
