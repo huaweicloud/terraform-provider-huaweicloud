@@ -246,6 +246,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpc_eip_v1":                      resourceVpcEIPV1(),
 			"huaweicloud_sfs_file_system_v2":              resourceSFSFileSystemV2(),
 			"huaweicloud_rts_stack_v1":                    resourceRTSStackV1(),
+			"huaweicloud_iam_agency_v3":                   resourceIAMAgencyV3(),
 		},
 
 		ConfigureFunc: configureProvider,
