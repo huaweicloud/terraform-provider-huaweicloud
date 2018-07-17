@@ -167,6 +167,26 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("OS_CLOUD", ""),
 				Description: descriptions["cloud"],
 			},
+
+			"agency_name": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("OS_AGENCY_NAME", ""),
+				Description: descriptions["agency_name"],
+			},
+
+			"agency_domain_name": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("OS_AGENCY_DOMAIN_NAME", ""),
+				Description: descriptions["agency_domain_name"],
+			},
+			"delegated_project": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("OS_DELEGATED_PROJECT", ""),
+				Description: descriptions["delegated_project"],
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -270,6 +290,12 @@ func init() {
 			"service (Octavia) instead of the Networking service (Neutron).",
 
 		"cloud": "An entry in a `clouds.yaml` file to use.",
+
+		"agency_name": "The name of agency",
+
+		"agency_domain_name": "The name of domain who created the agency (Identity v3).",
+
+		"delegated_project": "The name of delegated project (Identity v3).",
 	}
 }
 
@@ -295,6 +321,9 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 		Username:         d.Get("user_name").(string),
 		UserID:           d.Get("user_id").(string),
 		useOctavia:       d.Get("use_octavia").(bool),
+		AgencyName:       d.Get("agency_name").(string),
+		AgencyDomainName: d.Get("agency_domain_name").(string),
+		DelegatedProject: d.Get("delegated_project").(string),
 	}
 
 	if err := config.LoadAndValidate(); err != nil {

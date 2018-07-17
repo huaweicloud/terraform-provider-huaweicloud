@@ -15,6 +15,7 @@ Golangsdk has added and removed some features to support Huawei clouds.
 - **kms**: key management service
 - **rds**: relational database service
 - **smn**: simple message notification service
+- **drs**: disaster recovery service
 
 ## Removed features
 
