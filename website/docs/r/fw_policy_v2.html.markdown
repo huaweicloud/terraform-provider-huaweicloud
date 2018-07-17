@@ -1,14 +1,14 @@
 ---
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_fw_policy_v2"
-sidebar_current: "docs-huaweicloud-resource-fw-policy-v1"
+sidebar_current: "docs-huaweicloud-resource-fw-policy-v2"
 description: |-
-  Manages a v1 firewall policy resource within HuaweiCloud.
+  Manages a v2 firewall policy resource within HuaweiCloud.
 ---
 
 # huaweicloud\_fw\_policy_v2
 
-Manages a v1 firewall policy resource within HuaweiCloud.
+Manages a v2 firewall policy resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -44,7 +44,7 @@ resource "huaweicloud_fw_policy_v2" "policy_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the v1 networking client.
+* `region` - (Optional) The region in which to obtain the v2 networking client.
     A networking client is needed to create a firewall policy. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     firewall policy.
