@@ -312,7 +312,7 @@ func resourceValidateDescription(v interface{}, k string) (ws []string, errors [
 	return
 }
 
-var recordSetTypes = [7]string{"A", "AAAA", "MX", "CNAME", "TXT", "NS", "SRV"}
+var recordSetTypes = [8]string{"A", "AAAA", "MX", "CNAME", "TXT", "NS", "SRV", "PTR"}
 
 func resourceRecordsetValidateType(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
