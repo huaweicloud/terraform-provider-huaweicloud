@@ -1,6 +1,11 @@
 package huaweicloud
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
+	"gopkg.in/yaml.v2"
+)
 
 // Takes list of pointers to strings. Expand to an array
 // of raw strings and returns a []interface{}
@@ -43,4 +48,55 @@ func normalizeJsonString(jsonString interface{}) (string, error) {
 	bytes, _ := json.Marshal(j)
 
 	return string(bytes[:]), nil
+}
+
+// Takes a value containing YAML string and passes it through
+// the YAML parser. Returns either a parsing
+// error or original YAML string.
+func checkYamlString(yamlString interface{}) (string, error) {
+	var y interface{}
+
+	if yamlString == nil || yamlString.(string) == "" {
+		return "", nil
+	}
+
+	s := yamlString.(string)
+
+	err := yaml.Unmarshal([]byte(s), &y)
+	if err != nil {
+		return s, err
+	}
+
+	return s, nil
+}
+
+func normalizeStackTemplate(templateString interface{}) (string, error) {
+	if looksLikeJsonString(templateString) {
+		return normalizeJsonString(templateString.(string))
+	}
+
+	return checkYamlString(templateString)
+}
+
+func flattenStackOutputs(stackOutputs []*stacks.Output) map[string]string {
+	outputs := make(map[string]string, len(stackOutputs))
+	for _, o := range stackOutputs {
+		outputs[*o.OutputKey] = *o.OutputValue
+	}
+	return outputs
+}
+
+// flattenStackParameters is flattening list of
+//  stack Parameters and only returning existing
+// parameters to avoid clash with default values
+func flattenStackParameters(stackParams map[string]string,
+	originalParams map[string]interface{}) map[string]string {
+	params := make(map[string]string, len(stackParams))
+	for key, value := range stackParams {
+		_, isConfigured := originalParams[key]
+		if isConfigured {
+			params[key] = value
+		}
+	}
+	return params
 }
