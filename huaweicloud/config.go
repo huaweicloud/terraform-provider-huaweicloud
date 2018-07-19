@@ -514,3 +514,10 @@ func (c *Config) orchestrationV1Client(region string) (*golangsdk.ServiceClient,
 		Availability: c.getHwEndpointType(),
 	})
 }
+
+func (c *Config) networkingHwV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.NewNetworkV2(c.HwClient, golangsdk.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getHwEndpointType(),
+	})
+}
