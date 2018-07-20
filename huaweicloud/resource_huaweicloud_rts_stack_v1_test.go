@@ -48,7 +48,6 @@ func TestAccRTSStackV1_basic(t *testing.T) {
 	})
 }
 
-// PASS
 func TestAccRTSStackV1_timeout(t *testing.T) {
 	var stacks stacks.RetrievedStack
 
