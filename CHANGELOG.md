@@ -10,6 +10,14 @@ FEATURES:
 * **New Resource:** `huaweicloud_rts_stack_v1` [GH-10]
 * **New Resource:** `huaweicloud_iam_agency_v3` [GH-16]
 
+ENHANCEMENTS:
+
+* resource/huaweicloud_dns_recordset_v2: Add `PTR` type [GH-12]
+
+BUG FIXES:
+
+* provider: Create only one token [GH-5]
+
 ## 1.0.0 (July 13, 2018)
 
 FEATURES:
