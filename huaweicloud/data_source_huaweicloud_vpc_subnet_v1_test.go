@@ -18,13 +18,13 @@ func TestAccVpcSubnetV1DataSource_basic(t *testing.T) {
 				Config: testAccDataSourceVpcSubnetV1Config,
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceVpcSubnetV1Check("data.huaweicloud_vpc_subnet_v1.by_id", "huaweicloud_subnet", "192.168.0.0/16",
-						"192.168.0.1", "%s"),
+						"192.168.0.1", OS_AVAILABILITY_ZONE),
 					testAccDataSourceVpcSubnetV1Check("data.huaweicloud_vpc_subnet_v1.by_cidr", "huaweicloud_subnet", "192.168.0.0/16",
-						"192.168.0.1", "%s"),
+						"192.168.0.1", OS_AVAILABILITY_ZONE),
 					testAccDataSourceVpcSubnetV1Check("data.huaweicloud_vpc_subnet_v1.by_name", "huaweicloud_subnet", "192.168.0.0/16",
-						"192.168.0.1", "%s"),
+						"192.168.0.1", OS_AVAILABILITY_ZONE),
 					testAccDataSourceVpcSubnetV1Check("data.huaweicloud_vpc_subnet_v1.by_vpc_id", "huaweicloud_subnet", "192.168.0.0/16",
-						"192.168.0.1", "%s"),
+						"192.168.0.1", OS_AVAILABILITY_ZONE),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_vpc_subnet_v1.by_id", "status", "ACTIVE"),
 					resource.TestCheckResourceAttr(

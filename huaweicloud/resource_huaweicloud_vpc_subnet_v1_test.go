@@ -29,7 +29,7 @@ func TestAccVpcSubnetV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"huaweicloud_vpc_subnet_v1.subnet_1", "gateway_ip", "192.168.0.1"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_vpc_subnet_v1.subnet_1", "availability_zone", "%s"),
+						"huaweicloud_vpc_subnet_v1.subnet_1", "availability_zone", OS_AVAILABILITY_ZONE),
 				),
 			},
 			resource.TestStep{
