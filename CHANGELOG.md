@@ -8,6 +8,7 @@ FEATURES:
 * **New Resource:** `huaweicloud_iam_agency_v3` [GH-7]
 * **New Resource:** `huaweicloud_sfs_file_system_v2` [GH-9]
 * **New Resource:** `huaweicloud_rts_stack_v1` [GH-10]
+* **New Resource:** `huaweicloud_iam_agency_v3` [GH-16]
 
 ## 1.0.0 (July 13, 2018)
 
