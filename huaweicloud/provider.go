@@ -200,6 +200,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_sfs_file_system_v2":     dataSourceSFSFileSystemV2(),
 			"huaweicloud_rts_stack_v1":           dataSourceRTSStackV1(),
 			"huaweicloud_rts_stack_resource_v1":  dataSourceRTSStackResourcesV1(),
+			"huaweicloud_iam_role_v3":            dataSourceIAMRoleV3(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
