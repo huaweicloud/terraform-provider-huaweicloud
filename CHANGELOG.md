@@ -2,9 +2,20 @@
 
 FEATURES:
 
+* **New Data Source:** `huaweicloud_vpc_v1` [GH-14]
+* **New Data Source:** `huaweicloud_vpc_peering_connection_v2` [GH-14]
+* **New Data Source:** `huaweicloud_vpc_route_v2` [GH-14]
+* **New Data Source:** `huaweicloud_vpc_route_ids_v2` [GH-14]
+* **New Data Source:** `huaweicloud_vpc_subnet_v1` [GH-14]
+* **New Data Source:** `huaweicloud_vpc_subnet_ids_v1` [GH-14]
 * **New Data Source:** `huaweicloud_sfs_file_system_v2` [GH-9]
 * **New Data Source:** `huaweicloud_rts_stack_v1` [GH-10]
 * **New Data Source:** `huaweicloud_rts_stack_resource_v1` [GH-10]
+* **New Resource:** `huaweicloud_vpc_v1` [GH-14]
+* **New Resource:** `huaweicloud_vpc_peering_connection_v2` [GH-14]
+* **New Resource:** `huaweicloud_vpc_peering_connection_accepter_v2` [GH-14]
+* **New Resource:** `huaweicloud_vpc_route_v2` [GH-14]
+* **New Resource:** `huaweicloud_vpc_subnet_v1` [GH-14]
 * **New Resource:** `huaweicloud_iam_agency_v3` [GH-7]
 * **New Resource:** `huaweicloud_sfs_file_system_v2` [GH-9]
 * **New Resource:** `huaweicloud_rts_stack_v1` [GH-10]
