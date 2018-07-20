@@ -137,33 +137,33 @@ resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
 	share_proto = "NFS"
 	size=1
 	name="sfs-test1"
-  	availability_zone="cn-north-1a"
+  	availability_zone="%s"
 	access_to="%s"
   	access_type="cert"
   	access_level="rw"
 	description="sfs_c2c_test-file"
 }
-`, OS_VPC_ID)
+`, OS_AVAILABILITY_ZONE, OS_VPC_ID)
 
 var testAccSFSFileSystemV2_update = fmt.Sprintf(`
 resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
 	share_proto = "NFS"
 	size=2
 	name="sfs-test2"
-  	availability_zone="cn-north-1a"
+  	availability_zone="%s"
 	access_to="%s"
   	access_type="cert"
   	access_level="rw"
 	description="sfs_c2c_test-file"
 }
-`, OS_VPC_ID)
+`, OS_AVAILABILITY_ZONE, OS_VPC_ID)
 
 var testAccSFSFileSystemV2_timeout = fmt.Sprintf(`
 resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
 	share_proto = "NFS"
 	size=1
 	name="sfs-test1"
-  	availability_zone="cn-north-1a"
+  	availability_zone="%s"
 	access_to="%s"
   	access_type="cert"
   	access_level="rw"
@@ -173,4 +173,4 @@ resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
     create = "5m"
     delete = "5m"
   }
-}`, OS_VPC_ID)
+}`, OS_AVAILABILITY_ZONE, OS_VPC_ID)
