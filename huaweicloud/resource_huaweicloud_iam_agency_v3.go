@@ -69,7 +69,7 @@ func resourceIAMAgencyV3() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"roles": {
+						"roles": &schema.Schema{
 							Type:     schema.TypeSet,
 							Required: true,
 							MinItems: 1,
@@ -77,7 +77,7 @@ func resourceIAMAgencyV3() *schema.Resource {
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
 						},
-						"project": {
+						"project": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -186,20 +186,23 @@ func allRolesOfDomain(domainID string, client *golangsdk.ServiceClient) (map[str
 	if err != nil {
 		return nil, fmt.Errorf("Error listing global roles, err=%s", err)
 	}
-	if roles == nil {
-		roles = map[string]string{}
-	}
 
 	customRoles, err := listRolesOfDomain(domainID, client)
 	if err != nil {
 		return nil, fmt.Errorf("Error listing domain's custom roles, err=%s", err)
 	}
-	if customRoles != nil {
-		for k, v := range customRoles {
-			roles[k] = v
-		}
+
+	if roles == nil {
+		return customRoles, nil
 	}
 
+	if customRoles == nil {
+		return roles, nil
+	}
+
+	for k, v := range customRoles {
+		roles[k] = v
+	}
 	return roles, nil
 }
 
