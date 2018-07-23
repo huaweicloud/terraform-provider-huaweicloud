@@ -1,4 +1,4 @@
-## 1.1.0 (Unreleased)
+## 1.1.1 (Unreleased)
 
 FEATURES:
 
@@ -8,18 +8,31 @@ FEATURES:
 * **New Data Source:** `huaweicloud_vpc_route_ids_v2` [GH-14]
 * **New Data Source:** `huaweicloud_vpc_subnet_v1` [GH-14]
 * **New Data Source:** `huaweicloud_vpc_subnet_ids_v1` [GH-14]
-* **New Data Source:** `huaweicloud_sfs_file_system_v2` [GH-9]
-* **New Data Source:** `huaweicloud_rts_stack_v1` [GH-10]
-* **New Data Source:** `huaweicloud_rts_stack_resource_v1` [GH-10]
 * **New Resource:** `huaweicloud_vpc_v1` [GH-14]
 * **New Resource:** `huaweicloud_vpc_peering_connection_v2` [GH-14]
 * **New Resource:** `huaweicloud_vpc_peering_connection_accepter_v2` [GH-14]
 * **New Resource:** `huaweicloud_vpc_route_v2` [GH-14]
 * **New Resource:** `huaweicloud_vpc_subnet_v1` [GH-14]
-* **New Resource:** `huaweicloud_iam_agency_v3` [GH-7]
-* **New Resource:** `huaweicloud_sfs_file_system_v2` [GH-9]
-* **New Resource:** `huaweicloud_rts_stack_v1` [GH-10]
-* **New Resource:** `huaweicloud_iam_agency_v3` [GH-16]
+
+## 1.1.0 (July 20, 2018)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_sfs_file_system_v2` ([#9](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/9))
+* **New Data Source:** `huaweicloud_rts_stack_v1` ([#10](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/10))
+* **New Data Source:** `huaweicloud_rts_stack_resource_v1` ([#10](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/10))
+* **New Resource:** `huaweicloud_iam_agency_v3` ([#7](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/7))
+* **New Resource:** `huaweicloud_sfs_file_system_v2` ([#9](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/9))
+* **New Resource:** `huaweicloud_rts_stack_v1` ([#10](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/10))
+* **New Resource:** `huaweicloud_iam_agency_v3` ([#16](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/16))
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_dns_recordset_v2: Add `PTR` type ([#12](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/12))
+
+BUG FIXES:
+
+* provider: Create only one token ([#5](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/5))
 
 ## 1.0.0 (July 13, 2018)
 

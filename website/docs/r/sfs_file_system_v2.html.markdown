@@ -6,7 +6,7 @@ description: |-
    Provides an Scalable File Resource (SFS) resource.
 ---
 
-# huaweicloud_sfs_file_system_v2_
+# huaweicloud_sfs_file_system_v2
 
 Provides an Shared File System (SFS) resource.
 
