@@ -27,8 +27,10 @@ var (
 	OS_ACCESS_KEY             = os.Getenv("OS_ACCESS_KEY")
 	OS_SECRET_KEY             = os.Getenv("OS_SECRET_KEY")
 	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
+	OS_SUBNET_ID              = os.Getenv("OS_SUBNET_ID")
 	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
 	OS_ULB_ENVIRONMENT        = os.Getenv("OS_ULB_ENVIRONMENT")
+	OS_SSH_KEY                = os.Getenv("OS_SSH_KEY")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -130,6 +132,23 @@ func testAccPreCheckELB(t *testing.T) {
 	}
 }
 
+func testAccPreCheckCCE(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_VPC_ID == "" {
+		t.Skip("OS_VPC_ID must be set for CCE acceptance tests")
+	}
+	if OS_SUBNET_ID == "" {
+		t.Skip("OS_SUBNET_ID must be set for CCE acceptance tests")
+	}
+}
+
+func testAccPreCheckCCENode(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+	if OS_SSH_KEY == "" {
+		t.Fatal("OS_SSH_KEY must be set for acceptance tests")
+	}
+}
 func TestProvider(t *testing.T) {
 	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
