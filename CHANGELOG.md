@@ -1,4 +1,12 @@
 ## 1.1.1 (Unreleased)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_cce_cluster_v3` [GH-19]
+* **New Data Source:** `huaweicloud_cce_node_v3` [GH-19]
+* **New Resource:** `huaweicloud_cce_cluster_v3` [GH-19]
+* **New Resource:** `huaweicloud_cce_node_v3` [GH-19]
+
 ## 1.1.0 (July 20, 2018)
 
 FEATURES:
