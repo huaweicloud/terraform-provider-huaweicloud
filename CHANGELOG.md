@@ -1,4 +1,10 @@
 ## 1.1.1 (Unreleased)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_rts_software_config_v1` [GH-20]
+* **New Resource:** `huaweicloud_rts_software_config_v1` [GH-20]
+
 ## 1.1.0 (July 20, 2018)
 
 FEATURES:
