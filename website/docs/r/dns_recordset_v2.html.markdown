@@ -48,7 +48,7 @@ The following arguments are supported:
   Changing this creates a new DNS record set.
 
 * `type` - (Optional) The type of record set. The options include `A`, `AAAA`, `MX`,
-  `CNAME`, `TXT`, `NS`, and `SRV`. Changing this creates a new DNS record set.
+  `CNAME`, `TXT`, `NS`, `SRV`, and `PTR`. Changing this creates a new DNS record set.
 
 * `ttl` - (Optional) The time to live (TTL) of the record set (in seconds). The value
   range is 300–2147483647. The default value is 300.

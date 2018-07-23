@@ -481,6 +481,10 @@ func (c *Config) loadCESClient(region string) (*golangsdk.ServiceClient, error) 
 	})
 }
 
+func (c *Config) loadIAMV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.NewIdentityV3(c.HwClient, golangsdk.EndpointOpts{})
+}
+
 func (c *Config) getEndpointType() gophercloud.Availability {
 	if c.EndpointType == "internal" || c.EndpointType == "internalURL" {
 		return gophercloud.AvailabilityInternal
@@ -499,6 +503,13 @@ func (c *Config) getHwEndpointType() golangsdk.Availability {
 		return golangsdk.AvailabilityAdmin
 	}
 	return golangsdk.AvailabilityPublic
+}
+
+func (c *Config) sfsV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.NewHwSFSV2(c.HwClient, golangsdk.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getHwEndpointType(),
+	})
 }
 
 func (c *Config) orchestrationV1Client(region string) (*golangsdk.ServiceClient, error) {
