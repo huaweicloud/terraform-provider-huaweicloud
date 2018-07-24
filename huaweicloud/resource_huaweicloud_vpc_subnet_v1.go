@@ -277,6 +277,10 @@ func waitForVpcSubnetDelete(subnetClient *golangsdk.ServiceClient, vpcId string,
 				log.Printf("[INFO] Successfully deleted Huaweicloud subnet %s", subnetId)
 				return r, "DELETED", nil
 			}
+			if _, ok := err.(golangsdk.ErrDefault500); ok {
+				log.Printf("[DEBUG] Got 500 error when delting HuaweiCloud subnet %s, it should be stream control on API server, try again later", subnetId)
+				return r, "ACTIVE", nil
+			}
 			return r, "ACTIVE", err
 		}
 		err = subnets.Delete(subnetClient, vpcId, subnetId).ExtractErr()
@@ -285,6 +289,10 @@ func waitForVpcSubnetDelete(subnetClient *golangsdk.ServiceClient, vpcId string,
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[INFO] Successfully deleted Huaweicloud subnet %s", subnetId)
 				return r, "DELETED", nil
+			}
+			if _, ok := err.(golangsdk.ErrDefault500); ok {
+				log.Printf("[DEBUG] Got 500 error when delting HuaweiCloud subnet %s, it should be stream control on API server, try again later", subnetId)
+				return r, "ACTIVE", nil
 			}
 			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
 				if errCode.Actual == 409 {
