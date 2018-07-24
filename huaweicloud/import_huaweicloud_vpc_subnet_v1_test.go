@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-
 func TestAccOTCVpcSubnetV1_importBasic(t *testing.T) {
 	resourceName := "huaweicloud_vpc_subnet_v1.subnet_1"
 

@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-
 func TestAccOTCVpcV1_importBasic(t *testing.T) {
 	resourceName := "huaweicloud_vpc_v1.vpc_1"
 

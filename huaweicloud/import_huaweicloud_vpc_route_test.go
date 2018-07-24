@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-
 func TestAccOTCVpcRouteV2_importBasic(t *testing.T) {
 	resourceName := "huaweicloud_vpc_route_v2.route_1"
 
