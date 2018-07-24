@@ -132,7 +132,7 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[INFO] Vpc Subnet ID: %s", n.ID)
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"CREATING"},
+		Pending:    []string{"UNKNOWN"},
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForVpcSubnetActive(subnetClient, n.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
@@ -259,11 +259,11 @@ func waitForVpcSubnetActive(subnetClient *golangsdk.ServiceClient, vpcId string)
 		}
 
 		//If subnet status is other than Active, send error
-		if n.Status == "DOWN" || n.Status == "ERROR" || n.Status == "UNKNOWN" {
+		if n.Status == "DOWN" || n.Status == "ERROR" {
 			return nil, "", fmt.Errorf("Subnet status: '%s'", n.Status)
 		}
 
-		return n, "CREATING", nil
+		return n, "UNKNOWN", nil
 	}
 }
 
