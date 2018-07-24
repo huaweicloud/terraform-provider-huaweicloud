@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-// PASS
 func TestAccOTCVpcPeeringConnectionV1_importBasic(t *testing.T) {
 	resourceName := "huaweicloud_vpc_peering_connection_v2.peering_1"
 
