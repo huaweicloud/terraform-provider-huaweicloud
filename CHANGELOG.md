@@ -2,6 +2,14 @@
 
 FEATURES:
 
+* **New Data Source:** `huaweicloud_cce_cluster_v3` [GH-19]
+* **New Data Source:** `huaweicloud_cce_node_v3` [GH-19]
+* **New Resource:** `huaweicloud_cce_cluster_v3` [GH-19]
+* **New Resource:** `huaweicloud_cce_node_v3` [GH-19]
+
+
+FEATURES:
+
 * **New Data Source:** `huaweicloud_vpc_v1` [GH-14]
 * **New Data Source:** `huaweicloud_vpc_peering_connection_v2` [GH-14]
 * **New Data Source:** `huaweicloud_vpc_route_v2` [GH-14]
