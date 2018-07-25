@@ -1,4 +1,19 @@
 ## 1.1.1 (Unreleased)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_vpc_v1` [GH-14]
+* **New Data Source:** `huaweicloud_vpc_peering_connection_v2` [GH-14]
+* **New Data Source:** `huaweicloud_vpc_route_v2` [GH-14]
+* **New Data Source:** `huaweicloud_vpc_route_ids_v2` [GH-14]
+* **New Data Source:** `huaweicloud_vpc_subnet_v1` [GH-14]
+* **New Data Source:** `huaweicloud_vpc_subnet_ids_v1` [GH-14]
+* **New Resource:** `huaweicloud_vpc_v1` [GH-14]
+* **New Resource:** `huaweicloud_vpc_peering_connection_v2` [GH-14]
+* **New Resource:** `huaweicloud_vpc_peering_connection_accepter_v2` [GH-14]
+* **New Resource:** `huaweicloud_vpc_route_v2` [GH-14]
+* **New Resource:** `huaweicloud_vpc_subnet_v1` [GH-14]
+
 ## 1.1.0 (July 20, 2018)
 
 FEATURES:
