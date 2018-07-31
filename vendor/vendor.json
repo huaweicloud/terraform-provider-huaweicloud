@@ -854,10 +854,10 @@
 			"revisionTime": "2018-04-09T05:07:25Z"
 		},
 		{
-			"checksumSHA1": "GYl/VaIbV0/GPFSKdwwmN6whqAY=",
+			"checksumSHA1": "K5KP0LNnl6adeGKlG/9x36sG4Ys=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets",
-			"revision": "aef01041fa9cf1fa8844a490cac4ded3fceec9a7",
-			"revisionTime": "2018-07-17T08:53:40Z"
+			"revision": "7d1c5682d6f16c6b4b9625207edac8cb3c9880c8",
+			"revisionTime": "2018-07-31T01:25:28Z"
 		},
 		{
 			"checksumSHA1": "BeVcL4FNVGe8c5Vxha/xFyz6dlA=",
