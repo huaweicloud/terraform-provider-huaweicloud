@@ -60,3 +60,5 @@ the selected subnet.
 * `dns_list` - The IP address list of DNS servers on the subnet.
 
 * `dhcp_enable` - DHCP function for the subnet.
+
+* `subnet_id` - Specifies the subnet ID.
