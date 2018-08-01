@@ -55,11 +55,11 @@ The following arguments are supported:
 All of the argument attributes are also exported as
 result attributes:
 
-* `id` - The ID of the subnet.
+* `id` - Specifies a resource ID in UUID format.
  
 * `status` - Specifies the status of the subnet. The value can be ACTIVE, DOWN, UNKNOWN, or ERROR.
 
-* `subnet_id` - Specifies the subnet ID.
+* `subnet_id` - Specifies the subnet (Native OpenStack API) ID.
 
 # Import
 
