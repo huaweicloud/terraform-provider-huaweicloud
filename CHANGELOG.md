@@ -13,6 +13,8 @@ FEATURES:
 * **New Resource:** `huaweicloud_vpc_peering_connection_accepter_v2` [GH-14]
 * **New Resource:** `huaweicloud_vpc_route_v2` [GH-14]
 * **New Resource:** `huaweicloud_vpc_subnet_v1` [GH-14]
+* **New Data Source:** `huaweicloud_rts_software_config_v1` [GH-20]
+* **New Resource:** `huaweicloud_rts_software_config_v1` [GH-20]
 
 ## 1.1.0 (July 20, 2018)
 
