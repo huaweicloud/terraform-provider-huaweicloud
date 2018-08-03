@@ -13,19 +13,15 @@ description: |-
 ## Example Usage
 
  ```hcl
- 
- variable "cluster_name" { }
- variable "cluster_id" { }
- variable "vpc_id" { }
+  variable "cluster_name" { }
+  variable "cluster_id" { }
+  variable "vpc_id" { }
 
-  data "huaweicloud_cce_cluster_v3" "cluster" 
-
-    {
-        name = "${var.cluster_name}"
-        id= "${var.cluster_id}"
-        status= "Available"
-    }
-
+  data "huaweicloud_cce_cluster_v3" "cluster" {
+   name = "${var.cluster_name}"
+   id= "${var.cluster_id}"
+   status= "Available"
+  }
 ```
 
 ## Argument Reference

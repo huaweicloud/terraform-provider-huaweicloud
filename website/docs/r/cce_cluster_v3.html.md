@@ -6,7 +6,7 @@ description: |-
   Provides Cloud Container Engine(CCE) resource.
 ---
 
-# huaweicloud_resource_huaweicloud_cce_cluster_v3  
+# huaweicloud_cce_cluster_v3
 
 Provides a cluster resource (CCE).
 
@@ -17,8 +17,7 @@ Provides a cluster resource (CCE).
     variable "vpc_id" { }
     variable "subnet_id" { }
 	
-	resource "huaweicloud_cce_cluster_v3" "cluster_1" 
-	{
+    resource "huaweicloud_cce_cluster_v3" "cluster_1" {
      name = "cluster"
      cluster_type= "VirtualMachine"
      flavor= "${var.flavor_id}"
@@ -26,7 +25,7 @@ Provides a cluster resource (CCE).
      subnet_id= "${var.subnet_id}"
      container_network_type= "overlay_l2"
      description= "Create cluster"
-	}
+    }
 ```
 
 ## Argument Reference

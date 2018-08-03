@@ -7,38 +7,35 @@ description: |-
 ---
 
 
-# huaweicloud_cce_nodes_v1_
+# huaweicloud_cce_nodes_v3
 Add a node to a container cluster. 
 
 ## Example Usage
 
  ```hcl
-        variable "cluster_id" { }
-        variable "ssh_key" { }
-       
-		resource "huaweicloud_cce_node_v3" "node_1" 
-			  
-              cluster_id="${var.cluster_id}"
-              
-              name = "node1"
-              flavor="s1.medium"
-              iptype="5_bgp"
-              az= "cn-east-2a"
-              sshkey="${var.ssh_key}"
-              root_volume = {
-                size= 40,
-                volumetype= "SATA"
-              }
-              sharetype= "PER"
-              bandwidth_size= 100,
-              data_volumes = [
-                {
-                  size= 100,
-                  volumetype= "SATA"
-                },
-              ]  
-            }
+   variable "cluster_id" { }
+   variable "ssh_key" { }
 
+   resource "huaweicloud_cce_node_v3" "node_1" {
+    cluster_id="${var.cluster_id}"
+    name = "node1"
+    flavor="s1.medium"
+    iptype="5_bgp"
+    az= "cn-east-2a"
+    sshkey="${var.ssh_key}"
+    root_volume = {
+     size= 40,
+     volumetype= "SATA"
+    }
+    sharetype= "PER"
+    bandwidth_size= 100,
+    data_volumes = [
+     {
+      size= 100,
+      volumetype= "SATA"
+     },
+    ]
+  }
  ```    
 
 

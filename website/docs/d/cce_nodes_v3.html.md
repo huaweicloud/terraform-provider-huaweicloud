@@ -7,7 +7,7 @@ description: |-
 ---
 
 
-# huaweicloud_cce_nodes_v3_
+# huaweicloud_cce_nodes_v3
 
 To get the specified node in a cluster.
 
@@ -18,9 +18,8 @@ To get the specified node in a cluster.
     variable "node_id" { }
   
     data "huaweicloud_cce_node_v3" "node" {
-    	cluster_id = "${var.cluster_id}"
-        node_id= "${var.node_id}"
-  
+     cluster_id = "${var.cluster_id}"
+     node_id= "${var.node_id}"
     }
  ```
 ## Argument Reference
