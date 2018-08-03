@@ -99,6 +99,10 @@ func resourceVpcSubnetV1() *schema.Resource {
 				ForceNew: true,
 				Required: true,
 			},
+			"subnet_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -177,6 +181,7 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("secondary_dns", n.SECONDARY_DNS)
 	d.Set("availability_zone", n.AvailabilityZone)
 	d.Set("vpc_id", n.VPC_ID)
+	d.Set("subnet_id", n.SubnetId)
 	d.Set("region", GetRegion(d, config))
 
 	return nil

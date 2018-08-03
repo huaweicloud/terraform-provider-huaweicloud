@@ -39,6 +39,9 @@ type Subnet struct {
 
 	//Specifies the ID of the VPC to which the subnet belongs.
 	VPC_ID string `json:"vpc_id"`
+
+	//Specifies the subnet ID.
+	SubnetId string `json:"neutron_subnet_id"`
 }
 
 // SubnetPage is the page returned by a pager when traversing over a

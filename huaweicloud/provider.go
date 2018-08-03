@@ -209,6 +209,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpc_subnet_ids_v1":         dataSourceVpcSubnetIdsV1(),
 			"huaweicloud_cce_cluster_v3":            dataSourceCCEClusterV3(),
 			"huaweicloud_cce_node_v3":               dataSourceCceNodesV3(),
+			"huaweicloud_rts_software_config_v1":    dataSourceRtsSoftwareConfigV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -263,6 +264,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpc_subnet_v1":                      resourceVpcSubnetV1(),
 			"huaweicloud_cce_cluster_v3":                     resourceCCEClusterV3(),
 			"huaweicloud_cce_node_v3":                        resourceCCENodeV3(),
+			"huaweicloud_rts_software_config_v1":             resourceSoftwareConfigV1(),
 		},
 
 		ConfigureFunc: configureProvider,

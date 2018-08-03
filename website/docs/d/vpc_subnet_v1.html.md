@@ -32,7 +32,7 @@ The arguments of this data source act as filters for querying the available
 subnets in the current tenant. The given filters must match exactly one
 subnet whose data will be exported as attributes.
 
-* `id` - (Optional) - The id of the specific subnet to retrieve.
+* `id` - (Optional) - Specifies a resource ID in UUID format.
 
 * `name` (Optional) - The name of the specific subnet to retrieve.
 
@@ -60,3 +60,5 @@ the selected subnet.
 * `dns_list` - The IP address list of DNS servers on the subnet.
 
 * `dhcp_enable` - DHCP function for the subnet.
+
+* `subnet_id` - Specifies the subnet (Native OpenStack API) ID.

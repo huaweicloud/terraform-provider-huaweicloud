@@ -55,12 +55,16 @@ The following arguments are supported:
 All of the argument attributes are also exported as
 result attributes:
 
-* `id` - The ID of the subnet.
+* `id` - Specifies a resource ID in UUID format.
  
 * `status` - Specifies the status of the subnet. The value can be ACTIVE, DOWN, UNKNOWN, or ERROR.
+
+* `subnet_id` - Specifies the subnet (Native OpenStack API) ID.
 
 # Import
 
 Subnets can be imported using the `subnet id`, e.g.
 
-> $ terraform import huaweicloud_vpc_subnet_v1 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
+```
+$ terraform import huaweicloud_vpc_subnet_v1 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
+```
