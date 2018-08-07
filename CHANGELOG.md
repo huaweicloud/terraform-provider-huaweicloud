@@ -1,15 +1,9 @@
-## 1.1.2 (Unreleased)
+## 1.1.1 (Unreleased)
 
 FEATURES:
 
 * **New Data Source:** `huaweicloud_cce_cluster_v3` [GH-19]
 * **New Data Source:** `huaweicloud_cce_node_v3` [GH-19]
-* **New Resource:** `huaweicloud_cce_cluster_v3` [GH-19]
-* **New Resource:** `huaweicloud_cce_node_v3` [GH-19]
-
-## 1.1.1 (July 24, 2018)
-FEATURES:
-
 * **New Data Source:** `huaweicloud_vpc_v1` [GH-14]
 * **New Data Source:** `huaweicloud_vpc_peering_connection_v2` [GH-14]
 * **New Data Source:** `huaweicloud_vpc_route_v2` [GH-14]
@@ -23,6 +17,8 @@ FEATURES:
 * **New Resource:** `huaweicloud_vpc_subnet_v1` [GH-14]
 * **New Data Source:** `huaweicloud_rts_software_config_v1` [GH-20]
 * **New Resource:** `huaweicloud_rts_software_config_v1` [GH-20]
+* **New Resource:** `huaweicloud_cce_cluster_v3` [GH-19]
+* **New Resource:** `huaweicloud_cce_node_v3` [GH-19]
 
 ## 1.1.0 (July 20, 2018)
 
