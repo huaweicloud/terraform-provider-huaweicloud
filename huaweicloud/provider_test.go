@@ -146,7 +146,7 @@ func testAccPreCheckCCE(t *testing.T) {
 func testAccPreCheckCCENode(t *testing.T) {
 	testAccPreCheckRequiredEnvVars(t)
 	if OS_SSH_KEY == "" {
-		t.Fatal("OS_SSH_KEY must be set for acceptance tests")
+		t.Skip("OS_SSH_KEY must be set for CCE Node acceptance tests")
 	}
 }
 func TestProvider(t *testing.T) {
