@@ -7,13 +7,13 @@ const (
 )
 
 func rootURL(c *golangsdk.ServiceClient) string {
-	return c.ServiceURL(c.ProjectID, rootPath)
+	return c.ServiceURL(rootPath)
 }
 
 func resourceURL(c *golangsdk.ServiceClient, id string) string {
-	return c.ServiceURL(c.ProjectID, rootPath, id)
+	return c.ServiceURL(rootPath, id)
 }
 
 func actionURL(c *golangsdk.ServiceClient, id string) string {
-	return c.ServiceURL(c.ProjectID, rootPath, id, "action")
+	return c.ServiceURL(rootPath, id, "action")
 }
