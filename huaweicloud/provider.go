@@ -266,6 +266,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_ces_alarmrule":                      resourceAlarmRule(),
 			"huaweicloud_as_configuration_v1":                resourceASConfiguration(),
 			"huaweicloud_as_group_v1":                        resourceASGroup(),
+			"huaweicloud_as_policy_v1":                       resourceASPolicy(),
 		},
 
 		ConfigureFunc: configureProvider,
