@@ -3,7 +3,6 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
-	"regexp"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -30,26 +29,11 @@ func resourceAlarmRule() *schema.Resource {
 			"alarm_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					vv := regexp.MustCompile("^[a-zA-Z0-9_]{1,128}$")
-					if !vv.MatchString(value) {
-						errors = append(errors, fmt.Errorf("%s must be string of 1 to 128 characters that consists of uppercase/lowercae letters, digits and underscores(_)", k))
-					}
-					return
-				},
 			},
 
 			"alarm_description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					if len(value) > 256 {
-						errors = append(errors, fmt.Errorf("The length of %s must be in [0, 256]", k))
-					}
-					return
-				},
 			},
 
 			"metric": &schema.Schema{
@@ -61,27 +45,11 @@ func resourceAlarmRule() *schema.Resource {
 						"namespace": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(string)
-								vv := regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]{2,31}\\.[a-zA-Z][a-zA-Z0-9_]{2,31}$")
-								if !vv.MatchString(value) {
-									errors = append(errors, fmt.Errorf("%s is in service.item format. service and item must be a string of 3 to 32 characters that starts with a letter and consists of uppercase/lowercae letters, digits and underscores(_)", k))
-								}
-								return
-							},
 						},
 
 						"metric_name": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(string)
-								vv := regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]{0,63}$")
-								if !vv.MatchString(value) {
-									errors = append(errors, fmt.Errorf("%s must be a string of 1 to 64 characters that starts with a letter and consists of uppercase/lowercae letters, digits and underscores(_)", k))
-								}
-								return
-							},
 						},
 
 						"dimensions": &schema.Schema{
@@ -93,27 +61,11 @@ func resourceAlarmRule() *schema.Resource {
 									"name": &schema.Schema{
 										Type:     schema.TypeString,
 										Required: true,
-										ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-											value := v.(string)
-											vv := regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]{0,31}$")
-											if !vv.MatchString(value) {
-												errors = append(errors, fmt.Errorf("%s must be a string of 1 to 32 characters that starts with a letter and consists of uppercase/lowercae letters, digits and underscores(_)", k))
-											}
-											return
-										},
 									},
 
 									"value": &schema.Schema{
 										Type:     schema.TypeString,
 										Required: true,
-										ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-											value := v.(string)
-											vv := regexp.MustCompile("^[a-zA-Z0-9][a-zA-Z0-9-]{0,63}$")
-											if !vv.MatchString(value) {
-												errors = append(errors, fmt.Errorf("%s must be a string of 1 to 64 characters that starts with a letter or digit and consists of uppercase/lowercae letters, digits and hyphens(-)", k))
-											}
-											return
-										},
 									},
 								},
 							},
@@ -131,68 +83,21 @@ func resourceAlarmRule() *schema.Resource {
 						"period": &schema.Schema{
 							Type:     schema.TypeInt,
 							Required: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(int)
-								switch value {
-								case 1:
-								case 300:
-								case 1200:
-								case 3600:
-								case 14400:
-								case 86400:
-								default:
-									errors = append(errors, fmt.Errorf("%s can be 1, 300, 1200, 3600, 14400, 86400", k))
-								}
-								return
-							},
 						},
 
 						"filter": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(string)
-								switch value {
-								case "max":
-								case "min":
-								case "average":
-								case "sum":
-								case "variance":
-								default:
-									errors = append(errors, fmt.Errorf("%s can be Max, Min, average, Sum, Variance", k))
-								}
-								return
-							},
 						},
 
 						"comparison_operator": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(string)
-								switch value {
-								case ">":
-								case "=":
-								case "<":
-								case ">=":
-								case "<=":
-								default:
-									errors = append(errors, fmt.Errorf("%s can be >, =, <, >=, <=", k))
-								}
-								return
-							},
 						},
 
 						"value": &schema.Schema{
 							Type:     schema.TypeInt,
 							Required: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(int)
-								if value < 0 {
-									errors = append(errors, fmt.Errorf("%s must be greater than or equal to 0", k))
-								}
-								return
-							},
 						},
 
 						"unit": &schema.Schema{
@@ -203,13 +108,6 @@ func resourceAlarmRule() *schema.Resource {
 						"count": &schema.Schema{
 							Type:     schema.TypeInt,
 							Required: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(int)
-								if value < 1 || value > 5 {
-									errors = append(errors, fmt.Errorf("%s must be in range [1, 5]", k))
-								}
-								return
-							},
 						},
 					},
 				},
@@ -223,16 +121,6 @@ func resourceAlarmRule() *schema.Resource {
 						"type": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(string)
-								switch value {
-								case "notification":
-								case "autoscaling":
-								default:
-									errors = append(errors, fmt.Errorf("%s can be notification or autoscaling", k))
-								}
-								return
-							},
 						},
 
 						"notification_list": &schema.Schema{
@@ -253,16 +141,6 @@ func resourceAlarmRule() *schema.Resource {
 						"type": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(string)
-								switch value {
-								case "notification":
-								case "autoscaling":
-								default:
-									errors = append(errors, fmt.Errorf("%s can be notification or autoscaling", k))
-								}
-								return
-							},
 						},
 
 						"notification_list": &schema.Schema{
@@ -283,16 +161,6 @@ func resourceAlarmRule() *schema.Resource {
 						"type": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(string)
-								switch value {
-								case "notification":
-								case "autoscaling":
-								default:
-									errors = append(errors, fmt.Errorf("%s can be notification or autoscaling", k))
-								}
-								return
-							},
 						},
 
 						"notification_list": &schema.Schema{
