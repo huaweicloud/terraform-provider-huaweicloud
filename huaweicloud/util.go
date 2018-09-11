@@ -8,15 +8,15 @@ import (
 	"time"
 
 	"github.com/Unknwon/com"
-	"github.com/gophercloud/gophercloud"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/huaweicloud/golangsdk"
 )
 
 // BuildRequest takes an opts struct and builds a request body for
 // Gophercloud to execute
 func BuildRequest(opts interface{}, parent string) (map[string]interface{}, error) {
-	b, err := gophercloud.BuildRequestBody(opts, "")
+	b, err := golangsdk.BuildRequestBody(opts, "")
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func BuildRequest(opts interface{}, parent string) (map[string]interface{}, erro
 // CheckDeleted checks the error to see if it's a 404 (Not Found) and, if so,
 // sets the resource ID to the empty string instead of throwing an error.
 func CheckDeleted(d *schema.ResourceData, err error, msg string) error {
-	if _, ok := err.(gophercloud.ErrDefault404); ok {
+	if _, ok := err.(golangsdk.ErrDefault404); ok {
 		d.SetId("")
 		return nil
 	}
@@ -109,9 +109,9 @@ func FormatHeaders(headers http.Header, seperator string) string {
 
 func checkForRetryableError(err error) *resource.RetryError {
 	switch errCode := err.(type) {
-	case gophercloud.ErrDefault500:
+	case golangsdk.ErrDefault500:
 		return resource.RetryableError(err)
-	case gophercloud.ErrUnexpectedResponseCode:
+	case golangsdk.ErrUnexpectedResponseCode:
 		switch errCode.Actual {
 		case 409, 503:
 			return resource.RetryableError(err)

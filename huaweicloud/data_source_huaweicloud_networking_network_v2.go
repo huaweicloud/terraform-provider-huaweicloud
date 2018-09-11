@@ -7,9 +7,9 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
 )
 
 func dataSourceNetworkingNetworkV2() *schema.Resource {
@@ -94,7 +94,7 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 			for _, s := range n.Subnets {
 				subnet, err := subnets.Get(networkingClient, s).Extract()
 				if err != nil {
-					if _, ok := err.(gophercloud.ErrDefault404); ok {
+					if _, ok := err.(golangsdk.ErrDefault404); ok {
 						continue
 					}
 					return fmt.Errorf("Unable to retrieve network subnet: %s", err)

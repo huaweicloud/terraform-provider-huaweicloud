@@ -39,7 +39,7 @@ The following arguments are supported:
 
 * `image_source_url` - (Optional) This is the url of the raw image that will
    be downloaded in the `image_cache_path` before being uploaded to Glance.
-   Glance is able to download image from internet but the `gophercloud` library
+   Glance is able to download image from internet but the `golangsdk` library
    does not yet provide a way to do so.
    Conflicts with `local_file_path`.
 
@@ -66,7 +66,7 @@ The following arguments are supported:
    The ability to set the visibility depends upon the configuration of
    the HuaweiCloud cloud.
 
-Note: The `properties` attribute handling in the gophercloud library is currently buggy
+Note: The `properties` attribute handling in the golangsdk library is currently buggy
 and needs to be fixed before being implemented in this resource.
 
 ## Attributes Reference

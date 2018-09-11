@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/imagedata"
-	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/images"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/imagedata"
+	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -480,7 +480,7 @@ func resourceImagesImageV2File(d *schema.ResourceData) (string, error) {
 	}
 }
 
-func resourceImagesImageV2RefreshFunc(client *gophercloud.ServiceClient, id string, fileSize int64, checksum string) resource.StateRefreshFunc {
+func resourceImagesImageV2RefreshFunc(client *golangsdk.ServiceClient, id string, fileSize int64, checksum string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		img, err := images.Get(client, id).Extract()
 		if err != nil {

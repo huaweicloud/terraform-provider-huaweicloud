@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/volumeattach"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -165,11 +165,11 @@ func resourceComputeVolumeAttachV2Delete(d *schema.ResourceData, meta interface{
 }
 
 func resourceComputeVolumeAttachV2AttachFunc(
-	computeClient *gophercloud.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
+	computeClient *golangsdk.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		va, err := volumeattach.Get(computeClient, instanceId, attachmentId).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return va, "ATTACHING", nil
 			}
 			return va, "", err
@@ -180,14 +180,14 @@ func resourceComputeVolumeAttachV2AttachFunc(
 }
 
 func resourceComputeVolumeAttachV2DetachFunc(
-	computeClient *gophercloud.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
+	computeClient *golangsdk.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to detach HuaweiCloud volume %s from instance %s",
 			attachmentId, instanceId)
 
 		va, err := volumeattach.Get(computeClient, instanceId, attachmentId).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return va, "DETACHED", nil
 			}
 			return va, "", err
@@ -195,11 +195,11 @@ func resourceComputeVolumeAttachV2DetachFunc(
 
 		err = volumeattach.Delete(computeClient, instanceId, attachmentId).ExtractErr()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return va, "DETACHED", nil
 			}
 
-			if _, ok := err.(gophercloud.ErrDefault400); ok {
+			if _, ok := err.(golangsdk.ErrDefault400); ok {
 				return nil, "", nil
 			}
 

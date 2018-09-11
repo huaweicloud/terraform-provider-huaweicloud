@@ -8,10 +8,10 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/layer3/floatingips"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
-	"github.com/gophercloud/gophercloud/pagination"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 func resourceNetworkingFloatingIPV2() *schema.Resource {
@@ -257,7 +257,7 @@ func getNetworkName(d *schema.ResourceData, meta interface{}, networkID string) 
 	return networkName, err
 }
 
-func waitForFloatingIPActive(networkingClient *gophercloud.ServiceClient, fId string) resource.StateRefreshFunc {
+func waitForFloatingIPActive(networkingClient *golangsdk.ServiceClient, fId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		f, err := floatingips.Get(networkingClient, fId).Extract()
 		if err != nil {
@@ -273,17 +273,17 @@ func waitForFloatingIPActive(networkingClient *gophercloud.ServiceClient, fId st
 	}
 }
 
-func waitForFloatingIPDelete(networkingClient *gophercloud.ServiceClient, fId string) resource.StateRefreshFunc {
+func waitForFloatingIPDelete(networkingClient *golangsdk.ServiceClient, fId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Floating IP %s.\n", fId)
 
 		f, err := floatingips.Get(networkingClient, fId).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Floating IP %s", fId)
 				return f, "DELETED", nil
 			}
-			if _, ok := err.(gophercloud.ErrDefault500); ok {
+			if _, ok := err.(golangsdk.ErrDefault500); ok {
 				log.Printf("[DEBUG] Got 500 error when delting HuaweiCloud Floating IP %s, it should be stream control on API server, try again later", fId)
 				return f, "ACTIVE", nil
 			}
@@ -292,11 +292,11 @@ func waitForFloatingIPDelete(networkingClient *gophercloud.ServiceClient, fId st
 
 		err = floatingips.Delete(networkingClient, fId).ExtractErr()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Floating IP %s", fId)
 				return f, "DELETED", nil
 			}
-			if _, ok := err.(gophercloud.ErrDefault500); ok {
+			if _, ok := err.(golangsdk.ErrDefault500); ok {
 				log.Printf("[DEBUG] Got 500 error when delting HuaweiCloud Floating IP %s, it should be stream control on API server, try again later", fId)
 				return f, "ACTIVE", nil
 			}

@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/lbaas_v2/loadbalancers"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/ports"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/loadbalancers"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
 func resourceLoadBalancerV2() *schema.Resource {
@@ -277,7 +277,7 @@ func resourceLoadBalancerV2Delete(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceLoadBalancerV2SecurityGroups(networkingClient *gophercloud.ServiceClient, vipPortID string, d *schema.ResourceData) error {
+func resourceLoadBalancerV2SecurityGroups(networkingClient *golangsdk.ServiceClient, vipPortID string, d *schema.ResourceData) error {
 	if vipPortID != "" {
 		if v, ok := d.GetOk("security_group_ids"); ok {
 			securityGroups := resourcePortSecurityGroupsV2(v.(*schema.Set))
