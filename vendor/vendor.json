@@ -794,6 +794,18 @@
 			"revisionTime": "2018-09-11T07:04:38Z"
 		},
 		{
+			"checksumSHA1": "/2W0SIigiurtg1dW3Pyz+x4F24k=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/configurations",
+			"revision": "75837c0e32c3577a74950b521e3ad3aaec05b34b",
+			"revisionTime": "2018-09-11T07:04:38Z"
+		},
+		{
+			"checksumSHA1": "w2Z5/YmuVJSD7Py8K10cdeLUI5o=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups",
+			"revision": "75837c0e32c3577a74950b521e3ad3aaec05b34b",
+			"revisionTime": "2018-09-11T07:04:38Z"
+		},
+		{
 			"checksumSHA1": "q1aqMo0piceUY8M6d6xzbL1mgdo=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/cloudeyeservice/alarmrule",
 			"revision": "75837c0e32c3577a74950b521e3ad3aaec05b34b",
