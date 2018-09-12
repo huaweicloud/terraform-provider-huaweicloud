@@ -15,7 +15,7 @@ func TestAccASV1Group_basic(t *testing.T) {
 	var asGroup groups.Group
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccAsConfigPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckASV1GroupDestroy,
 		Steps: []resource.TestStep{
