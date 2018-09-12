@@ -298,3 +298,10 @@ func envVarFile(varName string) (string, error) {
 	}
 	return tmpFile.Name(), nil
 }
+
+func testAccAsConfigPreCheck(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+	if OS_FLAVOR_ID == "" {
+		t.Skip("OS_FLAVOR_ID must be set for acceptance tests")
+	}
+}
