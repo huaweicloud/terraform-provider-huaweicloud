@@ -64,8 +64,8 @@ $ terraform apply # Should all work if everything is correct.
 provider "huaweicloud" {
   auth_url    = "https://iam.cn-north-1.myhwclouds.com/v3"
   region      = "cn-north-1"
-  access_key  = "DNYPKDEVRKQ7HAAZKBZ1"
-  secret_key  = "552TpfaE4RAjFqxYaz2FbpbmGgcGgoqqw377leDo"
+  access_key  = "access key"
+  secret_key  = "secret key"
 }
 
 # Create a web server
