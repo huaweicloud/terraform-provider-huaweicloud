@@ -55,8 +55,31 @@ $ terraform apply # Should all work if everything is correct.
 
 ## Quick Start
 
+1. AK/SK Configuration
+
 ```hcl
-# Configure the HuaweiCloud Provider
+# Configure the HuaweiCloud Provider with AK/SK
+# This will work with a single defined/default network, otherwise you need to specify network
+# to fix errrors about multiple networks found.
+provider "huaweicloud" {
+  auth_url    = "https://iam.cn-north-1.myhwclouds.com/v3"
+  region      = "cn-north-1"
+  access_key  = "access key"
+  secret_key  = "secret key"
+}
+
+# Create a web server
+resource "huaweicloud_compute_instance_v2" "test-server" {
+  name            = "test-server"
+  image_name  = "Standard_CentOS_7_latest"
+  flavor_name = "s1.medium"
+}
+```
+
+2. Username/password Configuration
+
+```hcl
+# Configure the HuaweiCloud Provider with Username/Password
 # This will work with a single defined/default network, otherwise you need to specify network
 # to fix errrors about multiple networks found.
 provider "huaweicloud" {

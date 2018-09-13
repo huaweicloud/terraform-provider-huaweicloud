@@ -8,14 +8,14 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/lbaas_v2/listeners"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/lbaas_v2/loadbalancers"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/lbaas_v2/monitors"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/lbaas_v2/pools"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/loadbalancers"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/monitors"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
 )
 
-func waitForLBV2Listener(networkingClient *gophercloud.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
+func waitForLBV2Listener(networkingClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
 	log.Printf("[DEBUG] Waiting for listener %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
@@ -29,7 +29,7 @@ func waitForLBV2Listener(networkingClient *gophercloud.ServiceClient, id string,
 
 	_, err := stateConf.WaitForState()
 	if err != nil {
-		if _, ok := err.(gophercloud.ErrDefault404); ok {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			switch target {
 			case "DELETED":
 				return nil
@@ -43,7 +43,7 @@ func waitForLBV2Listener(networkingClient *gophercloud.ServiceClient, id string,
 	return nil
 }
 
-func resourceLBV2ListenerRefreshFunc(networkingClient *gophercloud.ServiceClient, id string) resource.StateRefreshFunc {
+func resourceLBV2ListenerRefreshFunc(networkingClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		listener, err := listeners.Get(networkingClient, id).Extract()
 		if err != nil {
@@ -55,7 +55,7 @@ func resourceLBV2ListenerRefreshFunc(networkingClient *gophercloud.ServiceClient
 	}
 }
 
-func waitForLBV2LoadBalancer(networkingClient *gophercloud.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
+func waitForLBV2LoadBalancer(networkingClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
 	log.Printf("[DEBUG] Waiting for loadbalancer %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
@@ -69,7 +69,7 @@ func waitForLBV2LoadBalancer(networkingClient *gophercloud.ServiceClient, id str
 
 	_, err := stateConf.WaitForState()
 	if err != nil {
-		if _, ok := err.(gophercloud.ErrDefault404); ok {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			switch target {
 			case "DELETED":
 				return nil
@@ -83,7 +83,7 @@ func waitForLBV2LoadBalancer(networkingClient *gophercloud.ServiceClient, id str
 	return nil
 }
 
-func resourceLBV2LoadBalancerRefreshFunc(networkingClient *gophercloud.ServiceClient, id string) resource.StateRefreshFunc {
+func resourceLBV2LoadBalancerRefreshFunc(networkingClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		lb, err := loadbalancers.Get(networkingClient, id).Extract()
 		if err != nil {
@@ -94,7 +94,7 @@ func resourceLBV2LoadBalancerRefreshFunc(networkingClient *gophercloud.ServiceCl
 	}
 }
 
-func waitForLBV2Member(networkingClient *gophercloud.ServiceClient, poolID, memberID string, target string, pending []string, timeout time.Duration) error {
+func waitForLBV2Member(networkingClient *golangsdk.ServiceClient, poolID, memberID string, target string, pending []string, timeout time.Duration) error {
 	log.Printf("[DEBUG] Waiting for member %s to become %s.", memberID, target)
 
 	stateConf := &resource.StateChangeConf{
@@ -108,7 +108,7 @@ func waitForLBV2Member(networkingClient *gophercloud.ServiceClient, poolID, memb
 
 	_, err := stateConf.WaitForState()
 	if err != nil {
-		if _, ok := err.(gophercloud.ErrDefault404); ok {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			switch target {
 			case "DELETED":
 				return nil
@@ -122,7 +122,7 @@ func waitForLBV2Member(networkingClient *gophercloud.ServiceClient, poolID, memb
 	return nil
 }
 
-func resourceLBV2MemberRefreshFunc(networkingClient *gophercloud.ServiceClient, poolID, memberID string) resource.StateRefreshFunc {
+func resourceLBV2MemberRefreshFunc(networkingClient *golangsdk.ServiceClient, poolID, memberID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		member, err := pools.GetMember(networkingClient, poolID, memberID).Extract()
 		if err != nil {
@@ -134,7 +134,7 @@ func resourceLBV2MemberRefreshFunc(networkingClient *gophercloud.ServiceClient, 
 	}
 }
 
-func waitForLBV2Monitor(networkingClient *gophercloud.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
+func waitForLBV2Monitor(networkingClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
 	log.Printf("[DEBUG] Waiting for monitor %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
@@ -148,7 +148,7 @@ func waitForLBV2Monitor(networkingClient *gophercloud.ServiceClient, id string, 
 
 	_, err := stateConf.WaitForState()
 	if err != nil {
-		if _, ok := err.(gophercloud.ErrDefault404); ok {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			switch target {
 			case "DELETED":
 				return nil
@@ -162,7 +162,7 @@ func waitForLBV2Monitor(networkingClient *gophercloud.ServiceClient, id string, 
 	return nil
 }
 
-func resourceLBV2MonitorRefreshFunc(networkingClient *gophercloud.ServiceClient, id string) resource.StateRefreshFunc {
+func resourceLBV2MonitorRefreshFunc(networkingClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		monitor, err := monitors.Get(networkingClient, id).Extract()
 		if err != nil {
@@ -174,7 +174,7 @@ func resourceLBV2MonitorRefreshFunc(networkingClient *gophercloud.ServiceClient,
 	}
 }
 
-func waitForLBV2Pool(networkingClient *gophercloud.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
+func waitForLBV2Pool(networkingClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
 	log.Printf("[DEBUG] Waiting for pool %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
@@ -188,7 +188,7 @@ func waitForLBV2Pool(networkingClient *gophercloud.ServiceClient, id string, tar
 
 	_, err := stateConf.WaitForState()
 	if err != nil {
-		if _, ok := err.(gophercloud.ErrDefault404); ok {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			switch target {
 			case "DELETED":
 				return nil
@@ -202,7 +202,7 @@ func waitForLBV2Pool(networkingClient *gophercloud.ServiceClient, id string, tar
 	return nil
 }
 
-func resourceLBV2PoolRefreshFunc(networkingClient *gophercloud.ServiceClient, poolID string) resource.StateRefreshFunc {
+func resourceLBV2PoolRefreshFunc(networkingClient *golangsdk.ServiceClient, poolID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		pool, err := pools.Get(networkingClient, poolID).Extract()
 		if err != nil {
@@ -214,7 +214,7 @@ func resourceLBV2PoolRefreshFunc(networkingClient *gophercloud.ServiceClient, po
 	}
 }
 
-func waitForLBV2viaPool(networkingClient *gophercloud.ServiceClient, id string, target string, timeout time.Duration) error {
+func waitForLBV2viaPool(networkingClient *golangsdk.ServiceClient, id string, target string, timeout time.Duration) error {
 	pool, err := pools.Get(networkingClient, id).Extract()
 	if err != nil {
 		return err
@@ -243,7 +243,7 @@ func waitForLBV2viaPool(networkingClient *gophercloud.ServiceClient, id string, 
 	return fmt.Errorf("No Load Balancer on pool %s", id)
 }
 
-func chooseLBV2Client(d *schema.ResourceData, config *Config) (*gophercloud.ServiceClient, error) {
+func chooseLBV2Client(d *schema.ResourceData, config *Config) (*golangsdk.ServiceClient, error) {
 	if config.useOctavia {
 		return config.loadBalancerV2Client(GetRegion(d, config))
 	}

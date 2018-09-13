@@ -10,8 +10,8 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/ports"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
 func resourceNetworkingPortV2() *schema.Resource {
@@ -423,7 +423,7 @@ func allowedAddressPairsHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func waitForNetworkPortActive(networkingClient *gophercloud.ServiceClient, portId string) resource.StateRefreshFunc {
+func waitForNetworkPortActive(networkingClient *golangsdk.ServiceClient, portId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		p, err := ports.Get(networkingClient, portId).Extract()
 		if err != nil {
@@ -439,13 +439,13 @@ func waitForNetworkPortActive(networkingClient *gophercloud.ServiceClient, portI
 	}
 }
 
-func waitForNetworkPortDelete(networkingClient *gophercloud.ServiceClient, portId string) resource.StateRefreshFunc {
+func waitForNetworkPortDelete(networkingClient *golangsdk.ServiceClient, portId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Neutron Port %s", portId)
 
 		p, err := ports.Get(networkingClient, portId).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Port %s", portId)
 				return p, "DELETED", nil
 			}
@@ -454,7 +454,7 @@ func waitForNetworkPortDelete(networkingClient *gophercloud.ServiceClient, portI
 
 		err = ports.Delete(networkingClient, portId).ExtractErr()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Port %s", portId)
 				return p, "DELETED", nil
 			}

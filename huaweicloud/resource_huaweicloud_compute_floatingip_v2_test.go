@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/floatingips"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/floatingips"
 )
 
 func TestAccComputeV2FloatingIP_basic(t *testing.T) {

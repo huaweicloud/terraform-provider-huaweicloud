@@ -7,10 +7,10 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/layer3/routers"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/natgateways"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
 )
 
 func TestAccNatGateway_basic(t *testing.T) {
