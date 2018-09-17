@@ -62,6 +62,8 @@ $ terraform apply # Should all work if everything is correct.
 # This will work with a single defined/default network, otherwise you need to specify network
 # to fix errrors about multiple networks found.
 provider "huaweicloud" {
+  tenant_name = "tenant"
+  # the auth url format follows: https://iam.{region_id}.myhwclouds.com:443/v3
   auth_url    = "https://iam.cn-north-1.myhwclouds.com/v3"
   region      = "cn-north-1"
   access_key  = "access key"

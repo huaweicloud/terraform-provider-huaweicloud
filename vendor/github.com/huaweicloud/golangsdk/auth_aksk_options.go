@@ -14,6 +14,8 @@ type AKSKAuthOptions struct {
 	// user project id
 	ProjectId string
 
+	ProjectName string
+
 	// region
 	Region string
 
