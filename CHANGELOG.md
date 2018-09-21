@@ -1,4 +1,4 @@
-## 1.1.1 (Unreleased)
+## 1.2.0 (Unreleased)
 
 FEATURES:
 
@@ -8,13 +8,23 @@ FEATURES:
 * **New Data Source:** `huaweicloud_vpc_route_ids_v2` [GH-14]
 * **New Data Source:** `huaweicloud_vpc_subnet_v1` [GH-14]
 * **New Data Source:** `huaweicloud_vpc_subnet_ids_v1` [GH-14]
+* **New Data Source:** `huaweicloud_rts_software_config_v1` [GH-20]
+* **New Data Source:** `huaweicloud_images_image_v2` [GH-25]
 * **New Resource:** `huaweicloud_vpc_v1` [GH-14]
 * **New Resource:** `huaweicloud_vpc_peering_connection_v2` [GH-14]
 * **New Resource:** `huaweicloud_vpc_peering_connection_accepter_v2` [GH-14]
 * **New Resource:** `huaweicloud_vpc_route_v2` [GH-14]
 * **New Resource:** `huaweicloud_vpc_subnet_v1` [GH-14]
-* **New Data Source:** `huaweicloud_rts_software_config_v1` [GH-20]
 * **New Resource:** `huaweicloud_rts_software_config_v1` [GH-20]
+* **New Resource:** `huaweicloud_images_image_v2` [GH-25]
+* **New Resource:** `huaweicloud_ces_alarmrule` [GH-27]
+* **New Resource:** `huaweicloud_as_configuration_v1` [GH-29]
+* **New Resource:** `huaweicloud_as_group_v1` [GH-30]
+* **New Resource:** `huaweicloud_as_policy_v1` [GH-31]
+
+ENHANCEMENTS:
+
+* provider: Add AK/SK authentication support [GH-33]
 
 ## 1.1.0 (July 20, 2018)
 
