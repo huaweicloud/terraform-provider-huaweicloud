@@ -209,6 +209,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpc_subnet_v1":             dataSourceVpcSubnetV1(),
 			"huaweicloud_vpc_subnet_ids_v1":         dataSourceVpcSubnetIdsV1(),
 			"huaweicloud_rts_software_config_v1":    dataSourceRtsSoftwareConfigV1(),
+			"huaweicloud_csbs_backup_v1":            dataSourceCSBSBackupV1(),
+			"huaweicloud_csbs_backup_policy_v1":     dataSourceCSBSBackupPolicyV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -267,6 +269,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_as_configuration_v1":                resourceASConfiguration(),
 			"huaweicloud_as_group_v1":                        resourceASGroup(),
 			"huaweicloud_as_policy_v1":                       resourceASPolicy(),
+			"huaweicloud_csbs_backup_v1":                     resourceCSBSBackupV1(),
+			"huaweicloud_csbs_backup_policy_v1":              resourceCSBSBackupPolicyV1(),
 		},
 
 		ConfigureFunc: configureProvider,

@@ -438,3 +438,10 @@ func (c *Config) autoscalingV1Client(region string) (*golangsdk.ServiceClient, e
 		Availability: c.getHwEndpointType(),
 	})
 }
+
+func (c *Config) csbsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.NewHwCSBSServiceV1(c.HwClient, golangsdk.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getHwEndpointType(),
+	})
+}

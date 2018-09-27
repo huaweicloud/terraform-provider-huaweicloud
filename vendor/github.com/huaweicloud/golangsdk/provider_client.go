@@ -159,6 +159,14 @@ type RequestOpts struct {
 
 var applicationJSON = "application/json"
 
+func jsonMarshal(t interface{}) ([]byte, error) {
+	buffer := &bytes.Buffer{}
+	enc := json.NewEncoder(buffer)
+	enc.SetEscapeHTML(false)
+	err := enc.Encode(t)
+	return buffer.Bytes(), err
+}
+
 // Request performs an HTTP request using the ProviderClient's current HTTPClient. An authentication
 // header will automatically be provided.
 func (client *ProviderClient) Request(method, url string, options *RequestOpts) (*http.Response, error) {
@@ -172,7 +180,7 @@ func (client *ProviderClient) Request(method, url string, options *RequestOpts) 
 			panic("Please provide only one of JSONBody or RawBody to golangsdk.Request().")
 		}
 
-		rendered, err := json.Marshal(options.JSONBody)
+		rendered, err := jsonMarshal(options.JSONBody)
 		if err != nil {
 			return nil, err
 		}
