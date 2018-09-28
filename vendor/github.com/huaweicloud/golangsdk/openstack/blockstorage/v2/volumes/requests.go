@@ -61,9 +61,34 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 	return
 }
 
-// Delete will delete the existing Volume with the provided ID.
-func Delete(client *golangsdk.ServiceClient, id string) (r DeleteResult) {
-	_, r.Err = client.Delete(deleteURL(client, id), nil)
+//DeleteOptsBuilder is an interface by which can be able to build the query string
+//of volume deletion.
+type DeleteOptsBuilder interface {
+	ToVolumeDeleteQuery() (string, error)
+}
+
+type DeleteOpts struct {
+	//Specifies to delete all snapshots associated with the EVS disk.
+	Cascade bool `q:"cascade"`
+}
+
+func (opts DeleteOpts) ToVolumeDeleteQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	return q.String(), err
+}
+
+//Delete will delete the existing Volume with the provided ID
+func Delete(client *golangsdk.ServiceClient, id string, opts DeleteOptsBuilder) (r DeleteResult) {
+	url := deleteURL(client, id)
+	if opts != nil {
+		q, err := opts.ToVolumeDeleteQuery()
+		if err != nil {
+			r.Err = err
+			return
+		}
+		url += q
+	}
+	_, r.Err = client.Delete(url, nil)
 	return
 }
 
