@@ -662,6 +662,42 @@
 			"revisionTime": "2018-09-11T07:04:38Z"
 		},
 		{
+			"checksumSHA1": "bndllnyp7+JlhisoXzhyStpRP+4=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/dms/v1/availablezones",
+			"revision": "d4446b73ef22ba4b87676d45d4e4a37d191615e9",
+			"revisionTime": "2018-09-26T10:00:47Z"
+		},
+		{
+			"checksumSHA1": "xUPgyEWhuzH/NwKM6tQQ8cfIQTg=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/dms/v1/groups",
+			"revision": "d4446b73ef22ba4b87676d45d4e4a37d191615e9",
+			"revisionTime": "2018-09-26T10:00:47Z"
+		},
+		{
+			"checksumSHA1": "CaMxk3kwCc6qXn2zHcUV0cAkDyE=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/dms/v1/instances",
+			"revision": "d4446b73ef22ba4b87676d45d4e4a37d191615e9",
+			"revisionTime": "2018-09-26T10:00:47Z"
+		},
+		{
+			"checksumSHA1": "J9APHo3AwtJmO/1+EYFt44s6i78=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/dms/v1/maintainwindows",
+			"revision": "d4446b73ef22ba4b87676d45d4e4a37d191615e9",
+			"revisionTime": "2018-09-26T10:00:47Z"
+		},
+		{
+			"checksumSHA1": "RqWZKJBu4TqAABYXbTVkE5oWZS8=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/dms/v1/products",
+			"revision": "d4446b73ef22ba4b87676d45d4e4a37d191615e9",
+			"revisionTime": "2018-09-26T10:00:47Z"
+		},
+		{
+			"checksumSHA1": "O4gYvHhOXXqmUXLwT2SFCDfDEIc=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/dms/v1/queues",
+			"revision": "d4446b73ef22ba4b87676d45d4e4a37d191615e9",
+			"revisionTime": "2018-09-26T10:00:47Z"
+		},
+		{
 			"checksumSHA1": "plsG8kyRJhFGnhGfO0scQk5kRLw=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/dns/v2/recordsets",
 			"revision": "888f77744ab7c65bb4d448d5b5313edba29e76c7",
@@ -1102,5 +1138,5 @@
 			"versionExact": "v1.6.1"
 		}
 	],
-	"rootPath": "github.com/freesky-edward/terraform-provider-huaweicloud"
+	"rootPath": "github.com/terraform-providers/terraform-provider-huaweicloud"
 }
