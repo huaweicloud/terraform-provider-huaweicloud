@@ -61,6 +61,8 @@ The following arguments are supported:
 * `volume_type` - (Optional) The type of volume to create. Available types are
     `SSD`, `SAS` and `SATA`. Changing this creates a new volume.
 
+* `cascade` - (Optional, Default:false) Specifies to delete all snapshots associated with the EVS disk.
+
 ## Attributes Reference
 
 The following attributes are exported:
