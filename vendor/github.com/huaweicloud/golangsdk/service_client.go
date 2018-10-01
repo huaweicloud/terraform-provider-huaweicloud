@@ -108,6 +108,15 @@ func (client *ServiceClient) Delete(url string, opts *RequestOpts) (*http.Respon
 	return client.Request("DELETE", url, opts)
 }
 
+// DeleteWithBody calls `Request` with the "DELETE" HTTP verb.
+func (client *ServiceClient) DeleteWithBody(url string, JSONBody interface{}, opts *RequestOpts) (*http.Response, error) {
+	if opts == nil {
+		opts = new(RequestOpts)
+	}
+	client.initReqOpts(url, JSONBody, nil, opts)
+	return client.Request("DELETE", url, opts)
+}
+
 func (client *ServiceClient) setMicroversionHeader(opts *RequestOpts) {
 	switch client.Type {
 	case "compute":

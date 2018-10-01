@@ -212,6 +212,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dms_az_v1":                 dataSourceDmsAZV1(),
 			"huaweicloud_dms_product_v1":            dataSourceDmsProductV1(),
 			"huaweicloud_dms_maintainwindow_v1":     dataSourceDmsMaintainWindowV1(),
+			"huaweicloud_vbs_backup_policy_v2":      dataSourceVBSBackupPolicyV2(),
+			"huaweicloud_vbs_backup_v2":             dataSourceVBSBackupV2(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -273,6 +275,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_as_configuration_v1":                resourceASConfiguration(),
 			"huaweicloud_as_group_v1":                        resourceASGroup(),
 			"huaweicloud_as_policy_v1":                       resourceASPolicy(),
+			"huaweicloud_vbs_backup_policy_v2":               resourceVBSBackupPolicyV2(),
+			"huaweicloud_vbs_backup_v2":                      resourceVBSBackupV2(),
 		},
 
 		ConfigureFunc: configureProvider,
