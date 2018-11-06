@@ -6,25 +6,22 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccBlockStorageV2Volume_importBasic(t *testing.T) {
-	resourceName := "huaweicloud_blockstorage_volume_v2.volume_1"
+func TestAccVBSBackupV2_importBasic(t *testing.T) {
+	resourceName := "huaweicloud_vbs_backup_v2.backup_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBlockStorageV2VolumeDestroy,
+		CheckDestroy: testAccCheckVBSBackupV2Destroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccBlockStorageV2Volume_basic,
+				Config: testAccVBSBackupV2_basic,
 			},
 
 			resource.TestStep{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"cascade",
-				},
 			},
 		},
 	})

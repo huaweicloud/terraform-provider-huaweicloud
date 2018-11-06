@@ -116,6 +116,11 @@ func resourceBlockStorageVolumeV2() *schema.Resource {
 				},
 				Set: resourceVolumeV2AttachmentHash,
 			},
+			"cascade": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
@@ -293,11 +298,15 @@ func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}
 		}
 	}
 
+	// The snapshots associated with the disk are deleted together with the EVS disk if cascade value is true
+	deleteOpts := volumes.DeleteOpts{
+		Cascade: d.Get("cascade").(bool),
+	}
 	// It's possible that this volume was used as a boot device and is currently
 	// in a "deleting" state from when the instance was terminated.
 	// If this is true, just move on. It'll eventually delete.
 	if v.Status != "deleting" {
-		if err := volumes.Delete(blockStorageClient, d.Id()).ExtractErr(); err != nil {
+		if err := volumes.Delete(blockStorageClient, d.Id(), deleteOpts).ExtractErr(); err != nil {
 			return CheckDeleted(d, err, "volume")
 		}
 	}
