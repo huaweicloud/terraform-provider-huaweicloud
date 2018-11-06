@@ -319,7 +319,6 @@ func (c *Config) networkingV2Client(region string) (*golangsdk.ServiceClient, er
 	})
 }
 
-
 func (c *Config) cceV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return huaweisdk.NewCCEV3(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
