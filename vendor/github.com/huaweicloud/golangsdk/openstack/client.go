@@ -712,3 +712,48 @@ func NewCSBSService(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts)
 	sc, err := initClientOpts(client, eo, "data-protect")
 	return sc, err
 }
+
+// NewHwCSBSServiceV1 creates a ServiceClient that may be used to access the Huawei Cloud Server Backup service.
+func NewHwCSBSServiceV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "compute")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "ecs", "csbs", 1)
+	e := strings.Replace(sc.Endpoint, "v2", "v1", 1)
+	sc.Endpoint = e
+	sc.ResourceBase = e
+	return sc, err
+}
+
+func NewMLSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "mls", 1)
+	sc.ResourceBase = sc.Endpoint + "v1.0/" + client.ProjectID + "/"
+	return sc, err
+}
+
+func NewDWSClient(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "volumev2")
+	if err != nil {
+		return nil, err
+	}
+	e := strings.Replace(sc.Endpoint, "v2", "v1.0", 1)
+	sc.Endpoint = strings.Replace(e, "evs", "dws", 1)
+	sc.ResourceBase = sc.Endpoint
+	return sc, err
+}
+
+// NewVBSV2 creates a ServiceClient that may be used to access the VBS service for Orange and Telefonica Cloud.
+func NewVBSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "vbsv2")
+	return sc, err
+}
+
+// NewVBS creates a service client that is used for VBS.
+func NewVBS(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "volumev2")
+	if err != nil {
+		return nil, err
+	}
+	sc.Endpoint = strings.Replace(sc.Endpoint, "evs", "vbs", 1)
+	sc.ResourceBase = sc.Endpoint
+	return sc, err
+}

@@ -53,7 +53,7 @@ func (r Result) ExtractInto(to interface{}) error {
 		return json.NewDecoder(reader).Decode(to)
 	}
 
-	b, err := json.Marshal(r.Body)
+	b, err := jsonMarshal(r.Body)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (r Result) extractIntoPtr(to interface{}, label string) error {
 		return err
 	}
 
-	b, err := json.Marshal(m[label])
+	b, err := jsonMarshal(m[label])
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func (r Result) extractIntoPtr(to interface{}, label string) error {
 					// https://play.golang.org/p/NHo3ywlPZli
 					newType := reflect.New(typeOfV).Elem()
 
-					b, err := json.Marshal(v)
+					b, err := jsonMarshal(v)
 					if err != nil {
 						return err
 					}
@@ -260,7 +260,7 @@ func (r HeaderResult) ExtractInto(to interface{}) error {
 		}
 	}
 
-	b, err := json.Marshal(tmpHeaderMap)
+	b, err := jsonMarshal(tmpHeaderMap)
 	if err != nil {
 		return err
 	}

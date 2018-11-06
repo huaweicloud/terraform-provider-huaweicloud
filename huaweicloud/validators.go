@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -148,5 +149,128 @@ func validateIP(v interface{}, k string) (ws []string, errors []error) {
 			"%q must contain a valid network IP address, got %q", k, value))
 	}
 
+	return
+}
+
+func validateVBSPolicyName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if strings.HasPrefix(strings.ToLower(value), "default") {
+		errors = append(errors, fmt.Errorf(
+			"%q cannot start with default: %q", k, value))
+	}
+
+	if len(value) > 64 {
+		errors = append(errors, fmt.Errorf(
+			"%q cannot be longer than 64 characters: %q", k, value))
+	}
+	pattern := `^[\.\-_A-Za-z0-9]+$`
+	if !regexp.MustCompile(pattern).MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q doesn't comply with restrictions (%q): %q",
+			k, pattern, value))
+	}
+	return
+}
+
+func validateVBSPolicyFrequency(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(int)
+	if value < 1 || value > 14 {
+		errors = append(errors, fmt.Errorf(
+			"%q should be in the range of 1-14: %d", k, value))
+	}
+	return
+}
+
+func validateVBSPolicyStatus(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "ON" && value != "OFF" {
+		errors = append(errors, fmt.Errorf(
+			"%q should be either ON or OFF: %q", k, value))
+	}
+	return
+}
+
+func validateVBSPolicyRetentionNum(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(int)
+	if value < 2 {
+		errors = append(errors, fmt.Errorf(
+			"%q cannot be less than 2: %d", k, value))
+	}
+	return
+}
+
+func validateVBSPolicyRetainBackup(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "Y" && value != "N" {
+		errors = append(errors, fmt.Errorf(
+			"%q should be either N or Y: %q", k, value))
+	}
+	return
+}
+
+func validateVBSTagKey(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if len(value) > 36 {
+		errors = append(errors, fmt.Errorf(
+			"%q cannot be longer than 36 characters: %q", k, value))
+	}
+	pattern := `^[\.\-_A-Za-z0-9]+$`
+	if !regexp.MustCompile(pattern).MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q doesn't comply with restrictions (%q): %q",
+			k, pattern, value))
+	}
+	return
+}
+
+func validateVBSTagValue(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if len(value) > 43 {
+		errors = append(errors, fmt.Errorf(
+			"%q cannot be longer than 43 characters: %q", k, value))
+	}
+	pattern := `^[\.\-_A-Za-z0-9]+$`
+	if !regexp.MustCompile(pattern).MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q doesn't comply with restrictions (%q): %q",
+			k, pattern, value))
+	}
+	return
+}
+
+func validateVBSBackupName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if strings.HasPrefix(strings.ToLower(value), "autobk") {
+		errors = append(errors, fmt.Errorf(
+			"%q cannot start with autobk: %q", k, value))
+	}
+
+	if len(value) > 64 {
+		errors = append(errors, fmt.Errorf(
+			"%q cannot be longer than 64 characters: %q", k, value))
+	}
+	pattern := `^[\.\-_A-Za-z0-9]+$`
+	if !regexp.MustCompile(pattern).MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q doesn't comply with restrictions (%q): %q",
+			k, pattern, value))
+	}
+	return
+}
+
+func validateVBSBackupDescription(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if len(value) > 64 {
+		errors = append(errors, fmt.Errorf(
+			"%q cannot be longer than 64 characters: %q", k, value))
+	}
+	pattern := `^[^<>]+$`
+	if !regexp.MustCompile(pattern).MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q doesn't comply with restrictions (%q): %q",
+			k, pattern, value))
+	}
 	return
 }
