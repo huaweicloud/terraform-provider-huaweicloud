@@ -22,6 +22,9 @@ func TestAccBlockStorageV2Volume_importBasic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"cascade",
+				},
 			},
 		},
 	})

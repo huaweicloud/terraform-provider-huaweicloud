@@ -1,2 +1,0 @@
-// golangsdk
-package testing

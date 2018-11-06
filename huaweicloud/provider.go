@@ -190,6 +190,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"huaweicloud_images_image_v2":           dataSourceImagesImageV2(),
 			"huaweicloud_networking_network_v2":     dataSourceNetworkingNetworkV2(),
 			"huaweicloud_networking_subnet_v2":      dataSourceNetworkingSubnetV2(),
 			"huaweicloud_networking_secgroup_v2":    dataSourceNetworkingSecGroupV2(),
@@ -210,6 +211,11 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_cce_cluster_v3":            dataSourceCCEClusterV3(),
 			"huaweicloud_cce_node_v3":               dataSourceCceNodesV3(),
 			"huaweicloud_rts_software_config_v1":    dataSourceRtsSoftwareConfigV1(),
+			"huaweicloud_dms_az_v1":                 dataSourceDmsAZV1(),
+			"huaweicloud_dms_product_v1":            dataSourceDmsProductV1(),
+			"huaweicloud_dms_maintainwindow_v1":     dataSourceDmsMaintainWindowV1(),
+			"huaweicloud_vbs_backup_policy_v2":      dataSourceVBSBackupPolicyV2(),
+			"huaweicloud_vbs_backup_v2":             dataSourceVBSBackupV2(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -227,10 +233,14 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_fw_policy_v2":                       resourceFWPolicyV2(),
 			"huaweicloud_fw_rule_v2":                         resourceFWRuleV2(),
 			"huaweicloud_kms_key_v1":                         resourceKmsKeyV1(),
+			"huaweicloud_dms_queue_v1":                       resourceDmsQueuesV1(),
+			"huaweicloud_dms_group_v1":                       resourceDmsGroupsV1(),
+			"huaweicloud_dms_instance_v1":                    resourceDmsInstancesV1(),
 			"huaweicloud_elb_loadbalancer":                   resourceELBLoadBalancer(),
 			"huaweicloud_elb_listener":                       resourceELBListener(),
 			"huaweicloud_elb_healthcheck":                    resourceELBHealthCheck(),
 			"huaweicloud_elb_backendecs":                     resourceELBBackendECS(),
+			"huaweicloud_images_image_v2":                    resourceImagesImageV2(),
 			"huaweicloud_lb_loadbalancer_v2":                 resourceLoadBalancerV2(),
 			"huaweicloud_lb_listener_v2":                     resourceListenerV2(),
 			"huaweicloud_lb_pool_v2":                         resourcePoolV2(),
@@ -265,6 +275,12 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_cce_cluster_v3":                     resourceCCEClusterV3(),
 			"huaweicloud_cce_node_v3":                        resourceCCENodeV3(),
 			"huaweicloud_rts_software_config_v1":             resourceSoftwareConfigV1(),
+			"huaweicloud_ces_alarmrule":                      resourceAlarmRule(),
+			"huaweicloud_as_configuration_v1":                resourceASConfiguration(),
+			"huaweicloud_as_group_v1":                        resourceASGroup(),
+			"huaweicloud_as_policy_v1":                       resourceASPolicy(),
+			"huaweicloud_vbs_backup_policy_v2":               resourceVBSBackupPolicyV2(),
+			"huaweicloud_vbs_backup_v2":                      resourceVBSBackupV2(),
 		},
 
 		ConfigureFunc: configureProvider,

@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/provider"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/provider"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
 )
 
 func resourceNetworkingNetworkV2() *schema.Resource {
@@ -289,7 +289,7 @@ func resourceNetworkingNetworkV2Segments(d *schema.ResourceData) (providerSegmen
 	return
 }
 
-func waitForNetworkActive(networkingClient *gophercloud.ServiceClient, networkId string) resource.StateRefreshFunc {
+func waitForNetworkActive(networkingClient *golangsdk.ServiceClient, networkId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := networks.Get(networkingClient, networkId).Extract()
 		if err != nil {
@@ -305,13 +305,13 @@ func waitForNetworkActive(networkingClient *gophercloud.ServiceClient, networkId
 	}
 }
 
-func waitForNetworkDelete(networkingClient *gophercloud.ServiceClient, networkId string) resource.StateRefreshFunc {
+func waitForNetworkDelete(networkingClient *golangsdk.ServiceClient, networkId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Network %s.\n", networkId)
 
 		n, err := networks.Get(networkingClient, networkId).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Network %s", networkId)
 				return n, "DELETED", nil
 			}
@@ -320,11 +320,11 @@ func waitForNetworkDelete(networkingClient *gophercloud.ServiceClient, networkId
 
 		err = networks.Delete(networkingClient, networkId).ExtractErr()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Network %s", networkId)
 				return n, "DELETED", nil
 			}
-			if errCode, ok := err.(gophercloud.ErrUnexpectedResponseCode); ok {
+			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
 				if errCode.Actual == 409 {
 					return n, "ACTIVE", nil
 				}

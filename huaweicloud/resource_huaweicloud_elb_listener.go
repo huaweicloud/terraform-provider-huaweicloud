@@ -306,7 +306,7 @@ func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Create %s Options: %#v", nameELBListener, opts)
 
 	switch {
-	case opts.Protocol == "HTTPS" || opts.Protocol == "SSL" && !hasFilledOpt(d, "certificate_id"):
+	case (opts.Protocol == "HTTPS" || opts.Protocol == "SSL") && !hasFilledOpt(d, "certificate_id"):
 		return fmt.Errorf("certificate_id is mandatory when protocol is set to HTTPS or SSL")
 	}
 	l, err := listeners.Create(networkingClient, opts, not_pass_params).Extract()
@@ -365,7 +365,7 @@ func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	protocol := d.Get("protocol").(string)
 	switch {
-	case protocol == "HTTPS" || protocol == "SSL" && !hasFilledOpt(d, "certificate_id"):
+	case (protocol == "HTTPS" || protocol == "SSL") && !hasFilledOpt(d, "certificate_id"):
 		return fmt.Errorf("certificate_id is mandatory when protocol is set to HTTPS or SSL")
 	}
 	// Wait for Listener to become active before continuing

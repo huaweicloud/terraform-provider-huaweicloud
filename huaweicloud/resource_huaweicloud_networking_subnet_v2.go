@@ -8,8 +8,8 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
 )
 
 func resourceNetworkingSubnetV2() *schema.Resource {
@@ -378,19 +378,19 @@ func resourceSubnetHostRoutesV2(d *schema.ResourceData) []subnets.HostRoute {
 	return hr
 }
 
-func resourceNetworkingSubnetV2DetermineIPVersion(v int) gophercloud.IPVersion {
-	var ipVersion gophercloud.IPVersion
+func resourceNetworkingSubnetV2DetermineIPVersion(v int) golangsdk.IPVersion {
+	var ipVersion golangsdk.IPVersion
 	switch v {
 	case 4:
-		ipVersion = gophercloud.IPv4
+		ipVersion = golangsdk.IPv4
 	case 6:
-		ipVersion = gophercloud.IPv6
+		ipVersion = golangsdk.IPv6
 	}
 
 	return ipVersion
 }
 
-func waitForSubnetActive(networkingClient *gophercloud.ServiceClient, subnetId string) resource.StateRefreshFunc {
+func waitForSubnetActive(networkingClient *golangsdk.ServiceClient, subnetId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		s, err := subnets.Get(networkingClient, subnetId).Extract()
 		if err != nil {
@@ -402,13 +402,13 @@ func waitForSubnetActive(networkingClient *gophercloud.ServiceClient, subnetId s
 	}
 }
 
-func waitForSubnetDelete(networkingClient *gophercloud.ServiceClient, subnetId string) resource.StateRefreshFunc {
+func waitForSubnetDelete(networkingClient *golangsdk.ServiceClient, subnetId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Subnet %s.\n", subnetId)
 
 		s, err := subnets.Get(networkingClient, subnetId).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Subnet %s", subnetId)
 				return s, "DELETED", nil
 			}
@@ -417,11 +417,11 @@ func waitForSubnetDelete(networkingClient *gophercloud.ServiceClient, subnetId s
 
 		err = subnets.Delete(networkingClient, subnetId).ExtractErr()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Subnet %s", subnetId)
 				return s, "DELETED", nil
 			}
-			if errCode, ok := err.(gophercloud.ErrUnexpectedResponseCode); ok {
+			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
 				if errCode.Actual == 409 {
 					return s, "ACTIVE", nil
 				}

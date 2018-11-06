@@ -20,8 +20,8 @@ func resourceCCENodeV3() *schema.Resource {
 		Delete: resourceCCENodeV3Delete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(6 * time.Minute),
-			Delete: schema.DefaultTimeout(3 * time.Minute),
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -39,6 +39,7 @@ func resourceCCENodeV3() *schema.Resource {
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"labels": &schema.Schema{
 				Type:     schema.TypeMap,
@@ -49,6 +50,7 @@ func resourceCCENodeV3() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"flavor": &schema.Schema{
 				Type:     schema.TypeString,
@@ -111,41 +113,79 @@ func resourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
+				Computed: true,
 			},
 			"eip_count": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"iptype": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
-			"chargemode": &schema.Schema{
+			"bandwidth_charge_mode": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"sharetype": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"bandwidth_size": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"billing_mode": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
-			"extend_param": &schema.Schema{
+			"extend_param_charging_mode": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"ecs_performance_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
+			},
+			"order_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"product_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"max_pods": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"public_key": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 		},
 	}
@@ -223,7 +263,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 				Eip: nodes.EipSpec{
 					IpType: d.Get("iptype").(string),
 					Bandwidth: nodes.BandwidthOpts{
-						ChargeMode: d.Get("chargemode").(string),
+						ChargeMode: d.Get("bandwidth_charge_mode").(string),
 						Size:       d.Get("bandwidth_size").(int),
 						ShareType:  d.Get("sharetype").(string),
 					},
@@ -231,7 +271,14 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 			},
 			BillingMode: d.Get("billing_mode").(int),
 			Count:       1,
-			ExtendParam: d.Get("extend_param").(string),
+			ExtendParam: nodes.ExtendParam{
+				ChargingMode:       d.Get("extend_param_charging_mode").(int),
+				EcsPerformanceType: d.Get("ecs_performance_type").(string),
+				MaxPods:            d.Get("max_pods").(int),
+				OrderID:            d.Get("order_id").(string),
+				ProductID:          d.Get("product_id").(string),
+				PublicKey:          d.Get("public_key").(string),
+			},
 		},
 	}
 
@@ -239,7 +286,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	stateCluster := &resource.StateChangeConf{
 		Target:     []string{"Available"},
 		Refresh:    waitForClusterAvailable(nodeClient, clusterid),
-		Timeout:    25 * time.Minute,
+		Timeout:    15 * time.Minute,
 		Delay:      15 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
@@ -262,11 +309,18 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error fetching HuaweiCloud Job Details: %s", err)
 	}
-	nodeid := job.Spec.SubJobs[0].Spec.SubJobs[0].Spec.ResourceID
+	jobResorceId := job.Spec.SubJobs[0].Metadata.ID
+
+	subjob, err := nodes.GetJobDetails(nodeClient, jobResorceId).ExtractJob()
+	if err != nil {
+		return fmt.Errorf("Error fetching HuaweiCloud Job Details: %s", err)
+	}
+	nodeid := subjob.Spec.SubJobs[0].Spec.ResourceID
+
 	log.Printf("[DEBUG] Waiting for CCE Node (%s) to become available", s.Metadata.Name)
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"Creating"},
-		Target:     []string{"Available", "Unavailable", "Empty"},
+		Pending:    []string{"Build", "Installing"},
+		Target:     []string{"Active", "Abnormal"},
 		Refresh:    waitForCceNodeActive(nodeClient, clusterid, nodeid),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
@@ -277,7 +331,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	node, err := nodes.Get(nodeClient, clusterid, nodeid).Extract()
 	d.SetId(node.Metadata.Id)
 	d.Set("iptype", s.Spec.PublicIP.Eip.IpType)
-	d.Set("chargemode", s.Spec.PublicIP.Eip.Bandwidth.ChargeMode)
+	d.Set("bandwidth_charge_mode", s.Spec.PublicIP.Eip.Bandwidth.ChargeMode)
 	d.Set("bandwidth_size", s.Spec.PublicIP.Eip.Bandwidth.Size)
 	d.Set("sharetype", s.Spec.PublicIP.Eip.Bandwidth.ShareType)
 	return resourceCCENodeV3Read(d, meta)
@@ -308,7 +362,12 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("az", s.Spec.Az)
 	d.Set("billing_mode", s.Spec.BillingMode)
 	d.Set("node_count", s.Spec.Count)
-	d.Set("extend_param", s.Spec.ExtendParam)
+	d.Set("extend_param_charging_mode", s.Spec.ExtendParam.ChargingMode)
+	d.Set("ecs:performance_type", s.Spec.ExtendParam.PublicKey)
+	d.Set("order_id", s.Spec.ExtendParam.OrderID)
+	d.Set("product_id", s.Spec.ExtendParam.ProductID)
+	d.Set("max_pods", s.Spec.ExtendParam.MaxPods)
+	d.Set("ecs_performance_type", s.Spec.ExtendParam.EcsPerformanceType)
 	d.Set("sshkey", s.Spec.Login.SshKey)
 	var volumes []map[string]interface{}
 	for _, pairObject := range s.Spec.DataVolumes {
@@ -399,10 +458,6 @@ func waitForCceNodeActive(cceClient *golangsdk.ServiceClient, clusterId, nodeId 
 			return nil, "", err
 		}
 
-		if n.Status.Phase != "Creating" {
-			return n, "Creating", nil
-		}
-
 		return n, n.Status.Phase, nil
 	}
 }
@@ -444,7 +499,7 @@ func recursiveCreate(cceClient *golangsdk.ServiceClient, opts nodes.CreateOptsBu
 		stateCluster := &resource.StateChangeConf{
 			Target:     []string{"Available"},
 			Refresh:    waitForClusterAvailable(cceClient, ClusterID),
-			Timeout:    25 * time.Minute,
+			Timeout:    15 * time.Minute,
 			Delay:      15 * time.Second,
 			MinTimeout: 3 * time.Second,
 		}

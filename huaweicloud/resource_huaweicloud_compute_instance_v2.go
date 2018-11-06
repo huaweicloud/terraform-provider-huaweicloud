@@ -9,19 +9,19 @@ import (
 	"os"
 	"time"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/bootfromvolume"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/keypairs"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/schedulerhints"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/secgroups"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/startstop"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/flavors"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/images"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/bootfromvolume"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/schedulerhints"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/startstop"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/flavors"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/images"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
 )
 
 func resourceComputeInstanceV2() *schema.Resource {
@@ -632,7 +632,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 		for _, g := range secgroupsToRemove.List() {
 			err := secgroups.RemoveServer(computeClient, d.Id(), g.(string)).ExtractErr()
 			if err != nil && err.Error() != "EOF" {
-				if _, ok := err.(gophercloud.ErrDefault404); ok {
+				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					continue
 				}
 
@@ -783,11 +783,11 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 
 // ServerV2StateRefreshFunc returns a resource.StateRefreshFunc that is used to watch
 // an HuaweiCloud instance.
-func ServerV2StateRefreshFunc(client *gophercloud.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func ServerV2StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		s, err := servers.Get(client, instanceID).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return s, "DELETED", nil
 			}
 			return nil, "", err
@@ -893,7 +893,7 @@ func resourceInstanceSchedulerHintsV2(d *schema.ResourceData, schedulerHintsRaw 
 	return schedulerHints
 }
 
-func getImageIDFromConfig(computeClient *gophercloud.ServiceClient, d *schema.ResourceData) (string, error) {
+func getImageIDFromConfig(computeClient *golangsdk.ServiceClient, d *schema.ResourceData) (string, error) {
 	// If block_device was used, an Image does not need to be specified, unless an image/local
 	// combination was used. This emulates normal boot behavior. Otherwise, ignore the image altogether.
 	if vL, ok := d.GetOk("block_device"); ok {
@@ -937,7 +937,7 @@ func getImageIDFromConfig(computeClient *gophercloud.ServiceClient, d *schema.Re
 	return "", fmt.Errorf("Neither a boot device, image ID, or image name were able to be determined.")
 }
 
-func setImageInformation(computeClient *gophercloud.ServiceClient, server *servers.Server, d *schema.ResourceData) error {
+func setImageInformation(computeClient *golangsdk.ServiceClient, server *servers.Server, d *schema.ResourceData) error {
 	// If block_device was used, an Image does not need to be specified, unless an image/local
 	// combination was used. This emulates normal boot behavior. Otherwise, ignore the image altogether.
 	if vL, ok := d.GetOk("block_device"); ok {
@@ -958,7 +958,7 @@ func setImageInformation(computeClient *gophercloud.ServiceClient, server *serve
 	if imageId != "" {
 		d.Set("image_id", imageId)
 		if image, err := images.Get(computeClient, imageId).Extract(); err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				// If the image name can't be found, set the value to "Image not found".
 				// The most likely scenario is that the image no longer exists in the Image Service
 				// but the instance still has a record from when it existed.
@@ -974,7 +974,7 @@ func setImageInformation(computeClient *gophercloud.ServiceClient, server *serve
 	return nil
 }
 
-func getFlavorID(client *gophercloud.ServiceClient, d *schema.ResourceData) (string, error) {
+func getFlavorID(client *golangsdk.ServiceClient, d *schema.ResourceData) (string, error) {
 	flavorId := d.Get("flavor_id").(string)
 
 	if flavorId != "" {

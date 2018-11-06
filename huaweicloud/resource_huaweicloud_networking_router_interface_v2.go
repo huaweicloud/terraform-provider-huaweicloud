@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/layer3/routers"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/ports"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/routers"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
 func resourceNetworkingRouterInterfaceV2() *schema.Resource {
@@ -101,7 +101,7 @@ func resourceNetworkingRouterInterfaceV2Read(d *schema.ResourceData, meta interf
 
 	n, err := ports.Get(networkingClient, d.Id()).Extract()
 	if err != nil {
-		if _, ok := err.(gophercloud.ErrDefault404); ok {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			d.SetId("")
 			return nil
 		}
@@ -153,7 +153,7 @@ func resourceNetworkingRouterInterfaceV2Delete(d *schema.ResourceData, meta inte
 	return nil
 }
 
-func waitForRouterInterfaceActive(networkingClient *gophercloud.ServiceClient, rId string) resource.StateRefreshFunc {
+func waitForRouterInterfaceActive(networkingClient *golangsdk.ServiceClient, rId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		r, err := ports.Get(networkingClient, rId).Extract()
 		if err != nil {
@@ -165,7 +165,7 @@ func waitForRouterInterfaceActive(networkingClient *gophercloud.ServiceClient, r
 	}
 }
 
-func waitForRouterInterfaceDelete(networkingClient *gophercloud.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func waitForRouterInterfaceDelete(networkingClient *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		routerId := d.Get("router_id").(string)
 		routerInterfaceId := d.Id()
@@ -179,7 +179,7 @@ func waitForRouterInterfaceDelete(networkingClient *gophercloud.ServiceClient, d
 
 		r, err := ports.Get(networkingClient, routerInterfaceId).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Router Interface %s", routerInterfaceId)
 				return r, "DELETED", nil
 			}
@@ -188,11 +188,11 @@ func waitForRouterInterfaceDelete(networkingClient *gophercloud.ServiceClient, d
 
 		_, err = routers.RemoveInterface(networkingClient, routerId, removeOpts).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Router Interface %s.", routerInterfaceId)
 				return r, "DELETED", nil
 			}
-			if errCode, ok := err.(gophercloud.ErrUnexpectedResponseCode); ok {
+			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
 				if errCode.Actual == 409 {
 					log.Printf("[DEBUG] Router Interface %s is still in use.", routerInterfaceId)
 					return r, "ACTIVE", nil

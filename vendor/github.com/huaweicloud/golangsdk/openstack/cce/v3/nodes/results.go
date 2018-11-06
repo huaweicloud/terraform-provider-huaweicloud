@@ -59,7 +59,7 @@ type Spec struct {
 	// Number of nodes when creating in batch
 	Count int `json:"count" required:"true"`
 	// Extended parameter
-	ExtendParam string `json:"extendParam,omitempty"`
+	ExtendParam ExtendParam `json:"extendParam,omitempty"`
 }
 
 // Gives the current status of the node
@@ -96,6 +96,20 @@ type VolumeSpec struct {
 	ExtendParam string `json:"extendParam,omitempty"`
 }
 
+type ExtendParam struct {
+	// Node charging mode, 0 is on-demand charging.
+	ChargingMode int `json:"chargingMode,omitempty"`
+	// Classification of cloud server specifications.
+	EcsPerformanceType string `json:"ecs:performancetype,omitempty"`
+	// Order ID, mandatory when the node payment type is the automatic payment package period type.
+	OrderID string `json:"orderID,omitempty"`
+	// The Product ID.
+	ProductID string `json:"productID,omitempty"`
+	PublicKey string `json:"publicKey,omitempty"`
+	// The maximum number of instances a node is allowed to create.
+	MaxPods int `json:"maxPods,omitempty"`
+
+}
 type PublicIPSpec struct {
 	// List of existing elastic IP IDs
 	Ids []string `json:"ids,omitempty"`

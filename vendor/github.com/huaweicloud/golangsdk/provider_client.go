@@ -74,6 +74,10 @@ type ProviderClient struct {
 	// authentication functions for different Identity service versions.
 	ReauthFunc func() error
 
+	// AKSKAuthOptions provides the value for AK/SK authentication, it should be nil if you use token authentication,
+	// Otherwise, it must have a value
+	AKSKAuthOptions AKSKAuthOptions
+
 	mut *sync.RWMutex
 
 	reauthmut *reauthlock
@@ -155,6 +159,14 @@ type RequestOpts struct {
 
 var applicationJSON = "application/json"
 
+func jsonMarshal(t interface{}) ([]byte, error) {
+	buffer := &bytes.Buffer{}
+	enc := json.NewEncoder(buffer)
+	enc.SetEscapeHTML(false)
+	err := enc.Encode(t)
+	return buffer.Bytes(), err
+}
+
 // Request performs an HTTP request using the ProviderClient's current HTTPClient. An authentication
 // header will automatically be provided.
 func (client *ProviderClient) Request(method, url string, options *RequestOpts) (*http.Response, error) {
@@ -168,7 +180,7 @@ func (client *ProviderClient) Request(method, url string, options *RequestOpts) 
 			panic("Please provide only one of JSONBody or RawBody to golangsdk.Request().")
 		}
 
-		rendered, err := json.Marshal(options.JSONBody)
+		rendered, err := jsonMarshal(options.JSONBody)
 		if err != nil {
 			return nil, err
 		}
@@ -216,6 +228,13 @@ func (client *ProviderClient) Request(method, url string, options *RequestOpts) 
 	req.Close = true
 
 	prereqtok := req.Header.Get("X-Auth-Token")
+
+	if client.AKSKAuthOptions.AccessKey != "" {
+		Sign(req, SignOptions{
+			AccessKey: client.AKSKAuthOptions.AccessKey,
+			SecretKey: client.AKSKAuthOptions.SecretKey,
+		})
+	}
 
 	// Issue the request.
 	resp, err := client.HTTPClient.Do(req)

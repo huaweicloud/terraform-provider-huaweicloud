@@ -151,8 +151,8 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   subnet_id="%s"
   container_network_type="overlay_l2"
     timeouts {
-    create = "5m"
-    delete = "5m"
+    create = "10m"
+    delete = "10m"
   }
 }
 `, OS_VPC_ID, OS_SUBNET_ID)

@@ -14,12 +14,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/tenantnetworks"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/ports"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/tenantnetworks"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
 // InstanceNIC is a structured representation of a Gophercloud servers.Server
@@ -180,7 +180,7 @@ func getInstanceNetworkInfo(
 // getInstanceNetworkInfoNovaNet will query the os-tenant-networks API for
 // the network information.
 func getInstanceNetworkInfoNovaNet(
-	client *gophercloud.ServiceClient, queryType, queryTerm string) (map[string]interface{}, error) {
+	client *golangsdk.ServiceClient, queryType, queryTerm string) (map[string]interface{}, error) {
 
 	// If somehow a port ended up here, we should just error out.
 	if queryType == "port" {
@@ -233,7 +233,7 @@ func getInstanceNetworkInfoNovaNet(
 // getInstanceNetworkInfoNeutron will query the neutron API for the network
 // information.
 func getInstanceNetworkInfoNeutron(
-	client *gophercloud.ServiceClient, queryType, queryTerm string) (map[string]interface{}, error) {
+	client *golangsdk.ServiceClient, queryType, queryTerm string) (map[string]interface{}, error) {
 
 	// If a port was specified, use it to look up the network ID
 	// and then query the network as if a network ID was originally used.

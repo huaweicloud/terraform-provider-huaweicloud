@@ -69,13 +69,23 @@ If the eip_ids parameter is configured, you do not need to configure the eip_cou
 
 * `iptype` - (Required) Elastic IP type. 
 
-* `chargemode` - (Optional) Bandwidth billing type. Changing this parameter will create a new resource.
+* `bandwidth_charge_mode` - (Optional) Bandwidth billing type. Changing this parameter will create a new resource.
 
 * `sharetype` - (Required) Bandwidth sharing type. Changing this parameter will create a new resource.
 
 * `bandwidth_size` - (Required) Bandwidth size. Changing this parameter will create a new resource.
 
-* `extend_param` - (Optional) Extended parameter. Changing this parameter will create a new cluster resource.
+* `extend_param_charging_mode` - (Optional) Node charging mode, 0 is on-demand charging. Changing this parameter will create a new cluster resource.
+
+* `ecs_performance_type` - (Optional) Classification of cloud server specifications. Changing this parameter will create a new cluster resource.
+
+* `order_id` - (Optional) Order ID, mandatory when the node payment type is the automatic payment package period type. Changing this parameter will create a new cluster resource.
+
+* `product_id` - (Optional) The Product ID. Changing this parameter will create a new cluster resource.
+
+* `max_pods` - (Optional) The maximum number of instances a node is allowed to create. Changing this parameter will create a new cluster resource.
+
+* `public_key` - (Optional) The Public key. Changing this parameter will create a new cluster resource.
 
 **root_volume** **- (Required)** It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
 

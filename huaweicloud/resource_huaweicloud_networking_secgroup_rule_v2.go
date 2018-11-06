@@ -10,8 +10,8 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/security/rules"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/rules"
 )
 
 func resourceNetworkingSecGroupRuleV2() *schema.Resource {
@@ -288,13 +288,13 @@ func resourceNetworkingSecGroupRuleV2DetermineProtocol(v string) rules.RuleProto
 	return protocol
 }
 
-func waitForSecGroupRuleDelete(networkingClient *gophercloud.ServiceClient, secGroupRuleId string) resource.StateRefreshFunc {
+func waitForSecGroupRuleDelete(networkingClient *golangsdk.ServiceClient, secGroupRuleId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Security Group Rule %s.\n", secGroupRuleId)
 
 		r, err := rules.Get(networkingClient, secGroupRuleId).Extract()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Neutron Security Group Rule %s", secGroupRuleId)
 				return r, "DELETED", nil
 			}
@@ -303,7 +303,7 @@ func waitForSecGroupRuleDelete(networkingClient *gophercloud.ServiceClient, secG
 
 		err = rules.Delete(networkingClient, secGroupRuleId).ExtractErr()
 		if err != nil {
-			if _, ok := err.(gophercloud.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Neutron Security Group Rule %s", secGroupRuleId)
 				return r, "DELETED", nil
 			}

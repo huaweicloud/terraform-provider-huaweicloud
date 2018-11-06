@@ -298,6 +298,11 @@ func (opts *AuthOptions) AuthTokenID() string {
 	return ""
 }
 
+// Implements the method of AuthOptionsProvider
+func (opts AuthOptions) GetIdentityEndpoint() string {
+	return opts.IdentityEndpoint
+}
+
 type scopeInfo struct {
 	ProjectID   string
 	ProjectName string

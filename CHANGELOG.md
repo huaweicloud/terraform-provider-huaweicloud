@@ -1,24 +1,33 @@
-## 1.1.1 (Unreleased)
+## 1.2.1 (Unreleased)
+## 1.2.0 (September 21, 2018)
 
 FEATURES:
 
-* **New Data Source:** `huaweicloud_cce_cluster_v3` [GH-19]
-* **New Data Source:** `huaweicloud_cce_node_v3` [GH-19]
-* **New Data Source:** `huaweicloud_vpc_v1` [GH-14]
-* **New Data Source:** `huaweicloud_vpc_peering_connection_v2` [GH-14]
-* **New Data Source:** `huaweicloud_vpc_route_v2` [GH-14]
-* **New Data Source:** `huaweicloud_vpc_route_ids_v2` [GH-14]
-* **New Data Source:** `huaweicloud_vpc_subnet_v1` [GH-14]
-* **New Data Source:** `huaweicloud_vpc_subnet_ids_v1` [GH-14]
-* **New Resource:** `huaweicloud_vpc_v1` [GH-14]
-* **New Resource:** `huaweicloud_vpc_peering_connection_v2` [GH-14]
-* **New Resource:** `huaweicloud_vpc_peering_connection_accepter_v2` [GH-14]
-* **New Resource:** `huaweicloud_vpc_route_v2` [GH-14]
-* **New Resource:** `huaweicloud_vpc_subnet_v1` [GH-14]
-* **New Data Source:** `huaweicloud_rts_software_config_v1` [GH-20]
-* **New Resource:** `huaweicloud_rts_software_config_v1` [GH-20]
+* **New Data Source:** `huaweicloud_vpc_v1` ([#14](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/14))
+* **New Data Source:** `huaweicloud_vpc_peering_connection_v2` ([#14](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/14))
+* **New Data Source:** `huaweicloud_vpc_route_v2` ([#14](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/14))
+* **New Data Source:** `huaweicloud_vpc_route_ids_v2` ([#14](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/14))
+* **New Data Source:** `huaweicloud_vpc_subnet_v1` ([#14](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/14))
+* **New Data Source:** `huaweicloud_vpc_subnet_ids_v1` ([#14](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/14))
+* **New Data Source:** `huaweicloud_rts_software_config_v1` ([#20](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/20))
+* **New Data Source:** `huaweicloud_images_image_v2` ([#25](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/25))
+* **New Resource:** `huaweicloud_vpc_v1` ([#14](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/14))
+* **New Resource:** `huaweicloud_vpc_peering_connection_v2` ([#14](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/14))
+* **New Resource:** `huaweicloud_vpc_peering_connection_accepter_v2` ([#14](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/14))
+* **New Resource:** `huaweicloud_vpc_route_v2` ([#14](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/14))
+* **New Resource:** `huaweicloud_vpc_subnet_v1` ([#14](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/14))
+* **New Resource:** `huaweicloud_rts_software_config_v1` ([#20](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/20))
+* **New Resource:** `huaweicloud_images_image_v2` ([#25](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/25))
+* **New Resource:** `huaweicloud_ces_alarmrule` ([#27](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/27))
+* **New Resource:** `huaweicloud_as_configuration_v1` ([#29](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/29))
+* **New Resource:** `huaweicloud_as_group_v1` ([#30](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/30))
+* **New Resource:** `huaweicloud_as_policy_v1` ([#31](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/31))
 * **New Resource:** `huaweicloud_cce_cluster_v3` [GH-19]
 * **New Resource:** `huaweicloud_cce_node_v3` [GH-19]
+
+ENHANCEMENTS:
+
+* provider: Add AK/SK authentication support ([#33](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/33))
 
 ## 1.1.0 (July 20, 2018)
 

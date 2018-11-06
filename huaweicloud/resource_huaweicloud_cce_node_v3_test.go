@@ -137,7 +137,7 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
 resource "huaweicloud_cce_node_v3" "node_1" {
 cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
   name = "test-node"
- flavor="s1.medium"
+  flavor="s1.medium"
   iptype="5_bgp"
   billing_mode=0
   az= "%s"
@@ -146,7 +146,7 @@ cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
     size= 40,
     volumetype= "SATA"
   }
-  chargemode="traffic"
+  bandwidth_charge_mode="traffic"
   sharetype= "PER"
   bandwidth_size= 100,
   data_volumes = [
@@ -180,7 +180,7 @@ cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
     size= 40,
     volumetype= "SATA"
   }
-  chargemode="traffic"
+  bandwidth_charge_mode="traffic"
   sharetype= "PER"
   bandwidth_size= 100,
   data_volumes = [
@@ -214,7 +214,7 @@ resource "huaweicloud_cce_node_v3" "node_1" {
     size= 40,
     volumetype= "SATA"
   }
-  chargemode="traffic"
+  bandwidth_charge_mode="traffic"
   sharetype= "PER"
   bandwidth_size= 100,
   data_volumes = [
@@ -224,8 +224,8 @@ resource "huaweicloud_cce_node_v3" "node_1" {
     },
   ]
 timeouts {
-create = "5m"
-delete = "5m"
+create = "10m"
+delete = "10m"
 } 
 }
 `, OS_VPC_ID, OS_SUBNET_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)

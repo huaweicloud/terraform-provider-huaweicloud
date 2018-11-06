@@ -5,11 +5,11 @@ import (
 	"log"
 	"strings"
 
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/floatingips"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
-	nfloatingips "github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/floatingips"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
+	nfloatingips "github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
 )
 
 func resourceComputeFloatingIPAssociateV2() *schema.Resource {
@@ -190,7 +190,7 @@ func parseComputeFloatingIPAssociateId(id string) (string, string, string, error
 	return floatingIP, instanceId, fixedIP, nil
 }
 
-func resourceComputeFloatingIPAssociateV2NetworkExists(networkClient *gophercloud.ServiceClient, floatingIP string) (bool, string, error) {
+func resourceComputeFloatingIPAssociateV2NetworkExists(networkClient *golangsdk.ServiceClient, floatingIP string) (bool, string, error) {
 	listOpts := nfloatingips.ListOpts{
 		FloatingIP: floatingIP,
 	}
@@ -215,7 +215,7 @@ func resourceComputeFloatingIPAssociateV2NetworkExists(networkClient *gopherclou
 	return true, allFips[0].FixedIP, nil
 }
 
-func resourceComputeFloatingIPAssociateV2ComputeExists(computeClient *gophercloud.ServiceClient, floatingIP string) (bool, error) {
+func resourceComputeFloatingIPAssociateV2ComputeExists(computeClient *golangsdk.ServiceClient, floatingIP string) (bool, error) {
 	// If the Network API isn't available, fall back to the deprecated Compute API.
 	allPages, err := floatingips.List(computeClient).AllPages()
 	if err != nil {
