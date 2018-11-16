@@ -77,4 +77,4 @@ data "huaweicloud_cce_node_v3" "nodes" {
 		cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
 		name = "${huaweicloud_cce_node_v3.node_1.name}"
 }
-`, OS_VPC_ID, OS_SUBNET_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)
+`, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)

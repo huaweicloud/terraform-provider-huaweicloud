@@ -155,7 +155,7 @@ cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
       volumetype= "SATA"
     },
   ]
-}`, OS_VPC_ID, OS_SUBNET_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)
+}`, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)
 
 var testAccCCENodeV3_update = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
@@ -189,7 +189,7 @@ cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
       volumetype= "SATA"
     },
   ]
-}`, OS_VPC_ID, OS_SUBNET_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)
+}`, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)
 
 var testAccCCENodeV3_timeout = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
@@ -228,4 +228,4 @@ create = "10m"
 delete = "10m"
 } 
 }
-`, OS_VPC_ID, OS_SUBNET_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)
+`, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)

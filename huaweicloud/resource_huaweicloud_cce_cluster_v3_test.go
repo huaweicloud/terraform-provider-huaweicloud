@@ -14,7 +14,7 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 	var cluster clusters.Clusters
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckCCE(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
@@ -51,7 +51,7 @@ func TestAccCCEClusterV3_timeout(t *testing.T) {
 	var cluster clusters.Clusters
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckCCE(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
@@ -127,7 +127,7 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   vpc_id="%s"
   subnet_id="%s"
   container_network_type="overlay_l2"
-}`, OS_VPC_ID, OS_SUBNET_ID)
+}`, OS_VPC_ID, OS_NETWORK_ID)
 
 var testAccCCEClusterV3_update = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
@@ -139,7 +139,7 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   subnet_id="%s"
   container_network_type="overlay_l2"
   description="new description"
-}`, OS_VPC_ID, OS_SUBNET_ID)
+}`, OS_VPC_ID, OS_NETWORK_ID)
 
 var testAccCCEClusterV3_timeout = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
@@ -155,4 +155,4 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
     delete = "10m"
   }
 }
-`, OS_VPC_ID, OS_SUBNET_ID)
+`, OS_VPC_ID, OS_NETWORK_ID)

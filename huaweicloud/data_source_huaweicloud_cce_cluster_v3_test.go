@@ -10,7 +10,7 @@ import (
 
 func TestAccCCEClusterV3DataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheckCCE(t) },
+		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
@@ -53,7 +53,7 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   vpc_id = "%s"
   subnet_id = "%s"
   container_network_type = "overlay_l2"
-}`, OS_VPC_ID, OS_SUBNET_ID)
+}`, OS_VPC_ID, OS_NETWORK_ID)
 
 var testAccCCEClusterV3DataSource_basic = fmt.Sprintf(`
 %s
