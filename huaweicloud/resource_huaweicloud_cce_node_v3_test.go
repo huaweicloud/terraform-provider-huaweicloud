@@ -43,7 +43,7 @@ func TestAccCCENodesV3_timeout(t *testing.T) {
 	var node nodes.Nodes
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckCCENode(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCCENodeV3Destroy,
 		Steps: []resource.TestStep{
