@@ -22,6 +22,8 @@ FEATURES:
 * **New Resource:** `huaweicloud_as_configuration_v1` ([#29](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/29))
 * **New Resource:** `huaweicloud_as_group_v1` ([#30](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/30))
 * **New Resource:** `huaweicloud_as_policy_v1` ([#31](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/31))
+* **New Resource:** `huaweicloud_cce_cluster_v3` [GH-19]
+* **New Resource:** `huaweicloud_cce_node_v3` [GH-19]
 
 ENHANCEMENTS:
 
