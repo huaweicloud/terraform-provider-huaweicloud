@@ -216,6 +216,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dms_maintainwindow_v1":     dataSourceDmsMaintainWindowV1(),
 			"huaweicloud_vbs_backup_policy_v2":      dataSourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup_v2":             dataSourceVBSBackupV2(),
+			"huaweicloud_antiddos_v1":               dataSourceAntiDdosV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{

@@ -452,6 +452,12 @@ func (c *Config) dmsV1Client(region string) (*golangsdk.ServiceClient, error) {
 		Availability: c.getHwEndpointType(),
 	})
 }
+func (c *Config) antiddosV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.NewHwAntiDDoSV1(c.HwClient, golangsdk.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getHwEndpointType(),
+	})
+}
 
 func (c *Config) vbsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return huaweisdk.NewVBS(c.HwClient, golangsdk.EndpointOpts{
