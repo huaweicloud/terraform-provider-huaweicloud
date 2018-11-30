@@ -3,9 +3,11 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 
+	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/smn/v2/topics"
 )
 
@@ -76,6 +78,7 @@ func resourceTopicCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Create : topic.TopicUrn %s", topic.TopicUrn)
 	if topic.TopicUrn != "" {
 		d.SetId(topic.TopicUrn)
+		time.Sleep(120 * time.Second)
 		return resourceTopicRead(d, meta)
 	}
 
@@ -122,6 +125,15 @@ func resourceTopicDelete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	for {
+		_, err = topics.Get(client, id).ExtractGet()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				break
+			}
+		}
+	}
+
 	log.Printf("[DEBUG] Successfully deleted topic %s", id)
 	return nil
 }
@@ -141,15 +153,12 @@ func resourceTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.DisplayName = d.Get("display_name").(string)
 	}
 
-	topic, err := topics.Update(client, updateOpts, id).Extract()
+	_, err = topics.Update(client, updateOpts, id).Extract()
 	if err != nil {
 		return fmt.Errorf("Error updating topic from result: %s", err)
 	}
 
-	log.Printf("[DEBUG] Update : topic.TopicUrn: %s", topic.TopicUrn)
-	if topic.TopicUrn != "" {
-		d.SetId(topic.TopicUrn)
-		return resourceTopicRead(d, meta)
-	}
-	return nil
+	time.Sleep(120 * time.Second)
+	log.Printf("[DEBUG] Update : topic.TopicUrn: %s", id)
+	return resourceTopicRead(d, meta)
 }
