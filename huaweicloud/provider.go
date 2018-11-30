@@ -208,6 +208,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpc_route_ids_v2":          dataSourceVPCRouteIdsV2(),
 			"huaweicloud_vpc_subnet_v1":             dataSourceVpcSubnetV1(),
 			"huaweicloud_vpc_subnet_ids_v1":         dataSourceVpcSubnetIdsV1(),
+			"huaweicloud_cce_cluster_v3":            dataSourceCCEClusterV3(),
+			"huaweicloud_cce_node_v3":               dataSourceCceNodesV3(),
 			"huaweicloud_rts_software_config_v1":    dataSourceRtsSoftwareConfigV1(),
 			"huaweicloud_csbs_backup_v1":            dataSourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy_v1":     dataSourceCSBSBackupPolicyV1(),
@@ -216,6 +218,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dms_maintainwindow_v1":     dataSourceDmsMaintainWindowV1(),
 			"huaweicloud_vbs_backup_policy_v2":      dataSourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup_v2":             dataSourceVBSBackupV2(),
+			"huaweicloud_cts_tracker_v1":            dataSourceCTSTrackerV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -272,6 +275,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpc_peering_connection_accepter_v2": resourceVpcPeeringConnectionAccepterV2(),
 			"huaweicloud_vpc_route_v2":                       resourceVPCRouteV2(),
 			"huaweicloud_vpc_subnet_v1":                      resourceVpcSubnetV1(),
+			"huaweicloud_cce_cluster_v3":                     resourceCCEClusterV3(),
+			"huaweicloud_cce_node_v3":                        resourceCCENodeV3(),
 			"huaweicloud_rts_software_config_v1":             resourceSoftwareConfigV1(),
 			"huaweicloud_ces_alarmrule":                      resourceAlarmRule(),
 			"huaweicloud_as_configuration_v1":                resourceASConfiguration(),
@@ -281,6 +286,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_csbs_backup_policy_v1":              resourceCSBSBackupPolicyV1(),
 			"huaweicloud_vbs_backup_policy_v2":               resourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup_v2":                      resourceVBSBackupV2(),
+			"huaweicloud_cts_tracker_v1":                     resourceCTSTrackerV1(),
 		},
 
 		ConfigureFunc: configureProvider,

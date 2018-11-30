@@ -319,6 +319,13 @@ func (c *Config) networkingV2Client(region string) (*golangsdk.ServiceClient, er
 	})
 }
 
+func (c *Config) cceV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.NewCCEV3(c.HwClient, golangsdk.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getHwEndpointType(),
+	})
+}
+
 func (c *Config) objectStorageV1Client(region string) (*golangsdk.ServiceClient, error) {
 	// If Swift Authentication is being used, return a swauth client.
 	if c.Swauth {
@@ -455,6 +462,13 @@ func (c *Config) dmsV1Client(region string) (*golangsdk.ServiceClient, error) {
 
 func (c *Config) vbsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return huaweisdk.NewVBS(c.HwClient, golangsdk.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getHwEndpointType(),
+	})
+}
+
+func (c *Config) ctsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.NewCTSService(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getHwEndpointType(),
 	})
