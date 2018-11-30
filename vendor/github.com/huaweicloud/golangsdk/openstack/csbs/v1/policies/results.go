@@ -100,9 +100,31 @@ func (r *OperationDefinitionResp) UnmarshalJSON(b []byte) error {
 		RetentionDurationDays string `json:"retention_duration_days"`
 		Permanent             string `json:"permanent"`
 	}
+
 	err := json.Unmarshal(b, &s)
+
 	if err != nil {
-		return err
+		switch err.(type) {
+		case *json.UnmarshalTypeError: //check if type error occurred (handles if no type conversion is required for cloud like Huawei)
+
+			var s struct {
+				tmp
+				MaxBackups            int  `json:"max_backups"`
+				RetentionDurationDays int  `json:"retention_duration_days"`
+				Permanent             bool `json:"permanent"`
+			}
+			err := json.Unmarshal(b, &s)
+			if err != nil {
+				return err
+			}
+			*r = OperationDefinitionResp(s.tmp)
+			r.MaxBackups = s.MaxBackups
+			r.RetentionDurationDays = s.RetentionDurationDays
+			r.Permanent = s.Permanent
+			return nil
+		default:
+			return err
+		}
 	}
 
 	*r = OperationDefinitionResp(s.tmp)
