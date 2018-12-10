@@ -59,14 +59,6 @@ func testAccPreCheckRequiredEnvVars(t *testing.T) {
 	if OS_AVAILABILITY_ZONE == "" {
 		t.Fatal("OS_AVAILABILITY_ZONE must be set for acceptance tests")
 	}
-
-	if OS_ACCESS_KEY == "" {
-		t.Fatal("OS_ACCESS_KEY must be set for acceptance tests")
-	}
-
-	if OS_SECRET_KEY == "" {
-		t.Fatal("OS_SECRET_KEY must be set for acceptance tests")
-	}
 	if OS_FLAVOR_ID == "" && OS_FLAVOR_NAME == "" {
 		t.Fatal("OS_FLAVOR_ID or OS_FLAVOR_NAME must be set for acceptance tests")
 	}
@@ -137,6 +129,14 @@ func testAccPreCheckCCENode(t *testing.T) {
 		t.Skip("OS_SSH_KEY must be set for CCE Node acceptance tests")
 	}
 }
+
+func testAccPreCheckS3(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+	if OS_ACCESS_KEY == "" || OS_SECRET_KEY == "" {
+		t.Skip("OS_ACCESS_KEY and OS_SECRET_KEY  must be set for S3 acceptance tests")
+	}
+}
+
 func TestProvider(t *testing.T) {
 	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
