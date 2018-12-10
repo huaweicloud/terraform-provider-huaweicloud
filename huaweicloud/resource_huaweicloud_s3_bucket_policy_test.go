@@ -20,7 +20,7 @@ func TestAccS3BucketPolicy_basic(t *testing.T) {
 		name, name)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckS3(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
 		Steps: []resource.TestStep{
@@ -47,7 +47,7 @@ func TestAccS3BucketPolicy_policyUpdate(t *testing.T) {
 		name, name)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckS3(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
 		Steps: []resource.TestStep{
