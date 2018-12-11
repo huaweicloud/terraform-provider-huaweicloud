@@ -175,23 +175,11 @@ func testAccCheckLBV2LoadBalancerHasSecGroup(
 	}
 }
 
-const testAccLBV2LoadBalancerConfig_basic = `
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  cidr = "192.168.199.0/24"
-  ip_version = 4
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-}
-
+var testAccLBV2LoadBalancerConfig_basic = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1"
   loadbalancer_provider = "haproxy"
-  vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+  vip_subnet_id = "%s"
 
   timeouts {
     create = "5m"
@@ -199,26 +187,14 @@ resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
     delete = "5m"
   }
 }
-`
+`, OS_SUBNET_ID)
 
-const testAccLBV2LoadBalancerConfig_update = `
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  cidr = "192.168.199.0/24"
-  ip_version = 4
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-}
-
+var testAccLBV2LoadBalancerConfig_update = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1_updated"
   loadbalancer_provider = "haproxy"
   admin_state_up = "true"
-  vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+  vip_subnet_id = "%s"
 
   timeouts {
     create = "5m"
@@ -226,9 +202,9 @@ resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
     delete = "5m"
   }
 }
-`
+`, OS_SUBNET_ID)
 
-const testAccLBV2LoadBalancer_secGroup = `
+var testAccLBV2LoadBalancer_secGroup = fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name = "secgroup_1"
   description = "secgroup_1"
@@ -239,27 +215,16 @@ resource "huaweicloud_networking_secgroup_v2" "secgroup_2" {
   description = "secgroup_2"
 }
 
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  cidr = "192.168.199.0/24"
-}
-
 resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
     name = "loadbalancer_1"
-    vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+    vip_subnet_id = "%s"
     security_group_ids = [
       "${huaweicloud_networking_secgroup_v2.secgroup_1.id}"
     ]
 }
-`
+`, OS_SUBNET_ID)
 
-const testAccLBV2LoadBalancer_secGroup_update1 = `
+var testAccLBV2LoadBalancer_secGroup_update1 = fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name = "secgroup_1"
   description = "secgroup_1"
@@ -270,28 +235,17 @@ resource "huaweicloud_networking_secgroup_v2" "secgroup_2" {
   description = "secgroup_2"
 }
 
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  cidr = "192.168.199.0/24"
-}
-
 resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
     name = "loadbalancer_1"
-    vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+    vip_subnet_id = "%s"
     security_group_ids = [
       "${huaweicloud_networking_secgroup_v2.secgroup_1.id}",
       "${huaweicloud_networking_secgroup_v2.secgroup_2.id}"
     ]
 }
-`
+`, OS_SUBNET_ID)
 
-const testAccLBV2LoadBalancer_secGroup_update2 = `
+var testAccLBV2LoadBalancer_secGroup_update2 = fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name = "secgroup_1"
   description = "secgroup_1"
@@ -302,23 +256,12 @@ resource "huaweicloud_networking_secgroup_v2" "secgroup_2" {
   description = "secgroup_2"
 }
 
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  cidr = "192.168.199.0/24"
-}
-
 resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
     name = "loadbalancer_1"
-    vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+    vip_subnet_id = "%s"
     security_group_ids = [
       "${huaweicloud_networking_secgroup_v2.secgroup_2.id}"
     ]
     depends_on = ["huaweicloud_networking_secgroup_v2.secgroup_1"]
 }
-`
+`, OS_SUBNET_ID)

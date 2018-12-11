@@ -22,13 +22,13 @@ var (
 	OS_IMAGE_ID               = os.Getenv("OS_IMAGE_ID")
 	OS_IMAGE_NAME             = os.Getenv("OS_IMAGE_NAME")
 	OS_NETWORK_ID             = os.Getenv("OS_NETWORK_ID")
+	OS_SUBNET_ID              = os.Getenv("OS_SUBNET_ID")
 	OS_POOL_NAME              = os.Getenv("OS_POOL_NAME")
 	OS_REGION_NAME            = os.Getenv("OS_REGION_NAME")
 	OS_ACCESS_KEY             = os.Getenv("OS_ACCESS_KEY")
 	OS_SECRET_KEY             = os.Getenv("OS_SECRET_KEY")
 	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
 	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
-	OS_ULB_ENVIRONMENT        = os.Getenv("OS_ULB_ENVIRONMENT")
 	OS_SSH_KEY                = os.Getenv("OS_SSH_KEY")
 )
 
@@ -110,8 +110,8 @@ func testAccPreCheckDNS(t *testing.T) {
 func testAccPreCheckULB(t *testing.T) {
 	testAccPreCheckRequiredEnvVars(t)
 
-	if OS_ULB_ENVIRONMENT == "" {
-		t.Skip("This environment does not support ULB tests")
+	if OS_SUBNET_ID == "" {
+		t.Skip("OS_SUBNET must be set for LB acceptance tests")
 	}
 }
 
