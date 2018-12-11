@@ -91,22 +91,10 @@ func testAccCheckLBV2ListenerExists(n string, listener *listeners.Listener) reso
 	}
 }
 
-const TestAccLBV2ListenerConfig_basic = `
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  cidr = "192.168.199.0/24"
-  ip_version = 4
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-}
-
+var TestAccLBV2ListenerConfig_basic = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1"
-  vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+  vip_subnet_id = "%s"
 }
 
 resource "huaweicloud_lb_listener_v2" "listener_1" {
@@ -121,24 +109,12 @@ resource "huaweicloud_lb_listener_v2" "listener_1" {
 		delete = "5m"
 	}
 }
-`
+`, OS_SUBNET_ID)
 
-const TestAccLBV2ListenerConfig_update = `
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  cidr = "192.168.199.0/24"
-  ip_version = 4
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-}
-
+var TestAccLBV2ListenerConfig_update = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1"
-  vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+  vip_subnet_id = "%s"
 }
 
 resource "huaweicloud_lb_listener_v2" "listener_1" {
@@ -155,4 +131,4 @@ resource "huaweicloud_lb_listener_v2" "listener_1" {
 		delete = "5m"
 	}
 }
-`
+`, OS_SUBNET_ID)

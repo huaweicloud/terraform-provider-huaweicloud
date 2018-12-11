@@ -91,22 +91,10 @@ func testAccCheckLBV2MemberExists(n string, member *pools.Member) resource.TestC
 	}
 }
 
-const TestAccLBV2MemberConfig_basic = `
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  cidr = "192.168.199.0/24"
-  ip_version = 4
-}
-
+var TestAccLBV2MemberConfig_basic = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1"
-  vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+  vip_subnet_id = "%s"
 }
 
 resource "huaweicloud_lb_listener_v2" "listener_1" {
@@ -127,7 +115,7 @@ resource "huaweicloud_lb_member_v2" "member_1" {
   address = "192.168.199.10"
   protocol_port = 8080
   pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
-  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+  subnet_id = "%s"
 
   timeouts {
     create = "5m"
@@ -140,7 +128,7 @@ resource "huaweicloud_lb_member_v2" "member_2" {
   address = "192.168.199.11"
   protocol_port = 8080
   pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
-  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+  subnet_id = "%s"
 
   timeouts {
     create = "5m"
@@ -148,24 +136,12 @@ resource "huaweicloud_lb_member_v2" "member_2" {
     delete = "5m"
   }
 }
-`
+`, OS_SUBNET_ID, OS_SUBNET_ID, OS_SUBNET_ID)
 
-const TestAccLBV2MemberConfig_update = `
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  cidr = "192.168.199.0/24"
-  ip_version = 4
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-}
-
+var TestAccLBV2MemberConfig_update = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1"
-  vip_subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+  vip_subnet_id = "%s"
 }
 
 resource "huaweicloud_lb_listener_v2" "listener_1" {
@@ -188,7 +164,7 @@ resource "huaweicloud_lb_member_v2" "member_1" {
   weight = 10
   admin_state_up = "true"
   pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
-  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+  subnet_id = "%s"
 
   timeouts {
     create = "5m"
@@ -203,7 +179,7 @@ resource "huaweicloud_lb_member_v2" "member_2" {
   weight = 15
   admin_state_up = "true"
   pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
-  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+  subnet_id = "%s"
 
   timeouts {
     create = "5m"
@@ -211,4 +187,4 @@ resource "huaweicloud_lb_member_v2" "member_2" {
     delete = "5m"
   }
 }
-`
+`, OS_SUBNET_ID, OS_SUBNET_ID, OS_SUBNET_ID)
