@@ -34,8 +34,8 @@ $ make build
 
 ```sh
 # prerequisites are sudo privileges, unzip, make, wget and git.  Use apt install if missing.
-$ wget https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz
-$ sudo tar -C /usr/local -xzf go1.9.1.linux-amd64.tar.gz
+$ wget https://storage.googleapis.com/golang/go1.11.1.linux-amd64.tar.gz
+$ sudo tar -C /usr/local -xzf go1.11.1.linux-amd64.tar.gz
 $ export PATH=$PATH:/usr/local/go/bin # You should put in your .profile or .bashrc
 $ go version # to verify it runs and version #
 $ go get github.com/terraform-providers/terraform-provider-huaweicloud
