@@ -179,7 +179,7 @@ func deriveSigningKey(signParam reqSignParams) []byte {
 
 		signKey := buildSignKey(signParam)
 		signKeyStr, _ := json.Marshal(signKeyCacheEntry{
-			Key: signKey,
+			Key:                    signKey,
 			NumberOfDaysSinceEpoch: signParam.getDaysSinceEpon(),
 		})
 		cache.Add(cacheKey, string(signKeyStr))

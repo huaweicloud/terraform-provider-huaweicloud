@@ -536,16 +536,16 @@
 			"revisionTime": "2016-07-20T23:31:40Z"
 		},
 		{
-			"checksumSHA1": "RbvT+EPVYITpWeCP4yuMDT6widY=",
+			"checksumSHA1": "zbYEiofbEIsHthbs4YicNi1u2pI=",
 			"path": "github.com/huaweicloud/golangsdk",
-			"revision": "02234c041f693ec39067f110661bb38680003a7c",
-			"revisionTime": "2018-09-28T08:16:35Z"
+			"revision": "1809f11ddf7ffc82bc4fdf371a6902bf06e22fea",
+			"revisionTime": "2018-12-13T07:08:02Z"
 		},
 		{
-			"checksumSHA1": "bcqYL0ILge3Hjxtii7h99crZ8+4=",
+			"checksumSHA1": "twe05VRNJvWUjT0GrWOE49mi74Y=",
 			"path": "github.com/huaweicloud/golangsdk/openstack",
-			"revision": "60672b79c76a4eec63f32293ce30b4119365e1bc",
-			"revisionTime": "2018-11-08T02:36:44Z"
+			"revision": "1809f11ddf7ffc82bc4fdf371a6902bf06e22fea",
+			"revisionTime": "2018-12-13T07:08:02Z"
 		},
 		{
 			"checksumSHA1": "/2W0SIigiurtg1dW3Pyz+x4F24k=",
@@ -565,18 +565,6 @@
 			"revision": "75837c0e32c3577a74950b521e3ad3aaec05b34b",
 			"revisionTime": "2018-09-11T07:04:38Z"
 		},
-        {
-        "checksumSHA1": "N8RK6MuOrE9TYdvOnEVQy/chKOM=",
-        "path": "github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters",
-        "revision": "fdea87e5a2d61c3072101509ebd93f755d9cbc4f",
-        "revisionTime": "2018-07-20T15:04:31Z"
-       },
-       {
-        "checksumSHA1": "xDEoWEA9ygauLBKnsNzsa1XKvOc=",
-        "path": "github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes",
-        "revision": "fdea87e5a2d61c3072101509ebd93f755d9cbc4f",
-        "revisionTime": "2018-07-20T15:04:31Z"
-       },
 		{
 			"checksumSHA1": "MrZDbuuLO9MlZmtSqPkmwDTNA90=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/policies",
@@ -588,6 +576,18 @@
 			"path": "github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes",
 			"revision": "824aea0ed0decd7a36623f49b1610e7af6c58c3c",
 			"revisionTime": "2018-09-28T03:11:13Z"
+		},
+		{
+			"checksumSHA1": "N8RK6MuOrE9TYdvOnEVQy/chKOM=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters",
+			"revision": "fdea87e5a2d61c3072101509ebd93f755d9cbc4f",
+			"revisionTime": "2018-07-20T15:04:31Z"
+		},
+		{
+			"checksumSHA1": "xDEoWEA9ygauLBKnsNzsa1XKvOc=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes",
+			"revision": "fdea87e5a2d61c3072101509ebd93f755d9cbc4f",
+			"revisionTime": "2018-07-20T15:04:31Z"
 		},
 		{
 			"checksumSHA1": "q1aqMo0piceUY8M6d6xzbL1mgdo=",
@@ -674,12 +674,6 @@
 			"revisionTime": "2018-09-11T07:04:38Z"
 		},
 		{
-			"checksumSHA1": "OScfh+YPl7cqQQrUv7n5jeT7Vt0=",
-			"path": "github.com/huaweicloud/golangsdk/openstack/cts/v1/tracker",
-			"revision": "60672b79c76a4eec63f32293ce30b4119365e1bc",
-			"revisionTime": "2018-11-08T02:36:44Z"
-		},
-		{
 			"checksumSHA1": "PNHjt6ndEgEXusEdKw7CqhdNMgE=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/csbs/v1/backup",
 			"revision": "47182a470c085dc857cb6f8f7e965f77e48411bf",
@@ -690,6 +684,12 @@
 			"path": "github.com/huaweicloud/golangsdk/openstack/csbs/v1/policies",
 			"revision": "6e33e83cae0cb3d06328701748ec252346ae2430",
 			"revisionTime": "2018-11-30T07:27:33Z"
+		},
+		{
+			"checksumSHA1": "OScfh+YPl7cqQQrUv7n5jeT7Vt0=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/cts/v1/tracker",
+			"revision": "60672b79c76a4eec63f32293ce30b4119365e1bc",
+			"revisionTime": "2018-11-08T02:36:44Z"
 		},
 		{
 			"checksumSHA1": "bndllnyp7+JlhisoXzhyStpRP+4=",
@@ -780,6 +780,18 @@
 			"path": "github.com/huaweicloud/golangsdk/openstack/kms/v1/keys",
 			"revision": "60672b79c76a4eec63f32293ce30b4119365e1bc",
 			"revisionTime": "2018-11-08T02:36:44Z"
+		},
+		{
+			"checksumSHA1": "tygtE2L8EFD/6t9LzeJAKj3bKR4=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/mrs/v1/cluster",
+			"revision": "1809f11ddf7ffc82bc4fdf371a6902bf06e22fea",
+			"revisionTime": "2018-12-13T07:08:02Z"
+		},
+		{
+			"checksumSHA1": "vpNSSuYe1Ll3O7q9Fk1soSDBMU8=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/mrs/v1/job",
+			"revision": "1809f11ddf7ffc82bc4fdf371a6902bf06e22fea",
+			"revisionTime": "2018-12-13T07:08:02Z"
 		},
 		{
 			"checksumSHA1": "S03meuz/zX857hIqfpgyCUfrcFs=",
