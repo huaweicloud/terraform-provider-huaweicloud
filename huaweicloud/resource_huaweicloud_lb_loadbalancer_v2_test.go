@@ -178,7 +178,6 @@ func testAccCheckLBV2LoadBalancerHasSecGroup(
 var testAccLBV2LoadBalancerConfig_basic = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1"
-  loadbalancer_provider = "haproxy"
   vip_subnet_id = "%s"
 
   timeouts {
@@ -192,7 +191,6 @@ resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
 var testAccLBV2LoadBalancerConfig_update = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1_updated"
-  loadbalancer_provider = "haproxy"
   admin_state_up = "true"
   vip_subnet_id = "%s"
 
