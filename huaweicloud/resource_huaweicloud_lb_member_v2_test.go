@@ -19,14 +19,16 @@ func TestAccLBV2Member_basic(t *testing.T) {
 		CheckDestroy: testAccCheckLBV2MemberDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: TestAccLBV2MemberConfig_basic,
+				Config:             TestAccLBV2MemberConfig_basic,
+				ExpectNonEmptyPlan: true, // Because admin_state_up remains false.
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2MemberExists("huaweicloud_lb_member_v2.member_1", &member_1),
 					testAccCheckLBV2MemberExists("huaweicloud_lb_member_v2.member_2", &member_2),
 				),
 			},
 			resource.TestStep{
-				Config: TestAccLBV2MemberConfig_update,
+				Config:             TestAccLBV2MemberConfig_update,
+				ExpectNonEmptyPlan: true, // Because admin_state_up remains false.
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("huaweicloud_lb_member_v2.member_1", "weight", "10"),
 					resource.TestCheckResourceAttr("huaweicloud_lb_member_v2.member_2", "weight", "15"),
@@ -112,7 +114,7 @@ resource "huaweicloud_lb_pool_v2" "pool_1" {
 }
 
 resource "huaweicloud_lb_member_v2" "member_1" {
-  address = "192.168.199.10"
+  address = "192.168.1.10"
   protocol_port = 8080
   pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
   subnet_id = "%s"
@@ -125,7 +127,7 @@ resource "huaweicloud_lb_member_v2" "member_1" {
 }
 
 resource "huaweicloud_lb_member_v2" "member_2" {
-  address = "192.168.199.11"
+  address = "192.168.1.11"
   protocol_port = 8080
   pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
   subnet_id = "%s"
@@ -159,7 +161,7 @@ resource "huaweicloud_lb_pool_v2" "pool_1" {
 }
 
 resource "huaweicloud_lb_member_v2" "member_1" {
-  address = "192.168.199.10"
+  address = "192.168.1.10"
   protocol_port = 8080
   weight = 10
   admin_state_up = "true"
@@ -174,7 +176,7 @@ resource "huaweicloud_lb_member_v2" "member_1" {
 }
 
 resource "huaweicloud_lb_member_v2" "member_2" {
-  address = "192.168.199.11"
+  address = "192.168.1.11"
   protocol_port = 8080
   weight = 15
   admin_state_up = "true"
