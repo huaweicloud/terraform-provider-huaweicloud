@@ -73,6 +73,7 @@ func resourceKmsKeyV1() *schema.Resource {
 			"pending_days": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "7",
 			},
 		},
 	}
