@@ -220,6 +220,9 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vbs_backup_v2":             dataSourceVBSBackupV2(),
 			"huaweicloud_cts_tracker_v1":            dataSourceCTSTrackerV1(),
 			"huaweicloud_antiddos_v1":               dataSourceAntiDdosV1(),
+			"huaweicloud_dcs_az_v1":                 dataSourceDcsAZV1(),
+			"huaweicloud_dcs_maintainwindow_v1":     dataSourceDcsMaintainWindowV1(),
+			"huaweicloud_dcs_product_v1":            dataSourceDcsProductV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -233,6 +236,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_compute_volume_attach_v2":           resourceComputeVolumeAttachV2(),
 			"huaweicloud_dns_recordset_v2":                   resourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone_v2":                        resourceDNSZoneV2(),
+			"huaweicloud_dcs_instance_v1":                    resourceDcsInstanceV1(),
 			"huaweicloud_fw_firewall_group_v2":               resourceFWFirewallGroupV2(),
 			"huaweicloud_fw_policy_v2":                       resourceFWPolicyV2(),
 			"huaweicloud_fw_rule_v2":                         resourceFWRuleV2(),
