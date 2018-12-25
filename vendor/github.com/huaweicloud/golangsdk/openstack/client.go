@@ -805,3 +805,14 @@ func NewRDSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 	sc, err := initClientOpts(client, eo, "rdsv1")
 	return sc, err
 }
+
+func NewHwAntiDDoSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "volumev2")
+	if err != nil {
+		return nil, err
+	}
+	e := strings.Replace(sc.Endpoint, "v2", "v1", 1)
+	sc.Endpoint = strings.Replace(e, "evs", "antiddos", 1)
+	sc.ResourceBase = sc.Endpoint
+	return sc, err
+}
