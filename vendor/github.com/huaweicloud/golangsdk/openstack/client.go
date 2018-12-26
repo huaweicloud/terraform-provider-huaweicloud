@@ -568,10 +568,10 @@ func NewDRSServiceV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts
 }
 
 func NewComputeV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
-	sc, err := initClientOpts(client, eo, "compute")
-	e := strings.Replace(sc.Endpoint, "v2", "v1", 1)
-	sc.Endpoint = e
-	sc.ResourceBase = e
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "ecs", 1)
+	sc.Endpoint = sc.Endpoint + "v1/"
+	sc.ResourceBase = sc.Endpoint + client.ProjectID + "/"
 	return sc, err
 }
 
@@ -633,6 +633,15 @@ func NewNatV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "nat", 1)
 	sc.Endpoint = strings.Replace(sc.Endpoint, "myhwclouds", "myhuaweicloud", 1)
 	sc.ResourceBase = sc.Endpoint + "v2.0/"
+	return sc, err
+}
+
+// MapReduceV1 creates a ServiceClient that may be used with the v1 MapReduce service.
+func MapReduceV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "mrs", 1)
+	sc.Endpoint = sc.Endpoint + "v1.1/"
+	sc.ResourceBase = sc.Endpoint + client.ProjectID + "/"
 	return sc, err
 }
 
@@ -762,6 +771,31 @@ func NewVBS(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golan
 	return sc, err
 }
 
+// NewMAASV1 creates a ServiceClient that may be used to access the MAAS service.
+func NewMAASV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "maasv1")
+	return sc, err
+}
+
+// MAASV1 creates a ServiceClient that may be used with the v1 MAAS service.
+func MAASV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = "https://oms.myhuaweicloud.com/v1/"
+	sc.ResourceBase = sc.Endpoint + client.ProjectID + "/"
+	return sc, err
+}
+
+func NewHwAntiDDoSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "volumev2")
+	if err != nil {
+		return nil, err
+	}
+	e := strings.Replace(sc.Endpoint, "v2", "v1", 1)
+	sc.Endpoint = strings.Replace(e, "evs", "antiddos", 1)
+	sc.ResourceBase = sc.Endpoint
+	return sc, err
+}
+
 // NewCTSService creates a ServiceClient that can be used to access the Cloud Trace service.
 func NewCTSService(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "cts")
@@ -777,16 +811,5 @@ func NewELBV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 // NewRDSV1 creates a ServiceClient that may be used to access the RDS service.
 func NewRDSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "rdsv1")
-	return sc, err
-}
-
-func NewHwAntiDDoSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
-	sc, err := initClientOpts(client, eo, "volumev2")
-	if err != nil {
-		return nil, err
-	}
-	e := strings.Replace(sc.Endpoint, "v2", "v1", 1)
-	sc.Endpoint = strings.Replace(e, "evs", "antiddos", 1)
-	sc.ResourceBase = sc.Endpoint
 	return sc, err
 }
