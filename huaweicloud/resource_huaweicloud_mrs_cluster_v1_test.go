@@ -98,7 +98,7 @@ resource "huaweicloud_mrs_cluster_v1" "cluster1" {
   billing_type = 12
   master_node_num = 2
   core_node_num = 3
-  master_node_size = "s3.4xlarge.2.linux.bigdata"
+  master_node_size = "c3.4xlarge.2.linux.bigdata"
   core_node_size = "c3.xlarge.4.linux.bigdata"
   available_zone_id = "ae04cf9d61544df3806a3feeb401b204"
   vpc_id = "%s"
