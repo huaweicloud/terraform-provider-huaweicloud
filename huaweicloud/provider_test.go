@@ -27,6 +27,8 @@ var (
 	OS_REGION_NAME            = os.Getenv("OS_REGION_NAME")
 	OS_ACCESS_KEY             = os.Getenv("OS_ACCESS_KEY")
 	OS_SECRET_KEY             = os.Getenv("OS_SECRET_KEY")
+	OS_SRC_ACCESS_KEY         = os.Getenv("OS_SRC_ACCESS_KEY")
+	OS_SRC_SECRET_KEY         = os.Getenv("OS_SRC_SECRET_KEY")
 	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
 	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
 	OS_SSH_KEY                = os.Getenv("OS_SSH_KEY")
@@ -127,6 +129,14 @@ func testAccPreCheckCCENode(t *testing.T) {
 	testAccPreCheckRequiredEnvVars(t)
 	if OS_SSH_KEY == "" {
 		t.Skip("OS_SSH_KEY must be set for CCE Node acceptance tests")
+	}
+}
+
+func testAccPreCheckMaas(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_ACCESS_KEY == "" || OS_SECRET_KEY == "" || OS_SRC_ACCESS_KEY == "" || OS_SRC_SECRET_KEY == "" {
+		t.Skip("OS_ACCESS_KEY, OS_SECRET_KEY, OS_SRC_ACCESS_KEY, and OS_SRC_SECRET_KEY  must be set for MAAS acceptance tests")
 	}
 }
 

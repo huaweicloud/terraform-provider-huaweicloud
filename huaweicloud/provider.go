@@ -294,6 +294,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vbs_backup_policy_v2":               resourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup_v2":                      resourceVBSBackupV2(),
 			"huaweicloud_cts_tracker_v1":                     resourceCTSTrackerV1(),
+			"huaweicloud_maas_task_v1":                       resourceMaasTaskV1(),
 		},
 
 		ConfigureFunc: configureProvider,
