@@ -68,6 +68,7 @@ func resourceMaasTaskV1() *schema.Resource {
 						},
 						"cloud_type": &schema.Schema{
 							Type:     schema.TypeString,
+							Default:  "Aliyun",
 							Optional: true,
 							ForceNew: true,
 						},
@@ -97,7 +98,7 @@ func resourceMaasTaskV1() *schema.Resource {
 						},
 						"object_key": &schema.Schema{
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 							ForceNew: true,
 						},
 						"bucket": &schema.Schema{

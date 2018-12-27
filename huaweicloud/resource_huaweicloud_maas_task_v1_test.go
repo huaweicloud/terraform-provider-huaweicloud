@@ -85,19 +85,18 @@ resource "huaweicloud_maas_task_v1" "task_1" {
   enable_kms = false
   thread_num = 1
   src_node {
-    region = "ap-northeast-1"
+    region = "cn-beijing"
 	ak = "%s"
 	sk = "%s"
     object_key = "123.txt"
-    bucket = "tommy-bucket"
-	cloud_type = "AWS"
+    bucket = "maas-bucket"
   }
   dst_node {
     region = "%s"
 	ak = "%s"
 	sk = "%s"
-    object_key = "maas-test"
-    bucket = "test-maas"
+    object_key = "maas"
+    bucket = "maas-test"
   }
 }
 `, OS_SRC_ACCESS_KEY, OS_SRC_SECRET_KEY, OS_REGION_NAME, OS_ACCESS_KEY, OS_SECRET_KEY)
