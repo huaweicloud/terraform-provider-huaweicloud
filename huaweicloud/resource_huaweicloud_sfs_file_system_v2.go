@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -207,13 +208,30 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 	d.Set("share_type", n.ShareType)
 	d.Set("volume_type", n.VolumeType)
 	d.Set("is_public", n.IsPublic)
-	d.Set("metadata", n.Metadata)
 	d.Set("availability_zone", n.AvailabilityZone)
 	d.Set("region", GetRegion(d, config))
 	d.Set("export_location", n.ExportLocation)
 	d.Set("export_locations", n.ExportLocations)
 	d.Set("host", n.Host)
 	d.Set("links", n.Links)
+
+	// NOTE: This tries to remove system metadata.
+	md := make(map[string]string)
+	var sys_keys = [2]string{"enterprise_project_id", "share_used"}
+
+OUTER:
+	for key, val := range n.Metadata {
+		if strings.HasPrefix(key, "#sfs") {
+			continue
+		}
+		for i := range sys_keys {
+			if key == sys_keys[i] {
+				continue OUTER
+			}
+		}
+		md[key] = val
+	}
+	d.Set("metadata", md)
 
 	if len(rules) > 0 {
 		rule := rules[0]
