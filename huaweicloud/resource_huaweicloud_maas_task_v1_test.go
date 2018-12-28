@@ -32,7 +32,7 @@ func testAccCheckMaasTaskV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	maasClient, err := config.maasV1Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud maas client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud maas client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -63,7 +63,7 @@ func testAccCheckMaasTaskV1Exists(n string) resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*Config)
 		maasClient, err := config.maasV1Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating OpenTelekomCloud maas client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud maas client: %s", err)
 		}
 
 		found, err := task.Get(maasClient, rs.Primary.ID).Extract()

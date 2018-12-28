@@ -267,7 +267,7 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("checksum", img.Checksum)
 	d.Set("size_bytes", img.SizeBytes)
 	if err := d.Set("metadata", img.Metadata); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving metadata to state for OpenTelekomCloud image (%s): %s", d.Id(), err)
+		return fmt.Errorf("[DEBUG] Error saving metadata to state for HuaweiCloud image (%s): %s", d.Id(), err)
 	}
 	d.Set("created_at", img.CreatedAt)
 	d.Set("update_at", img.UpdatedAt)
@@ -280,7 +280,7 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("protected", img.Protected)
 	d.Set("size_bytes", img.SizeBytes)
 	if err := d.Set("tags", img.Tags); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving tags to state for OpenTelekomCloud image (%s): %s", d.Id(), err)
+		return fmt.Errorf("[DEBUG] Error saving tags to state for HuaweiCloud image (%s): %s", d.Id(), err)
 	}
 	d.Set("visibility", img.Visibility)
 	d.Set("region", GetRegion(d, config))
