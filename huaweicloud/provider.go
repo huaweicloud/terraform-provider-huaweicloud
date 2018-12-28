@@ -265,6 +265,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_networking_router_route_v2":         resourceNetworkingRouterRouteV2(),
 			"huaweicloud_networking_secgroup_v2":             resourceNetworkingSecGroupV2(),
 			"huaweicloud_networking_secgroup_rule_v2":        resourceNetworkingSecGroupRuleV2(),
+			"huaweicloud_networking_floatingip_associate_v2": resourceNetworkingFloatingIPAssociateV2(),
 			"huaweicloud_s3_bucket":                          resourceS3Bucket(),
 			"huaweicloud_s3_bucket_policy":                   resourceS3BucketPolicy(),
 			"huaweicloud_s3_bucket_object":                   resourceS3BucketObject(),
