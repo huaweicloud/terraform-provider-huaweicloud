@@ -132,7 +132,7 @@ In addition to the arguments listed above, the following computed attributes are
          not used by default Structure is documented below.
 
 * `recent_event` -
-  事件数
+  The recent event number
 
 * `status` -
   Cluster status, which can be one of the following:  CREATING 
