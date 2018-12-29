@@ -297,6 +297,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_cts_tracker_v1":                     resourceCTSTrackerV1(),
 			"huaweicloud_maas_task_v1":                       resourceMaasTaskV1(),
 			"huaweicloud_dws_cluster":                        resourceDwsCluster(),
+			"huaweicloud_mls_instance":                       resourceMlsInstance(),
 		},
 
 		ConfigureFunc: configureProvider,
