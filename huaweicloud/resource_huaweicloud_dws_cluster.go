@@ -550,9 +550,8 @@ func resourceDwsClusterDelete(d *schema.ResourceData, meta interface{}) error {
 		1*time.Second,
 		func() (interface{}, string, error) {
 			resp, err := client.Get(
-				url, &r.Body,
+				url, nil,
 				&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Content-Type": "application/json"}})
-
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					return resp, "Done", nil
