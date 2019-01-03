@@ -813,3 +813,14 @@ func NewRDSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 	sc, err := initClientOpts(client, eo, "rdsv1")
 	return sc, err
 }
+
+func NewSDKClient(c *golangsdk.ProviderClient, eo golangsdk.EndpointOpts, serviceType string) (*golangsdk.ServiceClient, error) {
+	switch serviceType {
+	case "mls":
+		return NewMLSV1(c, eo)
+	case "dws":
+		return NewDWSClient(c, eo)
+	}
+
+	return initClientOpts(c, eo, serviceType)
+}
