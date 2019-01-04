@@ -298,6 +298,10 @@ func (opts *AuthOptions) AuthTokenID() string {
 	return ""
 }
 
+func (opts *AuthOptions) AuthHeaderDomainID() string {
+	return ""
+}
+
 // Implements the method of AuthOptionsProvider
 func (opts AuthOptions) GetIdentityEndpoint() string {
 	return opts.IdentityEndpoint
@@ -381,6 +385,7 @@ func (scope *scopeInfo) BuildTokenV3ScopeMap() (map[string]interface{}, error) {
 
 type AgencyAuthOptions struct {
 	TokenID          string
+	DomainID         string
 	AgencyName       string
 	AgencyDomainName string
 	DelegatedProject string
@@ -392,6 +397,10 @@ func (opts *AgencyAuthOptions) CanReauth() bool {
 
 func (opts *AgencyAuthOptions) AuthTokenID() string {
 	return opts.TokenID
+}
+
+func (opts *AgencyAuthOptions) AuthHeaderDomainID() string {
+	return opts.DomainID
 }
 
 func (opts *AgencyAuthOptions) ToTokenV3ScopeMap() (map[string]interface{}, error) {

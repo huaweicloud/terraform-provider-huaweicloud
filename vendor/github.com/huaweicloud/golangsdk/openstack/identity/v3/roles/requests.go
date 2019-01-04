@@ -2,6 +2,7 @@ package roles
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack"
 	"github.com/huaweicloud/golangsdk/pagination"
 )
 
@@ -37,9 +38,19 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 		url += query
 	}
 
-	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
+	h, err := openstack.HeaderForAdminToken(client)
+	if err != nil {
+		return pagination.Pager{Err: err}
+	}
+
+	pager := pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
 		return RolePage{pagination.LinkedPageBase{PageResult: r}}
 	})
+
+	if h != nil {
+		pager.Headers = h
+	}
+	return pager
 }
 
 // Get retrieves details on a single role, by ID.
