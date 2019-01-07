@@ -20,7 +20,7 @@ Provides a cluster resource (CCE).
     resource "huaweicloud_cce_cluster_v3" "cluster_1" {
      name = "cluster"
      cluster_type= "VirtualMachine"
-     flavor= "${var.flavor_id}"
+     flavor_id= "${var.flavor_id}"
      vpc_id= "${var.vpc_id}"
      subnet_id= "${var.subnet_id}"
      container_network_type= "overlay_l2"
@@ -39,7 +39,7 @@ The following arguments are supported:
 
 * `annotations` - (Optional) Cluster annotation, key/value pair format. Changing this parameter will create a new cluster resource.
 
-* `flavor` - (Required) Cluster specifications. Changing this parameter will create a new cluster resource.
+* `flavor_id` - (Required) Cluster specifications. Changing this parameter will create a new cluster resource.
 
 * `cluster_version` - (Optional) For the cluster version, possible values are v1.7.3-r10 or v1.9.2-r1.
 

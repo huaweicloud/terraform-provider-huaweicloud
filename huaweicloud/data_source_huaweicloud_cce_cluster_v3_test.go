@@ -48,7 +48,7 @@ var testAccCCEClusterV3DataSource_cluster = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   name = "huaweicloud-cce"
   cluster_type = "VirtualMachine"
-  flavor = "cce.s1.small"
+  flavor_id = "cce.s1.small"
   cluster_version = "v1.7.3-r10"
   vpc_id = "%s"
   subnet_id = "%s"

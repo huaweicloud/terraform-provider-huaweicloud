@@ -29,7 +29,7 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_cluster_v3.cluster_1", "cluster_type", "VirtualMachine"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "flavor", "cce.s1.small"),
+						"huaweicloud_cce_cluster_v3.cluster_1", "flavor_id", "cce.s1.small"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_cluster_v3.cluster_1", "cluster_version", "v1.7.3-r10"),
 					resource.TestCheckResourceAttr(
@@ -122,7 +122,7 @@ var testAccCCEClusterV3_basic = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
-  flavor="cce.s1.small"
+  flavor_id="cce.s1.small"
   cluster_version = "v1.7.3-r10"
   vpc_id="%s"
   subnet_id="%s"
@@ -133,7 +133,7 @@ var testAccCCEClusterV3_update = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
-  flavor="cce.s1.small"
+  flavor_id="cce.s1.small"
   cluster_version = "v1.7.3-r10"
   vpc_id="%s"
   subnet_id="%s"
@@ -145,7 +145,7 @@ var testAccCCEClusterV3_timeout = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
-  flavor="cce.s1.small"
+  flavor_id="cce.s1.small"
   cluster_version = "v1.7.3-r10"
   vpc_id="%s"
   subnet_id="%s"
