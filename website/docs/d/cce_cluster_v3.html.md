@@ -48,7 +48,7 @@ All above argument parameters can be exported as attribute parameters along with
 
 * `id` - The ID of the cluster.
   
-* `flavor` - The cluster specification in string format.
+* `flavor_id` - The cluster specification in string format.
 
 * `cluster_version` - The version of cluster in string format.
 

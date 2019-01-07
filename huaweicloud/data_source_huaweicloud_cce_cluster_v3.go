@@ -27,7 +27,7 @@ func dataSourceCCEClusterV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"flavor": &schema.Schema{
+			"flavor_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -138,7 +138,7 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(Cluster.Metadata.Id)
 
 	d.Set("name", Cluster.Metadata.Name)
-	d.Set("flavor", Cluster.Spec.Flavor)
+	d.Set("flavor_id", Cluster.Spec.Flavor)
 	d.Set("description", Cluster.Spec.Description)
 	d.Set("cluster_version", Cluster.Spec.Version)
 	d.Set("cluster_type", Cluster.Spec.Type)

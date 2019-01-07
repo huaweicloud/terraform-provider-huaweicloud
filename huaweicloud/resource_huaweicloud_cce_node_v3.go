@@ -52,17 +52,17 @@ func resourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"flavor": &schema.Schema{
+			"flavor_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"az": &schema.Schema{
+			"availability_zone": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"sshkey": &schema.Schema{
+			"key_pair": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -252,9 +252,9 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 			Annotations: resourceCCENodeAnnotationsV2(d),
 		},
 		Spec: nodes.Spec{
-			Flavor:      d.Get("flavor").(string),
-			Az:          d.Get("az").(string),
-			Login:       nodes.LoginSpec{SshKey: d.Get("sshkey").(string)},
+			Flavor:      d.Get("flavor_id").(string),
+			Az:          d.Get("availability_zone").(string),
+			Login:       nodes.LoginSpec{SshKey: d.Get("key_pair").(string)},
 			RootVolume:  resourceCCERootVolume(d),
 			DataVolumes: resourceCCEDataVolume(d),
 			PublicIP: nodes.PublicIPSpec{
@@ -358,8 +358,8 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", s.Metadata.Name)
 	d.Set("labels", s.Metadata.Labels)
 	d.Set("annotations", s.Metadata.Annotations)
-	d.Set("flavor", s.Spec.Flavor)
-	d.Set("az", s.Spec.Az)
+	d.Set("flavor_id", s.Spec.Flavor)
+	d.Set("availability_zone", s.Spec.Az)
 	d.Set("billing_mode", s.Spec.BillingMode)
 	d.Set("node_count", s.Spec.Count)
 	d.Set("extend_param_charging_mode", s.Spec.ExtendParam.ChargingMode)
@@ -368,7 +368,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("product_id", s.Spec.ExtendParam.ProductID)
 	d.Set("max_pods", s.Spec.ExtendParam.MaxPods)
 	d.Set("ecs_performance_type", s.Spec.ExtendParam.EcsPerformanceType)
-	d.Set("sshkey", s.Spec.Login.SshKey)
+	d.Set("key_pair", s.Spec.Login.SshKey)
 	var volumes []map[string]interface{}
 	for _, pairObject := range s.Spec.DataVolumes {
 		volume := make(map[string]interface{})

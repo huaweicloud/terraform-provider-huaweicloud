@@ -39,11 +39,11 @@ The following arguments are supported:
 
 All above argument parameters can be exported as attribute parameters along with attribute reference:
 
-* `flavor` - The flavor id to be used. 
+* `flavor_id` - The flavor id to be used. 
 
-* `az` - Available partitions where the node is located. 
+* `availability_zone` - Available partitions where the node is located. 
 
-* `sshkey` - Key pair name when logging in to select the key pair mode.
+* `key_pair` - Key pair name when logging in to select the key pair mode.
 
 * `billing_mode` - Node's billing mode: The value is 0 (on demand).
 

@@ -31,15 +31,15 @@ func dataSourceCceNodesV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"flavor": &schema.Schema{
+			"flavor_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"az": &schema.Schema{
+			"availability_zone": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"sshkey": &schema.Schema{
+			"key_pair": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -186,15 +186,15 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(Node.Metadata.Id)
 	d.Set("node_id", Node.Metadata.Id)
 	d.Set("name", Node.Metadata.Name)
-	d.Set("flavor", Node.Spec.Flavor)
-	d.Set("az", Node.Spec.Az)
+	d.Set("flavor_id", Node.Spec.Flavor)
+	d.Set("availability_zone", Node.Spec.Az)
 	d.Set("billing_mode", Node.Spec.BillingMode)
 	d.Set("status", Node.Status.Phase)
 	d.Set("data_volumes", v)
 	d.Set("disk_size", Node.Spec.RootVolume.Size)
 	d.Set("volume_type", Node.Spec.RootVolume.VolumeType)
 	d.Set("extend_param", Node.Spec.RootVolume.ExtendParam)
-	d.Set("sshkey", Node.Spec.Login.SshKey)
+	d.Set("key_pair", Node.Spec.Login.SshKey)
 	d.Set("charge_mode", Node.Spec.PublicIP.Eip.Bandwidth.ChargeMode)
 	d.Set("bandwidth_size", Node.Spec.PublicIP.Eip.Bandwidth.Size)
 	d.Set("share_type", Node.Spec.PublicIP.Eip.Bandwidth.ShareType)

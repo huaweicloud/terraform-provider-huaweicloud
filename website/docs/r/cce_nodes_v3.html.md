@@ -15,14 +15,15 @@ Add a node to a container cluster.
  ```hcl
    variable "cluster_id" { }
    variable "ssh_key" { }
+   variable "availability_zone" { }
 
    resource "huaweicloud_cce_node_v3" "node_1" {
     cluster_id="${var.cluster_id}"
     name = "node1"
-    flavor="s1.medium"
+    flavor_id="s1.medium"
     iptype="5_bgp"
-    az= "cn-east-2a"
-    sshkey="${var.ssh_key}"
+    availability_zone= "${var.availability_zone}"
+    key_pair="${var.ssh_key}"
     root_volume = {
      size= 40,
      volumetype= "SATA"
@@ -54,11 +55,11 @@ The following arguments are supported:
 
 * `annotations` - (Optional) Node annotation, key/value pair format. Changing this parameter will create a new resource.
     
-* `flavor` - (Required) Specifies the flavor id. Changing this parameter will create a new resource.
+* `flavor_id` - (Required) Specifies the flavor id. Changing this parameter will create a new resource.
     
-* `az` - (Required) specify the name of the available partition (AZ). Changing this parameter will create a new resource.
+* `availability_zone` - (Required) specify the name of the available partition (AZ). Changing this parameter will create a new resource.
 
-* `sshkey` - (Required) Key pair name when logging in to select the key pair mode. Changing this parameter will create a new resource.
+* `key_pair` - (Required) Key pair name when logging in to select the key pair mode. Changing this parameter will create a new resource.
 
 * `eip_ids` - (Optional) List of existing elastic IP IDs. Changing this parameter will create a new resource.
 

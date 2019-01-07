@@ -53,7 +53,7 @@ func resourceCCEClusterV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"flavor": &schema.Schema{
+			"flavor_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -158,7 +158,7 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 			Annotations: resourceClusterAnnotationsV3(d)},
 		Spec: clusters.Spec{
 			Type:        d.Get("cluster_type").(string),
-			Flavor:      d.Get("flavor").(string),
+			Flavor:      d.Get("flavor_id").(string),
 			Version:     d.Get("cluster_version").(string),
 			Description: d.Get("description").(string),
 			HostNetwork: clusters.HostNetworkSpec{VpcId: d.Get("vpc_id").(string),
@@ -215,7 +215,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("id", n.Metadata.Id)
 	d.Set("name", n.Metadata.Name)
 	d.Set("status", n.Status.Phase)
-	d.Set("flavor", n.Spec.Flavor)
+	d.Set("flavor_id", n.Spec.Flavor)
 	d.Set("cluster_version", n.Spec.Version)
 	d.Set("cluster_type", n.Spec.Type)
 	d.Set("description", n.Spec.Description)

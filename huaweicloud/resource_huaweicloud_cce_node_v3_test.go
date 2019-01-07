@@ -25,7 +25,7 @@ func TestAccCCENodesV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_node_v3.node_1", "name", "test-node"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_node_v3.node_1", "flavor", "s1.medium"),
+						"huaweicloud_cce_node_v3.node_1", "flavor_id", "s1.medium"),
 				),
 			},
 			resource.TestStep{
@@ -127,7 +127,7 @@ var testAccCCENodeV3_basic = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
-  flavor="cce.s1.small"
+  flavor_id="cce.s1.small"
   cluster_version = "v1.7.3-r10"
   vpc_id="%s"
   subnet_id="%s"
@@ -137,11 +137,11 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
 resource "huaweicloud_cce_node_v3" "node_1" {
 cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
   name = "test-node"
-  flavor="s1.medium"
+  flavor_id="s1.medium"
   iptype="5_bgp"
   billing_mode=0
-  az= "%s"
-  sshkey="%s"
+  availability_zone= "%s"
+  key_pair="%s"
   root_volume = {
     size= 40,
     volumetype= "SATA"
@@ -161,7 +161,7 @@ var testAccCCENodeV3_update = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
-  flavor="cce.s1.small"
+  flavor_id="cce.s1.small"
   cluster_version = "v1.7.3-r10"
   vpc_id="%s"
   subnet_id="%s"
@@ -171,11 +171,11 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
 resource "huaweicloud_cce_node_v3" "node_1" {
 cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
   name = "test-node2"
-  flavor="s1.medium"
+  flavor_id="s1.medium"
   iptype="5_bgp"
   billing_mode=0
-  az= "%s"
-  sshkey="%s"
+  availability_zone= "%s"
+  key_pair="%s"
   root_volume = {
     size= 40,
     volumetype= "SATA"
@@ -195,7 +195,7 @@ var testAccCCENodeV3_timeout = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
-  flavor="cce.s1.small"
+  flavor_id="cce.s1.small"
   cluster_version = "v1.7.3-r10"
   vpc_id="%s"
   subnet_id="%s"
@@ -205,11 +205,11 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
 resource "huaweicloud_cce_node_v3" "node_1" {
   cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
   name = "test-node2"
-  flavor="s1.medium"
+  flavor_id="s1.medium"
   iptype="5_bgp"
   billing_mode=0
-  az= "%s"
-  sshkey="%s"
+  availability_zone= "%s"
+  key_pair="%s"
   root_volume = {
     size= 40,
     volumetype= "SATA"
