@@ -19,6 +19,7 @@ type AuthOptionsBuilder interface {
 	ToTokenV3ScopeMap() (map[string]interface{}, error)
 	CanReauth() bool
 	AuthTokenID() string
+	AuthHeaderDomainID() string
 }
 
 // AuthOptions represents options for authenticating a user.
@@ -149,6 +150,10 @@ func (opts *AuthOptions) AuthTokenID() string {
 	return ""
 }
 
+func (opts *AuthOptions) AuthHeaderDomainID() string {
+	return ""
+}
+
 func subjectTokenHeaders(c *golangsdk.ServiceClient, subjectToken string) map[string]string {
 	return map[string]string{
 		"X-Subject-Token": subjectToken,
@@ -171,7 +176,10 @@ func Create(c *golangsdk.ServiceClient, opts AuthOptionsBuilder) (r CreateResult
 	}
 
 	resp, err := c.Post(tokenURL(c), b, &r.Body, &golangsdk.RequestOpts{
-		MoreHeaders: map[string]string{"X-Auth-Token": opts.AuthTokenID()},
+		MoreHeaders: map[string]string{
+			"X-Auth-Token": opts.AuthTokenID(),
+			"X-Domain-Id":  opts.AuthHeaderDomainID(),
+		},
 	})
 	r.Err = err
 	if resp != nil {

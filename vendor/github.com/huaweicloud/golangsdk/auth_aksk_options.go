@@ -24,6 +24,15 @@ type AKSKAuthOptions struct {
 
 	AccessKey string //Access Key
 	SecretKey string //Secret key
+
+	// AgencyNmae is the name of agnecy
+	AgencyName string
+
+	// AgencyDomainName is the name of domain who created the agency
+	AgencyDomainName string
+
+	// DelegatedProject is the name of delegated project
+	DelegatedProject string
 }
 
 // Implements the method of AuthOptionsProvider

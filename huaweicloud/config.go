@@ -85,9 +85,12 @@ func newhwClient(c *Config) error {
 			ProjectName:      c.TenantName,
 			ProjectId:        c.TenantID,
 			Region:           c.Region,
-			//			Domain:           c.DomainName,
-			AccessKey: c.AccessKey,
-			SecretKey: c.SecretKey,
+			Domain:           c.DomainName,
+			AccessKey:        c.AccessKey,
+			SecretKey:        c.SecretKey,
+			AgencyName:       c.AgencyName,
+			AgencyDomainName: c.AgencyDomainName,
+			DelegatedProject: c.DelegatedProject,
 		}
 	} else {
 		ao = golangsdk.AuthOptions{
