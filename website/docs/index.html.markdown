@@ -19,11 +19,12 @@ Use the navigation to the left to read about the available resources.
 ```hcl
 # Configure the HuaweiCloud Provider
 provider "huaweicloud" {
-  user_name   = "admin"
-  tenant_name = "admin"
+  user_name   = "user"
   password    = "pwd"
-  auth_url    = "http://myauthurl:5000/v2.0"
-  region      = "RegionOne"
+  region      = "cn-north-1"
+  tenant_name = "cn-north-1"
+  domain_name = "dom"
+  auth_url    = "https://iam.cn-north-1.myhwclouds.com:443/v3"
 }
 
 # Create a web server
