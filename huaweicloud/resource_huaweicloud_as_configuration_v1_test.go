@@ -19,7 +19,7 @@ func TestAccASV1Configuration_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckASV1ConfigurationDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccASV1Configuration_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASV1ConfigurationExists("huaweicloud_as_configuration_v1.hth_as_config", &asConfig),

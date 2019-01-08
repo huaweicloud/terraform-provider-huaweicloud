@@ -29,7 +29,7 @@ func resourceELBLoadBalancer() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
@@ -42,7 +42,7 @@ func resourceELBLoadBalancer() *schema.Resource {
 				},
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -56,12 +56,12 @@ func resourceELBLoadBalancer() *schema.Resource {
 				},
 			},
 
-			"vpc_id": &schema.Schema{
+			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"bandwidth": &schema.Schema{
+			"bandwidth": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
@@ -74,7 +74,7 @@ func resourceELBLoadBalancer() *schema.Resource {
 				},
 			},
 
-			"type": &schema.Schema{
+			"type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
@@ -86,7 +86,7 @@ func resourceELBLoadBalancer() *schema.Resource {
 				},
 			},
 
-			"admin_state_up": &schema.Schema{
+			"admin_state_up": {
 				Type:     schema.TypeInt,
 				Required: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
@@ -98,18 +98,18 @@ func resourceELBLoadBalancer() *schema.Resource {
 				},
 			},
 
-			"vip_subnet_id": &schema.Schema{
+			"vip_subnet_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"az": &schema.Schema{
+			"az": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			"charge_mode": &schema.Schema{
+			"charge_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
@@ -122,7 +122,7 @@ func resourceELBLoadBalancer() *schema.Resource {
 				Default: "bandwidth",
 			},
 
-			"eip_type": &schema.Schema{
+			"eip_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
@@ -134,7 +134,7 @@ func resourceELBLoadBalancer() *schema.Resource {
 				},
 			},
 
-			"security_group_id": &schema.Schema{
+			"security_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -148,28 +148,28 @@ func resourceELBLoadBalancer() *schema.Resource {
 				},
 			},
 
-			"vip_address": &schema.Schema{
+			"vip_address": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"tenantid": &schema.Schema{
+			"tenantid": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			"update_time": &schema.Schema{
+			"update_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"create_time": &schema.Schema{
+			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

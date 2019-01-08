@@ -14,39 +14,39 @@ func dataSourceRtsSoftwareConfigV1() *schema.Resource {
 		Read: dataSourceRtsSoftwareConfigV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"group": &schema.Schema{
+			"group": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"input_values": &schema.Schema{
+			"input_values": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeMap},
 			},
-			"output_values": &schema.Schema{
+			"output_values": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeMap},
 			},
-			"config": &schema.Schema{
+			"config": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"options": &schema.Schema{
+			"options": {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},

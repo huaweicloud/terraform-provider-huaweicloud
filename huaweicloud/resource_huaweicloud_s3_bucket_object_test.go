@@ -36,7 +36,7 @@ func TestAccS3BucketObject_source(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccS3BucketObjectConfigSource(rInt, tmpFile.Name()),
 				Check:  testAccCheckS3BucketObjectExists("huaweicloud_s3_bucket_object.object", &obj),
 			},
@@ -53,7 +53,7 @@ func TestAccS3BucketObject_content(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				PreConfig: func() {},
 				Config:    testAccS3BucketObjectConfigContent(rInt),
 				Check:     testAccCheckS3BucketObjectExists("huaweicloud_s3_bucket_object.object", &obj),
@@ -83,7 +83,7 @@ func TestAccS3BucketObject_withContentCharacteristics(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccS3BucketObjectConfig_withContentCharacteristics(rInt, tmpFile.Name()),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3BucketObjectExists("huaweicloud_s3_bucket_object.object", &obj),
@@ -116,14 +116,14 @@ func TestAccS3BucketObject_updates(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccS3BucketObjectConfig_updates(rInt, tmpFile.Name()),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3BucketObjectExists("huaweicloud_s3_bucket_object.object", &obj),
 					resource.TestCheckResourceAttr("huaweicloud_s3_bucket_object.object", "etag", "647d1d58e1011c743ec67d5e8af87b53"),
 				),
 			},
-			resource.TestStep{
+			{
 				PreConfig: func() {
 					err = ioutil.WriteFile(tmpFile.Name(), []byte("modified object"), 0644)
 					if err != nil {
@@ -160,14 +160,14 @@ func TestAccS3BucketObject_updatesWithVersioning(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccS3BucketObjectConfig_updatesWithVersioning(rInt, tmpFile.Name()),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3BucketObjectExists("huaweicloud_s3_bucket_object.object", &originalObj),
 					resource.TestCheckResourceAttr("huaweicloud_s3_bucket_object.object", "etag", "cee4407fa91906284e2a5e5e03e86b1b"),
 				),
 			},
-			resource.TestStep{
+			{
 				PreConfig: func() {
 					err = ioutil.WriteFile(tmpFile.Name(), []byte("modified versioned object"), 0644)
 					if err != nil {
@@ -280,7 +280,7 @@ func TestAccS3BucketObject_sse(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				PreConfig: func() {},
 				Config:    testAccS3BucketObjectConfig_withSSE(rInt, tmpFile.Name()),
 				Check: resource.ComposeTestCheckFunc(
@@ -305,7 +305,7 @@ func TestAccS3BucketObject_acl(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccS3BucketObjectConfig_acl(rInt, "private"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3BucketObjectExists(
@@ -319,7 +319,7 @@ func TestAccS3BucketObject_acl(t *testing.T) {
 						[]string{"FULL_CONTROL"}),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccS3BucketObjectConfig_acl(rInt, "public-read"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3BucketObjectExists(

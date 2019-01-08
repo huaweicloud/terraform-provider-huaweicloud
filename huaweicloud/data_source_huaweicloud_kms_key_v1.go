@@ -14,44 +14,44 @@ func dataSourceKmsKeyV1() *schema.Resource {
 		Read: dataSourceKmsKeyV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"key_alias": &schema.Schema{
+			"key_alias": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"key_id": &schema.Schema{
+			"key_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"key_description": &schema.Schema{
+			"key_description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"realm": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"domain_id": &schema.Schema{
+			"realm": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"key_state": &schema.Schema{
+			"domain_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"key_state": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validateKmsKeyStatus,
 			},
-			"default_key_flag": &schema.Schema{
+			"default_key_flag": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"creation_date": &schema.Schema{
+			"creation_date": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"scheduled_deletion_date": &schema.Schema{
+			"scheduled_deletion_date": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

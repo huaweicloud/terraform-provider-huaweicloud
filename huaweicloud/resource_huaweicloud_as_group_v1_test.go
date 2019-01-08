@@ -19,7 +19,7 @@ func TestAccASV1Group_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckASV1GroupDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testASV1Group_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASV1GroupExists("huaweicloud_as_group_v1.hth_as_group", &asGroup),

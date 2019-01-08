@@ -13,110 +13,110 @@ func dataSourceCceNodesV3() *schema.Resource {
 		Read: dataSourceCceNodesV3Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"cluster_id": &schema.Schema{
+			"cluster_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"node_id": &schema.Schema{
+			"node_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"flavor_id": &schema.Schema{
+			"flavor_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"availability_zone": &schema.Schema{
+			"availability_zone": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"key_pair": &schema.Schema{
+			"key_pair": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"charge_mode": &schema.Schema{
+			"charge_mode": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"bandwidth_size": &schema.Schema{
+			"bandwidth_size": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"share_type": &schema.Schema{
+			"share_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"ip_type": &schema.Schema{
+			"ip_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"disk_size": &schema.Schema{
+			"disk_size": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"volume_type": &schema.Schema{
+			"volume_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"extend_param": &schema.Schema{
+			"extend_param": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"data_volumes": &schema.Schema{
+			"data_volumes": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"disk_size": &schema.Schema{
+						"disk_size": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"volume_type": &schema.Schema{
+						"volume_type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
 				},
 			},
-			"billing_mode": &schema.Schema{
+			"billing_mode": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"server_id": &schema.Schema{
+			"server_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"public_ip": &schema.Schema{
+			"public_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"private_ip": &schema.Schema{
+			"private_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"eip_ids": &schema.Schema{
+			"eip_ids": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"spec_extend_param": &schema.Schema{
+			"spec_extend_param": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"eip_count": &schema.Schema{
+			"eip_count": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},

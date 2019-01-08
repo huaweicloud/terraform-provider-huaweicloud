@@ -22,24 +22,24 @@ func resourceComputeFloatingIPAssociateV2() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"floating_ip": &schema.Schema{
+			"floating_ip": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"instance_id": &schema.Schema{
+			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"fixed_ip": &schema.Schema{
+			"fixed_ip": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,

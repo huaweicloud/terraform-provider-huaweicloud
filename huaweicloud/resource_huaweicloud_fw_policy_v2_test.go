@@ -17,7 +17,7 @@ func TestAccFWPolicyV2_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWPolicyV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFWPolicyV2_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWPolicyV2Exists(
@@ -34,7 +34,7 @@ func TestAccFWPolicyV2_addRules(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWPolicyV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFWPolicyV2_addRules,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWPolicyV2Exists(
@@ -51,7 +51,7 @@ func TestAccFWPolicyV2_deleteRules(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWPolicyV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFWPolicyV2_deleteRules,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWPolicyV2Exists(
@@ -68,7 +68,7 @@ func TestAccFWPolicyV2_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWPolicyV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFWPolicyV2_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWPolicyV2Exists(

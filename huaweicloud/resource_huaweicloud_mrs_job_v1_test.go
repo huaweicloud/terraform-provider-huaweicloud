@@ -19,7 +19,7 @@ func TestAccMRSV1Job_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMRSV1JobDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: TestAccMRSV1JobConfig_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMRSV1JobExists("huaweicloud_mrs_job_v1.job1", &jobGet),

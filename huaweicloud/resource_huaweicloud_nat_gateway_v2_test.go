@@ -23,7 +23,7 @@ func TestAccNatGateway_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNatV2GatewayDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccNatV2Gateway_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2NetworkExists("huaweicloud_networking_network_v2.network_1", &network),
@@ -33,7 +33,7 @@ func TestAccNatGateway_basic(t *testing.T) {
 					testAccCheckNatV2GatewayExists("huaweicloud_nat_gateway_v2.nat_1"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccNatV2Gateway_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("huaweicloud_nat_gateway_v2.nat_1", "name", "nat_1_updated"),

@@ -20,7 +20,7 @@ func TestAccDcsInstancesV1_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDcsV1InstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDcsV1Instance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDcsV1InstanceExists("huaweicloud_dcs_instance_v1.instance_1", instance),

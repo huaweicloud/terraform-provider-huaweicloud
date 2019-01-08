@@ -21,13 +21,13 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2LoadBalancerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccLBV2LoadBalancerConfig_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2LoadBalancerExists("huaweicloud_lb_loadbalancer_v2.loadbalancer_1", &lb),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccLBV2LoadBalancerConfig_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -50,7 +50,7 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2LoadBalancerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccLBV2LoadBalancer_secGroup,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2LoadBalancerExists(
@@ -64,7 +64,7 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_1),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccLBV2LoadBalancer_secGroup_update1,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2LoadBalancerExists(
@@ -79,7 +79,7 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_2),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccLBV2LoadBalancer_secGroup_update2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2LoadBalancerExists(

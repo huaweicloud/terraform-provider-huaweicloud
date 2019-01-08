@@ -16,17 +16,17 @@ func resourceSubscription() *schema.Resource {
 		Delete: resourceSubscriptionDelete,
 
 		Schema: map[string]*schema.Schema{
-			"topic_urn": &schema.Schema{
+			"topic_urn": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"endpoint": &schema.Schema{
+			"endpoint": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"protocol": &schema.Schema{
+			"protocol": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -34,24 +34,24 @@ func resourceSubscription() *schema.Resource {
 					return ValidateStringList(v, k, []string{"email", "sms", "http", "https"})
 				},
 			},
-			"remark": &schema.Schema{
+			"remark": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"subscription_urn": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
-			"owner": &schema.Schema{
+			"subscription_urn": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"status": &schema.Schema{
+			"owner": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"status": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,

@@ -13,10 +13,10 @@ func TestAccVpcSubnetIdsV2DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccSubnetIdV2DataSource_vpcsubnet,
 			},
-			resource.TestStep{
+			{
 				Config: testAccSubnetIdV2DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccSubnetIdV2DataSourceID("data.huaweicloud_vpc_subnet_ids_v1.subnet_ids"),

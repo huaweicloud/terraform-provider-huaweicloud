@@ -14,24 +14,24 @@ func dataSourceKmsDataKeyV1() *schema.Resource {
 		Read: resourceKmsDataKeyV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"key_id": &schema.Schema{
+			"key_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"encryption_context": &schema.Schema{
+			"encryption_context": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"datakey_length": &schema.Schema{
+			"datakey_length": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"plain_text": &schema.Schema{
+			"plain_text": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"cipher_text": &schema.Schema{
+			"cipher_text": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},

@@ -27,54 +27,54 @@ func resourceVBSBackupPolicyV2() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateVBSPolicyName,
 			},
 
-			"start_time": &schema.Schema{
+			"start_time": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"frequency": &schema.Schema{
+			"frequency": {
 				Type:         schema.TypeInt,
 				Required:     true,
 				ValidateFunc: validateVBSPolicyFrequency,
 			},
-			"rentention_num": &schema.Schema{
+			"rentention_num": {
 				Type:         schema.TypeInt,
 				Required:     true,
 				ValidateFunc: validateVBSPolicyRetentionNum,
 			},
-			"retain_first_backup": &schema.Schema{
+			"retain_first_backup": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateVBSPolicyRetainBackup,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateVBSPolicyStatus,
 			},
-			"tags": &schema.Schema{
+			"tags": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"key": &schema.Schema{
+						"key": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     false,
 							ValidateFunc: validateVBSTagKey,
 						},
-						"value": &schema.Schema{
+						"value": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     false,
@@ -83,7 +83,7 @@ func resourceVBSBackupPolicyV2() *schema.Resource {
 					},
 				},
 			},
-			"policy_resource_count": &schema.Schema{
+			"policy_resource_count": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},

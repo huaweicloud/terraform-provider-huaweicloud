@@ -19,7 +19,7 @@ func TestAccASV1Policy_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckASV1PolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testASV1Policy_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASV1PolicyExists("huaweicloud_as_policy_v1.hth_as_policy", &asPolicy),

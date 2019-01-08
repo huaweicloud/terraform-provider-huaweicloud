@@ -13,7 +13,7 @@ func dataSourceDcsProductV1() *schema.Resource {
 		Read: dataSourceDcsProductV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"spec_code": &schema.Schema{
+			"spec_code": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,

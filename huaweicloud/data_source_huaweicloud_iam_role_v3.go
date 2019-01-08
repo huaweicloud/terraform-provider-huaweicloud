@@ -14,19 +14,19 @@ func dataSourceIAMRoleV3() *schema.Resource {
 		Read: dataSourceIAMRoleV3Read,
 
 		Schema: map[string]*schema.Schema{
-			"projects": &schema.Schema{
+			"projects": {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-			"domains": &schema.Schema{
+			"domains": {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-			"project_domains": &schema.Schema{
+			"project_domains": {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-			"others": &schema.Schema{
+			"others": {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},

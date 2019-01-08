@@ -14,37 +14,37 @@ func dataSourceNetworkingSubnetV2() *schema.Resource {
 		Read: dataSourceNetworkingSubnetV2Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 			},
 
-			"dhcp_enabled": &schema.Schema{
+			"dhcp_enabled": {
 				Type:          schema.TypeBool,
 				ConflictsWith: []string{"dhcp_disabled"},
 				Optional:      true,
 			},
 
-			"dhcp_disabled": &schema.Schema{
+			"dhcp_disabled": {
 				Type:          schema.TypeBool,
 				ConflictsWith: []string{"dhcp_enabled"},
 				Optional:      true,
 			},
 
-			"network_id": &schema.Schema{
+			"network_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 			},
 
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
@@ -55,7 +55,7 @@ func dataSourceNetworkingSubnetV2() *schema.Resource {
 				Description: descriptions["tenant_id"],
 			},
 
-			"ip_version": &schema.Schema{
+			"ip_version": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
@@ -69,35 +69,35 @@ func dataSourceNetworkingSubnetV2() *schema.Resource {
 				},
 			},
 
-			"gateway_ip": &schema.Schema{
+			"gateway_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 			},
 
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 			},
 
-			"subnet_id": &schema.Schema{
+			"subnet_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 			},
 
 			// Computed values
-			"allocation_pools": &schema.Schema{
+			"allocation_pools": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"start": &schema.Schema{
+						"start": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"end": &schema.Schema{
+						"end": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -105,41 +105,41 @@ func dataSourceNetworkingSubnetV2() *schema.Resource {
 				},
 			},
 
-			"enable_dhcp": &schema.Schema{
+			"enable_dhcp": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
 
-			"dns_nameservers": &schema.Schema{
+			"dns_nameservers": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
 
-			"host_routes": &schema.Schema{
+			"host_routes": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"destination_cidr": &schema.Schema{
+						"destination_cidr": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"next_hop": &schema.Schema{
+						"next_hop": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
 				},
 			},
-			"ipv6_address_mode": &schema.Schema{
+			"ipv6_address_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validateSubnetV2IPv6Mode,
 			},
-			"ipv6_ra_mode": &schema.Schema{
+			"ipv6_ra_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,

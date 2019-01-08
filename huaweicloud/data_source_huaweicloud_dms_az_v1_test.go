@@ -13,7 +13,7 @@ func TestAccDmsAZV1DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDmsAZV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDmsAZV1DataSourceID("data.huaweicloud_dms_az_v1.az1"),

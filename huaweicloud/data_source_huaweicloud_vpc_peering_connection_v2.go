@@ -14,33 +14,33 @@ func dataSourceVpcPeeringConnectionV2() *schema.Resource {
 		Read: dataSourceVpcPeeringConnectionV2Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateName,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"vpc_id": &schema.Schema{
+			"vpc_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"peer_vpc_id": &schema.Schema{
+			"peer_vpc_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"peer_tenant_id": &schema.Schema{
+			"peer_tenant_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},

@@ -18,7 +18,7 @@ func TestAccVpcV1EIP_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcV1EIPDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVpcV1EIP_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip_v1.eip_1", &eip),
@@ -36,7 +36,7 @@ func TestAccVpcV1EIP_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcV1EIPDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVpcV1EIP_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip_v1.eip_1", &eip),

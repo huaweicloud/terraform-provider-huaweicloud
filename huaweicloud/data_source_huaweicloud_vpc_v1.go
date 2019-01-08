@@ -14,42 +14,42 @@ func dataSourceVirtualPrivateCloudVpcV1() *schema.Resource {
 		Read: dataSourceVirtualPrivateCloudV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"shared": &schema.Schema{
+			"shared": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"routes": &schema.Schema{
+			"routes": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"destination": &schema.Schema{
+						"destination": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"nexthop": &schema.Schema{
+						"nexthop": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},

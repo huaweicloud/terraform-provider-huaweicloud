@@ -12,43 +12,43 @@ func dataSourceRTSStackResourcesV1() *schema.Resource {
 		Read: dataSourceRTSStackResourcesV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"stack_name": &schema.Schema{
+			"stack_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"resource_name": &schema.Schema{
+			"resource_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"logical_resource_id": &schema.Schema{
+			"logical_resource_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"required_by": &schema.Schema{
+			"required_by": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-			"resource_status": &schema.Schema{
+			"resource_status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"resource_status_reason": &schema.Schema{
+			"resource_status_reason": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"physical_resource_id": &schema.Schema{
+			"physical_resource_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"resource_type": &schema.Schema{
+			"resource_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},

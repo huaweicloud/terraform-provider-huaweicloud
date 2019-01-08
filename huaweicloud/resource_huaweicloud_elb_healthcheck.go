@@ -28,12 +28,12 @@ func resourceELBHealthCheck() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"listener_id": &schema.Schema{
+			"listener_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"healthcheck_protocol": &schema.Schema{
+			"healthcheck_protocol": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -42,7 +42,7 @@ func resourceELBHealthCheck() *schema.Resource {
 				},
 			},
 
-			"healthcheck_uri": &schema.Schema{
+			"healthcheck_uri": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -56,7 +56,7 @@ func resourceELBHealthCheck() *schema.Resource {
 				},
 			},
 
-			"healthcheck_connect_port": &schema.Schema{
+			"healthcheck_connect_port": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
@@ -65,7 +65,7 @@ func resourceELBHealthCheck() *schema.Resource {
 				},
 			},
 
-			"healthy_threshold": &schema.Schema{
+			"healthy_threshold": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
@@ -74,7 +74,7 @@ func resourceELBHealthCheck() *schema.Resource {
 				},
 			},
 
-			"unhealthy_threshold": &schema.Schema{
+			"unhealthy_threshold": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
@@ -83,7 +83,7 @@ func resourceELBHealthCheck() *schema.Resource {
 				},
 			},
 
-			"healthcheck_timeout": &schema.Schema{
+			"healthcheck_timeout": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
@@ -92,7 +92,7 @@ func resourceELBHealthCheck() *schema.Resource {
 				},
 			},
 
-			"healthcheck_interval": &schema.Schema{
+			"healthcheck_interval": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
@@ -101,12 +101,12 @@ func resourceELBHealthCheck() *schema.Resource {
 				},
 			},
 
-			"update_time": &schema.Schema{
+			"update_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"create_time": &schema.Schema{
+			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

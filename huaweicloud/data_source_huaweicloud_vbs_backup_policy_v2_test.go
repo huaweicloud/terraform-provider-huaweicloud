@@ -13,7 +13,7 @@ func TestAccVBSBackupPolicyV2DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVBSBackupPolicyV2DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVBSBackupPolicyV2DataSource("data.huaweicloud_vbs_backup_policy_v2.policies"),

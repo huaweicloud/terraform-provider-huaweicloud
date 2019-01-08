@@ -28,29 +28,29 @@ func resourceVirtualPrivateCloudV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{ //request and response parameters
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     false,
 				ValidateFunc: validateName,
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     false,
 				ValidateFunc: validateCIDR,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"shared": &schema.Schema{
+			"shared": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},

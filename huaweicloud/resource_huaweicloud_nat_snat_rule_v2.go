@@ -24,23 +24,23 @@ func resourceNatSnatRuleV2() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"nat_gateway_id": &schema.Schema{
+			"nat_gateway_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"network_id": &schema.Schema{
+			"network_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"floating_ip_id": &schema.Schema{
+			"floating_ip_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,

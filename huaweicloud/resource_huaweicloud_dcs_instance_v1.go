@@ -22,128 +22,128 @@ func resourceDcsInstanceV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"engine": &schema.Schema{
+			"engine": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"engine_version": &schema.Schema{
+			"engine_version": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"capacity": &schema.Schema{
+			"capacity": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"access_user": &schema.Schema{
+			"access_user": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"vpc_id": &schema.Schema{
+			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"security_group_id": &schema.Schema{
+			"security_group_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"subnet_id": &schema.Schema{
+			"subnet_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"available_zones": &schema.Schema{
+			"available_zones": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"product_id": &schema.Schema{
+			"product_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"maintain_begin": &schema.Schema{
+			"maintain_begin": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"maintain_end": &schema.Schema{
+			"maintain_end": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"save_days": &schema.Schema{
+			"save_days": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"backup_type": &schema.Schema{
+			"backup_type": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"begin_at": &schema.Schema{
+			"begin_at": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"period_type": &schema.Schema{
+			"period_type": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"backup_at": &schema.Schema{
+			"backup_at": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
-			"order_id": &schema.Schema{
+			"order_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"vpc_name": &schema.Schema{
+			"vpc_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"security_group_name": &schema.Schema{
+			"security_group_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"subnet_name": &schema.Schema{
+			"subnet_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"port": &schema.Schema{
+			"port": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"resource_spec_code": &schema.Schema{
+			"resource_spec_code": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"used_memory": &schema.Schema{
+			"used_memory": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"internal_version": &schema.Schema{
+			"internal_version": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"max_memory": &schema.Schema{
+			"max_memory": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"user_id": &schema.Schema{
+			"user_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"ip": &schema.Schema{
+			"ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

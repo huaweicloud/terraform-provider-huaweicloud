@@ -27,60 +27,60 @@ func resourceELBBackendECS() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"listener_id": &schema.Schema{
+			"listener_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"server_id": &schema.Schema{
+			"server_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"private_address": &schema.Schema{
+			"private_address": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"public_address": &schema.Schema{
+			"public_address": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"update_time": &schema.Schema{
+			"update_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"create_time": &schema.Schema{
+			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"health_status": &schema.Schema{
+			"health_status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"server_name": &schema.Schema{
+			"server_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"listeners": &schema.Schema{
+			"listeners": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": &schema.Schema{
+						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -172,7 +172,7 @@ func resourceELBBackendECSDelete(d *schema.ResourceData, meta interface{}) error
 
 	bId := d.Id()
 	deleteOpts := backendecs.DeleteOpts{
-		RemoveMember: []backendecs.RemoveMemberField{backendecs.RemoveMemberField{ID: bId}},
+		RemoveMember: []backendecs.RemoveMemberField{{ID: bId}},
 	}
 	log.Printf("[DEBUG] Deleting %s option: %#v", nameELBBackend, deleteOpts)
 

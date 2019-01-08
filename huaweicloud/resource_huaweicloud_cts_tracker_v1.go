@@ -27,50 +27,50 @@ func resourceCTSTrackerV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"tracker_name": &schema.Schema{
+			"tracker_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"bucket_name": &schema.Schema{
+			"bucket_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"file_prefix_name": &schema.Schema{
+			"file_prefix_name": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validateName,
 			},
-			"is_support_smn": &schema.Schema{
+			"is_support_smn": {
 				Type:     schema.TypeBool,
 				Required: true,
 			},
-			"topic_id": &schema.Schema{
+			"topic_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"operations": &schema.Schema{
+			"operations": {
 				Type:     schema.TypeSet,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-			"is_send_all_key_operation": &schema.Schema{
+			"is_send_all_key_operation": {
 				Type:     schema.TypeBool,
 				Required: true,
 			},
-			"need_notify_user_list": &schema.Schema{
+			"need_notify_user_list": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,

@@ -20,7 +20,7 @@ func TestAccDmsQueuesV1_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDmsV1QueueDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDmsV1Queue_basic(queueName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDmsV1QueueExists("huaweicloud_dms_queue_v1.queue_1", queue),
@@ -43,7 +43,7 @@ func TestAccDmsQueuesV1_FIFOmode(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDmsV1QueueDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDmsV1Queue_FIFOmode(queueName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDmsV1QueueExists("huaweicloud_dms_queue_v1.queue_1", queue),

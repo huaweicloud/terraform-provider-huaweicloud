@@ -18,7 +18,7 @@ func TestAccVpcSubnetV1_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcSubnetV1Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVpcSubnetV1_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcSubnetV1Exists("huaweicloud_vpc_subnet_v1.subnet_1", &subnet),
@@ -32,7 +32,7 @@ func TestAccVpcSubnetV1_basic(t *testing.T) {
 						"huaweicloud_vpc_subnet_v1.subnet_1", "availability_zone", OS_AVAILABILITY_ZONE),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccVpcSubnetV1_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -51,7 +51,7 @@ func TestAccVpcSubnetV1_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcSubnetV1Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVpcSubnetV1_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcSubnetV1Exists("huaweicloud_vpc_subnet_v1.subnet_1", &subnet),

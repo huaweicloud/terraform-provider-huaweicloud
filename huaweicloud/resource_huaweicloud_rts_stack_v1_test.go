@@ -18,7 +18,7 @@ func TestAccRTSStackV1_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRTSStackV1Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRTSStackV1_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRTSStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
@@ -32,7 +32,7 @@ func TestAccRTSStackV1_basic(t *testing.T) {
 						"huaweicloud_rts_stack_v1.stack_1", "timeout_mins", "60"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccRTSStackV1_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRTSStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
@@ -56,7 +56,7 @@ func TestAccRTSStackV1_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRTSStackV1Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRTSStackV1_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRTSStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),

@@ -27,50 +27,50 @@ func resourceKmsKeyV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"key_alias": &schema.Schema{
+			"key_alias": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"key_id": &schema.Schema{
+			"key_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"key_description": &schema.Schema{
+			"key_description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"realm": &schema.Schema{
+			"realm": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"domain_id": &schema.Schema{
+			"domain_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"creation_date": &schema.Schema{
+			"creation_date": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"scheduled_deletion_date": &schema.Schema{
+			"scheduled_deletion_date": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"is_enabled": &schema.Schema{
+			"is_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
-			"default_key_flag": &schema.Schema{
+			"default_key_flag": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"expiration_time": &schema.Schema{
+			"expiration_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"pending_days": &schema.Schema{
+			"pending_days": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "7",

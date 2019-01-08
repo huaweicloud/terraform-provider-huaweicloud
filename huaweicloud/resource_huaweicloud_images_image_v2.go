@@ -34,31 +34,31 @@ func resourceImagesImageV2() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
 
-			"checksum": &schema.Schema{
+			"checksum": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"container_format": &schema.Schema{
+			"container_format": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: resourceImagesImageV2ValidateContainerFormat,
 			},
 
-			"created_at": &schema.Schema{
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"disk_format": &schema.Schema{
+			"disk_format": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
@@ -66,37 +66,37 @@ func resourceImagesImageV2() *schema.Resource {
 				DiffSuppressFunc: suppressDiffAll, // NOTE: HEC appears broken here, so hack work-around...
 			},
 
-			"file": &schema.Schema{
+			"file": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"image_cache_path": &schema.Schema{
+			"image_cache_path": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  fmt.Sprintf("%s/.terraform/image_cache", os.Getenv("HOME")),
 			},
 
-			"image_source_url": &schema.Schema{
+			"image_source_url": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"local_file_path"},
 			},
 
-			"local_file_path": &schema.Schema{
+			"local_file_path": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"image_source_url"},
 			},
 
-			"metadata": &schema.Schema{
+			"metadata": {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
 
-			"min_disk_gb": &schema.Schema{
+			"min_disk_gb": {
 				Type:             schema.TypeInt,
 				Optional:         true,
 				ForceNew:         true,
@@ -105,7 +105,7 @@ func resourceImagesImageV2() *schema.Resource {
 				DiffSuppressFunc: suppressMinDisk,
 			},
 
-			"min_ram_mb": &schema.Schema{
+			"min_ram_mb": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
@@ -113,52 +113,52 @@ func resourceImagesImageV2() *schema.Resource {
 				Default:      0,
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
 
-			"owner": &schema.Schema{
+			"owner": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"protected": &schema.Schema{
+			"protected": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 				Default:  false,
 			},
 
-			"schema": &schema.Schema{
+			"schema": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"size_bytes": &schema.Schema{
+			"size_bytes": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
 
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"tags": &schema.Schema{
+			"tags": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
 
-			"update_at": &schema.Schema{
+			"update_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"visibility": &schema.Schema{
+			"visibility": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     false,

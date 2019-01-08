@@ -14,103 +14,103 @@ func dataSourceSFSFileSystemV2() *schema.Resource {
 		Read: dataSourceSFSFileSystemV2Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"availability_zone": &schema.Schema{
+			"availability_zone": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"size": &schema.Schema{
+			"size": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"share_type": &schema.Schema{
+			"share_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"project_id": &schema.Schema{
+			"project_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"host": &schema.Schema{
+			"host": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"is_public": &schema.Schema{
+			"is_public": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"share_proto": &schema.Schema{
+			"share_proto": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"volume_type": &schema.Schema{
+			"volume_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"export_location": &schema.Schema{
+			"export_location": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"metadata": &schema.Schema{
+			"metadata": {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-			"export_locations": &schema.Schema{
+			"export_locations": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-			"access_level": &schema.Schema{
+			"access_level": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"state": &schema.Schema{
+			"state": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"share_access_id": &schema.Schema{
+			"share_access_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"access_type": &schema.Schema{
+			"access_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"access_to": &schema.Schema{
+			"access_to": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"mount_id": &schema.Schema{
+			"mount_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"share_instance_id": &schema.Schema{
+			"share_instance_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"preferred": &schema.Schema{
+			"preferred": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},

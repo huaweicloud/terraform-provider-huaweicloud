@@ -19,7 +19,7 @@ func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccVBSBackupPolicyV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVBSBackupPolicyV2_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccVBSBackupPolicyV2Exists("huaweicloud_vbs_backup_policy_v2.vbs", &policy),
@@ -29,7 +29,7 @@ func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
 						"huaweicloud_vbs_backup_policy_v2.vbs", "status", "ON"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccVBSBackupPolicyV2_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccVBSBackupPolicyV2Exists("huaweicloud_vbs_backup_policy_v2.vbs", &policy),
@@ -51,7 +51,7 @@ func TestAccVBSBackupPolicyV2_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccVBSBackupPolicyV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVBSBackupPolicyV2_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccVBSBackupPolicyV2Exists("huaweicloud_vbs_backup_policy_v2.vbs", &policy),

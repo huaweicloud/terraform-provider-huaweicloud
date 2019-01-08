@@ -29,72 +29,72 @@ func resourceMRSClusterV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
 
-			"billing_type": &schema.Schema{
+			"billing_type": {
 				Type:     schema.TypeInt,
 				Required: true,
 				ForceNew: true,
 			},
-			"master_node_num": &schema.Schema{
+			"master_node_num": {
 				Type:     schema.TypeInt,
 				Required: true,
 				ForceNew: true,
 			},
-			"master_node_size": &schema.Schema{
+			"master_node_size": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"core_node_num": &schema.Schema{
+			"core_node_num": {
 				Type:         schema.TypeInt,
 				Required:     true,
 				ValidateFunc: resourceClusterValidateCoreNodeNum,
 				ForceNew:     true,
 			},
-			"core_node_size": &schema.Schema{
+			"core_node_size": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"available_zone_id": &schema.Schema{
+			"available_zone_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"cluster_name": &schema.Schema{
+			"cluster_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"vpc_id": &schema.Schema{
+			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"subnet_id": &schema.Schema{
+			"subnet_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"cluster_version": &schema.Schema{
+			"cluster_version": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"cluster_type": &schema.Schema{
+			"cluster_type": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"volume_type": &schema.Schema{
+			"volume_type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -102,128 +102,128 @@ func resourceMRSClusterV1() *schema.Resource {
 					return ValidateStringList(v, k, []string{"SATA", "SSD"})
 				},
 			},
-			"volume_size": &schema.Schema{
+			"volume_size": {
 				Type:     schema.TypeInt,
 				Required: true,
 				ForceNew: true,
 			},
-			"node_public_cert_name": &schema.Schema{
+			"node_public_cert_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"safe_mode": &schema.Schema{
+			"safe_mode": {
 				Type:     schema.TypeInt,
 				Required: true,
 				ForceNew: true,
 			},
-			"cluster_admin_secret": &schema.Schema{
+			"cluster_admin_secret": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"log_collection": &schema.Schema{
+			"log_collection": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"component_list": &schema.Schema{
+			"component_list": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"component_name": &schema.Schema{
+						"component_name": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"component_id": &schema.Schema{
+						"component_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"component_version": &schema.Schema{
+						"component_version": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"component_desc": &schema.Schema{
+						"component_desc": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
 				},
 			},
-			"add_jobs": &schema.Schema{
+			"add_jobs": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"job_type": &schema.Schema{
+						"job_type": {
 							Type:     schema.TypeInt,
 							Required: true,
 							ForceNew: true,
 						},
-						"job_name": &schema.Schema{
+						"job_name": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"jar_path": &schema.Schema{
+						"jar_path": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"arguments": &schema.Schema{
+						"arguments": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
-						"input": &schema.Schema{
+						"input": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
-						"output": &schema.Schema{
+						"output": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
-						"job_log": &schema.Schema{
+						"job_log": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
-						"shutdown_cluster": &schema.Schema{
+						"shutdown_cluster": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
-						"file_action": &schema.Schema{
+						"file_action": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
-						"submit_job_once_cluster_run": &schema.Schema{
+						"submit_job_once_cluster_run": {
 							Type:     schema.TypeBool,
 							Required: true,
 							ForceNew: true,
 						},
-						"hql": &schema.Schema{
+						"hql": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
-						"hive_script_path": &schema.Schema{
+						"hive_script_path": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
@@ -232,111 +232,111 @@ func resourceMRSClusterV1() *schema.Resource {
 					},
 				},
 			},
-			"order_id": &schema.Schema{
+			"order_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cluster_id": &schema.Schema{
+			"cluster_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"available_zone_name": &schema.Schema{
+			"available_zone_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"instance_id": &schema.Schema{
+			"instance_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"hadoop_version": &schema.Schema{
+			"hadoop_version": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"master_node_ip": &schema.Schema{
+			"master_node_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"external_ip": &schema.Schema{
+			"external_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"private_ip_first": &schema.Schema{
+			"private_ip_first": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"internal_ip": &schema.Schema{
+			"internal_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"slave_security_groups_id": &schema.Schema{
+			"slave_security_groups_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"security_groups_id": &schema.Schema{
+			"security_groups_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"external_alternate_ip": &schema.Schema{
+			"external_alternate_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"master_node_spec_id": &schema.Schema{
+			"master_node_spec_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"core_node_spec_id": &schema.Schema{
+			"core_node_spec_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"master_node_product_id": &schema.Schema{
+			"master_node_product_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"core_node_product_id": &schema.Schema{
+			"core_node_product_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"duration": &schema.Schema{
+			"duration": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"vnc": &schema.Schema{
+			"vnc": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"fee": &schema.Schema{
+			"fee": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"deployment_id": &schema.Schema{
+			"deployment_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cluster_state": &schema.Schema{
+			"cluster_state": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"error_info": &schema.Schema{
+			"error_info": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"remark": &schema.Schema{
+			"remark": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"update_at": &schema.Schema{
+			"update_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"create_at": &schema.Schema{
+			"create_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"charging_start_time": &schema.Schema{
+			"charging_start_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

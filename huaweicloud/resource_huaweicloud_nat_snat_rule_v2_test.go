@@ -25,7 +25,7 @@ func TestAccNatSnatRule_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNatV2SnatRuleDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccNatV2SnatRule_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2NetworkExists("huaweicloud_networking_network_v2.network_1", &network),

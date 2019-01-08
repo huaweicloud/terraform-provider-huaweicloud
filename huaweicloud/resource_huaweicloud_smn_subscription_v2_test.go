@@ -18,7 +18,7 @@ func TestAccSMNV2Subscription_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSMNSubscriptionV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: TestAccSMNV2SubscriptionConfig_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSMNV2SubscriptionExists("huaweicloud_smn_subscription_v2.subscription_1", &subscription1),

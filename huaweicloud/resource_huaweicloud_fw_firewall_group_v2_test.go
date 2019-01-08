@@ -20,13 +20,13 @@ func TestAccFWFirewallGroupV2_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFWFirewallGroupV2_basic_1,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWFirewallGroupV2("huaweicloud_fw_firewall_group_v2.fw_1", "", "", ipolicyID, epolicyID),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccFWFirewallGroupV2_basic_2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWFirewallGroupV2(
@@ -45,7 +45,7 @@ func TestAccFWFirewallGroupV2_port0(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFWFirewallV2_port,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWFirewallGroupV2Exists("huaweicloud_fw_firewall_group_v2.fw_1", &firewall_group),
@@ -64,7 +64,7 @@ func TestAccFWFirewallGroupV2_no_ports(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFWFirewallV2_no_ports,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWFirewallGroupV2Exists("huaweicloud_fw_firewall_group_v2.fw_1", &firewall_group),
@@ -84,14 +84,14 @@ func TestAccFWFirewallGroupV2_port_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFWFirewallV2_port,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWFirewallGroupV2Exists("huaweicloud_fw_firewall_group_v2.fw_1", &firewall_group),
 					testAccCheckFWFirewallPortCount(&firewall_group, 1),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccFWFirewallV2_port_add,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWFirewallGroupV2Exists("huaweicloud_fw_firewall_group_v2.fw_1", &firewall_group),
@@ -110,14 +110,14 @@ func TestAccFWFirewallGroupV2_port_remove(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFWFirewallV2_port,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWFirewallGroupV2Exists("huaweicloud_fw_firewall_group_v2.fw_1", &firewall_group),
 					testAccCheckFWFirewallPortCount(&firewall_group, 1),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccFWFirewallV2_port_remove,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWFirewallGroupV2Exists("huaweicloud_fw_firewall_group_v2.fw_1", &firewall_group),

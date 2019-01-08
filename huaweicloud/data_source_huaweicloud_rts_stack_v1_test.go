@@ -13,7 +13,7 @@ func TestAccRTSStackV1DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRTSStackV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRTSStackV1DataSourceID("data.huaweicloud_rts_stack_v1.stacks"),

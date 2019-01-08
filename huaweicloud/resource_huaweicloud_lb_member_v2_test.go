@@ -18,7 +18,7 @@ func TestAccLBV2Member_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2MemberDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config:             TestAccLBV2MemberConfig_basic,
 				ExpectNonEmptyPlan: true, // Because admin_state_up remains false.
 				Check: resource.ComposeTestCheckFunc(
@@ -26,7 +26,7 @@ func TestAccLBV2Member_basic(t *testing.T) {
 					testAccCheckLBV2MemberExists("huaweicloud_lb_member_v2.member_2", &member_2),
 				),
 			},
-			resource.TestStep{
+			{
 				Config:             TestAccLBV2MemberConfig_update,
 				ExpectNonEmptyPlan: true, // Because admin_state_up remains false.
 				Check: resource.ComposeTestCheckFunc(

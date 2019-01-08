@@ -18,7 +18,7 @@ func TestAccELBBackend_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckELBBackendDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: TestAccELBBackendConfig_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckELBBackendExists("huaweicloud_elb_backendecs.backend_1", &backend),

@@ -27,109 +27,109 @@ func resourceCSBSBackupPolicyV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"provider_id": &schema.Schema{
+			"provider_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "fc4d5750-22e7-4798-8a46-f48f62c4c1da",
 				ForceNew: true,
 			},
-			"common": &schema.Schema{
+			"common": {
 				Type:     schema.TypeMap,
 				Optional: true,
 			},
-			"scheduled_operation": &schema.Schema{
+			"scheduled_operation": {
 				Type:     schema.TypeSet,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 						},
-						"description": &schema.Schema{
+						"description": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"enabled": &schema.Schema{
+						"enabled": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  true,
 						},
-						"max_backups": &schema.Schema{
+						"max_backups": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
-						"retention_duration_days": &schema.Schema{
+						"retention_duration_days": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
-						"permanent": &schema.Schema{
+						"permanent": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
 						},
-						"trigger_pattern": &schema.Schema{
+						"trigger_pattern": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"operation_type": &schema.Schema{
+						"operation_type": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"id": &schema.Schema{
+						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"trigger_id": &schema.Schema{
+						"trigger_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"trigger_name": &schema.Schema{
+						"trigger_name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"trigger_type": &schema.Schema{
+						"trigger_type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
 				},
 			},
-			"resource": &schema.Schema{
+			"resource": {
 				Type:     schema.TypeSet,
 				Required: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": &schema.Schema{
+						"id": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"type": &schema.Schema{
+						"type": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},

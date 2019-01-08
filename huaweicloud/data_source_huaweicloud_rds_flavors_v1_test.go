@@ -13,7 +13,7 @@ func TestAccHuaweiCloudRdsFlavorV1DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudRdsFlavorV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsFlavorV1DataSourceID("data.huaweicloud_rds_flavors_v1.flavor"),
@@ -34,7 +34,7 @@ func TestAccHuaweiCloudRdsFlavorV1DataSource_speccode(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudRdsFlavorV1DataSource_speccode,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingNetworkV2DataSourceID("data.huaweicloud_rds_flavors_v1.flavor"),

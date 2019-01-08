@@ -18,33 +18,33 @@ func resourceDmsGroupsV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"queue_id": &schema.Schema{
+			"queue_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"consumed_messages": &schema.Schema{
+			"consumed_messages": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"available_messages": &schema.Schema{
+			"available_messages": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"produced_messages": &schema.Schema{
+			"produced_messages": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"produced_deadletters": &schema.Schema{
+			"produced_deadletters": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"available_deadletters": &schema.Schema{
+			"available_deadletters": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},

@@ -27,17 +27,17 @@ func resourceVpcPeeringConnectionAccepterV2() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"vpc_peering_connection_id": &schema.Schema{
+			"vpc_peering_connection_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -46,19 +46,19 @@ func resourceVpcPeeringConnectionAccepterV2() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"vpc_id": &schema.Schema{
+			"vpc_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"peer_vpc_id": &schema.Schema{
+			"peer_vpc_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"peer_tenant_id": &schema.Schema{
+			"peer_tenant_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

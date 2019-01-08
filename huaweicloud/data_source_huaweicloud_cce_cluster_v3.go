@@ -13,74 +13,74 @@ func dataSourceCCEClusterV3() *schema.Resource {
 		Read: dataSourceCCEClusterV3Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"flavor_id": &schema.Schema{
+			"flavor_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cluster_version": &schema.Schema{
+			"cluster_version": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cluster_type": &schema.Schema{
+			"cluster_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"billing_mode": &schema.Schema{
+			"billing_mode": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"vpc_id": &schema.Schema{
+			"vpc_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"subnet_id": &schema.Schema{
+			"subnet_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"highway_subnet_id": &schema.Schema{
+			"highway_subnet_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"container_network_type": &schema.Schema{
+			"container_network_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"container_network_cidr": &schema.Schema{
+			"container_network_cidr": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"endpoints": &schema.Schema{
+			"endpoints": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"url": &schema.Schema{
+						"url": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"type": &schema.Schema{
+						"type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},

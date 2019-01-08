@@ -30,49 +30,49 @@ func resourceDNSRecordSetV2() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"zone_id": &schema.Schema{
+			"zone_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     false,
 				ValidateFunc: resourceValidateDescription,
 			},
-			"records": &schema.Schema{
+			"records": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				MinItems: 1,
 			},
-			"ttl": &schema.Schema{
+			"ttl": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     false,
 				Default:      300,
 				ValidateFunc: resourceValidateTTL,
 			},
-			"type": &schema.Schema{
+			"type": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: resourceRecordsetValidateType,
 			},
-			"value_specs": &schema.Schema{
+			"value_specs": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
