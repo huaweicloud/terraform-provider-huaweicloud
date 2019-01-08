@@ -1,46 +1,46 @@
-## 1.3.0 (Unreleased)
+## 1.3.0 (January 08, 2019)
 
 FEATURES:
 
-* **New Data Source:** `huaweicloud_dms_az_v1` [GH-41]
-* **New Data Source:** `huaweicloud_dms_product_v1` [GH-41]
-* **New Data Source:** `huaweicloud_dms_maintainwindow_v1` [GH-41]
-* **New Data Source:** `huaweicloud_vbs_backup_policy_v2` [GH-44]
-* **New Data Source:** `huaweicloud_vbs_backup_v2` [GH-44]
-* **New Data Source:** `huaweicloud_cce_cluster_v3` [GH-19]
-* **New Data Source:** `huaweicloud_cce_node_v3` [GH-19]
-* **New Data Source:** `huaweicloud_cts_tracker_v1` [GH-46]
-* **New Data Source:** `huaweicloud_csbs_backup_v1` [GH-42]
-* **New Data Source:** `huaweicloud_csbs_backup_policy_v1` [GH-42]
-* **New Data Source:** `huaweicloud_antiddos_v1` [GH-47]
-* **New Data Source:** `huaweicloud_dcs_az_v1` [GH-55]
-* **New Data Source:** `huaweicloud_dcs_maintainwindow_v1` [GH-55]
-* **New Data Source:** `huaweicloud_dcs_product_v1` [GH-55]
-* **New Resource:** `huaweicloud_dms_queue_v1` [GH-41]
-* **New Resource:** `huaweicloud_dms_group_v1` [GH-41]
-* **New Resource:** `huaweicloud_dms_instance_v1` [GH-41]
-* **New Resource:** `huaweicloud_vbs_backup_policy_v2` [GH-44]
-* **New Resource:** `huaweicloud_vbs_backup_v2` [GH-44]
-* **New Resource:** `huaweicloud_cce_cluster_v3` [GH-19]
-* **New Resource:** `huaweicloud_cce_node_v3` [GH-19]
-* **New Resource:** `huaweicloud_cts_tracker_v1` [GH-46]
-* **New Resource:** `huaweicloud_csbs_backup_v1` [GH-42]
-* **New Resource:** `huaweicloud_csbs_backup_policy_v1` [GH-42]
-* **New Resource:** `huaweicloud_mrs_cluster_v1` [GH-56]
-* **New Resource:** `huaweicloud_mrs_job_v1` [GH-56]
-* **New Resource:** `huaweicloud_dcs_instance_v1` [GH-55]
-* **New Resource:** `huaweicloud_maas_task_v1` [GH-65]
-* **New Resource:** `huaweicloud_networking_floatingip_associate_v2` [GH-68]
-* **New Resource:** `huaweicloud_dws_cluster` [GH-69]
-* **New Resource:** `huaweicloud_mls_instance` [GH-69]
+* **New Data Source:** `huaweicloud_dms_az_v1` ([#41](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/41))
+* **New Data Source:** `huaweicloud_dms_product_v1` ([#41](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/41))
+* **New Data Source:** `huaweicloud_dms_maintainwindow_v1` ([#41](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/41))
+* **New Data Source:** `huaweicloud_vbs_backup_policy_v2` ([#44](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/44))
+* **New Data Source:** `huaweicloud_vbs_backup_v2` ([#44](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/44))
+* **New Data Source:** `huaweicloud_cce_cluster_v3` ([#19](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/19))
+* **New Data Source:** `huaweicloud_cce_node_v3` ([#19](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/19))
+* **New Data Source:** `huaweicloud_cts_tracker_v1` ([#46](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/46))
+* **New Data Source:** `huaweicloud_csbs_backup_v1` ([#42](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/42))
+* **New Data Source:** `huaweicloud_csbs_backup_policy_v1` ([#42](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/42))
+* **New Data Source:** `huaweicloud_antiddos_v1` ([#47](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/47))
+* **New Data Source:** `huaweicloud_dcs_az_v1` ([#55](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/55))
+* **New Data Source:** `huaweicloud_dcs_maintainwindow_v1` ([#55](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/55))
+* **New Data Source:** `huaweicloud_dcs_product_v1` ([#55](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/55))
+* **New Resource:** `huaweicloud_dms_queue_v1` ([#41](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/41))
+* **New Resource:** `huaweicloud_dms_group_v1` ([#41](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/41))
+* **New Resource:** `huaweicloud_dms_instance_v1` ([#41](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/41))
+* **New Resource:** `huaweicloud_vbs_backup_policy_v2` ([#44](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/44))
+* **New Resource:** `huaweicloud_vbs_backup_v2` ([#44](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/44))
+* **New Resource:** `huaweicloud_cce_cluster_v3` ([#19](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/19))
+* **New Resource:** `huaweicloud_cce_node_v3` ([#19](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/19))
+* **New Resource:** `huaweicloud_cts_tracker_v1` ([#46](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/46))
+* **New Resource:** `huaweicloud_csbs_backup_v1` ([#42](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/42))
+* **New Resource:** `huaweicloud_csbs_backup_policy_v1` ([#42](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/42))
+* **New Resource:** `huaweicloud_mrs_cluster_v1` ([#56](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/56))
+* **New Resource:** `huaweicloud_mrs_job_v1` ([#56](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/56))
+* **New Resource:** `huaweicloud_dcs_instance_v1` ([#55](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/55))
+* **New Resource:** `huaweicloud_maas_task_v1` ([#65](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/65))
+* **New Resource:** `huaweicloud_networking_floatingip_associate_v2` ([#68](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/68))
+* **New Resource:** `huaweicloud_dws_cluster` ([#69](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/69))
+* **New Resource:** `huaweicloud_mls_instance` ([#69](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/69))
 
 BUG FIXES:
 
-* `resource/huaweicloud_elb_listener`: Fix certificate_id check [GH-45]
-* `resource/huaweicloud_smn_topic_v2`: Fix smn topic update error [GH-48]
-* `resource/huaweicloud_kms_key_v1`: Add default value of pending_days [GH-62]
-* `all resources`: Expose real error message of BadRequest error [GH-63]
-* `resource/huaweicloud_sfs_file_system_v2`: Suppress sfs system metadata [GH-64]
+* `resource/huaweicloud_elb_listener`: Fix certificate_id check ([#45](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/45))
+* `resource/huaweicloud_smn_topic_v2`: Fix smn topic update error ([#48](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/48))
+* `resource/huaweicloud_kms_key_v1`: Add default value of pending_days ([#62](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/62))
+* `all resources`: Expose real error message of BadRequest error ([#63](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/63))
+* `resource/huaweicloud_sfs_file_system_v2`: Suppress sfs system metadata ([#64](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/64))
 
 ## 1.2.0 (September 21, 2018)
 
@@ -65,8 +65,8 @@ FEATURES:
 * **New Resource:** `huaweicloud_as_configuration_v1` ([#29](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/29))
 * **New Resource:** `huaweicloud_as_group_v1` ([#30](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/30))
 * **New Resource:** `huaweicloud_as_policy_v1` ([#31](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/31))
-* **New Resource:** `huaweicloud_cce_cluster_v3` [GH-19]
-* **New Resource:** `huaweicloud_cce_node_v3` [GH-19]
+* **New Resource:** `huaweicloud_cce_cluster_v3` ([#19](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/19))
+* **New Resource:** `huaweicloud_cce_node_v3` ([#19](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/19))
 
 ENHANCEMENTS:
 
