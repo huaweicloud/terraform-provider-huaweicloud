@@ -234,7 +234,9 @@ func (client *ProviderClient) Request(method, url string, options *RequestOpts) 
 			AccessKey: client.AKSKAuthOptions.AccessKey,
 			SecretKey: client.AKSKAuthOptions.SecretKey,
 		})
-		req.Header.Set("X-Project-Id", client.AKSKAuthOptions.ProjectId)
+		if client.AKSKAuthOptions.ProjectId != "" {
+			req.Header.Set("X-Project-Id", client.AKSKAuthOptions.ProjectId)
+		}
 	}
 
 	// Issue the request.

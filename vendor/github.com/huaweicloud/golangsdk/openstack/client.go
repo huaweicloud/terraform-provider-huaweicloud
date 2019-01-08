@@ -308,7 +308,11 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 		v3Client.Endpoint = endpoint
 	}
 
+	defer func() {
+		v3Client.AKSKAuthOptions.ProjectId = options.ProjectId
+	}()
 	v3Client.AKSKAuthOptions = options
+	v3Client.AKSKAuthOptions.ProjectId = ""
 
 	if options.ProjectId == "" && options.ProjectName != "" {
 		id, err := getProjectID(v3Client, options.ProjectName)
