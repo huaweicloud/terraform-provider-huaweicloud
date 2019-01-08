@@ -18,7 +18,7 @@ func TestAccVpcV1_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVpcV1_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1Exists("huaweicloud_vpc_v1.vpc_1", &vpc),
@@ -44,7 +44,7 @@ func TestAccVpcV1_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVpcV1_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1Exists("huaweicloud_vpc_v1.vpc_1", &vpc),
@@ -52,7 +52,7 @@ func TestAccVpcV1_update(t *testing.T) {
 						"huaweicloud_vpc_v1.vpc_1", "name", "terraform_provider_test"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccVpcV1_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1Exists("huaweicloud_vpc_v1.vpc_1", &vpc),
@@ -72,7 +72,7 @@ func TestAccVpcV1_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVpcV1_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1Exists("huaweicloud_vpc_v1.vpc_1", &vpc),

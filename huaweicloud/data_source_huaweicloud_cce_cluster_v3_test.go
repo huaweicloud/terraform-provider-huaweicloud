@@ -13,10 +13,10 @@ func TestAccCCEClusterV3DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCCEClusterV3DataSource_cluster,
 			},
-			resource.TestStep{
+			{
 				Config: testAccCCEClusterV3DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCEClusterV3DataSourceID("data.huaweicloud_cce_cluster_v3.clusters"),

@@ -28,42 +28,42 @@ func resourceASGroup() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"scaling_group_name": &schema.Schema{
+			"scaling_group_name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: resourceASGroupValidateGroupName,
 				ForceNew:     false,
 			},
-			"scaling_configuration_id": &schema.Schema{
+			"scaling_configuration_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 				Computed: true,
 			},
-			"desire_instance_number": &schema.Schema{
+			"desire_instance_number": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 			},
-			"min_instance_number": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  0,
-				ForceNew: false,
-			},
-			"max_instance_number": &schema.Schema{
+			"min_instance_number": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  0,
 				ForceNew: false,
 			},
-			"cool_down_time": &schema.Schema{
+			"max_instance_number": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  0,
+				ForceNew: false,
+			},
+			"cool_down_time": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      900,
@@ -71,26 +71,26 @@ func resourceASGroup() *schema.Resource {
 				ForceNew:     false,
 				Description:  "The cooling duration, in seconds.",
 			},
-			"lb_listener_id": &schema.Schema{
+			"lb_listener_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     false,
 				ValidateFunc: resourceASGroupValidateListenerId,
 				Description:  "The system supports the binding of up to three ELB listeners, the IDs of which are separated using a comma.",
 			},
-			"available_zones": &schema.Schema{
+			"available_zones": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				ForceNew: false,
 			},
-			"networks": &schema.Schema{
+			"networks": {
 				Type:     schema.TypeList,
 				MaxItems: 5,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": &schema.Schema{
+						"id": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -98,12 +98,12 @@ func resourceASGroup() *schema.Resource {
 				},
 				ForceNew: false,
 			},
-			"security_groups": &schema.Schema{
+			"security_groups": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": &schema.Schema{
+						"id": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -111,19 +111,19 @@ func resourceASGroup() *schema.Resource {
 				},
 				ForceNew: false,
 			},
-			"vpc_id": &schema.Schema{
+			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"health_periodic_audit_method": &schema.Schema{
+			"health_periodic_audit_method": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: resourceASGroupValidateHealthAuditMethod,
 				ForceNew:     false,
 				Default:      "NOVA_AUDIT",
 			},
-			"health_periodic_audit_time": &schema.Schema{
+			"health_periodic_audit_time": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      5,
@@ -131,33 +131,33 @@ func resourceASGroup() *schema.Resource {
 				ForceNew:     false,
 				Description:  "The health check period for instances, in minutes.",
 			},
-			"instance_terminate_policy": &schema.Schema{
+			"instance_terminate_policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "OLD_CONFIG_OLD_INSTANCE",
 				ValidateFunc: resourceASGroupValidateTerminatePolicy,
 				ForceNew:     false,
 			},
-			"notifications": &schema.Schema{
+			"notifications": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				ForceNew: false,
 			},
-			"delete_publicip": &schema.Schema{
+			"delete_publicip": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 				ForceNew: false,
 			},
-			"delete_instances": &schema.Schema{
+			"delete_instances": {
 				Description: "Whether to delete instances when they are removed from the AS group.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "no",
 				ForceNew:    false,
 			},
-			"instances": &schema.Schema{
+			"instances": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},

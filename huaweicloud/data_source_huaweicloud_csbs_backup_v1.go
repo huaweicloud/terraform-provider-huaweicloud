@@ -13,71 +13,71 @@ func dataSourceCSBSBackupV1() *schema.Resource {
 		Read: dataSourceCSBSBackupV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"backup_name": &schema.Schema{
+			"backup_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"resource_id": &schema.Schema{
+			"resource_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"resource_name": &schema.Schema{
+			"resource_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"backup_record_id": &schema.Schema{
+			"backup_record_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"resource_type": &schema.Schema{
+			"resource_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"auto_trigger": &schema.Schema{
+			"auto_trigger": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-			"average_speed": &schema.Schema{
+			"average_speed": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"size": &schema.Schema{
+			"size": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"vm_ip": &schema.Schema{
+			"vm_ip": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"policy_id": &schema.Schema{
+			"policy_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"volume_backups": &schema.Schema{
+			"volume_backups": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -137,7 +137,7 @@ func dataSourceCSBSBackupV1() *schema.Resource {
 					},
 				},
 			},
-			"vm_metadata": &schema.Schema{
+			"vm_metadata": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Resource{

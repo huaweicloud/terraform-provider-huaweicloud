@@ -21,43 +21,43 @@ func resourceASConfiguration() *schema.Resource {
 		Delete: resourceASConfigurationDelete,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"scaling_configuration_name": &schema.Schema{
+			"scaling_configuration_name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: resourceASConfigurationValidateName,
 				ForceNew:     true,
 			},
-			"instance_config": &schema.Schema{
+			"instance_config": {
 				Required: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"instance_id": &schema.Schema{
+						"instance_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"flavor": &schema.Schema{
+						"flavor": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							DefaultFunc: schema.EnvDefaultFunc("OS_FLAVOR_ID", nil),
 						},
-						"image": &schema.Schema{
+						"image": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"key_name": &schema.Schema{
+						"key_name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"user_data": &schema.Schema{
+						"user_data": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
@@ -72,21 +72,21 @@ func resourceASConfiguration() *schema.Resource {
 								}
 							},
 						},
-						"disk": &schema.Schema{
+						"disk": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"size": &schema.Schema{
+									"size": {
 										Type:     schema.TypeInt,
 										Required: true,
 									},
-									"volume_type": &schema.Schema{
+									"volume_type": {
 										Type:         schema.TypeString,
 										Required:     true,
 										ValidateFunc: resourceASConfigurationValidateVolumeType,
 									},
-									"disk_type": &schema.Schema{
+									"disk_type": {
 										Type:         schema.TypeString,
 										Required:     true,
 										ValidateFunc: resourceASConfigurationValidateDiskType,
@@ -94,57 +94,57 @@ func resourceASConfiguration() *schema.Resource {
 								},
 							},
 						},
-						"personality": &schema.Schema{
+						"personality": {
 							Type:     schema.TypeList,
 							Optional: true,
 							MaxItems: 5,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"path": &schema.Schema{
+									"path": {
 										Type:     schema.TypeString,
 										Required: true,
 									},
-									"content": &schema.Schema{
+									"content": {
 										Type:     schema.TypeString,
 										Required: true,
 									},
 								},
 							},
 						},
-						"public_ip": &schema.Schema{
+						"public_ip": {
 							Type:     schema.TypeList,
 							Optional: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"eip": &schema.Schema{
+									"eip": {
 										Type:     schema.TypeList,
 										MaxItems: 1,
 										Required: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"ip_type": &schema.Schema{
+												"ip_type": {
 													Type:         schema.TypeString,
 													Required:     true,
 													ValidateFunc: resourceASConfigurationValidateIpType,
 												},
-												"bandwidth": &schema.Schema{
+												"bandwidth": {
 													Type:     schema.TypeList,
 													MaxItems: 1,
 													Required: true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
-															"size": &schema.Schema{
+															"size": {
 																Type:         schema.TypeInt,
 																Required:     true,
 																ValidateFunc: resourceASConfigurationValidateEipBandWidthSize,
 															},
-															"share_type": &schema.Schema{
+															"share_type": {
 																Type:         schema.TypeString,
 																Required:     true,
 																ValidateFunc: resourceASConfigurationValidateShareType,
 															},
-															"charging_mode": &schema.Schema{
+															"charging_mode": {
 																Type:         schema.TypeString,
 																Required:     true,
 																ValidateFunc: resourceASConfigurationValidateChargeMode,
@@ -158,7 +158,7 @@ func resourceASConfiguration() *schema.Resource {
 								},
 							},
 						},
-						"metadata": &schema.Schema{
+						"metadata": {
 							Type:     schema.TypeMap,
 							Optional: true,
 						},

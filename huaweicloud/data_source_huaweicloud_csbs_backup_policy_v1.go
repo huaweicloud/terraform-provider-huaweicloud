@@ -13,109 +13,109 @@ func dataSourceCSBSBackupPolicyV1() *schema.Resource {
 		Read: dataSourceCSBSBackupPolicyV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"provider_id": &schema.Schema{
+			"provider_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"common": &schema.Schema{
+			"common": {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-			"resource": &schema.Schema{
+			"resource": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": &schema.Schema{
+						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"type": &schema.Schema{
+						"type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
 				},
 			},
-			"scheduled_operation": &schema.Schema{
+			"scheduled_operation": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"description": &schema.Schema{
+						"description": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"enabled": &schema.Schema{
+						"enabled": {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
-						"max_backups": &schema.Schema{
+						"max_backups": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"retention_duration_days": &schema.Schema{
+						"retention_duration_days": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"permanent": &schema.Schema{
+						"permanent": {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
-						"trigger_pattern": &schema.Schema{
+						"trigger_pattern": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"operation_type": &schema.Schema{
+						"operation_type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"id": &schema.Schema{
+						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"trigger_id": &schema.Schema{
+						"trigger_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"trigger_name": &schema.Schema{
+						"trigger_name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"trigger_type": &schema.Schema{
+						"trigger_type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},

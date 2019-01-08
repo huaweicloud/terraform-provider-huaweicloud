@@ -18,7 +18,7 @@ func TestAccImagesImageV2_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccImagesImageV2_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
@@ -44,7 +44,7 @@ func TestAccImagesImageV2_name(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccImagesImageV2_name_1,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
@@ -52,7 +52,7 @@ func TestAccImagesImageV2_name(t *testing.T) {
 						"huaweicloud_images_image_v2.image_1", "name", "Rancher TerraformAccTest"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccImagesImageV2_name_2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
@@ -72,7 +72,7 @@ func TestAccImagesImageV2_tags(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccImagesImageV2_tags_1,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
@@ -81,7 +81,7 @@ func TestAccImagesImageV2_tags(t *testing.T) {
 					testAccCheckImagesImageV2TagCount("huaweicloud_images_image_v2.image_1", 2),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccImagesImageV2_tags_2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
@@ -91,7 +91,7 @@ func TestAccImagesImageV2_tags(t *testing.T) {
 					testAccCheckImagesImageV2TagCount("huaweicloud_images_image_v2.image_1", 3),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccImagesImageV2_tags_3,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
@@ -115,7 +115,7 @@ func TestAccImagesImageV2_visibility(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccImagesImageV2_visibility,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),
@@ -135,7 +135,7 @@ func TestAccImagesImageV2_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccImagesImageV2_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesImageV2Exists("huaweicloud_images_image_v2.image_1", &image),

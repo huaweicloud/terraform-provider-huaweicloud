@@ -21,7 +21,7 @@ func TestAccKmsKeyV1_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKmsV1KeyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccKmsV1Key_basic(keyAlias),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_v1.key_2", &key),
@@ -29,7 +29,7 @@ func TestAccKmsKeyV1_basic(t *testing.T) {
 						"huaweicloud_kms_key_v1.key_2", "key_alias", keyAlias),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccKmsV1Key_update(keyAliasUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_v1.key_2", &key),

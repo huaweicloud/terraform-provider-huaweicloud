@@ -17,21 +17,21 @@ func dataSourceRTSStackV1() *schema.Resource {
 		Read: dataSourceRTSStackV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"status_reason": &schema.Schema{
+			"status_reason": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -39,25 +39,25 @@ func dataSourceRTSStackV1() *schema.Resource {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-			"parameters": &schema.Schema{
+			"parameters": {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-			"timeout_mins": &schema.Schema{
+			"timeout_mins": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"disable_rollback": &schema.Schema{
+			"disable_rollback": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-			"capabilities": &schema.Schema{
+			"capabilities": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-			"notification_topics": &schema.Schema{
+			"notification_topics": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},

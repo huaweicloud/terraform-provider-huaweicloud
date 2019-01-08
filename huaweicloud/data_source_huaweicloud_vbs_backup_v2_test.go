@@ -13,7 +13,7 @@ func TestAccVBSBackupV2DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVBSBackupV2DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVBSBackupV2DataSourceID("data.huaweicloud_vbs_backup_v2.backups"),

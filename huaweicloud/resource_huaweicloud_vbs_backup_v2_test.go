@@ -18,7 +18,7 @@ func TestAccVBSBackupV2_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVBSBackupV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVBSBackupV2_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVBSBackupV2Exists("huaweicloud_vbs_backup_v2.backup_1", &config),
@@ -42,7 +42,7 @@ func TestAccVBSBackupV2_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVBSBackupV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVBSBackupV2_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVBSBackupV2Exists("huaweicloud_vbs_backup_v2.backup_1", &config),

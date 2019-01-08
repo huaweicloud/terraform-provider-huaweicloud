@@ -18,7 +18,7 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCCEClusterV3_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCEClusterV3Exists("huaweicloud_cce_cluster_v3.cluster_1", &cluster),
@@ -36,7 +36,7 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 						"huaweicloud_cce_cluster_v3.cluster_1", "container_network_type", "overlay_l2"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccCCEClusterV3_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -55,7 +55,7 @@ func TestAccCCEClusterV3_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCCEClusterV3_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCEClusterV3Exists("huaweicloud_cce_cluster_v3.cluster_1", &cluster),

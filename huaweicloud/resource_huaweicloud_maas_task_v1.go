@@ -27,46 +27,46 @@ func resourceMaasTaskV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"src_node": &schema.Schema{
+			"src_node": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"region": &schema.Schema{
+						"region": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"ak": &schema.Schema{
+						"ak": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"sk": &schema.Schema{
+						"sk": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"object_key": &schema.Schema{
+						"object_key": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"bucket": &schema.Schema{
+						"bucket": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"cloud_type": &schema.Schema{
+						"cloud_type": {
 							Type:     schema.TypeString,
 							Default:  "Aliyun",
 							Optional: true,
@@ -75,33 +75,33 @@ func resourceMaasTaskV1() *schema.Resource {
 					},
 				},
 			},
-			"dst_node": &schema.Schema{
+			"dst_node": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"region": &schema.Schema{
+						"region": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"ak": &schema.Schema{
+						"ak": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"sk": &schema.Schema{
+						"sk": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"object_key": &schema.Schema{
+						"object_key": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"bucket": &schema.Schema{
+						"bucket": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
@@ -109,38 +109,38 @@ func resourceMaasTaskV1() *schema.Resource {
 					},
 				},
 			},
-			"enable_kms": &schema.Schema{
+			"enable_kms": {
 				Type:     schema.TypeBool,
 				Required: true,
 				ForceNew: true,
 			},
-			"thread_num": &schema.Schema{
+			"thread_num": {
 				Type:     schema.TypeInt,
 				Required: true,
 				ForceNew: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"smn_info": &schema.Schema{
+			"smn_info": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"topic_urn": &schema.Schema{
+						"topic_urn": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"language": &schema.Schema{
+						"language": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
-						"trigger_conditions": &schema.Schema{
+						"trigger_conditions": {
 							Type:     schema.TypeSet,
 							Required: true,
 							ForceNew: true,

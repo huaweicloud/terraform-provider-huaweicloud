@@ -13,10 +13,10 @@ func TestAccNetworkingV2SubnetDataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudNetworkingSubnetV2DataSource_subnet,
 			},
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudNetworkingSubnetV2DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
@@ -34,28 +34,28 @@ func TestAccNetworkingV2SubnetDataSource_testQueries(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudNetworkingSubnetV2DataSource_subnet,
 			},
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudNetworkingSubnetV2DataSource_cidr,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudNetworkingSubnetV2DataSource_dhcpEnabled,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudNetworkingSubnetV2DataSource_ipVersion,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudNetworkingSubnetV2DataSource_gatewayIP,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),
@@ -70,7 +70,7 @@ func TestAccNetworkingV2SubnetDataSource_networkIdAttribute(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudNetworkingSubnetV2DataSource_networkIdAttribute,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSubnetV2DataSourceID("data.huaweicloud_networking_subnet_v2.subnet_1"),

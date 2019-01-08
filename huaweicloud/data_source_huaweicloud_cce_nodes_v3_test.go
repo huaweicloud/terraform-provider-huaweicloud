@@ -13,7 +13,7 @@ func TestAccCCENodesV3DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheckCCENode(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCCENodeV3DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodeV3DataSourceID("data.huaweicloud_cce_node_v3.nodes"),

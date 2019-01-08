@@ -13,7 +13,7 @@ func TestAccAntiDdosV1DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccAntiDdosV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAntiDdosV1DataSourceID("data.huaweicloud_antiddos_v1.antiddos"),

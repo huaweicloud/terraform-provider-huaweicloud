@@ -13,48 +13,48 @@ func dataSourceDmsProductV1() *schema.Resource {
 		Read: dataSourceDmsProductV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"engine": &schema.Schema{
+			"engine": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"version": &schema.Schema{
+			"version": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"instance_type": &schema.Schema{
+			"instance_type": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"vm_specification": &schema.Schema{
+			"vm_specification": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"storage": &schema.Schema{
+			"storage": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"bandwidth": &schema.Schema{
+			"bandwidth": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"partition_num": &schema.Schema{
+			"partition_num": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"storage_spec_code": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"io_type": &schema.Schema{
+			"storage_spec_code": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"node_num": &schema.Schema{
+			"io_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"node_num": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,

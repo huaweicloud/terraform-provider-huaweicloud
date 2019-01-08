@@ -25,89 +25,89 @@ func resourceCCENodeV3() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"cluster_id": &schema.Schema{
+			"cluster_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"labels": &schema.Schema{
+			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
 			},
-			"annotations": &schema.Schema{
+			"annotations": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"flavor_id": &schema.Schema{
+			"flavor_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"availability_zone": &schema.Schema{
+			"availability_zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"key_pair": &schema.Schema{
+			"key_pair": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"root_volume": &schema.Schema{
+			"root_volume": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"size": &schema.Schema{
+						"size": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
-						"volumetype": &schema.Schema{
+						"volumetype": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"extend_param": &schema.Schema{
+						"extend_param": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 					}},
 			},
-			"data_volumes": &schema.Schema{
+			"data_volumes": {
 				Type:     schema.TypeSet,
 				Required: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"size": &schema.Schema{
+						"size": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
-						"volumetype": &schema.Schema{
+						"volumetype": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"extend_param": &schema.Schema{
+						"extend_param": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 					}},
 			},
-			"eip_ids": &schema.Schema{
+			"eip_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
@@ -115,73 +115,73 @@ func resourceCCENodeV3() *schema.Resource {
 				Set:      schema.HashString,
 				Computed: true,
 			},
-			"eip_count": &schema.Schema{
+			"eip_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"iptype": &schema.Schema{
+			"iptype": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"bandwidth_charge_mode": &schema.Schema{
+			"bandwidth_charge_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"sharetype": &schema.Schema{
+			"sharetype": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"bandwidth_size": &schema.Schema{
+			"bandwidth_size": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"billing_mode": &schema.Schema{
+			"billing_mode": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"extend_param_charging_mode": &schema.Schema{
+			"extend_param_charging_mode": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"ecs_performance_type": &schema.Schema{
+			"ecs_performance_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"order_id": &schema.Schema{
+			"order_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"product_id": &schema.Schema{
+			"product_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"max_pods": &schema.Schema{
+			"max_pods": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"public_key": &schema.Schema{
+			"public_key": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,

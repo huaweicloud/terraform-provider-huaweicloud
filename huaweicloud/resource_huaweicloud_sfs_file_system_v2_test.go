@@ -17,7 +17,7 @@ func TestAccSFSFileSystemV2_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSFSFileSystemV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccSFSFileSystemV2_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSFileSystemV2Exists("huaweicloud_sfs_file_system_v2.sfs_1", &share),
@@ -37,7 +37,7 @@ func TestAccSFSFileSystemV2_basic(t *testing.T) {
 						"huaweicloud_sfs_file_system_v2.sfs_1", "access_type", "cert"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccSFSFileSystemV2_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSFileSystemV2Exists("huaweicloud_sfs_file_system_v2.sfs_1", &share),
@@ -69,7 +69,7 @@ func TestAccSFSFileSystemV2_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSFSFileSystemV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccSFSFileSystemV2_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSFileSystemV2Exists("huaweicloud_sfs_file_system_v2.sfs_1", &share),

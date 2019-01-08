@@ -19,7 +19,7 @@ func TestAccMRSV1Cluster_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMRSV1ClusterDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: TestAccMRSV1ClusterConfig_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMRSV1ClusterExists("huaweicloud_mrs_cluster_v1.cluster1", &clusterGet),

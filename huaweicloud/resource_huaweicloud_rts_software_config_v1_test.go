@@ -18,7 +18,7 @@ func TestAccRtsSoftwareConfigV1_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRtsSoftwareConfigV1Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRtsSoftwareConfigV1_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRtsSoftwareConfigV1Exists("huaweicloud_rts_software_config_v1.config_1", &config),
@@ -40,7 +40,7 @@ func TestAccRtsSoftwareConfigV1_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRtsSoftwareConfigV1Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRtsSoftwareConfigV1_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRtsSoftwareConfigV1Exists("huaweicloud_rts_software_config_v1.config_1", &config),

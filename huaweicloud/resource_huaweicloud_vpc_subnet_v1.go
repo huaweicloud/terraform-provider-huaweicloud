@@ -37,69 +37,69 @@ func resourceVpcSubnetV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{ //request and response parameters
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     false,
 				ValidateFunc: validateName,
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateCIDR,
 			},
-			"dns_list": &schema.Schema{
+			"dns_list": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString, ValidateFunc: validateIP},
 				Set:      schema.HashString,
 				Computed: true,
 			},
-			"gateway_ip": &schema.Schema{
+			"gateway_ip": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateIP,
 			},
-			"dhcp_enable": &schema.Schema{
+			"dhcp_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 				ForceNew: false,
 			},
-			"primary_dns": &schema.Schema{
+			"primary_dns": {
 				Type:         schema.TypeString,
 				ForceNew:     false,
 				Optional:     true,
 				ValidateFunc: validateIP,
 				Computed:     true,
 			},
-			"secondary_dns": &schema.Schema{
+			"secondary_dns": {
 				Type:         schema.TypeString,
 				ForceNew:     false,
 				Optional:     true,
 				ValidateFunc: validateIP,
 				Computed:     true,
 			},
-			"availability_zone": &schema.Schema{
+			"availability_zone": {
 				Type:     schema.TypeString,
 				ForceNew: true,
 				Optional: true,
 				Computed: true,
 			},
-			"vpc_id": &schema.Schema{
+			"vpc_id": {
 				Type:     schema.TypeString,
 				ForceNew: true,
 				Required: true,
 			},
-			"subnet_id": &schema.Schema{
+			"subnet_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

@@ -21,7 +21,7 @@ func TestAccDmsGroupsV1_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDmsV1GroupDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDmsV1Group_basic(groupName, queueName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDmsV1GroupExists("huaweicloud_dms_group_v1.group_1", group),

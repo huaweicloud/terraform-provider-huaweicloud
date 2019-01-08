@@ -28,80 +28,80 @@ func resourceSFSFileSystemV2() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"share_proto": &schema.Schema{
+			"share_proto": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "NFS",
 			},
-			"size": &schema.Schema{
+			"size": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"is_public": &schema.Schema{
+			"is_public": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 			},
-			"metadata": &schema.Schema{
+			"metadata": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
 			},
-			"availability_zone": &schema.Schema{
+			"availability_zone": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"access_level": &schema.Schema{
+			"access_level": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"access_type": &schema.Schema{
+			"access_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "cert",
 			},
-			"access_to": &schema.Schema{
+			"access_to": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"share_access_id": &schema.Schema{
+			"share_access_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"access_state": &schema.Schema{
+			"access_state": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"host": &schema.Schema{
+			"host": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"export_location": &schema.Schema{
+			"export_location": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"export_locations": &schema.Schema{
+			"export_locations": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,

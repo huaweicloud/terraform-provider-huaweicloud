@@ -13,10 +13,10 @@ func TestAccHuaweiCloudNetworkingSecGroupV2DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudNetworkingSecGroupV2DataSource_group,
 			},
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudNetworkingSecGroupV2DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSecGroupV2DataSourceID("data.huaweicloud_networking_secgroup_v2.secgroup_1"),
@@ -33,10 +33,10 @@ func TestAccHuaweiCloudNetworkingSecGroupV2DataSource_secGroupID(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudNetworkingSecGroupV2DataSource_group,
 			},
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudNetworkingSecGroupV2DataSource_secGroupID,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSecGroupV2DataSourceID("data.huaweicloud_networking_secgroup_v2.secgroup_1"),

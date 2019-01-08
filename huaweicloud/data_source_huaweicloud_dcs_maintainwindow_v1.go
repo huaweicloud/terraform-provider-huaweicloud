@@ -14,22 +14,22 @@ func dataSourceDcsMaintainWindowV1() *schema.Resource {
 		Read: dataSourceDcsMaintainWindowV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"seq": &schema.Schema{
+			"seq": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
-			"begin": &schema.Schema{
+			"begin": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"end": &schema.Schema{
+			"end": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"default": &schema.Schema{
+			"default": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,

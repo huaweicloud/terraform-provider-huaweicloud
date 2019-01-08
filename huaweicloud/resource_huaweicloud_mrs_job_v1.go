@@ -27,67 +27,67 @@ func resourceMRSJobV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"job_type": &schema.Schema{
+			"job_type": {
 				Type:     schema.TypeInt,
 				Required: true,
 				ForceNew: true,
 			},
-			"job_name": &schema.Schema{
+			"job_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"cluster_id": &schema.Schema{
+			"cluster_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"jar_path": &schema.Schema{
+			"jar_path": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"arguments": &schema.Schema{
+			"arguments": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"input": &schema.Schema{
+			"input": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"output": &schema.Schema{
+			"output": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"job_log": &schema.Schema{
+			"job_log": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"hive_script_path": &schema.Schema{
+			"hive_script_path": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"is_protected": &schema.Schema{
+			"is_protected": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-			"is_public": &schema.Schema{
+			"is_public": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-			"job_state": &schema.Schema{
+			"job_state": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

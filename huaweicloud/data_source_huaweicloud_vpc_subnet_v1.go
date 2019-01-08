@@ -14,60 +14,60 @@ func dataSourceVpcSubnetV1() *schema.Resource {
 		Read: dataSourceVpcSubnetV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"dns_list": &schema.Schema{
+			"dns_list": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"vpc_id": &schema.Schema{
+			"vpc_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"gateway_ip": &schema.Schema{
+			"gateway_ip": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"dhcp_enable": &schema.Schema{
+			"dhcp_enable": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-			"primary_dns": &schema.Schema{
+			"primary_dns": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"secondary_dns": &schema.Schema{
+			"secondary_dns": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"availability_zone": &schema.Schema{
+			"availability_zone": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"subnet_id": &schema.Schema{
+			"subnet_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

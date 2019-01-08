@@ -19,65 +19,65 @@ func resourceASPolicy() *schema.Resource {
 		Delete: resourceASPolicyDelete,
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"scaling_policy_name": &schema.Schema{
+			"scaling_policy_name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: resourceASPolicyValidateName,
 				ForceNew:     false,
 			},
-			"scaling_group_id": &schema.Schema{
+			"scaling_group_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"scaling_policy_type": &schema.Schema{
+			"scaling_policy_type": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     false,
 				ValidateFunc: resourceASPolicyValidatePolicyType,
 			},
-			"alarm_id": &schema.Schema{
+			"alarm_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-			"scheduled_policy": &schema.Schema{
+			"scheduled_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"launch_time": &schema.Schema{
+						"launch_time": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: false,
 						},
-						"recurrence_type": &schema.Schema{
+						"recurrence_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     false,
 							ValidateFunc: resourceASPolicyValidateRecurrenceType,
 						},
-						"recurrence_value": &schema.Schema{
+						"recurrence_value": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: false,
 						},
-						"start_time": &schema.Schema{
+						"start_time": {
 							Type:             schema.TypeString,
 							Optional:         true,
 							ForceNew:         false,
 							Default:          getCurrentUTCwithoutSec(),
 							DiffSuppressFunc: suppressDiffAll,
 						},
-						"end_time": &schema.Schema{
+						"end_time": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: false,
@@ -85,19 +85,19 @@ func resourceASPolicy() *schema.Resource {
 					},
 				},
 			},
-			"scaling_policy_action": &schema.Schema{
+			"scaling_policy_action": {
 				Optional: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"operation": &schema.Schema{
+						"operation": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: resourceASPolicyValidateActionOperation,
 						},
-						"instance_number": &schema.Schema{
+						"instance_number": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  1,
@@ -105,7 +105,7 @@ func resourceASPolicy() *schema.Resource {
 					},
 				},
 			},
-			"cool_down_time": &schema.Schema{
+			"cool_down_time": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,

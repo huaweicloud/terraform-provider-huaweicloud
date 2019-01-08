@@ -13,17 +13,17 @@ func dataSourceDcsAZV1() *schema.Resource {
 		Read: dataSourceDcsAZV1Read,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"code": &schema.Schema{
+			"code": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"port": &schema.Schema{
+			"port": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,

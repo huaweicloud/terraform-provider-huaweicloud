@@ -18,58 +18,58 @@ func resourceDmsQueuesV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"queue_mode": &schema.Schema{
+			"queue_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"redrive_policy": &schema.Schema{
+			"redrive_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"max_consume_count": &schema.Schema{
+			"max_consume_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"retention_hours": &schema.Schema{
+			"retention_hours": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"created": &schema.Schema{
+			"created": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"reservation": &schema.Schema{
+			"reservation": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"max_msg_size_byte": &schema.Schema{
+			"max_msg_size_byte": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"produced_messages": &schema.Schema{
+			"produced_messages": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"group_count": &schema.Schema{
+			"group_count": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},

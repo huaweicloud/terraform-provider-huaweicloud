@@ -13,7 +13,7 @@ func TestAccDcsMaintainWindowV1DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDcsMaintainWindowV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDcsMaintainWindowV1DataSourceID("data.huaweicloud_dcs_maintainwindow_v1.maintainwindow1"),

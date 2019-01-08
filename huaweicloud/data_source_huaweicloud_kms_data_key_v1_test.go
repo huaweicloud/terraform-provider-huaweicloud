@@ -15,10 +15,10 @@ func TestAccKmsDataKeyV1DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccKmsDataKeyV1DataSource_key,
 			},
-			resource.TestStep{
+			{
 				Config: testAccKmsDataKeyV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(

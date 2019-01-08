@@ -17,7 +17,7 @@ func TestAccVpcPeeringConnectionV2_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcPeeringConnectionV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVpcPeeringConnectionV2_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcPeeringConnectionV2Exists("huaweicloud_vpc_peering_connection_v2.peering_1", &peering),
@@ -27,7 +27,7 @@ func TestAccVpcPeeringConnectionV2_basic(t *testing.T) {
 						"huaweicloud_vpc_peering_connection_v2.peering_1", "status", "ACTIVE"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccVpcPeeringConnectionV2_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -46,7 +46,7 @@ func TestAccVpcPeeringConnectionV2_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcPeeringConnectionV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccVpcPeeringConnectionV2_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcPeeringConnectionV2Exists("huaweicloud_vpc_peering_connection_v2.peering_1", &peering),

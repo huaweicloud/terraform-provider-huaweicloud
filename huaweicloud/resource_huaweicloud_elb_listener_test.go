@@ -17,13 +17,13 @@ func TestAccELBListener_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckELBListenerDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: TestAccELBListenerConfig_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckELBListenerExists("huaweicloud_elb_listener.listener_1", &listener),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: TestAccELBListenerConfig_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(

@@ -18,7 +18,7 @@ func TestAccCCENodesV3_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCCENodeV3Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCCENodeV3_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodeV3Exists("huaweicloud_cce_node_v3.node_1", "huaweicloud_cce_cluster_v3.cluster_1", &node),
@@ -28,7 +28,7 @@ func TestAccCCENodesV3_basic(t *testing.T) {
 						"huaweicloud_cce_node_v3.node_1", "flavor_id", "s1.medium"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccCCENodeV3_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -47,7 +47,7 @@ func TestAccCCENodesV3_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCCENodeV3Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCCENodeV3_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodeV3Exists("huaweicloud_cce_node_v3.node_1", "huaweicloud_cce_cluster_v3.cluster_1", &node),

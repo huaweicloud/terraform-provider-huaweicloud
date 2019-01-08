@@ -29,30 +29,30 @@ func resourceVpcEIPV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"publicip": &schema.Schema{
+			"publicip": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"type": &schema.Schema{
+						"type": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"ip_address": &schema.Schema{
+						"ip_address": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 							Computed: true,
 						},
-						"port_id": &schema.Schema{
+						"port_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: false,
@@ -61,28 +61,28 @@ func resourceVpcEIPV1() *schema.Resource {
 					},
 				},
 			},
-			"bandwidth": &schema.Schema{
+			"bandwidth": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: false,
 						},
-						"size": &schema.Schema{
+						"size": {
 							Type:     schema.TypeInt,
 							Required: true,
 							ForceNew: false,
 						},
-						"share_type": &schema.Schema{
+						"share_type": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"charge_mode": &schema.Schema{
+						"charge_mode": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
@@ -91,7 +91,7 @@ func resourceVpcEIPV1() *schema.Resource {
 					},
 				},
 			},
-			"value_specs": &schema.Schema{
+			"value_specs": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: false,

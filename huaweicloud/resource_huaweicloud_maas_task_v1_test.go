@@ -17,7 +17,7 @@ func TestAccMaasTask_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMaasTaskV1Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccMaasTaskV1_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMaasTaskV1Exists("huaweicloud_maas_task_v1.task_1"),

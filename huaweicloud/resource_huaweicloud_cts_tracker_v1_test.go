@@ -18,7 +18,7 @@ func TestAccCTSTrackerV1_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCTSTrackerV1Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCTSTrackerV1_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCTSTrackerV1Exists("huaweicloud_cts_tracker_v1.tracker_v1", &tracker),
@@ -28,7 +28,7 @@ func TestAccCTSTrackerV1_basic(t *testing.T) {
 						"huaweicloud_cts_tracker_v1.tracker_v1", "file_prefix_name", "yO8Q"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccCTSTrackerV1_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCTSTrackerV1Exists("huaweicloud_cts_tracker_v1.tracker_v1", &tracker),
@@ -48,7 +48,7 @@ func TestAccCTSTrackerV1_timeout(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCTSTrackerV1Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccCTSTrackerV1_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCTSTrackerV1Exists("huaweicloud_cts_tracker_v1.tracker_v1", &tracker),

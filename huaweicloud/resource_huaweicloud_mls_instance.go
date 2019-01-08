@@ -40,36 +40,36 @@ func resourceMlsInstance() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"flavor": &schema.Schema{
+			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"mrs_cluster": &schema.Schema{
+			"mrs_cluster": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": &schema.Schema{
+						"id": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"user_name": &schema.Schema{
+						"user_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
-						"user_password": &schema.Schema{
+						"user_password": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
@@ -78,54 +78,54 @@ func resourceMlsInstance() *schema.Resource {
 				},
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"network": &schema.Schema{
+			"network": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"available_zone": &schema.Schema{
+						"available_zone": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"network_id": &schema.Schema{
+						"network_id": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"public_ip": &schema.Schema{
+						"public_ip": {
 							Type:     schema.TypeList,
 							Required: true,
 							ForceNew: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"bind_type": &schema.Schema{
+									"bind_type": {
 										Type:     schema.TypeString,
 										Required: true,
 										ForceNew: true,
 									},
-									"eip_id": &schema.Schema{
+									"eip_id": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
 								},
 							},
 						},
-						"vpc_id": &schema.Schema{
+						"vpc_id": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
 						},
-						"security_group_id": &schema.Schema{
+						"security_group_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 							Optional: true,
@@ -135,49 +135,49 @@ func resourceMlsInstance() *schema.Resource {
 				},
 			},
 
-			"version": &schema.Schema{
+			"version": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"agency": &schema.Schema{
+			"agency": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"created": &schema.Schema{
+			"created": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"current_task": &schema.Schema{
+			"current_task": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"inner_endpoint": &schema.Schema{
+			"inner_endpoint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"public_endpoint": &schema.Schema{
+			"public_endpoint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"updated": &schema.Schema{
+			"updated": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -271,7 +271,7 @@ func resourceMlsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	pathParameters := map[string][]string{
-		"id": []string{"instance", "id"},
+		"id": {"instance", "id"},
 	}
 	var data = make(map[string]string)
 	for key, path := range pathParameters {

@@ -34,42 +34,42 @@ func resourceIAMAgencyV3() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"delegated_domain_name": &schema.Schema{
+			"delegated_domain_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"duration": &schema.Schema{
+			"duration": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"expire_time": &schema.Schema{
+			"expire_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"create_time": &schema.Schema{
+			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"project_role": &schema.Schema{
+			"project_role": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"roles": &schema.Schema{
+						"roles": {
 							Type:     schema.TypeSet,
 							Required: true,
 							MinItems: 1,
@@ -77,7 +77,7 @@ func resourceIAMAgencyV3() *schema.Resource {
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
 						},
-						"project": &schema.Schema{
+						"project": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -85,7 +85,7 @@ func resourceIAMAgencyV3() *schema.Resource {
 				},
 				Set: resourceIAMAgencyProRoleHash,
 			},
-			"domain_roles": &schema.Schema{
+			"domain_roles": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				MinItems: 1,

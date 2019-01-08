@@ -21,7 +21,7 @@ func TestAccDmsInstancesV1_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDmsV1InstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDmsV1Instance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDmsV1InstanceExists("huaweicloud_dms_instance_v1.instance_1", instance),
@@ -31,7 +31,7 @@ func TestAccDmsInstancesV1_basic(t *testing.T) {
 						"huaweicloud_dms_instance_v1.instance_1", "engine", "rabbitmq"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccDmsV1Instance_update(instanceUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDmsV1InstanceExists("huaweicloud_dms_instance_v1.instance_1", instance),
@@ -54,7 +54,7 @@ func TestAccDmsInstancesV1_KafkaInstance(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDmsV1InstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDmsV1Instance_KafkaInstance(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDmsV1InstanceExists("huaweicloud_dms_instance_v1.instance_1", instance),

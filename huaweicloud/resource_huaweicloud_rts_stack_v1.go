@@ -30,19 +30,19 @@ func resourceRTSStackV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{ //request and response parameters
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateName,
 			},
-			"template_body": &schema.Schema{
+			"template_body": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -52,15 +52,15 @@ func resourceRTSStackV1() *schema.Resource {
 					return template
 				},
 			},
-			"template_url": &schema.Schema{
+			"template_url": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"files": &schema.Schema{
+			"files": {
 				Type:     schema.TypeMap,
 				Optional: true,
 			},
-			"environment": &schema.Schema{
+			"environment": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateJsonString,
@@ -69,26 +69,26 @@ func resourceRTSStackV1() *schema.Resource {
 					return json
 				},
 			},
-			"parameters": &schema.Schema{
+			"parameters": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Computed: true,
 			},
-			"timeout_mins": &schema.Schema{
+			"timeout_mins": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
-			"disable_rollback": &schema.Schema{
+			"disable_rollback": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"status_reason": &schema.Schema{
+			"status_reason": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -96,13 +96,13 @@ func resourceRTSStackV1() *schema.Resource {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-			"capabilities": &schema.Schema{
+			"capabilities": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-			"notification_topics": &schema.Schema{
+			"notification_topics": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},

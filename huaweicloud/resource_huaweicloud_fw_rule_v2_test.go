@@ -52,19 +52,19 @@ func TestAccFWRuleV2_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWRuleV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFWRuleV2_basic_1,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWRuleV2Exists("huaweicloud_fw_rule_v2.rule_1", rule1),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccFWRuleV2_basic_2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWRuleV2Exists("huaweicloud_fw_rule_v2.rule_1", rule2),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccFWRuleV2_basic_3,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWRuleV2Exists("huaweicloud_fw_rule_v2.rule_1", rule3),
@@ -90,7 +90,7 @@ func TestAccFWRuleV2_anyProtocol(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWRuleV2Destroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFWRuleV2_anyProtocol,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWRuleV2Exists("huaweicloud_fw_rule_v2.rule_1", rule),

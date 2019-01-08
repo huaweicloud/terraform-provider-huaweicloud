@@ -13,7 +13,7 @@ func TestAccDmsProductV1DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDmsProductV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDmsProductV1DataSourceID("data.huaweicloud_dms_product_v1.product1"),
@@ -34,7 +34,7 @@ func TestAccDmsProductV1DataSource_rabbitmqSingle(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDmsProductV1DataSource_rabbitmqSingle,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDmsProductV1DataSourceID("data.huaweicloud_dms_product_v1.product1"),
@@ -57,7 +57,7 @@ func TestAccDmsProductV1DataSource_rabbitmqCluster(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDmsProductV1DataSource_rabbitmqCluster,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDmsProductV1DataSourceID("data.huaweicloud_dms_product_v1.product1"),

@@ -13,10 +13,10 @@ func TestAccVpcRouteIdsV2DataSource_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccRouteIdV2DataSource_vpcroute,
 			},
-			resource.TestStep{
+			{
 				Config: testAccRouteIdV2DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccRouteIdV2DataSourceID("data.huaweicloud_vpc_route_ids_v2.route_ids"),
