@@ -180,12 +180,6 @@ func (opts *AuthOptions) ToTokenV3CreateMap(scope map[string]interface{}) (map[s
 			if opts.UserID != "" {
 				return nil, ErrUserIDWithToken{}
 			}
-			if opts.DomainID != "" {
-				return nil, ErrDomainIDWithToken{}
-			}
-			if opts.DomainName != "" {
-				return nil, ErrDomainNameWithToken{}
-			}
 
 			// Configure the request for Token authentication.
 			req.Auth.Identity.Methods = []string{"token"}
