@@ -122,6 +122,9 @@ func Authenticate(client *golangsdk.ProviderClient, options golangsdk.AuthOption
 		case v2:
 			return v2auth(client, endpoint, authOptions, golangsdk.EndpointOpts{})
 		case v3:
+			if authOptions.AgencyDomainName != "" && authOptions.AgencyName != "" {
+				return v3authWithAgency(client, endpoint, &authOptions, golangsdk.EndpointOpts{})
+			}
 			return v3auth(client, endpoint, &authOptions, golangsdk.EndpointOpts{})
 		default:
 			// The switch statement must be out of date from the versions list.
@@ -133,13 +136,11 @@ func Authenticate(client *golangsdk.ProviderClient, options golangsdk.AuthOption
 		if isAkSkOptions {
 			if akskAuthOptions.AgencyDomainName != "" && akskAuthOptions.AgencyName != "" {
 				return authWithAgencyByAKSK(client, endpoint, akskAuthOptions, golangsdk.EndpointOpts{})
-			} else {
-				return v3AKSKAuth(client, endpoint, akskAuthOptions, golangsdk.EndpointOpts{})
 			}
+			return v3AKSKAuth(client, endpoint, akskAuthOptions, golangsdk.EndpointOpts{})
 
-		} else {
-			return fmt.Errorf("Unrecognized auth options provider: %s", reflect.TypeOf(options))
 		}
+		return fmt.Errorf("Unrecognized auth options provider: %s", reflect.TypeOf(options))
 	}
 
 }
@@ -219,21 +220,6 @@ func v3auth(client *golangsdk.ProviderClient, endpoint string, opts tokens3.Auth
 		return err
 	}
 
-	opts1, ok := opts.(*golangsdk.AuthOptions)
-	if ok && opts1.AgencyDomainName != "" && opts1.AgencyName != "" {
-		opts2 := golangsdk.AgencyAuthOptions{
-			TokenID:          token.ID,
-			AgencyName:       opts1.AgencyName,
-			AgencyDomainName: opts1.AgencyDomainName,
-			DelegatedProject: opts1.DelegatedProject,
-		}
-		result = tokens3.Create(v3Client, &opts2)
-		token, err = result.ExtractToken()
-		if err != nil {
-			return err
-		}
-	}
-
 	project, err := result.ExtractProject()
 	if err != nil {
 		return err
@@ -260,6 +246,27 @@ func v3auth(client *golangsdk.ProviderClient, endpoint string, opts tokens3.Auth
 	}
 
 	return nil
+}
+
+func v3authWithAgency(client *golangsdk.ProviderClient, endpoint string, opts *golangsdk.AuthOptions, eo golangsdk.EndpointOpts) error {
+	token := opts.TokenID
+	if token == "" {
+		err := v3auth(client, endpoint, opts, eo)
+		if err != nil {
+			return err
+		}
+		token = client.TokenID
+		client.TokenID = ""
+	}
+
+	opts1 := golangsdk.AgencyAuthOptions{
+		TokenID:          token,
+		AgencyName:       opts.AgencyName,
+		AgencyDomainName: opts.AgencyDomainName,
+		DelegatedProject: opts.DelegatedProject,
+	}
+
+	return v3auth(client, endpoint, &opts1, eo)
 }
 
 func getEntryByServiceId(entries []tokens3.CatalogEntry, serviceId string) *tokens3.CatalogEntry {
@@ -951,6 +958,19 @@ func NewELBV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 // NewRDSV1 creates a ServiceClient that may be used to access the RDS service.
 func NewRDSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "rdsv1")
+	return sc, err
+}
+
+// NewKMSV1 creates a ServiceClient that may be used to access the KMS service.
+func NewKMSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "kms")
+	return sc, err
+}
+
+// NewSMNV2 creates a ServiceClient that may be used to access the SMN service.
+func NewSMNV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "smnv2")
+	sc.ResourceBase = sc.Endpoint + "notifications/"
 	return sc, err
 }
 
