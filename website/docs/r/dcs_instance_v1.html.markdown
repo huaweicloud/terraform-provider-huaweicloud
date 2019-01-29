@@ -55,15 +55,18 @@ The following arguments are supported:
 * `description` - (Optional) Indicates the description of an instance. It is a character
     string containing not more than 1024 characters.
 
-* `engine` - (Optional) Indicates a message engine. Options: rabbitmq and kafka.
+* `engine` - (Optional) Indicates a message engine. Options: rabbitmq and kafka. Changing this
+    creates a new instance.
 
 * `engine_version` - (Optional) Indicates the version of a message engine.
+    Changing this creates a new instance.
 
 * `capacity` - (Required) Indicates the Cache capacity. Unit: GB.
     For a DCS Redis or Memcached instance in single-node or master/standby mode, the cache
     capacity can be 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, or 64 GB.
     For a DCS Redis instance in cluster mode, the cache capacity can be 64, 128, 256, 512,
     or 1024 GB.
+    Changing this creates a new instance.
 
 * `partition_num` - (Optional) This parameter is mandatory when a Kafka instance is created.
     Indicates the maximum number of topics in a Kafka instance.
@@ -74,23 +77,29 @@ The following arguments are supported:
 * `access_user` - (Optional) Username used for accessing a DCS instance after password
     authentication. A username starts with a letter, consists of 1 to 64 characters,
     and supports only letters, digits, and hyphens (-).
+    Changing this creates a new instance.
 
 * `password` - (Optional) Password of a DCS instance.
     The password of a DCS Redis instance must meet the following complexity requirements:
+    Changing this creates a new instance.
 
 * `vpc_id` - (Required) Tenant's VPC ID. For details on how to create VPCs, see the
     Virtual Private Cloud API Reference.
+    Changing this creates a new instance.
 
 * `security_group_id` - (Required) Tenant's security group ID. For details on how to
     create security groups, see the Virtual Private Cloud API Reference.
 
 * `subnet_id` - (Required) Subnet ID. For details on how to create subnets, see the
     Virtual Private Cloud API Reference.
+    Changing this creates a new instance.
 
 * `available_zones` - (Required) IDs of the AZs where cache nodes reside. For details
     on how to query AZs, see Querying AZ Information.
+    Changing this creates a new instance.
 
 * `product_id` - (Required) Product ID used to differentiate DCS instance types.
+    Changing this creates a new instance.
 
 * `maintain_begin` - (Optional) Indicates the time at which a maintenance time window starts.
     Format: HH:mm:ss.
@@ -111,20 +120,21 @@ The following arguments are supported:
 	blank, parameter maintain_begin is also blank. In this case, the system automatically allocates
 	the default end time 06:00.
 
-* `save_days` - (Optional) Retention time. Unit: day. Range: 1–7.
+* `save_days` - (Optional) Retention time. Unit: day. Range: 1–7. Changing this creates a new instance.
 
 * `backup_type` - (Optional) Backup type. Options:
     auto: automatic backup.
     manual: manual backup.
+    Changing this creates a new instance.
 
 * `begin_at` - (Optional) Time at which backup starts. "00:00-01:00" indicates that backup
-    starts at 00:00:00.
+    starts at 00:00:00. Changing this creates a new instance.
 
 * `period_type` - (Optional) Interval at which backup is performed. Currently, only weekly
-    backup is supported.
+    backup is supported. Changing this creates a new instance.
 
 * `backup_at` - (Optional) Day in a week on which backup starts. Range: 1–7. Where: 1
-    indicates Monday; 7 indicates Sunday.
+    indicates Monday; 7 indicates Sunday. Changing this creates a new instance.
 
 ## Attributes Reference
 
