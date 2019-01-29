@@ -34,26 +34,32 @@ func resourceDcsInstanceV1() *schema.Resource {
 			"engine": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"engine_version": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 			"capacity": {
 				Type:     schema.TypeInt,
 				Required: true,
+				ForceNew: true,
 			},
 			"password": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 			"access_user": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"security_group_id": {
 				Type:     schema.TypeString,
@@ -62,15 +68,18 @@ func resourceDcsInstanceV1() *schema.Resource {
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"available_zones": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+				ForceNew: true,
 			},
 			"product_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"maintain_begin": {
 				Type:     schema.TypeString,
@@ -85,23 +94,28 @@ func resourceDcsInstanceV1() *schema.Resource {
 			"save_days": {
 				Type:     schema.TypeInt,
 				Required: true,
+				ForceNew: true,
 			},
 			"backup_type": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"begin_at": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"period_type": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"backup_at": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
+				ForceNew: true,
 			},
 			"order_id": {
 				Type:     schema.TypeString,
