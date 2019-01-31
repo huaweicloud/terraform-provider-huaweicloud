@@ -223,6 +223,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dcs_az_v1":                 dataSourceDcsAZV1(),
 			"huaweicloud_dcs_maintainwindow_v1":     dataSourceDcsMaintainWindowV1(),
 			"huaweicloud_dcs_product_v1":            dataSourceDcsProductV1(),
+			"huaweicloud_identity_role_v3":          dataSourceIdentityRoleV3(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -298,6 +299,11 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_maas_task_v1":                       resourceMaasTaskV1(),
 			"huaweicloud_dws_cluster":                        resourceDwsCluster(),
 			"huaweicloud_mls_instance":                       resourceMlsInstance(),
+			"huaweicloud_identity_project_v3":                resourceIdentityProjectV3(),
+			"huaweicloud_identity_role_assignment_v3":        resourceIdentityRoleAssignmentV3(),
+			"huaweicloud_identity_user_v3":                   resourceIdentityUserV3(),
+			"huaweicloud_identity_group_v3":                  resourceIdentityGroupV3(),
+			"huaweicloud_identity_group_membership_v3":       resourceIdentityGroupMembershipV3(),
 		},
 
 		ConfigureFunc: configureProvider,

@@ -16,13 +16,6 @@ type ListOpts struct {
 	// DomainID filters the response by a domain ID.
 	DomainID string `q:"domain_id"`
 
-	// Enabled filters the response by enabled projects.
-	Enabled *bool `q:"enabled"`
-
-	// IsDomain filters the response by projects that are domains.
-	// Setting this to true is effectively listing domains.
-	IsDomain *bool `q:"is_domain"`
-
 	// Name filters the response by project name.
 	Name string `q:"name"`
 
@@ -68,12 +61,6 @@ type CreateOpts struct {
 	// DomainID is the ID this project will belong under.
 	DomainID string `json:"domain_id,omitempty"`
 
-	// Enabled sets the project status to enabled or disabled.
-	Enabled *bool `json:"enabled,omitempty"`
-
-	// IsDomain indicates if this project is a domain.
-	IsDomain *bool `json:"is_domain,omitempty"`
-
 	// Name is the name of the project.
 	Name string `json:"name" required:"true"`
 
@@ -102,7 +89,9 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 
 // Delete deletes a project.
 func Delete(client *golangsdk.ServiceClient, projectID string) (r DeleteResult) {
-	_, r.Err = client.Delete(deleteURL(client, projectID), nil)
+	_, r.Err = client.Delete(deleteURL(client, projectID), &golangsdk.RequestOpts{
+		OkCodes: []int{200},
+	})
 	return
 }
 
@@ -114,20 +103,8 @@ type UpdateOptsBuilder interface {
 
 // UpdateOpts represents parameters to update a project.
 type UpdateOpts struct {
-	// DomainID is the ID this project will belong under.
-	DomainID string `json:"domain_id,omitempty"`
-
-	// Enabled sets the project status to enabled or disabled.
-	Enabled *bool `json:"enabled,omitempty"`
-
-	// IsDomain indicates if this project is a domain.
-	IsDomain *bool `json:"is_domain,omitempty"`
-
 	// Name is the name of the project.
 	Name string `json:"name,omitempty"`
-
-	// ParentID specifies the parent project of this new project.
-	ParentID string `json:"parent_id,omitempty"`
 
 	// Description is the description of the project.
 	Description string `json:"description,omitempty"`

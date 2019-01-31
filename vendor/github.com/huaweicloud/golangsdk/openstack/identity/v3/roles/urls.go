@@ -26,8 +26,8 @@ func deleteURL(client *golangsdk.ServiceClient, roleID string) string {
 	return client.ServiceURL(rolePath, roleID)
 }
 
-func listAssignmentsURL(client *golangsdk.ServiceClient) string {
-	return client.ServiceURL("role_assignments")
+func listAssignmentsURL(client *golangsdk.ServiceClient, targetType, targetID, actorType, actorID string) string {
+	return client.ServiceURL(targetType, targetID, actorType, actorID, rolePath)
 }
 
 func assignURL(client *golangsdk.ServiceClient, targetType, targetID, actorType, actorID, roleID string) string {
