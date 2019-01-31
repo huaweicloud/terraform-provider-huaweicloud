@@ -172,3 +172,44 @@ func Delete(client *golangsdk.ServiceClient, zoneID string) (r DeleteResult) {
 	})
 	return
 }
+
+// RouterOptsBuilder allows to add parameters to the associate/disassociate Zone request.
+type RouterOptsBuilder interface {
+	ToRouterMap() (map[string]interface{}, error)
+}
+
+// RouterOpts specifies the required information to associate/disassociate a Router with a Zone.
+type RouterOpts struct {
+	// Router ID
+	RouterID string `json:"router_id" required:"true"`
+
+	// Router Region
+	RouterRegion string `json:"router_region,omitempty"`
+}
+
+// ToRouterMap constructs a request body from RouterOpts.
+func (opts RouterOpts) ToRouterMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "router")
+}
+
+// AssociateZone associate a Router with a Zone.
+func AssociateZone(client *golangsdk.ServiceClient, zoneID string, opts RouterOptsBuilder) (r AssociateResult) {
+	b, err := opts.ToRouterMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Post(associateURL(client, zoneID), b, nil, nil)
+	return
+}
+
+// DisassociateZone disassociate a Router with a Zone.
+func DisassociateZone(client *golangsdk.ServiceClient, zoneID string, opts RouterOptsBuilder) (r DisassociateResult) {
+	b, err := opts.ToRouterMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Post(disassociateURL(client, zoneID), b, nil, nil)
+	return
+}

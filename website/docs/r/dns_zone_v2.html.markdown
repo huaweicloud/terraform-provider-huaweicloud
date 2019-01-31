@@ -33,10 +33,12 @@ resource "huaweicloud_dns_zone_v2" "my_private_zone" {
   description = "An example zone"
   ttl = 3000
   zone_type = "private"
-  router = {
-    router_region = "cn-north-1"
-    router_id = "2c1fe4bd-ebad-44ca-ae9d-e94e63847b75"
-  }
+  router = [
+    {
+      router_region = "cn-north-1"
+      router_id = "2c1fe4bd-ebad-44ca-ae9d-e94e63847b75"
+    }
+  ]
 }
 ```
 
@@ -53,26 +55,25 @@ The following arguments are supported:
   Changing this creates a new DNS zone.
 
 * `email` - (Optional) The email contact for the zone record.
-  Changing this creates a new DNS zone.
 
 * `zone_type` - (Optional) The type of zone. Can either be `public` or `private`.
   Changing this creates a new DNS zone.
 
 * `router` - (Optional) Router configuration block which is required if zone_type is private.
-  The router structure is documented below.  Changing this creates a new DNS zone.
+  The router structure is documented below.
 
-* `ttl` - (Optional) The time to live (TTL) of the zone. Changing this creates a new DNS zone.
+* `ttl` - (Optional) The time to live (TTL) of the zone.
 
-* `description` - (Optional) A description of the zone. Changing this creates a new DNS zone.
+* `description` - (Optional) A description of the zone.
 
 * `value_specs` - (Optional) Map of additional options. Changing this creates a
   new DNS zone.
 
 The `router` block supports:
 
-* `router_id` - (Required) The router UUID. Changing this creates a new DNS zone.
+* `router_id` - (Required) The router UUID.
 
-* `router_region` - (Required) The region of the router. Changing this creates a new DNS zone.
+* `router_region` - (Required) The region of the router.
 
 ## Attributes Reference
 
