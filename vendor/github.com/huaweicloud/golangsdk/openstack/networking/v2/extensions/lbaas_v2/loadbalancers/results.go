@@ -3,6 +3,7 @@ package loadbalancers
 import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
 	"github.com/huaweicloud/golangsdk/pagination"
 )
 
@@ -51,6 +52,9 @@ type LoadBalancer struct {
 
 	// Listeners are the listeners related to this Loadbalancer.
 	Listeners []listeners.Listener `json:"listeners"`
+
+	// Pools are the pools related to this Loadbalancer.
+	Pools []pools.Pool `json:"pools"`
 }
 
 // StatusTree represents the status of a loadbalancer.

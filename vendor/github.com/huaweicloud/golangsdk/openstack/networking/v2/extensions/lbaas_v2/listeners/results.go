@@ -2,6 +2,7 @@ package listeners
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/l7policies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
 	"github.com/huaweicloud/golangsdk/pagination"
 )
@@ -54,6 +55,9 @@ type Listener struct {
 
 	// Pools are the pools which are part of this listener.
 	Pools []pools.Pool `json:"pools"`
+
+	// L7policies are the L7 policies which are part of this listener.
+	L7Policies []l7policies.L7Policy `json:"l7policies"`
 
 	// The provisioning status of the listener.
 	// This value is ACTIVE, PENDING_* or ERROR.
