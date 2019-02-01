@@ -2,7 +2,6 @@ package roles
 
 import (
 	"github.com/huaweicloud/golangsdk"
-	"github.com/huaweicloud/golangsdk/openstack"
 	"github.com/huaweicloud/golangsdk/pagination"
 )
 
@@ -38,19 +37,9 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 		url += query
 	}
 
-	h, err := openstack.HeaderForAdminToken(client)
-	if err != nil {
-		return pagination.Pager{Err: err}
-	}
-
-	pager := pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
+	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
 		return RolePage{pagination.LinkedPageBase{PageResult: r}}
 	})
-
-	if h != nil {
-		pager.Headers = h
-	}
-	return pager
 }
 
 // Get retrieves details on a single role, by ID.
@@ -163,7 +152,7 @@ func Delete(client *golangsdk.ServiceClient, roleID string) (r DeleteResult) {
 // ListAssignmentsOptsBuilder allows extensions to add additional parameters to
 // the ListAssignments request.
 type ListAssignmentsOptsBuilder interface {
-	ToRolesListAssignmentsQuery() (string, error)
+	extractAssignment() (string, string, string, string, error)
 }
 
 // ListAssignmentsOpts allows you to query the ListAssignments method.
@@ -174,9 +163,6 @@ type ListAssignmentsOpts struct {
 	// GroupID is the group ID to query.
 	GroupID string `q:"group.id"`
 
-	// RoleID is the specific role to query assignments to.
-	RoleID string `q:"role.id"`
-
 	// ScopeDomainID filters the results by the given domain ID.
 	ScopeDomainID string `q:"scope.domain.id"`
 
@@ -185,28 +171,39 @@ type ListAssignmentsOpts struct {
 
 	// UserID filterst he results by the given User ID.
 	UserID string `q:"user.id"`
-
-	// Effective lists effective assignments at the user, project, and domain
-	// level, allowing for the effects of group membership.
-	Effective *bool `q:"effective"`
 }
 
 // ToRolesListAssignmentsQuery formats a ListAssignmentsOpts into a query string.
-func (opts ListAssignmentsOpts) ToRolesListAssignmentsQuery() (string, error) {
-	q, err := golangsdk.BuildQueryString(opts)
-	return q.String(), err
+func (opts ListAssignmentsOpts) extractAssignment() (string, string, string, string, error) {
+	// Get corresponding URL
+	var targetID string
+	var targetType string
+	if opts.ScopeProjectID != "" {
+		targetID = opts.ScopeProjectID
+		targetType = "projects"
+	} else {
+		targetID = opts.ScopeDomainID
+		targetType = "domains"
+	}
+
+	var actorID string
+	var actorType string
+	if opts.UserID != "" {
+		actorID = opts.UserID
+		actorType = "users"
+	} else {
+		actorID = opts.GroupID
+		actorType = "groups"
+	}
+
+	return targetType, targetID, actorType, actorID, nil
 }
 
 // ListAssignments enumerates the roles assigned to a specified resource.
 func ListAssignments(client *golangsdk.ServiceClient, opts ListAssignmentsOptsBuilder) pagination.Pager {
-	url := listAssignmentsURL(client)
-	if opts != nil {
-		query, err := opts.ToRolesListAssignmentsQuery()
-		if err != nil {
-			return pagination.Pager{Err: err}
-		}
-		url += query
-	}
+	targetType, targetID, actorType, actorID, _ := opts.extractAssignment()
+
+	url := listAssignmentsURL(client, targetType, targetID, actorType, actorID)
 	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
 		return RoleAssignmentPage{pagination.LinkedPageBase{PageResult: r}}
 	})
