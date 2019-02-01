@@ -16,6 +16,7 @@ func resourceDNSZoneV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDNSZoneV2Create,
 		Read:   resourceDNSZoneV2Read,
+		Update: resourceDNSZoneV2Update,
 		Delete: resourceDNSZoneV2Delete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -42,7 +43,7 @@ func resourceDNSZoneV2() *schema.Resource {
 			"email": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"zone_type": {
 				Type:         schema.TypeString,
@@ -54,14 +55,14 @@ func resourceDNSZoneV2() *schema.Resource {
 			"ttl": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     true,
+				ForceNew:     false,
 				Default:      300,
 				ValidateFunc: resourceValidateTTL,
 			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
+				ForceNew:     false,
 				ValidateFunc: resourceValidateDescription,
 			},
 			"masters": {
@@ -72,7 +73,7 @@ func resourceDNSZoneV2() *schema.Resource {
 			"router": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"router_id": {
@@ -167,6 +168,43 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 			n.ID, err)
 	}
 
+	// router length >1 when creating private zone
+	if zone_type == "private" {
+		// AssociateZone for the other routers
+		routerList := getDNSRouters(d)
+		if len(routerList) > 1 {
+			for i := range routerList {
+				// Skip the first router
+				if i > 0 {
+					log.Printf("[DEBUG] Creating AssociateZone Options: %#v", routerList[i])
+					_, err := zones.AssociateZone(dnsClient, n.ID, routerList[i]).Extract()
+					if err != nil {
+						return fmt.Errorf("Error AssociateZone: %s", err)
+					}
+
+					log.Printf("[DEBUG] Waiting for AssociateZone (%s) to Router (%s) become ACTIVE",
+						n.ID, routerList[i].RouterID)
+					stateRouterConf := &resource.StateChangeConf{
+						Target:     []string{"ACTIVE"},
+						Pending:    []string{"PENDING"},
+						Refresh:    waitForDNSZoneRouter(dnsClient, n.ID, routerList[i].RouterID),
+						Timeout:    d.Timeout(schema.TimeoutCreate),
+						Delay:      5 * time.Second,
+						MinTimeout: 3 * time.Second,
+					}
+
+					_, err = stateRouterConf.WaitForState()
+					if err != nil {
+						return fmt.Errorf("Error waiting for AssociateZone (%s) to Router (%s) become ACTIVE: %s",
+							n.ID, routerList[i].RouterID, err)
+					}
+				} else {
+					log.Printf("[DEBUG] First Router Options: %#v", routerList[i])
+				}
+			}
+		}
+	}
+
 	d.SetId(n.ID)
 
 	log.Printf("[DEBUG] Created HuaweiCloud DNS Zone %s: %#v", n.ID, n)
@@ -207,6 +245,16 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
+	zone_type := d.Get("zone_type").(string)
+	router := d.Get("router").(*schema.Set).List()
+
+	// router is required when updating private zone
+	if zone_type == "private" {
+		if len(router) < 1 {
+			return fmt.Errorf("The argument (router) is required when updating HuaweiCloud DNS private zone")
+		}
+	}
+
 	var updateOpts zones.UpdateOpts
 	if d.HasChange("email") {
 		updateOpts.Email = d.Get("email").(string)
@@ -236,6 +284,70 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	_, err = stateConf.WaitForState()
+
+	if d.HasChange("router") {
+		// when updating private zone
+		if zone_type == "private" {
+			associateList, disassociateList, err := resourceGetDNSRouters(dnsClient, d)
+			if err != nil {
+				return fmt.Errorf("Error getting HuaweiCloud DNS Zone Router: %s", err)
+			}
+			if len(associateList) > 0 {
+				// AssociateZone
+				for i := range associateList {
+					log.Printf("[DEBUG] Updating AssociateZone Options: %#v", associateList[i])
+					_, err := zones.AssociateZone(dnsClient, d.Id(), associateList[i]).Extract()
+					if err != nil {
+						return fmt.Errorf("Error AssociateZone: %s", err)
+					}
+
+					log.Printf("[DEBUG] Waiting for AssociateZone (%s) to Router (%s) become ACTIVE",
+						d.Id(), associateList[i].RouterID)
+					stateRouterConf := &resource.StateChangeConf{
+						Target:     []string{"ACTIVE"},
+						Pending:    []string{"PENDING"},
+						Refresh:    waitForDNSZoneRouter(dnsClient, d.Id(), associateList[i].RouterID),
+						Timeout:    d.Timeout(schema.TimeoutUpdate),
+						Delay:      5 * time.Second,
+						MinTimeout: 3 * time.Second,
+					}
+
+					_, err = stateRouterConf.WaitForState()
+					if err != nil {
+						return fmt.Errorf("Error waiting for AssociateZone (%s) to Router (%s) become ACTIVE: %s",
+							d.Id(), associateList[i].RouterID, err)
+					}
+				}
+			}
+			if len(disassociateList) > 0 {
+				// DisassociateZone
+				for j := range disassociateList {
+					log.Printf("[DEBUG] Updating DisassociateZone Options: %#v", disassociateList[j])
+					_, err := zones.DisassociateZone(dnsClient, d.Id(), disassociateList[j]).Extract()
+					if err != nil {
+						return fmt.Errorf("Error DisassociateZone: %s", err)
+					}
+
+					log.Printf("[DEBUG] Waiting for DisassociateZone (%s) to Router (%s) become DELETED",
+						d.Id(), disassociateList[j].RouterID)
+					stateRouterConf := &resource.StateChangeConf{
+						Target:     []string{"DELETED"},
+						Pending:    []string{"ACTIVE", "PENDING", "ERROR"},
+						Refresh:    waitForDNSZoneRouter(dnsClient, d.Id(), disassociateList[j].RouterID),
+						Timeout:    d.Timeout(schema.TimeoutUpdate),
+						Delay:      5 * time.Second,
+						MinTimeout: 3 * time.Second,
+					}
+
+					_, err = stateRouterConf.WaitForState()
+					if err != nil {
+						return fmt.Errorf("Error waiting for DisassociateZone (%s) to Router (%s) become DELETED: %s",
+							d.Id(), disassociateList[j].RouterID, err)
+					}
+				}
+			}
+		}
+	}
 
 	return resourceDNSZoneV2Read(d, meta)
 }
@@ -320,4 +432,106 @@ func resourceZoneValidateType(v interface{}, k string) (ws []string, errors []er
 	errors = append(errors, fmt.Errorf("%q must be one of %v", k, zoneTypes))
 
 	return
+}
+
+func getDNSRouters(d *schema.ResourceData) []zones.RouterOpts {
+	router := d.Get("router").(*schema.Set).List()
+	if len(router) > 0 {
+		res := make([]zones.RouterOpts, len(router))
+		for i := range router {
+			ro := zones.RouterOpts{}
+			c := router[i].(map[string]interface{})
+			if val, ok := c["router_id"]; ok {
+				ro.RouterID = val.(string)
+			}
+			if val, ok := c["router_region"]; ok {
+				ro.RouterRegion = val.(string)
+			}
+			res[i] = ro
+		}
+		return res
+	}
+	return nil
+}
+
+func waitForDNSZoneRouter(dnsClient *golangsdk.ServiceClient, zoneId string, routerId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		zone, err := zones.Get(dnsClient, zoneId).Extract()
+		if err != nil {
+			return nil, "", err
+		}
+		for i := range zone.Routers {
+			if routerId == zone.Routers[i].RouterID {
+				log.Printf("[DEBUG] HuaweiCloud DNS Zone (%s) Router (%s) current status: %s",
+					zoneId, routerId, zone.Routers[i].Status)
+				return zone, parseStatus(zone.Routers[i].Status), nil
+			}
+		}
+		return zone, "DELETED", nil
+	}
+}
+
+func resourceGetDNSRouters(dnsClient *golangsdk.ServiceClient, d *schema.ResourceData) ([]zones.RouterOpts, []zones.RouterOpts, error) {
+	// get zone info from api
+	n, err := zones.Get(dnsClient, d.Id()).Extract()
+	if err != nil {
+		return nil, nil, CheckDeleted(d, err, "zone")
+	}
+	// get routers from local
+	localRouters := getDNSRouters(d)
+
+	// get associateMap
+	associateMap := make(map[string]zones.RouterOpts)
+	for _, local := range localRouters {
+		// Check if local is found in api
+		found := false
+		for _, raw := range n.Routers {
+			if local.RouterID == raw.RouterID {
+				found = true
+				break
+			}
+		}
+		// If local is not found in api
+		if !found {
+			associateMap[local.RouterID] = local
+		}
+	}
+
+	// convert associateMap to associateList
+	associateList := make([]zones.RouterOpts, len(associateMap))
+	var i = 0
+	for _, associateRouter := range associateMap {
+		associateList[i] = associateRouter
+		i++
+	}
+
+	// get disassociateMap
+	disassociateMap := make(map[string]zones.RouterOpts)
+	for _, raw := range n.Routers {
+		// Check if api is found in local
+		found := false
+		for _, local := range localRouters {
+			if raw.RouterID == local.RouterID {
+				found = true
+				break
+			}
+		}
+		// If api is not found in local
+		if !found {
+			disassociateMap[raw.RouterID] = zones.RouterOpts{
+				RouterID:     raw.RouterID,
+				RouterRegion: raw.RouterRegion,
+			}
+		}
+	}
+
+	// convert disassociateMap to disassociateList
+	disassociateList := make([]zones.RouterOpts, len(disassociateMap))
+	var j = 0
+	for _, disassociateRouter := range disassociateMap {
+		disassociateList[j] = disassociateRouter
+		j++
+	}
+
+	return associateList, disassociateList, nil
 }

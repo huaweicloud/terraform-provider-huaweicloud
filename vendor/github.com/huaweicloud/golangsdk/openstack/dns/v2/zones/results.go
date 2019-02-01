@@ -126,6 +126,15 @@ type Zone struct {
 	// Links includes HTTP references to the itself, useful for passing along
 	// to other APIs that might want a server reference.
 	Links map[string]interface{} `json:"links"`
+
+	// Routers associate with the Zone
+	Routers []RouterResult `json:"routers"`
+}
+
+type RouterResult struct {
+	RouterID     string `json:"router_id"`
+	RouterRegion string `json:"router_region"`
+	Status       string `json:"status"`
 }
 
 func (r *Zone) UnmarshalJSON(b []byte) error {
@@ -164,4 +173,14 @@ func (r *Zone) UnmarshalJSON(b []byte) error {
 	}
 
 	return err
+}
+
+// AssociateResult is the response from AssociateZone
+type AssociateResult struct {
+	commonResult
+}
+
+// DisassociateResult is the response from DisassociateZone
+type DisassociateResult struct {
+	commonResult
 }
