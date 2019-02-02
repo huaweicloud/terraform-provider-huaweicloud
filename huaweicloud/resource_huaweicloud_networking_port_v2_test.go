@@ -79,6 +79,92 @@ func TestAccNetworkingV2Port_timeout(t *testing.T) {
 	})
 }
 
+func TestAccNetworkingV2Port_createExtraDHCPOpts(t *testing.T) {
+	var network networks.Network
+	var subnet subnets.Subnet
+	var port ports.Port
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkingV2PortDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkingV2Port_createExtraDHCPOpts,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNetworkingV2SubnetExists("huaweicloud_networking_subnet_v2.subnet_1", &subnet),
+					testAccCheckNetworkingV2NetworkExists("huaweicloud_networking_network_v2.network_1", &network),
+					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port_v2.port_1", &port),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_networking_port_v2.port_1", "extra_dhcp_option.#", "2"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccNetworkingV2Port_updateExtraDHCPOpts(t *testing.T) {
+	var network networks.Network
+	var subnet subnets.Subnet
+	var port ports.Port
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkingV2PortDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkingV2Port_basic,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNetworkingV2SubnetExists("huaweicloud_networking_subnet_v2.subnet_1", &subnet),
+					testAccCheckNetworkingV2NetworkExists("huaweicloud_networking_network_v2.network_1", &network),
+					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port_v2.port_1", &port),
+				),
+			},
+			{
+				Config: testAccNetworkingV2Port_updateExtraDHCPOpts_1,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNetworkingV2SubnetExists("huaweicloud_networking_subnet_v2.subnet_1", &subnet),
+					testAccCheckNetworkingV2NetworkExists("huaweicloud_networking_network_v2.network_1", &network),
+					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port_v2.port_1", &port),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_networking_port_v2.port_1", "extra_dhcp_option.#", "1"),
+				),
+			},
+			{
+				Config: testAccNetworkingV2Port_updateExtraDHCPOpts_2,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNetworkingV2SubnetExists("huaweicloud_networking_subnet_v2.subnet_1", &subnet),
+					testAccCheckNetworkingV2NetworkExists("huaweicloud_networking_network_v2.network_1", &network),
+					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port_v2.port_1", &port),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_networking_port_v2.port_1", "extra_dhcp_option.#", "2"),
+				),
+			},
+			{
+				Config: testAccNetworkingV2Port_updateExtraDHCPOpts_3,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNetworkingV2SubnetExists("huaweicloud_networking_subnet_v2.subnet_1", &subnet),
+					testAccCheckNetworkingV2NetworkExists("huaweicloud_networking_network_v2.network_1", &network),
+					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port_v2.port_1", &port),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_networking_port_v2.port_1", "extra_dhcp_option.#", "2"),
+				),
+			},
+			{
+				Config: testAccNetworkingV2Port_updateExtraDHCPOpts_4,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNetworkingV2SubnetExists("huaweicloud_networking_subnet_v2.subnet_1", &subnet),
+					testAccCheckNetworkingV2NetworkExists("huaweicloud_networking_network_v2.network_1", &network),
+					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port_v2.port_1", &port),
+					resource.TestCheckNoResourceAttr(
+						"huaweicloud_networking_port_v2.port_1", "extra_dhcp_option"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckNetworkingV2PortDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
@@ -298,6 +384,154 @@ resource "huaweicloud_networking_port_v2" "port_1" {
   timeouts {
     create = "5m"
     delete = "5m"
+  }
+}
+`
+
+const testAccNetworkingV2Port_createExtraDHCPOpts = `
+resource "huaweicloud_networking_network_v2" "network_1" {
+  name = "network_1"
+  admin_state_up = "true"
+}
+
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
+  name = "subnet_1"
+  cidr = "192.168.199.0/24"
+  ip_version = 4
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+}
+
+resource "huaweicloud_networking_port_v2" "port_1" {
+  name = "port_1"
+  admin_state_up = "true"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+  fixed_ip {
+    subnet_id =  "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+    ip_address = "192.168.199.23"
+  }
+  extra_dhcp_option {
+    name = "optionA"
+    value = "valueA"
+  }
+  extra_dhcp_option {
+    name = "optionB"
+    value = "valueB"
+  }
+}
+`
+
+const testAccNetworkingV2Port_updateExtraDHCPOpts_1 = `
+resource "huaweicloud_networking_network_v2" "network_1" {
+  name = "network_1"
+  admin_state_up = "true"
+}
+
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
+  name = "subnet_1"
+  cidr = "192.168.199.0/24"
+  ip_version = 4
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+}
+
+resource "huaweicloud_networking_port_v2" "port_1" {
+  name = "port_1"
+  admin_state_up = "true"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+  fixed_ip {
+    subnet_id =  "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+    ip_address = "192.168.199.23"
+  }
+  extra_dhcp_option {
+    name = "optionC"
+    value = "valueC"
+  }
+}
+`
+
+const testAccNetworkingV2Port_updateExtraDHCPOpts_2 = `
+resource "huaweicloud_networking_network_v2" "network_1" {
+  name = "network_1"
+  admin_state_up = "true"
+}
+
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
+  name = "subnet_1"
+  cidr = "192.168.199.0/24"
+  ip_version = 4
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+}
+
+resource "huaweicloud_networking_port_v2" "port_1" {
+  name = "port_1"
+  admin_state_up = "true"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+  fixed_ip {
+    subnet_id =  "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+    ip_address = "192.168.199.23"
+  }
+  extra_dhcp_option {
+    name = "optionC"
+    value = "valueC"
+  }
+  extra_dhcp_option {
+    name = "optionD"
+    value = "valueD"
+  }
+}
+`
+
+const testAccNetworkingV2Port_updateExtraDHCPOpts_3 = `
+resource "huaweicloud_networking_network_v2" "network_1" {
+  name = "network_1"
+  admin_state_up = "true"
+}
+
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
+  name = "subnet_1"
+  cidr = "192.168.199.0/24"
+  ip_version = 4
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+}
+
+resource "huaweicloud_networking_port_v2" "port_1" {
+  name = "port_1"
+  admin_state_up = "true"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+  fixed_ip {
+    subnet_id =  "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+    ip_address = "192.168.199.23"
+  }
+  extra_dhcp_option {
+    name = "optionD"
+    value = "valueD"
+  }
+  extra_dhcp_option {
+    name = "optionE"
+    value = "valueE"
+  }
+}
+`
+
+const testAccNetworkingV2Port_updateExtraDHCPOpts_4 = `
+resource "huaweicloud_networking_network_v2" "network_1" {
+  name = "network_1"
+  admin_state_up = "true"
+}
+
+resource "huaweicloud_networking_subnet_v2" "subnet_1" {
+  name = "subnet_1"
+  cidr = "192.168.199.0/24"
+  ip_version = 4
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+}
+
+resource "huaweicloud_networking_port_v2" "port_1" {
+  name = "port_1"
+  admin_state_up = "true"
+  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+  fixed_ip {
+    subnet_id =  "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+    ip_address = "192.168.199.23"
   }
 }
 `
