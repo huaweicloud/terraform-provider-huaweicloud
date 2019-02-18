@@ -19,11 +19,11 @@ Use the navigation to the left to read about the available resources.
 ```hcl
 # Configure the HuaweiCloud Provider
 provider "huaweicloud" {
-  user_name   = "user"
-  password    = "pwd"
+  user_name   = "${var.user_name}"
+  password    = "${var.password}"
+  domain_name = "${var.domain_name}"
+  tenant_name = "${var.tenant_name}"
   region      = "cn-north-1"
-  tenant_name = "cn-north-1"
-  domain_name = "dom"
   auth_url    = "https://iam.cn-north-1.myhwclouds.com:443/v3"
 }
 
@@ -32,6 +32,99 @@ resource "huaweicloud_compute_instance_v2" "test-server" {
   # ...
 }
 ```
+
+## Authentication
+
+This provider offers 4 means for authentication.
+
+- User name + Password
+- AKSK
+- Token
+- Assume Role
+
+### User name + Password
+
+```hcl
+provider "huaweicloud" {
+  user_name   = "${var.user_name}"
+  password    = "${var.password}"
+  domain_name = "${var.domain_name}"
+  tenant_name = "${var.tenant_name}"
+  auth_url    = "https://iam.myhwclouds.com:443/v3"
+  region      = "RegionOne"
+}
+```
+
+### AKSK
+
+```hcl
+provider "huaweicloud" {
+  access_key  = "${var.access_key}"
+  secret_key  = "${var.secret_key}"
+  domain_name = "${var.domain_name}"
+  tenant_name = "${var.tenant_name}"
+  auth_url    = "https://iam.myhwclouds.com:443/v3"
+  region      = "RegionOne"
+}
+```
+
+### Token
+
+```hcl
+provider "huaweicloud" {
+  token       = "${var.token}"
+  domain_name = "${var.domain_name}"
+  tenant_name = "${var.tenant_name}"
+  auth_url    = "https://iam.myhwclouds.com:443/v3"
+  region      = "RegionOne"
+}
+```
+
+### Assume Role
+
+#### User name + Password
+
+```hcl
+provider "huaweicloud" {
+  agency_name        = "${var.agency_name}"
+  agency_domain_name = "${var.agency_domain_name}"
+  delegated_project  = "${var.delegated_project}"
+  user_name          = "${var.user_name}"
+  password           = "${var.password}"
+  domain_name        = "${var.domain_name}"
+  auth_url           = "https://iam.myhwclouds.com:443/v3"
+  region             = "RegionOne"
+}
+```
+
+#### AKSK
+
+```hcl
+provider "huaweicloud" {
+  agency_name        = "${var.agency_name}"
+  agency_domain_name = "${var.agency_domain_name}"
+  delegated_project  = "${var.delegated_project}"
+  access_key         = "${var.access_key}"
+  secret_key         = "${var.secret_key}"
+  domain_name        = "${var.domain_name}"
+  auth_url           = "https://iam.myhwclouds.com:443/v3"
+  region             = "RegionOne"
+}
+```
+
+#### Token
+
+```hcl
+provider "huaweicloud" {
+  agency_name        = "${var.agency_name}"
+  agency_domain_name = "${var.agency_domain_name}"
+  delegated_project  = "${var.delegated_project}"
+  token              = "${var.token}"
+  auth_url           = "https://iam.myhwclouds.com:443/v3"
+  region             = "RegionOne"
+}
+```
+```token``` specified is not the normal token, but must have the authority of 'Agent Operator'
 
 ## Configuration Reference
 
@@ -112,6 +205,14 @@ The following arguments are supported:
 
 * `use_octavia` - (Optional) If set to `true`, API requests will go the Load Balancer
   service (Octavia) instead of the Networking service (Neutron).
+
+* `agency_name` - (Optional) if authorized by assume role, it must be set. The
+  name of agency.
+
+* `agency_domain_name` - (Optional) if authorized by assume role, it must be set.
+  The name of domain who created the agency (Identity v3).
+
+* `delegated_project` - (Optional) The name of delegated project (Identity v3).
 
 ## Additional Logging
 

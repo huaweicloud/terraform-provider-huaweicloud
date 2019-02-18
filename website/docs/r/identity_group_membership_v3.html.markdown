@@ -14,21 +14,6 @@ Manages a User Group Membership resource within HuaweiCloud IAM service.
 Note: You _must_ have admin privileges in your HuaweiCloud cloud to use
 this resource.
 
-Note: Please authentication on domain level via configuration
-provider as following example:
-
-```hcl
-provider "huaweicloud" {
-  user_name   = "<username>"
-  password    = "<password>"
-  domain_name = "<domain name>"
-  auth_url    = "https://iam.eu-de.otc.t-systems.com/v3"
-  region      = "eu-de"
-  insecure    = "true"
-}
-```
-Donot configuration either ```tenant_name``` nor ```tenant_id```.
-
 ## Example Usage
 
 ```hcl
