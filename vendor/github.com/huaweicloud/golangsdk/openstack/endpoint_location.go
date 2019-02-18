@@ -22,7 +22,7 @@ func V2EndpointURL(catalog *tokens2.ServiceCatalog, opts golangsdk.EndpointOpts)
 	for _, entry := range catalog.Entries {
 		if (entry.Type == opts.Type) && (opts.Name == "" || entry.Name == opts.Name) {
 			for _, endpoint := range entry.Endpoints {
-				if opts.Region == "" || endpoint.Region == opts.Region {
+				if endpoint.Region == opts.Region || (opts.Region == "" && endpoint.Region == "*") {
 					endpoints = append(endpoints, endpoint)
 				}
 			}
@@ -83,8 +83,9 @@ func V3EndpointURL(catalog *tokens3.ServiceCatalog, opts golangsdk.EndpointOpts)
 					err.Value = opts.Availability
 					return "", err
 				}
-				if (opts.Availability == golangsdk.Availability(endpoint.Interface)) &&
-					(opts.Region == "" || endpoint.Region == opts.Region) {
+				if opts.Availability == golangsdk.Availability(endpoint.Interface) &&
+					(endpoint.Region == opts.Region ||
+						(opts.Region == "" && endpoint.Region == "*")) {
 					endpoints = append(endpoints, endpoint)
 				}
 			}

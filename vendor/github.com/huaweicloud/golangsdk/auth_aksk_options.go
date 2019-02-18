@@ -20,7 +20,8 @@ type AKSKAuthOptions struct {
 	Region string
 
 	// cloud service domain, example: myhwclouds.com
-	Domain string
+	Domain   string
+	DomainID string
 
 	AccessKey string //Access Key
 	SecretKey string //Secret key

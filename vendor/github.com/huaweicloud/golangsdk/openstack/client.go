@@ -249,18 +249,16 @@ func v3auth(client *golangsdk.ProviderClient, endpoint string, opts tokens3.Auth
 }
 
 func v3authWithAgency(client *golangsdk.ProviderClient, endpoint string, opts *golangsdk.AuthOptions, eo golangsdk.EndpointOpts) error {
-	token := opts.TokenID
-	if token == "" {
+	if opts.TokenID == "" {
 		err := v3auth(client, endpoint, opts, eo)
 		if err != nil {
 			return err
 		}
-		token = client.TokenID
-		client.TokenID = ""
+	} else {
+		client.TokenID = opts.TokenID
 	}
 
 	opts1 := golangsdk.AgencyAuthOptions{
-		TokenID:          token,
 		AgencyName:       opts.AgencyName,
 		AgencyDomainName: opts.AgencyDomainName,
 		DelegatedProject: opts.DelegatedProject,
@@ -317,9 +315,11 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 
 	defer func() {
 		v3Client.AKSKAuthOptions.ProjectId = options.ProjectId
+		v3Client.AKSKAuthOptions.DomainID = options.DomainID
 	}()
 	v3Client.AKSKAuthOptions = options
 	v3Client.AKSKAuthOptions.ProjectId = ""
+	v3Client.AKSKAuthOptions.DomainID = ""
 
 	if options.ProjectId == "" && options.ProjectName != "" {
 		id, err := getProjectID(v3Client, options.ProjectName)
@@ -327,6 +327,14 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 			return err
 		}
 		options.ProjectId = id
+	}
+
+	if options.DomainID == "" && options.Domain != "" {
+		id, err := getDomainIDV1(options.Domain, v3Client)
+		if err != nil {
+			return err
+		}
+		options.DomainID = id
 	}
 
 	client.ProjectID = options.ProjectId
@@ -373,20 +381,17 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 				})
 			}
 		}
-
-		client.EndpointLocator = func(opts golangsdk.EndpointOpts) (string, error) {
-			return V3EndpointURL(&tokens3.ServiceCatalog{
-				Entries: entries,
-			}, opts)
-		}
-
 		return true, nil
 	})
-
 	if err != nil {
 		return err
 	}
 
+	client.EndpointLocator = func(opts golangsdk.EndpointOpts) (string, error) {
+		return V3EndpointURL(&tokens3.ServiceCatalog{
+			Entries: entries,
+		}, opts)
+	}
 	return nil
 }
 
@@ -402,13 +407,11 @@ func authWithAgencyByAKSK(client *golangsdk.ProviderClient, endpoint string, opt
 		return err
 	}
 
-	domainID, err := getDomainID(opts.Domain, v3Client)
-	if err != nil {
-		return err
+	if v3Client.AKSKAuthOptions.DomainID == "" {
+		return fmt.Errorf("Must config domain name")
 	}
 
 	opts2 := golangsdk.AgencyAuthOptions{
-		DomainID:         domainID,
 		AgencyName:       opts.AgencyName,
 		AgencyDomainName: opts.AgencyDomainName,
 		DelegatedProject: opts.DelegatedProject,
@@ -476,6 +479,43 @@ func getDomainID(name string, client *golangsdk.ServiceClient) (string, error) {
 	} else {
 		client.Endpoint = endpoint + "auth/"
 	}
+
+	opts := domains.ListOpts{
+		Name: name,
+	}
+	allPages, err := domains.List(client, &opts).AllPages()
+	if err != nil {
+		return "", fmt.Errorf("List domains failed, err=%s", err)
+	}
+
+	all, err := domains.ExtractDomains(allPages)
+	if err != nil {
+		return "", fmt.Errorf("Extract domains failed, err=%s", err)
+	}
+
+	count := len(all)
+	switch count {
+	case 0:
+		err := &golangsdk.ErrResourceNotFound{}
+		err.ResourceType = "iam"
+		err.Name = name
+		return "", err
+	case 1:
+		return all[0].ID, nil
+	default:
+		err := &golangsdk.ErrMultipleResourcesFound{}
+		err.ResourceType = "iam"
+		err.Name = name
+		err.Count = count
+		return "", err
+	}
+}
+
+func getDomainIDV1(name string, client *golangsdk.ServiceClient) (string, error) {
+	old := client.Endpoint
+	defer func() { client.Endpoint = old }()
+
+	client.Endpoint = old + "auth/"
 
 	opts := domains.ListOpts{
 		Name: name,
@@ -971,6 +1011,13 @@ func NewKMSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 func NewSMNV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "smnv2")
 	sc.ResourceBase = sc.Endpoint + "notifications/"
+	return sc, err
+}
+
+// NewCCE creates a ServiceClient that may be used to access the CCE service.
+func NewCCE(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "ccev2.0")
+	sc.ResourceBase = sc.Endpoint + "api/v3/projects/" + client.ProjectID + "/"
 	return sc, err
 }
 

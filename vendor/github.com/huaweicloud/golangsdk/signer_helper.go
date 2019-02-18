@@ -158,6 +158,40 @@ func Sign(req *http.Request, signOptions SignOptions) {
 	req.Header.Set("Authorization", buildAuthorizationHeader(signParams, signature))
 }
 
+//ReSign manipulates the http.Request instance with some required authentication headers for SK/SK auth
+func ReSign(req *http.Request, signOptions SignOptions) {
+	signOptions.AccessKey = strings.TrimSpace(signOptions.AccessKey)
+	signOptions.SecretKey = strings.TrimSpace(signOptions.SecretKey)
+	signOptions.encodeUrl = true
+
+	signParams := reqSignParams{
+		SignOptions: signOptions,
+		RequestTime: time.Now(),
+		Req:         req,
+	}
+
+	if signParams.SignAlgorithm == "" {
+		signParams.SignAlgorithm = SignAlgorithmHMACSHA256
+	}
+
+	setRequiredHeaders(req, signParams.getFormattedSigningDateTime())
+	contentSha256 := ""
+
+	if v, ok := req.Header[textproto.CanonicalMIMEHeaderKey(ContentSha256HeaderKey)]; !ok {
+		contentSha256 = calculateContentHash(req)
+	} else {
+		contentSha256 = v[0]
+	}
+
+	canonicalRequest := createCanonicalRequest(signParams, contentSha256)
+
+	strToSign := createStringToSign(canonicalRequest, signParams)
+	signKey := deriveSigningKey(signParams)
+	signature := computeSignature(strToSign, signKey, signParams.SignAlgorithm)
+
+	req.Header.Set("Authorization", buildAuthorizationHeader(signParams, signature))
+}
+
 // deriveSigningKey returns a sign key from cache, or build it and insert it into cache
 func deriveSigningKey(signParam reqSignParams) []byte {
 	if signParam.EnableCacheSignKey {
@@ -422,6 +456,12 @@ func addRequiredHeaders(req *http.Request, timeStr string) {
 	// golang handls port by default
 	req.Header.Add("Host", req.URL.Host)
 	req.Header.Add("X-Sdk-Date", timeStr)
+}
+
+// setRequiredHeaders sets the required heads to http.request for redirection
+func setRequiredHeaders(req *http.Request, timeStr string) {
+	req.Header.Set("X-Sdk-Date", timeStr)
+	req.Header.Del("Authorization")
 }
 
 func (s caseInsencitiveStringArray) Len() int {
