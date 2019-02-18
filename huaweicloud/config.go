@@ -133,6 +133,54 @@ func generateTLSConfig(c *Config) (*tls.Config, error) {
 	return config, nil
 }
 
+func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.ProviderClient, error) {
+	client, err := huaweisdk.NewClient(ao.GetIdentityEndpoint())
+	if err != nil {
+		return nil, err
+	}
+
+	// Set UserAgent
+	client.UserAgent.Prepend(terraform.UserAgentString())
+
+	config, err := generateTLSConfig(c)
+	if err != nil {
+		return nil, err
+	}
+	transport := &http.Transport{Proxy: http.ProxyFromEnvironment, TLSClientConfig: config}
+
+	// if OS_DEBUG is set, log the requests and responses
+	var osDebug bool
+	if os.Getenv("OS_DEBUG") != "" {
+		osDebug = true
+	}
+
+	client.HTTPClient = http.Client{
+		Transport: &LogRoundTripper{
+			Rt:      transport,
+			OsDebug: osDebug,
+		},
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if client.AKSKAuthOptions.AccessKey != "" {
+				golangsdk.ReSign(req, golangsdk.SignOptions{
+					AccessKey: client.AKSKAuthOptions.AccessKey,
+					SecretKey: client.AKSKAuthOptions.SecretKey,
+				})
+			}
+			return nil
+		},
+	}
+
+	// If using Swift Authentication, there's no need to validate authentication normally.
+	if !c.Swauth {
+		err = huaweisdk.Authenticate(client, ao)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return client, nil
+}
+
 func (c *Config) newS3Session(osDebug bool) error {
 
 	if c.AccessKey != "" && c.SecretKey != "" {
@@ -310,54 +358,6 @@ func genClients(c *Config, pao, dao golangsdk.AuthOptionsProvider) error {
 		c.DomainClient = client
 	}
 	return err
-}
-
-func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.ProviderClient, error) {
-	client, err := huaweisdk.NewClient(ao.GetIdentityEndpoint())
-	if err != nil {
-		return nil, err
-	}
-
-	// Set UserAgent
-	client.UserAgent.Prepend(terraform.UserAgentString())
-
-	config, err := generateTLSConfig(c)
-	if err != nil {
-		return nil, err
-	}
-	transport := &http.Transport{Proxy: http.ProxyFromEnvironment, TLSClientConfig: config}
-
-	// if OS_DEBUG is set, log the requests and responses
-	var osDebug bool
-	if os.Getenv("OS_DEBUG") != "" {
-		osDebug = true
-	}
-
-	client.HTTPClient = http.Client{
-		Transport: &LogRoundTripper{
-			Rt:      transport,
-			OsDebug: osDebug,
-		},
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			if client.AKSKAuthOptions.AccessKey != "" {
-				golangsdk.ReSign(req, golangsdk.SignOptions{
-					AccessKey: client.AKSKAuthOptions.AccessKey,
-					SecretKey: client.AKSKAuthOptions.SecretKey,
-				})
-			}
-			return nil
-		},
-	}
-
-	// If using Swift Authentication, there's no need to validate authentication normally.
-	if !c.Swauth {
-		err = huaweisdk.Authenticate(client, ao)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return client, nil
 }
 
 type sLogger struct{}
