@@ -23,8 +23,8 @@ provider "huaweicloud" {
   password    = "${var.password}"
   domain_name = "${var.domain_name}"
   tenant_name = "${var.tenant_name}"
-  region      = "cn-north-1"
-  auth_url    = "https://iam.cn-north-1.myhwclouds.com:443/v3"
+  region      = "${var.region}"
+  auth_url    = "https://iam.myhwclouds.com:443/v3"
 }
 
 # Create a web server
@@ -50,8 +50,8 @@ provider "huaweicloud" {
   password    = "${var.password}"
   domain_name = "${var.domain_name}"
   tenant_name = "${var.tenant_name}"
+  region      = "${var.region}"
   auth_url    = "https://iam.myhwclouds.com:443/v3"
-  region      = "RegionOne"
 }
 ```
 
@@ -63,8 +63,8 @@ provider "huaweicloud" {
   secret_key  = "${var.secret_key}"
   domain_name = "${var.domain_name}"
   tenant_name = "${var.tenant_name}"
+  region      = "${var.region}"
   auth_url    = "https://iam.myhwclouds.com:443/v3"
-  region      = "RegionOne"
 }
 ```
 
@@ -75,8 +75,8 @@ provider "huaweicloud" {
   token       = "${var.token}"
   domain_name = "${var.domain_name}"
   tenant_name = "${var.tenant_name}"
+  region      = "${var.region}"
   auth_url    = "https://iam.myhwclouds.com:443/v3"
-  region      = "RegionOne"
 }
 ```
 
@@ -92,8 +92,8 @@ provider "huaweicloud" {
   user_name          = "${var.user_name}"
   password           = "${var.password}"
   domain_name        = "${var.domain_name}"
+  region             = "${var.region}"
   auth_url           = "https://iam.myhwclouds.com:443/v3"
-  region             = "RegionOne"
 }
 ```
 
@@ -107,8 +107,8 @@ provider "huaweicloud" {
   access_key         = "${var.access_key}"
   secret_key         = "${var.secret_key}"
   domain_name        = "${var.domain_name}"
+  region             = "${var.region}"
   auth_url           = "https://iam.myhwclouds.com:443/v3"
-  region             = "RegionOne"
 }
 ```
 
@@ -120,8 +120,8 @@ provider "huaweicloud" {
   agency_domain_name = "${var.agency_domain_name}"
   delegated_project  = "${var.delegated_project}"
   token              = "${var.token}"
+  region             = "${var.region}"
   auth_url           = "https://iam.myhwclouds.com:443/v3"
-  region             = "RegionOne"
 }
 ```
 ```token``` specified is not the normal token, but must have the authority of 'Agent Operator'
