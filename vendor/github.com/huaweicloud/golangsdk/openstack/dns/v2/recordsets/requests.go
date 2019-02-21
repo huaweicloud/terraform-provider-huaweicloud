@@ -137,8 +137,6 @@ func (opts UpdateOpts) ToRecordSetUpdateMap() (map[string]interface{}, error) {
 
 	if opts.TTL > 0 {
 		b["ttl"] = opts.TTL
-	} else {
-		b["ttl"] = nil
 	}
 
 	return b, nil

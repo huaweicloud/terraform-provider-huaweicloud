@@ -1497,10 +1497,10 @@
 			"revisionTime": "2018-09-26T10:00:47Z"
 		},
 		{
-			"checksumSHA1": "plsG8kyRJhFGnhGfO0scQk5kRLw=",
+			"checksumSHA1": "u3Ek8Ml0RX/6PZlDlACezAWzmGw=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/dns/v2/recordsets",
-			"revision": "888f77744ab7c65bb4d448d5b5313edba29e76c7",
-			"revisionTime": "2018-02-24T07:23:49Z"
+			"revision": "00d5197f85d18457ff628d2ed3d37de8034518c2",
+			"revisionTime": "2019-02-20T07:01:17Z"
 		},
 		{
 			"checksumSHA1": "xZtYDt64TwCA7g1yE5NbO2QQZxc=",
