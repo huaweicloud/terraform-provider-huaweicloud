@@ -15,21 +15,6 @@ Note: You _must_ have security admin privileges in your HuaweiCloud
 cloud to use this resource. please refer to [User Management Model](
 https://docs.otc.t-systems.com/en-us/usermanual/iam/iam_01_0034.html)
 
-Note: Please authentication on domain level via configuration
-provider as following example:
-
-```hcl
-provider "huaweicloud" {
-  user_name   = "<username>"
-  password    = "<password>"
-  domain_name = "<domain name>"
-  auth_url    = "https://iam.eu-de.otc.t-systems.com/v3"
-  region      = "eu-de"
-  insecure    = "true"
-}
-```
-Donot configuration either ```tenant_name``` nor ```tenant_id```.
-
 ## Example Usage
 
 ```hcl

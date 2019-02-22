@@ -237,6 +237,9 @@ func (client *ProviderClient) Request(method, url string, options *RequestOpts) 
 		if client.AKSKAuthOptions.ProjectId != "" {
 			req.Header.Set("X-Project-Id", client.AKSKAuthOptions.ProjectId)
 		}
+		if client.AKSKAuthOptions.DomainID != "" {
+			req.Header.Set("X-Domain-Id", client.AKSKAuthOptions.DomainID)
+		}
 	}
 
 	// Issue the request.
