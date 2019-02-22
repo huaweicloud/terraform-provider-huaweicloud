@@ -70,7 +70,7 @@ The following arguments are supported:
 
 * `highway_subnet_id` - (Optional) The ID of the high speed network used to create bare metal nodes. Changing this parameter will create a new cluster resource.
 
-* `container_network_type` - (Required) Container network parameters.
+* `container_network_type` - (Required) Container network parameters. Possible values:
 
 	* `overlay_l2` - An overlay_l2 network built for containers by using Open vSwitch(OVS)
 	* `underlay_ipvlan` - An underlay_ipvlan network built for bare metal servers by using ipvlan.
