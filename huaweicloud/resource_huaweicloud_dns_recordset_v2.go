@@ -185,7 +185,7 @@ func resourceDNSRecordSetV2Update(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if d.HasChange("records") {
-		recordsraw := d.Get("records").(*schema.Set).List()
+		recordsraw := d.Get("records").([]interface{})
 		records := make([]string, len(recordsraw))
 		for i, recordraw := range recordsraw {
 			records[i] = recordraw.(string)
