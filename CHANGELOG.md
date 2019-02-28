@@ -1,4 +1,26 @@
 ## 1.4.0 (Unreleased)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_identity_role_v3` [GH-81]
+* **New Resource:** `huaweicloud_identity_project_v3` [GH-81]
+* **New Resource:** `huaweicloud_identity_role_assignment_v3` [GH-81]
+* **New Resource:** `huaweicloud_identity_user_v3` [GH-81]
+* **New Resource:** `huaweicloud_identity_group_v3` [GH-81]
+* **New Resource:** `huaweicloud_identity_group_membership_v3` [GH-81]
+* **New Resource:** `huaweicloud_lb_l7policy_v2` [GH-82]
+* **New Resource:** `huaweicloud_lb_l7rule_v2` [GH-82]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_dns_zone_v2: Add multi router support for dns zone [GH-80]
+* resource/huaweicloud_networking_port_v2: Add DHCP opts to port resource [GH-83]
+
+BUG FIXES:
+
+* resource/huaweicloud_compute_instance_v2: Fix default security group error [GH-86]
+* resource/huaweicloud_dns_recordset_v2: Fix dns records update error [GH-87]
+
 ## 1.3.0 (January 08, 2019)
 
 FEATURES:
