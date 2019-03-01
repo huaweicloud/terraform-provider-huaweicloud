@@ -1,6 +1,8 @@
 package clusters
 
 import (
+	"encoding/json"
+
 	"github.com/huaweicloud/golangsdk"
 )
 
@@ -87,7 +89,7 @@ type Status struct {
 	//The status of each component in the cluster
 	Conditions Conditions `json:"conditions"`
 	//Kube-apiserver access address in the cluster
-	Endpoints []Endpoints `json:"endpoints"`
+	Endpoints []Endpoints `json:"-"`
 }
 
 type Conditions struct {
@@ -100,10 +102,55 @@ type Conditions struct {
 }
 
 type Endpoints struct {
-	//The address accessed within the user's subnet
+	//The address accessed within the user's subnet - Huawei
 	Url string `json:"url"`
-	//Public network access address
+	//Public network access address - Huawei
 	Type string `json:"type"`
+	//Internal network address - OTC
+	Internal string `json:"internal"`
+	//External network address - OTC
+	External string `json:"external"`
+	//Endpoint of the cluster to be accessed through API Gateway - OTC
+	ExternalOTC string `json:"external_otc"`
+}
+
+// UnmarshalJSON helps to unmarshal Status fields into needed values.
+//OTC and Huawei have different data types and child fields for `endpoints` field in Cluster Status.
+//This function handles the unmarshal for both
+func (r *Status) UnmarshalJSON(b []byte) error {
+	type tmp Status
+	var s struct {
+		tmp
+		Endpoints []Endpoints `json:"endpoints"`
+	}
+
+	err := json.Unmarshal(b, &s)
+
+	if err != nil {
+		switch err.(type) {
+		case *json.UnmarshalTypeError: //check if type error occurred (handles the different endpoint structure for huawei and otc)
+			var s struct {
+				tmp
+				Endpoints Endpoints `json:"endpoints"`
+			}
+			err := json.Unmarshal(b, &s)
+			if err != nil {
+				return err
+			}
+			*r = Status(s.tmp)
+			r.Endpoints = []Endpoints{{Internal: s.Endpoints.Internal,
+				External:    s.Endpoints.External,
+				ExternalOTC: s.Endpoints.ExternalOTC}}
+			return nil
+		default:
+			return err
+		}
+	}
+
+	*r = Status(s.tmp)
+	r.Endpoints = s.Endpoints
+
+	return err
 }
 
 type commonResult struct {

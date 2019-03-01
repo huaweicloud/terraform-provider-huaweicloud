@@ -75,6 +75,10 @@ type BlockDevice struct {
 	// DiskBus is the bus type of the block devices.
 	// Examples of this are ide, usb, virtio, scsi, etc.
 	DiskBus string `json:"disk_bus,omitempty"`
+
+	DeviceName string `json:"device_name,omitempty"`
+
+	VolumeType string `json:"volume_type,omitempty"`
 }
 
 // CreateOptsExt is a structure that extends the server `CreateOpts` structure

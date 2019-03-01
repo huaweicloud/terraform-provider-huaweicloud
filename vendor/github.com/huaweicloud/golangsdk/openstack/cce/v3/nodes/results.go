@@ -108,8 +108,8 @@ type ExtendParam struct {
 	PublicKey string `json:"publicKey,omitempty"`
 	// The maximum number of instances a node is allowed to create.
 	MaxPods int `json:"maxPods,omitempty"`
-
 }
+
 type PublicIPSpec struct {
 	// List of existing elastic IP IDs
 	Ids []string `json:"ids,omitempty"`
