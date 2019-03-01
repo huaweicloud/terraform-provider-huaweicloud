@@ -23,7 +23,7 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckIdentityV3UserDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccIdentityV3User_basic(userName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIdentityV3UserExists("huaweicloud_identity_user_v3.user_1", &user),
@@ -33,7 +33,7 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 						"huaweicloud_identity_user_v3.user_1", "enabled", "true"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccIdentityV3User_update(userName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIdentityV3UserExists("huaweicloud_identity_user_v3.user_1", &user),
