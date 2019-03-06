@@ -51,10 +51,6 @@ func resourceSoftwareConfigV1() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"input_values": {
 				Type:     schema.TypeList,
 				Optional: true,

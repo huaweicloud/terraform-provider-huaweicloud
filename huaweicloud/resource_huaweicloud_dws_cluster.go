@@ -154,11 +154,6 @@ func resourceDwsCluster() *schema.Resource {
 				},
 			},
 
-			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"public_endpoints": {
 				Type:     schema.TypeList,
 				Computed: true,
