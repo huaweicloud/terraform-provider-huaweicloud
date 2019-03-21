@@ -1,28 +1,28 @@
-## 1.4.0 (Unreleased)
+## 1.4.0 (March 21, 2019)
 
 FEATURES:
 
-* **New Data Source:** `huaweicloud_identity_role_v3` [GH-81]
-* **New Resource:** `huaweicloud_identity_project_v3` [GH-81]
-* **New Resource:** `huaweicloud_identity_role_assignment_v3` [GH-81]
-* **New Resource:** `huaweicloud_identity_user_v3` [GH-81]
-* **New Resource:** `huaweicloud_identity_group_v3` [GH-81]
-* **New Resource:** `huaweicloud_identity_group_membership_v3` [GH-81]
-* **New Resource:** `huaweicloud_lb_l7policy_v2` [GH-82]
-* **New Resource:** `huaweicloud_lb_l7rule_v2` [GH-82]
+* **New Data Source:** `huaweicloud_identity_role_v3` ([#81](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/81))
+* **New Resource:** `huaweicloud_identity_project_v3` ([#81](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/81))
+* **New Resource:** `huaweicloud_identity_role_assignment_v3` ([#81](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/81))
+* **New Resource:** `huaweicloud_identity_user_v3` ([#81](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/81))
+* **New Resource:** `huaweicloud_identity_group_v3` ([#81](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/81))
+* **New Resource:** `huaweicloud_identity_group_membership_v3` ([#81](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/81))
+* **New Resource:** `huaweicloud_lb_l7policy_v2` ([#82](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/82))
+* **New Resource:** `huaweicloud_lb_l7rule_v2` ([#82](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/82))
 
 ENHANCEMENTS:
 
-* provider: Support authorized by token + agency [GH-78]
-* resource/huaweicloud_dns_zone_v2: Add multi router support for dns zone [GH-80]
-* resource/huaweicloud_networking_port_v2: Add DHCP opts to port resource [GH-83]
-* resource/huaweicloud_cce_cluster_v3: Add detailed options for cce cluster `flavor_id` and `container_network_type` [GH-89]
+* provider: Support authorized by token + agency ([#78](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/78))
+* resource/huaweicloud_dns_zone_v2: Add multi router support for dns zone ([#80](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/80))
+* resource/huaweicloud_networking_port_v2: Add DHCP opts to port resource ([#83](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/83))
+* resource/huaweicloud_cce_cluster_v3: Add detailed options for cce cluster `flavor_id` and `container_network_type` ([#89](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/89))
 
 BUG FIXES:
 
-* resource/huaweicloud_dcs_instance_v1: Fix dcs instance update error [GH-79]
-* resource/huaweicloud_compute_instance_v2: Fix default security group error [GH-86]
-* resource/huaweicloud_dns_recordset_v2: Fix dns records update error [GH-87]
+* resource/huaweicloud_dcs_instance_v1: Fix dcs instance update error ([#79](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/79))
+* resource/huaweicloud_compute_instance_v2: Fix default security group error ([#86](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/86))
+* resource/huaweicloud_dns_recordset_v2: Fix dns records update error ([#87](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/87))
 
 ## 1.3.0 (January 08, 2019)
 
