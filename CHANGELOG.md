@@ -13,11 +13,14 @@ FEATURES:
 
 ENHANCEMENTS:
 
+* provider: Support authorized by token + agency [GH-78]
 * resource/huaweicloud_dns_zone_v2: Add multi router support for dns zone [GH-80]
 * resource/huaweicloud_networking_port_v2: Add DHCP opts to port resource [GH-83]
+* resource/huaweicloud_cce_cluster_v3: Add detailed options for cce cluster `flavor_id` and `container_network_type` [GH-89]
 
 BUG FIXES:
 
+* resource/huaweicloud_dcs_instance_v1: Fix dcs instance update error [GH-79]
 * resource/huaweicloud_compute_instance_v2: Fix default security group error [GH-86]
 * resource/huaweicloud_dns_recordset_v2: Fix dns records update error [GH-87]
 
