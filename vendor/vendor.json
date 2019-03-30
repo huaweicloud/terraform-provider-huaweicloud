@@ -1323,10 +1323,10 @@
 			"revisionTime": "2018-09-28T03:11:13Z"
 		},
 		{
-			"checksumSHA1": "N8RK6MuOrE9TYdvOnEVQy/chKOM=",
+			"checksumSHA1": "hS4sckNAKv+fxg+Jn/V8WqlT+SA=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters",
-			"revision": "fdea87e5a2d61c3072101509ebd93f755d9cbc4f",
-			"revisionTime": "2018-07-20T15:04:31Z"
+			"revision": "09c428020ade44ba52bfe3591b779ceb90d9e339",
+			"revisionTime": "2019-03-29T01:54:31Z"
 		},
 		{
 			"checksumSHA1": "xDEoWEA9ygauLBKnsNzsa1XKvOc=",
