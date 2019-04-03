@@ -51,6 +51,8 @@ func TestAccCCENodesV3_timeout(t *testing.T) {
 				Config: testAccCCENodeV3_timeout,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodeV3Exists("huaweicloud_cce_node_v3.node_1", "huaweicloud_cce_cluster_v3.cluster_1", &node),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cce_node_v3.node_1", "os", "CentOS 7.1"),
 				),
 			},
 		},
@@ -209,6 +211,7 @@ resource "huaweicloud_cce_node_v3" "node_1" {
   iptype="5_bgp"
   billing_mode=0
   availability_zone= "%s"
+  os= "CentOS 7.1"
   key_pair="%s"
   root_volume = {
     size= 40,

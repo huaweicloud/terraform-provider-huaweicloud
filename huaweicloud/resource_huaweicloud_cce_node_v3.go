@@ -62,6 +62,12 @@ func resourceCCENodeV3() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"os": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "EulerOS 2.2",
+			},
 			"key_pair": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -254,6 +260,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		Spec: nodes.Spec{
 			Flavor:      d.Get("flavor_id").(string),
 			Az:          d.Get("availability_zone").(string),
+			Os:          d.Get("os").(string),
 			Login:       nodes.LoginSpec{SshKey: d.Get("key_pair").(string)},
 			RootVolume:  resourceCCERootVolume(d),
 			DataVolumes: resourceCCEDataVolume(d),
@@ -360,6 +367,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("annotations", s.Metadata.Annotations)
 	d.Set("flavor_id", s.Spec.Flavor)
 	d.Set("availability_zone", s.Spec.Az)
+	d.Set("os", s.Spec.Os)
 	d.Set("billing_mode", s.Spec.BillingMode)
 	d.Set("node_count", s.Spec.Count)
 	d.Set("extend_param_charging_mode", s.Spec.ExtendParam.ChargingMode)
