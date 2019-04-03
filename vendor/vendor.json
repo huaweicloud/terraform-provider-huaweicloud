@@ -1329,10 +1329,10 @@
 			"revisionTime": "2019-03-29T01:54:31Z"
 		},
 		{
-			"checksumSHA1": "xDEoWEA9ygauLBKnsNzsa1XKvOc=",
+			"checksumSHA1": "5eXOI16i+tXYk/hFLOB8r+mTgdU=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes",
-			"revision": "fdea87e5a2d61c3072101509ebd93f755d9cbc4f",
-			"revisionTime": "2018-07-20T15:04:31Z"
+			"revision": "49551ba13819e06f9cf2273e498f59efa6dff3c4",
+			"revisionTime": "2019-04-02T09:21:00Z"
 		},
 		{
 			"checksumSHA1": "q1aqMo0piceUY8M6d6xzbL1mgdo=",

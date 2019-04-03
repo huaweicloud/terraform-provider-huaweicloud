@@ -46,6 +46,8 @@ type Spec struct {
 	Flavor string `json:"flavor" required:"true"`
 	// The value of the available partition name
 	Az string `json:"az" required:"true"`
+	// The OS of the node
+	Os string `json:"os,omitempty"`
 	// Node login parameters
 	Login LoginSpec `json:"login" required:"true"`
 	// System disk parameter of the node
@@ -108,8 +110,8 @@ type ExtendParam struct {
 	PublicKey string `json:"publicKey,omitempty"`
 	// The maximum number of instances a node is allowed to create.
 	MaxPods int `json:"maxPods,omitempty"`
-
 }
+
 type PublicIPSpec struct {
 	// List of existing elastic IP IDs
 	Ids []string `json:"ids,omitempty"`
