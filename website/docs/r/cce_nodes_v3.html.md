@@ -59,6 +59,9 @@ The following arguments are supported:
     
 * `availability_zone` - (Required) specify the name of the available partition (AZ). Changing this parameter will create a new resource.
 
+* `os` - (Optional) Operating System of the node, possible values are EulerOS 2.2 and CentOS 7.1. Defaults to EulerOS 2.2.
+    Changing this parameter will create a new resource.
+
 * `key_pair` - (Required) Key pair name when logging in to select the key pair mode. Changing this parameter will create a new resource.
 
 * `eip_ids` - (Optional) List of existing elastic IP IDs. Changing this parameter will create a new resource.
