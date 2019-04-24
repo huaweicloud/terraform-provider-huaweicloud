@@ -369,7 +369,6 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("availability_zone", s.Spec.Az)
 	d.Set("os", s.Spec.Os)
 	d.Set("billing_mode", s.Spec.BillingMode)
-	d.Set("node_count", s.Spec.Count)
 	d.Set("extend_param_charging_mode", s.Spec.ExtendParam.ChargingMode)
 	d.Set("ecs:performance_type", s.Spec.ExtendParam.PublicKey)
 	d.Set("order_id", s.Spec.ExtendParam.OrderID)
