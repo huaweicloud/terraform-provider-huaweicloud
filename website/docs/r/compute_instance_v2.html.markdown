@@ -182,7 +182,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 
 ```hcl
 resource "huaweicloud_networking_floatingip_v2" "myip" {
-  pool = ""admin_external_net""
+  pool = "admin_external_net"
 }
 
 resource "huaweicloud_compute_instance_v2" "multi-net" {
