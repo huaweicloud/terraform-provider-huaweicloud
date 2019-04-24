@@ -25,7 +25,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 }
 
 resource "huaweicloud_networking_floatingip_v2" "fip_1" {
-  pool = "my_pool"
+  pool = ""admin_external_net""
 }
 
 resource "huaweicloud_compute_floatingip_associate_v2" "fip_1" {
