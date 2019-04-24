@@ -47,8 +47,6 @@ The following arguments are supported:
 
 * `billing_mode` - (Optional) Node's billing mode: The value is 0 (on demand). Changing this parameter will create a new resource.
 
-* `node_count` - (Required) The number of nodes in batch creation.
-
 * `name` - (Optional) Node Name.
 
 * `labels` - (Optional) Node tag, key/value pair format. Changing this parameter will create a new resource.
