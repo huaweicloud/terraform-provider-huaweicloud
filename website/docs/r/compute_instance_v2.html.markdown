@@ -28,7 +28,7 @@ resource "huaweicloud_compute_instance_v2" "basic" {
   }
 
   network {
-    name = "my_network"
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
   }
 }
 ```
@@ -50,7 +50,7 @@ resource "huaweicloud_compute_instance_v2" "myinstance" {
   availability_zone = "az"
 
   network {
-    name = "my_network"
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
   }
 }
 
@@ -80,7 +80,7 @@ resource "huaweicloud_compute_instance_v2" "boot-from-volume" {
   }
 
   network {
-    name = "my_network"
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
   }
 }
 ```
@@ -110,7 +110,7 @@ resource "huaweicloud_compute_instance_v2" "boot-from-volume" {
   }
 
   network {
-    name = "my_network"
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
   }
 }
 ```
@@ -182,7 +182,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 
 ```hcl
 resource "huaweicloud_networking_floatingip_v2" "myip" {
-  pool = "my_pool"
+  pool = "admin_external_net"
 }
 
 resource "huaweicloud_compute_instance_v2" "multi-net" {
@@ -194,7 +194,7 @@ resource "huaweicloud_compute_instance_v2" "multi-net" {
   availability_zone = "az"
 
   network {
-    name = "my_first_network"
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
   }
 
   network {
@@ -226,7 +226,7 @@ resource "huaweicloud_compute_instance_v2" "personality" {
   }
 
   network {
-    name = "my_network"
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
   }
 }
 ```
@@ -281,7 +281,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   user_data         = "#cloud-config\nhostname: instance_1.example.com\nfqdn: instance_1.example.com"
 
   network {
-    name = "my_network"
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
   }
 }
 ```
