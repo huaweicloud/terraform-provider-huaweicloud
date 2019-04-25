@@ -327,13 +327,16 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Waiting for CCE Node (%s) to become available", s.Metadata.Name)
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"Build", "Installing"},
-		Target:     []string{"Active", "Abnormal"},
+		Target:     []string{"Active"},
 		Refresh:    waitForCceNodeActive(nodeClient, clusterid, nodeid),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
 	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud CCE Node: %s", err)
+	}
 
 	node, err := nodes.Get(nodeClient, clusterid, nodeid).Extract()
 	d.SetId(node.Metadata.Id)
