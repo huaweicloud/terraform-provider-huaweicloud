@@ -137,7 +137,8 @@ The following arguments are supported:
   If omitted, the `OS_SECRET_KEY` environment variable is used.
 
 * `auth_url` - (Required) The Identity authentication URL. If omitted, the
-  `OS_AUTH_URL` environment variable is used.
+  `OS_AUTH_URL` environment variable is used. To find the auth_url, you can
+  refer to [Regions and Endpoints](https://developer.huaweicloud.com/en-us/endpoint)
 
 * `region` - (Optional) The region of the HuaweiCloud to use. If omitted,
   the `OS_REGION_NAME` environment variable is used. If `OS_REGION_NAME` is
