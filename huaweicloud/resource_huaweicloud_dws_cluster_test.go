@@ -26,7 +26,7 @@ import (
 
 func TestAccDwsCluster_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDws(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDwsClusterDestroy,
 		Steps: []resource.TestStep{
