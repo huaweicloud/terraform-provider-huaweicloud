@@ -33,6 +33,7 @@ var (
 	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
 	OS_SSH_KEY                = os.Getenv("OS_SSH_KEY")
 	OS_DWS_ENVIRONMENT        = os.Getenv("OS_DWS_ENVIRONMENT")
+	OS_MRS_ENVIRONMENT        = os.Getenv("OS_MRS_ENVIRONMENT")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -153,6 +154,14 @@ func testAccPreCheckDws(t *testing.T) {
 
 	if OS_DWS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support DWS tests")
+	}
+}
+
+func testAccPreCheckMrs(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_MRS_ENVIRONMENT == "" {
+		t.Skip("This environment does not support MRS tests")
 	}
 }
 

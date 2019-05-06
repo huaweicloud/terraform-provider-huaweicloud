@@ -26,7 +26,7 @@ import (
 
 func TestAccMlsInstance_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckMrs(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMlsInstanceDestroy,
 		Steps: []resource.TestStep{
