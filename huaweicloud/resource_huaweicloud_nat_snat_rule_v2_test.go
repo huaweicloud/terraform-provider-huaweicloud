@@ -21,7 +21,7 @@ func TestAccNatSnatRule_basic(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckNat(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNatV2SnatRuleDestroy,
 		Steps: []resource.TestStep{
