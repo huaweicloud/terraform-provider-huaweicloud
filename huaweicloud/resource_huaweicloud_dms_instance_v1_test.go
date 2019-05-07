@@ -17,7 +17,7 @@ func TestAccDmsInstancesV1_basic(t *testing.T) {
 	var instanceUpdate = fmt.Sprintf("dms_instance_update_%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDms(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDmsV1InstanceDestroy,
 		Steps: []resource.TestStep{
@@ -50,7 +50,7 @@ func TestAccDmsInstancesV1_KafkaInstance(t *testing.T) {
 	var instanceName = fmt.Sprintf("dms_instance_%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDms(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDmsV1InstanceDestroy,
 		Steps: []resource.TestStep{
