@@ -35,6 +35,7 @@ var (
 	OS_DWS_ENVIRONMENT        = os.Getenv("OS_DWS_ENVIRONMENT")
 	OS_MRS_ENVIRONMENT        = os.Getenv("OS_MRS_ENVIRONMENT")
 	OS_DMS_ENVIRONMENT        = os.Getenv("OS_DMS_ENVIRONMENT")
+	OS_NAT_ENVIRONMENT        = os.Getenv("OS_NAT_ENVIRONMENT")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -171,6 +172,14 @@ func testAccPreCheckDms(t *testing.T) {
 
 	if OS_DMS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support DMS tests")
+	}
+}
+
+func testAccPreCheckNat(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_NAT_ENVIRONMENT == "" {
+		t.Skip("This environment does not support NAT tests")
 	}
 }
 
