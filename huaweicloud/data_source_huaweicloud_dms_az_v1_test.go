@@ -10,7 +10,7 @@ import (
 
 func TestAccDmsAZV1DataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
+		PreCheck:  func() { testAccPreCheckDms(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
