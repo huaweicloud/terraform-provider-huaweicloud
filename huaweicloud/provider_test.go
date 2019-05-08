@@ -151,6 +151,13 @@ func testAccPreCheckS3(t *testing.T) {
 	}
 }
 
+func testAccPreCheckImage(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+	if OS_ACCESS_KEY != "" && OS_SECRET_KEY != "" {
+		t.Skip("AK/SK authentication doesn't support images tests")
+	}
+}
+
 func testAccPreCheckDws(t *testing.T) {
 	testAccPreCheckRequiredEnvVars(t)
 
