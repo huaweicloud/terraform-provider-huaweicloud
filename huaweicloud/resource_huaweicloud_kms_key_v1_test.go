@@ -17,7 +17,7 @@ func TestAccKmsKeyV1_basic(t *testing.T) {
 	var keyAliasUpdate = fmt.Sprintf("kms_updated_%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckKms(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKmsV1KeyDestroy,
 		Steps: []resource.TestStep{
@@ -99,7 +99,7 @@ func TestAccKmsKey_isEnabled(t *testing.T) {
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckKms(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKmsV1KeyDestroy,
 		Steps: []resource.TestStep{

@@ -36,6 +36,7 @@ var (
 	OS_MRS_ENVIRONMENT        = os.Getenv("OS_MRS_ENVIRONMENT")
 	OS_DMS_ENVIRONMENT        = os.Getenv("OS_DMS_ENVIRONMENT")
 	OS_NAT_ENVIRONMENT        = os.Getenv("OS_NAT_ENVIRONMENT")
+	OS_KMS_ENVIRONMENT        = os.Getenv("OS_KMS_ENVIRONMENT")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -187,6 +188,14 @@ func testAccPreCheckNat(t *testing.T) {
 
 	if OS_NAT_ENVIRONMENT == "" {
 		t.Skip("This environment does not support NAT tests")
+	}
+}
+
+func testAccPreCheckKms(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_KMS_ENVIRONMENT == "" {
+		t.Skip("This environment does not support KMS tests")
 	}
 }
 
