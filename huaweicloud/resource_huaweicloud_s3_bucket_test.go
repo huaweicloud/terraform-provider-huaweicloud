@@ -901,7 +901,7 @@ func testAccBucketName(randInt int) string {
 }
 
 func testAccBucketDomainName(randInt int) string {
-	return fmt.Sprintf("tf-test-bucket-%d.s3.amazonaws.com", randInt)
+	return fmt.Sprintf("tf-test-bucket-%d.obs.%s.myhuaweicloud.com", randInt, OS_REGION_NAME)
 }
 
 func testAccWebsiteEndpoint(randInt int) string {
