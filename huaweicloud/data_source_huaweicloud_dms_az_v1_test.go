@@ -22,7 +22,7 @@ func TestAccDmsAZV1DataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_dms_az_v1.az1", "port", "8002"),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_az_v1.az1", "code", "cn-north-1a"),
+						"data.huaweicloud_dms_az_v1.az1", "code", OS_AVAILABILITY_ZONE),
 				),
 			},
 		},
@@ -48,6 +48,6 @@ var testAccDmsAZV1DataSource_basic = fmt.Sprintf(`
 data "huaweicloud_dms_az_v1" "az1" {
 name = "可用区1"
 port = "8002"
-code = "cn-north-1a"
+code = "%s"
 }
-`)
+`, OS_AVAILABILITY_ZONE)

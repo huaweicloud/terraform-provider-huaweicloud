@@ -81,7 +81,7 @@ resource "huaweicloud_mls_instance" "instance" {
   network {
     vpc_id = "%s"
     network_id = "%s"
-    available_zone = "cn-north-1b"
+    available_zone = "%s"
     public_ip {
       bind_type = "not_use"
     }
@@ -94,7 +94,7 @@ resource "huaweicloud_mls_instance" "instance" {
     create = "60m"
   }
 }
-	`, val, OS_AVAILABILITY_ZONE, OS_VPC_ID, OS_NETWORK_ID, val, OS_VPC_ID, OS_NETWORK_ID)
+	`, val, OS_AVAILABILITY_ZONE, OS_VPC_ID, OS_NETWORK_ID, val, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
 }
 
 func testAccCheckMlsInstanceDestroy(s *terraform.State) error {
