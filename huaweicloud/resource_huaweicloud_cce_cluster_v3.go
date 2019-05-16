@@ -197,6 +197,9 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud CCE cluster: %s", err)
+	}
 	d.SetId(create.Metadata.Id)
 
 	return resourceCCEClusterV3Read(d, meta)
@@ -294,9 +297,6 @@ func waitForCCEClusterActive(cceClient *golangsdk.ServiceClient, clusterId strin
 		n, err := clusters.Get(cceClient, clusterId).Extract()
 		if err != nil {
 			return nil, "", err
-		}
-		if n.Status.Phase != "Creating" {
-			return n, "Creating", nil
 		}
 
 		return n, n.Status.Phase, nil
