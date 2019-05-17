@@ -86,7 +86,7 @@ func testAccCheckRDSV1InstanceExists(n string, instance *instances.Instance) res
 
 var TestAccSInstanceV1Config_basic = fmt.Sprintf(`
 data "huaweicloud_rds_flavors_v1" "flavor" {
-    region = "cn-north-1"
+    region = "%s"
     datastore_name = "PostgreSQL"
     datastore_version = "9.5.5"
     speccode = "rds.pg.s1.medium.ha"
@@ -108,8 +108,8 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     type = "COMMON"
     size = 100
   }
-  region = "cn-north-1"
-  availabilityzone = "cn-north-1a"
+  region = "%s"
+  availabilityzone = "%s"
   vpc = "%s"
   nics {
     subnetid = "%s"
@@ -128,4 +128,4 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     replicationmode = "async"
   }
   depends_on = ["huaweicloud_compute_secgroup_v2.secgrp_rds"]
-}`, OS_VPC_ID, OS_NETWORK_ID)
+}`, OS_REGION_NAME, OS_REGION_NAME, OS_AVAILABILITY_ZONE, OS_VPC_ID, OS_NETWORK_ID)

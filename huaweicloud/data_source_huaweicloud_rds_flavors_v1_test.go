@@ -63,21 +63,21 @@ func testAccCheckRdsFlavorV1DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccHuaweiCloudRdsFlavorV1DataSource_basic = `
+var testAccHuaweiCloudRdsFlavorV1DataSource_basic = fmt.Sprintf(`
 
 data "huaweicloud_rds_flavors_v1" "flavor" {
-    region = "cn-north-1"
+    region = "%s"
 	datastore_name = "PostgreSQL"
     datastore_version = "9.5.5"
 }
-`
+`, OS_REGION_NAME)
 
-var testAccHuaweiCloudRdsFlavorV1DataSource_speccode = `
+var testAccHuaweiCloudRdsFlavorV1DataSource_speccode = fmt.Sprintf(`
 
 data "huaweicloud_rds_flavors_v1" "flavor" {
-    region = "cn-north-1"
+    region = "%s"
 	datastore_name = "PostgreSQL"
     datastore_version = "9.5.5"
     speccode = "rds.pg.s1.xlarge"
 }
-`
+`, OS_REGION_NAME)
