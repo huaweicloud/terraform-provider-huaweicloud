@@ -193,6 +193,14 @@ func resourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"private_ip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"public_ip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -405,6 +413,8 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("eip_ids", s.Spec.PublicIP.Ids)
 	d.Set("region", GetRegion(d, config))
+	d.Set("private_ip", s.Status.PrivateIP)
+	d.Set("public_ip", s.Status.PublicIP)
 
 	return nil
 }
