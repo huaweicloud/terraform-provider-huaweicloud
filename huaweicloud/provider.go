@@ -224,6 +224,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dcs_maintainwindow_v1":     dataSourceDcsMaintainWindowV1(),
 			"huaweicloud_dcs_product_v1":            dataSourceDcsProductV1(),
 			"huaweicloud_identity_role_v3":          dataSourceIdentityRoleV3(),
+			"huaweicloud_cdm_flavors_v1":            dataSourceCdmFlavorV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -306,6 +307,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_identity_user_v3":                   resourceIdentityUserV3(),
 			"huaweicloud_identity_group_v3":                  resourceIdentityGroupV3(),
 			"huaweicloud_identity_group_membership_v3":       resourceIdentityGroupMembershipV3(),
+			"huaweicloud_cdm_cluster_v1":                     resourceCdmClusterV1(),
 		},
 
 		ConfigureFunc: configureProvider,

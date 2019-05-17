@@ -68,7 +68,8 @@ func replaceVars(d *schema.ResourceData, linkTmpl string, kv map[string]string) 
 			}
 			v, ok := d.GetOk(m)
 			if ok {
-				return v.(string)
+				v1, _ := convertToStr(v)
+				return v1
 			}
 		}
 		return ""
@@ -116,12 +117,76 @@ func navigateMap(d interface{}, index []string) (interface{}, error) {
 	return d, nil
 }
 
+func navigateValue(d interface{}, index []string, arrayIndex map[string]int) (interface{}, error) {
+	for n, i := range index {
+		if d == nil {
+			return nil, nil
+		}
+		if d1, ok := d.(map[string]interface{}); ok {
+			d, ok = d1[i]
+			if !ok {
+				return nil, fmt.Errorf("navigate:: '%s' may not exist", i)
+			}
+		} else {
+			return nil, fmt.Errorf("navigateValue:: Can not convert (%s) to map, index=%s", reflect.TypeOf(d), strings.Join(index, "."))
+		}
+
+		if arrayIndex != nil {
+			if j, ok := arrayIndex[strings.Join(index[:n+1], ".")]; ok {
+				if d == nil {
+					return nil, nil
+				}
+				if d2, ok := d.([]interface{}); ok {
+					if j >= len(d2) {
+						return nil, fmt.Errorf("navigate:: The index is out of array")
+					}
+
+					d = d2[j]
+				} else {
+					return nil, fmt.Errorf("navigateValue:: Can not convert (%s) to array, index=%s.%v", reflect.TypeOf(d), i, j)
+				}
+			}
+		}
+	}
+
+	return d, nil
+}
+
+func isUserInput(d *schema.ResourceData, index []string, arrayIndex map[string]int) bool {
+	var r = make([]string, 0, len(index)*2)
+	for n, i := range index {
+		r = append(r, i)
+
+		if arrayIndex != nil {
+			if j, ok := arrayIndex[strings.Join(index[:n+1], ".")]; ok {
+				r = append(r, strconv.Itoa(j))
+			}
+		}
+	}
+	_, e := d.GetOkExists(strings.Join(r[:len(r)], "."))
+	return e
+}
+
 func convertToInt(v interface{}) (interface{}, error) {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		return strconv.ParseInt(strVal, 10, 64)
 	}
 	return nil, fmt.Errorf("can not convert to integer")
+}
+
+func convertToStr(v interface{}) (string, error) {
+	if s, ok := v.(string); ok {
+		return s, nil
+
+	} else if i, ok := v.(int); ok {
+		return strconv.Itoa(i), nil
+
+	} else if b, ok := v.(bool); ok {
+		return strconv.FormatBool(b), nil
+	}
+
+	return "", fmt.Errorf("can't convert to string")
 }
 
 func waitToFinish(target, pending []string, timeout, interval time.Duration, f resource.StateRefreshFunc) (interface{}, error) {
