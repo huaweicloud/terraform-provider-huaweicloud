@@ -211,7 +211,7 @@ func resourceDwsCluster() *schema.Resource {
 
 func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "dws")
+	client, err := config.sdkClient(GetRegion(d, config), "dws", serviceProjectLevel)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -400,7 +400,7 @@ func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDwsClusterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "dws")
+	client, err := config.sdkClient(GetRegion(d, config), "dws", serviceProjectLevel)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -519,7 +519,7 @@ func resourceDwsClusterRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDwsClusterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "dws")
+	client, err := config.sdkClient(GetRegion(d, config), "dws", serviceProjectLevel)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
