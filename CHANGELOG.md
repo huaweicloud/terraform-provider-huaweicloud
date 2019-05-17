@@ -1,17 +1,17 @@
-## 1.5.0 (Unreleased)
+## 1.5.0 (May 17, 2019)
 
 ENHANCEMENTS:
 
-* resource/huaweicloud_cce_cluster_v3: Add authentication mode option support for CCE cluster [GH-98]
-* resource/huaweicloud_cce_node_v3: Add os option support for CCE node [GH-100]
-* resource/huaweicloud_cce_node_v3: Add private/public IP attributes to CCE node [GH-127]
+* resource/huaweicloud_cce_cluster_v3: Add authentication mode option support for CCE cluster ([#98](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/98))
+* resource/huaweicloud_cce_node_v3: Add os option support for CCE node ([#100](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/100))
+* resource/huaweicloud_cce_node_v3: Add private/public IP attributes to CCE node ([#127](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/127))
 
 BUG FIXES:
 
-* resource/huaweicloud_cce_node_v3: Remove Abnormal from CCE node creating target state [GH-112]
-* resource/huaweicloud_cce_node_v3: Fix CCE node eip_count issue [GH-115]
-* resource/huaweicloud_s3_bucket: Fix OBS bucket domain name [GH-124]
-* resource/huaweicloud_cce_cluster_v3: Fix CCE cluster wait state error [GH-125]
+* resource/huaweicloud_cce_node_v3: Remove Abnormal from CCE node creating target state ([#112](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/112))
+* resource/huaweicloud_cce_node_v3: Fix CCE node eip_count issue ([#115](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/115))
+* resource/huaweicloud_s3_bucket: Fix OBS bucket domain name ([#124](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/124))
+* resource/huaweicloud_cce_cluster_v3: Fix CCE cluster wait state error ([#125](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/125))
 
 ## 1.4.0 (March 21, 2019)
 
