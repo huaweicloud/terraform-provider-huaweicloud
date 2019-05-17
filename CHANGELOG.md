@@ -4,11 +4,14 @@ ENHANCEMENTS:
 
 * resource/huaweicloud_cce_cluster_v3: Add authentication mode option support for CCE cluster [GH-98]
 * resource/huaweicloud_cce_node_v3: Add os option support for CCE node [GH-100]
+* resource/huaweicloud_cce_node_v3: Add private/public IP attributes to CCE node [GH-127]
 
 BUG FIXES:
 
 * resource/huaweicloud_cce_node_v3: Remove Abnormal from CCE node creating target state [GH-112]
 * resource/huaweicloud_cce_node_v3: Fix CCE node eip_count issue [GH-115]
+* resource/huaweicloud_s3_bucket: Fix OBS bucket domain name [GH-124]
+* resource/huaweicloud_cce_cluster_v3: Fix CCE cluster wait state error [GH-125]
 
 ## 1.4.0 (March 21, 2019)
 
