@@ -309,6 +309,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_identity_group_membership_v3":       resourceIdentityGroupMembershipV3(),
 			"huaweicloud_cdm_cluster_v1":                     resourceCdmClusterV1(),
 			"huaweicloud_ges_graph_v1":                       resourceGesGraphV1(),
+			"huaweicloud_cloudtable_cluster_v2":              resourceCloudtableClusterV2(),
 		},
 
 		ConfigureFunc: configureProvider,
