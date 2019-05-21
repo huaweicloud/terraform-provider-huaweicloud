@@ -234,7 +234,7 @@ func resourceCdmClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	res["read"] = fillReadRespBody(v)
+	res["read"] = fillCdmClusterV1ReadRespBody(v)
 
 	return setCdmClusterV1Properties(d, res)
 }
@@ -687,7 +687,7 @@ func sendCdmClusterV1ReadRequest(d *schema.ResourceData, client *golangsdk.Servi
 	return r.Body, nil
 }
 
-func fillReadRespBody(body interface{}) interface{} {
+func fillCdmClusterV1ReadRespBody(body interface{}) interface{} {
 	result := make(map[string]interface{})
 	val, ok := body.(map[string]interface{})
 	if !ok {
@@ -731,13 +731,13 @@ func fillReadRespBody(body interface{}) interface{} {
 	}
 
 	if v, ok := val["customerConfig"]; ok {
-		result["customerConfig"] = fillReadRespCustomerConfig(v)
+		result["customerConfig"] = fillCdmClusterV1ReadRespCustomerConfig(v)
 	} else {
 		result["customerConfig"] = nil
 	}
 
 	if v, ok := val["datastore"]; ok {
-		result["datastore"] = fillReadRespDatastore(v)
+		result["datastore"] = fillCdmClusterV1ReadRespDatastore(v)
 	} else {
 		result["datastore"] = nil
 	}
@@ -773,7 +773,7 @@ func fillReadRespBody(body interface{}) interface{} {
 	}
 
 	if v, ok := val["instances"]; ok {
-		result["instances"] = fillReadRespInstances(v)
+		result["instances"] = fillCdmClusterV1ReadRespInstances(v)
 	} else {
 		result["instances"] = nil
 	}
@@ -797,13 +797,13 @@ func fillReadRespBody(body interface{}) interface{} {
 	}
 
 	if v, ok := val["links"]; ok {
-		result["links"] = fillReadRespLinks(v)
+		result["links"] = fillCdmClusterV1ReadRespLinks(v)
 	} else {
 		result["links"] = nil
 	}
 
 	if v, ok := val["maintainWindow"]; ok {
-		result["maintainWindow"] = fillReadRespMaintainWindow(v)
+		result["maintainWindow"] = fillCdmClusterV1ReadRespMaintainWindow(v)
 	} else {
 		result["maintainWindow"] = nil
 	}
@@ -827,7 +827,7 @@ func fillReadRespBody(body interface{}) interface{} {
 	}
 
 	if v, ok := val["publicEndpointStatus"]; ok {
-		result["publicEndpointStatus"] = fillReadRespPublicEndpointStatus(v)
+		result["publicEndpointStatus"] = fillCdmClusterV1ReadRespPublicEndpointStatus(v)
 	} else {
 		result["publicEndpointStatus"] = nil
 	}
@@ -851,7 +851,7 @@ func fillReadRespBody(body interface{}) interface{} {
 	}
 
 	if v, ok := val["task"]; ok {
-		result["task"] = fillReadRespTask(v)
+		result["task"] = fillCdmClusterV1ReadRespTask(v)
 	} else {
 		result["task"] = nil
 	}
@@ -865,7 +865,7 @@ func fillReadRespBody(body interface{}) interface{} {
 	return result
 }
 
-func fillReadRespCustomerConfig(value interface{}) interface{} {
+func fillCdmClusterV1ReadRespCustomerConfig(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -909,7 +909,7 @@ func fillReadRespCustomerConfig(value interface{}) interface{} {
 	return result
 }
 
-func fillReadRespDatastore(value interface{}) interface{} {
+func fillCdmClusterV1ReadRespDatastore(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -935,7 +935,7 @@ func fillReadRespDatastore(value interface{}) interface{} {
 	return result
 }
 
-func fillReadRespInstances(value interface{}) interface{} {
+func fillCdmClusterV1ReadRespInstances(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -958,7 +958,7 @@ func fillReadRespInstances(value interface{}) interface{} {
 		}
 
 		if v, ok := item["flavor"]; ok {
-			val["flavor"] = fillReadRespInstancesFlavor(v)
+			val["flavor"] = fillCdmClusterV1ReadRespInstancesFlavor(v)
 		} else {
 			val["flavor"] = nil
 		}
@@ -982,7 +982,7 @@ func fillReadRespInstances(value interface{}) interface{} {
 		}
 
 		if v, ok := item["links_2"]; ok {
-			val["links_2"] = fillReadRespInstancesLinks2(v)
+			val["links_2"] = fillCdmClusterV1ReadRespInstancesLinks2(v)
 		} else {
 			val["links_2"] = nil
 		}
@@ -1042,7 +1042,7 @@ func fillReadRespInstances(value interface{}) interface{} {
 		}
 
 		if v, ok := item["volume"]; ok {
-			val["volume"] = fillReadRespInstancesVolume(v)
+			val["volume"] = fillCdmClusterV1ReadRespInstancesVolume(v)
 		} else {
 			val["volume"] = nil
 		}
@@ -1053,7 +1053,7 @@ func fillReadRespInstances(value interface{}) interface{} {
 	return result
 }
 
-func fillReadRespInstancesFlavor(value interface{}) interface{} {
+func fillCdmClusterV1ReadRespInstancesFlavor(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -1071,7 +1071,7 @@ func fillReadRespInstancesFlavor(value interface{}) interface{} {
 	}
 
 	if v, ok := value1["links_1"]; ok {
-		result["links_1"] = fillReadRespInstancesFlavorLinks1(v)
+		result["links_1"] = fillCdmClusterV1ReadRespInstancesFlavorLinks1(v)
 	} else {
 		result["links_1"] = nil
 	}
@@ -1079,7 +1079,7 @@ func fillReadRespInstancesFlavor(value interface{}) interface{} {
 	return result
 }
 
-func fillReadRespInstancesFlavorLinks1(value interface{}) interface{} {
+func fillCdmClusterV1ReadRespInstancesFlavorLinks1(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -1113,7 +1113,7 @@ func fillReadRespInstancesFlavorLinks1(value interface{}) interface{} {
 	return result
 }
 
-func fillReadRespInstancesLinks2(value interface{}) interface{} {
+func fillCdmClusterV1ReadRespInstancesLinks2(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -1147,7 +1147,7 @@ func fillReadRespInstancesLinks2(value interface{}) interface{} {
 	return result
 }
 
-func fillReadRespInstancesVolume(value interface{}) interface{} {
+func fillCdmClusterV1ReadRespInstancesVolume(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -1173,7 +1173,7 @@ func fillReadRespInstancesVolume(value interface{}) interface{} {
 	return result
 }
 
-func fillReadRespLinks(value interface{}) interface{} {
+func fillCdmClusterV1ReadRespLinks(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -1207,7 +1207,7 @@ func fillReadRespLinks(value interface{}) interface{} {
 	return result
 }
 
-func fillReadRespMaintainWindow(value interface{}) interface{} {
+func fillCdmClusterV1ReadRespMaintainWindow(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -1239,7 +1239,7 @@ func fillReadRespMaintainWindow(value interface{}) interface{} {
 	return result
 }
 
-func fillReadRespPublicEndpointStatus(value interface{}) interface{} {
+func fillCdmClusterV1ReadRespPublicEndpointStatus(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -1265,7 +1265,7 @@ func fillReadRespPublicEndpointStatus(value interface{}) interface{} {
 	return result
 }
 
-func fillReadRespTask(value interface{}) interface{} {
+func fillCdmClusterV1ReadRespTask(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -1304,8 +1304,10 @@ func setCdmClusterV1Properties(d *schema.ResourceData, response map[string]inter
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:created, err: %s", err)
 	}
-	if err = d.Set("created", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:created, err: %s", err)
+	if v != nil {
+		if err = d.Set("created", v); err != nil {
+			return fmt.Errorf("Error setting Cluster:created, err: %s", err)
+		}
 	}
 
 	v, _ = opts["instances"]
@@ -1313,46 +1315,57 @@ func setCdmClusterV1Properties(d *schema.ResourceData, response map[string]inter
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:instances, err: %s", err)
 	}
-	if err = d.Set("instances", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:instances, err: %s", err)
+	if v != nil {
+		if err = d.Set("instances", v); err != nil {
+			return fmt.Errorf("Error setting Cluster:instances, err: %s", err)
+		}
 	}
 
 	v, err = navigateValue(response, []string{"read", "isAutoOff"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:is_auto_off, err: %s", err)
 	}
-	if err = d.Set("is_auto_off", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:is_auto_off, err: %s", err)
+	if v != nil {
+		if err = d.Set("is_auto_off", v); err != nil {
+			return fmt.Errorf("Error setting Cluster:is_auto_off, err: %s", err)
+		}
 	}
 
 	v, err = navigateValue(response, []string{"read", "name"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:name, err: %s", err)
 	}
-	if err = d.Set("name", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:name, err: %s", err)
+	if v != nil {
+		if err = d.Set("name", v); err != nil {
+			return fmt.Errorf("Error setting Cluster:name, err: %s", err)
+		}
 	}
 
 	v, err = navigateValue(response, []string{"read", "publicEndpoint"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:publid_ip, err: %s", err)
 	}
-	if err = d.Set("publid_ip", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:publid_ip, err: %s", err)
+	if v != nil {
+		if err = d.Set("publid_ip", v); err != nil {
+			return fmt.Errorf("Error setting Cluster:publid_ip, err: %s", err)
+		}
 	}
 
 	v, err = navigateValue(response, []string{"read", "datastore", "version"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:version, err: %s", err)
 	}
-	if err = d.Set("version", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:version, err: %s", err)
+	if v != nil {
+		if err = d.Set("version", v); err != nil {
+			return fmt.Errorf("Error setting Cluster:version, err: %s", err)
+		}
 	}
 
 	return nil
 }
 
 func flattenCdmClusterV1Instances(d interface{}, arrayIndex map[string]int, currentValue interface{}) (interface{}, error) {
+	n := 0
 	result, ok := currentValue.([]interface{})
 	if !ok || len(result) == 0 {
 		v, err := navigateValue(d, []string{"read", "instances"}, arrayIndex)
@@ -1366,7 +1379,9 @@ func flattenCdmClusterV1Instances(d interface{}, arrayIndex map[string]int, curr
 				n = 1
 			}
 		}
-		result = make([]interface{}, n, n)
+		result = make([]interface{}, 0, n)
+	} else {
+		n = len(result)
 	}
 
 	newArrayIndex := make(map[string]int)
@@ -1376,48 +1391,71 @@ func flattenCdmClusterV1Instances(d interface{}, arrayIndex map[string]int, curr
 		}
 	}
 
-	for i := 0; i < len(result); i++ {
+	for i := 0; i < n; i++ {
 		newArrayIndex["read.instances"] = i
-		if result[i] == nil {
-			result[i] = make(map[string]interface{})
+
+		var r map[string]interface{}
+		if len(result) >= (i+1) && result[i] != nil {
+			r = result[i].(map[string]interface{})
+		} else {
+			r = make(map[string]interface{})
 		}
-		r := result[i].(map[string]interface{})
 
 		v, err := navigateValue(d, []string{"read", "instances", "id"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:id, err: %s", err)
 		}
-		r["id"] = v
+		if v != nil {
+			r["id"] = v
+		}
 
 		v, err = navigateValue(d, []string{"read", "instances", "name"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:name, err: %s", err)
 		}
-		r["name"] = v
+		if v != nil {
+			r["name"] = v
+		}
 
 		v, err = navigateValue(d, []string{"read", "instances", "publicIp"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:public_ip, err: %s", err)
 		}
-		r["public_ip"] = v
+		if v != nil {
+			r["public_ip"] = v
+		}
 
 		v, err = navigateValue(d, []string{"read", "instances", "role"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:role, err: %s", err)
 		}
-		r["role"] = v
+		if v != nil {
+			r["role"] = v
+		}
 
 		v, err = navigateValue(d, []string{"read", "instances", "trafficIp"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:traffic_ip, err: %s", err)
 		}
-		r["traffic_ip"] = v
+		if v != nil {
+			r["traffic_ip"] = v
+		}
 
 		v, err = navigateValue(d, []string{"read", "instances", "type"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:type, err: %s", err)
 		}
-		r["type"] = v
+		if v != nil {
+			r["type"] = v
+		}
+
+		if len(r) != 0 {
+			if len(result) >= (i + 1) {
+				result[i] = r
+			} else {
+				result = append(result, r)
+			}
+		}
 	}
 
 	return result, nil
