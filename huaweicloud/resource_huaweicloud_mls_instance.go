@@ -187,7 +187,7 @@ func resourceMlsInstance() *schema.Resource {
 
 func resourceMlsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "mls")
+	client, err := config.sdkClient(GetRegion(d, config), "mls", serviceProjectLevel)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -323,7 +323,7 @@ func resourceMlsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMlsInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "mls")
+	client, err := config.sdkClient(GetRegion(d, config), "mls", serviceProjectLevel)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -404,7 +404,7 @@ func resourceMlsInstanceRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMlsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "mls")
+	client, err := config.sdkClient(GetRegion(d, config), "mls", serviceProjectLevel)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
