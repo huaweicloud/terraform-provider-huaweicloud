@@ -672,12 +672,6 @@ func fillCssClusterV1ReadRespBody(body interface{}) interface{} {
 		result["endpoint"] = nil
 	}
 
-	if v, ok := val["failed_reasons"]; ok {
-		result["failed_reasons"] = fillCssClusterV1ReadRespFailedReasons(v)
-	} else {
-		result["failed_reasons"] = nil
-	}
-
 	if v, ok := val["id"]; ok {
 		result["id"] = v
 	} else {
@@ -696,34 +690,16 @@ func fillCssClusterV1ReadRespBody(body interface{}) interface{} {
 		result["name"] = nil
 	}
 
-	if v, ok := val["securityGroupId"]; ok {
-		result["securityGroupId"] = v
-	} else {
-		result["securityGroupId"] = nil
-	}
-
 	if v, ok := val["status"]; ok {
 		result["status"] = v
 	} else {
 		result["status"] = nil
 	}
 
-	if v, ok := val["subnetId"]; ok {
-		result["subnetId"] = v
-	} else {
-		result["subnetId"] = nil
-	}
-
 	if v, ok := val["updated"]; ok {
 		result["updated"] = v
 	} else {
 		result["updated"] = nil
-	}
-
-	if v, ok := val["vpcId"]; ok {
-		result["vpcId"] = v
-	} else {
-		result["vpcId"] = nil
 	}
 
 	return result
@@ -750,32 +726,6 @@ func fillCssClusterV1ReadRespDatastore(value interface{}) interface{} {
 		result["version"] = v
 	} else {
 		result["version"] = nil
-	}
-
-	return result
-}
-
-func fillCssClusterV1ReadRespFailedReasons(value interface{}) interface{} {
-	if value == nil {
-		return nil
-	}
-
-	value1, ok := value.(map[string]interface{})
-	if !ok {
-		value1 = make(map[string]interface{})
-	}
-	result := make(map[string]interface{})
-
-	if v, ok := value1["error_code"]; ok {
-		result["error_code"] = v
-	} else {
-		result["error_code"] = nil
-	}
-
-	if v, ok := value1["error_msg"]; ok {
-		result["error_msg"] = v
-	} else {
-		result["error_msg"] = nil
 	}
 
 	return result
@@ -870,15 +820,6 @@ func setCssClusterV1Properties(d *schema.ResourceData, response map[string]inter
 		return fmt.Errorf("Error setting Cluster:name, err: %s", err)
 	}
 
-	v, _ = opts["node_config"]
-	v, err = flattenCssClusterV1NodeConfig(response, nil, v)
-	if err != nil {
-		return fmt.Errorf("Error reading Cluster:node_config, err: %s", err)
-	}
-	if err = d.Set("node_config", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:node_config, err: %s", err)
-	}
-
 	v, _ = opts["nodes"]
 	v, err = flattenCssClusterV1Nodes(response, nil, v)
 	if err != nil {
@@ -889,85 +830,6 @@ func setCssClusterV1Properties(d *schema.ResourceData, response map[string]inter
 	}
 
 	return nil
-}
-
-func flattenCssClusterV1NodeConfig(d interface{}, arrayIndex map[string]int, currentValue interface{}) (interface{}, error) {
-	result, ok := currentValue.([]interface{})
-	if !ok || len(result) == 0 {
-		result = make([]interface{}, 1, 1)
-	}
-	hasInitValue := (result[0] != nil)
-	if !hasInitValue {
-		result[0] = make(map[string]interface{})
-	}
-	r := result[0].(map[string]interface{})
-
-	if _, ok := r["availability_zone"]; !ok {
-		r["availability_zone"] = nil
-	}
-
-	if _, ok := r["flavor"]; !ok {
-		r["flavor"] = nil
-	}
-
-	v, _ := r["network_info"]
-	v, err := flattenCssClusterV1NodeConfigNetworkInfo(d, arrayIndex, v)
-	if err != nil {
-		return nil, fmt.Errorf("Error reading Cluster:network_info, err: %s", err)
-	}
-	r["network_info"] = v
-
-	if _, ok := r["volume"]; !ok {
-		r["volume"] = nil
-	}
-
-	if hasInitValue {
-		return result, nil
-	}
-	for _, v := range r {
-		if v != nil {
-			return result, nil
-		}
-	}
-	return currentValue, nil
-}
-
-func flattenCssClusterV1NodeConfigNetworkInfo(d interface{}, arrayIndex map[string]int, currentValue interface{}) (interface{}, error) {
-	result, ok := currentValue.([]interface{})
-	if !ok || len(result) == 0 {
-		result = make([]interface{}, 1, 1)
-	}
-	hasInitValue := (result[0] != nil)
-	if !hasInitValue {
-		result[0] = make(map[string]interface{})
-	}
-	r := result[0].(map[string]interface{})
-
-	v, err := navigateValue(d, []string{"read", "securityGroupId"}, arrayIndex)
-	if err != nil {
-		return nil, fmt.Errorf("Error reading Cluster:security_group_id, err: %s", err)
-	}
-	r["security_group_id"] = v
-
-	v, err = navigateValue(d, []string{"read", "subnetId"}, arrayIndex)
-	if err != nil {
-		return nil, fmt.Errorf("Error reading Cluster:subnet_id, err: %s", err)
-	}
-	r["subnet_id"] = v
-
-	if _, ok := r["vpc_id"]; !ok {
-		r["vpc_id"] = nil
-	}
-
-	if hasInitValue {
-		return result, nil
-	}
-	for _, v := range r {
-		if v != nil {
-			return result, nil
-		}
-	}
-	return currentValue, nil
 }
 
 func flattenCssClusterV1Nodes(d interface{}, arrayIndex map[string]int, currentValue interface{}) (interface{}, error) {
