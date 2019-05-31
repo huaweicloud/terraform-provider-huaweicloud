@@ -834,50 +834,40 @@ func setCssClusterV1Properties(d *schema.ResourceData, response map[string]inter
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:created, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("created", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:created, err: %s", err)
-		}
+	if err = d.Set("created", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:created, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "endpoint"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:endpoint, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("endpoint", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:endpoint, err: %s", err)
-		}
+	if err = d.Set("endpoint", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:endpoint, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "datastore", "type"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:engine_type, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("engine_type", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:engine_type, err: %s", err)
-		}
+	if err = d.Set("engine_type", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:engine_type, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "datastore", "version"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:engine_version, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("engine_version", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:engine_version, err: %s", err)
-		}
+	if err = d.Set("engine_version", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:engine_version, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "name"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:name, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("name", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:name, err: %s", err)
-		}
+	if err = d.Set("name", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:name, err: %s", err)
 	}
 
 	v, _ = opts["node_config"]
@@ -885,10 +875,8 @@ func setCssClusterV1Properties(d *schema.ResourceData, response map[string]inter
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:node_config, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("node_config", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:node_config, err: %s", err)
-		}
+	if err = d.Set("node_config", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:node_config, err: %s", err)
 	}
 
 	v, _ = opts["nodes"]
@@ -896,10 +884,8 @@ func setCssClusterV1Properties(d *schema.ResourceData, response map[string]inter
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:nodes, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("nodes", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:nodes, err: %s", err)
-		}
+	if err = d.Set("nodes", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:nodes, err: %s", err)
 	}
 
 	return nil
@@ -910,24 +896,40 @@ func flattenCssClusterV1NodeConfig(d interface{}, arrayIndex map[string]int, cur
 	if !ok || len(result) == 0 {
 		result = make([]interface{}, 1, 1)
 	}
-	if result[0] == nil {
+	hasInitValue := (result[0] != nil)
+	if !hasInitValue {
 		result[0] = make(map[string]interface{})
 	}
 	r := result[0].(map[string]interface{})
+
+	if _, ok := r["availability_zone"]; !ok {
+		r["availability_zone"] = nil
+	}
+
+	if _, ok := r["flavor"]; !ok {
+		r["flavor"] = nil
+	}
 
 	v, _ := r["network_info"]
 	v, err := flattenCssClusterV1NodeConfigNetworkInfo(d, arrayIndex, v)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading Cluster:network_info, err: %s", err)
 	}
-	if v != nil {
-		r["network_info"] = v
+	r["network_info"] = v
+
+	if _, ok := r["volume"]; !ok {
+		r["volume"] = nil
 	}
 
-	if len(r) == 0 {
-		return currentValue, nil
+	if hasInitValue {
+		return result, nil
 	}
-	return result, nil
+	for _, v := range r {
+		if v != nil {
+			return result, nil
+		}
+	}
+	return currentValue, nil
 }
 
 func flattenCssClusterV1NodeConfigNetworkInfo(d interface{}, arrayIndex map[string]int, currentValue interface{}) (interface{}, error) {
@@ -935,7 +937,8 @@ func flattenCssClusterV1NodeConfigNetworkInfo(d interface{}, arrayIndex map[stri
 	if !ok || len(result) == 0 {
 		result = make([]interface{}, 1, 1)
 	}
-	if result[0] == nil {
+	hasInitValue := (result[0] != nil)
+	if !hasInitValue {
 		result[0] = make(map[string]interface{})
 	}
 	r := result[0].(map[string]interface{})
@@ -944,40 +947,45 @@ func flattenCssClusterV1NodeConfigNetworkInfo(d interface{}, arrayIndex map[stri
 	if err != nil {
 		return nil, fmt.Errorf("Error reading Cluster:security_group_id, err: %s", err)
 	}
-	if v != nil {
-		r["security_group_id"] = v
-	}
+	r["security_group_id"] = v
 
 	v, err = navigateValue(d, []string{"read", "subnetId"}, arrayIndex)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading Cluster:subnet_id, err: %s", err)
 	}
-	if v != nil {
-		r["subnet_id"] = v
+	r["subnet_id"] = v
+
+	if _, ok := r["vpc_id"]; !ok {
+		r["vpc_id"] = nil
 	}
 
-	if len(r) == 0 {
-		return currentValue, nil
+	if hasInitValue {
+		return result, nil
 	}
-	return result, nil
+	for _, v := range r {
+		if v != nil {
+			return result, nil
+		}
+	}
+	return currentValue, nil
 }
 
 func flattenCssClusterV1Nodes(d interface{}, arrayIndex map[string]int, currentValue interface{}) (interface{}, error) {
 	n := 0
+	hasInitValue := true
 	result, ok := currentValue.([]interface{})
 	if !ok || len(result) == 0 {
 		v, err := navigateValue(d, []string{"read", "instances"}, arrayIndex)
 		if err != nil {
 			return nil, err
 		}
-		n := 1
-		if v1, ok := v.([]interface{}); ok {
+		if v1, ok := v.([]interface{}); ok && len(v1) > 0 {
 			n = len(v1)
-			if n < 1 {
-				n = 1
-			}
+		} else {
+			return currentValue, nil
 		}
 		result = make([]interface{}, 0, n)
+		hasInitValue = false
 	} else {
 		n = len(result)
 	}
@@ -1003,34 +1011,36 @@ func flattenCssClusterV1Nodes(d interface{}, arrayIndex map[string]int, currentV
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:id, err: %s", err)
 		}
-		if v != nil {
-			r["id"] = v
-		}
+		r["id"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "name"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:name, err: %s", err)
 		}
-		if v != nil {
-			r["name"] = v
-		}
+		r["name"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "type"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:type, err: %s", err)
 		}
-		if v != nil {
-			r["type"] = v
-		}
+		r["type"] = v
 
-		if len(r) != 0 {
-			if len(result) >= (i + 1) {
+		if len(result) >= (i + 1) {
+			if result[i] == nil {
 				result[i] = r
-			} else {
-				result = append(result, r)
+			}
+		} else {
+			for _, v := range r {
+				if v != nil {
+					result = append(result, r)
+					break
+				}
 			}
 		}
 	}
 
-	return result, nil
+	if hasInitValue || len(result) > 0 {
+		return result, nil
+	}
+	return currentValue, nil
 }
