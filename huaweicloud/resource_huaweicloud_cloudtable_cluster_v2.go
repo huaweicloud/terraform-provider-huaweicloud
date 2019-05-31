@@ -521,12 +521,11 @@ func expandCloudtableClusterV2CreateSysTags(d interface{}, arrayIndex map[string
 	if err != nil {
 		return nil, err
 	}
-	n := 1
-	if val1, ok := val.([]interface{}); ok {
+	n := 0
+	if val1, ok := val.([]interface{}); ok && len(val1) > 0 {
 		n = len(val1)
-		if n < 1 {
-			n = 1
-		}
+	} else {
+		return nil, nil
 	}
 	req := make([]interface{}, 0, n)
 	for i := 0; i < n; i++ {
@@ -804,40 +803,32 @@ func setCloudtableClusterV2Properties(d *schema.ResourceData, response map[strin
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:created, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("created", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:created, err: %s", err)
-		}
+	if err = d.Set("created", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:created, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "auth_mode"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:enable_iam_auth, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("enable_iam_auth", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:enable_iam_auth, err: %s", err)
-		}
+	if err = d.Set("enable_iam_auth", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:enable_iam_auth, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "hbase_public_endpoint"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:hbase_public_endpoint, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("hbase_public_endpoint", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:hbase_public_endpoint, err: %s", err)
-		}
+	if err = d.Set("hbase_public_endpoint", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:hbase_public_endpoint, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "lemon_link"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:lemon_link, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("lemon_link", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:lemon_link, err: %s", err)
-		}
+	if err = d.Set("lemon_link", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:lemon_link, err: %s", err)
 	}
 
 	v, _ = opts["lemon_num"]
@@ -845,30 +836,24 @@ func setCloudtableClusterV2Properties(d *schema.ResourceData, response map[strin
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:lemon_num, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("lemon_num", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:lemon_num, err: %s", err)
-		}
+	if err = d.Set("lemon_num", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:lemon_num, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "cluster_name"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:name, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("name", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:name, err: %s", err)
-		}
+	if err = d.Set("name", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:name, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "openTSDB_link"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:open_tsdb_link, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("open_tsdb_link", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:open_tsdb_link, err: %s", err)
-		}
+	if err = d.Set("open_tsdb_link", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:open_tsdb_link, err: %s", err)
 	}
 
 	v, _ = opts["opentsdb_num"]
@@ -876,20 +861,16 @@ func setCloudtableClusterV2Properties(d *schema.ResourceData, response map[strin
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:opentsdb_num, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("opentsdb_num", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:opentsdb_num, err: %s", err)
-		}
+	if err = d.Set("opentsdb_num", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:opentsdb_num, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "tsd_public_endpoint"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:opentsdb_public_endpoint, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("opentsdb_public_endpoint", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:opentsdb_public_endpoint, err: %s", err)
-		}
+	if err = d.Set("opentsdb_public_endpoint", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:opentsdb_public_endpoint, err: %s", err)
 	}
 
 	v, _ = opts["rs_num"]
@@ -897,20 +878,16 @@ func setCloudtableClusterV2Properties(d *schema.ResourceData, response map[strin
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:rs_num, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("rs_num", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:rs_num, err: %s", err)
-		}
+	if err = d.Set("rs_num", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:rs_num, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "security_group_id"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:security_group_id, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("security_group_id", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:security_group_id, err: %s", err)
-		}
+	if err = d.Set("security_group_id", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:security_group_id, err: %s", err)
 	}
 
 	v, _ = opts["storage_quota"]
@@ -918,30 +895,24 @@ func setCloudtableClusterV2Properties(d *schema.ResourceData, response map[strin
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:storage_quota, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("storage_quota", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:storage_quota, err: %s", err)
-		}
+	if err = d.Set("storage_quota", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:storage_quota, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "storage_type"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:storage_type, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("storage_type", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:storage_type, err: %s", err)
-		}
+	if err = d.Set("storage_type", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:storage_type, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "sub_net_id"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:subnet_id, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("subnet_id", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:subnet_id, err: %s", err)
-		}
+	if err = d.Set("subnet_id", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:subnet_id, err: %s", err)
 	}
 
 	v, _ = opts["used_storage_size"]
@@ -949,30 +920,24 @@ func setCloudtableClusterV2Properties(d *schema.ResourceData, response map[strin
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:used_storage_size, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("used_storage_size", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:used_storage_size, err: %s", err)
-		}
+	if err = d.Set("used_storage_size", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:used_storage_size, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "vpc_id"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:vpc_id, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("vpc_id", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:vpc_id, err: %s", err)
-		}
+	if err = d.Set("vpc_id", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:vpc_id, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "zookeeper_link"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:zookeeper_link, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("zookeeper_link", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:zookeeper_link, err: %s", err)
-		}
+	if err = d.Set("zookeeper_link", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:zookeeper_link, err: %s", err)
 	}
 
 	return nil
