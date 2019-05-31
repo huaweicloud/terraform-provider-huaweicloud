@@ -202,6 +202,8 @@ func resourceGesGraphV1Create(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+	time.Sleep(240 * time.Second)
+
 	id, err := navigateValue(obj, []string{"graph", "id"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error constructing id, err=%s", err)
@@ -783,20 +785,16 @@ func setGesGraphV1Properties(d *schema.ResourceData, response map[string]interfa
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:availability_zone, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("availability_zone", v); err != nil {
-			return fmt.Errorf("Error setting Graph:availability_zone, err: %s", err)
-		}
+	if err = d.Set("availability_zone", v); err != nil {
+		return fmt.Errorf("Error setting Graph:availability_zone, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "created"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:created, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("created", v); err != nil {
-			return fmt.Errorf("Error setting Graph:created, err: %s", err)
-		}
+	if err = d.Set("created", v); err != nil {
+		return fmt.Errorf("Error setting Graph:created, err: %s", err)
 	}
 
 	v, _ = opts["edgeset_path"]
@@ -804,60 +802,48 @@ func setGesGraphV1Properties(d *schema.ResourceData, response map[string]interfa
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:edgeset_path, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("edgeset_path", v); err != nil {
-			return fmt.Errorf("Error setting Graph:edgeset_path, err: %s", err)
-		}
+	if err = d.Set("edgeset_path", v); err != nil {
+		return fmt.Errorf("Error setting Graph:edgeset_path, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "graphSizeTypeIndex"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:graph_size_type, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("graph_size_type", v); err != nil {
-			return fmt.Errorf("Error setting Graph:graph_size_type, err: %s", err)
-		}
+	if err = d.Set("graph_size_type", v); err != nil {
+		return fmt.Errorf("Error setting Graph:graph_size_type, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "name"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:name, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("name", v); err != nil {
-			return fmt.Errorf("Error setting Graph:name, err: %s", err)
-		}
+	if err = d.Set("name", v); err != nil {
+		return fmt.Errorf("Error setting Graph:name, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "privateIp"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:private_ip, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("private_ip", v); err != nil {
-			return fmt.Errorf("Error setting Graph:private_ip, err: %s", err)
-		}
+	if err = d.Set("private_ip", v); err != nil {
+		return fmt.Errorf("Error setting Graph:private_ip, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "publicIp"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:public_ip, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("public_ip", v); err != nil {
-			return fmt.Errorf("Error setting Graph:public_ip, err: %s", err)
-		}
+	if err = d.Set("public_ip", v); err != nil {
+		return fmt.Errorf("Error setting Graph:public_ip, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "regionCode"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:region, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("region", v); err != nil {
-			return fmt.Errorf("Error setting Graph:region, err: %s", err)
-		}
+	if err = d.Set("region", v); err != nil {
+		return fmt.Errorf("Error setting Graph:region, err: %s", err)
 	}
 
 	v, _ = opts["schema_path"]
@@ -865,40 +851,32 @@ func setGesGraphV1Properties(d *schema.ResourceData, response map[string]interfa
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:schema_path, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("schema_path", v); err != nil {
-			return fmt.Errorf("Error setting Graph:schema_path, err: %s", err)
-		}
+	if err = d.Set("schema_path", v); err != nil {
+		return fmt.Errorf("Error setting Graph:schema_path, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "securityGroupId"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:security_group_id, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("security_group_id", v); err != nil {
-			return fmt.Errorf("Error setting Graph:security_group_id, err: %s", err)
-		}
+	if err = d.Set("security_group_id", v); err != nil {
+		return fmt.Errorf("Error setting Graph:security_group_id, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "subnetId"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:subnet_id, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("subnet_id", v); err != nil {
-			return fmt.Errorf("Error setting Graph:subnet_id, err: %s", err)
-		}
+	if err = d.Set("subnet_id", v); err != nil {
+		return fmt.Errorf("Error setting Graph:subnet_id, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "dataStoreVersion"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:version, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("version", v); err != nil {
-			return fmt.Errorf("Error setting Graph:version, err: %s", err)
-		}
+	if err = d.Set("version", v); err != nil {
+		return fmt.Errorf("Error setting Graph:version, err: %s", err)
 	}
 
 	v, _ = opts["vertexset_path"]
@@ -906,20 +884,16 @@ func setGesGraphV1Properties(d *schema.ResourceData, response map[string]interfa
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:vertexset_path, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("vertexset_path", v); err != nil {
-			return fmt.Errorf("Error setting Graph:vertexset_path, err: %s", err)
-		}
+	if err = d.Set("vertexset_path", v); err != nil {
+		return fmt.Errorf("Error setting Graph:vertexset_path, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "vpcId"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Graph:vpc_id, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("vpc_id", v); err != nil {
-			return fmt.Errorf("Error setting Graph:vpc_id, err: %s", err)
-		}
+	if err = d.Set("vpc_id", v); err != nil {
+		return fmt.Errorf("Error setting Graph:vpc_id, err: %s", err)
 	}
 
 	return nil
@@ -927,20 +901,20 @@ func setGesGraphV1Properties(d *schema.ResourceData, response map[string]interfa
 
 func flattenGesGraphV1EdgesetPath(d interface{}, arrayIndex map[string]int, currentValue interface{}) (interface{}, error) {
 	n := 0
+	hasInitValue := true
 	result, ok := currentValue.([]interface{})
 	if !ok || len(result) == 0 {
 		v, err := navigateValue(d, []string{"read", "edgesetPath"}, arrayIndex)
 		if err != nil {
 			return nil, err
 		}
-		n := 1
-		if v1, ok := v.([]interface{}); ok {
+		if v1, ok := v.([]interface{}); ok && len(v1) > 0 {
 			n = len(v1)
-			if n < 1 {
-				n = 1
-			}
+		} else {
+			return currentValue, nil
 		}
 		result = make([]interface{}, 0, n)
+		hasInitValue = false
 	} else {
 		n = len(result)
 	}
@@ -966,46 +940,50 @@ func flattenGesGraphV1EdgesetPath(d interface{}, arrayIndex map[string]int, curr
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Graph:path, err: %s", err)
 		}
-		if v != nil {
-			r["path"] = v
-		}
+		r["path"] = v
 
 		v, err = navigateValue(d, []string{"read", "edgesetPath", "status"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Graph:status, err: %s", err)
 		}
-		if v != nil {
-			r["status"] = v
-		}
+		r["status"] = v
 
-		if len(r) != 0 {
-			if len(result) >= (i + 1) {
+		if len(result) >= (i + 1) {
+			if result[i] == nil {
 				result[i] = r
-			} else {
-				result = append(result, r)
+			}
+		} else {
+			for _, v := range r {
+				if v != nil {
+					result = append(result, r)
+					break
+				}
 			}
 		}
 	}
 
-	return result, nil
+	if hasInitValue || len(result) > 0 {
+		return result, nil
+	}
+	return currentValue, nil
 }
 
 func flattenGesGraphV1SchemaPath(d interface{}, arrayIndex map[string]int, currentValue interface{}) (interface{}, error) {
 	n := 0
+	hasInitValue := true
 	result, ok := currentValue.([]interface{})
 	if !ok || len(result) == 0 {
 		v, err := navigateValue(d, []string{"read", "schemaPath"}, arrayIndex)
 		if err != nil {
 			return nil, err
 		}
-		n := 1
-		if v1, ok := v.([]interface{}); ok {
+		if v1, ok := v.([]interface{}); ok && len(v1) > 0 {
 			n = len(v1)
-			if n < 1 {
-				n = 1
-			}
+		} else {
+			return currentValue, nil
 		}
 		result = make([]interface{}, 0, n)
+		hasInitValue = false
 	} else {
 		n = len(result)
 	}
@@ -1031,46 +1009,50 @@ func flattenGesGraphV1SchemaPath(d interface{}, arrayIndex map[string]int, curre
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Graph:path, err: %s", err)
 		}
-		if v != nil {
-			r["path"] = v
-		}
+		r["path"] = v
 
 		v, err = navigateValue(d, []string{"read", "schemaPath", "status"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Graph:status, err: %s", err)
 		}
-		if v != nil {
-			r["status"] = v
-		}
+		r["status"] = v
 
-		if len(r) != 0 {
-			if len(result) >= (i + 1) {
+		if len(result) >= (i + 1) {
+			if result[i] == nil {
 				result[i] = r
-			} else {
-				result = append(result, r)
+			}
+		} else {
+			for _, v := range r {
+				if v != nil {
+					result = append(result, r)
+					break
+				}
 			}
 		}
 	}
 
-	return result, nil
+	if hasInitValue || len(result) > 0 {
+		return result, nil
+	}
+	return currentValue, nil
 }
 
 func flattenGesGraphV1VertexsetPath(d interface{}, arrayIndex map[string]int, currentValue interface{}) (interface{}, error) {
 	n := 0
+	hasInitValue := true
 	result, ok := currentValue.([]interface{})
 	if !ok || len(result) == 0 {
 		v, err := navigateValue(d, []string{"read", "vertexsetPath"}, arrayIndex)
 		if err != nil {
 			return nil, err
 		}
-		n := 1
-		if v1, ok := v.([]interface{}); ok {
+		if v1, ok := v.([]interface{}); ok && len(v1) > 0 {
 			n = len(v1)
-			if n < 1 {
-				n = 1
-			}
+		} else {
+			return currentValue, nil
 		}
 		result = make([]interface{}, 0, n)
+		hasInitValue = false
 	} else {
 		n = len(result)
 	}
@@ -1096,26 +1078,30 @@ func flattenGesGraphV1VertexsetPath(d interface{}, arrayIndex map[string]int, cu
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Graph:path, err: %s", err)
 		}
-		if v != nil {
-			r["path"] = v
-		}
+		r["path"] = v
 
 		v, err = navigateValue(d, []string{"read", "vertexsetPath", "status"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Graph:status, err: %s", err)
 		}
-		if v != nil {
-			r["status"] = v
-		}
+		r["status"] = v
 
-		if len(r) != 0 {
-			if len(result) >= (i + 1) {
+		if len(result) >= (i + 1) {
+			if result[i] == nil {
 				result[i] = r
-			} else {
-				result = append(result, r)
+			}
+		} else {
+			for _, v := range r {
+				if v != nil {
+					result = append(result, r)
+					break
+				}
 			}
 		}
 	}
 
-	return result, nil
+	if hasInitValue || len(result) > 0 {
+		return result, nil
+	}
+	return currentValue, nil
 }
