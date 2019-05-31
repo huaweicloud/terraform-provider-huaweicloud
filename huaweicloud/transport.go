@@ -125,10 +125,12 @@ func navigateValue(d interface{}, index []string, arrayIndex map[string]int) (in
 		if d1, ok := d.(map[string]interface{}); ok {
 			d, ok = d1[i]
 			if !ok {
-				return nil, fmt.Errorf("navigate:: '%s' may not exist", i)
+				msg := fmt.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
+				return nil, fmt.Errorf("%s: '%s' may not exist", msg, i)
 			}
 		} else {
-			return nil, fmt.Errorf("navigateValue:: Can not convert (%s) to map, index=%s", reflect.TypeOf(d), strings.Join(index, "."))
+			msg := fmt.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
+			return nil, fmt.Errorf("%s: Can not convert (%s) to map", msg, reflect.TypeOf(d))
 		}
 
 		if arrayIndex != nil {
@@ -137,13 +139,18 @@ func navigateValue(d interface{}, index []string, arrayIndex map[string]int) (in
 					return nil, nil
 				}
 				if d2, ok := d.([]interface{}); ok {
+					if len(d2) == 0 {
+						return nil, nil
+					}
 					if j >= len(d2) {
-						return nil, fmt.Errorf("navigate:: The index is out of array")
+						msg := fmt.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
+						return nil, fmt.Errorf("%s: The index is out of array", msg)
 					}
 
 					d = d2[j]
 				} else {
-					return nil, fmt.Errorf("navigateValue:: Can not convert (%s) to array, index=%s.%v", reflect.TypeOf(d), i, j)
+					msg := fmt.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
+					return nil, fmt.Errorf("%s: Can not convert (%s) to array, index=%s.%v", msg, reflect.TypeOf(d), i, j)
 				}
 			}
 		}
