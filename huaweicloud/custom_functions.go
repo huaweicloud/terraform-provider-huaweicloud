@@ -60,3 +60,13 @@ func expandCssClusterV1ExtendClusterNodeNum(d interface{}, arrayIndex map[string
 	}
 	return v, nil
 }
+
+func expandDisStreamV2CreateAutoCaleEnable(d interface{}, arrayIndex map[string]int) (interface{}, error) {
+	max, _ := navigateValue(d, []string{"auto_scale_max_partition_count"}, nil)
+	max1, ok1 := max.(int)
+
+	min, _ := navigateValue(d, []string{"auto_scale_min_partition_count"}, nil)
+	min1, ok2 := min.(int)
+
+	return (ok1 && max1 > 0) && (ok2 && min1 > 0), nil
+}

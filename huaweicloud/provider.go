@@ -225,6 +225,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dcs_product_v1":            dataSourceDcsProductV1(),
 			"huaweicloud_identity_role_v3":          dataSourceIdentityRoleV3(),
 			"huaweicloud_cdm_flavors_v1":            dataSourceCdmFlavorV1(),
+			"huaweicloud_dis_partition_v2":          dataSourceDisPartitionV2(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -311,6 +312,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_ges_graph_v1":                       resourceGesGraphV1(),
 			"huaweicloud_cloudtable_cluster_v2":              resourceCloudtableClusterV2(),
 			"huaweicloud_css_cluster_v1":                     resourceCssClusterV1(),
+			"huaweicloud_dis_stream_v2":                      resourceDisStreamV2(),
 		},
 
 		ConfigureFunc: configureProvider,
