@@ -1304,10 +1304,8 @@ func setCdmClusterV1Properties(d *schema.ResourceData, response map[string]inter
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:created, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("created", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:created, err: %s", err)
-		}
+	if err = d.Set("created", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:created, err: %s", err)
 	}
 
 	v, _ = opts["instances"]
@@ -1315,50 +1313,40 @@ func setCdmClusterV1Properties(d *schema.ResourceData, response map[string]inter
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:instances, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("instances", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:instances, err: %s", err)
-		}
+	if err = d.Set("instances", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:instances, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "isAutoOff"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:is_auto_off, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("is_auto_off", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:is_auto_off, err: %s", err)
-		}
+	if err = d.Set("is_auto_off", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:is_auto_off, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "name"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:name, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("name", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:name, err: %s", err)
-		}
+	if err = d.Set("name", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:name, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "publicEndpoint"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:publid_ip, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("publid_ip", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:publid_ip, err: %s", err)
-		}
+	if err = d.Set("publid_ip", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:publid_ip, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "datastore", "version"}, nil)
 	if err != nil {
 		return fmt.Errorf("Error reading Cluster:version, err: %s", err)
 	}
-	if v != nil {
-		if err = d.Set("version", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:version, err: %s", err)
-		}
+	if err = d.Set("version", v); err != nil {
+		return fmt.Errorf("Error setting Cluster:version, err: %s", err)
 	}
 
 	return nil
@@ -1366,20 +1354,20 @@ func setCdmClusterV1Properties(d *schema.ResourceData, response map[string]inter
 
 func flattenCdmClusterV1Instances(d interface{}, arrayIndex map[string]int, currentValue interface{}) (interface{}, error) {
 	n := 0
+	hasInitValue := true
 	result, ok := currentValue.([]interface{})
 	if !ok || len(result) == 0 {
 		v, err := navigateValue(d, []string{"read", "instances"}, arrayIndex)
 		if err != nil {
 			return nil, err
 		}
-		n := 1
-		if v1, ok := v.([]interface{}); ok {
+		if v1, ok := v.([]interface{}); ok && len(v1) > 0 {
 			n = len(v1)
-			if n < 1 {
-				n = 1
-			}
+		} else {
+			return currentValue, nil
 		}
 		result = make([]interface{}, 0, n)
+		hasInitValue = false
 	} else {
 		n = len(result)
 	}
@@ -1405,58 +1393,54 @@ func flattenCdmClusterV1Instances(d interface{}, arrayIndex map[string]int, curr
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:id, err: %s", err)
 		}
-		if v != nil {
-			r["id"] = v
-		}
+		r["id"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "name"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:name, err: %s", err)
 		}
-		if v != nil {
-			r["name"] = v
-		}
+		r["name"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "publicIp"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:public_ip, err: %s", err)
 		}
-		if v != nil {
-			r["public_ip"] = v
-		}
+		r["public_ip"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "role"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:role, err: %s", err)
 		}
-		if v != nil {
-			r["role"] = v
-		}
+		r["role"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "trafficIp"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:traffic_ip, err: %s", err)
 		}
-		if v != nil {
-			r["traffic_ip"] = v
-		}
+		r["traffic_ip"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "type"}, newArrayIndex)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Cluster:type, err: %s", err)
 		}
-		if v != nil {
-			r["type"] = v
-		}
+		r["type"] = v
 
-		if len(r) != 0 {
-			if len(result) >= (i + 1) {
+		if len(result) >= (i + 1) {
+			if result[i] == nil {
 				result[i] = r
-			} else {
-				result = append(result, r)
+			}
+		} else {
+			for _, v := range r {
+				if v != nil {
+					result = append(result, r)
+					break
+				}
 			}
 		}
 	}
 
-	return result, nil
+	if hasInitValue || len(result) > 0 {
+		return result, nil
+	}
+	return currentValue, nil
 }

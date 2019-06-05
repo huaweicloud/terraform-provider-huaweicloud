@@ -45,6 +45,9 @@ func testAccCloudtableClusterV2_basic(val string) string {
 resource "huaweicloud_networking_secgroup_v2" "secgroup" {
   name = "terraform_test_security_group%s"
   description = "terraform security group acceptance test"
+  timeouts {
+    delete = "20m"
+  }
 }
 
 resource "huaweicloud_cloudtable_cluster_v2" "cluster" {
