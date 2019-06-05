@@ -3,12 +3,12 @@ layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dis_stream_v2"
 sidebar_current: "docs-huaweicloud-resource-dis-stream-v2"
 description: |-
-  DIS Steam management
+  DIS Stream management
 ---
 
 # huaweicloud\_dis\_stream\_v2
 
-DIS Steam management
+DIS Stream management
 
 ## Example Usage
 
