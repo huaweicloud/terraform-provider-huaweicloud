@@ -99,13 +99,14 @@ func resourceIdentityRoleAssignmentV3Read(d *schema.ResourceData, meta interface
 	if err != nil {
 		return fmt.Errorf("Error getting role assignment: %s", err)
 	}
+	domainID, projectID, groupID, userID, _ := extractRoleAssignmentID(d.Id())
 
 	log.Printf("[DEBUG] Retrieved HuaweiCloud role assignment: %#v", roleAssignment)
-	d.Set("domain_id", roleAssignment.Scope.Domain.ID)
-	d.Set("project_id", roleAssignment.Scope.Project.ID)
-	d.Set("group_id", roleAssignment.Group.ID)
-	d.Set("user_id", roleAssignment.User.ID)
-	d.Set("role_id", roleAssignment.Role.ID)
+	d.Set("domain_id", domainID)
+	d.Set("project_id", projectID)
+	d.Set("group_id", groupID)
+	d.Set("user_id", userID)
+	d.Set("role_id", roleAssignment.ID)
 	d.Set("region", GetRegion(d, config))
 
 	return nil
@@ -155,7 +156,7 @@ func getRoleAssignment(identityClient *golangsdk.ServiceClient, d *schema.Resour
 		}
 
 		for _, a := range assignmentList {
-			if a.Role.ID == roleID {
+			if a.ID == roleID {
 				assignment = a
 				return false, nil
 			}

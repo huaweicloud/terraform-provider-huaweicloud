@@ -131,41 +131,23 @@ func (r roleResult) Extract() (*Role, error) {
 
 // RoleAssignment is the result of a role assignments query.
 type RoleAssignment struct {
-	Role  AssignedRole `json:"role,omitempty"`
-	Scope Scope        `json:"scope,omitempty"`
-	User  User         `json:"user,omitempty"`
-	Group Group        `json:"group,omitempty"`
+	Catalog     string `json:"catalog"`
+	Description string `json:"description"`
+	DisplayName string `json:"display_name"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Type        string `json:"type"`
+	Policy      Policy `json:"policy"`
 }
 
-// AssignedRole represents a Role in an assignment.
-type AssignedRole struct {
-	ID string `json:"id,omitempty"`
+type Policy struct {
+	Statement []Statement `json:"Statement"`
+	Version   string      `json:"Version"`
 }
 
-// Scope represents a scope in a Role assignment.
-type Scope struct {
-	Domain  Domain  `json:"domain,omitempty"`
-	Project Project `json:"project,omitempty"`
-}
-
-// Domain represents a domain in a role assignment scope.
-type Domain struct {
-	ID string `json:"id,omitempty"`
-}
-
-// Project represents a project in a role assignment scope.
-type Project struct {
-	ID string `json:"id,omitempty"`
-}
-
-// User represents a user in a role assignment scope.
-type User struct {
-	ID string `json:"id,omitempty"`
-}
-
-// Group represents a group in a role assignment scope.
-type Group struct {
-	ID string `json:"id,omitempty"`
+type Statement struct {
+	Action []string `json:"Action"`
+	Effect string   `json:"Effect"`
 }
 
 // RoleAssignmentPage is a single page of RoleAssignments results.
@@ -195,7 +177,7 @@ func (r RoleAssignmentPage) NextPageURL() (string, error) {
 // acquired from List.
 func ExtractRoleAssignments(r pagination.Page) ([]RoleAssignment, error) {
 	var s struct {
-		RoleAssignments []RoleAssignment `json:"role_assignments"`
+		RoleAssignments []RoleAssignment `json:"roles"`
 	}
 	err := (r.(RoleAssignmentPage)).ExtractInto(&s)
 	return s.RoleAssignments, err

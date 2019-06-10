@@ -1539,10 +1539,10 @@
 			"revisionTime": "2019-01-30T02:50:16Z"
 		},
 		{
-			"checksumSHA1": "eGSteHlTmwj7rFwkLNWXgBLTk3s=",
+			"checksumSHA1": "vD8xujmRDWbm134OS8nAifZJDLc=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/identity/v3/roles",
-			"revision": "faa186d322251c77d4035edab0167c2b433f9536",
-			"revisionTime": "2019-01-30T02:50:16Z"
+			"revision": "5fa6033925d69dc30dfde5cbfa6a3d8fa64018ed",
+			"revisionTime": "2019-05-30T12:05:06Z"
 		},
 		{
 			"checksumSHA1": "PYyxQhG8LHLTYpz3dqKiZF88ys4=",
