@@ -101,7 +101,7 @@ func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, grou
 			}
 
 			for _, a := range assignmentList {
-				if a.Role.ID == roleID {
+				if a.ID == roleID {
 					assignment = a
 					return false, nil
 				}
@@ -113,17 +113,17 @@ func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, grou
 			return err
 		}
 
-		p, err := projects.Get(identityClient, assignment.Scope.Project.ID).Extract()
+		p, err := projects.Get(identityClient, projectID).Extract()
 		if err != nil {
 			return fmt.Errorf("Project not found")
 		}
 		*project = *p
-		g, err := groups.Get(identityClient, assignment.Group.ID).Extract()
+		g, err := groups.Get(identityClient, groupID).Extract()
 		if err != nil {
 			return fmt.Errorf("Group not found")
 		}
 		*group = *g
-		r, err := roles.Get(identityClient, assignment.Role.ID).Extract()
+		r, err := roles.Get(identityClient, assignment.ID).Extract()
 		if err != nil {
 			return fmt.Errorf("Role not found")
 		}
