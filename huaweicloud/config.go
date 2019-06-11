@@ -528,7 +528,7 @@ func (c *Config) natV2Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) SmnV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewSmnServiceV2(c.HwClient, golangsdk.EndpointOpts{
+	return huaweisdk.NewSMNV2(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getHwEndpointType(),
 	})
