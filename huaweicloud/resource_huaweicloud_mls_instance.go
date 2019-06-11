@@ -157,11 +157,6 @@ func resourceMlsInstance() *schema.Resource {
 				Computed: true,
 			},
 
-			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"inner_endpoint": {
 				Type:     schema.TypeString,
 				Computed: true,

@@ -49,10 +49,6 @@ func resourceCCEClusterV3() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"flavor_id": {
 				Type:     schema.TypeString,
 				Required: true,

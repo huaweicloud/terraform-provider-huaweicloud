@@ -16,7 +16,7 @@ func TestAccHuaweiCloudIdentityV3RoleDataSource_basic(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccHuaweiCloudIdentityV3RoleDataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIdentityV3DataSourceID("data.huaweicloud_identity_role_v3.role_1"),

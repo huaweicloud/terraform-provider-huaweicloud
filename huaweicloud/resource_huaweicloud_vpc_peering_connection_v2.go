@@ -32,10 +32,6 @@ func resourceVpcPeeringConnectionV2() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,

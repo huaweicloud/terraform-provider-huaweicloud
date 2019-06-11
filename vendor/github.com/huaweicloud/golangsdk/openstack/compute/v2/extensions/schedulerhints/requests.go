@@ -35,6 +35,12 @@ type SchedulerHints struct {
 
 	// AdditionalProperies are arbitrary key/values that are not validated by nova.
 	AdditionalProperties map[string]interface{}
+
+	// Specifies whether the ECS is created on a Dedicated Host (DeH) or in a shared pool.
+	Tenancy string `json:"tenancy,omitempty"`
+
+	// DedicatedHostID specifies a DeH ID.
+	DedicatedHostID string `json:"dedicated_host_id,omitempty"`
 }
 
 // CreateOptsBuilder builds the scheduler hints into a serializable format.
@@ -129,6 +135,14 @@ func (opts SchedulerHints) ToServerSchedulerHintsCreateMap() (map[string]interfa
 		for k, v := range opts.AdditionalProperties {
 			sh[k] = v
 		}
+	}
+
+	if opts.Tenancy != "" {
+		sh["tenancy"] = opts.Tenancy
+	}
+
+	if opts.DedicatedHostID != "" {
+		sh["dedicated_host_id"] = opts.DedicatedHostID
 	}
 
 	return sh, nil

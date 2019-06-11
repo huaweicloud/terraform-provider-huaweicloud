@@ -1,0 +1,340 @@
+# github.com/Unknwon/com v0.0.0-20151008135407-28b053d5a292
+github.com/Unknwon/com
+# github.com/agext/levenshtein v1.2.1
+github.com/agext/levenshtein
+# github.com/apparentlymart/go-cidr v0.0.0-20170616213631-2bd8b58cf427
+github.com/apparentlymart/go-cidr/cidr
+# github.com/apparentlymart/go-textseg v0.0.0-20170531203952-b836f5c4d331
+github.com/apparentlymart/go-textseg/textseg
+# github.com/armon/go-radix v0.0.0-20160115234725-4239b77079c7
+github.com/armon/go-radix
+# github.com/aws/aws-sdk-go v1.14.31
+github.com/aws/aws-sdk-go/aws
+github.com/aws/aws-sdk-go/aws/awserr
+github.com/aws/aws-sdk-go/aws/credentials
+github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds
+github.com/aws/aws-sdk-go/aws/defaults
+github.com/aws/aws-sdk-go/aws/ec2metadata
+github.com/aws/aws-sdk-go/aws/session
+github.com/aws/aws-sdk-go/service/s3
+github.com/aws/aws-sdk-go/aws/endpoints
+github.com/aws/aws-sdk-go/internal/sdkio
+github.com/aws/aws-sdk-go/internal/shareddefaults
+github.com/aws/aws-sdk-go/aws/client
+github.com/aws/aws-sdk-go/internal/sdkuri
+github.com/aws/aws-sdk-go/aws/corehandlers
+github.com/aws/aws-sdk-go/aws/credentials/endpointcreds
+github.com/aws/aws-sdk-go/aws/request
+github.com/aws/aws-sdk-go/aws/client/metadata
+github.com/aws/aws-sdk-go/aws/credentials/stscreds
+github.com/aws/aws-sdk-go/aws/csm
+github.com/aws/aws-sdk-go/aws/awsutil
+github.com/aws/aws-sdk-go/aws/signer/v4
+github.com/aws/aws-sdk-go/private/protocol
+github.com/aws/aws-sdk-go/private/protocol/eventstream
+github.com/aws/aws-sdk-go/private/protocol/eventstream/eventstreamapi
+github.com/aws/aws-sdk-go/private/protocol/rest
+github.com/aws/aws-sdk-go/private/protocol/restxml
+github.com/aws/aws-sdk-go/internal/sdkrand
+github.com/aws/aws-sdk-go/service/sts
+github.com/aws/aws-sdk-go/private/protocol/query
+github.com/aws/aws-sdk-go/private/protocol/xml/xmlutil
+github.com/aws/aws-sdk-go/private/protocol/query/queryutil
+# github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
+github.com/bgentry/go-netrc/netrc
+# github.com/bgentry/speakeasy v0.0.0-20161015143505-675b82c74c0e
+github.com/bgentry/speakeasy
+# github.com/blang/semver v3.5.1+incompatible
+github.com/blang/semver
+# github.com/davecgh/go-spew v1.1.1
+github.com/davecgh/go-spew/spew
+# github.com/go-ini/ini v1.25.4
+github.com/go-ini/ini
+# github.com/golang/protobuf v1.2.0
+github.com/golang/protobuf/proto
+github.com/golang/protobuf/ptypes
+github.com/golang/protobuf/ptypes/any
+github.com/golang/protobuf/ptypes/duration
+github.com/golang/protobuf/ptypes/timestamp
+# github.com/hashicorp/errwrap v0.0.0-20141028054710-7554cd9344ce
+github.com/hashicorp/errwrap
+# github.com/hashicorp/go-cleanhttp v0.5.0
+github.com/hashicorp/go-cleanhttp
+# github.com/hashicorp/go-getter v0.0.0-20180327010114-90bb99a48d86
+github.com/hashicorp/go-getter
+github.com/hashicorp/go-getter/helper/url
+# github.com/hashicorp/go-hclog v0.0.0-20170716174523-b4e5765d1e5f
+github.com/hashicorp/go-hclog
+# github.com/hashicorp/go-multierror v0.0.0-20150916205742-d30f09973e19
+github.com/hashicorp/go-multierror
+# github.com/hashicorp/go-plugin v0.0.0-20180125190438-e53f54cbf51e
+github.com/hashicorp/go-plugin
+# github.com/hashicorp/go-safetemp v0.0.0-20180326211150-b1a1dbde6fdc
+github.com/hashicorp/go-safetemp
+# github.com/hashicorp/go-uuid v1.0.0
+github.com/hashicorp/go-uuid
+# github.com/hashicorp/go-version v1.0.0
+github.com/hashicorp/go-version
+# github.com/hashicorp/hcl v0.0.0-20170504190234-a4b07c25de5f
+github.com/hashicorp/hcl
+github.com/hashicorp/hcl/hcl/ast
+github.com/hashicorp/hcl/hcl/parser
+github.com/hashicorp/hcl/hcl/token
+github.com/hashicorp/hcl/json/parser
+github.com/hashicorp/hcl/hcl/scanner
+github.com/hashicorp/hcl/hcl/strconv
+github.com/hashicorp/hcl/json/scanner
+github.com/hashicorp/hcl/json/token
+# github.com/hashicorp/hcl2 v0.0.0-20180308163058-5f8ed954abd8
+github.com/hashicorp/hcl2/gohcl
+github.com/hashicorp/hcl2/hcl
+github.com/hashicorp/hcl2/hclparse
+github.com/hashicorp/hcl2/hcldec
+github.com/hashicorp/hcl2/hcl/hclsyntax
+github.com/hashicorp/hcl2/hcl/json
+# github.com/hashicorp/hil v0.0.0-20170627220502-fa9f258a9250
+github.com/hashicorp/hil
+github.com/hashicorp/hil/ast
+github.com/hashicorp/hil/parser
+github.com/hashicorp/hil/scanner
+# github.com/hashicorp/logutils v0.0.0-20150609070431-0dc08b1671f3
+github.com/hashicorp/logutils
+# github.com/hashicorp/terraform v0.11.12-beta1.0.20190227065421-fc531f54a878
+github.com/hashicorp/terraform/plugin
+github.com/hashicorp/terraform/helper/hashcode
+github.com/hashicorp/terraform/helper/mutexkv
+github.com/hashicorp/terraform/helper/pathorcontents
+github.com/hashicorp/terraform/helper/resource
+github.com/hashicorp/terraform/helper/schema
+github.com/hashicorp/terraform/helper/validation
+github.com/hashicorp/terraform/terraform
+github.com/hashicorp/terraform/plugin/discovery
+github.com/hashicorp/terraform/config/module
+github.com/hashicorp/terraform/helper/config
+github.com/hashicorp/terraform/helper/logging
+github.com/hashicorp/terraform/config
+github.com/hashicorp/terraform/config/configschema
+github.com/hashicorp/terraform/helper/structure
+github.com/hashicorp/terraform/dag
+github.com/hashicorp/terraform/flatmap
+github.com/hashicorp/terraform/helper/hilmapstructure
+github.com/hashicorp/terraform/httpclient
+github.com/hashicorp/terraform/moduledeps
+github.com/hashicorp/terraform/tfdiags
+github.com/hashicorp/terraform/version
+github.com/hashicorp/terraform/helper/acctest
+github.com/hashicorp/terraform/registry
+github.com/hashicorp/terraform/registry/regsrc
+github.com/hashicorp/terraform/registry/response
+github.com/hashicorp/terraform/svchost/disco
+github.com/hashicorp/terraform/config/hcl2shim
+github.com/hashicorp/terraform/svchost
+github.com/hashicorp/terraform/svchost/auth
+# github.com/hashicorp/yamux v0.0.0-20160720233140-d1caa6c97c9f
+github.com/hashicorp/yamux
+# github.com/huaweicloud/golangsdk v0.0.0-20190218081629-94fd0333a106
+github.com/huaweicloud/golangsdk
+github.com/huaweicloud/golangsdk/openstack
+github.com/huaweicloud/golangsdk/openstack/antiddos/v1/antiddos
+github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/configurations
+github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups
+github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/instances
+github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/policies
+github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes
+github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters
+github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes
+github.com/huaweicloud/golangsdk/openstack/cloudeyeservice/alarmrule
+github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones
+github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/bootfromvolume
+github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/floatingips
+github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs
+github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/schedulerhints
+github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups
+github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/servergroups
+github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/startstop
+github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/tenantnetworks
+github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach
+github.com/huaweicloud/golangsdk/openstack/compute/v2/flavors
+github.com/huaweicloud/golangsdk/openstack/compute/v2/images
+github.com/huaweicloud/golangsdk/openstack/compute/v2/servers
+github.com/huaweicloud/golangsdk/openstack/csbs/v1/backup
+github.com/huaweicloud/golangsdk/openstack/csbs/v1/policies
+github.com/huaweicloud/golangsdk/openstack/cts/v1/tracker
+github.com/huaweicloud/golangsdk/openstack/dcs/v1/availablezones
+github.com/huaweicloud/golangsdk/openstack/dcs/v1/instances
+github.com/huaweicloud/golangsdk/openstack/dcs/v1/maintainwindows
+github.com/huaweicloud/golangsdk/openstack/dcs/v1/products
+github.com/huaweicloud/golangsdk/openstack/dms/v1/availablezones
+github.com/huaweicloud/golangsdk/openstack/dms/v1/groups
+github.com/huaweicloud/golangsdk/openstack/dms/v1/instances
+github.com/huaweicloud/golangsdk/openstack/dms/v1/maintainwindows
+github.com/huaweicloud/golangsdk/openstack/dms/v1/products
+github.com/huaweicloud/golangsdk/openstack/dms/v1/queues
+github.com/huaweicloud/golangsdk/openstack/dns/v2/recordsets
+github.com/huaweicloud/golangsdk/openstack/dns/v2/zones
+github.com/huaweicloud/golangsdk/openstack/identity/v3/agency
+github.com/huaweicloud/golangsdk/openstack/identity/v3/domains
+github.com/huaweicloud/golangsdk/openstack/identity/v3/groups
+github.com/huaweicloud/golangsdk/openstack/identity/v3/projects
+github.com/huaweicloud/golangsdk/openstack/identity/v3/roles
+github.com/huaweicloud/golangsdk/openstack/identity/v3/users
+github.com/huaweicloud/golangsdk/openstack/imageservice/v2/imagedata
+github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images
+github.com/huaweicloud/golangsdk/openstack/kms/v1/keys
+github.com/huaweicloud/golangsdk/openstack/maas/v1/task
+github.com/huaweicloud/golangsdk/openstack/mrs/v1/cluster
+github.com/huaweicloud/golangsdk/openstack/mrs/v1/job
+github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths
+github.com/huaweicloud/golangsdk/openstack/networking/v1/eips
+github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets
+github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/backendecs
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/healthcheck
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/listeners
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/loadbalancers
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/extradhcpopts
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/firewall_groups
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/routerinsertion
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/routers
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/l7policies
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/loadbalancers
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/monitors
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/natgateways
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/provider
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/rules
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/snatrules
+github.com/huaweicloud/golangsdk/openstack/networking/v2/networks
+github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings
+github.com/huaweicloud/golangsdk/openstack/networking/v2/ports
+github.com/huaweicloud/golangsdk/openstack/networking/v2/routes
+github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets
+github.com/huaweicloud/golangsdk/openstack/objectstorage/v1/swauth
+github.com/huaweicloud/golangsdk/openstack/rds/v1/datastores
+github.com/huaweicloud/golangsdk/openstack/rds/v1/flavors
+github.com/huaweicloud/golangsdk/openstack/rds/v1/instances
+github.com/huaweicloud/golangsdk/openstack/rts/v1/softwareconfig
+github.com/huaweicloud/golangsdk/openstack/rts/v1/stackresources
+github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks
+github.com/huaweicloud/golangsdk/openstack/rts/v1/stacktemplates
+github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares
+github.com/huaweicloud/golangsdk/openstack/smn/v2/subscriptions
+github.com/huaweicloud/golangsdk/openstack/smn/v2/topics
+github.com/huaweicloud/golangsdk/openstack/vbs/v2/backups
+github.com/huaweicloud/golangsdk/openstack/vbs/v2/policies
+github.com/huaweicloud/golangsdk/openstack/vbs/v2/tags
+github.com/huaweicloud/golangsdk/pagination
+github.com/huaweicloud/golangsdk/openstack/identity/v2/tokens
+github.com/huaweicloud/golangsdk/openstack/identity/v3/endpoints
+github.com/huaweicloud/golangsdk/openstack/identity/v3/services
+github.com/huaweicloud/golangsdk/openstack/identity/v3/tokens
+github.com/huaweicloud/golangsdk/openstack/utils
+github.com/huaweicloud/golangsdk/internal
+github.com/huaweicloud/golangsdk/openstack/identity/v2/tenants
+# github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a
+github.com/jen20/awspolicyequivalence
+# github.com/jmespath/go-jmespath v0.0.0-20160803190731-bd40a432e4c7
+github.com/jmespath/go-jmespath
+# github.com/mattn/go-isatty v0.0.0-20161123143637-30a891c33c7c
+github.com/mattn/go-isatty
+# github.com/mitchellh/cli v0.0.0-20171129193617-33edc47170b5
+github.com/mitchellh/cli
+# github.com/mitchellh/copystructure v0.0.0-20170525013902-d23ffcb85de3
+github.com/mitchellh/copystructure
+# github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747
+github.com/mitchellh/go-homedir
+# github.com/mitchellh/go-testing-interface v0.0.0-20170730050907-9a441910b168
+github.com/mitchellh/go-testing-interface
+# github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7
+github.com/mitchellh/go-wordwrap
+# github.com/mitchellh/hashstructure v0.0.0-20160209213820-6b17d669fac5
+github.com/mitchellh/hashstructure
+# github.com/mitchellh/mapstructure v0.0.0-20170307201123-53818660ed49
+github.com/mitchellh/mapstructure
+# github.com/mitchellh/reflectwalk v0.0.0-20170726202117-63d60e9d0dbc
+github.com/mitchellh/reflectwalk
+# github.com/oklog/run v1.0.0
+github.com/oklog/run
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/posener/complete v0.0.0-20171219111128-6bee943216c8
+github.com/posener/complete
+github.com/posener/complete/cmd/install
+github.com/posener/complete/cmd
+github.com/posener/complete/match
+# github.com/stretchr/testify v1.3.0
+github.com/stretchr/testify/assert
+# github.com/ulikunitz/xz v0.5.4
+github.com/ulikunitz/xz
+github.com/ulikunitz/xz/internal/xlog
+github.com/ulikunitz/xz/lzma
+github.com/ulikunitz/xz/internal/hash
+# github.com/zclconf/go-cty v0.0.0-20180302160414-49fa5e03c418
+github.com/zclconf/go-cty/cty
+github.com/zclconf/go-cty/cty/convert
+github.com/zclconf/go-cty/cty/function
+github.com/zclconf/go-cty/cty/function/stdlib
+github.com/zclconf/go-cty/cty/set
+github.com/zclconf/go-cty/cty/gocty
+github.com/zclconf/go-cty/cty/json
+# golang.org/x/crypto v0.0.0-20180211211603-9de5f2eaf759
+golang.org/x/crypto/openpgp
+golang.org/x/crypto/bcrypt
+golang.org/x/crypto/ssh
+golang.org/x/crypto/openpgp/armor
+golang.org/x/crypto/openpgp/errors
+golang.org/x/crypto/openpgp/packet
+golang.org/x/crypto/openpgp/s2k
+golang.org/x/crypto/blowfish
+golang.org/x/crypto/curve25519
+golang.org/x/crypto/ed25519
+golang.org/x/crypto/internal/chacha20
+golang.org/x/crypto/poly1305
+golang.org/x/crypto/cast5
+golang.org/x/crypto/openpgp/elgamal
+golang.org/x/crypto/ed25519/internal/edwards25519
+# golang.org/x/net v0.0.0-20171004034648-a04bdaca5b32
+golang.org/x/net/context
+golang.org/x/net/html
+golang.org/x/net/http2
+golang.org/x/net/trace
+golang.org/x/net/html/atom
+golang.org/x/net/http2/hpack
+golang.org/x/net/idna
+golang.org/x/net/lex/httplex
+golang.org/x/net/internal/timeseries
+# golang.org/x/sys v0.0.0-20190228124157-a34e9553db1e
+golang.org/x/sys/unix
+# golang.org/x/text v0.3.0
+golang.org/x/text/unicode/norm
+golang.org/x/text/transform
+golang.org/x/text/secure/bidirule
+golang.org/x/text/unicode/bidi
+# google.golang.org/genproto v0.0.0-20171002232614-f676e0f3ac63
+google.golang.org/genproto/googleapis/rpc/status
+# google.golang.org/grpc v0.0.0-20170809211603-7657092a1303
+google.golang.org/grpc
+google.golang.org/grpc/credentials
+google.golang.org/grpc/health
+google.golang.org/grpc/health/grpc_health_v1
+google.golang.org/grpc/codes
+google.golang.org/grpc/connectivity
+google.golang.org/grpc/grpclb/grpc_lb_v1
+google.golang.org/grpc/grpclog
+google.golang.org/grpc/internal
+google.golang.org/grpc/keepalive
+google.golang.org/grpc/metadata
+google.golang.org/grpc/naming
+google.golang.org/grpc/peer
+google.golang.org/grpc/stats
+google.golang.org/grpc/status
+google.golang.org/grpc/tap
+google.golang.org/grpc/transport
+# gopkg.in/yaml.v2 v2.0.0-20170812160011-eb3733d160e7
+gopkg.in/yaml.v2

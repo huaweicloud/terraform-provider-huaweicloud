@@ -20,13 +20,13 @@ func resourceIdentityGroupMembershipV3() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"group": &schema.Schema{
+			"group": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"users": &schema.Schema{
+			"users": {
 				Type:     schema.TypeSet,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},

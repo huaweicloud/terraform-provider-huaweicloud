@@ -48,6 +48,4 @@ type metric struct {
 	DNSLatency               *int `json:"DnsLatency,omitempty"`
 	TCPLatency               *int `json:"TcpLatency,omitempty"`
 	SSLLatency               *int `json:"SslLatency,omitempty"`
-
-	MaxRetriesExceeded *int `json:"MaxRetriesExceeded,omitempty"`
 }
