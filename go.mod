@@ -7,7 +7,7 @@ require (
 	github.com/hashicorp/errwrap v1.0.0
 	github.com/hashicorp/go-cleanhttp v0.5.0
 	github.com/hashicorp/terraform v0.12.0
-	github.com/huaweicloud/golangsdk v0.0.0-20190530120506-5fa6033925d6
+	github.com/huaweicloud/golangsdk v0.0.0-20190611094216-bc6e941c3ddb
 	github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a
 	github.com/mitchellh/go-homedir v1.0.0
 	github.com/smartystreets/assertions v0.0.0-20190116191733-b6c0e53d7304 // indirect
