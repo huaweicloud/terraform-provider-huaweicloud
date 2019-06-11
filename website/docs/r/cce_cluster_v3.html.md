@@ -24,6 +24,7 @@ Provides a cluster resource (CCE).
      vpc_id= "${var.vpc_id}"
      subnet_id= "${var.subnet_id}"
      container_network_type= "overlay_l2"
+     authentication_mode = "rbac"
      description= "Create cluster"
     }
 ```
@@ -77,6 +78,9 @@ The following arguments are supported:
 	* `vpc-router` - An vpc-router network built for containers by using ipvlan and custom VPC routes.
 
 * `container_network_cidr` - (Optional) Container network segment. Changing this parameter will create a new cluster resource.
+
+* `authentication_mode` - (Optional) Authentication mode of the cluster, possible values are x509 and rbac. Defaults to x509.
+    Changing this parameter will create a new cluster resource.
 
 ## Attributes Reference
 

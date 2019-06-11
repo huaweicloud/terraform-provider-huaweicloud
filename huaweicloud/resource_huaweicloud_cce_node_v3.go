@@ -62,6 +62,12 @@ func resourceCCENodeV3() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"os": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "EulerOS 2.2",
+			},
 			"key_pair": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -187,6 +193,14 @@ func resourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"private_ip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"public_ip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -254,6 +268,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		Spec: nodes.Spec{
 			Flavor:      d.Get("flavor_id").(string),
 			Az:          d.Get("availability_zone").(string),
+			Os:          d.Get("os").(string),
 			Login:       nodes.LoginSpec{SshKey: d.Get("key_pair").(string)},
 			RootVolume:  resourceCCERootVolume(d),
 			DataVolumes: resourceCCEDataVolume(d),
@@ -320,13 +335,16 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Waiting for CCE Node (%s) to become available", s.Metadata.Name)
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"Build", "Installing"},
-		Target:     []string{"Active", "Abnormal"},
+		Target:     []string{"Active"},
 		Refresh:    waitForCceNodeActive(nodeClient, clusterid, nodeid),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
 	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud CCE Node: %s", err)
+	}
 
 	node, err := nodes.Get(nodeClient, clusterid, nodeid).Extract()
 	d.SetId(node.Metadata.Id)
@@ -360,8 +378,8 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("annotations", s.Metadata.Annotations)
 	d.Set("flavor_id", s.Spec.Flavor)
 	d.Set("availability_zone", s.Spec.Az)
+	d.Set("os", s.Spec.Os)
 	d.Set("billing_mode", s.Spec.BillingMode)
-	d.Set("node_count", s.Spec.Count)
 	d.Set("extend_param_charging_mode", s.Spec.ExtendParam.ChargingMode)
 	d.Set("ecs:performance_type", s.Spec.ExtendParam.PublicKey)
 	d.Set("order_id", s.Spec.ExtendParam.OrderID)
@@ -394,8 +412,9 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("eip_ids", s.Spec.PublicIP.Ids)
-	d.Set("eip_count", s.Spec.PublicIP.Count)
 	d.Set("region", GetRegion(d, config))
+	d.Set("private_ip", s.Status.PrivateIP)
+	d.Set("public_ip", s.Status.PublicIP)
 
 	return nil
 }

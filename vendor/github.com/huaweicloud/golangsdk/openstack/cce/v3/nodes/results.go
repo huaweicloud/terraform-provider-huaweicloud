@@ -46,6 +46,8 @@ type Spec struct {
 	Flavor string `json:"flavor" required:"true"`
 	// The value of the available partition name
 	Az string `json:"az" required:"true"`
+	// The OS of the node
+	Os string `json:"os,omitempty"`
 	// Node login parameters
 	Login LoginSpec `json:"login" required:"true"`
 	// System disk parameter of the node

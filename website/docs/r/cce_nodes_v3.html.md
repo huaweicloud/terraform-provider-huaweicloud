@@ -47,8 +47,6 @@ The following arguments are supported:
 
 * `billing_mode` - (Optional) Node's billing mode: The value is 0 (on demand). Changing this parameter will create a new resource.
 
-* `node_count` - (Required) The number of nodes in batch creation.
-
 * `name` - (Optional) Node Name.
 
 * `labels` - (Optional) Node tag, key/value pair format. Changing this parameter will create a new resource.
@@ -58,6 +56,9 @@ The following arguments are supported:
 * `flavor_id` - (Required) Specifies the flavor id. Changing this parameter will create a new resource.
     
 * `availability_zone` - (Required) specify the name of the available partition (AZ). Changing this parameter will create a new resource.
+
+* `os` - (Optional) Operating System of the node, possible values are EulerOS 2.2 and CentOS 7.1. Defaults to EulerOS 2.2.
+    Changing this parameter will create a new resource.
 
 * `key_pair` - (Required) Key pair name when logging in to select the key pair mode. Changing this parameter will create a new resource.
 
@@ -109,4 +110,7 @@ If the eip_ids parameter is configured, you do not need to configure the eip_cou
 All above argument parameters can be exported as attribute parameters along with attribute reference.
 
  * `status` -  Node status information.
-  
+
+ * `private_ip` - Private IP of the CCE node.
+
+ * `public_ip` - Public IP of the CCE node.

@@ -32,6 +32,11 @@ var (
 	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
 	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
 	OS_SSH_KEY                = os.Getenv("OS_SSH_KEY")
+	OS_DWS_ENVIRONMENT        = os.Getenv("OS_DWS_ENVIRONMENT")
+	OS_MRS_ENVIRONMENT        = os.Getenv("OS_MRS_ENVIRONMENT")
+	OS_DMS_ENVIRONMENT        = os.Getenv("OS_DMS_ENVIRONMENT")
+	OS_NAT_ENVIRONMENT        = os.Getenv("OS_NAT_ENVIRONMENT")
+	OS_KMS_ENVIRONMENT        = os.Getenv("OS_KMS_ENVIRONMENT")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -144,6 +149,53 @@ func testAccPreCheckS3(t *testing.T) {
 	testAccPreCheckRequiredEnvVars(t)
 	if OS_ACCESS_KEY == "" || OS_SECRET_KEY == "" {
 		t.Skip("OS_ACCESS_KEY and OS_SECRET_KEY  must be set for S3 acceptance tests")
+	}
+}
+
+func testAccPreCheckImage(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+	if OS_ACCESS_KEY != "" && OS_SECRET_KEY != "" {
+		t.Skip("AK/SK authentication doesn't support images tests")
+	}
+}
+
+func testAccPreCheckDws(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_DWS_ENVIRONMENT == "" {
+		t.Skip("This environment does not support DWS tests")
+	}
+}
+
+func testAccPreCheckMrs(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_MRS_ENVIRONMENT == "" {
+		t.Skip("This environment does not support MRS tests")
+	}
+}
+
+func testAccPreCheckDms(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_DMS_ENVIRONMENT == "" {
+		t.Skip("This environment does not support DMS tests")
+	}
+}
+
+func testAccPreCheckNat(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_NAT_ENVIRONMENT == "" {
+		t.Skip("This environment does not support NAT tests")
+	}
+}
+
+func testAccPreCheckKms(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_KMS_ENVIRONMENT == "" {
+		t.Skip("This environment does not support KMS tests")
 	}
 }
 

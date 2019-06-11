@@ -19,7 +19,7 @@ func TestAccNatGateway_basic(t *testing.T) {
 	var subnet subnets.Subnet
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckNat(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNatV2GatewayDestroy,
 		Steps: []resource.TestStep{

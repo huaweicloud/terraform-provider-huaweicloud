@@ -10,7 +10,7 @@ import (
 
 func TestAccDmsProductV1DataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
+		PreCheck:  func() { testAccPreCheckDms(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -31,7 +31,7 @@ func TestAccDmsProductV1DataSource_basic(t *testing.T) {
 
 func TestAccDmsProductV1DataSource_rabbitmqSingle(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
+		PreCheck:  func() { testAccPreCheckDms(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -54,7 +54,7 @@ func TestAccDmsProductV1DataSource_rabbitmqSingle(t *testing.T) {
 
 func TestAccDmsProductV1DataSource_rabbitmqCluster(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
+		PreCheck:  func() { testAccPreCheckDms(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{

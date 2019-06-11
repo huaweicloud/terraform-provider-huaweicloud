@@ -26,7 +26,7 @@ import (
 
 func TestAccDwsCluster_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDws(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDwsClusterDestroy,
 		Steps: []resource.TestStep{
@@ -68,7 +68,7 @@ resource "huaweicloud_dws_cluster" "cluster" {
 
 func testAccCheckDwsClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.sdkClient(OS_REGION_NAME, "dws")
+	client, err := config.sdkClient(OS_REGION_NAME, "dws", serviceProjectLevel)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -98,7 +98,7 @@ func testAccCheckDwsClusterDestroy(s *terraform.State) error {
 func testAccCheckDwsClusterExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.sdkClient(OS_REGION_NAME, "dws")
+		client, err := config.sdkClient(OS_REGION_NAME, "dws", serviceProjectLevel)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}

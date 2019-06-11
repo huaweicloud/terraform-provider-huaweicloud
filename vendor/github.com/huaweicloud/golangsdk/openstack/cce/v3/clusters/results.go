@@ -54,6 +54,8 @@ type Spec struct {
 	HostNetwork HostNetworkSpec `json:"hostNetwork" required:"true"`
 	//Container network parameters
 	ContainerNetwork ContainerNetworkSpec `json:"containerNetwork" required:"true"`
+	//Authentication parameters
+	Authentication AuthenticationSpec `json:"authentication,omitempty"`
 	// Charging mode of the cluster, which is 0 (on demand)
 	BillingMode int `json:"billingMode,omitempty"`
 	//Extended parameter for a cluster
@@ -77,6 +79,13 @@ type ContainerNetworkSpec struct {
 	Mode string `json:"mode" required:"true"`
 	//Container network segment: 172.16.0.0/16 ~ 172.31.0.0/16. If there is a network segment conflict, it will be automatically reselected.
 	Cidr string `json:"cidr,omitempty"`
+}
+
+//Authentication parameters
+type AuthenticationSpec struct {
+	//Authentication mode: rbac , x509 or authenticating_proxy
+	Mode                string            `json:"mode" required:"true"`
+	AuthenticatingProxy map[string]string `json:"authenticatingProxy" required:"true"`
 }
 
 type Status struct {

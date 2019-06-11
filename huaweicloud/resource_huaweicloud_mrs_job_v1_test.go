@@ -15,7 +15,7 @@ func TestAccMRSV1Job_basic(t *testing.T) {
 	var jobGet job.Job
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckMrs(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMRSV1JobDestroy,
 		Steps: []resource.TestStep{
