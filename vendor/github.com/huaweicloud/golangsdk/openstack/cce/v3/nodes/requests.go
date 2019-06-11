@@ -45,7 +45,7 @@ func FilterNodes(nodes []Nodes, opts ListOpts) []Nodes {
 		m["Name"] = FilterStruct{Value: opts.Name, Driller: []string{"Metadata"}}
 	}
 	if opts.Uid != "" {
-		m["Uid"] = FilterStruct{Value: opts.Uid, Driller: []string{"Metadata"}}
+		m["Id"] = FilterStruct{Value: opts.Uid, Driller: []string{"Metadata"}}
 	}
 
 	if opts.Phase != "" {

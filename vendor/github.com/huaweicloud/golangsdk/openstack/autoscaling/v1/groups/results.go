@@ -49,7 +49,7 @@ type Group struct {
 	MaxInstanceNumber         int             `json:"max_instance_number"`
 	CoolDownTime              int             `json:"cool_down_time"`
 	LBListenerID              string          `json:"lb_listener_id"`
-	LBaaSListeners            []interface{}   `json:"lbaas_listeners"`
+	LBaaSListeners            []LBaaSListener `json:"lbaas_listeners"`
 	AvailableZones            []string        `json:"available_zones"`
 	Networks                  []Network       `json:"networks"`
 	SecurityGroups            []SecurityGroup `json:"security_groups"`
@@ -71,6 +71,13 @@ type Network struct {
 
 type SecurityGroup struct {
 	ID string `json:"id"`
+}
+
+type LBaaSListener struct {
+	ListenerID   string `json:"listener_id"`
+	PoolID       string `json:"pool_id"`
+	ProtocolPort int    `json:"protocol_port"`
+	Weight       int    `json:"weight"`
 }
 
 type GroupPage struct {

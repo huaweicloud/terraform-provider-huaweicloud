@@ -19,6 +19,7 @@ type CreateOpts struct {
 	MaxInstanceNumber         int                 `json:"max_instance_number,omitempty"`
 	CoolDownTime              int                 `json:"cool_down_time,omitempty"`
 	LBListenerID              string              `json:"lb_listener_id,omitempty"`
+	LBaaSListeners            []LBaaSListenerOpts `json:"lbaas_listeners,omitempty"`
 	AvailableZones            []string            `json:"available_zones,omitempty"`
 	Networks                  []NetworkOpts       `json:"networks" required:"ture"`
 	SecurityGroup             []SecurityGroupOpts `json:"security_groups" required:"ture"`
@@ -36,6 +37,12 @@ type NetworkOpts struct {
 
 type SecurityGroupOpts struct {
 	ID string `json:"id,omitempty"`
+}
+
+type LBaaSListenerOpts struct {
+	PoolID       string `json:"pool_id" required:"true"`
+	ProtocolPort int    `json:"protocol_port" required:"true"`
+	Weight       int    `json:"weight,omitempty"`
 }
 
 func (opts CreateOpts) ToGroupCreateMap() (map[string]interface{}, error) {
@@ -111,6 +118,7 @@ type UpdateOpts struct {
 	MaxInstanceNumber         int                 `json:"max_instance_number,omitempty"`
 	CoolDownTime              int                 `json:"cool_down_time,omitempty"`
 	LBListenerID              string              `json:"lb_listener_id,omitempty"`
+	LBaaSListeners            []LBaaSListenerOpts `json:"lbaas_listeners,omitempty"`
 	AvailableZones            []string            `json:"available_zones,omitempty"`
 	Networks                  []NetworkOpts       `json:"networks,omitempty"`
 	SecurityGroup             []SecurityGroupOpts `json:"security_groups,omitempty"`

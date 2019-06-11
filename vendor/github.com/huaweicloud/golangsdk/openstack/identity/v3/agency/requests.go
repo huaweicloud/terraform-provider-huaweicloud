@@ -2,7 +2,6 @@ package agency
 
 import (
 	"github.com/huaweicloud/golangsdk"
-	"github.com/huaweicloud/golangsdk/openstack"
 )
 
 type CreateOpts struct {
@@ -27,14 +26,7 @@ func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult)
 		return
 	}
 
-	reqOpt := &golangsdk.RequestOpts{}
-	err = addHeaderWhenAuthByAKSK(c, reqOpt)
-	if err != nil {
-		r.Err = err
-		return
-	}
-
-	_, r.Err = c.Post(rootURL(c), b, &r.Body, reqOpt)
+	_, r.Err = c.Post(rootURL(c), b, &r.Body, nil)
 	return
 }
 
@@ -59,119 +51,50 @@ func Update(c *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r Up
 	}
 
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
-	err = addHeaderWhenAuthByAKSK(c, reqOpt)
-	if err != nil {
-		r.Err = err
-		return
-	}
-
 	_, r.Err = c.Put(resourceURL(c, id), b, &r.Body, reqOpt)
 	return
 }
 
 func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
-	reqOpt := &golangsdk.RequestOpts{}
-	err := addHeaderWhenAuthByAKSK(c, reqOpt)
-	if err != nil {
-		r.Err = err
-		return
-	}
-
-	_, r.Err = c.Get(resourceURL(c, id), &r.Body, reqOpt)
+	_, r.Err = c.Get(resourceURL(c, id), &r.Body, nil)
 	return
 }
 
 func Delete(c *golangsdk.ServiceClient, id string) (r ErrResult) {
-	reqOpt := &golangsdk.RequestOpts{}
-	err := addHeaderWhenAuthByAKSK(c, reqOpt)
-	if err != nil {
-		r.Err = err
-		return
-	}
-
-	_, r.Err = c.Delete(resourceURL(c, id), reqOpt)
+	_, r.Err = c.Delete(resourceURL(c, id), nil)
 	return
 }
 
 func AttachRoleByProject(c *golangsdk.ServiceClient, agencyID, projectID, roleID string) (r ErrResult) {
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{204}}
-	err := addHeaderWhenAuthByAKSK(c, reqOpt)
-	if err != nil {
-		r.Err = err
-		return
-	}
-
 	_, r.Err = c.Put(roleURL(c, "projects", projectID, agencyID, roleID), nil, nil, reqOpt)
 	return
 }
 
 func AttachRoleByDomain(c *golangsdk.ServiceClient, agencyID, domainID, roleID string) (r ErrResult) {
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{204}}
-	err := addHeaderWhenAuthByAKSK(c, reqOpt)
-	if err != nil {
-		r.Err = err
-		return
-	}
-
 	_, r.Err = c.Put(roleURL(c, "domains", domainID, agencyID, roleID), nil, nil, reqOpt)
 	return
 }
 
 func DetachRoleByProject(c *golangsdk.ServiceClient, agencyID, projectID, roleID string) (r ErrResult) {
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{204}}
-	err := addHeaderWhenAuthByAKSK(c, reqOpt)
-	if err != nil {
-		r.Err = err
-		return
-	}
-
 	_, r.Err = c.Delete(roleURL(c, "projects", projectID, agencyID, roleID), reqOpt)
 	return
 }
 
 func DetachRoleByDomain(c *golangsdk.ServiceClient, agencyID, domainID, roleID string) (r ErrResult) {
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{204}}
-	err := addHeaderWhenAuthByAKSK(c, reqOpt)
-	if err != nil {
-		r.Err = err
-		return
-	}
-
 	_, r.Err = c.Delete(roleURL(c, "domains", domainID, agencyID, roleID), reqOpt)
 	return
 }
 
 func ListRolesAttachedOnProject(c *golangsdk.ServiceClient, agencyID, projectID string) (r ListRolesResult) {
-	reqOpt := &golangsdk.RequestOpts{}
-	err := addHeaderWhenAuthByAKSK(c, reqOpt)
-	if err != nil {
-		r.Err = err
-		return
-	}
-
-	_, r.Err = c.Get(listRolesURL(c, "projects", projectID, agencyID), &r.Body, reqOpt)
+	_, r.Err = c.Get(listRolesURL(c, "projects", projectID, agencyID), &r.Body, nil)
 	return
 }
 
 func ListRolesAttachedOnDomain(c *golangsdk.ServiceClient, agencyID, domainID string) (r ListRolesResult) {
-	reqOpt := &golangsdk.RequestOpts{}
-	err := addHeaderWhenAuthByAKSK(c, reqOpt)
-	if err != nil {
-		r.Err = err
-		return
-	}
-
-	_, r.Err = c.Get(listRolesURL(c, "domains", domainID, agencyID), &r.Body, reqOpt)
+	_, r.Err = c.Get(listRolesURL(c, "domains", domainID, agencyID), &r.Body, nil)
 	return
-}
-
-func addHeaderWhenAuthByAKSK(c *golangsdk.ServiceClient, opt *golangsdk.RequestOpts) error {
-	h, err := openstack.HeaderForAdminToken(c)
-	if err != nil {
-		return err
-	}
-	if h != nil {
-		opt.MoreHeaders = h
-	}
-	return nil
 }

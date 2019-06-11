@@ -64,6 +64,9 @@ type Monitor struct {
 	// down (false).
 	AdminStateUp bool `json:"admin_state_up"`
 
+	// The Port of the Monitor.
+	MonitorPort int `json:"monitor_port"`
+
 	// The status of the health monitor. Indicates whether the health monitor is
 	// operational.
 	Status string `json:"status"`

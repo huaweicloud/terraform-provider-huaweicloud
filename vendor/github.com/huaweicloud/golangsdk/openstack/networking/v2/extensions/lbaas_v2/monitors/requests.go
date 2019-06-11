@@ -134,6 +134,9 @@ type CreateOpts struct {
 	// The administrative state of the Monitor. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
+
+	// The Port of the Monitor.
+	MonitorPort int `json:"monitor_port,omitempty"`
 }
 
 // ToMonitorCreateMap builds a request body from CreateOpts.
@@ -228,6 +231,9 @@ type UpdateOpts struct {
 	// The administrative state of the Monitor. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
+
+	// The Port of the Monitor.
+	MonitorPort int `json:"monitor_port,omitempty"`
 }
 
 // ToMonitorUpdateMap builds a request body from UpdateOpts.

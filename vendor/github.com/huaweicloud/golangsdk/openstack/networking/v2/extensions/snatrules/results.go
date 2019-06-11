@@ -14,6 +14,8 @@ type SnatRule struct {
 	FloatingIPAddress string `json:"floating_ip_address"`
 	Status            string `json:"status"`
 	AdminStateUp      bool   `json:"admin_state_up"`
+	Cidr              string `json:"cidr"`
+	SourceType        string `json:"source_type"`
 }
 
 // GetResult is a return struct of get method

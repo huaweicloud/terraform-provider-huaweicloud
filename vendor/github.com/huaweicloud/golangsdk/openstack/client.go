@@ -330,7 +330,7 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 	}
 
 	if options.DomainID == "" && options.Domain != "" {
-		id, err := getDomainIDV1(options.Domain, v3Client)
+		id, err := getDomainID(options.Domain, v3Client)
 		if err != nil {
 			return err
 		}
@@ -454,67 +454,6 @@ func getDomainID(name string, client *golangsdk.ServiceClient) (string, error) {
 	old := client.Endpoint
 	defer func() { client.Endpoint = old }()
 
-	endpoint, err := client.EndpointLocator(
-		golangsdk.EndpointOpts{
-			Type:         "identity",
-			Availability: golangsdk.AvailabilityPublic,
-		})
-	if err != nil {
-		if v, ok := err.(ErrMultipleMatchingEndpointsV3); ok {
-			e := ""
-			for _, i := range v.Endpoints {
-				if i.Region == "" {
-					e = golangsdk.NormalizeURL(i.URL) + "auth/"
-					break
-				}
-			}
-
-			if e == "" {
-				return "", err
-			}
-			client.Endpoint = e
-		} else {
-			return "", err
-		}
-	} else {
-		client.Endpoint = endpoint + "auth/"
-	}
-
-	opts := domains.ListOpts{
-		Name: name,
-	}
-	allPages, err := domains.List(client, &opts).AllPages()
-	if err != nil {
-		return "", fmt.Errorf("List domains failed, err=%s", err)
-	}
-
-	all, err := domains.ExtractDomains(allPages)
-	if err != nil {
-		return "", fmt.Errorf("Extract domains failed, err=%s", err)
-	}
-
-	count := len(all)
-	switch count {
-	case 0:
-		err := &golangsdk.ErrResourceNotFound{}
-		err.ResourceType = "iam"
-		err.Name = name
-		return "", err
-	case 1:
-		return all[0].ID, nil
-	default:
-		err := &golangsdk.ErrMultipleResourcesFound{}
-		err.ResourceType = "iam"
-		err.Name = name
-		err.Count = count
-		return "", err
-	}
-}
-
-func getDomainIDV1(name string, client *golangsdk.ServiceClient) (string, error) {
-	old := client.Endpoint
-	defer func() { client.Endpoint = old }()
-
 	client.Endpoint = old + "auth/"
 
 	opts := domains.ListOpts{
@@ -546,18 +485,6 @@ func getDomainIDV1(name string, client *golangsdk.ServiceClient) (string, error)
 		err.Count = count
 		return "", err
 	}
-}
-
-func HeaderForAdminToken(c *golangsdk.ServiceClient) (map[string]string, error) {
-	if c.AKSKAuthOptions.AccessKey != "" {
-		i, err := getDomainID(c.AKSKAuthOptions.Domain, c)
-		if err != nil {
-			return nil, err
-		}
-
-		return map[string]string{"X-Domain-Id": i}, nil
-	}
-	return nil, nil
 }
 
 // NewIdentityV2 creates a ServiceClient that may be used to interact with the
@@ -759,6 +686,14 @@ func NewComputeV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (
 	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "ecs", 1)
 	sc.Endpoint = sc.Endpoint + "v1/"
 	sc.ResourceBase = sc.Endpoint + client.ProjectID + "/"
+	return sc, err
+}
+
+func NewRdsTagV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "rds", 1)
+	sc.Endpoint = sc.Endpoint + "v1/"
+	sc.ResourceBase = sc.Endpoint + client.ProjectID + "/rds/"
 	return sc, err
 }
 
@@ -1021,12 +956,27 @@ func NewCCE(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golan
 	return sc, err
 }
 
+// NewWAF creates a ServiceClient that may be used to access the WAF service.
+func NewWAFV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "waf")
+	sc.ResourceBase = sc.Endpoint + "v1/" + client.ProjectID + "/waf/"
+	return sc, err
+}
+
+// NewRDSV3 creates a ServiceClient that may be used to access the RDS service.
+func NewRDSV3(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "rdsv3")
+	return sc, err
+}
+
 func NewSDKClient(c *golangsdk.ProviderClient, eo golangsdk.EndpointOpts, serviceType string) (*golangsdk.ServiceClient, error) {
 	switch serviceType {
 	case "mls":
 		return NewMLSV1(c, eo)
 	case "dws":
 		return NewDWSClient(c, eo)
+	case "nat":
+		return NewNatV2(c, eo)
 	}
 
 	return initClientOpts(c, eo, serviceType)
