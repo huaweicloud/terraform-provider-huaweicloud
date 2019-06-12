@@ -150,7 +150,7 @@ func Provider() terraform.ResourceProvider {
 			"swauth": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_SWAUTH", ""),
+				DefaultFunc: schema.EnvDefaultFunc("OS_SWAUTH", false),
 				Description: descriptions["swauth"],
 			},
 
