@@ -157,7 +157,7 @@ func Provider() terraform.ResourceProvider {
 			"use_octavia": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_USE_OCTAVIA", ""),
+				DefaultFunc: schema.EnvDefaultFunc("OS_USE_OCTAVIA", false),
 				Description: descriptions["use_octavia"],
 			},
 
