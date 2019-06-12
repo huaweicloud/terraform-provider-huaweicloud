@@ -65,8 +65,8 @@ func resourceCCENodeV3() *schema.Resource {
 			"os": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
-				Default:  "EulerOS 2.2",
 			},
 			"key_pair": {
 				Type:     schema.TypeString,
