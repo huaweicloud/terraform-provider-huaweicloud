@@ -729,15 +729,12 @@ func NewKmsKeyV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*
 }
 
 func NewElasticLoadBalancer(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
-	//sc, err := initClientOpts1(client, eo, "elb")
-	sc, err := initClientOpts(client, eo, "compute")
+	sc, err := initClientOpts(client, eo, "network")
 	if err != nil {
 		return sc, err
 	}
-	sc.Endpoint = strings.Replace(sc.Endpoint, "ecs", "elb", 1)
-	sc.Endpoint = sc.Endpoint[:strings.LastIndex(sc.Endpoint, "v2")+3]
-	sc.Endpoint = strings.Replace(sc.Endpoint, "v2", "v1.0", 1)
-	sc.ResourceBase = sc.Endpoint
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "elb", 1)
+	sc.ResourceBase = sc.Endpoint + "v1.0/"
 	return sc, err
 }
 
