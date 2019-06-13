@@ -440,7 +440,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
-  metadata {
+  metadata = {
     foo = "bar"
   }
   network {
@@ -679,7 +679,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
-  metadata {
+  metadata = {
     foo = "bar"
     abc = "def"
   }
@@ -694,7 +694,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
-  metadata {
+  metadata = {
     foo = "bar"
     ghi = "jkl"
   }
