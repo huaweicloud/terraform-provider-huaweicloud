@@ -1,4 +1,24 @@
 ## 1.6.0 (Unreleased)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_cdm_flavors_v1` [GH-128]
+* **New Data Source:** `huaweicloud_dis_partition_v2` [GH-134]
+* **New Resource:** `huaweicloud_cdm_cluster_v1` [GH-128]
+* **New Resource:** `huaweicloud_ges_graph_v1` [GH-131]
+* **New Resource:** `huaweicloud_css_cluster_v1` [GH-132]
+* **New Resource:** `huaweicloud_cloudtable_cluster_v2` [GH-133]
+* **New Resource:** `huaweicloud_dis_partition_v2` [GH-134]
+
+ENHANCEMENTS:
+
+* The provider is now compatible with Terraform v0.12, while retaining compatibility with prior versions.
+
+BUG FIXES:
+
+* resource/huaweicloud_identity_role_assignment_v3: Fix role assignment issue [GH-136]
+* resource/huaweicloud_cce_node_v3: Fix cce node os option issue [GH-145]
+
 ## 1.5.0 (May 17, 2019)
 
 ENHANCEMENTS:
