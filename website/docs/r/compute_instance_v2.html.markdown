@@ -23,7 +23,7 @@ resource "huaweicloud_compute_instance_v2" "basic" {
   security_groups   = ["default"]
   availability_zone = "az"
 
-  metadata {
+  metadata = {
     this = "that"
   }
 
