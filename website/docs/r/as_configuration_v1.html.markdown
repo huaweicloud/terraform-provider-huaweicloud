@@ -17,14 +17,14 @@ Manages a V1 AS Configuration resource within HuaweiCloud.
 ```hcl
 resource "huaweicloud_as_configuration_v1" "my_as_config" {
   scaling_configuration_name = "my_as_config"
-  instance_config = {
+  instance_config {
     flavor = "${var.flavor}"
     image = "${var.image_id}"
-    disk = [
-      {size = 40
+    disk {
+      size = 40
       volume_type = "SATA"
-      disk_type = "SYS"}
-    ]
+      disk_type = "SYS"
+    }
     key_name = "${var.keyname}"
     user_data = "${file("userdata.txt")}"
   }
@@ -36,14 +36,14 @@ resource "huaweicloud_as_configuration_v1" "my_as_config" {
 ```hcl
 resource "huaweicloud_as_configuration_v1" "my_as_config" {
   scaling_configuration_name = "my_as_config"
-  instance_config = {
+  instance_config {
     flavor = "${var.flavor}"
     image = "${var.image_id}"
-    disk = [
-      {size = 40
+    disk {
+      size = 40
       volume_type = "SATA"
-      disk_type = "SYS"}
-    ]
+      disk_type = "SYS"
+    }
     key_name = "${var.keyname}"
     user_data = "${file("userdata.txt")}"
     metadata = {
@@ -61,7 +61,7 @@ function, or the `template_cloudinit_config` resource.
 ```hcl
 resource "huaweicloud_as_configuration_v1" "my_as_config" {
   scaling_configuration_name = "my_as_config"
-  instance_config = {
+  instance_config {
     instance_id = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
     key_name = "${var.keyname}"
   }

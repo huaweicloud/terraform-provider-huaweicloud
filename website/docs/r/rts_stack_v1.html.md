@@ -22,11 +22,11 @@ resource "huaweicloud_rts_stack_v1" "stack" {
   name = "${var.name}"
     disable_rollback = true
     timeout_mins=60
-    parameters = {
-        "network_id" = "${var.network_id}"
-        "instance_type" = "${var.instance_type}"
-        "image_id" = "${var.image_id}"
-      }
+    parameters {
+      "network_id" = "${var.network_id}"
+      "instance_type" = "${var.instance_type}"
+      "image_id" = "${var.image_id}"
+    }
     template_body = <<STACK
     {
       "heat_template_version": "2016-04-08",

@@ -20,11 +20,11 @@ resource "huaweicloud_as_policy_v1" "hth_aspolicy"{
   scaling_group_id = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
   cool_down_time = 900
   scaling_policy_type = "RECURRENCE"
-  scaling_policy_action = {
+  scaling_policy_action {
     operation = "ADD"
     instance_number = 1
   }
-  scheduled_policy = {
+  scheduled_policy {
     launch_time = "07:00"
     recurrence_type = "Daily"
     start_time = "2017-11-30T12:00Z"
@@ -42,11 +42,11 @@ resource "huaweicloud_as_policy_v1" "hth_aspolicy_1"{
   scaling_group_id = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
   cool_down_time = 900
   scaling_policy_type = "SCHEDULED"
-  scaling_policy_action = {
+  scaling_policy_action {
     operation = "REMOVE"
     instance_number = 1
   }
-  scheduled_policy = {
+  scheduled_policy {
     launch_time = "2017-12-22T12:00Z"
   }
 }
@@ -64,7 +64,7 @@ resource "huaweicloud_as_policy_v1" "hth_aspolicy_2"{
   cool_down_time = 900
   scaling_policy_type = "ALARM"
   alarm_id = "37e310f5-db9d-446e-9135-c625f9c2bbfc"
-  scaling_policy_action = {
+  scaling_policy_action {
     operation = "ADD"
     instance_number = 1
   }
