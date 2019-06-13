@@ -1,14 +1,14 @@
-## 1.6.0 (Unreleased)
+## 1.6.0 (June 13, 2019)
 
 FEATURES:
 
-* **New Data Source:** `huaweicloud_cdm_flavors_v1` [GH-128]
-* **New Data Source:** `huaweicloud_dis_partition_v2` [GH-134]
-* **New Resource:** `huaweicloud_cdm_cluster_v1` [GH-128]
-* **New Resource:** `huaweicloud_ges_graph_v1` [GH-131]
-* **New Resource:** `huaweicloud_css_cluster_v1` [GH-132]
-* **New Resource:** `huaweicloud_cloudtable_cluster_v2` [GH-133]
-* **New Resource:** `huaweicloud_dis_partition_v2` [GH-134]
+* **New Data Source:** `huaweicloud_cdm_flavors_v1` ([#128](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/128))
+* **New Data Source:** `huaweicloud_dis_partition_v2` ([#134](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/134))
+* **New Resource:** `huaweicloud_cdm_cluster_v1` ([#128](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/128))
+* **New Resource:** `huaweicloud_ges_graph_v1` ([#131](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/131))
+* **New Resource:** `huaweicloud_css_cluster_v1` ([#132](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/132))
+* **New Resource:** `huaweicloud_cloudtable_cluster_v2` ([#133](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/133))
+* **New Resource:** `huaweicloud_dis_partition_v2` ([#134](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/134))
 
 ENHANCEMENTS:
 
@@ -16,9 +16,9 @@ ENHANCEMENTS:
 
 BUG FIXES:
 
-* resource/huaweicloud_identity_role_assignment_v3: Fix role assignment issue [GH-136]
-* resource/huaweicloud_cce_node_v3: Fix cce node os option issue [GH-145]
-* resource/huaweicloud_vpc_subnet_v1: Fix vpc subnet delete issue [GH-148]
+* resource/huaweicloud_identity_role_assignment_v3: Fix role assignment issue ([#136](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/136))
+* resource/huaweicloud_cce_node_v3: Fix cce node os option issue ([#145](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/145))
+* resource/huaweicloud_vpc_subnet_v1: Fix vpc subnet delete issue ([#148](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/148))
 
 ## 1.5.0 (May 17, 2019)
 
