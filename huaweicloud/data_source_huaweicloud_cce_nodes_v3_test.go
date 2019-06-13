@@ -65,7 +65,7 @@ cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
   }
   bandwidth_charge_mode="traffic"
   sharetype= "PER"
-  bandwidth_size= 100,
+  bandwidth_size= 100
   data_volumes {
     size= 100
     volumetype= "SATA"

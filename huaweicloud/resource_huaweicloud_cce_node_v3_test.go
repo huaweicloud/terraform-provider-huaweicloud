@@ -150,7 +150,7 @@ cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
   }
   bandwidth_charge_mode="traffic"
   sharetype= "PER"
-  bandwidth_size= 100,
+  bandwidth_size= 100
   data_volumes {
     size= 100
     volumetype= "SATA"
@@ -182,7 +182,7 @@ cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
   }
   bandwidth_charge_mode="traffic"
   sharetype= "PER"
-  bandwidth_size= 100,
+  bandwidth_size= 100
   data_volumes {
     size= 100
     volumetype= "SATA"
@@ -216,7 +216,7 @@ resource "huaweicloud_cce_node_v3" "node_1" {
   }
   bandwidth_charge_mode="traffic"
   sharetype= "PER"
-  bandwidth_size= 100,
+  bandwidth_size= 100
   data_volumes {
     size= 100
     volumetype= "SATA"
