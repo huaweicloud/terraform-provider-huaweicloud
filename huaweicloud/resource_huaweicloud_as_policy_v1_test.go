@@ -94,13 +94,13 @@ resource "huaweicloud_compute_keypair_v2" "hth_key" {
 
 resource "huaweicloud_as_configuration_v1" "hth_as_config"{
   scaling_configuration_name = "hth_as_config"
-  instance_config = {
+  instance_config {
     image = "%s"
-    disk = [
-      {size = 40
+    disk {
+      size = 40
       volume_type = "SATA"
-      disk_type = "SYS"}
-    ]
+      disk_type = "SYS"
+    }
     key_name = "${huaweicloud_compute_keypair_v2.hth_key.id}"
   }
 }
@@ -108,12 +108,12 @@ resource "huaweicloud_as_configuration_v1" "hth_as_config"{
 resource "huaweicloud_as_group_v1" "hth_as_group"{
   scaling_group_name = "hth_as_group"
   scaling_configuration_id = "${huaweicloud_as_configuration_v1.hth_as_config.id}"
-  networks = [
-    {id = "%s"},
-  ]
-  security_groups = [
-    {id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"},
-  ]
+  networks {
+    id = "%s"
+  }
+  security_groups {
+    id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
+  }
   vpc_id = "%s"
 }
 
@@ -121,11 +121,11 @@ resource "huaweicloud_as_policy_v1" "hth_as_policy"{
   scaling_policy_name = "terraform"
   scaling_group_id = "${huaweicloud_as_group_v1.hth_as_group.id}"
   scaling_policy_type = "SCHEDULED"
-  scaling_policy_action = {
+  scaling_policy_action {
     operation = "ADD"
     instance_number = 1
   }
-  scheduled_policy = {
+  scheduled_policy {
     launch_time = "2020-12-22T12:00Z"
   }
 }

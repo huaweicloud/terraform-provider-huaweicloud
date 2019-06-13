@@ -24,18 +24,16 @@ Add a node to a container cluster.
     iptype="5_bgp"
     availability_zone= "${var.availability_zone}"
     key_pair="${var.ssh_key}"
-    root_volume = {
-     size= 40,
+    root_volume {
+     size= 40
      volumetype= "SATA"
     }
     sharetype= "PER"
-    bandwidth_size= 100,
-    data_volumes = [
-     {
-      size= 100,
+    bandwidth_size= 100
+    data_volumes {
+      size= 100
       volumetype= "SATA"
-     },
-    ]
+    }
   }
  ```    
 

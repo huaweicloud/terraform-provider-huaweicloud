@@ -51,14 +51,14 @@ resource "huaweicloud_css_cluster_v1" "cluster" {
   expect_node_num = 1
   name = "terraform_test_cluster%s"
   engine_version = "6.2.3"
-  node_config = {
+  node_config {
     flavor = "ess.spec-2u16g"
-    network_info = {
+    network_info {
       security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
       subnet_id = "%s"
       vpc_id = "%s"
     }
-    volume = {
+    volume {
       volume_type = "COMMON"
       size = 40
     }

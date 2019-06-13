@@ -92,13 +92,13 @@ resource "huaweicloud_compute_keypair_v2" "hth_key" {
 
 resource "huaweicloud_as_configuration_v1" "hth_as_config"{
   scaling_configuration_name = "hth_as_config"
-  instance_config = {
+  instance_config {
     image = "%s"
-    disk = [
-      {size = 40
+    disk {
+      size = 40
       volume_type = "SATA"
-      disk_type = "SYS"}
-    ]
+      disk_type = "SYS"
+    }
     key_name = "${huaweicloud_compute_keypair_v2.hth_key.id}"
   }
 }

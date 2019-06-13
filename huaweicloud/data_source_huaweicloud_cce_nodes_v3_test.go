@@ -59,19 +59,17 @@ cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
   billing_mode=0
   availability_zone= "%s"
   key_pair="%s"
-  root_volume = {
-    size= 40,
+  root_volume {
+    size= 40
     volumetype= "SATA"
   }
   bandwidth_charge_mode="traffic"
   sharetype= "PER"
   bandwidth_size= 100,
-  data_volumes = [
-    {
-      size= 100,
-      volumetype= "SATA"
-    },
-  ]
+  data_volumes {
+    size= 100
+    volumetype= "SATA"
+  }
 }
 data "huaweicloud_cce_node_v3" "nodes" {
 		cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
