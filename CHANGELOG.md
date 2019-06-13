@@ -18,6 +18,7 @@ BUG FIXES:
 
 * resource/huaweicloud_identity_role_assignment_v3: Fix role assignment issue [GH-136]
 * resource/huaweicloud_cce_node_v3: Fix cce node os option issue [GH-145]
+* resource/huaweicloud_vpc_subnet_v1: Fix vpc subnet delete issue [GH-148]
 
 ## 1.5.0 (May 17, 2019)
 
