@@ -193,6 +193,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_images_image_v2":           dataSourceImagesImageV2(),
 			"huaweicloud_networking_network_v2":     dataSourceNetworkingNetworkV2(),
 			"huaweicloud_networking_subnet_v2":      dataSourceNetworkingSubnetV2(),
+			"huaweicloud_networking_port_v2":        dataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup_v2":    dataSourceNetworkingSecGroupV2(),
 			"huaweicloud_s3_bucket_object":          dataSourceS3BucketObject(),
 			"huaweicloud_kms_key_v1":                dataSourceKmsKeyV1(),

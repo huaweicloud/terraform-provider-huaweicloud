@@ -155,6 +155,17 @@ func resourceNetworkingAvailabilityZoneHintsV2(d *schema.ResourceData) []string 
 	return azh
 }
 
+func expandToStringSlice(v []interface{}) []string {
+	s := make([]string, len(v))
+	for i, val := range v {
+		if strVal, ok := val.(string); ok {
+			s[i] = strVal
+		}
+	}
+
+	return s
+}
+
 // strSliceContains checks if a given string is contained in a slice
 // When anybody asks why Go needs generics, here you go.
 func strSliceContains(haystack []string, needle string) bool {
