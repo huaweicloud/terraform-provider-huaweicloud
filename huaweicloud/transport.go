@@ -49,14 +49,14 @@ func addQueryParams(rawurl string, params map[string]string) (string, error) {
 	return u.String(), nil
 }
 
-func replaceVars(d *schema.ResourceData, linkTmpl string, kv map[string]string) (string, error) {
+func replaceVars(d *schema.ResourceData, linkTmpl string, kv map[string]interface{}) (string, error) {
 	re := regexp.MustCompile("{([[:word:]]+)}")
 
 	replaceFunc := func(s string) string {
 		m := re.FindStringSubmatch(s)[1]
 		if kv != nil {
 			if v, ok := kv[m]; ok {
-				return v
+				return convertToStr(v)
 			}
 		}
 		if m == "project" {
@@ -68,8 +68,7 @@ func replaceVars(d *schema.ResourceData, linkTmpl string, kv map[string]string) 
 			}
 			v, ok := d.GetOk(m)
 			if ok {
-				v1, _ := convertToStr(v)
-				return v1
+				return convertToStr(v)
 			}
 		}
 		return ""
@@ -174,26 +173,33 @@ func isUserInput(d *schema.ResourceData, index []string, arrayIndex map[string]i
 	return e
 }
 
-func convertToInt(v interface{}) (interface{}, error) {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		return strconv.ParseInt(strVal, 10, 64)
+func convertToInt(v interface{}) (int64, error) {
+	s := fmt.Sprintf("%v", v)
+	r, err := strconv.ParseInt(s, 10, 64)
+	if err == nil {
+		return r, err
 	}
-	return nil, fmt.Errorf("can not convert to integer")
+
+	if i, ok := v.(int); ok {
+		return int64(i), nil
+
+	} else if i, ok := v.(float64); ok {
+		return int64(i), nil
+
+	} else if i, ok := v.(float32); ok {
+		return int64(i), nil
+	}
+
+	return 0, fmt.Errorf("can not convert to integer")
 }
 
-func convertToStr(v interface{}) (string, error) {
-	if s, ok := v.(string); ok {
-		return s, nil
+func convertToStr(v interface{}) string {
+	return fmt.Sprintf("%v", v)
+}
 
-	} else if i, ok := v.(int); ok {
-		return strconv.Itoa(i), nil
-
-	} else if b, ok := v.(bool); ok {
-		return strconv.FormatBool(b), nil
-	}
-
-	return "", fmt.Errorf("can't convert to string")
+func convertSeconds2Str(v int64) string {
+	t := time.Unix(v, 0)
+	return t.Format("2006-01-02 15:04:05")
 }
 
 func waitToFinish(target, pending []string, timeout, interval time.Duration, f resource.StateRefreshFunc) (interface{}, error) {

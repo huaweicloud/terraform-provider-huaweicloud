@@ -414,7 +414,7 @@ func sendGesGraphV1CreateRequest(d *schema.ResourceData, params interface{},
 func asyncWaitGesGraphV1Create(d *schema.ResourceData, config *Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
-	data := make(map[string]string)
+	data := make(map[string]interface{})
 	pathParameters := map[string][]string{
 		"graphId": []string{"id"},
 	}
@@ -423,7 +423,7 @@ func asyncWaitGesGraphV1Create(d *schema.ResourceData, config *Config, result in
 		if err != nil {
 			return nil, fmt.Errorf("Error retrieving async operation path parameter, err=%s", err)
 		}
-		data[key] = value.(string)
+		data[key] = value
 	}
 
 	url, err := replaceVars(d, "graphs/{graphId}", data)
@@ -459,7 +459,7 @@ func asyncWaitGesGraphV1Create(d *schema.ResourceData, config *Config, result in
 func asyncWaitGesGraphV1Delete(d *schema.ResourceData, config *Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
-	data := make(map[string]string)
+	data := make(map[string]interface{})
 	pathParameters := map[string][]string{
 		"jobId": []string{"jobId"},
 	}
@@ -468,7 +468,7 @@ func asyncWaitGesGraphV1Delete(d *schema.ResourceData, config *Config, result in
 		if err != nil {
 			return nil, fmt.Errorf("Error retrieving async operation path parameter, err=%s", err)
 		}
-		data[key] = value.(string)
+		data[key] = value
 	}
 
 	url, err := replaceVars(d, "graphs/{id}/jobs/{jobId}/status", data)
