@@ -334,13 +334,13 @@ func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	pathParameters := map[string][]string{
 		"id": {"cluster", "id"},
 	}
-	var data = make(map[string]string)
+	var data = make(map[string]interface{})
 	for key, path := range pathParameters {
 		value, err := navigateMap(r.Body, path)
 		if err != nil {
 			return fmt.Errorf("Error retrieving async operation path parameter: %s", err)
 		}
-		data[key] = value.(string)
+		data[key] = value
 	}
 	url, err = replaceVars(d, "clusters/{id}", data)
 	if err != nil {

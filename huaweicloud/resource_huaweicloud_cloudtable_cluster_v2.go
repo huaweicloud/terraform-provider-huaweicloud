@@ -580,7 +580,7 @@ func sendCloudtableClusterV2CreateRequest(d *schema.ResourceData, params interfa
 func asyncWaitCloudtableClusterV2Create(d *schema.ResourceData, config *Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
-	data := make(map[string]string)
+	data := make(map[string]interface{})
 	pathParameters := map[string][]string{
 		"cluster_id": []string{"cluster_id"},
 	}
@@ -589,7 +589,7 @@ func asyncWaitCloudtableClusterV2Create(d *schema.ResourceData, config *Config, 
 		if err != nil {
 			return nil, fmt.Errorf("Error retrieving async operation path parameter, err=%s", err)
 		}
-		data[key] = value.(string)
+		data[key] = value
 	}
 
 	url, err := replaceVars(d, "clusters/{cluster_id}", data)
@@ -972,11 +972,7 @@ func flattenCloudtableClusterV2StorageQuota(d interface{}, arrayIndex map[string
 	if err != nil {
 		return nil, err
 	}
-	v1, err := convertToStr(v)
-	if err != nil {
-		return nil, err
-	}
-	return v1 + " GB", nil
+	return convertToStr(v) + " GB", nil
 }
 
 func flattenCloudtableClusterV2UsedStorageSize(d interface{}, arrayIndex map[string]int, currentValue interface{}) (interface{}, error) {
@@ -984,9 +980,5 @@ func flattenCloudtableClusterV2UsedStorageSize(d interface{}, arrayIndex map[str
 	if err != nil {
 		return nil, err
 	}
-	v1, err := convertToStr(v)
-	if err != nil {
-		return nil, err
-	}
-	return v1 + " GB", nil
+	return convertToStr(v) + " GB", nil
 }

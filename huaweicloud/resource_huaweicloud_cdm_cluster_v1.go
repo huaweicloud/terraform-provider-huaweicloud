@@ -617,7 +617,7 @@ func sendCdmClusterV1CreateRequest(d *schema.ResourceData, params interface{},
 func asyncWaitCdmClusterV1Create(d *schema.ResourceData, config *Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
-	data := make(map[string]string)
+	data := make(map[string]interface{})
 	pathParameters := map[string][]string{
 		"cluster_id": []string{"id"},
 	}
@@ -626,7 +626,7 @@ func asyncWaitCdmClusterV1Create(d *schema.ResourceData, config *Config, result 
 		if err != nil {
 			return nil, fmt.Errorf("Error retrieving async operation path parameter, err=%s", err)
 		}
-		data[key] = value.(string)
+		data[key] = value
 	}
 
 	url, err := replaceVars(d, "clusters/{cluster_id}", data)
