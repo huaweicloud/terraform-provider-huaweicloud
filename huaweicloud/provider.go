@@ -315,6 +315,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_css_cluster_v1":                     resourceCssClusterV1(),
 			"huaweicloud_dis_stream_v2":                      resourceDisStreamV2(),
 			"huaweicloud_cs_cluster_v1":                      resourceCsClusterV1(),
+			"huaweicloud_cs_peering_v1":                      resourceCsPeeringV1(),
 		},
 
 		ConfigureFunc: configureProvider,
