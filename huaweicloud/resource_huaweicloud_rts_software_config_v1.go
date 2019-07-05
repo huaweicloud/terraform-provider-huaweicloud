@@ -132,7 +132,6 @@ func resourceSoftwareConfigV1Read(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error retrieving HuaweiCloud Vpc: %s", err)
 	}
 
-	d.Set("id", n.Id)
 	d.Set("name", n.Name)
 	d.Set("config", n.Config)
 	d.Set("group", n.Group)

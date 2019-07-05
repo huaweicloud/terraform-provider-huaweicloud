@@ -354,12 +354,6 @@ func resourceMlsInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	if v, ok := res["id"]; ok {
-		if err := d.Set("id", v); err != nil {
-			return fmt.Errorf("Error reading Instance:id, err: %s", err)
-		}
-	}
-
 	if v, ok := res["innerEndPoint"]; ok {
 		if err := d.Set("inner_endpoint", v); err != nil {
 			return fmt.Errorf("Error reading Instance:inner_endpoint, err: %s", err)

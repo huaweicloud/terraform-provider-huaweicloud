@@ -128,7 +128,6 @@ func resourceVPCPeeringV2Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error retrieving Huaweicloud Vpc Peering Connection: %s", err)
 	}
 
-	d.Set("id", n.ID)
 	d.Set("name", n.Name)
 	d.Set("status", n.Status)
 	d.Set("vpc_id", n.RequestVpcInfo.VpcId)
