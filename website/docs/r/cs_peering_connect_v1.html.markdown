@@ -1,14 +1,14 @@
 ---
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_cs_peering_v1"
-sidebar_current: "docs-huaweicloud-resource-cs-peering-v1"
+page_title: "HuaweiCloud: huaweicloud_cs_peering_connect_v1"
+sidebar_current: "docs-huaweicloud-resource-cs-peering-connect-v1"
 description: |-
-  Cloud Stream Service Cluster Peering Management
+  Cloud Stream Service cluster peering connect management
 ---
 
-# huaweicloud\_cs\_peering\_v1
+# huaweicloud\_cs\_peering\_connect\_v1
 
-Cloud Stream Service Cluster Peering Management
+Cloud Stream Service cluster peering connect management
 
 ## Example Usage
 
@@ -31,8 +31,8 @@ resource "huaweicloud_vpc_subnet_v1" "subnet" {
   vpc_id = "${huaweicloud_vpc_v1.vpc.id}"
 }
 
-resource "huaweicloud_cs_peering_v1" "peering" {
-  name = "terraform_cs_peering_tet"
+resource "huaweicloud_cs_peering_connect_v1" "peering" {
+  name = "terraform_cs_peering_connect_v1_test"
   target_vpc_info {
     vpc_id = "${huaweicloud_vpc_v1.vpc.id}"
   }

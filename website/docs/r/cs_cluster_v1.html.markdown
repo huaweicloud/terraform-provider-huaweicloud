@@ -3,12 +3,12 @@ layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cs_cluster_v1"
 sidebar_current: "docs-huaweicloud-resource-cs-cluster-v1"
 description: |-
-  Cloud Stream Service Cluster Management
+  Cloud Stream Service cluster management
 ---
 
 # huaweicloud\_cs\_cluster\_v1
 
-Cloud Stream Service Cluster Management
+Cloud Stream Service cluster management
 
 ## Example Usage
 

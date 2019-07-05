@@ -24,11 +24,11 @@ import (
 	"github.com/huaweicloud/golangsdk"
 )
 
-func resourceCsPeeringV1() *schema.Resource {
+func resourceCsPeeringConnectV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCsPeeringV1Create,
-		Read:   resourceCsPeeringV1Read,
-		Delete: resourceCsPeeringV1Delete,
+		Create: resourceCsPeeringConnectV1Create,
+		Read:   resourceCsPeeringConnectV1Read,
+		Delete: resourceCsPeeringConnectV1Delete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -73,7 +73,7 @@ func resourceCsPeeringV1() *schema.Resource {
 	}
 }
 
-func resourceCsPeeringV1UserInputParams(d *schema.ResourceData) map[string]interface{} {
+func resourceCsPeeringConnectV1UserInputParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"terraform_resource_data": d,
 		"cluster_id":              d.Get("cluster_id"),
@@ -82,26 +82,26 @@ func resourceCsPeeringV1UserInputParams(d *schema.ResourceData) map[string]inter
 	}
 }
 
-func resourceCsPeeringV1Create(d *schema.ResourceData, meta interface{}) error {
+func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
 
-	opts := resourceCsPeeringV1UserInputParams(d)
+	opts := resourceCsPeeringConnectV1UserInputParams(d)
 
 	arrayIndex := map[string]int{
 		"target_vpc_info": 0,
 	}
 
-	params, err := buildCsPeeringV1CreateParameters(opts, arrayIndex)
+	params, err := buildCsPeeringConnectV1CreateParameters(opts, arrayIndex)
 	if err != nil {
 		return fmt.Errorf("Error building the request body of api(create), err=%s", err)
 	}
-	r, err := sendCsPeeringV1CreateRequest(d, params, client)
+	r, err := sendCsPeeringConnectV1CreateRequest(d, params, client)
 	if err != nil {
-		return fmt.Errorf("Error creating CsPeeringV1, err=%s", err)
+		return fmt.Errorf("Error creating CsPeeringConnectV1, err=%s", err)
 	}
 
 	client, err = config.sdkClient(GetRegion(d, config), "network", serviceProjectLevel)
@@ -109,7 +109,7 @@ func resourceCsPeeringV1Create(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
 
-	err = actionCsPeeringV1AcceptPeering(d, r, client)
+	err = actionCsPeeringConnectV1AcceptPeering(d, r, client)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func resourceCsPeeringV1Create(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating async sdk client, err=%s", err)
 	}
 
-	obj, err := asyncWaitCsPeeringV1Create(d, config, r, client, timeout)
+	obj, err := asyncWaitCsPeeringConnectV1Create(d, config, r, client, timeout)
 	if err != nil {
 		return err
 	}
@@ -131,10 +131,10 @@ func resourceCsPeeringV1Create(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(convertToStr(id))
 
-	return resourceCsPeeringV1Read(d, meta)
+	return resourceCsPeeringConnectV1Read(d, meta)
 }
 
-func resourceCsPeeringV1Read(d *schema.ResourceData, meta interface{}) error {
+func resourceCsPeeringConnectV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
 	if err != nil {
@@ -143,21 +143,21 @@ func resourceCsPeeringV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	res := make(map[string]interface{})
 
-	v, err := sendCsPeeringV1ReadRequest(d, client)
+	v, err := sendCsPeeringConnectV1ReadRequest(d, client)
 	if err != nil {
 		return err
 	}
-	res["read"] = fillCsPeeringV1ReadRespBody(v)
+	res["read"] = fillCsPeeringConnectV1ReadRespBody(v)
 
-	states, err := flattenCsPeeringV1Options(res)
+	states, err := flattenCsPeeringConnectV1Options(res)
 	if err != nil {
 		return err
 	}
 
-	return setCsPeeringV1States(d, states)
+	return setCsPeeringConnectV1States(d, states)
 }
 
-func resourceCsPeeringV1Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceCsPeeringConnectV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
 	if err != nil {
@@ -170,7 +170,7 @@ func resourceCsPeeringV1Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 	url = client.ServiceURL(url)
 
-	log.Printf("[DEBUG] Deleting Peering %q", d.Id())
+	log.Printf("[DEBUG] Deleting PeeringConnect %q", d.Id())
 	r := golangsdk.Result{}
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
 		OkCodes:      successHTTPCodes,
@@ -179,7 +179,7 @@ func resourceCsPeeringV1Delete(d *schema.ResourceData, meta interface{}) error {
 		MoreHeaders:  map[string]string{"Content-Type": "application/json"},
 	})
 	if r.Err != nil {
-		return fmt.Errorf("Error deleting Peering %q, err=%s", d.Id(), r.Err)
+		return fmt.Errorf("Error deleting PeeringConnect %q, err=%s", d.Id(), r.Err)
 	}
 
 	_, err = waitToFinish(
@@ -201,7 +201,7 @@ func resourceCsPeeringV1Delete(d *schema.ResourceData, meta interface{}) error {
 	return err
 }
 
-func buildCsPeeringV1CreateParameters(opts map[string]interface{}, arrayIndex map[string]int) (interface{}, error) {
+func buildCsPeeringConnectV1CreateParameters(opts map[string]interface{}, arrayIndex map[string]int) (interface{}, error) {
 	params := make(map[string]interface{})
 
 	v, err := navigateValue(opts, []string{"target_vpc_info", "project_id"}, arrayIndex)
@@ -237,7 +237,7 @@ func buildCsPeeringV1CreateParameters(opts map[string]interface{}, arrayIndex ma
 	return params, nil
 }
 
-func sendCsPeeringV1CreateRequest(d *schema.ResourceData, params interface{},
+func sendCsPeeringConnectV1CreateRequest(d *schema.ResourceData, params interface{},
 	client *golangsdk.ServiceClient) (interface{}, error) {
 	url, err := replaceVars(d, "reserved_cluster/{cluster_id}/peering", nil)
 	if err != nil {
@@ -255,7 +255,7 @@ func sendCsPeeringV1CreateRequest(d *schema.ResourceData, params interface{},
 	return r.Body, nil
 }
 
-func asyncWaitCsPeeringV1Create(d *schema.ResourceData, config *Config, result interface{},
+func asyncWaitCsPeeringConnectV1Create(d *schema.ResourceData, config *Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	data := make(map[string]interface{})
@@ -297,7 +297,7 @@ func asyncWaitCsPeeringV1Create(d *schema.ResourceData, config *Config, result i
 	)
 }
 
-func sendCsPeeringV1ReadRequest(d *schema.ResourceData, client *golangsdk.ServiceClient) (interface{}, error) {
+func sendCsPeeringConnectV1ReadRequest(d *schema.ResourceData, client *golangsdk.ServiceClient) (interface{}, error) {
 	url, err := replaceVars(d, "reserved_cluster/{cluster_id}/peering/{id}", nil)
 	if err != nil {
 		return nil, err
@@ -308,7 +308,7 @@ func sendCsPeeringV1ReadRequest(d *schema.ResourceData, client *golangsdk.Servic
 	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(read) for resource(CsPeeringV1), err=%s", r.Err)
+		return nil, fmt.Errorf("Error running api(read) for resource(CsPeeringConnectV1), err=%s", r.Err)
 	}
 
 	v, err := navigateValue(r.Body, []string{"peering"}, nil)
@@ -318,7 +318,7 @@ func sendCsPeeringV1ReadRequest(d *schema.ResourceData, client *golangsdk.Servic
 	return v, nil
 }
 
-func fillCsPeeringV1ReadRespBody(body interface{}) interface{} {
+func fillCsPeeringConnectV1ReadRespBody(body interface{}) interface{} {
 	result := make(map[string]interface{})
 	val, ok := body.(map[string]interface{})
 	if !ok {
@@ -326,7 +326,7 @@ func fillCsPeeringV1ReadRespBody(body interface{}) interface{} {
 	}
 
 	if v, ok := val["accept_vpc_info"]; ok {
-		result["accept_vpc_info"] = fillCsPeeringV1ReadRespAcceptVpcInfo(v)
+		result["accept_vpc_info"] = fillCsPeeringConnectV1ReadRespAcceptVpcInfo(v)
 	} else {
 		result["accept_vpc_info"] = nil
 	}
@@ -340,7 +340,7 @@ func fillCsPeeringV1ReadRespBody(body interface{}) interface{} {
 	return result
 }
 
-func fillCsPeeringV1ReadRespAcceptVpcInfo(value interface{}) interface{} {
+func fillCsPeeringConnectV1ReadRespAcceptVpcInfo(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -366,36 +366,36 @@ func fillCsPeeringV1ReadRespAcceptVpcInfo(value interface{}) interface{} {
 	return result
 }
 
-func flattenCsPeeringV1Options(response map[string]interface{}) (map[string]interface{}, error) {
+func flattenCsPeeringConnectV1Options(response map[string]interface{}) (map[string]interface{}, error) {
 	opts := make(map[string]interface{})
 
 	v, err := navigateValue(response, []string{"read", "name"}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Peering:name, err: %s", err)
+		return nil, fmt.Errorf("Error flattening PeeringConnect:name, err: %s", err)
 	}
 	opts["name"] = v
 
-	v, err = flattenCsPeeringV1TargetVpcInfo(response, nil)
+	v, err = flattenCsPeeringConnectV1TargetVpcInfo(response, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Peering:target_vpc_info, err: %s", err)
+		return nil, fmt.Errorf("Error flattening PeeringConnect:target_vpc_info, err: %s", err)
 	}
 	opts["target_vpc_info"] = v
 
 	return opts, nil
 }
 
-func flattenCsPeeringV1TargetVpcInfo(d interface{}, arrayIndex map[string]int) (interface{}, error) {
+func flattenCsPeeringConnectV1TargetVpcInfo(d interface{}, arrayIndex map[string]int) (interface{}, error) {
 	r := make(map[string]interface{})
 
 	v, err := navigateValue(d, []string{"read", "accept_vpc_info", "tenant_id"}, arrayIndex)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Peering:project_id, err: %s", err)
+		return nil, fmt.Errorf("Error flattening PeeringConnect:project_id, err: %s", err)
 	}
 	r["project_id"] = v
 
 	v, err = navigateValue(d, []string{"read", "accept_vpc_info", "vpc_id"}, arrayIndex)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Peering:vpc_id, err: %s", err)
+		return nil, fmt.Errorf("Error flattening PeeringConnect:vpc_id, err: %s", err)
 	}
 	r["vpc_id"] = v
 
@@ -407,16 +407,16 @@ func flattenCsPeeringV1TargetVpcInfo(d interface{}, arrayIndex map[string]int) (
 	return nil, nil
 }
 
-func setCsPeeringV1States(d *schema.ResourceData, opts map[string]interface{}) error {
+func setCsPeeringConnectV1States(d *schema.ResourceData, opts map[string]interface{}) error {
 	for k, v := range opts {
 		if err := d.Set(k, v); err != nil {
-			return fmt.Errorf("Error setting CsPeeringV1:%s, err: %s", k, err)
+			return fmt.Errorf("Error setting CsPeeringConnectV1:%s, err: %s", k, err)
 		}
 	}
 	return nil
 }
 
-func actionCsPeeringV1AcceptPeering(d *schema.ResourceData, result interface{}, client *golangsdk.ServiceClient) error {
+func actionCsPeeringConnectV1AcceptPeering(d *schema.ResourceData, result interface{}, client *golangsdk.ServiceClient) error {
 	pathParameters := map[string][]string{
 		"peering_id": []string{"peering", "id"},
 	}

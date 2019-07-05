@@ -24,23 +24,23 @@ import (
 	"github.com/huaweicloud/golangsdk"
 )
 
-func TestAccCsPeeringV1_basic(t *testing.T) {
+func TestAccCsPeeringConnectV1_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCsPeeringV1Destroy,
+		CheckDestroy: testAccCheckCsPeeringConnectV1Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCsPeeringV1_basic(acctest.RandString(10)),
+				Config: testAccCsPeeringConnectV1_basic(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCsPeeringV1Exists(),
+					testAccCheckCsPeeringConnectV1Exists(),
 				),
 			},
 		},
 	})
 }
 
-func testAccCsPeeringV1_basic(val string) string {
+func testAccCsPeeringConnectV1_basic(val string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cs_cluster_v1" "cluster" {
   name = "terraform_cs_cluster_v1_test%s"
@@ -58,8 +58,8 @@ resource "huaweicloud_vpc_subnet_v1" "subnet" {
   vpc_id = "${huaweicloud_vpc_v1.vpc.id}"
 }
 
-resource "huaweicloud_cs_peering_v1" "peering" {
-  name = "terraform_cs_peering_tet%s"
+resource "huaweicloud_cs_peering_connect_v1" "peering" {
+  name = "terraform_cs_peering_connect_v1_test%s"
   target_vpc_info {
     vpc_id = "${huaweicloud_vpc_v1.vpc.id}"
   }
@@ -68,7 +68,7 @@ resource "huaweicloud_cs_peering_v1" "peering" {
 	`, val, val, val, val)
 }
 
-func testAccCheckCsPeeringV1Destroy(s *terraform.State) error {
+func testAccCheckCsPeeringConnectV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	client, err := config.sdkClient(OS_REGION_NAME, "cs", serviceProjectLevel)
 	if err != nil {
@@ -76,7 +76,7 @@ func testAccCheckCsPeeringV1Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_cs_peering_v1" {
+		if rs.Type != "huaweicloud_cs_peering_connect_v1" {
 			continue
 		}
 
@@ -89,14 +89,14 @@ func testAccCheckCsPeeringV1Destroy(s *terraform.State) error {
 		_, err = client.Get(url, nil, &golangsdk.RequestOpts{
 			MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 		if err == nil {
-			return fmt.Errorf("huaweicloud_cs_peering_v1 still exists at %s", url)
+			return fmt.Errorf("huaweicloud_cs_peering_connect_v1 still exists at %s", url)
 		}
 	}
 
 	return nil
 }
 
-func testAccCheckCsPeeringV1Exists() resource.TestCheckFunc {
+func testAccCheckCsPeeringConnectV1Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 		client, err := config.sdkClient(OS_REGION_NAME, "cs", serviceProjectLevel)
@@ -104,14 +104,14 @@ func testAccCheckCsPeeringV1Exists() resource.TestCheckFunc {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}
 
-		rs, ok := s.RootModule().Resources["huaweicloud_cs_peering_v1.peering"]
+		rs, ok := s.RootModule().Resources["huaweicloud_cs_peering_connect_v1.peering"]
 		if !ok {
-			return fmt.Errorf("Error checking huaweicloud_cs_peering_v1.peering exist, err=not found this resource")
+			return fmt.Errorf("Error checking huaweicloud_cs_peering_connect_v1.peering exist, err=not found this resource")
 		}
 
 		url, err := replaceVarsForTest(rs, "reserved_cluster/{cluster_id}/peering/{id}")
 		if err != nil {
-			return fmt.Errorf("Error checking huaweicloud_cs_peering_v1.peering exist, err=building url failed: %s", err)
+			return fmt.Errorf("Error checking huaweicloud_cs_peering_connect_v1.peering exist, err=building url failed: %s", err)
 		}
 		url = client.ServiceURL(url)
 
@@ -119,9 +119,9 @@ func testAccCheckCsPeeringV1Exists() resource.TestCheckFunc {
 			MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return fmt.Errorf("huaweicloud_cs_peering_v1.peering is not exist")
+				return fmt.Errorf("huaweicloud_cs_peering_connect_v1.peering is not exist")
 			}
-			return fmt.Errorf("Error checking huaweicloud_cs_peering_v1.peering exist, err=send request failed: %s", err)
+			return fmt.Errorf("Error checking huaweicloud_cs_peering_connect_v1.peering exist, err=send request failed: %s", err)
 		}
 		return nil
 	}
