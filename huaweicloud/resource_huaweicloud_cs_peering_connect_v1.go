@@ -32,6 +32,7 @@ func resourceCsPeeringConnectV1() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -182,22 +183,7 @@ func resourceCsPeeringConnectV1Delete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error deleting PeeringConnect %q, err=%s", d.Id(), r.Err)
 	}
 
-	_, err = waitToFinish(
-		[]string{"Done"}, []string{"Pending"},
-		d.Timeout(schema.TimeoutCreate),
-		1*time.Second,
-		func() (interface{}, string, error) {
-			_, err := client.Get(url, nil, &golangsdk.RequestOpts{
-				MoreHeaders: map[string]string{"Content-Type": "application/json"}})
-			if err != nil {
-				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					return true, "Done", nil
-				}
-				return nil, "", nil
-			}
-			return true, "Pending", nil
-		},
-	)
+	_, err = asyncWaitCsPeeringConnectV1Delete(d, config, r.Body, client, d.Timeout(schema.TimeoutDelete))
 	return err
 }
 
@@ -293,6 +279,34 @@ func asyncWaitCsPeeringConnectV1Create(d *schema.ResourceData, config *Config, r
 				return nil, "", nil
 			}
 			return r.Body, convertToStr(status), nil
+		},
+	)
+}
+
+func asyncWaitCsPeeringConnectV1Delete(d *schema.ResourceData, config *Config, result interface{},
+	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
+
+	url, err := replaceVars(d, "reserved_cluster/{cluster_id}/peering/{id}", nil)
+	if err != nil {
+		return nil, err
+	}
+	url = client.ServiceURL(url)
+
+	return waitToFinish(
+		[]string{"Done"}, []string{"Pending"}, timeout, 1*time.Second,
+		func() (interface{}, string, error) {
+			r := golangsdk.Result{}
+			_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
+				OkCodes:     []int{200, 400},
+				MoreHeaders: map[string]string{"Content-Type": "application/json"}})
+			if r.Err != nil {
+				return nil, "", nil
+			}
+
+			if checkCsPeeringConnectV1DeleteFinished(r.Body) {
+				return r.Body, "Done", nil
+			}
+			return r.Body, "Pending", nil
 		},
 	)
 }
