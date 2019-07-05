@@ -46,6 +46,12 @@ type Cluster struct {
 	Errorinfo             string      `json:"errorInfo"`
 	Chargingstarttime     string      `json:"chargingStartTime"`
 	LogCollection         int         `json:"log_collection"`
+	MasterDataVolumeType  string      `json:"masterDataVolumeType"`
+	MasterDataVolumeSize  int         `json:"masterDataVolumeSize"`
+	MasterDataVolumeCount int         `json:"masterDataVolumeCount"`
+	CoreDataVolumeType    string      `json:"coreDataVolumeType"`
+	CoreDataVolumeSize    int         `json:"coreDataVolumeSize"`
+	CoreDataVolumeCount   int         `json:"coreDataVolumeCount"`
 }
 
 type Component struct {

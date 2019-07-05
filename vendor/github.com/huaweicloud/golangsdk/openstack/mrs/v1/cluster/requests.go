@@ -11,28 +11,34 @@ var RequestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
 }
 
 type CreateOpts struct {
-	BillingType        int             `json:"billing_type" required:"true"`
-	DataCenter         string          `json:"data_center" required:"true"`
-	MasterNodeNum      int             `json:"master_node_num" required:"true"`
-	MasterNodeSize     string          `json:"master_node_size" required:"true"`
-	CoreNodeNum        int             `json:"core_node_num" required:"true"`
-	CoreNodeSize       string          `json:"core_node_size" required:"true"`
-	AvailableZoneID    string          `json:"available_zone_id" required:"true"`
-	ClusterName        string          `json:"cluster_name" required:"true"`
-	Vpc                string          `json:"vpc" required:"true"`
-	VpcID              string          `json:"vpc_id" required:"true"`
-	SubnetID           string          `json:"subnet_id" required:"true"`
-	SubnetName         string          `json:"subnet_name" required:"true"`
-	ClusterVersion     string          `json:"cluster_version,omitempty"`
-	ClusterType        int             `json:"cluster_type,omitempty"`
-	VolumeType         string          `json:"volume_type" required:"true"`
-	VolumeSize         int             `json:"volume_size" required:"true"`
-	NodePublicCertName string          `json:"node_public_cert_name" required:"true"`
-	SafeMode           int             `json:"safe_mode"`
-	ClusterAdminSecret string          `json:"cluster_admin_secret,omitempty"`
-	LogCollection      int             `json:"log_collection,omitempty"`
-	ComponentList      []ComponentOpts `json:"component_list" required:"true"`
-	AddJobs            []JobOpts       `json:"add_jobs,omitempty"`
+	BillingType           int             `json:"billing_type" required:"true"`
+	DataCenter            string          `json:"data_center" required:"true"`
+	MasterNodeNum         int             `json:"master_node_num" required:"true"`
+	MasterNodeSize        string          `json:"master_node_size" required:"true"`
+	CoreNodeNum           int             `json:"core_node_num" required:"true"`
+	CoreNodeSize          string          `json:"core_node_size" required:"true"`
+	AvailableZoneID       string          `json:"available_zone_id" required:"true"`
+	ClusterName           string          `json:"cluster_name" required:"true"`
+	Vpc                   string          `json:"vpc" required:"true"`
+	VpcID                 string          `json:"vpc_id" required:"true"`
+	SubnetID              string          `json:"subnet_id" required:"true"`
+	SubnetName            string          `json:"subnet_name" required:"true"`
+	ClusterVersion        string          `json:"cluster_version,omitempty"`
+	ClusterType           int             `json:"cluster_type,omitempty"`
+	MasterDataVolumeType  string          `json:"master_data_volume_type,omitempty"`
+	MasterDataVolumeSize  int             `json:"master_data_volume_size,omitempty"`
+	MasterDataVolumeCount int             `json:"master_data_volume_count,omitempty"`
+	CoreDataVolumeType    string          `json:"core_data_volume_type,omitempty"`
+	CoreDataVolumeSize    int             `json:"core_data_volume_size,omitempty"`
+	CoreDataVolumeCount   int             `json:"core_data_volume_count,omitempty"`
+	VolumeType            string          `json:"volume_type,omitempty"`
+	VolumeSize            int             `json:"volume_size,omitempty"`
+	NodePublicCertName    string          `json:"node_public_cert_name" required:"true"`
+	SafeMode              int             `json:"safe_mode"`
+	ClusterAdminSecret    string          `json:"cluster_admin_secret,omitempty"`
+	LogCollection         int             `json:"log_collection,omitempty"`
+	ComponentList         []ComponentOpts `json:"component_list" required:"true"`
+	AddJobs               []JobOpts       `json:"add_jobs,omitempty"`
 }
 
 type ComponentOpts struct {

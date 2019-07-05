@@ -45,7 +45,7 @@ func testAccCheckMRSV1JobDestroy(s *terraform.State) error {
 
 		_, err := job.Get(mrsClient, rs.Primary.ID).Extract()
 		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault400); ok {
 				return nil
 			}
 			// Temporarily pass 500 error due to some issue on server side.

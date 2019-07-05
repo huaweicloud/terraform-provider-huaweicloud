@@ -4,8 +4,6 @@ import "github.com/huaweicloud/golangsdk"
 
 type Job struct {
 	ID             string `json:"id"`
-	CreateAt       int    `json:"create_at"`
-	UpdateAt       int    `json:"update_at"`
 	TenantID       string `json:"tenant_id"`
 	JobID          string `json:"job_id"`
 	JobName        string `json:"job_name"`
@@ -40,8 +38,6 @@ type Job struct {
 
 type JobResult struct {
 	Templated      bool   `json:"templated"`
-	CreatedAt      string `json:"created_at"`
-	UpdatedAt      string `json:"updated_at"`
 	ID             string `json:"id"`
 	TenantID       string `json:"tenant_id"`
 	JobID          string `json:"job_id"`
