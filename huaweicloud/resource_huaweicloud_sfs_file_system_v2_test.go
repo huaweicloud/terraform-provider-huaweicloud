@@ -163,7 +163,6 @@ resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
 	share_proto = "NFS"
 	size=1
 	name="sfs-test1"
-  	availability_zone="%s"
 	access_to="%s"
   	access_type="cert"
   	access_level="rw"
@@ -173,4 +172,4 @@ resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
     create = "5m"
     delete = "5m"
   }
-}`, OS_AVAILABILITY_ZONE, OS_VPC_ID)
+}`, OS_VPC_ID)
