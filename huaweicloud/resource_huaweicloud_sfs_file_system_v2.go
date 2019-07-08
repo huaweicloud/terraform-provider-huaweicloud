@@ -70,6 +70,7 @@ func resourceSFSFileSystemV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"access_level": {
 				Type:     schema.TypeString,
