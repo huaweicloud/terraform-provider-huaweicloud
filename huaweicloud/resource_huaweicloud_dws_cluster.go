@@ -441,12 +441,6 @@ func resourceDwsClusterRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	if v, ok := res["id"]; ok {
-		if err := d.Set("id", v); err != nil {
-			return fmt.Errorf("Error reading Cluster:id, err: %s", err)
-		}
-	}
-
 	if v, ok := res["port"]; ok {
 		if err := d.Set("port", v); err != nil {
 			return fmt.Errorf("Error reading Cluster:port, err: %s", err)

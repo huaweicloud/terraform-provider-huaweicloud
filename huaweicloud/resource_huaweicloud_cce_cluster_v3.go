@@ -219,7 +219,6 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error retrieving HuaweiCloud CCE: %s", err)
 	}
 
-	d.Set("id", n.Metadata.Id)
 	d.Set("name", n.Metadata.Name)
 	d.Set("status", n.Status.Phase)
 	d.Set("flavor_id", n.Spec.Flavor)

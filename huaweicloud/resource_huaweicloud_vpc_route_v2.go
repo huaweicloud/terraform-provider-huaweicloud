@@ -117,7 +117,6 @@ func resourceVpcRouteV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("destination", n.Destination)
 	d.Set("tenant_id", n.Tenant_Id)
 	d.Set("vpc_id", n.VPC_ID)
-	d.Set("id", n.RouteID)
 	d.Set("region", GetRegion(d, config))
 
 	return nil

@@ -117,7 +117,6 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error retrieving Huaweicloud Vpc: %s", err)
 	}
 
-	d.Set("id", n.ID)
 	d.Set("name", n.Name)
 	d.Set("cidr", n.CIDR)
 	d.Set("status", n.Status)
