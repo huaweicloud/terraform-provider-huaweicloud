@@ -78,3 +78,11 @@ func checkCsClusterV1DeleteFinished(data interface{}) bool {
 	}
 	return "CS.20005" == convertToStr(c)
 }
+
+func checkCsPeeringConnectV1DeleteFinished(data interface{}) bool {
+	c, err := navigateValue(data, []string{"error_id"}, nil)
+	if err != nil {
+		return false
+	}
+	return "CS.22103" == convertToStr(c)
+}

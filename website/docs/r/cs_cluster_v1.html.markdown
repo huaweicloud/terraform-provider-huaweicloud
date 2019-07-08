@@ -3,12 +3,12 @@ layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cs_cluster_v1"
 sidebar_current: "docs-huaweicloud-resource-cs-cluster-v1"
 description: |-
-  Cloud Stream Service Cluster Management
+  Cloud Stream Service cluster management
 ---
 
 # huaweicloud\_cs\_cluster\_v1
 
-Cloud Stream Service Cluster Management
+Cloud Stream Service cluster management
 
 ## Example Usage
 
@@ -28,8 +28,6 @@ The following arguments are supported:
   (Required)
   Cluster name.
 
-- - -
-
 * `description` -
   (Optional)
   cluster description.
@@ -40,15 +38,15 @@ The following arguments are supported:
 
 * `subnet_cidr` -
   (Optional)
-  Cluster sub segment.  Changing this parameter will create a new resource.
+  Cluster sub segment. Changing this parameter will create a new resource.
 
 * `subnet_gateway` -
   (Optional)
-  Cluster subnet gateway.  Changing this parameter will create a new resource.
+  Cluster subnet gateway. Changing this parameter will create a new resource.
 
 * `vpc_cidr` -
   (Optional)
-  Cluster VPC network segment.  Changing this parameter will create a new resource.
+  Cluster VPC network segment. Changing this parameter will create a new resource.
 
 ## Attributes Reference
 
