@@ -256,6 +256,7 @@ github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/provider
 github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups
 github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/rules
 github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/snatrules
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/services
 github.com/huaweicloud/golangsdk/openstack/networking/v2/networks
 github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings
 github.com/huaweicloud/golangsdk/openstack/networking/v2/ports
