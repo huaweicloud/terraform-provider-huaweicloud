@@ -17,7 +17,6 @@ but only compute floating IPs can be used with compute instances.
 
 ```hcl
 resource "huaweicloud_networking_floatingip_v2" "floatip_1" {
-  pool = "admin_external_net"
 }
 ```
 
@@ -31,8 +30,8 @@ The following arguments are supported:
     `region` argument of the provider is used. Changing this creates a new
     floating IP (which may or may not have a different address).
 
-* `pool` - (Required) The name of the pool from which to obtain the floating
-    IP. Changing this creates a new floating IP.
+* `pool` - (Optional) The name of the pool from which to obtain the floating
+    IP. Only admin_external_net is valid. Changing this creates a new floating IP.
 
 * `port_id` - (Optional) ID of an existing port with at least one IP address to
     associate with this floating IP.

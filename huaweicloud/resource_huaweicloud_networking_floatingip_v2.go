@@ -41,10 +41,10 @@ func resourceNetworkingFloatingIPV2() *schema.Resource {
 				Computed: true,
 			},
 			"pool": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_POOL_NAME", nil),
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "admin_external_net",
 			},
 			"port_id": {
 				Type:     schema.TypeString,

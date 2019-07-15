@@ -20,7 +20,6 @@ resource instead, which uses the HuaweiCloud Networking API.
 
 ```hcl
 resource "huaweicloud_compute_floatingip_v2" "floatip_1" {
-  pool = "public"
 }
 ```
 
@@ -34,8 +33,8 @@ The following arguments are supported:
     is used. Changing this creates a new floating IP (which may or may not
     have a different address).
 
-* `pool` - (Required) The name of the pool from which to obtain the floating
-    IP. Changing this creates a new floating IP.
+* `pool` - (Optional) The name of the pool from which to obtain the floating
+    IP. Only admin_external_net is valid. Changing this creates a new floating IP.
 
 ## Attributes Reference
 
