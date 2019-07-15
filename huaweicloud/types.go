@@ -21,6 +21,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/routers"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/endpointgroups"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/services"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
@@ -363,5 +364,11 @@ type EIPCreateOpts struct {
 // VpnServiceCreateOpts represents the attributes used when creating a new VPN service.
 type VpnServiceCreateOpts struct {
 	services.CreateOpts
+	ValueSpecs map[string]string `json:"value_specs,omitempty"`
+}
+
+// VpnEndpointGroupCreateOpts represents the attributes used when creating a new endpoint group.
+type VpnEndpointGroupCreateOpts struct {
+	endpointgroups.CreateOpts
 	ValueSpecs map[string]string `json:"value_specs,omitempty"`
 }
