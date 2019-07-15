@@ -14,12 +14,12 @@ Manages an elastic loadbalancer resource within huawei cloud.
 
 ```hcl
 resource "huaweicloud_elb_loadbalancer" "elb" {
-  name = "elb"
-  type = "External"
-  description = "test elb"
-  vpc_id = "e346dc4a-d9a6-46f4-90df-10153626076e"
+  name           = "elb"
+  type           = "External"
+  description    = "test elb"
+  vpc_id         = "e346dc4a-d9a6-46f4-90df-10153626076e"
   admin_state_up = 1
-  bandwidth = 5
+  bandwidth      = 5
 }
 ```
 

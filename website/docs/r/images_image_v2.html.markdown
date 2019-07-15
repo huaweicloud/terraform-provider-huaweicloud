@@ -14,11 +14,11 @@ Manages a V2 Image resource within HuaweiCloud IMS.
 
 ```hcl
 resource "huaweicloud_images_image_v2" "rancheros" {
-  name   = "RancherOS"
+  name             = "RancherOS"
   image_source_url = "https://releases.rancher.com/os/latest/rancheros-openstack.img"
   container_format = "bare"
-  disk_format = "qcow2"
-  tags = ["foo.bar", "tag.value"]
+  disk_format      = "qcow2"
+  tags             = ["foo.bar", "tag.value"]
 }
 ```
 

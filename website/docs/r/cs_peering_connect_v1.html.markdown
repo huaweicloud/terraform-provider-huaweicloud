@@ -25,10 +25,10 @@ resource "huaweicloud_vpc_v1" "vpc" {
 }
 
 resource "huaweicloud_vpc_subnet_v1" "subnet" {
-  name = "terraform_vpc_subnet_v1_test"
-  cidr = "192.168.0.0/16"
+  name       = "terraform_vpc_subnet_v1_test"
+  cidr       = "192.168.0.0/16"
   gateway_ip = "192.168.0.1"
-  vpc_id = "${huaweicloud_vpc_v1.vpc.id}"
+  vpc_id     = "${huaweicloud_vpc_v1.vpc.id}"
 }
 
 resource "huaweicloud_cs_peering_connect_v1" "peering" {

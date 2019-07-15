@@ -21,7 +21,7 @@ resource "huaweicloud_s3_bucket" "b" {
 
 resource "huaweicloud_s3_bucket_policy" "b" {
   bucket = "${huaweicloud_s3_bucket.b.id}"
-  policy =<<POLICY
+  policy = <<POLICY
 {
   "Version": "2012-10-17",
   "Id": "MYBUCKETPOLICY",

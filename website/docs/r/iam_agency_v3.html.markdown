@@ -14,8 +14,8 @@ Manages an agency resource within huawei cloud.
 
 ```hcl
 resource "huaweicloud_iam_agency_v3" "agency" {
-  name = "test_agency"
-  description = "test agency"
+  name                  = "test_agency"
+  description           = "test agency"
   delegated_domain_name = "***"
   project_role = [
     {
@@ -26,7 +26,7 @@ resource "huaweicloud_iam_agency_v3" "agency" {
     }
   ]
   domain_roles = [
-      "Anti-DDoS Administrator",
+    "Anti-DDoS Administrator",
   ]
 }
 ```

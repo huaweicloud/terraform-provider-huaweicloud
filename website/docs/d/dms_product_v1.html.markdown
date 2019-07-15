@@ -15,11 +15,11 @@ Use this data source to get the ID of an available HuaweiCloud dms product.
 ```hcl
 
 data "huaweicloud_dms_product_v1" "product1" {
-  engine = "kafka"
-  version = "1.1.0"
-  instance_type = "cluster"
-  partition_num = 300
-  storage = 600
+  engine            = "kafka"
+  version           = "1.1.0"
+  instance_type     = "cluster"
+  partition_num     = 300
+  storage           = 600
   storage_spec_code = "dms.physical.storage.high"
 }
 ```

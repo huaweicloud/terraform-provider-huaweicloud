@@ -15,13 +15,13 @@ The VBS Backup Policy data source provides details about a specific VBS backup p
 
  ```hcl
 
- variable "policy_name" { }
+variable "policy_name" {}
 
- variable "policy_id" { }
-    
+variable "policy_id" {}
+
 data "huaweicloud_vbs_backup_policy_v2" "policies" {
   name = "${var.policy_name}"
-  id = "${var.policy_id}"
+  id   = "${var.policy_id}"
 }
  ```
 

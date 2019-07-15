@@ -61,14 +61,14 @@ separate security group rules such as the following:
 
 ```hcl
 resource "huaweicloud_networking_secgroup_rule_v2" "secgroup_rule_v4" {
-  direction = "egress"
-  ethertype = "IPv4"
+  direction         = "egress"
+  ethertype         = "IPv4"
   security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
 }
 
 resource "huaweicloud_networking_secgroup_rule_v2" "secgroup_rule_v6" {
-  direction = "egress"
-  ethertype = "IPv6"
+  direction         = "egress"
+  ethertype         = "IPv6"
   security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
 }
 ```

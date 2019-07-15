@@ -16,18 +16,18 @@ graph management
 
 ```hcl
 resource "huaweicloud_networking_secgroup_v2" "secgroup" {
-  name = "terraform_test_security_group"
+  name        = "terraform_test_security_group"
   description = "terraform security group acceptance test"
 }
 
 resource "huaweicloud_ges_graph_v1" "graph" {
   availability_zone = "{{ availability_zone }}"
-  graph_size_type = 0
-  name = "terraform_ges_graph_test"
-  region = "{{ region_name }}"
+  graph_size_type   = 0
+  name              = "terraform_ges_graph_test"
+  region            = "{{ region_name }}"
   security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
-  subnet_id = "{{ network_id }}"
-  vpc_id = "{{ vpc_id }}"
+  subnet_id         = "{{ network_id }}"
+  vpc_id            = "{{ vpc_id }}"
 }
 ```
 

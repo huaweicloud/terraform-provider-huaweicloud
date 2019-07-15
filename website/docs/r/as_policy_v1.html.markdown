@@ -15,20 +15,20 @@ Manages a V1 AS Policy resource within HuaweiCloud.
 ### AS Recurrence Policy
 
 ```hcl
-resource "huaweicloud_as_policy_v1" "hth_aspolicy"{
+resource "huaweicloud_as_policy_v1" "hth_aspolicy" {
   scaling_policy_name = "hth_aspolicy"
-  scaling_group_id = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
-  cool_down_time = 900
+  scaling_group_id    = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
+  cool_down_time      = 900
   scaling_policy_type = "RECURRENCE"
   scaling_policy_action {
-    operation = "ADD"
+    operation       = "ADD"
     instance_number = 1
   }
   scheduled_policy {
-    launch_time = "07:00"
+    launch_time     = "07:00"
     recurrence_type = "Daily"
-    start_time = "2017-11-30T12:00Z"
-    end_time = "2017-12-30T12:00Z"
+    start_time      = "2017-11-30T12:00Z"
+    end_time        = "2017-12-30T12:00Z"
   }
 }
 
@@ -37,13 +37,13 @@ resource "huaweicloud_as_policy_v1" "hth_aspolicy"{
 ### AS Scheduled Policy
 
 ```hcl
-resource "huaweicloud_as_policy_v1" "hth_aspolicy_1"{
+resource "huaweicloud_as_policy_v1" "hth_aspolicy_1" {
   scaling_policy_name = "hth_aspolicy_1"
-  scaling_group_id = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
-  cool_down_time = 900
+  scaling_group_id    = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
+  cool_down_time      = 900
   scaling_policy_type = "SCHEDULED"
   scaling_policy_action {
-    operation = "REMOVE"
+    operation       = "REMOVE"
     instance_number = 1
   }
   scheduled_policy {
@@ -58,14 +58,14 @@ Please note that the `launch_time` of the `SCHEDULED` policy cannot be earlier t
 ### AS Alarm Policy
 
 ```hcl
-resource "huaweicloud_as_policy_v1" "hth_aspolicy_2"{
+resource "huaweicloud_as_policy_v1" "hth_aspolicy_2" {
   scaling_policy_name = "hth_aspolicy_2"
-  scaling_group_id = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
-  cool_down_time = 900
+  scaling_group_id    = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
+  cool_down_time      = 900
   scaling_policy_type = "ALARM"
-  alarm_id = "37e310f5-db9d-446e-9135-c625f9c2bbfc"
+  alarm_id            = "37e310f5-db9d-446e-9135-c625f9c2bbfc"
   scaling_policy_action {
-    operation = "ADD"
+    operation       = "ADD"
     instance_number = 1
   }
 }

@@ -56,7 +56,7 @@ resource "huaweicloud_compute_instance_v2" "myinstance" {
 
 resource "huaweicloud_compute_volume_attach_v2" "attached" {
   compute_id = "${huaweicloud_compute_instance_v2.myinstance.id}"
-  volume_id = "${huaweicloud_blockstorage_volume_v2.myvol.id}"
+  volume_id  = "${huaweicloud_blockstorage_volume_v2.myvol.id}"
 }
 ```
 
@@ -205,7 +205,7 @@ resource "huaweicloud_compute_instance_v2" "multi-net" {
 resource "huaweicloud_compute_floatingip_associate_v2" "myip" {
   floating_ip = "${huaweicloud_networking_floatingip_v2.myip.address}"
   instance_id = "${huaweicloud_compute_instance_v2.multi-net.id}"
-  fixed_ip = "${huaweicloud_compute_instance_v2.multi-net.network.1.fixed_ip_v4}"
+  fixed_ip    = "${huaweicloud_compute_instance_v2.multi-net.network.1.fixed_ip_v4}"
 }
 ```
 

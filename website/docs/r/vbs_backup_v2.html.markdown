@@ -16,10 +16,10 @@ Provides an VBS Backup resource.
 variable "backup_name" {}
 
 variable "volume_id" {}
- 
+
 resource "huaweicloud_vbs_backup_v2" "mybackup" {
   volume_id = "${var.volume_id}"
-  name = "${var.backup_name}"
+  name      = "${var.backup_name}"
 }
  ```
 

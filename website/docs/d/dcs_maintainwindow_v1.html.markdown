@@ -15,7 +15,7 @@ Use this data source to get the ID of an available Huaweicloud dcs maintainwindo
 ```hcl
 
 data "huaweicloud_dcs_maintainwindow_v1" "maintainwindow1" {
-seq = 1
+  seq = 1
 }
 
 ```

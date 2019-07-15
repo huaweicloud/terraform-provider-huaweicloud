@@ -40,7 +40,7 @@ resource "huaweicloud_fw_policy_v2" "policy_1" {
 }
 
 resource "huaweicloud_fw_firewall_group_v2" "firewall_group_1" {
-  name      = "my-firewall-group"
+  name              = "my-firewall-group"
   ingress_policy_id = "${huaweicloud_fw_policy_v2.policy_1.id}"
 }
 ```

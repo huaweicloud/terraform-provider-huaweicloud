@@ -14,37 +14,37 @@ Manages an elastic loadbalancer healthcheck resource within huawei cloud.
 
 ```hcl
 resource "huaweicloud_elb_loadbalancer" "elb" {
-  name = "elb"
-  type = "External"
-  description = "test elb"
-  vpc_id = "e346dc4a-d9a6-46f4-90df-10153626076e"
+  name           = "elb"
+  type           = "External"
+  description    = "test elb"
+  vpc_id         = "e346dc4a-d9a6-46f4-90df-10153626076e"
   admin_state_up = 1
-  bandwidth = 5
+  bandwidth      = 5
 }
 
 resource "huaweicloud_elb_listener" "listener" {
-  name = "test-elb-listener"
-  description = "great listener"
-  protocol = "TCP"
+  name             = "test-elb-listener"
+  description      = "great listener"
+  protocol         = "TCP"
   backend_protocol = "TCP"
-  port = 12345
-  backend_port = 8080
-  lb_algorithm = "roundrobin"
-  loadbalancer_id = "${huaweicloud_elb_loadbalancer.elb.id}"
+  port             = 12345
+  backend_port     = 8080
+  lb_algorithm     = "roundrobin"
+  loadbalancer_id  = "${huaweicloud_elb_loadbalancer.elb.id}"
   timeouts {
-	create = "5m"
-	update = "5m"
-	delete = "5m"
+    create = "5m"
+    update = "5m"
+    delete = "5m"
   }
 }
 
 resource "huaweicloud_elb_healthcheck" "healthcheck" {
-  listener_id = "${huaweicloud_elb_listener.listener.id}"
-  healthcheck_protocol = "TCP"
+  listener_id               = "${huaweicloud_elb_listener.listener.id}"
+  healthcheck_protocol      = "TCP"
   healthcheck_connect_porta = 22
-  healthy_threshold = 5
-  healthcheck_timeout = 25
-  healthcheck_interval = 3
+  healthy_threshold         = 5
+  healthcheck_timeout       = 25
+  healthcheck_interval      = 3
   timeouts {
     create = "5m"
     update = "5m"

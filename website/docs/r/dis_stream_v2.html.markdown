@@ -16,7 +16,7 @@ DIS Stream management
 
 ```hcl
 resource "huaweicloud_dis_stream_v2" "stream" {
-  stream_name = "terraform_test_dis_stream"
+  stream_name     = "terraform_test_dis_stream"
   partition_count = 1
 }
 ```
@@ -25,10 +25,10 @@ resource "huaweicloud_dis_stream_v2" "stream" {
 
 ```hcl
 resource "huaweicloud_dis_stream_v2" "stream" {
-  stream_name = "terraform_test_dis_stream"
+  stream_name     = "terraform_test_dis_stream"
   partition_count = 1
-  data_type = "JSON"
-  data_schema = "{\"type\":\"record\",\"name\":\"RecordName\",\"fields\":[{\"name\":\"id\",\"type\":\"string\",\"doc\":\"Type inferred from '\\\"2017/10/11 11:11:11\\\"'\"},{\"name\":\"info\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"info\",\"fields\":[{\"name\":\"date\",\"type\":\"string\",\"doc\":\"Type inferred from '\\\"2018/10/11 11:11:11\\\"'\"}]}},\"doc\":\"Type inferred from '[{\\\"date\\\":\\\"2018/10/11 11:11:11\\\"}]'\"}]}"
+  data_type       = "JSON"
+  data_schema     = "{\"type\":\"record\",\"name\":\"RecordName\",\"fields\":[{\"name\":\"id\",\"type\":\"string\",\"doc\":\"Type inferred from '\\\"2017/10/11 11:11:11\\\"'\"},{\"name\":\"info\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"info\",\"fields\":[{\"name\":\"date\",\"type\":\"string\",\"doc\":\"Type inferred from '\\\"2018/10/11 11:11:11\\\"'\"}]}},\"doc\":\"Type inferred from '[{\\\"date\\\":\\\"2018/10/11 11:11:11\\\"}]'\"}]}"
 }
 ```
 

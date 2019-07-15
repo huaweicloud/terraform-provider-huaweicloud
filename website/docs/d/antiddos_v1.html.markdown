@@ -13,7 +13,7 @@ The HuaweiCloud Antiddos data source allows to query the status of EIP, regardle
 ## Example Usage
 
 ```hcl
-variable "eip_id" { }
+variable "eip_id" {}
 
 data "huaweicloud_antiddos_v1" "antiddos" {
   floating_ip_id = "${var.eip_id}"

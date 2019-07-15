@@ -17,9 +17,9 @@ this resource.
 
 ```hcl
 resource "huaweicloud_identity_user_v3" "user_1" {
-  name = "user_1"
+  name        = "user_1"
   description = "A user"
-  password = "password123!"
+  password    = "password123!"
 
 }
 ```

@@ -13,22 +13,22 @@ Provides an Shared File System (SFS) resource.
 ## Example Usage
 
  ```hcl
-    variable "share_name" { }
+variable "share_name" {}
 
-    variable "share_description" { }
+variable "share_description" {}
 
-    variable "vpc_id" { }
+variable "vpc_id" {}
 
-    resource "huaweicloud_sfs_file_system_v2" "sfs1" {
-            size = 50
-            name = "${var.share_name}"
-            access_to = "${var.vpc_id}"
-            access_level = "rw"
-            description = "${var.share_description}"
-            metadata = {
-                "type"="nfs"
-            }
-    }
+resource "huaweicloud_sfs_file_system_v2" "sfs1" {
+  size         = 50
+  name         = "${var.share_name}"
+  access_to    = "${var.vpc_id}"
+  access_level = "rw"
+  description  = "${var.share_description}"
+  metadata = {
+    "type" = "nfs"
+  }
+}
  ```
 
 ## Argument Reference

@@ -15,7 +15,7 @@ Use this data source to get the ID of an available HuaweiCloud dms maintainwindo
 ```hcl
 
 data "huaweicloud_dms_maintainwindow_v1" "maintainwindow1" {
-seq = 1
+  seq = 1
 }
 
 ```

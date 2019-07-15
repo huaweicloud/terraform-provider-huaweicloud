@@ -14,7 +14,7 @@ Provides an RTS software config resource.
 
  ```hcl
 variable "config_name" {}
- 
+
 resource "huaweicloud_rts_software_config_v1" "myconfig" {
   name = "${var.config_name}"
 }

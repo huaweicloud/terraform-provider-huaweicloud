@@ -15,34 +15,34 @@ Manages a DCS instance in the huaweicloud DCS Service.
 ### Automatically detect the correct network
 
 ```hcl
-       resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
-         name = "secgroup_1"
-         description = "secgroup_1"
-       }
-       data "huaweicloud_dcs_az_v1" "az_1" {
-         port = "8002"
-		}
-       data "huaweicloud_dcs_product_v1" "product_1" {
-          spec_code = "dcs.master_standby"
-		}
-		resource "huaweicloud_dcs_instance_v1" "instance_1" {
-		  name  = "test_dcs_instance"
-          engine_version = "3.0.7"
-          password = "Huawei_test"
-          engine = "Redis"
-          capacity = 2
-          vpc_id = "1477393a-29c9-4de5-843f-18ef51257c7e"
-          security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup_1.id}"
-          subnet_id = "27d99e17-42f2-4751-818f-5c8c6c03ff15"
-          available_zones = ["${data.huaweicloud_dcs_az_v1.az_1.id}"]
-          product_id = "${data.huaweicloud_dcs_product_v1.product_1.id}"
-          save_days = 1
-          backup_type = "manual"
-          begin_at = "00:00-01:00"
-          period_type = "weekly"
-          backup_at = [1]
-          depends_on = ["data.huaweicloud_dcs_product_v1.product_1", "huaweicloud_networking_secgroup_v2.secgroup_1"]
-		}
+resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
+  name        = "secgroup_1"
+  description = "secgroup_1"
+}
+data "huaweicloud_dcs_az_v1" "az_1" {
+  port = "8002"
+}
+data "huaweicloud_dcs_product_v1" "product_1" {
+  spec_code = "dcs.master_standby"
+}
+resource "huaweicloud_dcs_instance_v1" "instance_1" {
+  name              = "test_dcs_instance"
+  engine_version    = "3.0.7"
+  password          = "Huawei_test"
+  engine            = "Redis"
+  capacity          = 2
+  vpc_id            = "1477393a-29c9-4de5-843f-18ef51257c7e"
+  security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup_1.id}"
+  subnet_id         = "27d99e17-42f2-4751-818f-5c8c6c03ff15"
+  available_zones   = ["${data.huaweicloud_dcs_az_v1.az_1.id}"]
+  product_id        = "${data.huaweicloud_dcs_product_v1.product_1.id}"
+  save_days         = 1
+  backup_type       = "manual"
+  begin_at          = "00:00-01:00"
+  period_type       = "weekly"
+  backup_at         = [1]
+  depends_on        = ["data.huaweicloud_dcs_product_v1.product_1", "huaweicloud_networking_secgroup_v2.secgroup_1"]
+}
 ```
 
 ## Argument Reference
