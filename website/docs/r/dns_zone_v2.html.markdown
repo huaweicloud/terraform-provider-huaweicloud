@@ -16,11 +16,11 @@ Manages a DNS zone in the HuaweiCloud DNS Service.
 
 ```hcl
 resource "huaweicloud_dns_zone_v2" "my_public_zone" {
-  name = "example.com."
-  email = "jdoe@example.com"
+  name        = "example.com."
+  email       = "jdoe@example.com"
   description = "An example zone"
-  ttl = 3000
-  zone_type = "public"
+  ttl         = 3000
+  zone_type   = "public"
 }
 ```
 
@@ -28,15 +28,15 @@ resource "huaweicloud_dns_zone_v2" "my_public_zone" {
 
 ```hcl
 resource "huaweicloud_dns_zone_v2" "my_private_zone" {
-  name = "1.example.com."
-  email = "jdoe@example.com"
+  name        = "1.example.com."
+  email       = "jdoe@example.com"
   description = "An example zone"
-  ttl = 3000
-  zone_type = "private"
+  ttl         = 3000
+  zone_type   = "private"
   router = [
     {
       router_region = "cn-north-1"
-      router_id = "2c1fe4bd-ebad-44ca-ae9d-e94e63847b75"
+      router_id     = "2c1fe4bd-ebad-44ca-ae9d-e94e63847b75"
     }
   ]
 }

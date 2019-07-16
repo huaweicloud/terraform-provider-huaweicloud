@@ -14,10 +14,10 @@ Manages a V2 nat gateway resource within HuaweiCloud Nat
 
 ```hcl
 resource "huaweicloud_nat_gateway_v2" "nat_1" {
-  name   = "Terraform"
-  description = "test for terraform2"
-  spec = "3"
-  router_id = "2c1fe4bd-ebad-44ca-ae9d-e94e63847b75"
+  name                = "Terraform"
+  description         = "test for terraform2"
+  spec                = "3"
+  router_id           = "2c1fe4bd-ebad-44ca-ae9d-e94e63847b75"
   internal_network_id = "dc8632e2-d9ff-41b1-aa0c-d455557314a0"
 }
 ```

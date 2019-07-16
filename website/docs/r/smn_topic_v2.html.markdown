@@ -14,8 +14,8 @@ Manages a V2 topic resource within HuaweiCloud.
 
 ```hcl
 resource "huaweicloud_smn_topic_v2" "topic_1" {
-  name            = "topic_1"
-  display_name    = "The display name of topic_1"
+  name         = "topic_1"
+  display_name = "The display name of topic_1"
 }
 ```
 

@@ -14,22 +14,22 @@ Manages a V2 subscription resource within HuaweiCloud.
 
 ```hcl
 resource "huaweicloud_smn_topic_v2" "topic_1" {
-  name		  = "topic_1"
-  display_name    = "The display name of topic_1"
+  name         = "topic_1"
+  display_name = "The display name of topic_1"
 }
 
 resource "huaweicloud_smn_subscription_v2" "subscription_1" {
-  topic_urn       = "${huaweicloud_smn_topic_v2.topic_1.id}"
-  endpoint        = "mailtest@gmail.com"
-  protocol        = "email"
-  remark          = "O&M"
+  topic_urn = "${huaweicloud_smn_topic_v2.topic_1.id}"
+  endpoint  = "mailtest@gmail.com"
+  protocol  = "email"
+  remark    = "O&M"
 }
 
 resource "huaweicloud_smn_subscription_v2" "subscription_2" {
-  topic_urn       = "${huaweicloud_smn_topic_v2.topic_1.id}"
-  endpoint        = "13600000000"
-  protocol        = "sms"
-  remark          = "O&M"
+  topic_urn = "${huaweicloud_smn_topic_v2.topic_1.id}"
+  endpoint  = "13600000000"
+  protocol  = "sms"
+  remark    = "O&M"
 }
 ```
 

@@ -13,14 +13,14 @@ Provides an HuaweiCloud Backup of Resources.
 ## Example Usage
 
  ```hcl
- variable "backup_name" { }
- variable "resource_id" { }
- 
- resource "huaweicloud_csbs_backup_v1" "backup_v1" {
-   backup_name = "${var.backup_name}"
-   resource_id = "${var.resource_id}"
-   resource_type = "OS::Nova::Server"
- }
+variable "backup_name" {}
+variable "resource_id" {}
+
+resource "huaweicloud_csbs_backup_v1" "backup_v1" {
+  backup_name   = "${var.backup_name}"
+  resource_id   = "${var.resource_id}"
+  resource_type = "OS::Nova::Server"
+}
 
  ```
 ## Argument Reference

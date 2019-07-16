@@ -18,27 +18,27 @@ this resource.
 
 ```hcl
 resource "huaweicloud_identity_group_v3" "group_1" {
-  name = "group1"
+  name        = "group1"
   description = "This is a test group"
 }
 
 resource "huaweicloud_identity_user_v3" "user_1" {
-      name = "user1"
-      enabled = true
-      password = "password12345!"
+  name     = "user1"
+  enabled  = true
+  password = "password12345!"
 }
 
 resource "huaweicloud_identity_user_v3" "user_2" {
-      name = "user2"
-      enabled = true
-      password = "password12345!"
+  name     = "user2"
+  enabled  = true
+  password = "password12345!"
 }
 
 resource "huaweicloud_identity_group_membership_v3" "membership_1" {
-        group = "${huaweicloud_identity_group_v3.group_1.id}"
-        users = ["${huaweicloud_identity_user_v3.user_1.id}",
-                "${huaweicloud_identity_user_v3.user_2.id}"
-                ]
+  group = "${huaweicloud_identity_group_v3.group_1.id}"
+  users = ["${huaweicloud_identity_user_v3.user_1.id}",
+    "${huaweicloud_identity_user_v3.user_2.id}"
+  ]
 }
 ```
 

@@ -16,10 +16,10 @@ Manages a DMS queue in the huaweicloud DMS Service.
 
 ```hcl
 resource "huaweicloud_dms_queue_v1" "queue_1" {
-  name  = "queue_1"
-  description  = "test create dms queue"
-  queue_mode  = "FIFO"
-  redrive_policy  = "enable"
+  name              = "queue_1"
+  description       = "test create dms queue"
+  queue_mode        = "FIFO"
+  redrive_policy    = "enable"
   max_consume_count = 80
 }
 ```

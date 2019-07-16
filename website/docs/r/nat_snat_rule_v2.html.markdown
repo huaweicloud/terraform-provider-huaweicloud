@@ -15,7 +15,7 @@ Manages a V2 snat rule resource within HuaweiCloud Nat
 ```hcl
 resource "huaweicloud_nat_snat_rule_v2" "snat_1" {
   nat_gateway_id = "3c0dffda-7c76-452b-9dcc-5bce7ae56b17"
-  network_id = "dc8632e2-d9ff-41b1-aa0c-d455557314a0"
+  network_id     = "dc8632e2-d9ff-41b1-aa0c-d455557314a0"
   floating_ip_id = "0a166fc5-a904-42fb-b1ef-cf18afeeddca"
 }
 ```

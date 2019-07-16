@@ -13,23 +13,23 @@ Provides an HuaweiCloud Backup Policy of Resources.
 ## Example Usage
 
  ```hcl
- variable "name" { }
- variable "id" { }
- variable "resource_name" { }
- 
- resource "huaweicloud_csbs_backup_policy_v1" "backup_policy_v1" {
-   name  = "${var.name}"
-   resource {
-     id = "${var.id}"
-     type = "OS::Nova::Server"
-     name = "${var.resource_name}"
-   }
-   scheduled_operation {
-     enabled = true
-     operation_type = "backup"
-     trigger_pattern = "BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nRRULE:FREQ=WEEKLY;BYDAY=TH;BYHOUR=12;BYMINUTE=27\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n"
-   }
- }
+variable "name" {}
+variable "id" {}
+variable "resource_name" {}
+
+resource "huaweicloud_csbs_backup_policy_v1" "backup_policy_v1" {
+  name = "${var.name}"
+  resource {
+    id   = "${var.id}"
+    type = "OS::Nova::Server"
+    name = "${var.resource_name}"
+  }
+  scheduled_operation {
+    enabled         = true
+    operation_type  = "backup"
+    trigger_pattern = "BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nRRULE:FREQ=WEEKLY;BYDAY=TH;BYHOUR=12;BYMINUTE=27\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n"
+  }
+}
 
  ```
 ## Argument Reference

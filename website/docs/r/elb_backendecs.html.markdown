@@ -14,34 +14,34 @@ Manages an elastic loadbalancer backendecs resource within huawei cloud.
 
 ```hcl
 resource "huaweicloud_elb_loadbalancer" "elb" {
-  name = "elb"
-  type = "External"
-  description = "test elb"
-  vpc_id = "e346dc4a-d9a6-46f4-90df-10153626076e"
+  name           = "elb"
+  type           = "External"
+  description    = "test elb"
+  vpc_id         = "e346dc4a-d9a6-46f4-90df-10153626076e"
   admin_state_up = 1
-  bandwidth = 5
+  bandwidth      = 5
 }
 
 resource "huaweicloud_elb_listener" "listener" {
-  name = "test-elb-listener"
-  description = "great listener"
-  protocol = "TCP"
+  name             = "test-elb-listener"
+  description      = "great listener"
+  protocol         = "TCP"
   backend_protocol = "TCP"
-  port = 12345
-  backend_port = 8080
-  lb_algorithm = "roundrobin"
-  loadbalancer_id = "${huaweicloud_elb_loadbalancer.elb.id}"
+  port             = 12345
+  backend_port     = 8080
+  lb_algorithm     = "roundrobin"
+  loadbalancer_id  = "${huaweicloud_elb_loadbalancer.elb.id}"
   timeouts {
-	create = "5m"
-	update = "5m"
-	delete = "5m"
+    create = "5m"
+    update = "5m"
+    delete = "5m"
   }
 }
 
 resource "huaweicloud_elb_backendecs" "backend" {
   private_address = "192.168.0.211"
-  listener_id = "${huaweicloud_elb_listener.listener.id}"
-  server_id = "8f7a32f1-f66c-4d13-9b17-3a13f9f0bb8d"
+  listener_id     = "${huaweicloud_elb_listener.listener.id}"
+  server_id       = "8f7a32f1-f66c-4d13-9b17-3a13f9f0bb8d"
 }
 ```
 

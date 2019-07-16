@@ -14,14 +14,14 @@ Manages a Load Balancer L7 Policy resource within HuaweiCloud.
 
 ```hcl
 resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
-  name = "loadbalancer_1"
+  name          = "loadbalancer_1"
   vip_subnet_id = "SUBNET_ID"
 }
 
 resource "huaweicloud_lb_listener_v2" "listener_1" {
-  name = "listener_1"
-  protocol = "HTTP"
-  protocol_port = 8080
+  name            = "listener_1"
+  protocol        = "HTTP"
+  protocol_port   = 8080
   loadbalancer_id = "${huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id}"
 }
 

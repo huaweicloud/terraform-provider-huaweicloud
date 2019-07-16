@@ -16,23 +16,23 @@ mls instance
 
 ```hcl
 resource "huaweicloud_mrs_cluster_v1" "cluster1" {
-  cluster_name = "mrs-cluster-acc"
-  region = "en-OS_REGION_NAME"
-  billing_type = 12
-  master_node_num = 2
-  core_node_num = 3
-  master_node_size = "s1.4xlarge.linux.mrs"
-  core_node_size = "s1.xlarge.linux.mrs"
-  available_zone_id = "{{ availability_zone }}"
-  vpc_id = "{{ vpc_id }}"
-  subnet_id = "{{ network_id }}"
-  cluster_version = "MRS 1.3.0"
-  volume_type = "SATA"
-  volume_size = 100
-  safe_mode = 0
-  cluster_type = 0
+  cluster_name          = "mrs-cluster-acc"
+  region                = "en-OS_REGION_NAME"
+  billing_type          = 12
+  master_node_num       = 2
+  core_node_num         = 3
+  master_node_size      = "s1.4xlarge.linux.mrs"
+  core_node_size        = "s1.xlarge.linux.mrs"
+  available_zone_id     = "{{ availability_zone }}"
+  vpc_id                = "{{ vpc_id }}"
+  subnet_id             = "{{ network_id }}"
+  cluster_version       = "MRS 1.3.0"
+  volume_type           = "SATA"
+  volume_size           = 100
+  safe_mode             = 0
+  cluster_type          = 0
   node_public_cert_name = "KeyPair-ci"
-  cluster_admin_secret = ""
+  cluster_admin_secret  = ""
   component_list {
     component_name = "Hadoop"
   }
@@ -48,12 +48,12 @@ resource "huaweicloud_mrs_cluster_v1" "cluster1" {
 }
 
 resource "huaweicloud_mls_instance" "instance" {
-  name = "terraform-mls-instancei"
+  name    = "terraform-mls-instancei"
   version = "1.5.0"
-  flavor = "mls.c2.2xlarge.common"
+  flavor  = "mls.c2.2xlarge.common"
   network {
-    vpc_id = "{{ vpc_id }}"
-    network_id = "{{ network_id }}"
+    vpc_id         = "{{ vpc_id }}"
+    network_id     = "{{ network_id }}"
     available_zone = "{{ availability_zone }}"
     public_ip {
       bind_type = "not_use"

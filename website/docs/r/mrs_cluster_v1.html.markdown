@@ -14,31 +14,31 @@ Manages resource cluster within HuaweiCloud MRS.
 
 ```hcl
 resource "huaweicloud_mrs_cluster_v1" "cluster1" {
-  cluster_name = "mrs-cluster"
-  region = "cn-north-1"
-  billing_type = 12
-  master_node_num = 2
-  core_node_num = 3
-  master_node_size = "c3.4xlarge.2.linux.bigdata"
-  core_node_size = "c3.xlarge.4.linux.bigdata"
-  available_zone_id = "ae04cf9d61544df3806a3feeb401b204"
-  vpc_id = "51edfb75-f9f0-4bbc-b4dc-21466b93f60d"
-  subnet_id = "1d7a8646-43ee-455a-a3ab-40da87a1304c"
-  cluster_version = "MRS 1.6.3"
-  volume_type = "SATA"
-  volume_size = 100
-  safe_mode = 0
-  cluster_type = 0
+  cluster_name          = "mrs-cluster"
+  region                = "cn-north-1"
+  billing_type          = 12
+  master_node_num       = 2
+  core_node_num         = 3
+  master_node_size      = "c3.4xlarge.2.linux.bigdata"
+  core_node_size        = "c3.xlarge.4.linux.bigdata"
+  available_zone_id     = "ae04cf9d61544df3806a3feeb401b204"
+  vpc_id                = "51edfb75-f9f0-4bbc-b4dc-21466b93f60d"
+  subnet_id             = "1d7a8646-43ee-455a-a3ab-40da87a1304c"
+  cluster_version       = "MRS 1.6.3"
+  volume_type           = "SATA"
+  volume_size           = 100
+  safe_mode             = 0
+  cluster_type          = 0
   node_public_cert_name = "KeyPair-ci"
-  cluster_admin_secret = ""
+  cluster_admin_secret  = ""
   component_list {
-      component_name = "Hadoop"
+    component_name = "Hadoop"
   }
   component_list {
-      component_name = "Spark"
+    component_name = "Spark"
   }
   component_list {
-      component_name = "Hive"
+    component_name = "Hive"
   }
 }
 ```

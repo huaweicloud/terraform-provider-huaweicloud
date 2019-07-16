@@ -16,15 +16,15 @@ Manages a DMS group in the huaweicloud DMS Service.
 
 ```hcl
 resource "huaweicloud_dms_group_v1" "queue_1" {
-  name  = "queue_1"
-  description  = "test create dms queue"
-  queue_mode  = "FIFO"
-  redrive_policy  = "enable"
+  name              = "queue_1"
+  description       = "test create dms queue"
+  queue_mode        = "FIFO"
+  redrive_policy    = "enable"
   max_consume_count = 80
 }
 
 resource "huaweicloud_dms_group_v1" "group_1" {
-  name = "group_1"
+  name     = "group_1"
   queue_id = "${huaweicloud_dms_queue_v1.queue_1.id}"
 }
 ```

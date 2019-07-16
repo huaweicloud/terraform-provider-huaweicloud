@@ -21,7 +21,7 @@ resource "huaweicloud_networking_port_v2" "port_1" {
 
 resource "huaweicloud_networking_floatingip_associate_v2" "fip_1" {
   floating_ip = "1.2.3.4"
-  port_id = "${huaweicloud_networking_port_v2.port_1.id}"
+  port_id     = "${huaweicloud_networking_port_v2.port_1.id}"
 }
 ```
 

@@ -14,17 +14,17 @@ Provides an VBS Backup Policy resource.
 
  ```hcl
 resource "huaweicloud_vbs_backup_policy_v2" "vbs" {
-  name = "policy_002"
-  start_time  = "12:00"
-  status  = "ON"
+  name                = "policy_002"
+  start_time          = "12:00"
+  status              = "ON"
   retain_first_backup = "N"
-  rentention_num = 2
-  frequency = 1
-      tags =[
-        {
-          key = "k1"
-          value = "v1"
-          }] 
+  rentention_num      = 2
+  frequency           = 1
+  tags = [
+    {
+      key   = "k1"
+      value = "v1"
+  }]
 }
  ```
 

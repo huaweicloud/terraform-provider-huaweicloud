@@ -14,10 +14,10 @@ The HuaweiCloud CSBS Backup data source allows access of backup resources.
 
 
 ```hcl
-variable "backup_name" { }
+variable "backup_name" {}
 
 data "huaweicloud_csbs_backup_v1" "csbs" {
-  backup_name = "${var.backup_name}" 
+  backup_name = "${var.backup_name}"
 }
 ```
 

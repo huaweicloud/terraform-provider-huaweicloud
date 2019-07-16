@@ -19,7 +19,7 @@ https://docs.otc.t-systems.com/en-us/usermanual/iam/iam_01_0034.html)
 
 ```hcl
 resource "huaweicloud_identity_project_v3" "project_1" {
-  name = "eu-de_project1"
+  name        = "eu-de_project1"
   description = "This is a test project"
 }
 ```

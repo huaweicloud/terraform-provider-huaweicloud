@@ -13,18 +13,18 @@ Allows you to collect, store, and query cloud resource operation records.
 ## Example Usage
 
  ```hcl
- variable "bucket_name" { }
- variable "topic_id" { }
- 
- resource "huaweicloud_cts_tracker_v1" "tracker_v1" {
-   bucket_name      = "${var.bucket_name}"
-   file_prefix_name      = "yO8Q"
-   is_support_smn = true
-   topic_id = "${var.topic_id}"
-   is_send_all_key_operation = false
-   operations = ["login"]
-   need_notify_user_list = ["user1"]
- }
+variable "bucket_name" {}
+variable "topic_id" {}
+
+resource "huaweicloud_cts_tracker_v1" "tracker_v1" {
+  bucket_name               = "${var.bucket_name}"
+  file_prefix_name          = "yO8Q"
+  is_support_smn            = true
+  topic_id                  = "${var.topic_id}"
+  is_send_all_key_operation = false
+  operations                = ["login"]
+  need_notify_user_list     = ["user1"]
+}
 
  ```
 ## Argument Reference

@@ -29,9 +29,9 @@ data "huaweicloud_identity_role_v3" "role_1" {
 }
 
 resource "huaweicloud_identity_role_assignment_v3" "role_assignment_1" {
-  group_id = "${huaweicloud_identity_group_v3.group_1.id}"
+  group_id   = "${huaweicloud_identity_group_v3.group_1.id}"
   project_id = "${huaweicloud_identity_project_v3.project_1.id}"
-  role_id = "${data.huaweicloud_identity_role_v3.role_1.id}"
+  role_id    = "${data.huaweicloud_identity_role_v3.role_1.id}"
 }
 ```
 
@@ -40,8 +40,8 @@ resource "huaweicloud_identity_role_assignment_v3" "role_assignment_1" {
 ```hcl
 
 variable "domain_id" {
-    default = "01aafcf63744d988ebef2b1e04c5c34"
-    description = "this is the domain id"
+  default     = "01aafcf63744d988ebef2b1e04c5c34"
+  description = "this is the domain id"
 }
 
 resource "huaweicloud_identity_group_v3" "group_1" {
@@ -53,10 +53,10 @@ data "huaweicloud_identity_role_v3" "role_1" {
 }
 
 resource "huaweicloud_identity_role_assignment_v3" "role_assignment_1" {
-  group_id = "${huaweicloud_identity_group_v3.group_1.id}"
+  group_id  = "${huaweicloud_identity_group_v3.group_1.id}"
   domain_id = "${var.domain_id}"
-  role_id = "${data.huaweicloud_identity_role_v3.role_1.id}"
-} 
+  role_id   = "${data.huaweicloud_identity_role_v3.role_1.id}"
+}
 
 ```
 

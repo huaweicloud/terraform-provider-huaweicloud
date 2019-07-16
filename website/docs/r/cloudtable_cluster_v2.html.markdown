@@ -16,18 +16,18 @@ cloud table cluster management
 
 ```hcl
 resource "huaweicloud_networking_secgroup_v2" "secgroup" {
-  name = "terraform_test_security_group"
+  name        = "terraform_test_security_group"
   description = "terraform security group acceptance test"
 }
 
 resource "huaweicloud_cloudtable_cluster_v2" "cluster" {
   availability_zone = "{{ availability_zone }}"
-  name = "terraform-test-cluster"
-  rs_num = 2
+  name              = "terraform-test-cluster"
+  rs_num            = 2
   security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
-  subnet_id = "{{ network_id }}"
-  vpc_id = "{{ vpc_id }}"
-  storage_type = "COMMON"
+  subnet_id         = "{{ network_id }}"
+  vpc_id            = "{{ vpc_id }}"
+  storage_type      = "COMMON"
 }
 ```
 

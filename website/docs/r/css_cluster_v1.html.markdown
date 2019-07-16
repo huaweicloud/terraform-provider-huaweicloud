@@ -16,24 +16,24 @@ cluster management
 
 ```hcl
 resource "huaweicloud_networking_secgroup_v2" "secgroup" {
-  name = "terraform_test_security_group"
+  name        = "terraform_test_security_group"
   description = "terraform security group acceptance test"
 }
 
 resource "huaweicloud_css_cluster_v1" "cluster" {
   expect_node_num = 1
-  name = "terraform_test_cluster"
-  engine_version = "6.2.3"
+  name            = "terraform_test_cluster"
+  engine_version  = "6.2.3"
   node_config {
     flavor = "ess.spec-2u16g"
     network_info {
       security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
-      subnet_id = "{{ network_id }}"
-      vpc_id = "{{ vpc_id }}"
+      subnet_id         = "{{ network_id }}"
+      vpc_id            = "{{ vpc_id }}"
     }
     volume {
       volume_type = "COMMON"
-      size = 40
+      size        = 40
     }
     availability_zone = "{{ availability_zone }}"
   }

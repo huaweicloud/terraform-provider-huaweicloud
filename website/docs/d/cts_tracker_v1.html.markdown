@@ -14,7 +14,7 @@ CTS Tracker data source allows access of Cloud Tracker.
 
 
 ```hcl
-variable "bucket_name" { }
+variable "bucket_name" {}
 
 data "huaweicloud_cts_tracker_v1" "tracker_v1" {
   bucket_name = "${var.bucket_name}"

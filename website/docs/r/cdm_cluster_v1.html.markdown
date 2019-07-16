@@ -16,18 +16,18 @@ cdm cluster management
 
 ```hcl
 resource "huaweicloud_networking_secgroup_v2" "secgroup" {
-  name = "terraform_test_security_group"
+  name        = "terraform_test_security_group"
   description = "terraform security group acceptance test"
 }
 
 resource "huaweicloud_cdm_cluster_v1" "cluster" {
   availability_zone = "{{ availability_zone }}"
-  flavor_id = "{{ flavor_id }}"
-  name = "terraform_test_cdm_cluster"
+  flavor_id         = "{{ flavor_id }}"
+  name              = "terraform_test_cdm_cluster"
   security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
-  subnet_id = "{{ network_id }}"
-  vpc_id = "{{ vpc_id }}"
-  version = "{{ version }}"
+  subnet_id         = "{{ network_id }}"
+  vpc_id            = "{{ vpc_id }}"
+  version           = "{{ version }}"
 }
 ```
 

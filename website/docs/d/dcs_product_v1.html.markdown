@@ -15,11 +15,11 @@ Use this data source to get the ID of an available Flexibleengine dcs product.
 ```hcl
 
 data "huaweicloud_dcs_product_v1" "product1" {
-  engine = "kafka"
-  version = "1.1.0"
-  instance_type = "cluster"
-  partition_num = 300
-  storage = 600
+  engine            = "kafka"
+  version           = "1.1.0"
+  instance_type     = "cluster"
+  partition_num     = 300
+  storage           = 600
   storage_spec_code = "dcs.physical.storage.high"
 }
 ```
