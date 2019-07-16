@@ -44,7 +44,7 @@ func TestAccVpnIPSecPolicyV2_basic(t *testing.T) {
 	})
 }
 
-func TestAccIPSecPolicyV2_withLifetime(t *testing.T) {
+func TestAccVpnIPSecPolicyV2_withLifetime(t *testing.T) {
 	var policy ipsecpolicies.Policy
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
