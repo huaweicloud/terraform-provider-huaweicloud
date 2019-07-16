@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/endpointgroups"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/ipsecpolicies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/services"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
@@ -358,6 +359,12 @@ func (opts ZoneCreateOpts) ToZoneCreateMap() (map[string]interface{}, error) {
 // EIPCreateOpts represents the attributes used when creating a new eip.
 type EIPCreateOpts struct {
 	eips.ApplyOpts
+	ValueSpecs map[string]string `json:"value_specs,omitempty"`
+}
+
+// VpnIPSecPolicyCreateOpts represents the attributes used when creating a new IPSec policy.
+type VpnIPSecPolicyCreateOpts struct {
+	ipsecpolicies.CreateOpts
 	ValueSpecs map[string]string `json:"value_specs,omitempty"`
 }
 
