@@ -374,13 +374,15 @@ func resourceIPSecPolicyV2EncryptionAlgorithm(encryptionAlgo string) ipsecpolici
 func resourceIPSecPolicyV2AuthAlgorithm(authAlgo string) ipsecpolicies.AuthAlgorithm {
 	var alg ipsecpolicies.AuthAlgorithm
 	switch authAlgo {
+	case "md5":
+		alg = ipsecpolicies.AuthAlgorithmMD5
 	case "sha1":
 		alg = ipsecpolicies.AuthAlgorithmSHA1
-	case "sha256":
+	case "sha2-256":
 		alg = ipsecpolicies.AuthAlgorithmSHA256
-	case "sha384":
+	case "sha2-384":
 		alg = ipsecpolicies.AuthAlgorithmSHA384
-	case "sha512":
+	case "sha2-512":
 		alg = ipsecpolicies.AuthAlgorithmSHA512
 	}
 	return alg

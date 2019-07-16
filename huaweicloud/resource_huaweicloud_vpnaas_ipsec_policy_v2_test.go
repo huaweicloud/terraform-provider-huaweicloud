@@ -132,7 +132,7 @@ resource "huaweicloud_vpnaas_ipsec_policy_v2" "policy_1" {
 
 const testAccIPSecPolicyV2_withLifetime = `
 resource "huaweicloud_vpnaas_ipsec_policy_v2" "policy_1" {
-	auth_algorithm = "sha256"
+	auth_algorithm = "md5"
 	pfs = "group14"
 	lifetime {
 		units = "seconds"
@@ -143,7 +143,7 @@ resource "huaweicloud_vpnaas_ipsec_policy_v2" "policy_1" {
 
 const testAccIPSecPolicyV2_withLifetimeUpdate = `
 resource "huaweicloud_vpnaas_ipsec_policy_v2" "policy_1" {
-	auth_algorithm = "sha256"
+	auth_algorithm = "md5"
 	pfs = "group14"
 	lifetime {
 		units = "seconds"
