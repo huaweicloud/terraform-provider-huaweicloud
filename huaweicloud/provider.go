@@ -318,6 +318,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_cs_peering_connect_v1":              resourceCsPeeringConnectV1(),
 			"huaweicloud_vpnaas_ipsec_policy_v2":             resourceVpnIPSecPolicyV2(),
 			"huaweicloud_vpnaas_service_v2":                  resourceVpnServiceV2(),
+			"huaweicloud_vpnaas_ike_policy_v2":               resourceVpnIKEPolicyV2(),
 			"huaweicloud_vpnaas_endpoint_group_v2":           resourceVpnEndpointGroupV2(),
 		},
 
