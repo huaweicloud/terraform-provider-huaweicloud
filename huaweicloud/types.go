@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/endpointgroups"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/ikepolicies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/ipsecpolicies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/services"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
@@ -377,5 +378,17 @@ type VpnServiceCreateOpts struct {
 // VpnEndpointGroupCreateOpts represents the attributes used when creating a new endpoint group.
 type VpnEndpointGroupCreateOpts struct {
 	endpointgroups.CreateOpts
+	ValueSpecs map[string]string `json:"value_specs,omitempty"`
+}
+
+// VpnIKEPolicyCreateOpts represents the attributes used when creating a new IKE policy.
+type VpnIKEPolicyCreateOpts struct {
+	ikepolicies.CreateOpts
+	ValueSpecs map[string]string `json:"value_specs,omitempty"`
+}
+
+// VpnIKEPolicyLifetimeCreateOpts represents the attributes used when creating a new lifetime for an IKE policy.
+type VpnIKEPolicyLifetimeCreateOpts struct {
+	ikepolicies.LifetimeCreateOpts
 	ValueSpecs map[string]string `json:"value_specs,omitempty"`
 }
