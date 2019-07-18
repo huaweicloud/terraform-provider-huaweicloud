@@ -260,6 +260,7 @@ github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/endpo
 github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/ikepolicies
 github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/ipsecpolicies
 github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/services
+github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/siteconnections
 github.com/huaweicloud/golangsdk/openstack/networking/v2/networks
 github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings
 github.com/huaweicloud/golangsdk/openstack/networking/v2/ports

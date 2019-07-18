@@ -25,6 +25,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/ikepolicies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/ipsecpolicies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/services"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/siteconnections"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
@@ -390,5 +391,11 @@ type VpnIKEPolicyCreateOpts struct {
 // VpnIKEPolicyLifetimeCreateOpts represents the attributes used when creating a new lifetime for an IKE policy.
 type VpnIKEPolicyLifetimeCreateOpts struct {
 	ikepolicies.LifetimeCreateOpts
+	ValueSpecs map[string]string `json:"value_specs,omitempty"`
+}
+
+// VpnSiteConnectionCreateOpts represents the attributes used when creating a new IPSec site connection.
+type VpnSiteConnectionCreateOpts struct {
+	siteconnections.CreateOpts
 	ValueSpecs map[string]string `json:"value_specs,omitempty"`
 }
