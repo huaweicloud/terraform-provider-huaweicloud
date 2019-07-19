@@ -61,21 +61,22 @@ $ terraform apply # Should all work if everything is correct.
 ```hcl
 # Configure the HuaweiCloud Provider with AK/SK
 # This will work with a single defined/default network, otherwise you need to specify network
-# to fix errrors about multiple networks found.
+# to fix errors about multiple networks found.
 provider "huaweicloud" {
-  tenant_name = "tenant"
-  # the auth url format follows: https://iam.{region_id}.myhwclouds.com:443/v3
-  auth_url    = "https://iam.cn-north-1.myhwclouds.com/v3"
+  tenant_name = "cn-north-1"
   region      = "cn-north-1"
   access_key  = "access key"
   secret_key  = "secret key"
+  # the auth url format follows: https://iam.{region_id}.myhwclouds.com:443/v3
+  auth_url    = "https://iam.cn-north-1.myhwclouds.com/v3"
 }
 
 # Create a web server
 resource "huaweicloud_compute_instance_v2" "test-server" {
-  name            = "test-server"
-  image_name  = "Standard_CentOS_7_latest"
-  flavor_name = "s1.medium"
+  name              = "test-server"
+  image_name        = "Standard_CentOS_7_latest"
+  flavor_name       = "s1.medium"
+  availability_zone = "cn-north-1a"
 }
 ```
 
@@ -84,22 +85,23 @@ resource "huaweicloud_compute_instance_v2" "test-server" {
 ```hcl
 # Configure the HuaweiCloud Provider with Username/Password
 # This will work with a single defined/default network, otherwise you need to specify network
-# to fix errrors about multiple networks found.
+# to fix errors about multiple networks found.
 provider "huaweicloud" {
   user_name   = "user"
-  tenant_name = "tenant"
+  tenant_name = "cn-north-1"
+  region      = "cn-north-1"
   domain_name = "domain"
   password    = "pwd"
   # the auth url format follows: https://iam.{region_id}.myhwclouds.com:443/v3
   auth_url    = "https://iam.cn-north-1.myhwclouds.com:443/v3"
-  region      = "cn-north-1"
 }
 
 # Create a web server
 resource "huaweicloud_compute_instance_v2" "test-server" {
-  name		  = "test-server"
-  image_name  = "Standard_CentOS_7_latest"
-  flavor_name = "s1.medium"
+  name		        = "test-server"
+  image_name        = "Standard_CentOS_7_latest"
+  flavor_name       = "s1.medium"
+  availability_zone = "cn-north-1a"
 }
 ```
 
