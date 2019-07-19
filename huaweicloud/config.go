@@ -82,11 +82,12 @@ func (c *Config) LoadAndValidate() error {
 	if c.Token != "" {
 		err = buildClientByToken(c)
 
+	} else if c.Password != "" && (c.Username != "" || c.UserID != "") {
+		err = buildClientByPassword(c)
+
 	} else if c.AccessKey != "" && c.SecretKey != "" {
 		err = buildClientByAKSK(c)
 
-	} else if c.Password != "" && (c.Username != "" || c.UserID != "") {
-		err = buildClientByPassword(c)
 	}
 	if err != nil {
 		return err
