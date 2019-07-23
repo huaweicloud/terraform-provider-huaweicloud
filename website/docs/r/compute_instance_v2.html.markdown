@@ -209,28 +209,6 @@ resource "huaweicloud_compute_floatingip_associate_v2" "myip" {
 }
 ```
 
-### Instance With Personality
-
-```hcl
-resource "huaweicloud_compute_instance_v2" "personality" {
-  name              = "personality"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "3"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "az"
-
-  personality {
-    file    = "/path/to/file/on/instance.txt"
-    content = "contents of file"
-  }
-
-  network {
-    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
-  }
-}
-```
-
 ### Instance with Multiple Ephemeral Disks
 
 ```hcl
@@ -353,10 +331,6 @@ The following arguments are supported:
 * `scheduler_hints` - (Optional) Provide the Nova scheduler with hints on how
     the instance should be launched. The available hints are described below.
 
-* `personality` - (Optional) Customize the personality of an instance by
-    defining one or more files and their contents. The personality structure
-    is described below.
-
 * `stop_before_destroy` - (Optional) Whether to try stop instance gracefully
     before destroying it, thus giving chance for guest OS daemons to stop correctly.
     If instance doesn't stop within timeout, it will be destroyed anyway.
@@ -424,12 +398,6 @@ The `scheduler_hints` block supports:
 
 * `build_near_host_ip` - (Optional) An IP Address in CIDR form. The instance
     will be placed on a compute node that is in the same subnet.
-
-The `personality` block supports:
-
-* `file` - (Required) The absolute path of the destination file.
-
-* `contents` - (Required) The contents of the file. Limited to 255 bytes.
 
 ## Attributes Reference
 

@@ -160,25 +160,6 @@ func TestAccComputeV2Instance_bootFromVolumeForceNew(t *testing.T) {
 	})
 }
 
-// TODO: verify the personality really exists on the instance.
-func TestAccComputeV2Instance_personality(t *testing.T) {
-	var instance servers.Server
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeV2Instance_personality,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
-				),
-			},
-		},
-	})
-}
-
 func TestAccComputeV2Instance_changeFixedIP(t *testing.T) {
 	var instance1_1 servers.Server
 	var instance1_2 servers.Server
@@ -618,25 +599,6 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   }
 }
 `, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
-
-var testAccComputeV2Instance_personality = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default"]
-  availability_zone = "%s"
-  personality {
-    file = "/tmp/foobar.txt"
-    content = "happy"
-  }
-  personality {
-    file = "/tmp/barfoo.txt"
-    content = "angry"
-  }
-  network {
-    uuid = "%s"
-  }
-}
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_changeFixedIP_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
