@@ -306,24 +306,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 				},
 				Set: resourceComputeSchedulerHintsHash,
 			},
-			"personality": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				ForceNew: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"file": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"content": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
-				Set: resourceComputeInstancePersonalityHash,
-			},
 			"stop_before_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -389,7 +371,6 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		ConfigDrive:      &configDrive,
 		AdminPass:        d.Get("admin_pass").(string),
 		UserData:         []byte(d.Get("user_data").(string)),
-		Personality:      resourceInstancePersonalityV2(d),
 	}
 
 	if keyName, ok := d.Get("key_pair").(string); ok && keyName != "" {
@@ -1028,35 +1009,4 @@ func checkBlockDeviceConfig(d *schema.ResourceData) error {
 	}
 
 	return nil
-}
-
-func resourceComputeInstancePersonalityHash(v interface{}) int {
-	var buf bytes.Buffer
-	m := v.(map[string]interface{})
-	buf.WriteString(fmt.Sprintf("%s-", m["file"].(string)))
-
-	return hashcode.String(buf.String())
-}
-
-func resourceInstancePersonalityV2(d *schema.ResourceData) servers.Personality {
-	var personalities servers.Personality
-
-	if v := d.Get("personality"); v != nil {
-		personalityList := v.(*schema.Set).List()
-		if len(personalityList) > 0 {
-			for _, p := range personalityList {
-				rawPersonality := p.(map[string]interface{})
-				file := servers.File{
-					Path:     rawPersonality["file"].(string),
-					Contents: []byte(rawPersonality["content"].(string)),
-				}
-
-				log.Printf("[DEBUG] HuaweiCloud Compute Instance Personality: %+v", file)
-
-				personalities = append(personalities, &file)
-			}
-		}
-	}
-
-	return personalities
 }
