@@ -321,6 +321,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpnaas_ike_policy_v2":               resourceVpnIKEPolicyV2(),
 			"huaweicloud_vpnaas_endpoint_group_v2":           resourceVpnEndpointGroupV2(),
 			"huaweicloud_vpnaas_site_connection_v2":          resourceVpnSiteConnectionV2(),
+			"huaweicloud_dli_queue_v1":                       resourceDliQueueV1(),
 		},
 
 		ConfigureFunc: configureProvider,
