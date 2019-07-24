@@ -96,11 +96,11 @@ func resourceCsRouteV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	res := make(map[string]interface{})
 
-	v, err := sendCsRouteV1ReadRequest(d, client)
+	v, err := fetchCsRouteV1ByList(d, client)
 	if err != nil {
 		return err
 	}
-	res["read"] = fillCsRouteV1ReadRespBody(v)
+	res["list"] = fillCsRouteV1ListRespBody(v)
 
 	states, err := flattenCsRouteV1Options(res)
 	if err != nil {
@@ -172,28 +172,47 @@ func sendCsRouteV1CreateRequest(d *schema.ResourceData, params interface{},
 	return r.Body, nil
 }
 
-func sendCsRouteV1ReadRequest(d *schema.ResourceData, client *golangsdk.ServiceClient) (interface{}, error) {
-	url, err := replaceVars(d, "reserved_cluster/{cluster_id}/peering/{peering_id}/route/{id}", nil)
+func fetchCsRouteV1ByList(d *schema.ResourceData, client *golangsdk.ServiceClient) (interface{}, error) {
+	link, err := replaceVars(d, "reserved_cluster/{cluster_id}/peering/{peering_id}/route", nil)
 	if err != nil {
 		return nil, err
 	}
-	url = client.ServiceURL(url)
+	link = client.ServiceURL(link)
 
+	return findCsRouteV1ByList(client, link, d.Id())
+}
+
+func findCsRouteV1ByList(client *golangsdk.ServiceClient, link, resourceID string) (interface{}, error) {
+	r, err := sendCsRouteV1ListRequest(client, link)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range r.([]interface{}) {
+		val, ok := item.(map[string]interface{})["id"]
+		if ok && resourceID == convertToStr(val) {
+			return item, nil
+		}
+	}
+
+	return nil, fmt.Errorf("Error finding the resource by list api")
+}
+
+func sendCsRouteV1ListRequest(client *golangsdk.ServiceClient, url string) (interface{}, error) {
 	r := golangsdk.Result{}
 	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(read) for resource(CsRouteV1), err=%s", r.Err)
+		return nil, fmt.Errorf("Error running api(list) for resource(CsRouteV1), err=%s", r.Err)
 	}
 
-	v, err := navigateValue(r.Body, []string{"route"}, nil)
+	v, err := navigateValue(r.Body, []string{"routes"}, nil)
 	if err != nil {
 		return nil, err
 	}
 	return v, nil
 }
 
-func fillCsRouteV1ReadRespBody(body interface{}) interface{} {
+func fillCsRouteV1ListRespBody(body interface{}) interface{} {
 	result := make(map[string]interface{})
 	val, ok := body.(map[string]interface{})
 	if !ok {
@@ -212,7 +231,7 @@ func fillCsRouteV1ReadRespBody(body interface{}) interface{} {
 func flattenCsRouteV1Options(response map[string]interface{}) (map[string]interface{}, error) {
 	opts := make(map[string]interface{})
 
-	v, err := navigateValue(response, []string{"read", "destination"}, nil)
+	v, err := navigateValue(response, []string{"list", "destination"}, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Error flattening Route:destination, err: %s", err)
 	}
