@@ -88,13 +88,9 @@ func testAccCheckCsRouteV1Destroy(s *terraform.State) error {
 		}
 
 		_, err = fetchCsRouteV1ByListOnTest(rs, client)
-		if err != nil {
-			if strings.Index(err.Error(), "Error finding the resource by list api") != -1 {
-				return nil
-			}
-			return err
+		if err == nil {
+			return fmt.Errorf("huaweicloud_cs_route_v1 still exists")
 		}
-		return fmt.Errorf("huaweicloud_cs_route_v1 still exists")
 	}
 
 	return nil
