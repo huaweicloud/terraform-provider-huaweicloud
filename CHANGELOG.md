@@ -1,4 +1,29 @@
 ## 1.7.0 (Unreleased)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_networking_port_v2` [GH-152]
+* **New Resource:** `huaweicloud_cs_cluster_v1` [GH-153]
+* **New Resource:** `huaweicloud_cs_peering_connect_v1` [GH-154]
+* **New Resource:** `huaweicloud_vpnaas_service_v2` [GH-162]
+* **New Resource:** `huaweicloud_vpnaas_endpoint_group_v2` [GH-163]
+* **New Resource:** `huaweicloud_vpnaas_ipsec_policy_v2` [GH-164]
+* **New Resource:** `huaweicloud_vpnaas_ike_policy_v2` [GH-165]
+* **New Resource:** `huaweicloud_vpnaas_site_connection_v2` [GH-166]
+* **New Resource:** `huaweicloud_dli_queue_v1` [GH-170]
+* **New Resource:** `huaweicloud_cs_route_v1` [GH-171]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_networking_floatingip_v2: Add default value for floating_ip pool [GH-160]
+Make username/password authentication prior to ak/sk when they both provided [GH-167]
+
+BUG FIXES:
+
+* Replace d.Set("id") with d.SetId to be compatible with terraform 0.12 [GH-155]
+* resource/huaweicloud_sfs_file_system_v2: Set availability_zone to Computed [GH-156]
+* resource/huaweicloud_compute_instance_v2: Remove personality from compute_instance_v2 [GH-169]
+
 ## 1.6.0 (June 13, 2019)
 
 FEATURES:
