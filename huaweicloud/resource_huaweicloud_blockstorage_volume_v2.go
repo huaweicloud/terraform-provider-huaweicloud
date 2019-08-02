@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions"
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach"
 )
@@ -40,7 +41,6 @@ func resourceBlockStorageVolumeV2() *schema.Resource {
 			"size": {
 				Type:     schema.TypeInt,
 				Required: true,
-				ForceNew: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -245,6 +245,32 @@ func resourceBlockStorageVolumeV2Update(d *schema.ResourceData, meta interface{}
 
 	if d.HasChange("metadata") {
 		updateOpts.Metadata = resourceVolumeMetadataV2(d)
+	}
+
+	if d.HasChange("size") {
+		extendOpts := volumeactions.ExtendSizeOpts{
+			NewSize: d.Get("size").(int),
+		}
+
+		err = volumeactions.ExtendSize(blockStorageClient, d.Id(), extendOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error extending huaweicloud_blockstorage_volume_v2 %s size: %s", d.Id(), err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:    []string{"extending"},
+			Target:     []string{"available", "in-use"},
+			Refresh:    VolumeV2StateRefreshFunc(blockStorageClient, d.Id()),
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Delay:      10 * time.Second,
+			MinTimeout: 3 * time.Second,
+		}
+
+		_, err := stateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for huaweicloud_blockstorage_volume_v2 %s to become ready: %s", d.Id(), err)
+		}
 	}
 
 	_, err = volumes.Update(blockStorageClient, d.Id(), updateOpts).Extract()

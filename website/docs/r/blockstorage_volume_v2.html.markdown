@@ -29,8 +29,7 @@ The following arguments are supported:
     omitted, the `region` argument of the provider is used. Changing this
     creates a new volume.
 
-* `size` - (Required) The size of the volume to create (in gigabytes). Changing
-    this creates a new volume.
+* `size` - (Required) The size of the volume to create (in gigabytes).
 
 * `availability_zone` - (Optional) The availability zone for the volume.
     Changing this creates a new volume.

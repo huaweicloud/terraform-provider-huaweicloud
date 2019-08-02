@@ -146,8 +146,9 @@ type UpdateOptsBuilder interface {
 
 // UpdateOpts contains the values used when updating a vpc.
 type UpdateOpts struct {
-	CIDR string `json:"cidr,omitempty"`
-	Name string `json:"name,omitempty"`
+	CIDR             string `json:"cidr,omitempty"`
+	Name             string `json:"name,omitempty"`
+	EnableSharedSnat *bool  `json:"enable_shared_snat,omitempty"`
 }
 
 // ToVpcUpdateMap builds an update body based on UpdateOpts.
