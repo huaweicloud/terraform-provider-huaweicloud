@@ -26,6 +26,8 @@ func TestAccBlockStorageV2Volume_basic(t *testing.T) {
 					testAccCheckBlockStorageV2VolumeMetadata(&volume, "foo", "bar"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_blockstorage_volume_v2.volume_1", "name", "volume_1"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_blockstorage_volume_v2.volume_1", "size", "1"),
 				),
 			},
 			{
@@ -35,6 +37,32 @@ func TestAccBlockStorageV2Volume_basic(t *testing.T) {
 					testAccCheckBlockStorageV2VolumeMetadata(&volume, "foo", "bar"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_blockstorage_volume_v2.volume_1", "name", "volume_1-updated"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_blockstorage_volume_v2.volume_1", "size", "2"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccBlockStorageV2Volume_online_resize(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckBlockStorageV2VolumeDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBlockStorageV2Volume_online_resize,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"huaweicloud_blockstorage_volume_v2.volume_1", "size", "1"),
+				),
+			},
+			{
+				Config: testAccBlockStorageV2Volume_online_resize_update,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"huaweicloud_blockstorage_volume_v2.volume_1", "size", "2"),
 				),
 			},
 		},
@@ -193,7 +221,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   metadata = {
     foo = "bar"
   }
-  size = 1
+  size = 2
 }
 `
 
@@ -218,3 +246,49 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   }
 }
 `
+
+var testAccBlockStorageV2Volume_online_resize = fmt.Sprintf(`
+resource "huaweicloud_compute_instance_v2" "basic" {
+  name            = "instance_1"
+  security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
+}
+
+resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
+  name = "volume_1"
+  description = "test volume"
+  availability_zone = "%s"
+  size = 1
+}
+
+resource "huaweicloud_compute_volume_attach_v2" "va_1" {
+  instance_id = "${huaweicloud_compute_instance_v2.basic.id}"
+  volume_id   = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
+}
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
+
+var testAccBlockStorageV2Volume_online_resize_update = fmt.Sprintf(`
+resource "huaweicloud_compute_instance_v2" "basic" {
+  name            = "instance_1"
+  security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
+}
+
+resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
+  name = "volume_1"
+  description = "test volume"
+  availability_zone = "%s"
+  size = 2
+}
+
+resource "huaweicloud_compute_volume_attach_v2" "va_1" {
+  instance_id = "${huaweicloud_compute_instance_v2.basic.id}"
+  volume_id   = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
+}
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
