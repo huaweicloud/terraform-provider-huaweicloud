@@ -95,15 +95,18 @@ func testAccCheckEcsV1InstanceExists(n string, instance *cloudservers.CloudServe
 
 var testAccEcsV1Instance_basic = fmt.Sprintf(`
 resource "huaweicloud_ecs_instance_v1" "instance_1" {
-  name = "server_1"
+  name     = "server_1"
   image_id = "%s"
-  flavor = "%s"
-  vpc_id  = "%s"
+  flavor   = "%s"
+  vpc_id   = "%s"
+
   nics {
     network_id = "%s"
   }
+
   system_disk_type = "SAS"
   system_disk_size = 40
+
   data_disks {
     type = "SATA"
     size = "10"
@@ -112,28 +115,37 @@ resource "huaweicloud_ecs_instance_v1" "instance_1" {
     type = "SAS"
     size = "20"
   }
-  password = "Password@123"
-  security_groups = ["default"]
+
+  password          = "Password@123"
+  security_groups   = ["default"]
   availability_zone = "%s"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, OS_IMAGE_ID, OS_FLAVOR_NAME, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
 
 var testAccEcsV1Instance_update = fmt.Sprintf(`
 resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
-  name = "secgroup_ecs"
+  name        = "secgroup_ecs"
   description = "a security group"
 }
 
 resource "huaweicloud_ecs_instance_v1" "instance_1" {
-  name = "server_updated"
+  name     = "server_updated"
   image_id = "%s"
-  flavor = "%s"
-  vpc_id  = "%s"
+  flavor   = "%s"
+  vpc_id   = "%s"
+
   nics {
     network_id = "%s"
   }
+
   system_disk_type = "SAS"
   system_disk_size = 40
+
   data_disks {
     type = "SATA"
     size = "10"
@@ -142,8 +154,14 @@ resource "huaweicloud_ecs_instance_v1" "instance_1" {
     type = "SAS"
     size = "20"
   }
-  password = "Password@123"
-  security_groups = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
+
+  password          = "Password@123"
+  security_groups   = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
   availability_zone = "%s"
+
+  tags = {
+    foo = "bar1"
+    key1 = "value"
+  }
 }
 `, OS_IMAGE_ID, OS_FLAVOR_NAME, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
