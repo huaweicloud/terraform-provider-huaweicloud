@@ -274,3 +274,16 @@ func validateVBSBackupDescription(v interface{}, k string) (ws []string, errors 
 	}
 	return
 }
+
+func validateECSTagValue(v interface{}, k string) (ws []string, errors []error) {
+	tagmap := v.(map[string]interface{})
+	vv := regexp.MustCompile(`^[0-9a-zA-Z-_]+$`)
+	for k, v := range tagmap {
+		value := v.(string)
+		if !vv.MatchString(value) {
+			errors = append(errors, fmt.Errorf("Tag value must be string only contains digits, letters, underscores(_) and hyphens(-), but got %s=%s", k, value))
+			break
+		}
+	}
+	return
+}

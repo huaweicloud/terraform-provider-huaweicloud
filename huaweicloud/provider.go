@@ -241,6 +241,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dns_recordset_v2":                   resourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone_v2":                        resourceDNSZoneV2(),
 			"huaweicloud_dcs_instance_v1":                    resourceDcsInstanceV1(),
+			"huaweicloud_ecs_instance_v1":                    resourceEcsInstanceV1(),
 			"huaweicloud_fw_firewall_group_v2":               resourceFWFirewallGroupV2(),
 			"huaweicloud_fw_policy_v2":                       resourceFWPolicyV2(),
 			"huaweicloud_fw_rule_v2":                         resourceFWRuleV2(),

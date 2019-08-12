@@ -192,8 +192,8 @@ github.com/hashicorp/vault v0.10.4/go.mod h1:KfSyffbKxoVyspOdlaGVjIuwLobi07qD1bA
 github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb h1:b5rjCoWHc7eqmAS4/qyk21ZsHyb6Mxv/jykxvNTkU4M=
 github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
-github.com/huaweicloud/golangsdk v0.0.0-20190801094550-c3228f9b10d6 h1:4ys1PB6+nv2Tm2bN8o0COXV8t4QU/GsM4X7VdWdnrHI=
-github.com/huaweicloud/golangsdk v0.0.0-20190801094550-c3228f9b10d6/go.mod h1:WQBcHRNX9shz3928lWEvstQJtAtYI7ks6XlgtRT9Tcw=
+github.com/huaweicloud/golangsdk v0.0.0-20190809023913-080d32c8d1aa h1:Wj+VsrMNgokKAoDJmzLqwx5TwctvU99nEvltoeEkG4Q=
+github.com/huaweicloud/golangsdk v0.0.0-20190809023913-080d32c8d1aa/go.mod h1:WQBcHRNX9shz3928lWEvstQJtAtYI7ks6XlgtRT9Tcw=
 github.com/jellevandenhooff/dkim v0.0.0-20150330215556-f50fe3d243e1/go.mod h1:E0B/fFc00Y+Rasa88328GlI/XbtyysCtTHZS8h7IrBU=
 github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a h1:FyS/ubzBR5xJlnJGRTwe7GUHpJOR4ukYK3y+LFNffuA=
 github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a/go.mod h1:uoIMjNxUfXi48Ci40IXkPRbghZ1vbti6v9LCbNqRgHY=
