@@ -219,6 +219,7 @@ github.com/huaweicloud/golangsdk/openstack/dms/v1/products
 github.com/huaweicloud/golangsdk/openstack/dms/v1/queues
 github.com/huaweicloud/golangsdk/openstack/dns/v2/recordsets
 github.com/huaweicloud/golangsdk/openstack/dns/v2/zones
+github.com/huaweicloud/golangsdk/openstack/ecs/v1/auto_recovery
 github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers
 github.com/huaweicloud/golangsdk/openstack/ecs/v1/tags
 github.com/huaweicloud/golangsdk/openstack/identity/v3/agency

@@ -186,6 +186,11 @@ func resourceEcsInstanceV1() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validateECSTagValue,
 			},
+			"auto_recovery": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -252,6 +257,16 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 				log.Printf("[WARN] Error setting tags of instance:%s, err=%s", id, err)
 			}
 		}
+
+		if hasFilledOpt(d, "auto_recovery") {
+			ar := d.Get("auto_recovery").(bool)
+			log.Printf("[DEBUG] Set auto recovery of instance to %t", ar)
+			err = setAutoRecoveryForInstance(d, meta, id, ar)
+			if err != nil {
+				log.Printf("[WARN] Error setting auto recovery of instance:%s, err=%s", id, err)
+			}
+		}
+
 		return resourceEcsInstanceV1Read(d, meta)
 	}
 
@@ -305,6 +320,12 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("[DEBUG] Error saving tag to state for HuaweiCloud instance (%s): %s", d.Id(), err)
 		}
 	}
+
+	ar, err := resourceECSAutoRecoveryV1Read(d, meta, d.Id())
+	if err != nil && !isResourceNotFound(err) {
+		return fmt.Errorf("Error reading auto recovery of instance:%s, err=%s", d.Id(), err)
+	}
+	d.Set("auto_recovery", ar)
 
 	return nil
 }
@@ -438,6 +459,15 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 					return fmt.Errorf("Error updating tags of instance:%s, err:%s", d.Id(), err)
 				}
 			}
+		}
+	}
+
+	if d.HasChange("auto_recovery") {
+		ar := d.Get("auto_recovery").(bool)
+		log.Printf("[DEBUG] Update auto recovery of instance to %t", ar)
+		err = setAutoRecoveryForInstance(d, meta, d.Id(), ar)
+		if err != nil {
+			return fmt.Errorf("Error updating auto recovery of instance:%s, err:%s", d.Id(), err)
 		}
 	}
 

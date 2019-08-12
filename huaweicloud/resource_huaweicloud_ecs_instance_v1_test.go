@@ -24,6 +24,8 @@ func TestAccEcsV1Instance_basic(t *testing.T) {
 					testAccCheckEcsV1InstanceExists("huaweicloud_ecs_instance_v1.instance_1", &instance),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_ecs_instance_v1.instance_1", "availability_zone", OS_AVAILABILITY_ZONE),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_ecs_instance_v1.instance_1", "auto_recovery", "true"),
 				),
 			},
 			{
@@ -32,6 +34,8 @@ func TestAccEcsV1Instance_basic(t *testing.T) {
 					testAccCheckEcsV1InstanceExists("huaweicloud_ecs_instance_v1.instance_1", &instance),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_ecs_instance_v1.instance_1", "availability_zone", OS_AVAILABILITY_ZONE),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_ecs_instance_v1.instance_1", "auto_recovery", "false"),
 				),
 			},
 		},
@@ -119,6 +123,7 @@ resource "huaweicloud_ecs_instance_v1" "instance_1" {
   password          = "Password@123"
   security_groups   = ["default"]
   availability_zone = "%s"
+  auto_recovery     = true
 
   tags = {
     foo = "bar"
@@ -158,6 +163,7 @@ resource "huaweicloud_ecs_instance_v1" "instance_1" {
   password          = "Password@123"
   security_groups   = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
   availability_zone = "%s"
+  auto_recovery     = false
 
   tags = {
     foo = "bar1"
