@@ -157,6 +157,30 @@ func resourceEcsInstanceV1() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "postPaid",
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, true),
+			},
+			"period_unit": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "month",
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, true),
+			},
+			"period": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Default:  1,
+			},
 			"tags": {
 				Type:         schema.TypeMap,
 				Optional:     true,
@@ -177,9 +201,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error creating HuaweiCloud compute V1 client: %s", err)
 	}
 
-	var createOpts cloudservers.CreateOptsBuilder
-
-	createOpts = &cloudservers.CreateOpts{
+	createOpts := &cloudservers.CreateOpts{
 		Name:             d.Get("name").(string),
 		ImageRef:         d.Get("image_id").(string),
 		FlavorRef:        d.Get("flavor").(string),
@@ -192,6 +214,15 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		DataVolumes:      resourceInstanceDataVolumesV1(d),
 		AdminPass:        d.Get("password").(string),
 		UserData:         []byte(d.Get("user_data").(string)),
+	}
+
+	if d.Get("charging_mode") == "prePaid" {
+		extendparam := cloudservers.ServerExtendParam{
+			ChargingMode: d.Get("charging_mode").(string),
+			PeriodType:   d.Get("period_unit").(string),
+			PeriodNum:    d.Get("period").(int),
+		}
+		createOpts.ExtendParam = &extendparam
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
