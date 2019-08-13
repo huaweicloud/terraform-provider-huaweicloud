@@ -191,6 +191,11 @@ func resourceEcsInstanceV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"delete_disks_on_termination": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
@@ -476,34 +481,29 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 
 func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeV1Client, err := config.computeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting HuaweiCloud Instance %s", d.Id())
-	err = servers.Delete(computeClient, d.Id()).ExtractErr()
+	var serverRequests []cloudservers.Server
+	server := cloudservers.Server{
+		Id: d.Id(),
+	}
+	serverRequests = append(serverRequests, server)
+
+	deleteOpts := cloudservers.DeleteOpts{
+		Servers:      serverRequests,
+		DeleteVolume: d.Get("delete_disks_on_termination").(bool),
+	}
+
+	n, err := cloudservers.Delete(computeV1Client, deleteOpts).ExtractJobResponse()
 	if err != nil {
 		return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
 	}
 
-	// Wait for the instance to delete before moving on.
-	log.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
-
-	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"ACTIVE", "SHUTOFF"},
-		Target:     []string{"DELETED", "SOFT_DELETED"},
-		Refresh:    ServerV2StateRefreshFunc(computeClient, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      10 * time.Second,
-		MinTimeout: 3 * time.Second,
-	}
-
-	_, err = stateConf.WaitForState()
-	if err != nil {
-		return fmt.Errorf(
-			"Error waiting for instance (%s) to delete: %s",
-			d.Id(), err)
+	if err := cloudservers.WaitForJobSuccess(computeV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+		return err
 	}
 
 	d.SetId("")

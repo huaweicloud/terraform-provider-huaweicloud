@@ -187,3 +187,30 @@ func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
 	})
 	return
 }
+
+type DeleteOpts struct {
+	Servers        []Server `json:"servers" required:"true"`
+	DeletePublicIP bool     `json:"delete_publicip,omitempty"`
+	DeleteVolume   bool     `json:"delete_volume,omitempty"`
+}
+
+type Server struct {
+	Id string `json:"id" required:"true"`
+}
+
+// ToServerDeleteMap assembles a request body based on the contents of a
+// DeleteOpts.
+func (opts DeleteOpts) ToServerDeleteMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// Delete requests a server to be deleted to the user in the current tenant.
+func Delete(client *golangsdk.ServiceClient, opts DeleteOpts) (r JobResult) {
+	reqBody, err := opts.ToServerDeleteMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Post(deleteURL(client), reqBody, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
+	return
+}
