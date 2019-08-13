@@ -160,10 +160,11 @@ resource "huaweicloud_ecs_instance_v1" "instance_1" {
     size = "20"
   }
 
-  password          = "Password@123"
-  security_groups   = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
-  availability_zone = "%s"
-  auto_recovery     = false
+  password                     = "Password@123"
+  security_groups              = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
+  availability_zone            = "%s"
+  auto_recovery                = false
+  delete_disks_on_termination = true
 
   tags = {
     foo = "bar1"
