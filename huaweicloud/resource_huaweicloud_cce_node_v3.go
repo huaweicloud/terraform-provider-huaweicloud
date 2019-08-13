@@ -94,7 +94,7 @@ func resourceCCENodeV3() *schema.Resource {
 					}},
 			},
 			"data_volumes": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
@@ -220,7 +220,7 @@ func resourceCCENodeAnnotationsV2(d *schema.ResourceData) map[string]string {
 	return m
 }
 func resourceCCEDataVolume(d *schema.ResourceData) []nodes.VolumeSpec {
-	volumeRaw := d.Get("data_volumes").(*schema.Set).List()
+	volumeRaw := d.Get("data_volumes").([]interface{})
 	volumes := make([]nodes.VolumeSpec, len(volumeRaw))
 	for i, raw := range volumeRaw {
 		rawMap := raw.(map[string]interface{})
