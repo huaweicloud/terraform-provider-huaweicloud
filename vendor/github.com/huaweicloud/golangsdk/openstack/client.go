@@ -793,6 +793,7 @@ func NewAntiDDoSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) 
 func NewCCEV3(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "network")
 	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "cce", 1)
+	sc.Endpoint = strings.Replace(sc.Endpoint, "myhwclouds", "myhuaweicloud", 1)
 	sc.ResourceBase = sc.Endpoint + "api/v3/projects/" + client.ProjectID + "/"
 	return sc, err
 }
