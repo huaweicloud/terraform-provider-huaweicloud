@@ -7,11 +7,15 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/helper/validation"
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
-	"github.com/huaweicloud/golangsdk/pagination"
+)
+
+const (
+	PoolID   = "0a2228f2-7f8a-45f1-8e09-9039e1d09975"
+	PoolName = "admin_external_net"
 )
 
 func resourceNetworkingFloatingIPV2() *schema.Resource {
@@ -45,6 +49,9 @@ func resourceNetworkingFloatingIPV2() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Default:  "admin_external_net",
+				ValidateFunc: validation.StringInSlice([]string{
+					"admin_external_net",
+				}, true),
 			},
 			"port_id": {
 				Type:     schema.TypeString,
@@ -78,16 +85,9 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
-	poolID, err := getNetworkID(d, meta, d.Get("pool").(string))
-	if err != nil {
-		return fmt.Errorf("Error retrieving floating IP pool name: %s", err)
-	}
-	if len(poolID) == 0 {
-		return fmt.Errorf("No network found with name: %s", d.Get("pool").(string))
-	}
 	createOpts := FloatingIPCreateOpts{
 		floatingips.CreateOpts{
-			FloatingNetworkID: poolID,
+			FloatingNetworkID: PoolID,
 			PortID:            d.Get("port_id").(string),
 			TenantID:          d.Get("tenant_id").(string),
 			FixedIP:           d.Get("fixed_ip").(string),
@@ -136,12 +136,8 @@ func resourceNetworkFloatingIPV2Read(d *schema.ResourceData, meta interface{}) e
 	d.Set("address", floatingIP.FloatingIP)
 	d.Set("port_id", floatingIP.PortID)
 	d.Set("fixed_ip", floatingIP.FixedIP)
-	poolName, err := getNetworkName(d, meta, floatingIP.FloatingNetworkID)
-	if err != nil {
-		return fmt.Errorf("Error retrieving floating IP pool name: %s", err)
-	}
-	d.Set("pool", poolName)
 	d.Set("tenant_id", floatingIP.TenantID)
+	d.Set("pool", PoolName)
 
 	d.Set("region", GetRegion(d, config))
 
@@ -195,66 +191,6 @@ func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 
 	d.SetId("")
 	return nil
-}
-
-func getNetworkID(d *schema.ResourceData, meta interface{}, networkName string) (string, error) {
-	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
-	if err != nil {
-		return "", fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
-	}
-
-	opts := networks.ListOpts{Name: networkName}
-	pager := networks.List(networkingClient, opts)
-	networkID := ""
-
-	err = pager.EachPage(func(page pagination.Page) (bool, error) {
-		networkList, err := networks.ExtractNetworks(page)
-		if err != nil {
-			return false, err
-		}
-
-		for _, n := range networkList {
-			if n.Name == networkName {
-				networkID = n.ID
-				return false, nil
-			}
-		}
-
-		return true, nil
-	})
-
-	return networkID, err
-}
-
-func getNetworkName(d *schema.ResourceData, meta interface{}, networkID string) (string, error) {
-	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
-	if err != nil {
-		return "", fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
-	}
-
-	opts := networks.ListOpts{ID: networkID}
-	pager := networks.List(networkingClient, opts)
-	networkName := ""
-
-	err = pager.EachPage(func(page pagination.Page) (bool, error) {
-		networkList, err := networks.ExtractNetworks(page)
-		if err != nil {
-			return false, err
-		}
-
-		for _, n := range networkList {
-			if n.ID == networkID {
-				networkName = n.Name
-				return false, nil
-			}
-		}
-
-		return true, nil
-	})
-
-	return networkName, err
 }
 
 func waitForFloatingIPActive(networkingClient *golangsdk.ServiceClient, fId string) resource.StateRefreshFunc {
