@@ -201,6 +201,10 @@ func resourceCCENodeV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"server_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -415,6 +419,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("region", GetRegion(d, config))
 	d.Set("private_ip", s.Status.PrivateIP)
 	d.Set("public_ip", s.Status.PublicIP)
+	d.Set("server_id", s.Status.ServerID)
 
 	return nil
 }
