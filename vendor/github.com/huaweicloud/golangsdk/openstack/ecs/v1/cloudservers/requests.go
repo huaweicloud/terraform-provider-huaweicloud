@@ -148,6 +148,8 @@ type ServerExtendParam struct {
 
 	IsAutoPay string `json:"isAutoPay,omitempty"`
 
+	EnterpriseProjectId string `json:"enterprise_project_id,omitempty"`
+
 	SupportAutoRecovery string `json:"support_auto_recovery,omitempty"`
 }
 
