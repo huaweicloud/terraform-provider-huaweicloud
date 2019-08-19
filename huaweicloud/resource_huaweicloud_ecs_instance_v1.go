@@ -196,6 +196,11 @@ func resourceEcsInstanceV1() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
@@ -226,13 +231,17 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		UserData:         []byte(d.Get("user_data").(string)),
 	}
 
+	var extendParam cloudservers.ServerExtendParam
 	if d.Get("charging_mode") == "prePaid" {
-		extendparam := cloudservers.ServerExtendParam{
-			ChargingMode: d.Get("charging_mode").(string),
-			PeriodType:   d.Get("period_unit").(string),
-			PeriodNum:    d.Get("period").(int),
-		}
-		createOpts.ExtendParam = &extendparam
+		extendParam.ChargingMode = d.Get("charging_mode").(string)
+		extendParam.PeriodType = d.Get("period_unit").(string)
+		extendParam.PeriodNum = d.Get("period").(int)
+	}
+	if hasFilledOpt(d, "enterprise_project_id") {
+		extendParam.EnterpriseProjectId = d.Get("enterprise_project_id").(string)
+	}
+	if extendParam != (cloudservers.ServerExtendParam{}) {
+		createOpts.ExtendParam = &extendParam
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
