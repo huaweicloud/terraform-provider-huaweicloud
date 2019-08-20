@@ -232,6 +232,7 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"huaweicloud_blockstorage_volume_v2":             resourceBlockStorageVolumeV2(),
 			"huaweicloud_compute_instance_v2":                resourceComputeInstanceV2(),
+			"huaweicloud_compute_interface_attach_v2":        resourceComputeInterfaceAttachV2(),
 			"huaweicloud_compute_keypair_v2":                 resourceComputeKeypairV2(),
 			"huaweicloud_compute_secgroup_v2":                resourceComputeSecGroupV2(),
 			"huaweicloud_compute_servergroup_v2":             resourceComputeServerGroupV2(),

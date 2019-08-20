@@ -191,6 +191,7 @@ github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes
 github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters
 github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes
 github.com/huaweicloud/golangsdk/openstack/cloudeyeservice/alarmrule
+github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/attachinterfaces
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/bootfromvolume
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/floatingips
