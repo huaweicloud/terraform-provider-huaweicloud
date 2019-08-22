@@ -86,7 +86,14 @@ type Status struct {
 
 type LoginSpec struct {
 	// Select the key pair name when logging in by key pair mode
-	SshKey string `json:"sshKey" required:"true"`
+	SshKey string `json:"sshKey,omitempty"`
+	// Select the user/password when logging in
+	UserPassword UserPassword `json:"userPassword,omitempty"`
+}
+
+type UserPassword struct {
+	Username string `json:"username" required:"true"`
+	Password string `json:"password" required:"true"`
 }
 
 type VolumeSpec struct {
