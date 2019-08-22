@@ -90,6 +90,18 @@ All above argument parameters can be exported as attribute parameters along with
 
   * `status` -  Cluster status information.
 
+  * `certificate_clusters/name` - The cluster name.
+
+  * `certificate_clusters/server` - The server IP address.
+
+  * `certificate_clusters/certificate_authority_data` - The certificate data.
+
+  * `certificate_users/name` - The user name.
+
+  * `certificate_users/client_certificate_data` - The client certificate data.
+
+  * `certificate_users/client_key_data` - The client key data.
+
 ## Import
 
  Cluster can be imported using the cluster id, e.g.
