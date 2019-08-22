@@ -69,9 +69,17 @@ func resourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"key_pair": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:          schema.TypeString,
+				ConflictsWith: []string{"password"},
+				Optional:      true,
+				ForceNew:      true,
+			},
+			"password": {
+				Type:          schema.TypeString,
+				ConflictsWith: []string{"key_pair"},
+				Optional:      true,
+				ForceNew:      true,
+				Sensitive:     true,
 			},
 			"root_volume": {
 				Type:     schema.TypeList,
@@ -261,6 +269,20 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node client: %s", err)
 	}
 
+	var loginSpec nodes.LoginSpec
+	if hasFilledOpt(d, "key_pair") {
+		loginSpec = nodes.LoginSpec{SshKey: d.Get("key_pair").(string)}
+	} else if hasFilledOpt(d, "password") {
+		loginSpec = nodes.LoginSpec{
+			UserPassword: nodes.UserPassword{
+				Username: "root",
+				Password: d.Get("password").(string),
+			},
+		}
+	} else {
+		return fmt.Errorf("Error creating HuaweiCloud CCE Node: key_pair or password must be set")
+	}
+
 	createOpts := nodes.CreateOpts{
 		Kind:       "Node",
 		ApiVersion: "v3",
@@ -273,7 +295,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 			Flavor:      d.Get("flavor_id").(string),
 			Az:          d.Get("availability_zone").(string),
 			Os:          d.Get("os").(string),
-			Login:       nodes.LoginSpec{SshKey: d.Get("key_pair").(string)},
+			Login:       loginSpec,
 			RootVolume:  resourceCCERootVolume(d),
 			DataVolumes: resourceCCEDataVolume(d),
 			PublicIP: nodes.PublicIPSpec{
