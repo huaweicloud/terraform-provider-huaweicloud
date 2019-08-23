@@ -82,6 +82,8 @@ The following arguments are supported:
 * `authentication_mode` - (Optional) Authentication mode of the cluster, possible values are x509 and rbac. Defaults to x509.
     Changing this parameter will create a new cluster resource.
 
+* `multi_az` - (Optional) Enable multiple AZs for the cluster, only when using HA flavors. Changing this parameter will create a new cluster resource.
+
 ## Attributes Reference
 
 All above argument parameters can be exported as attribute parameters along with attribute reference.
