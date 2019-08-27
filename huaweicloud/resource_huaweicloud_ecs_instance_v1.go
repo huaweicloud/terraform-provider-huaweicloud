@@ -120,7 +120,7 @@ func resourceEcsInstanceV1() *schema.Resource {
 			},
 			"data_disks": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 				MinItems: 1,
 				MaxItems: 23,
