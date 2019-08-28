@@ -239,3 +239,10 @@ The following attributes are exported:
 
 * `id` - The ID of the server.
 * `nics/mac_address` - The MAC address of the NIC on that network.
+
+## Import
+
+Instances can be imported using the `id`, e.g.
+
+```
+$ terraform import huaweicloud_ecs_instance_v1.instance_1 d90ce693-5ccf-4136-a0ed-152ce412b6b9

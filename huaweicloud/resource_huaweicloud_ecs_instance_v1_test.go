@@ -108,18 +108,6 @@ resource "huaweicloud_ecs_instance_v1" "instance_1" {
     network_id = "%s"
   }
 
-  system_disk_type = "SAS"
-  system_disk_size = 40
-
-  data_disks {
-    type = "SATA"
-    size = "10"
-  }
-  data_disks {
-    type = "SAS"
-    size = "20"
-  }
-
   password          = "Password@123"
   security_groups   = ["default"]
   availability_zone = "%s"
@@ -148,22 +136,10 @@ resource "huaweicloud_ecs_instance_v1" "instance_1" {
     network_id = "%s"
   }
 
-  system_disk_type = "SAS"
-  system_disk_size = 40
-
-  data_disks {
-    type = "SATA"
-    size = "10"
-  }
-  data_disks {
-    type = "SAS"
-    size = "20"
-  }
-
-  password                     = "Password@123"
-  security_groups              = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
-  availability_zone            = "%s"
-  auto_recovery                = false
+  password                    = "Password@123"
+  security_groups             = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
+  availability_zone           = "%s"
+  auto_recovery               = false
   delete_disks_on_termination = true
 
   tags = {
