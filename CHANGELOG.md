@@ -1,4 +1,26 @@
-## 1.7.1 (Unreleased)
+## 1.8.0 (Unreleased)
+
+FEATURES:
+
+* **New Resource:** `huaweicloud_ecs_instance_v1` [GH-179]
+* **New Resource:** `huaweicloud_compute_interface_attach_v2` [GH-189]
+
+ENHANCEMENTS:
+
+* Add detailed error message for 404 [GH-183]
+* resource/huaweicloud_cce_node_v3: Add server_id to CCE node [GH-185]
+* resource/huaweicloud_cce_cluster_v3: Add certificates to CCE cluster [GH-192]
+* resource/huaweicloud_cce_node_v3: Add password support to CCE node [GH-193]
+* resource/huaweicloud_cce_cluster_v3: Add multi-az support to CCE cluster [GH-194]
+
+BUG FIXES:
+
+* Fix OBS endpoint issue for new region [GH-175]
+* resource/huaweicloud_blockstorage_volume_v2: Add volume extending support [GH-176]
+* Update CCE client for new region [GH-181]
+* resource/huaweicloud_cce_node_v3: Fix data_volumes type of cce node [GH-182]
+* resource/huaweicloud_vpc_subnet_v1: Fix dns_list type issue [GH-191]
+
 ## 1.7.0 (July 29, 2019)
 
 FEATURES:
