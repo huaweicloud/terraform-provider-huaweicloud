@@ -24,6 +24,9 @@ func resourceEcsInstanceV1() *schema.Resource {
 		Read:   resourceEcsInstanceV1Read,
 		Update: resourceEcsInstanceV1Update,
 		Delete: resourceEcsInstanceV1Delete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -108,7 +111,6 @@ func resourceEcsInstanceV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default:  "SATA",
 				ValidateFunc: validation.StringInSlice([]string{
 					"SATA", "SAS", "SSD", "co-p1", "uh-l1",
 				}, true),
@@ -161,7 +163,6 @@ func resourceEcsInstanceV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default:  "postPaid",
 				ValidateFunc: validation.StringInSlice([]string{
 					"prePaid", "postPaid",
 				}, true),
@@ -170,7 +171,6 @@ func resourceEcsInstanceV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default:  "month",
 				ValidateFunc: validation.StringInSlice([]string{
 					"month", "year",
 				}, true),
@@ -179,7 +179,6 @@ func resourceEcsInstanceV1() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
-				Default:  1,
 			},
 			"tags": {
 				Type:         schema.TypeMap,
@@ -194,12 +193,10 @@ func resourceEcsInstanceV1() *schema.Resource {
 			"delete_disks_on_termination": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  false,
 			},
 		},
 	}
@@ -304,7 +301,6 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", server.Name)
 	d.Set("image_id", server.Image.ID)
 	d.Set("flavor", server.Flavor.ID)
-	d.Set("password", d.Get("password"))
 	d.Set("key_name", server.KeyName)
 	d.Set("vpc_id", server.Metadata.VpcID)
 	d.Set("availability_zone", server.AvailabilityZone)
@@ -320,19 +316,17 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("nics", nics)
 
 	// Set instance tags
-	if _, ok := d.GetOk("tags"); ok {
-		Taglist, err := tags.Get(computeClient, d.Id()).Extract()
-		if err != nil {
-			return fmt.Errorf("Error fetching HuaweiCloud instance tags: %s", err)
-		}
+	Taglist, err := tags.Get(computeClient, d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching HuaweiCloud instance tags: %s", err)
+	}
 
-		tagmap := make(map[string]string)
-		for _, val := range Taglist.Tags {
-			tagmap[val.Key] = val.Value
-		}
-		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("[DEBUG] Error saving tag to state for HuaweiCloud instance (%s): %s", d.Id(), err)
-		}
+	tagmap := make(map[string]string)
+	for _, val := range Taglist.Tags {
+		tagmap[val.Key] = val.Value
+	}
+	if err := d.Set("tags", tagmap); err != nil {
+		return fmt.Errorf("[DEBUG] Error saving tag to state for HuaweiCloud instance (%s): %s", d.Id(), err)
 	}
 
 	ar, err := resourceECSAutoRecoveryV1Read(d, meta, d.Id())
@@ -536,8 +530,12 @@ func resourceInstanceNicsV1(d *schema.ResourceData) []cloudservers.Nic {
 }
 
 func resourceInstanceRootVolumeV1(d *schema.ResourceData) cloudservers.RootVolume {
+	disk_type := d.Get("system_disk_type").(string)
+	if disk_type == "" {
+		disk_type = "SATA"
+	}
 	volRequest := cloudservers.RootVolume{
-		VolumeType: d.Get("system_disk_type").(string),
+		VolumeType: disk_type,
 		Size:       d.Get("system_disk_size").(int),
 	}
 	return volRequest
