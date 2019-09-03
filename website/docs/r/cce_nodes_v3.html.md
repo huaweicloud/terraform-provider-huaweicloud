@@ -69,13 +69,13 @@ If the eip_ids parameter is configured, you do not need to configure the eip_cou
 
 * `eip_count` - (Optional) Number of elastic IPs to be dynamically created. Changing this parameter will create a new resource.
 
-* `iptype` - (Required) Elastic IP type. 
+* `iptype` - (Optional) Elastic IP type. Default is 5_bgp. Changing this parameter will create a new resource.
 
 * `bandwidth_charge_mode` - (Optional) Bandwidth billing type. Changing this parameter will create a new resource.
 
-* `sharetype` - (Required) Bandwidth sharing type. Changing this parameter will create a new resource.
+* `sharetype` - (Optional) Bandwidth sharing type. Changing this parameter will create a new resource.
 
-* `bandwidth_size` - (Required) Bandwidth size. Changing this parameter will create a new resource.
+* `bandwidth_size` - (Optional) Bandwidth size. Changing this parameter will create a new resource.
 
 * `extend_param_charging_mode` - (Optional) Node charging mode, 0 is on-demand charging. Changing this parameter will create a new cluster resource.
 
