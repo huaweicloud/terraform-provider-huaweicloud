@@ -332,9 +332,10 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 	if options.DomainID == "" && options.Domain != "" {
 		id, err := getDomainID(options.Domain, v3Client)
 		if err != nil {
-			return err
+			options.DomainID = ""
+		} else {
+			options.DomainID = id
 		}
-		options.DomainID = id
 	}
 
 	client.ProjectID = options.ProjectId

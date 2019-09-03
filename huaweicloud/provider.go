@@ -239,6 +239,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_compute_floatingip_v2":              resourceComputeFloatingIPV2(),
 			"huaweicloud_compute_floatingip_associate_v2":    resourceComputeFloatingIPAssociateV2(),
 			"huaweicloud_compute_volume_attach_v2":           resourceComputeVolumeAttachV2(),
+			"huaweicloud_dns_ptrrecord_v2":                   resourceDNSPtrRecordV2(),
 			"huaweicloud_dns_recordset_v2":                   resourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone_v2":                        resourceDNSZoneV2(),
 			"huaweicloud_dcs_instance_v1":                    resourceDcsInstanceV1(),
