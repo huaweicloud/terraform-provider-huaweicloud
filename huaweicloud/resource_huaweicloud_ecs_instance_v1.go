@@ -233,6 +233,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		extendParam.ChargingMode = d.Get("charging_mode").(string)
 		extendParam.PeriodType = d.Get("period_unit").(string)
 		extendParam.PeriodNum = d.Get("period").(int)
+		extendParam.IsAutoPay = "true"
 	}
 	if hasFilledOpt(d, "enterprise_project_id") {
 		extendParam.EnterpriseProjectId = d.Get("enterprise_project_id").(string)
