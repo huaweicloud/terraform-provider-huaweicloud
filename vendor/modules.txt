@@ -178,7 +178,7 @@ github.com/hashicorp/terraform/svchost/auth
 github.com/hashicorp/terraform-config-inspect/tfconfig
 # github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20190902122622-e395391e1f19
+# github.com/huaweicloud/golangsdk v0.0.0-20190906094835-10f659f0ae54
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/openstack
 github.com/huaweicloud/golangsdk/openstack/antiddos/v1/antiddos
@@ -240,6 +240,7 @@ github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths
 github.com/huaweicloud/golangsdk/openstack/networking/v1/eips
 github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets
 github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs
+github.com/huaweicloud/golangsdk/openstack/networking/v2/bandwidths
 github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb
 github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/backendecs
 github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/healthcheck

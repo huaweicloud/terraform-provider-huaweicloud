@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func ValidateStringList(v interface{}, k string, l []string) (ws []string, errors []error) {
@@ -286,4 +288,15 @@ func validateECSTagValue(v interface{}, k string) (ws []string, errors []error) 
 		}
 	}
 	return
+}
+
+func validateIntegerInRange(min, max int) schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(int)
+		if value < min || value > max {
+			errors = append(errors, fmt.Errorf(
+				"%q cannot be lower than %d and larger than %d. Current value is %d.", k, min, max, value))
+		}
+		return
+	}
 }
