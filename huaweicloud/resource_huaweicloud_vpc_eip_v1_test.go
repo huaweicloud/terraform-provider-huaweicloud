@@ -28,7 +28,7 @@ func TestAccVpcV1EIP_basic(t *testing.T) {
 	})
 }
 
-func TestAccVpcV1EIP_timeout(t *testing.T) {
+func TestAccVpcV1EIP_share(t *testing.T) {
 	var eip eips.PublicIp
 
 	resource.Test(t, resource.TestCase{
@@ -37,7 +37,7 @@ func TestAccVpcV1EIP_timeout(t *testing.T) {
 		CheckDestroy: testAccCheckVpcV1EIPDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVpcV1EIP_timeout,
+				Config: testAccVpcV1EIP_share,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip_v1.eip_1", &eip),
 				),
@@ -113,20 +113,19 @@ resource "huaweicloud_vpc_eip_v1" "eip_1" {
 }
 `
 
-const testAccVpcV1EIP_timeout = `
+const testAccVpcV1EIP_share = `
+resource "huaweicloud_vpc_bandwidth_v2" "bandwidth_1" {
+	name = "bandwidth_1"
+	size = 5
+}
+
 resource "huaweicloud_vpc_eip_v1" "eip_1" {
   publicip {
     type = "5_bgp"
   }
   bandwidth {
-    name = "test"
-    size = 8
-    share_type = "PER"
-    charge_mode = "traffic"
-  }
-  timeouts {
-    create = "5m"
-    delete = "5m"
+    id = "${huaweicloud_vpc_bandwidth_v2.bandwidth_1.id}"
+    share_type = "WHOLE"
   }
 }
 `

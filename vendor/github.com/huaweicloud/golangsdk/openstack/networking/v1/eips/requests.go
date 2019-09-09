@@ -22,8 +22,9 @@ type PublicIpOpts struct {
 }
 
 type BandwidthOpts struct {
-	Name       string `json:"name" required:"true"`
-	Size       int    `json:"size" required:"true"`
+	Name       string `json:"name,omitempty"`
+	Size       int    `json:"size,omitempty"`
+	Id         string `json:"id,omitempty"`
 	ShareType  string `json:"share_type" required:"true"`
 	ChargeMode string `json:"charge_mode,omitempty"`
 }

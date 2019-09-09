@@ -26,6 +26,25 @@ resource "huaweicloud_vpc_eip_v1" "eip_1" {
 }
 ```
 
+## Example Usage of Share Bandwidth
+
+```hcl
+resource "huaweicloud_vpc_bandwidth_v2" "bandwidth_1" {
+	name = "bandwidth_1"
+	size = 5
+}
+
+resource "huaweicloud_vpc_eip_v1" "eip_1" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    id = "${huaweicloud_vpc_bandwidth_v2.bandwidth_1.id}"
+    share_type = "WHOLE"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -52,10 +71,12 @@ The `publicip` block supports:
 
 The `bandwidth` block supports:
 
-* `name` - (Required) The bandwidth name, which is a string of 1 to 64 characters
+* `name` - (Optional) The bandwidth name, which is a string of 1 to 64 characters
     that contain letters, digits, underscores (_), and hyphens (-).
 
-* `size` - (Required) The bandwidth size. The value ranges from 1 to 300 Mbit/s.
+* `size` - (Optional) The bandwidth size. The value ranges from 1 to 300 Mbit/s.
+
+* `id` - (Optional) The share bandwidth id. Changing this creates a new eip.
 
 * `charge_type` - (Required) Whether the bandwidth is shared or exclusive. Changing
     this creates a new eip.

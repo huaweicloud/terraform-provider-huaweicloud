@@ -67,15 +67,23 @@ func resourceVpcEIPV1() *schema.Resource {
 				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
 						"name": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 							ForceNew: false,
+							Computed: true,
 						},
 						"size": {
 							Type:     schema.TypeInt,
-							Required: true,
+							Optional: true,
 							ForceNew: false,
+							Computed: true,
 						},
 						"share_type": {
 							Type:     schema.TypeString,
@@ -172,6 +180,7 @@ func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 		{
 			"name":        bandWidth.Name,
 			"size":        eIP.BandwidthSize,
+			"id":          eIP.BandwidthID,
 			"share_type":  eIP.BandwidthShareType,
 			"charge_mode": bandWidth.ChargeMode,
 		},
@@ -321,6 +330,7 @@ func resourceBandWidth(d *schema.ResourceData) eips.BandwidthOpts {
 	rawMap := bandwidthRaw[0].(map[string]interface{})
 
 	bandwidth := eips.BandwidthOpts{
+		Id:         rawMap["id"].(string),
 		Name:       rawMap["name"].(string),
 		Size:       rawMap["size"].(int),
 		ShareType:  rawMap["share_type"].(string),
