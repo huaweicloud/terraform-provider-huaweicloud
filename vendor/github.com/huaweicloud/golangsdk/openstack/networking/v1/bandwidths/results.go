@@ -14,6 +14,35 @@ type BandWidth struct {
 	TenantID      string `json:"tenant_id"`
 	BandwidthType string `json:"bandwidth_type"`
 	ChargeMode    string `json:"charge_mode"`
+
+	PublicipInfo []PublicIpinfo `json:"publicip_info"`
+
+	// Specifies the billing information.
+	BillingInfo string `json:"billing_info"`
+
+	// Enterprise project id
+	EnterpriseProjectID string `json:"enterprise_project_id"`
+
+	// Status
+	Status string `json:"status"`
+}
+
+type PublicIpinfo struct {
+	// Specifies the tenant ID of the user.
+	PublicipId string `json:"publicip_id"`
+
+	// Specifies the elastic IP address.
+	PublicipAddress string `json:"publicip_address"`
+
+	// Specifies the elastic IP v6 address.
+	Publicipv6Address string `json:"publicipv6_address"`
+
+	// Specifies the elastic IP version.
+	IPVersion int `json:"ip_version"`
+
+	// Specifies the elastic IP address type. The value can be
+	// 5_telcom, 5_union, or 5_bgp.
+	PublicipType string `json:"publicip_type"`
 }
 
 //GetResult is a return struct of get method
