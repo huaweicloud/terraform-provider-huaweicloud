@@ -1,9 +1,6 @@
 package elb
 
 import (
-	"regexp"
-	"strings"
-
 	"github.com/huaweicloud/golangsdk"
 )
 
@@ -46,13 +43,9 @@ func (r JobInfoResult) Extract() (*JobInfo, error) {
 	return j, err
 }
 
-func QueryJobInfo(c *golangsdk.ServiceClient, uri string) (r JobInfoResult) {
-	vv := regexp.MustCompile("/v[0-9]+\\.?[0-9]*/?$")
+func QueryJobInfo(c *golangsdk.ServiceClient, jobId string) (r JobInfoResult) {
 	e := c.ResourceBaseURL()
-	if vv.MatchString(e) {
-		i := strings.LastIndex(e, "/v")
-		e = e[:i]
-	}
-	_, r.Err = c.Get(e+uri, &r.Body, nil)
+	e = e + c.ProjectID + "/jobs/" + jobId
+	_, r.Err = c.Get(e, &r.Body, nil)
 	return
 }

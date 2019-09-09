@@ -20,16 +20,16 @@ func waitForELBJobSuccess(networkingClient *golangsdk.ServiceClient, j *elb.Job,
 
 	log.Printf("[DEBUG] Waiting for elb job %s to become %s.", jobId, target)
 
-	ji, err := waitForELBResource(networkingClient, "job", j.Uri, target, pending, timeout, getELBJobInfo)
+	ji, err := waitForELBResource(networkingClient, "job", jobId, target, pending, timeout, getELBJobInfo)
 	if err == nil {
 		return ji.(*elb.JobInfo), nil
 	}
 	return nil, err
 }
 
-func getELBJobInfo(networkingClient *golangsdk.ServiceClient, uri string) resource.StateRefreshFunc {
+func getELBJobInfo(networkingClient *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		info, err := elb.QueryJobInfo(networkingClient, uri).Extract()
+		info, err := elb.QueryJobInfo(networkingClient, jobId).Extract()
 		if err != nil {
 			return nil, "", err
 		}
