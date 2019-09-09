@@ -521,7 +521,7 @@ func (c *Config) fwV2Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) loadElasticLoadBalancerClient(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewELBV1(c.HwClient, golangsdk.EndpointOpts{
+	return huaweisdk.NewElasticLoadBalancer(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getHwEndpointType(),
 	})
