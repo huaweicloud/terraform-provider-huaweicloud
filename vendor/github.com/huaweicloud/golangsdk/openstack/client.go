@@ -740,6 +740,7 @@ func NewElasticLoadBalancer(client *golangsdk.ProviderClient, eo golangsdk.Endpo
 		return sc, err
 	}
 	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "elb", 1)
+	sc.Endpoint = strings.Replace(sc.Endpoint, "myhwclouds", "myhuaweicloud", 1)
 	sc.ResourceBase = sc.Endpoint + "v1.0/"
 	return sc, err
 }
