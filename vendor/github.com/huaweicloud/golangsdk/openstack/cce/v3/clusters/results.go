@@ -71,6 +71,8 @@ type HostNetworkSpec struct {
 	// The ID of the high speed network used to create bare metal nodes.
 	// This parameter is required when creating a bare metal cluster.
 	HighwaySubnet string `json:"highwaySubnet,omitempty"`
+	//The ID of the Security Group used to create the node
+	SecurityGroup string `json:"SecurityGroup,omitempty"`
 }
 
 //Container network parameters

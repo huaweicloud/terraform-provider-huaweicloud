@@ -36,3 +36,7 @@ func passwordURL(client *golangsdk.ServiceClient, id string) string {
 func extendURL(client *golangsdk.ServiceClient, id string) string {
 	return client.ServiceURL(resourcePath, id, extendPath)
 }
+
+func listURL(client *golangsdk.ServiceClient) string {
+	return client.ServiceURL(resourcePath)
+}

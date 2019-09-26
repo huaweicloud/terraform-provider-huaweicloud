@@ -2,6 +2,7 @@ package natgateways
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 // CreateOptsBuilder is an interface must satisfy to be used as Create
@@ -19,6 +20,20 @@ type CreateOpts struct {
 	RouterID          string `json:"router_id" required:"true"`
 	InternalNetworkID string `json:"internal_network_id" required:"true"`
 	TenantID          string `json:"tenant_id,omitempty"`
+}
+
+type ListOpts struct {
+	Limit             int    `q:"limit"`
+	ID                string `q:"id"`
+	Name              string `q:"name"`
+	TenantId          string `q:"tenant_id"`
+	Description       string `q:"description"`
+	Spec              string `q:"spec"`
+	RouterID          string `q:"router_id"`
+	InternalNetworkID string `q:"internal_network_id"`
+	Status            string `q:"status"`
+	AdminStateUp      *bool  `q:"admin_state_up"`
+	CreatedAt         string `q:"created_at"`
 }
 
 // ToNatGatewayCreateMap allows CreateOpts to satisfy the CreateOptsBuilder
@@ -70,6 +85,15 @@ func (opts UpdateOpts) ToNatGatewayUpdateMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "nat_gateway")
 }
 
+func (opts ListOpts) ToNatGatewayListQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	return q.String(), err
+}
+
+type ListOptsBuilder interface {
+	ToNatGatewayListQuery() (string, error)
+}
+
 //Update allows nat gateway resources to be updated.
 func Update(c *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r UpdateResult) {
 	b, err := opts.ToNatGatewayUpdateMap()
@@ -81,4 +105,19 @@ func Update(c *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r Up
 		OkCodes: []int{200},
 	})
 	return
+}
+
+func List(c *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Pager {
+	url := rootURL(c)
+	if opts != nil {
+		query, err := opts.ToNatGatewayListQuery()
+		if err != nil {
+			return pagination.Pager{Err: err}
+		}
+		url += query
+	}
+
+	return pagination.NewPager(c, url, func(r pagination.PageResult) pagination.Page {
+		return NatGatewayPage{pagination.LinkedPageBase{PageResult: r}}
+	})
 }

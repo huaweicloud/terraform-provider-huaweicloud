@@ -2,6 +2,7 @@ package instances
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 // InstanceCreate response
@@ -24,6 +25,11 @@ func (r CreateResult) Extract() (*InstanceCreate, error) {
 // DeleteResult is a struct which contains the result of deletion
 type DeleteResult struct {
 	golangsdk.ErrResult
+}
+
+type ListDmsResponse struct {
+	Instances  []Instance `json:"instances"`
+	TotalCount int        `json:"instance_num"`
 }
 
 // Instance response
@@ -75,4 +81,23 @@ func (r GetResult) Extract() (*Instance, error) {
 	var s Instance
 	err := r.Result.ExtractInto(&s)
 	return &s, err
+}
+
+type DmsPage struct {
+	pagination.SinglePageBase
+}
+
+func (r DmsPage) IsEmpty() (bool, error) {
+	data, err := ExtractDmsInstances(r)
+	if err != nil {
+		return false, err
+	}
+	return len(data.Instances) == 0, err
+}
+
+// ExtractCloudServers is a function that takes a ListResult and returns the services' information.
+func ExtractDmsInstances(r pagination.Page) (ListDmsResponse, error) {
+	var s ListDmsResponse
+	err := (r.(DmsPage)).ExtractInto(&s)
+	return s, err
 }

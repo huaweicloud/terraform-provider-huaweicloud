@@ -2,6 +2,7 @@ package instances
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 // CreateOpsBuilder is used for creating instance parameters.
@@ -166,4 +167,46 @@ func Update(client *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) 
 func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
 	_, r.Err = client.Get(getURL(client, id), &r.Body, nil)
 	return
+}
+
+type ListDmsInstanceOpts struct {
+	Id                  string `q:"id"`
+	Name                string `q:"name"`
+	Engine              string `q:"engine"`
+	Status              string `q:"status"`
+	IncludeFailure      string `q:"includeFailure"`
+	ExactMatchName      string `q:"exactMatchName"`
+	EnterpriseProjectID int    `q:"enterprise_project_id"`
+}
+
+type ListDmsBuilder interface {
+	ToDmsListDetailQuery() (string, error)
+}
+
+func (opts ListDmsInstanceOpts) ToDmsListDetailQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return "", err
+	}
+	return q.String(), err
+}
+
+func List(client *golangsdk.ServiceClient, opts ListDmsBuilder) pagination.Pager {
+	url := listURL(client)
+	if opts != nil {
+		query, err := opts.ToDmsListDetailQuery()
+
+		if err != nil {
+			return pagination.Pager{Err: err}
+		}
+		url += query
+	}
+
+	pageDmsList := pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
+		return DmsPage{pagination.SinglePageBase(r)}
+	})
+
+	dmsheader := map[string]string{"Content-Type": "application/json"}
+	pageDmsList.Headers = dmsheader
+	return pageDmsList
 }
