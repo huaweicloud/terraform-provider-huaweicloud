@@ -2,6 +2,7 @@ package instances
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 // CreateOpsBuilder is used for creating instance parameters.
@@ -118,6 +119,29 @@ type PeriodicalBackupPlan struct {
 	BackupAt []int `json:"backup_at" required:"true"`
 }
 
+type ListDcsInstanceOpts struct {
+	Id            string `q:"id"`
+	Name          string `q:"name"`
+	Type          string `q:"type"`
+	DataStoreType string `q:"datastore_type"`
+	VpcId         string `q:"vpc_id"`
+	SubnetId      string `q:"subnet_id"`
+	Offset        int    `q:"offset"`
+	Limit         int    `q:"limit"`
+}
+
+type ListDcsBuilder interface {
+	ToDcsListDetailQuery() (string, error)
+}
+
+func (opts ListDcsInstanceOpts) ToDcsListDetailQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return "", err
+	}
+	return q.String(), err
+}
+
 // ToInstanceCreateMap is used for type convert
 func (ops CreateOps) ToInstanceCreateMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(ops, "")
@@ -134,7 +158,6 @@ func Create(client *golangsdk.ServiceClient, ops CreateOpsBuilder) (r CreateResu
 	_, r.Err = client.Post(createURL(client), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{200},
 	})
-
 	return
 }
 
@@ -280,4 +303,24 @@ func Extend(client *golangsdk.ServiceClient, id string, opts ExtendOptsBuilder) 
 		OkCodes: []int{204},
 	})
 	return
+}
+
+func List(client *golangsdk.ServiceClient, opts ListDcsBuilder) pagination.Pager {
+	url := listURL(client)
+	if opts != nil {
+		query, err := opts.ToDcsListDetailQuery()
+
+		if err != nil {
+			return pagination.Pager{Err: err}
+		}
+		url += query
+	}
+
+	pageDcsList := pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
+		return DcsPage{pagination.SinglePageBase(r)}
+	})
+
+	dcsheader := map[string]string{"Content-Type": "application/json"}
+	pageDcsList.Headers = dcsheader
+	return pageDcsList
 }
