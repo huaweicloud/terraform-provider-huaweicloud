@@ -1,4 +1,22 @@
-## 1.8.1 (Unreleased)
+## 1.9.0 (Unreleased)
+
+FEATURES:
+
+* **New Resource:** `huaweicloud_dns_ptrrecord_v2` [GH-200]
+* **New Resource:** `huaweicloud_vpc_bandwidth_v2` [GH-203]
+* **New Resource:** `huaweicloud_lb_certificate_v2` [GH-211]
+* **New Resource:** `huaweicloud_networking_vip_v2` [GH-212]
+* **New Resource:** `huaweicloud_networking_vip_associate_v2` [GH-212]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc_eip_v1: Add shared bandwidth support [GH-208]
+
+BUG FIXES:
+
+* resource/huaweicloud_ecs_instance_v1: Make ECS instance prePaid auto pay [GH-202]
+* Fix ELB resources job issue [GH-207]
+
 ## 1.8.0 (August 28, 2019)
 
 FEATURES:
