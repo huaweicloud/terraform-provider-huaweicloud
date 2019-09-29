@@ -2,6 +2,7 @@ package natgateways
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 // NatGateway is a struct that represents a nat gateway
@@ -53,4 +54,32 @@ func (r UpdateResult) Extract() (NatGateway, error) {
 // DeleteResult is a return struct of delete method
 type DeleteResult struct {
 	golangsdk.ErrResult
+}
+
+type NatGatewayPage struct {
+	pagination.LinkedPageBase
+}
+
+func (r NatGatewayPage) NextPageURL() (string, error) {
+	var s struct {
+		Links []golangsdk.Link `json:"nat_gateways_links"`
+	}
+	err := r.ExtractInto(&s)
+	if err != nil {
+		return "", err
+	}
+	return golangsdk.ExtractNextURL(s.Links)
+}
+
+func (r NatGatewayPage) IsEmpty() (bool, error) {
+	is, err := ExtractNatGateways(r)
+	return len(is) == 0, err
+}
+
+func ExtractNatGateways(r pagination.Page) ([]NatGateway, error) {
+	var s struct {
+		NatGateways []NatGateway `json:"nat_gateways"`
+	}
+	err := (r.(NatGatewayPage)).ExtractInto(&s)
+	return s.NatGateways, err
 }

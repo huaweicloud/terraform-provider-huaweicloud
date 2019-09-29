@@ -42,6 +42,14 @@ type Subnet struct {
 
 	//Specifies the subnet ID.
 	SubnetId string `json:"neutron_subnet_id"`
+
+	//Specifies the extra dhcp opts.
+	ExtraDhcpOpts []ExtraDhcp `json:"extra_dhcp_opts"`
+}
+
+type ExtraDhcp struct {
+	OptName  string `json:"opt_name"`
+	OptValue string `json:"opt_value"`
 }
 
 // SubnetPage is the page returned by a pager when traversing over a

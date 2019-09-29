@@ -78,7 +78,7 @@ The `bandwidth` block supports:
 
 * `id` - (Optional) The share bandwidth id. Changing this creates a new eip.
 
-* `charge_type` - (Required) Whether the bandwidth is shared or exclusive. Changing
+* `share_type` - (Required) Whether the bandwidth is shared or exclusive. Changing
     this creates a new eip.
 
 * `charge_mode` - (Optional) This is a reserved field. If the system supports charging
@@ -95,7 +95,7 @@ The following attributes are exported:
 * `publicip/port_id` - See Argument Reference above.
 * `bandwidth/name` - See Argument Reference above.
 * `bandwidth/size` - See Argument Reference above.
-* `bandwidth/charge_type` - See Argument Reference above.
+* `bandwidth/share_type` - See Argument Reference above.
 * `bandwidth/charge_mode` - See Argument Reference above.
 
 ## Import

@@ -251,6 +251,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dms_queue_v1":                       resourceDmsQueuesV1(),
 			"huaweicloud_dms_group_v1":                       resourceDmsGroupsV1(),
 			"huaweicloud_dms_instance_v1":                    resourceDmsInstancesV1(),
+			"huaweicloud_lb_certificate_v2":                  resourceCertificateV2(),
 			"huaweicloud_elb_loadbalancer":                   resourceELBLoadBalancer(),
 			"huaweicloud_elb_listener":                       resourceELBListener(),
 			"huaweicloud_elb_healthcheck":                    resourceELBHealthCheck(),
@@ -327,6 +328,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpnaas_site_connection_v2":          resourceVpnSiteConnectionV2(),
 			"huaweicloud_dli_queue_v1":                       resourceDliQueueV1(),
 			"huaweicloud_cs_route_v1":                        resourceCsRouteV1(),
+			"huaweicloud_networking_vip_v2":                  resourceNetworkingVIPV2(),
+			"huaweicloud_networking_vip_associate_v2":        resourceNetworkingVIPAssociateV2(),
 		},
 
 		ConfigureFunc: configureProvider,
