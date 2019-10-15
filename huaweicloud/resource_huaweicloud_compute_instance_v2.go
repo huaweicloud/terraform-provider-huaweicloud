@@ -22,6 +22,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/flavors"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/images"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
+	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/block_devices"
 )
 
 func resourceComputeInstanceV2() *schema.Resource {
@@ -315,6 +316,30 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
+			"volume_attached": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"volume_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"pci_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"boot_index": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"size": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -515,6 +540,30 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 	d.Set("flavor_name", flavor.Name)
+
+	// Set volume attached
+	bds := []map[string]interface{}{}
+	if len(server.VolumesAttached) > 0 {
+		computeV1Client, err := config.computeV1Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud compute V1 client: %s", err)
+		}
+		for _, b := range server.VolumesAttached {
+			va, err := block_devices.Get(computeV1Client, d.Id(), b["id"]).Extract()
+			if err != nil {
+				return err
+			}
+			log.Printf("[DEBUG] Retrieved volume attachment %s: %#v", d.Id(), va)
+			v := map[string]interface{}{
+				"pci_address": va.PciAddress,
+				"volume_id":   b["id"],
+				"boot_index":  va.BootIndex,
+				"size":        va.Size,
+			}
+			bds = append(bds, v)
+		}
+		d.Set("volume_attached", bds)
+	}
 
 	// Set the instance's image information appropriately
 	if err := setImageInformation(computeClient, server, d); err != nil {
