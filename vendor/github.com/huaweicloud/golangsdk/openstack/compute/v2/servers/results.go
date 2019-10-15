@@ -214,6 +214,9 @@ type Server struct {
 
 	// Fault contains failure information about a server.
 	Fault Fault `json:"fault"`
+
+	// VolumeAttached includes the volumes that attached to the server.
+	VolumesAttached []map[string]string `json:"os-extended-volumes:volumes_attached"`
 }
 
 type Fault struct {

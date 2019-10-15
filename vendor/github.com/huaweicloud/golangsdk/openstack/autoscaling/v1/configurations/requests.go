@@ -84,9 +84,10 @@ type InstanceConfigOpts struct {
 
 //DiskOpts is an inner struct of InstanceConfigOpts
 type DiskOpts struct {
-	Size       int    `json:"size" required:"true"`
-	VolumeType string `json:"volume_type" required:"true"`
-	DiskType   string `json:"disk_type" required:"true"`
+	Size       int               `json:"size" required:"true"`
+	VolumeType string            `json:"volume_type" required:"true"`
+	DiskType   string            `json:"disk_type" required:"true"`
+	Metadata   map[string]string `json:"metadata,omitempty"`
 }
 
 type PersonalityOpts struct {
