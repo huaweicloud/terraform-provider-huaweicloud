@@ -6,7 +6,7 @@ import (
 
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/roles"
 	"github.com/huaweicloud/golangsdk/pagination"

@@ -7,7 +7,7 @@ import (
 	"unsafe"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacktemplates"
 )

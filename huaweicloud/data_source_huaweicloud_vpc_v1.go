@@ -6,7 +6,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceVirtualPrivateCloudVpcV1() *schema.Resource {

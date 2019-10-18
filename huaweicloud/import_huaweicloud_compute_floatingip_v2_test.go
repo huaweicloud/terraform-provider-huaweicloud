@@ -3,7 +3,7 @@ package huaweicloud
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccComputeV2FloatingIP_importBasic(t *testing.T) {

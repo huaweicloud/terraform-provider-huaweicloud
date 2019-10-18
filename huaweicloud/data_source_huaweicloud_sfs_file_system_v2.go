@@ -6,7 +6,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceSFSFileSystemV2() *schema.Resource {

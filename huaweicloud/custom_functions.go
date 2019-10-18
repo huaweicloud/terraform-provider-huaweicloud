@@ -3,7 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func expandCdmClusterV1CreateAutoRemind(d interface{}, arrayIndex map[string]int) (interface{}, error) {

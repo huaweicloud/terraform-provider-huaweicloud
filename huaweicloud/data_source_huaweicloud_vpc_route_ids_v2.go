@@ -5,7 +5,7 @@ import (
 
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceVPCRouteIdsV2() *schema.Resource {
