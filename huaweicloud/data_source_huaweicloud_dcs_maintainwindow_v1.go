@@ -5,7 +5,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v1/maintainwindows"
 )
 

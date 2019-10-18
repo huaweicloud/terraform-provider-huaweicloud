@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func retryOnAwsCode(code string, f func() (interface{}, error)) (interface{}, error) {

@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/attachinterfaces"
 
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func computeInterfaceAttachV2AttachFunc(

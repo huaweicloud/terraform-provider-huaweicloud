@@ -7,7 +7,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceImagesImageV2() *schema.Resource {

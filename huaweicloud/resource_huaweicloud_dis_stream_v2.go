@@ -19,7 +19,7 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 )
 

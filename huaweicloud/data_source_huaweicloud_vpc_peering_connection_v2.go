@@ -6,7 +6,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceVpcPeeringConnectionV2() *schema.Resource {
