@@ -119,6 +119,12 @@ func resourceCCEClusterV3() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"eip": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateIP,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -188,6 +194,9 @@ func resourceClusterExtendParamV3(d *schema.ResourceData) map[string]string {
 	}
 	if multi_az, ok := d.GetOk("multi_az"); ok && multi_az == true {
 		m["clusterAZ"] = "multi_az"
+	}
+	if eip, ok := d.GetOk("eip"); ok {
+		m["clusterExternalIP"] = eip.(string)
 	}
 	return m
 }

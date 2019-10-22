@@ -146,6 +146,9 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
 }`, OS_VPC_ID, OS_NETWORK_ID)
 
 var testAccCCEClusterV3_timeout = fmt.Sprintf(`
+resource "huaweicloud_networking_floatingip_v2" "fip_1" {
+}
+
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
@@ -153,6 +156,7 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   cluster_version = "v1.7.3-r10"
   vpc_id="%s"
   subnet_id="%s"
+  eip= "${huaweicloud_networking_floatingip_v2.fip_1.address}"
   container_network_type="overlay_l2"
   authentication_mode = "rbac"
     timeouts {
