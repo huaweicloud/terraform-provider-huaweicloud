@@ -1,4 +1,14 @@
-## 1.9.1 (Unreleased)
+## 1.10.0 (Unreleased)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_instance_v2: Add volume_attached attribute support [GH-214]
+* resource/huaweicloud_cce_cluster_v3: Add eip parameter support [GH-219]
+
+BUG FIXES:
+
+* resource/huaweicloud_compute_volume_attach_v2: Fix example issue for attaching volume [GH-221]
+
 ## 1.9.0 (September 30, 2019)
 
 FEATURES:
