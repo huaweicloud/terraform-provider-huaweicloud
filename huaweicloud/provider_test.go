@@ -36,6 +36,7 @@ var (
 	OS_DMS_ENVIRONMENT        = os.Getenv("OS_DMS_ENVIRONMENT")
 	OS_NAT_ENVIRONMENT        = os.Getenv("OS_NAT_ENVIRONMENT")
 	OS_KMS_ENVIRONMENT        = os.Getenv("OS_KMS_ENVIRONMENT")
+	OS_CDN_DOMAIN_NAME        = os.Getenv("OS_CDN_DOMAIN_NAME")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -195,6 +196,14 @@ func testAccPreCheckKms(t *testing.T) {
 
 	if OS_KMS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support KMS tests")
+	}
+}
+
+func testAccPreCheckCDN(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_CDN_DOMAIN_NAME == "" {
+		t.Skip("This environment does not support CDN tests")
 	}
 }
 
