@@ -592,10 +592,13 @@ func NewSharedFileSystemV2(client *golangsdk.ProviderClient, eo golangsdk.Endpoi
 	return initClientOpts(client, eo, "sharev2")
 }
 
-// NewCDNV1 creates a ServiceClient that may be used to access the OpenStack v1
+// NewCDNV1 creates a ServiceClient that may be used to access the v1
 // CDN service.
 func NewCDNV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
-	return initClientOpts(client, eo, "cdn")
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = "https://cdn.myhuaweicloud.com/"
+	sc.ResourceBase = sc.Endpoint + "v1.0/"
+	return sc, err
 }
 
 // NewOrchestrationV1 creates a ServiceClient that may be used to access the v1
