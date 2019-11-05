@@ -48,6 +48,24 @@ func (opts CreateOpts) ToCdnDomainCreateMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "domain")
 }
 
+// OriginOpts specifies the attributes used to modify the orogin server.
+type OriginOpts struct {
+	// the domain name or the IP address of the origin server
+	Sources []SourcesOpts `json:"sources" required:"true"`
+}
+
+// OriginOptsBuilder allows extensions to add additional parameters to the
+// Origin request.
+type OriginOptsBuilder interface {
+	ToCdnDomainOriginMap() (map[string]interface{}, error)
+}
+
+// ToCdnDomainOriginMap assembles a request body based on the contents of a
+// OriginOpts.
+func (opts OriginOpts) ToCdnDomainOriginMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "origin")
+}
+
 // Create implements a CDN domain create request.
 func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult) {
 	reqBody, err := opts.ToCdnDomainCreateMap()
@@ -121,5 +139,29 @@ func Disable(client *golangsdk.ServiceClient, id string, opts *ExtensionOpts) (r
 	}
 
 	_, r.Err = client.Put(url, nil, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
+	return
+}
+
+// Modifying Information About the Origin Server
+func Origin(client *golangsdk.ServiceClient, id string, opts *ExtensionOpts, req OriginOptsBuilder) (r OriginResult) {
+	url := originURL(client, id)
+	if opts != nil {
+		// build url with enterprise_project_id
+		query, err := opts.ToExtensionQuery()
+		if err != nil {
+			r.Err = err
+			return
+		}
+		url += query
+	}
+
+	// build request body
+	reqBody, err := req.ToCdnDomainOriginMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(url, reqBody, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
 	return
 }

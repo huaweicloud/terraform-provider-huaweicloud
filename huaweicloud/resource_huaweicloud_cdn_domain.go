@@ -16,6 +16,7 @@ func resourceCdnDomainV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCdnDomainV1Create,
 		Read:   resourceCdnDomainV1Read,
+		Update: resourceCdnDomainV1Update,
 		Delete: resourceCdnDomainV1Delete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -46,15 +47,15 @@ func resourceCdnDomainV1() *schema.Resource {
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"domain": {
+						"origin": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
+							ForceNew: false,
 						},
-						"domain_type": {
+						"origin_type": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
+							ForceNew: false,
 							ValidateFunc: validation.StringInSlice([]string{
 								"ipaddr", "domain", "obs_bucket",
 							}, true),
@@ -62,7 +63,7 @@ func resourceCdnDomainV1() *schema.Resource {
 						"active": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: true,
+							ForceNew: false,
 							Default:  1,
 						},
 					},
@@ -109,8 +110,8 @@ func getDomainSources(d *schema.ResourceData) []domains.SourcesOpts {
 	for i := range sources {
 		source := sources[i].(map[string]interface{})
 		sourceRequest := domains.SourcesOpts{
-			IporDomain:    source["domain"].(string),
-			OriginType:    source["domain_type"].(string),
+			IporDomain:    source["origin"].(string),
+			OriginType:    source["origin_type"].(string),
 			ActiveStandby: source["active"].(int),
 		}
 		sourceRequests = append(sourceRequests, sourceRequest)
@@ -164,7 +165,7 @@ func waitforCDNV1DomainStatus(c *golangsdk.ServiceClient, waitstatus *WaitDomain
 		Target:     waitstatus.Target,
 		Refresh:    resourceCDNV1DomainRefreshFunc(c, waitstatus.ID, waitstatus.Opts),
 		Timeout:    timeout,
-		Delay:      5 * time.Second,
+		Delay:      10 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
 
@@ -213,13 +214,49 @@ func resourceCdnDomainV1Read(d *schema.ResourceData, meta interface{}) error {
 	sources := make([]map[string]interface{}, len(v.Sources))
 	for i, source := range v.Sources {
 		sources[i] = make(map[string]interface{})
-		sources[i]["domain"] = source.IporDomain
-		sources[i]["domain_type"] = source.OriginType
+		sources[i]["origin"] = source.IporDomain
+		sources[i]["origin_type"] = source.OriginType
 		sources[i]["active"] = source.ActiveStandby
 	}
 	d.Set("sources", sources)
 
 	return nil
+}
+
+func resourceCdnDomainV1Update(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
+	}
+
+	if d.HasChange("sources") {
+		opts := getResourceExtensionOpts(d)
+		updateOpts := &domains.OriginOpts{
+			Sources: getDomainSources(d),
+		}
+
+		if err = domains.Origin(cdnClient, d.Id(), opts, updateOpts).Err; err != nil {
+			return fmt.Errorf("Error updating CDN Domain orgin servers: %s", err)
+		}
+
+		// Wait for CDN domain to become active again before continuing
+		id := d.Id()
+		log.Printf("[INFO] Waiting for CDN domain %s to become online.", id)
+		wait := &WaitDomainStatus{
+			ID:      id,
+			Penging: []string{"configuring"},
+			Target:  []string{"online"},
+			Opts:    getResourceExtensionOpts(d),
+		}
+		timeout := d.Timeout(schema.TimeoutCreate)
+		err = waitforCDNV1DomainStatus(cdnClient, wait, timeout)
+		if err != nil {
+			return fmt.Errorf("Error waiting for CDN domain %s to become online: %s", id, err)
+		}
+	}
+
+	return resourceCdnDomainV1Read(d, meta)
 }
 
 func resourceCdnDomainV1Delete(d *schema.ResourceData, meta interface{}) error {

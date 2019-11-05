@@ -20,8 +20,8 @@ resource "huaweicloud_cdn_domain_v1" "domain_1" {
   type = "web"
 
   sources {
-    domain      = "${var.origin_server}"
-    domain_type = "ipaddr"
+    origin      = "${var.origin_server}"
+    origin_type = "ipaddr"
     active      = 1
   }
 }
@@ -38,7 +38,7 @@ The following arguments are supported:
     Changing this parameter will create a new resource.
 
 * `sources` - (Required) An array of one or more objects specifies the domain name of the origin server.
-    The sources object structure is documented below. Changing this parameter will create a new resource.
+    The sources object structure is documented below.
 
 * `enterprise_project_id` - (Optional) The enterprise project id.
     Changing this parameter will create a new resource.
@@ -46,14 +46,12 @@ The following arguments are supported:
 
 The `sources` block supports:
 
-* `domain` - (Required) The domain name or IP address of the origin server.
-    Changing this parameter will create a new resource.
+* `origin` - (Required) The domain name or IP address of the origin server.
 
-* `domain_type` - (Required) The origin server type. The valid values are 'ipaddr', 'domain', and 'obs_bucket'.
-    Changing this parameter will create a new resource.
+* `origin_type` - (Required) The origin server type. The valid values are 'ipaddr', 'domain', and 'obs_bucket'.
 
 * `active` - (Optional) Whether an origin server is active or standby (1: active; 0: standby).
-    The default value is 1. Changing this parameter will create a new resource.
+    The default value is 1.
 
 ## Attributes Reference
 
@@ -65,9 +63,9 @@ The following attributes are exported:
 
 * `enterprise_project_id` - See Argument Reference above.
 
-* `sources/domain` - See Argument Reference above.
+* `sources/origin` - See Argument Reference above.
 
-* `sources/domain_type` - See Argument Reference above.
+* `sources/origin_type` - See Argument Reference above.
 
 * `sources/active` - See Argument Reference above.
 
