@@ -59,6 +59,11 @@ type CdnDomain struct {
 	ModifyTime time.Time `json:"-"`
 }
 
+type OriginSources struct {
+	// the domain name or the IP address of the origin server
+	Sources []DomainSources `json:"sources"`
+}
+
 type commonResult struct {
 	golangsdk.Result
 }
@@ -136,4 +141,21 @@ type EnableResult struct {
 // DisableResult is the result of a Disable request.
 type DisableResult struct {
 	commonResult
+}
+
+// OriginResult is the result of a origin request. Call its ExtractErr method
+// to determine if the request succeeded or failed.
+type OriginResult struct {
+	commonResult
+}
+
+func (r OriginResult) Extract() (*OriginSources, error) {
+	var origin OriginSources
+	err := r.ExtractInto(&origin)
+
+	return &origin, err
+}
+
+func (r OriginResult) ExtractInto(v interface{}) error {
+	return r.Result.ExtractIntoStructPtr(v, "origin")
 }
