@@ -22,6 +22,7 @@ resource "huaweicloud_cdn_domain_v1" "domain_1" {
   sources {
     domain      = "${var.origin_server}"
     domain_type = "ipaddr"
+    active      = 1
   }
 }
 ```
@@ -51,6 +52,9 @@ The `sources` block supports:
 * `domain_type` - (Required) The origin server type. The valid values are 'ipaddr', 'domain', and 'obs_bucket'.
     Changing this parameter will create a new resource.
 
+* `active` - (Optional) Whether an origin server is active or standby (1: active; 0: standby).
+    The default value is 1. Changing this parameter will create a new resource.
+
 ## Attributes Reference
 
 The following attributes are exported:
@@ -65,7 +69,7 @@ The following attributes are exported:
 
 * `sources/domain_type` - See Argument Reference above.
 
-* `sources/active` - Whether an origin server is active or standby (1: active; 0: standby).
+* `sources/active` - See Argument Reference above.
 
 * `id` - The acceleration domain name ID.
 

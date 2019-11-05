@@ -61,8 +61,9 @@ func resourceCdnDomainV1() *schema.Resource {
 						},
 						"active": {
 							Type:     schema.TypeInt,
-							Computed: true,
-							ForceNew: false,
+							Optional: true,
+							ForceNew: true,
+							Default:  1,
 						},
 					},
 				},
@@ -110,7 +111,7 @@ func getDomainSources(d *schema.ResourceData) []domains.SourcesOpts {
 		sourceRequest := domains.SourcesOpts{
 			IporDomain:    source["domain"].(string),
 			OriginType:    source["domain_type"].(string),
-			ActiveStandby: 1,
+			ActiveStandby: source["active"].(int),
 		}
 		sourceRequests = append(sourceRequests, sourceRequest)
 	}
@@ -259,6 +260,7 @@ func resourceCdnDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error deleting CDN Domain %s: %s", id, err)
 	}
 
+	time.Sleep(3 * time.Second)
 	d.SetId("")
 	return nil
 }
