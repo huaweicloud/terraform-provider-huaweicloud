@@ -87,8 +87,9 @@ resource "huaweicloud_cdn_domain_v1" "domain_1" {
   type   = "web"
   enterprise_project_id = 0
   sources {
-      domain = "100.254.53.75"
-      domain_type  = "ipaddr"
+      active = 1
+      origin = "100.254.53.75"
+      origin_type  = "ipaddr"
   }
 }
 `, OS_CDN_DOMAIN_NAME)

@@ -823,6 +823,11 @@ func ServerV2StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string
 			return nil, "", err
 		}
 
+		// get fault message when status is ERROR
+		if s.Status == "ERROR" {
+			fault := fmt.Errorf("[error code: %d, message: %s]", s.Fault.Code, s.Fault.Message)
+			return s, "ERROR", fault
+		}
 		return s, s.Status, nil
 	}
 }
