@@ -59,6 +59,9 @@ type ProviderClient struct {
 	// ProjectID is the ID of project to which User is authorized.
 	ProjectID string
 
+	// DomainID is the ID of project to which User is authorized.
+	DomainID string
+
 	// EndpointLocator describes how this provider discovers the endpoints for
 	// its constituent services.
 	EndpointLocator EndpointLocator

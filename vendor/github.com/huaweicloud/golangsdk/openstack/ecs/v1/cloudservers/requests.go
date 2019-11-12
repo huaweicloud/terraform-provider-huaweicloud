@@ -182,6 +182,18 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r JobResul
 	return
 }
 
+// CreatePrePaid requests a server to be provisioned to the user in the current tenant.
+func CreatePrePaid(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r OrderResult) {
+	reqBody, err := opts.ToServerCreateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(createURL(client), reqBody, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
+	return
+}
+
 // Get retrieves a particular Server based on its unique ID.
 func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
 	_, r.Err = c.Get(getURL(c, id), &r.Body, &golangsdk.RequestOpts{
@@ -214,5 +226,27 @@ func Delete(client *golangsdk.ServiceClient, opts DeleteOpts) (r JobResult) {
 		return
 	}
 	_, r.Err = client.Post(deleteURL(client), reqBody, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
+	return
+}
+
+type DeleteOrderOpts struct {
+	ResourceIds []string `json:"resourceIds" required:"true"`
+	UnSubType   int      `json:"unSubType" required:"true"`
+}
+
+// ToServerDeleteOrderMap assembles a request body based on the contents of a
+// DeleteOrderOpts.
+func (opts DeleteOrderOpts) ToServerDeleteOrderMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// DeleteOrder requests a server to be deleted to the user in the current tenant.
+func DeleteOrder(client *golangsdk.ServiceClient, opts DeleteOrderOpts) (r DeleteOrderResult) {
+	reqBody, err := opts.ToServerDeleteOrderMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Post(deleteOrderURL(client), reqBody, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
 	return
 }

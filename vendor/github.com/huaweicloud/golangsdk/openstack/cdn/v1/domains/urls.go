@@ -25,3 +25,7 @@ func enableURL(sc *golangsdk.ServiceClient, domainId string) string {
 func disableURL(sc *golangsdk.ServiceClient, domainId string) string {
 	return sc.ServiceURL(rootPath, domainId, "disable")
 }
+
+func originURL(sc *golangsdk.ServiceClient, domainId string) string {
+	return sc.ServiceURL(rootPath, domainId, "origin")
+}
