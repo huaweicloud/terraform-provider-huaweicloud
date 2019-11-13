@@ -1,19 +1,19 @@
-## 1.10.0 (Unreleased)
+## 1.10.0 (November 13, 2019)
 
 FEATURES:
 
-* **New Resource:** `huaweicloud_cdn_domain_v1` [GH-223]
+* **New Resource:** `huaweicloud_cdn_domain_v1` ([#223](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/223))
 
 ENHANCEMENTS:
 
-* resource/huaweicloud_compute_instance_v2: Add volume_attached attribute support [GH-214]
-* resource/huaweicloud_cce_cluster_v3: Add eip parameter support [GH-219]
+* resource/huaweicloud_compute_instance_v2: Add volume_attached attribute support ([#214](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/214))
+* resource/huaweicloud_cce_cluster_v3: Add eip parameter support ([#219](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/219))
 
 BUG FIXES:
 
-* resource/huaweicloud_compute_volume_attach_v2: Fix example issue for attaching volume [GH-221]
-* resource/huaweicloud_compute_instance_v2: Log fault message when build compute instance failed [GH-225]
-* resource/huaweicloud_ecs_instance_v1: Fix PrePaid ECS instance issue [GH-226]
+* resource/huaweicloud_compute_volume_attach_v2: Fix example issue for attaching volume ([#221](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/221))
+* resource/huaweicloud_compute_instance_v2: Log fault message when build compute instance failed ([#225](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/225))
+* resource/huaweicloud_ecs_instance_v1: Fix PrePaid ECS instance issue ([#226](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/226))
 
 ## 1.9.0 (September 30, 2019)
 
