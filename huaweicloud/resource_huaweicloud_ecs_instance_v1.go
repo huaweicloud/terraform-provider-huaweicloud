@@ -244,38 +244,61 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
-	n, err := cloudservers.Create(computeClient, createOpts).ExtractJobResponse()
-	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
+	var instance_id string
+	if d.Get("charging_mode") == "prePaid" {
+		bssV1Client, err := config.BssV1Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud bss V1 client: %s", err)
+		}
+		n, err := cloudservers.CreatePrePaid(computeClient, createOpts).ExtractOrderResponse()
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
+		}
+
+		if err := cloudservers.WaitForOrderSuccess(bssV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.OrderID); err != nil {
+			return err
+		}
+
+		resource, err := cloudservers.GetOrderResource(bssV1Client, n.OrderID)
+		if err != nil {
+			return err
+		}
+		instance_id = resource.(string)
+	} else {
+		n, err := cloudservers.Create(computeClient, createOpts).ExtractJobResponse()
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
+		}
+
+		if err := cloudservers.WaitForJobSuccess(computeV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+			return err
+		}
+
+		entity, err := cloudservers.GetJobEntity(computeV1Client, n.JobID, "server_id")
+		if err != nil {
+			return err
+		}
+		instance_id = entity.(string)
 	}
 
-	if err := cloudservers.WaitForJobSuccess(computeV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
-		return err
-	}
-
-	entity, err := cloudservers.GetJobEntity(computeV1Client, n.JobID, "server_id")
-	if err != nil {
-		return err
-	}
-
-	if id, ok := entity.(string); ok {
-		d.SetId(id)
+	if instance_id != "" {
+		d.SetId(instance_id)
 
 		if hasFilledOpt(d, "tags") {
 			tagmap := d.Get("tags").(map[string]interface{})
 			log.Printf("[DEBUG] Setting tags: %v", tagmap)
-			err = setTagForInstance(d, meta, id, tagmap)
+			err = setTagForInstance(d, meta, instance_id, tagmap)
 			if err != nil {
-				log.Printf("[WARN] Error setting tags of instance:%s, err=%s", id, err)
+				log.Printf("[WARN] Error setting tags of instance:%s, err=%s", instance_id, err)
 			}
 		}
 
 		if hasFilledOpt(d, "auto_recovery") {
 			ar := d.Get("auto_recovery").(bool)
 			log.Printf("[DEBUG] Set auto recovery of instance to %t", ar)
-			err = setAutoRecoveryForInstance(d, meta, id, ar)
+			err = setAutoRecoveryForInstance(d, meta, instance_id, ar)
 			if err != nil {
-				log.Printf("[WARN] Error setting auto recovery of instance:%s, err=%s", id, err)
+				log.Printf("[WARN] Error setting auto recovery of instance:%s, err=%s", instance_id, err)
 			}
 		}
 
@@ -305,12 +328,6 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("key_name", server.KeyName)
 	d.Set("vpc_id", server.Metadata.VpcID)
 	d.Set("availability_zone", server.AvailabilityZone)
-
-	secGrpNames := []string{}
-	for _, sg := range server.SecurityGroups {
-		secGrpNames = append(secGrpNames, sg.Name)
-	}
-	d.Set("security_groups", secGrpNames)
 
 	// Get the instance network and address information
 	nics := flattenInstanceNicsV1(d, meta, server.Addresses)
@@ -489,25 +506,69 @@ func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
-
-	var serverRequests []cloudservers.Server
-	server := cloudservers.Server{
-		Id: d.Id(),
-	}
-	serverRequests = append(serverRequests, server)
-
-	deleteOpts := cloudservers.DeleteOpts{
-		Servers:      serverRequests,
-		DeleteVolume: d.Get("delete_disks_on_termination").(bool),
-	}
-
-	n, err := cloudservers.Delete(computeV1Client, deleteOpts).ExtractJobResponse()
+	computeV2Client, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute V2 client: %s", err)
 	}
 
-	if err := cloudservers.WaitForJobSuccess(computeV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
-		return err
+	if d.Get("charging_mode") == "prePaid" {
+		bssV1Client, err := config.BssV1Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud bss V1 client: %s", err)
+		}
+
+		resourceIds := []string{d.Id()}
+		deleteOrderOpts := cloudservers.DeleteOrderOpts{
+			ResourceIds: resourceIds,
+			UnSubType:   1,
+		}
+		n, err := cloudservers.DeleteOrder(bssV1Client, deleteOrderOpts).ExtractDeleteOrderResponse()
+		if err != nil {
+			return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
+		}
+
+		if err := cloudservers.WaitForOrderDeleteSuccess(bssV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.OrderIDs[0]); err != nil {
+			return err
+		}
+	} else {
+		var serverRequests []cloudservers.Server
+		server := cloudservers.Server{
+			Id: d.Id(),
+		}
+		serverRequests = append(serverRequests, server)
+
+		deleteOpts := cloudservers.DeleteOpts{
+			Servers:      serverRequests,
+			DeleteVolume: d.Get("delete_disks_on_termination").(bool),
+		}
+
+		n, err := cloudservers.Delete(computeV1Client, deleteOpts).ExtractJobResponse()
+		if err != nil {
+			return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
+		}
+
+		if err := cloudservers.WaitForJobSuccess(computeV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+			return err
+		}
+	}
+
+	// Wait for the instance to delete before moving on.
+	log.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"ACTIVE", "SHUTOFF"},
+		Target:     []string{"DELETED", "SOFT_DELETED"},
+		Refresh:    ServerV2StateRefreshFunc(computeV2Client, d.Id()),
+		Timeout:    d.Timeout(schema.TimeoutDelete),
+		Delay:      10 * time.Second,
+		MinTimeout: 3 * time.Second,
+	}
+
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf(
+			"Error waiting for instance (%s) to delete: %s",
+			d.Id(), err)
 	}
 
 	d.SetId("")
