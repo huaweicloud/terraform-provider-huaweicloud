@@ -531,7 +531,7 @@ func (c *Config) loadElasticLoadBalancerClient(region string) (*golangsdk.Servic
 }
 
 func (c *Config) kmsKeyV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewKmsKeyV1(c.HwClient, golangsdk.EndpointOpts{
+	return huaweisdk.NewKMSV1(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getHwEndpointType(),
 	})
