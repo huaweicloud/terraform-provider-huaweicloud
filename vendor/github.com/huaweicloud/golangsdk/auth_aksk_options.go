@@ -23,6 +23,10 @@ type AKSKAuthOptions struct {
 	Domain   string
 	DomainID string
 
+	// cloud service domain for BSS
+	BssDomain   string
+	BssDomainID string
+
 	AccessKey string //Access Key
 	SecretKey string //Secret key
 

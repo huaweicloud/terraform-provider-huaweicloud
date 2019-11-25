@@ -294,6 +294,8 @@ func buildClientByAKSK(c *Config) error {
 		}
 	} else {
 		pao = golangsdk.AKSKAuthOptions{
+			BssDomainID: c.DomainID,
+			BssDomain:   c.DomainName,
 			ProjectName: c.TenantName,
 			ProjectId:   c.TenantID,
 		}
