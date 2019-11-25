@@ -339,8 +339,17 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 		}
 	}
 
+	if options.BssDomainID == "" && options.BssDomain != "" {
+		id, err := getDomainID(options.BssDomain, v3Client)
+		if err != nil {
+			options.BssDomainID = ""
+		} else {
+			options.BssDomainID = id
+		}
+	}
+
 	client.ProjectID = options.ProjectId
-	client.DomainID = options.DomainID
+	client.DomainID = options.BssDomainID
 	v3Client.ProjectID = options.ProjectId
 
 	var entries = make([]tokens3.CatalogEntry, 0, 1)
