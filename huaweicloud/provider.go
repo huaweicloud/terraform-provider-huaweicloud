@@ -204,6 +204,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_rts_stack_resource_v1":     dataSourceRTSStackResourcesV1(),
 			"huaweicloud_iam_role_v3":               dataSourceIAMRoleV3(),
 			"huaweicloud_vpc_v1":                    dataSourceVirtualPrivateCloudVpcV1(),
+			"huaweicloud_vpc_ids_v1":                dataSourceVirtualPrivateCloudVpcIdsV1(),
 			"huaweicloud_vpc_peering_connection_v2": dataSourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_route_v2":              dataSourceVPCRouteV2(),
 			"huaweicloud_vpc_route_ids_v2":          dataSourceVPCRouteIdsV2(),
