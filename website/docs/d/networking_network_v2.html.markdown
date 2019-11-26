@@ -34,8 +34,6 @@ data "huaweicloud_networking_network_v2" "network" {
 
 * `tenant_id` - (Optional) The owner of the network.
 
-* `availability_zone_hints` - (Optional) The availability zone candidates for the network.
-
 
 ## Attributes Reference
 
@@ -47,4 +45,3 @@ are exported:
 * `region` - See Argument Reference above.
 * `shared` - (Optional)  Specifies whether the network resource can be accessed
     by any tenant or not.
-* `availability_zone_hints` - (Optional) The availability zone candidates for the network.

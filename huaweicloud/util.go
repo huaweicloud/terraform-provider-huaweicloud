@@ -146,15 +146,6 @@ func validateSubnetV2IPv6Mode(v interface{}, k string) (ws []string, errors []er
 	return
 }
 
-func resourceNetworkingAvailabilityZoneHintsV2(d *schema.ResourceData) []string {
-	rawAZH := d.Get("availability_zone_hints").([]interface{})
-	azh := make([]string, len(rawAZH))
-	for i, raw := range rawAZH {
-		azh[i] = raw.(string)
-	}
-	return azh
-}
-
 func expandToStringSlice(v []interface{}) []string {
 	s := make([]string, len(v))
 	for i, val := range v {

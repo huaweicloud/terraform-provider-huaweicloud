@@ -55,11 +55,6 @@ func dataSourceNetworkingNetworkV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"availability_zone_hints": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 		},
 	}
 }
@@ -119,10 +114,6 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 	}
 
 	network := refinedNetworks[0]
-
-	if err = d.Set("availability_zone_hints", network.AvailabilityZoneHints); err != nil {
-		log.Printf("[DEBUG] Unable to set availability_zone_hints: %s", err)
-	}
 
 	log.Printf("[DEBUG] Retrieved Network %s: %+v", network.ID, network)
 	d.SetId(network.ID)
