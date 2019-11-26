@@ -78,6 +78,28 @@ func resourceASGroup() *schema.Resource {
 				ValidateFunc: resourceASGroupValidateListenerId,
 				Description:  "The system supports the binding of up to three ELB listeners, the IDs of which are separated using a comma.",
 			},
+			"lbaas_listeners": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"pool_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"protocol_port": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"weight": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  1,
+						},
+					},
+				},
+				ForceNew: false,
+			},
 			"available_zones": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -256,6 +278,24 @@ func getAllSecurityGroups(d *schema.ResourceData, meta interface{}) []Group {
 	return Groups
 }
 
+func getAllLBaaSListeners(d *schema.ResourceData, meta interface{}) []groups.LBaaSListenerOpts {
+	var aslisteners []groups.LBaaSListenerOpts
+
+	listeners := d.Get("lbaas_listeners").([]interface{})
+	for _, v := range listeners {
+		listener := v.(map[string]interface{})
+		s := groups.LBaaSListenerOpts{
+			PoolID:       listener["pool_id"].(string),
+			ProtocolPort: listener["protocol_port"].(int),
+			Weight:       listener["weight"].(int),
+		}
+		aslisteners = append(aslisteners, s)
+	}
+
+	log.Printf("[DEBUG] getAllLBaaSListeners: %#v", aslisteners)
+	return aslisteners
+}
+
 func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string, opts instances.ListOptsBuilder) ([]instances.Instance, error) {
 	var insList []instances.Instance
 	page, err := instances.List(asClient, groupID, opts).AllPages()
@@ -381,6 +421,8 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	secGroups := getAllSecurityGroups(d, meta)
 	asgSecGroups := expandGroups(secGroups)
 
+	asgLBaaSListeners := getAllLBaaSListeners(d, meta)
+
 	log.Printf("[DEBUG] available_zones: %#v", d.Get("available_zones"))
 	createOpts := groups.CreateOpts{
 		Name:                      d.Get("scaling_group_name").(string),
@@ -390,6 +432,7 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 		MaxInstanceNumber:         maxNum,
 		CoolDownTime:              d.Get("cool_down_time").(int),
 		LBListenerID:              d.Get("lb_listener_id").(string),
+		LBaaSListeners:            asgLBaaSListeners,
 		AvailableZones:            getAllAvailableZones(d),
 		Networks:                  asgNetworks,
 		SecurityGroup:             asgSecGroups,
@@ -443,6 +486,7 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Retrieved ASGroup %q availablezones: %+v", d.Id(), asg.AvailableZones)
 	log.Printf("[DEBUG] Retrieved ASGroup %q networks: %+v", d.Id(), asg.Networks)
 	log.Printf("[DEBUG] Retrieved ASGroup %q secgroups: %+v", d.Id(), asg.SecurityGroups)
+	log.Printf("[DEBUG] Retrieved ASGroup %q lbaaslisteners: %+v", d.Id(), asg.LBaaSListeners)
 
 	// set properties based on the read info
 	d.Set("scaling_group_name", asg.Name)
@@ -458,6 +502,16 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("delete_publicip", asg.DeletePublicip)
 	if len(asg.Notifications) >= 1 {
 		d.Set("notifications", asg.Notifications)
+	}
+	if len(asg.LBaaSListeners) >= 1 {
+		listeners := make([]map[string]interface{}, len(asg.LBaaSListeners))
+		for i, listener := range asg.LBaaSListeners {
+			listeners[i] = make(map[string]interface{})
+			listeners[i]["pool_id"] = listener.PoolID
+			listeners[i]["protocol_port"] = listener.ProtocolPort
+			listeners[i]["weight"] = listener.Weight
+		}
+		d.Set("lbaas_listeners", listeners)
 	}
 
 	var opts instances.ListOptsBuilder
@@ -480,7 +534,7 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
 	d.Partial(true)
-	if d.HasChange("min_instance_number") || d.HasChange("max_instance_number") || d.HasChange("desire_instance_number") {
+	if d.HasChange("min_instance_number") || d.HasChange("max_instance_number") || d.HasChange("desire_instance_number") || d.HasChange("lbaas_listeners") {
 		minNum := d.Get("min_instance_number").(int)
 		maxNum := d.Get("max_instance_number").(int)
 		desireNum := d.Get("desire_instance_number").(int)
@@ -498,6 +552,8 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	secGroups := getAllSecurityGroups(d, meta)
 	asgSecGroups := expandGroups(secGroups)
+
+	asgLBaaSListeners := getAllLBaaSListeners(d, meta)
 	updateOpts := groups.UpdateOpts{
 		Name:                      d.Get("scaling_group_name").(string),
 		ConfigurationID:           d.Get("scaling_configuration_id").(string),
@@ -506,6 +562,7 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 		MaxInstanceNumber:         d.Get("max_instance_number").(int),
 		CoolDownTime:              d.Get("cool_down_time").(int),
 		LBListenerID:              d.Get("lb_listener_id").(string),
+		LBaaSListeners:            asgLBaaSListeners,
 		AvailableZones:            getAllAvailableZones(d),
 		Networks:                  asgNetworks,
 		SecurityGroup:             asgSecGroups,
