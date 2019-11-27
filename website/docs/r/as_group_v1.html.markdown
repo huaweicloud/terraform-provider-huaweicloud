@@ -111,6 +111,11 @@ The following arguments are supported:
 * `lb_listener_id` - (Optional) The ELB listener IDs. The system supports up to
     three ELB listeners, the IDs of which are separated using a comma (,).
 
+* `lbaas_listeners` - (Optional) An array of one or more enhanced load balancer.
+    The system supports the binding of up to three load balancers. The field is
+    alternative to lb_listener_id.  The lbaas_listeners object structure is
+	documented below.
+
 * `available_zones` - (Optional) The availability zones in which to create
     the instances in the autoscaling group.
 
@@ -152,6 +157,15 @@ The `networks` block supports:
 The `security_groups` block supports:
 
 * `id` - (Required) The UUID of the security group.
+
+The `lbaas_listeners` block supports:
+
+* `pool_id` - (Required) Specifies the backend ECS group ID.
+* `protocol_port` - (Required) Specifies the backend protocol, which is the port on which
+  a backend ECS listens for traffic. The number of the port ranges from 1 to 65535.
+* `weight` - (Optional) Specifies the weight, which determines the portion of requests a
+  backend ECS processes compared to other backend ECSs added to the same listener. The value
+  of this parameter ranges from 0 to 100. The default value is 1.
 
 ## Attributes Reference
 
