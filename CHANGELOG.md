@@ -1,4 +1,18 @@
 ## 1.11.0 (Unreleased)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_vpc_ids_v1` [GH-233]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_as_group_v1: Add lbaas_listeners to as_group_v1 [GH-238]
+
+BUG FIXES:
+
+* resource/huaweicloud_ecs_instance_v1: Fix ecs instance prepaid issue [GH-231]
+* resource/huaweicloud_kms_key_v1: Fix kms client issue [GH-234]
+
 ## 1.10.0 (November 13, 2019)
 
 FEATURES:
