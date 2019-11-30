@@ -3,7 +3,7 @@ layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_images_image_v2"
 sidebar_current: "docs-huaweicloud-datasource-images-image-v2"
 description: |-
-  Get information on an HuaweiCloud Image.
+  Get information on a HuaweiCloud Image.
 ---
 
 # huaweicloud\_images\_image\_v2
@@ -15,11 +15,8 @@ Use this data source to get the ID of an available HuaweiCloud image.
 ```hcl
 data "huaweicloud_images_image_v2" "ubuntu" {
   name        = "Ubuntu 16.04"
+  visibility  = "public"
   most_recent = true
-
-  properties {
-    key = "value"
-  }
 }
 ```
 
@@ -37,21 +34,20 @@ data "huaweicloud_images_image_v2" "ubuntu" {
 
 * `owner` - (Optional) The owner (UUID) of the image.
 
-* `properties` - (Optional) a map of key/value pairs to match an image with.
-    All specified properties must be matched.
-
 * `size_min` - (Optional) The minimum size (in bytes) of the image to return.
 
 * `size_max` - (Optional) The maximum size (in bytes) of the image to return.
 
 * `sort_direction` - (Optional) Order the results in either `asc` or `desc`.
 
-* `sort_key` - (Optional) Sort images based on a certain key. Defaults to `name`.
+* `sort_key` - (Optional) Sort images based on a certain key. Must be one of
+   "name", "container_format", "disk_format", "status", "id" or "size".
+   Defaults to `name`.
 
 * `tag` - (Optional) Search for images with a specific tag.
 
 * `visibility` - (Optional) The visibility of the image. Must be one of
-   "public", "private", "community", or "shared". Defaults to "private".
+   "public", "private", "community", or "shared". Defaults to `private`.
 
 
 ## Attributes Reference
@@ -64,10 +60,9 @@ are exported:
 * `container_format`: The format of the image's container.
 * `disk_format`: The format of the image's disk.
 * `file` - the trailing path after the glance endpoint that represent the
-location of the image or the path to retrieve it.
+   location of the image or the path to retrieve it.
 * `metadata` - The metadata associated with the image.
-   Image metadata allow for meaningfully define the image properties
-   and tags. See http://docs.huaweicloud.org/developer/glance/metadefs-concepts.html.
+   Image metadata allow for meaningfully define the image properties and tags.
 * `min_disk_gb` - The minimum amount of disk space required to use the image.
 * `min_ram_mb` - The minimum amount of ram required to use the image.
 * `properties` - Freeform information about the image.

@@ -29,9 +29,10 @@ func dataSourceImagesImageV2() *schema.Resource {
 			},
 
 			"visibility": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: dataSourceImagesImageV2Visibility,
 			},
 
 			"owner": {
@@ -53,10 +54,11 @@ func dataSourceImagesImageV2() *schema.Resource {
 			},
 
 			"sort_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "name",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      "name",
+				ValidateFunc: dataSourceImagesImageV2SortKey,
 			},
 
 			"sort_direction": {
@@ -241,11 +243,41 @@ func mostRecentImage(images []images.Image) images.Image {
 	return sortedImages[len(sortedImages)-1]
 }
 
+var sortkeys = [6]string{"name", "container_format", "disk_format", "status", "id", "size"}
+
+func dataSourceImagesImageV2SortKey(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	for _, key := range sortkeys {
+		if value == key {
+			return
+		}
+	}
+
+	err := fmt.Errorf("%s must be one of %s", k, sortkeys)
+	errors = append(errors, err)
+	return
+}
+
 func dataSourceImagesImageV2SortDirection(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if value != "asc" && value != "desc" {
 		err := fmt.Errorf("%s must be either asc or desc", k)
 		errors = append(errors, err)
 	}
+	return
+}
+
+var visibilities = [4]string{"public", "private", "community", "shared"}
+
+func dataSourceImagesImageV2Visibility(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	for _, key := range visibilities {
+		if value == key {
+			return
+		}
+	}
+
+	err := fmt.Errorf("%s must be one of %s", k, visibilities)
+	errors = append(errors, err)
 	return
 }
