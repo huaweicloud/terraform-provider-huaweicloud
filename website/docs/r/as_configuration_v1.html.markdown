@@ -31,6 +31,31 @@ resource "huaweicloud_as_configuration_v1" "my_as_config" {
 }
 ```
 
+### AS Configuration With Encrypted Data Disk
+
+```hcl
+resource "huaweicloud_as_configuration_v1" "my_as_config" {
+  scaling_configuration_name = "my_as_config"
+  instance_config {
+    flavor = "${var.flavor}"
+    image = "${var.image_id}"
+    disk {
+      size = 40
+      volume_type = "SATA"
+      disk_type = "SYS"
+    }
+    disk {
+      size = 100
+      volume_type = "SATA"
+      disk_type = "DATA"
+      kms_id = "${var.kms_id}"
+    }
+    key_name = "${var.keyname}"
+    user_data = "${file("userdata.txt")}"
+  }
+}
+```
+
 ### AS Configuration With User Data and Metadata
 
 ```hcl
@@ -121,6 +146,8 @@ The `disk` block supports:
 
 * `disk_type` - (Required) Whether the disk is a system disk or a data disk. Option `DATA` indicates
     a data disk. option `SYS` indicates a system disk.
+
+* `kms_id` - (Optional) The Encryption KMS ID of the data disk.
 
 The `personality` block supports:
 

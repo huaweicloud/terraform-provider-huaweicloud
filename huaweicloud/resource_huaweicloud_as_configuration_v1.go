@@ -91,6 +91,11 @@ func resourceASConfiguration() *schema.Resource {
 										Required:     true,
 										ValidateFunc: resourceASConfigurationValidateDiskType,
 									},
+									"kms_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
 								},
 							},
 						},
@@ -191,6 +196,13 @@ func getDisk(diskMeta []interface{}) ([]configurations.DiskOpts, error) {
 			Size:       size,
 			VolumeType: volumeType,
 			DiskType:   diskType,
+		}
+		kmsId := disk["kms_id"].(string)
+		if kmsId != "" {
+			m := make(map[string]string)
+			m["__system__cmkid"] = kmsId
+			m["__system__encrypted"] = "1"
+			diskOpts.Metadata = m
 		}
 		diskOptsList = append(diskOptsList, diskOpts)
 	}
