@@ -20,7 +20,7 @@ data "huaweicloud_rds_flavors_v1" "flavor" {
   speccode          = "rds.pg.s1.large"
 }
 
-resource "huaweicloud_compute_secgroup_v2" "secgrp_rds" {
+resource "huaweicloud_networking_secgroup_v2" "secgrp_rds" {
   name        = "secgrp-rds-instance"
   description = "Rds Security Group"
 }
@@ -43,7 +43,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     subnetid = "b65f8d25-c533-47e2-8601-cfaa265a3e3e"
   }
   securitygroup {
-    id = "${huaweicloud_compute_secgroup_v2.secgrp_rds.id}"
+    id = "${huaweicloud_networking_secgroup_v2.secgrp_rds.id}"
   }
   dbport = "8635"
   backupstrategy {
@@ -55,7 +55,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     enable          = true
     replicationmode = "async"
   }
-  depends_on = ["huaweicloud_compute_secgroup_v2.secgrp_rds"]
+  depends_on = ["huaweicloud_networking_secgroup_v2.secgrp_rds"]
 }
 ```
 
@@ -68,7 +68,7 @@ data "huaweicloud_rds_flavors_v1" "flavor" {
   speccode          = "rds.mssql.s1.2xlarge"
 }
 
-resource "huaweicloud_compute_secgroup_v2" "secgrp_rds" {
+resource "huaweicloud_networking_secgroup_v2" "secgrp_rds" {
   name        = "secgrp-rds-instance"
   description = "Rds Security Group"
 }
@@ -91,7 +91,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     subnetid = "b65f8d25-c533-47e2-8601-cfaa265a3e3e"
   }
   securitygroup {
-    id = "${huaweicloud_compute_secgroup_v2.secgrp_rds.id}"
+    id = "${huaweicloud_networking_secgroup_v2.secgrp_rds.id}"
   }
   dbport = "8635"
   backupstrategy {
@@ -99,7 +99,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     keepdays  = 4
   }
   dbrtpd     = "Huangwei!120521"
-  depends_on = ["huaweicloud_compute_secgroup_v2.secgrp_rds"]
+  depends_on = ["huaweicloud_networking_secgroup_v2.secgrp_rds"]
 }
 ```
 
@@ -112,7 +112,7 @@ data "huaweicloud_rds_flavors_v1" "flavor" {
   speccode          = "rds.mysql.s1.medium"
 }
 
-resource "huaweicloud_compute_secgroup_v2" "secgrp_rds" {
+resource "huaweicloud_networking_secgroup_v2" "secgrp_rds" {
   name        = "secgrp-rds-instance"
   description = "Rds Security Group"
 }
@@ -135,7 +135,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     subnetid = "b65f8d25-c533-47e2-8601-cfaa265a3e3e"
   }
   securitygroup {
-    id = "${huaweicloud_compute_secgroup_v2.secgrp_rds.id}"
+    id = "${huaweicloud_networking_secgroup_v2.secgrp_rds.id}"
   }
   dbport = "8635"
   backupstrategy {
@@ -147,7 +147,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     enable          = true
     replicationmode = "async"
   }
-  depends_on = ["huaweicloud_compute_secgroup_v2.secgrp_rds"]
+  depends_on = ["huaweicloud_networking_secgroup_v2.secgrp_rds"]
 }
 ```
 ## Argument Reference
