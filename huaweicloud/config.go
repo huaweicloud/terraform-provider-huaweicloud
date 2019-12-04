@@ -662,6 +662,13 @@ func (c *Config) RdsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	})
 }
 
+func (c *Config) RdsV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.NewRDSV3(c.HwClient, golangsdk.EndpointOpts{
+		Region:       region,
+		Availability: c.getHwEndpointType(),
+	})
+}
+
 func (c *Config) CdnV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return huaweisdk.NewCDNV1(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
