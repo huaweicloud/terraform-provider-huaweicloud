@@ -3,10 +3,15 @@
 FEATURES:
 
 * **New Data Source:** `huaweicloud_vpc_ids_v1` [GH-233]
+* **New Data Source:** `huaweicloud_compute_availability_zones_v2` [GH-240]
+* **New Data Source:** `huaweicloud_rds_flavors_v3` [GH-248]
+* **New Resource:** `huaweicloud_rds_instance_v3` [GH-248]
+* **New Resource:** `huaweicloud_rds_parametergroup_v3` [GH-248]
 
 ENHANCEMENTS:
 
 * resource/huaweicloud_as_group_v1: Add lbaas_listeners to as_group_v1 [GH-238]
+* resource/huaweicloud_as_configuration_v1: Add kms_id to as_configuration_v1 [GH-243]
 
 BUG FIXES:
 
