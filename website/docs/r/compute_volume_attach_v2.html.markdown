@@ -87,6 +87,7 @@ The following attributes are exported:
 * `device` - See Argument Reference above. _NOTE_: The correctness of this
   information is dependent upon the hypervisor in use. In some cases, this
   should not be used as an authoritative piece of information.
+* `pci_address` - PCI address of the block device.
 
 ## Import
 

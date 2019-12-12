@@ -8,6 +8,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach"
+	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/block_devices"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -52,6 +53,11 @@ func resourceComputeVolumeAttachV2() *schema.Resource {
 				Computed:         true,
 				Optional:         true,
 				DiffSuppressFunc: suppressDiffAll,
+			},
+
+			"pci_address": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -132,6 +138,18 @@ func resourceComputeVolumeAttachV2Read(d *schema.ResourceData, meta interface{})
 	d.Set("volume_id", attachment.VolumeID)
 	d.Set("device", attachment.Device)
 	d.Set("region", GetRegion(d, config))
+
+	computeV1Client, err := config.computeV1Client(GetRegion(d, config))
+	if err != nil {
+		log.Printf("[WARN] Error creating HuaweiCloud compute V1 client: %s", err)
+	} else {
+		bd, err := block_devices.Get(computeV1Client, attachment.ServerID, attachment.VolumeID).Extract()
+		if err != nil {
+			log.Printf("[WARN] Error fetching HuaweiCloud block device: %s", err)
+		}
+		log.Printf("[DEBUG] Retrieved volume attachment extra info: %#v", bd)
+		d.Set("pci_address", bd.PciAddress)
+	}
 
 	return nil
 }
