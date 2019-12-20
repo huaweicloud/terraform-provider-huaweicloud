@@ -399,6 +399,12 @@ The `scheduler_hints` block supports:
 * `build_near_host_ip` - (Optional) An IP Address in CIDR form. The instance
     will be placed on a compute node that is in the same subnet.
 
+ * `tenancy` - (Optional) The tenancy specifies whether the ECS is to be created on a Dedicated Host
+     (DeH) or in a shared pool.
+
+ * `deh_id` - (Optional) The ID of DeH. This parameter takes effect only when the value
+     of tenancy is dedicated.
+
 ## Attributes Reference
 
 The following attributes are exported:

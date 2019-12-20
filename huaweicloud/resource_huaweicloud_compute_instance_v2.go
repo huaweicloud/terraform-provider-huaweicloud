@@ -303,6 +303,16 @@ func resourceComputeInstanceV2() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+						"tenancy": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"deh_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
 				Set: resourceComputeSchedulerHintsHash,
@@ -919,6 +929,8 @@ func resourceInstanceSchedulerHintsV2(d *schema.ResourceData, schedulerHintsRaw 
 		Query:           query,
 		TargetCell:      schedulerHintsRaw["target_cell"].(string),
 		BuildNearHostIP: schedulerHintsRaw["build_near_host_ip"].(string),
+		Tenancy:         schedulerHintsRaw["tenancy"].(string),
+		DedicatedHostID: schedulerHintsRaw["deh_id"].(string),
 	}
 
 	return schedulerHints
@@ -1030,6 +1042,14 @@ func resourceComputeSchedulerHintsHash(v interface{}) int {
 
 	if m["build_host_near_ip"] != nil {
 		buf.WriteString(fmt.Sprintf("%s-", m["build_host_near_ip"].(string)))
+	}
+
+	if m["tenancy"] != nil {
+		buf.WriteString(fmt.Sprintf("%s-", m["tenancy"].(string)))
+	}
+
+	if m["deh_id"] != nil {
+		buf.WriteString(fmt.Sprintf("%s-", m["deh_id"].(string)))
 	}
 
 	buf.WriteString(fmt.Sprintf("%s-", m["different_host"].([]interface{})))
