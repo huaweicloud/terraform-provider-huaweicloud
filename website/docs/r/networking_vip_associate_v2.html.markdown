@@ -69,7 +69,7 @@ resource "huaweicloud_compute_instance_v2" "instance_2" {
   security_groups = ["default"]
 
   network {
-    port = "${huaweicloud_networking_port_v2.port_1.id}"
+    port = "${huaweicloud_networking_port_v2.port_2.id}"
   }
 }
 
