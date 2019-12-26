@@ -51,7 +51,7 @@ The following arguments are supported:
 
 * `max_retries` - (Required) Number of permissible ping failures before
     changing the member's status to INACTIVE. Must be a number between 1
-    and 10..
+    and 10.
 
 * `url_path` - (Optional) Required for HTTP(S) types. URI path that will be
     accessed if monitor type is HTTP or HTTPS.

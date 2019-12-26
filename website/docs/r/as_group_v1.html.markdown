@@ -21,11 +21,16 @@ resource "huaweicloud_as_group_v1" "my_as_group" {
   desire_instance_number   = 2
   min_instance_number      = 0
   max_instance_number      = 10
-  networks                 = [{ id = "ad091b52-742f-469e-8f3c-fd81cadf0743" }]
-  security_groups          = [{ id = "45e4c6de-6bf0-4843-8953-2babde3d4810" }]
   vpc_id                   = "1d8f7e7c-fe04-4cf5-85ac-08b478c290e9"
   delete_publicip          = true
   delete_instances         = "yes"
+
+  networks {
+    id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  }
+  security_groups {
+    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
+  }
 }
 ```
 
@@ -38,11 +43,16 @@ resource "huaweicloud_as_group_v1" "my_as_group_only_remove_members" {
   desire_instance_number   = 2
   min_instance_number      = 0
   max_instance_number      = 10
-  networks                 = [{ id = "ad091b52-742f-469e-8f3c-fd81cadf0743" }]
-  security_groups          = [{ id = "45e4c6de-6bf0-4843-8953-2babde3d4810" }]
   vpc_id                   = "1d8f7e7c-fe04-4cf5-85ac-08b478c290e9"
   delete_publicip          = true
   delete_instances         = "no"
+
+  networks {
+    id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  }
+  security_groups {
+    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
+  }
 }
 ```
 
@@ -55,12 +65,17 @@ resource "huaweicloud_as_group_v1" "my_as_group_with_elb" {
   desire_instance_number   = 2
   min_instance_number      = 0
   max_instance_number      = 10
-  networks                 = [{ id = "ad091b52-742f-469e-8f3c-fd81cadf0743" }]
-  security_groups          = [{ id = "45e4c6de-6bf0-4843-8953-2babde3d4810" }]
   vpc_id                   = "1d8f7e7c-fe04-4cf5-85ac-08b478c290e9"
   lb_listener_id           = "${huaweicloud_elb_listener.my_listener.id}"
   delete_publicip          = true
   delete_instances         = "yes"
+
+  networks {
+    id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  }
+  security_groups {
+    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
+  }
 }
 
 resource "huaweicloud_elb_listener" "my_listener" {
@@ -79,6 +94,49 @@ resource "huaweicloud_elb_listener" "my_listener" {
   }
 }
 
+```
+
+### Autoscaling Group With Enhanced Load Balancer Listener
+
+```hcl
+resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
+  name = "loadbalancer_1"
+  vip_subnet_id = "d9415786-5f1a-428b-b35f-2f1523e146d2"
+}
+
+resource "huaweicloud_lb_listener_v2" "listener_1" {
+  name = "listener_1"
+  protocol = "HTTP"
+  protocol_port = 8080
+  loadbalancer_id = "${huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id}"
+}
+
+resource "huaweicloud_lb_pool_v2" "pool_1" {
+  name = "pool_1"
+  protocol    = "HTTP"
+  lb_method   = "ROUND_ROBIN"
+  listener_id = "${huaweicloud_lb_listener_v2.listener_1.id}"
+}
+
+resource "huaweicloud_as_group_v1" "my_as_group_with_enhanced_lb"{
+  scaling_group_name = "my_as_group_with_enhanced_lb"
+  scaling_configuration_id = "37e310f5-db9d-446e-9135-c625f9c2bbfc"
+  desire_instance_number   = 2
+  min_instance_number      = 0
+  max_instance_number      = 10
+  vpc_id                   = "1d8f7e7c-fe04-4cf5-85ac-08b478c290e9"
+
+  networks {
+    id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  }
+  security_groups {
+    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
+  }
+  lbaas_listeners {
+    pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
+    protocol_port = "${huaweicloud_lb_listener_v2.listener_1.protocol_port}"
+  }
+}
 ```
 
 ## Argument Reference
