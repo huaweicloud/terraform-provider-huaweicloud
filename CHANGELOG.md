@@ -1,4 +1,15 @@
 ## 1.12.0 (Unreleased)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_volume_attach_v2: Add pci_address attribute support [GH-251]
+* resource/huaweicloud_compute_instance_v2: Add support for specifying deh host [GH-253]
+
+BUG FIXES:
+
+* resource/huaweicloud_as_group_v1: Fix desire/min/max_instance_number argument issue [GH-250]
+* resource/huaweicloud_as_group_v1: Fix usage docs issue [GH-254]
+
 ## 1.11.0 (December 06, 2019)
 
 FEATURES:
