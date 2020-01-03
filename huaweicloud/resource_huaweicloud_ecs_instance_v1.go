@@ -104,6 +104,10 @@ func resourceEcsInstanceV1() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"port_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -667,6 +671,7 @@ func flattenInstanceNicsV1(
 				"network_id":  network,
 				"ip_address":  addr.Addr,
 				"mac_address": addr.MacAddr,
+				"port_id":     addr.PortID,
 			}
 			nics = append(nics, v)
 		}
