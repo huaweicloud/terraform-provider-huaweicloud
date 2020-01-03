@@ -239,6 +239,7 @@ The following attributes are exported:
 
 * `id` - The ID of the server.
 * `nics/mac_address` - The MAC address of the NIC on that network.
+* `nics/port_id` - The port ID of the NIC on that network.
 
 ## Import
 
