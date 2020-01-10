@@ -208,6 +208,8 @@ The following arguments are supported:
 
 * `tags` - (Optional) Tags key/value pairs to associate with the instance.
 
+* `op_svc_userid` - (Optional) User ID, required when using key_name. Changing this creates a new server.
+
 
 The `nics` block supports:
 
