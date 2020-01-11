@@ -4,6 +4,8 @@ ENHANCEMENTS:
 
 * resource/huaweicloud_compute_volume_attach_v2: Add pci_address attribute support [GH-251]
 * resource/huaweicloud_compute_instance_v2: Add support for specifying deh host [GH-253]
+* resource/huaweicloud_ecs_instance_v1: Add port_id attribute to nics of ecs_instance [GH-258]
+* resource/huaweicloud_ecs_instance_v1: Add op_svc_userid support to ecs_instance [GH-259]
 
 BUG FIXES:
 
