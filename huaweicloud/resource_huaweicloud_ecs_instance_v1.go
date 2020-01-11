@@ -202,6 +202,11 @@ func resourceEcsInstanceV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"op_svc_userid": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -244,6 +249,14 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 	}
 	if extendParam != (cloudservers.ServerExtendParam{}) {
 		createOpts.ExtendParam = &extendParam
+	}
+
+	var metadata cloudservers.MetaData
+	if hasFilledOpt(d, "op_svc_userid") {
+		metadata.OpSvcUserId = d.Get("op_svc_userid").(string)
+	}
+	if metadata != (cloudservers.MetaData{}) {
+		createOpts.MetaData = &metadata
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
