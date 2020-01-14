@@ -1,16 +1,16 @@
-## 1.12.0 (Unreleased)
+## 1.12.0 (January 14, 2020)
 
 ENHANCEMENTS:
 
-* resource/huaweicloud_compute_volume_attach_v2: Add pci_address attribute support [GH-251]
-* resource/huaweicloud_compute_instance_v2: Add support for specifying deh host [GH-253]
-* resource/huaweicloud_ecs_instance_v1: Add port_id attribute to nics of ecs_instance [GH-258]
-* resource/huaweicloud_ecs_instance_v1: Add op_svc_userid support to ecs_instance [GH-259]
+* resource/huaweicloud_compute_volume_attach_v2: Add pci_address attribute support ([#251](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/251))
+* resource/huaweicloud_compute_instance_v2: Add support for specifying deh host ([#253](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/253))
+* resource/huaweicloud_ecs_instance_v1: Add port_id attribute to nics of ecs_instance ([#258](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/258))
+* resource/huaweicloud_ecs_instance_v1: Add op_svc_userid support to ecs_instance ([#259](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/259))
 
 BUG FIXES:
 
-* resource/huaweicloud_as_group_v1: Fix desire/min/max_instance_number argument issue [GH-250]
-* resource/huaweicloud_as_group_v1: Fix usage docs issue [GH-254]
+* resource/huaweicloud_as_group_v1: Fix desire/min/max_instance_number argument issue ([#250](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/250))
+* resource/huaweicloud_as_group_v1: Fix usage docs issue ([#254](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/254))
 
 ## 1.11.0 (December 06, 2019)
 
