@@ -267,6 +267,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_lb_monitor_v2":                      resourceMonitorV2(),
 			"huaweicloud_lb_l7policy_v2":                     resourceL7PolicyV2(),
 			"huaweicloud_lb_l7rule_v2":                       resourceL7RuleV2(),
+			"huaweicloud_lb_whitelist_v2":                    resourceWhitelistV2(),
 			"huaweicloud_mrs_cluster_v1":                     resourceMRSClusterV1(),
 			"huaweicloud_mrs_job_v1":                         resourceMRSJobV1(),
 			"huaweicloud_networking_network_v2":              resourceNetworkingNetworkV2(),
