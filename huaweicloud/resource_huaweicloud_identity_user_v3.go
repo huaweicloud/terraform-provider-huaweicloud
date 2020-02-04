@@ -46,13 +46,18 @@ func resourceIdentityUserV3() *schema.Resource {
 
 			"name": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
 
 			"password": {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Sensitive: true,
+			},
+
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"region": {
@@ -78,6 +83,7 @@ func resourceIdentityUserV3Create(d *schema.ResourceData, meta interface{}) erro
 		DomainID:         d.Get("domain_id").(string),
 		Enabled:          &enabled,
 		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -113,6 +119,7 @@ func resourceIdentityUserV3Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("domain_id", user.DomainID)
 	d.Set("enabled", user.Enabled)
 	d.Set("name", user.Name)
+	d.Set("description", user.Description)
 	d.Set("region", GetRegion(d, config))
 
 	return nil
@@ -147,6 +154,11 @@ func resourceIdentityUserV3Update(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("name") {
 		hasChange = true
 		updateOpts.Name = d.Get("name").(string)
+	}
+
+	if d.HasChange("description") {
+		hasChange = true
+		updateOpts.Description = d.Get("description").(string)
 	}
 
 	if hasChange {
