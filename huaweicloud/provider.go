@@ -290,6 +290,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_rds_parametergroup_v3":              resourceRdsConfigurationV3(),
 			"huaweicloud_nat_gateway_v2":                     resourceNatGatewayV2(),
 			"huaweicloud_nat_snat_rule_v2":                   resourceNatSnatRuleV2(),
+			"huaweicloud_nat_dnat_rule_v2":                   resourceNatDnatRuleV2(),
 			"huaweicloud_sfs_file_system_v2":                 resourceSFSFileSystemV2(),
 			"huaweicloud_rts_stack_v1":                       resourceRTSStackV1(),
 			"huaweicloud_iam_agency_v3":                      resourceIAMAgencyV3(),
