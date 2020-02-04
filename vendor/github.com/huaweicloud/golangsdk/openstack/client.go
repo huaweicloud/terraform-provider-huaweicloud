@@ -561,6 +561,21 @@ func initClientOpts(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts,
 	return sc, nil
 }
 
+// initcommonServiceClient create a ServiceClient which can not get from clientType directly.
+// firstly, we initialize a service client by "volumev2" type, the endpoint likes https://evs.{region}.{xxx.com}/v2/{project_id}
+// then we replace the endpoint with the specified srv and version.
+func initcommonServiceClient(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts, srv string, version string) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "volumev2")
+	if err != nil {
+		return nil, err
+	}
+
+	e := strings.Replace(sc.Endpoint, "v2", version, 1)
+	sc.Endpoint = strings.Replace(e, "evs", srv, 1)
+	sc.ResourceBase = sc.Endpoint
+	return sc, err
+}
+
 // NewObjectStorageV1 creates a ServiceClient that may be used with the v1
 // object storage package.
 func NewObjectStorageV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
@@ -714,6 +729,11 @@ func NewComputeV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (
 
 func NewComputeV11(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "ecsv1.1")
+	return sc, err
+}
+
+func NewEcsV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "ecs")
 	return sc, err
 }
 
@@ -1037,5 +1057,11 @@ func NewCESV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 // NewDDSV3 creates a ServiceClient that may be used to access the DDS service.
 func NewDDSV3(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "ddsv3")
+	return sc, err
+}
+
+// NewLTSV2 creates a ServiceClient that may be used to access the LTS service.
+func NewLTSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initcommonServiceClient(client, eo, "lts", "v2.0")
 	return sc, err
 }

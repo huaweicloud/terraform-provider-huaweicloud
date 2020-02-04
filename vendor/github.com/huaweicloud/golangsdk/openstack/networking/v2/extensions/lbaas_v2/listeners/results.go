@@ -50,6 +50,9 @@ type Listener struct {
 	// A reference to a Barbican container of TLS secrets.
 	DefaultTlsContainerRef string `json:"default_tls_container_ref"`
 
+	// Specifies the security policy used by the listener.
+	TlsCiphersPolicy string `json:"tls_ciphers_policy"`
+
 	// The administrative state of the Listener. A valid value is true (UP) or false (DOWN).
 	AdminStateUp bool `json:"admin_state_up"`
 
