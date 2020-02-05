@@ -20,6 +20,7 @@ data "huaweicloud_s3_bucket_object" "b" {
   bucket = "my-test-bucket"
   key    = "hello-world.zip"
 }
+```
 
 ## Argument Reference
 
