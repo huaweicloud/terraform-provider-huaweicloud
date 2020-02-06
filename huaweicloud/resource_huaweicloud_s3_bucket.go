@@ -353,11 +353,11 @@ func resourceS3BucketUpdate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 	}
 
-	/*
-		if err := setTagsS3(s3conn, d); err != nil {
-			return fmt.Errorf("%q: %s", d.Get("bucket").(string), err)
-		}
-	*/
+	// update tags
+	if err := setTagsS3(s3conn, d); err != nil {
+		return fmt.Errorf("%q: %s", d.Get("bucket").(string), err)
+	}
+
 	if d.HasChange("policy") {
 		if err := resourceS3BucketPolicyUpdate(s3conn, d); err != nil {
 			return err
@@ -778,16 +778,15 @@ func resourceS3BucketRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	/*
-		tagSet, err := getTagSetS3(s3conn, d.Id())
-		if err != nil {
-			return err
-		}
+	// get tags
+	tagSet, err := getTagSetS3(s3conn, d.Id())
+	if err != nil {
+		return err
+	}
 
-		if err := d.Set("tags", tagsToMapS3(tagSet)); err != nil {
-			return err
-		}
-	*/
+	if err := d.Set("tags", tagsToMapS3(tagSet)); err != nil {
+		return err
+	}
 
 	// UNUSED?
 	//d.Set("arn", fmt.Sprintf("arn:%s:s3:::%s", meta.(*Config).partition, d.Id()))
