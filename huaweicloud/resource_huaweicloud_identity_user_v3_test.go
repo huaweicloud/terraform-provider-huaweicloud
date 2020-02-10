@@ -106,6 +106,7 @@ func testAccIdentityV3User_basic(userName string) string {
       name = "%s"
       password = "password123@!"
       enabled = true
+      description = "tested by terraform"
     }  
   `, userName)
 }
@@ -116,6 +117,7 @@ func testAccIdentityV3User_update(userName string) string {
       name = "%s"
       enabled = false
       password = "password123@!"
+      description = "tested by terraform"
     }
   `, userName)
 }

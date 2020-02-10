@@ -2,6 +2,7 @@ package certificates
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 type Certificate struct {
@@ -14,6 +15,23 @@ type Certificate struct {
 	Certificate string `json:"certificate"`
 	CreateTime  string `json:"create_time"`
 	UpdateTime  string `json:"update_time"`
+}
+
+// CertificatePage is the page returned by a pager when traversing over a
+// collection of certificates.
+type CertificatePage struct {
+	pagination.SinglePageBase
+}
+
+// ExtractCertificates accepts a Page struct, specifically a CertificatePage struct,
+// and extracts the elements into a slice of Certificate structs. In other words,
+// a generic collection is mapped into a relevant slice.
+func ExtractCertificates(r pagination.Page) ([]Certificate, error) {
+	var s struct {
+		Certificates []Certificate `json:"certificates"`
+	}
+	err := (r.(CertificatePage)).ExtractInto(&s)
+	return s.Certificates, err
 }
 
 type commonResult struct {

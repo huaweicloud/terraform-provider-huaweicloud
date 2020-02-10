@@ -112,6 +112,9 @@ type CreateOpts struct {
 	// A list of references to TLS secrets.
 	SniContainerRefs []string `json:"sni_container_refs,omitempty"`
 
+	// Specifies the security policy used by the listener.
+	TlsCiphersPolicy string `json:"tls_ciphers_policy,omitempty"`
+
 	// The administrative state of the Listener. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
@@ -167,6 +170,9 @@ type UpdateOpts struct {
 
 	// A list of references to TLS secrets.
 	SniContainerRefs []string `json:"sni_container_refs,omitempty"`
+
+	// Specifies the security policy used by the listener.
+	TlsCiphersPolicy string `json:"tls_ciphers_policy,omitempty"`
 
 	// The administrative state of the Listener. A valid value is true (UP)
 	// or false (DOWN).

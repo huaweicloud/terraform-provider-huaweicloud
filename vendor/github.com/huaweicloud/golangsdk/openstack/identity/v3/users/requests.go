@@ -86,6 +86,9 @@ type CreateOpts struct {
 
 	// Password is the password of the new user.
 	Password string `json:"password,omitempty"`
+
+	// Description is a description of the user.
+	Description string `json:"description,omitempty"`
 }
 
 // ToUserCreateMap formats a CreateOpts into a create request.
@@ -133,6 +136,9 @@ type UpdateOpts struct {
 
 	// Password is the password of the new user.
 	Password string `json:"password,omitempty"`
+
+	// Description is a description of the user.
+	Description string `json:"description,omitempty"`
 }
 
 // ToUserUpdateMap formats a UpdateOpts into an update request.
