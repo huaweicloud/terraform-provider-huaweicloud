@@ -277,6 +277,7 @@ github.com/huaweicloud/golangsdk/openstack/networking/v2/ports
 github.com/huaweicloud/golangsdk/openstack/networking/v2/routes
 github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets
 github.com/huaweicloud/golangsdk/openstack/objectstorage/v1/swauth
+github.com/huaweicloud/golangsdk/openstack/obs
 github.com/huaweicloud/golangsdk/openstack/rds/v1/datastores
 github.com/huaweicloud/golangsdk/openstack/rds/v1/flavors
 github.com/huaweicloud/golangsdk/openstack/rds/v1/instances
