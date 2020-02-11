@@ -72,6 +72,89 @@ func resourceObsBucket() *schema.Resource {
 				},
 			},
 
+			"lifecycle_rule": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"enabled": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+						"prefix": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"expiration": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"days": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+								},
+							},
+						},
+						"transition": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"days": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+									"storage_class": {
+										Type:     schema.TypeString,
+										Required: true,
+										ValidateFunc: validation.StringInSlice([]string{
+											"WARM", "COLD",
+										}, true),
+									},
+								},
+							},
+						},
+						"noncurrent_version_expiration": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"days": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+								},
+							},
+						},
+						"noncurrent_version_transition": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"days": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+									"storage_class": {
+										Type:     schema.TypeString,
+										Required: true,
+										ValidateFunc: validation.StringInSlice([]string{
+											"WARM", "COLD",
+										}, true),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -157,6 +240,12 @@ func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	if d.HasChange("lifecycle_rule") {
+		if err := resourceObsBucketLifecycleUpdate(obsClient, d); err != nil {
+			return err
+		}
+	}
+
 	return resourceObsBucketRead(d, meta)
 }
 
@@ -194,6 +283,11 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	// Read the logging configuration
 	if err := setObsBucketLogging(obsClient, d); err != nil {
+		return err
+	}
+
+	// Read the Lifecycle configuration
+	if err := setObsBucketLifecycleConfiguration(obsClient, d); err != nil {
 		return err
 	}
 
@@ -345,6 +439,102 @@ func resourceObsBucketLoggingUpdate(obsClient *obs.ObsClient, d *schema.Resource
 	return nil
 }
 
+func resourceObsBucketLifecycleUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Get("bucket").(string)
+	lifecycleRules := d.Get("lifecycle_rule").([]interface{})
+
+	if len(lifecycleRules) == 0 {
+		log.Printf("[DEBUG] remove all lifecycle rules of bucket %s", bucket)
+		_, err := obsClient.DeleteBucketLifecycleConfiguration(bucket)
+		if err != nil {
+			return getObsError("Error deleting lifecycle rules of OBS bucket", bucket, err)
+		}
+		return nil
+	}
+
+	rules := make([]obs.LifecycleRule, len(lifecycleRules))
+	for i, lifecycleRule := range lifecycleRules {
+		r := lifecycleRule.(map[string]interface{})
+
+		// rule ID
+		rules[i].ID = r["name"].(string)
+
+		// Enabled
+		if val, ok := r["enabled"].(bool); ok && val {
+			rules[i].Status = obs.RuleStatusEnabled
+		} else {
+			rules[i].Status = obs.RuleStatusDisabled
+		}
+
+		// Prefix
+		rules[i].Prefix = r["prefix"].(string)
+
+		// Expiration
+		expiration := d.Get(fmt.Sprintf("lifecycle_rule.%d.expiration", i)).(*schema.Set).List()
+		if len(expiration) > 0 {
+			raw := expiration[0].(map[string]interface{})
+			exp := &rules[i].Expiration
+
+			if val, ok := raw["days"].(int); ok && val > 0 {
+				exp.Days = val
+			}
+		}
+
+		// Transition
+		transitions := d.Get(fmt.Sprintf("lifecycle_rule.%d.transition", i)).([]interface{})
+		list := make([]obs.Transition, len(transitions))
+		for j, tran := range transitions {
+			raw := tran.(map[string]interface{})
+
+			if val, ok := raw["days"].(int); ok && val > 0 {
+				list[j].Days = val
+			}
+			if val, ok := raw["storage_class"].(string); ok {
+				list[j].StorageClass = obs.StorageClassType(val)
+			}
+		}
+		rules[i].Transitions = list
+
+		// NoncurrentVersionExpiration
+		nc_expiration := d.Get(fmt.Sprintf("lifecycle_rule.%d.noncurrent_version_expiration", i)).(*schema.Set).List()
+		if len(nc_expiration) > 0 {
+			raw := nc_expiration[0].(map[string]interface{})
+			nc_exp := &rules[i].NoncurrentVersionExpiration
+
+			if val, ok := raw["days"].(int); ok && val > 0 {
+				nc_exp.NoncurrentDays = val
+			}
+		}
+
+		// NoncurrentVersionTransition
+		nc_transitions := d.Get(fmt.Sprintf("lifecycle_rule.%d.noncurrent_version_transition", i)).([]interface{})
+		nc_list := make([]obs.NoncurrentVersionTransition, len(nc_transitions))
+		for j, nc_tran := range nc_transitions {
+			raw := nc_tran.(map[string]interface{})
+
+			if val, ok := raw["days"].(int); ok && val > 0 {
+				nc_list[j].NoncurrentDays = val
+			}
+			if val, ok := raw["storage_class"].(string); ok {
+				nc_list[j].StorageClass = obs.StorageClassType(val)
+			}
+		}
+		rules[i].NoncurrentVersionTransitions = nc_list
+	}
+
+	opts := &obs.SetBucketLifecycleConfigurationInput{}
+	opts.Bucket = bucket
+	opts.LifecycleRules = rules
+	log.Printf("[DEBUG] set lifecycle configurations of OBS bucket %s: %#v", bucket, opts)
+
+	_, err := obsClient.SetBucketLifecycleConfiguration(opts)
+	if err != nil {
+		return getObsError("Error setting lifecycle rules of OBS bucket", bucket, err)
+	}
+
+	return nil
+}
+
 func setObsBucketStorageClass(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Id()
 	output, err := obsClient.GetBucketStoragePolicy(bucket)
@@ -353,13 +543,7 @@ func setObsBucketStorageClass(obsClient *obs.ObsClient, d *schema.ResourceData) 
 	}
 
 	class := string(output.StorageClass)
-	// change format of storage class
-	if class == "STANDARD_IA" {
-		class = "WARM"
-	} else if class == "GLACIER" {
-		class = "COLD"
-	}
-	d.Set("storage_class", class)
+	d.Set("storage_class", normalizeStorageClass(class))
 
 	return nil
 }
@@ -406,6 +590,90 @@ func setObsBucketLogging(obsClient *obs.ObsClient, d *schema.ResourceData) error
 	return nil
 }
 
+func setObsBucketLifecycleConfiguration(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Id()
+	output, err := obsClient.GetBucketLifecycleConfiguration(bucket)
+	if err != nil {
+		if obsError, ok := err.(obs.ObsError); ok {
+			if obsError.Code == "NoSuchLifecycleConfiguration" {
+				d.Set("lifecycle_rule", nil)
+				return nil
+			} else {
+				return fmt.Errorf("Error getting lifecycle configuration of OBS bucket %s: %s,\n Reason: %s",
+					bucket, obsError.Code, obsError.Message)
+			}
+		} else {
+			return err
+		}
+	}
+
+	rawRules := output.LifecycleRules
+	log.Printf("[DEBUG] getting lifecycle configuration of OBS bucket: %s, lifecycle: %#v", bucket, rawRules)
+
+	rules := make([]map[string]interface{}, 0, len(rawRules))
+	for _, lifecycleRule := range rawRules {
+		rule := make(map[string]interface{})
+		rule["name"] = lifecycleRule.ID
+
+		// Enabled
+		if lifecycleRule.Status == obs.RuleStatusEnabled {
+			rule["enabled"] = true
+		} else {
+			rule["enabled"] = false
+		}
+
+		if lifecycleRule.Prefix != "" {
+			rule["prefix"] = lifecycleRule.Prefix
+		}
+
+		// expiration
+		if days := lifecycleRule.Expiration.Days; days > 0 {
+			e := make(map[string]interface{})
+			e["days"] = days
+			rule["expiration"] = schema.NewSet(expirationHash, []interface{}{e})
+		}
+		// transition
+		if len(lifecycleRule.Transitions) > 0 {
+			transitions := make([]interface{}, 0, len(lifecycleRule.Transitions))
+			for _, v := range lifecycleRule.Transitions {
+				t := make(map[string]interface{})
+				t["days"] = v.Days
+				t["storage_class"] = normalizeStorageClass(string(v.StorageClass))
+				transitions = append(transitions, t)
+			}
+			rule["transition"] = transitions
+		}
+
+		// noncurrent_version_expiration
+		if days := lifecycleRule.NoncurrentVersionExpiration.NoncurrentDays; days > 0 {
+			e := make(map[string]interface{})
+			e["days"] = days
+			rule["noncurrent_version_expiration"] = schema.NewSet(expirationHash, []interface{}{e})
+		}
+
+		// noncurrent_version_transition
+		if len(lifecycleRule.NoncurrentVersionTransitions) > 0 {
+			transitions := make([]interface{}, 0, len(lifecycleRule.NoncurrentVersionTransitions))
+			for _, v := range lifecycleRule.NoncurrentVersionTransitions {
+				t := make(map[string]interface{})
+				t["days"] = v.NoncurrentDays
+				t["storage_class"] = normalizeStorageClass(string(v.StorageClass))
+				transitions = append(transitions, t)
+			}
+			rule["noncurrent_version_transition"] = transitions
+		}
+
+		rules = append(rules, rule)
+	}
+
+	log.Printf("[DEBUG] saving lifecycle configuration of OBS bucket: %s, lifecycle: %#v", bucket, rules)
+	if err := d.Set("lifecycle_rule", rules); err != nil {
+		return fmt.Errorf("Error saving lifecycle configuration of OBS bucket %s: %s", bucket, err)
+	}
+
+	return nil
+}
+
 func setObsBucketTags(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Id()
 	output, err := obsClient.GetBucketTagging(bucket)
@@ -439,4 +707,16 @@ func getObsError(action string, bucket string, err error) error {
 	} else {
 		return err
 	}
+}
+
+// normalize format of storage class
+func normalizeStorageClass(class string) string {
+	var ret string = class
+
+	if class == "STANDARD_IA" {
+		ret = "WARM"
+	} else if class == "GLACIER" {
+		ret = "COLD"
+	}
+	return ret
 }
