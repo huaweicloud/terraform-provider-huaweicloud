@@ -196,6 +196,40 @@ func resourceObsBucket() *schema.Resource {
 				},
 			},
 
+			"cors_rule": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allowed_origins": {
+							Type:     schema.TypeList,
+							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"allowed_methods": {
+							Type:     schema.TypeList,
+							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"allowed_headers": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"expose_headers": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"max_age_seconds": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  100,
+						},
+					},
+				},
+			},
+
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -293,6 +327,12 @@ func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	if d.HasChange("cors_rule") {
+		if err := resourceObsBucketCorsUpdate(obsClient, d); err != nil {
+			return err
+		}
+	}
+
 	return resourceObsBucketRead(d, meta)
 }
 
@@ -340,6 +380,11 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 
 	// Read the website configuration
 	if err := setObsBucketWebsiteConfiguration(obsClient, d); err != nil {
+		return err
+	}
+
+	// Read the CORS rules
+	if err := setObsBucketCorsRules(obsClient, d); err != nil {
 		return err
 	}
 
@@ -603,6 +648,61 @@ func resourceObsBucketWebsiteUpdate(obsClient *obs.ObsClient, d *schema.Resource
 	} else {
 		return fmt.Errorf("Cannot specify more than one website.")
 	}
+}
+
+func resourceObsBucketCorsUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Get("bucket").(string)
+	rawCors := d.Get("cors_rule").([]interface{})
+
+	if len(rawCors) == 0 {
+		// Delete CORS
+		log.Printf("[DEBUG] delete CORS rules of OBS bucket: %s", bucket)
+		_, err := obsClient.DeleteBucketCors(bucket)
+		if err != nil {
+			return getObsError("Error deleting CORS rules of OBS bucket", bucket, err)
+		}
+		return nil
+	}
+
+	// set CORS
+	rules := make([]obs.CorsRule, 0, len(rawCors))
+	for _, cors := range rawCors {
+		corsMap := cors.(map[string]interface{})
+		r := obs.CorsRule{}
+		for k, v := range corsMap {
+			if k == "max_age_seconds" {
+				r.MaxAgeSeconds = v.(int)
+			} else {
+				vMap := make([]string, len(v.([]interface{})))
+				for i, vv := range v.([]interface{}) {
+					vMap[i] = vv.(string)
+				}
+				switch k {
+				case "allowed_headers":
+					r.AllowedHeader = vMap
+				case "allowed_methods":
+					r.AllowedMethod = vMap
+				case "allowed_origins":
+					r.AllowedOrigin = vMap
+				case "expose_headers":
+					r.ExposeHeader = vMap
+				}
+			}
+		}
+		log.Printf("[DEBUG] set CORS of OBS bucket %s: %#v", bucket, r)
+		rules = append(rules, r)
+	}
+
+	corsInput := &obs.SetBucketCorsInput{}
+	corsInput.Bucket = bucket
+	corsInput.CorsRules = rules
+	log.Printf("[DEBUG] OBS bucket: %s, put CORS: %#v", bucket, corsInput)
+
+	_, err := obsClient.SetBucketCors(corsInput)
+	if err != nil {
+		return getObsError("Error setting CORS rules of OBS bucket", bucket, err)
+	}
+	return nil
 }
 
 func resourceObsBucketWebsitePut(obsClient *obs.ObsClient, d *schema.ResourceData, website map[string]interface{}) error {
@@ -890,6 +990,50 @@ func setObsBucketWebsiteConfiguration(obsClient *obs.ObsClient, d *schema.Resour
 	if err := d.Set("website", websites); err != nil {
 		return fmt.Errorf("Error saving website configuration of OBS bucket %s: %s", bucket, err)
 	}
+	return nil
+}
+
+func setObsBucketCorsRules(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Id()
+	output, err := obsClient.GetBucketCors(bucket)
+	if err != nil {
+		if obsError, ok := err.(obs.ObsError); ok {
+			if obsError.Code == "NoSuchCORSConfiguration" {
+				d.Set("cors_rule", nil)
+				return nil
+			} else {
+				return fmt.Errorf("Error getting CORS configuration of OBS bucket %s: %s,\n Reason: %s",
+					bucket, obsError.Code, obsError.Message)
+			}
+		} else {
+			return err
+		}
+	}
+
+	corsRules := output.CorsRules
+	log.Printf("[DEBUG] getting CORS rules of OBS bucket: %s, CORS: %#v", bucket, corsRules)
+
+	rules := make([]map[string]interface{}, 0, len(corsRules))
+	for _, ruleObject := range corsRules {
+		rule := make(map[string]interface{})
+		rule["allowed_origins"] = ruleObject.AllowedOrigin
+		rule["allowed_methods"] = ruleObject.AllowedMethod
+		rule["max_age_seconds"] = ruleObject.MaxAgeSeconds
+		if ruleObject.AllowedHeader != nil {
+			rule["allowed_headers"] = ruleObject.AllowedHeader
+		}
+		if ruleObject.ExposeHeader != nil {
+			rule["expose_headers"] = ruleObject.ExposeHeader
+		}
+
+		rules = append(rules, rule)
+	}
+
+	log.Printf("[DEBUG] saving CORS rules of OBS bucket: %s, CORS: %#v", bucket, rules)
+	if err := d.Set("cors_rule", rules); err != nil {
+		return fmt.Errorf("Error saving CORS rules of OBS bucket %s: %s", bucket, err)
+	}
+
 	return nil
 }
 
