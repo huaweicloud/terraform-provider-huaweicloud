@@ -1,8 +1,11 @@
 package huaweicloud
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -155,6 +158,44 @@ func resourceObsBucket() *schema.Resource {
 				},
 			},
 
+			"website": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"index_document": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"error_document": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"redirect_all_requests_to": {
+							Type: schema.TypeString,
+							ConflictsWith: []string{
+								"website.0.index_document",
+								"website.0.error_document",
+								"website.0.routing_rules",
+							},
+							Optional: true,
+						},
+
+						"routing_rules": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validateJsonString,
+							StateFunc: func(v interface{}) string {
+								json, _ := normalizeJsonString(v)
+								return json
+							},
+						},
+					},
+				},
+			},
+
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -246,6 +287,12 @@ func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	if d.HasChange("website") {
+		if err := resourceObsBucketWebsiteUpdate(obsClient, d); err != nil {
+			return err
+		}
+	}
+
 	return resourceObsBucketRead(d, meta)
 }
 
@@ -288,6 +335,11 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 
 	// Read the Lifecycle configuration
 	if err := setObsBucketLifecycleConfiguration(obsClient, d); err != nil {
+		return err
+	}
+
+	// Read the website configuration
+	if err := setObsBucketWebsiteConfiguration(obsClient, d); err != nil {
 		return err
 	}
 
@@ -535,6 +587,108 @@ func resourceObsBucketLifecycleUpdate(obsClient *obs.ObsClient, d *schema.Resour
 	return nil
 }
 
+func resourceObsBucketWebsiteUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	ws := d.Get("website").([]interface{})
+
+	if len(ws) == 1 {
+		var w map[string]interface{}
+		if ws[0] != nil {
+			w = ws[0].(map[string]interface{})
+		} else {
+			w = make(map[string]interface{})
+		}
+		return resourceObsBucketWebsitePut(obsClient, d, w)
+	} else if len(ws) == 0 {
+		return resourceObsBucketWebsiteDelete(obsClient, d)
+	} else {
+		return fmt.Errorf("Cannot specify more than one website.")
+	}
+}
+
+func resourceObsBucketWebsitePut(obsClient *obs.ObsClient, d *schema.ResourceData, website map[string]interface{}) error {
+	bucket := d.Get("bucket").(string)
+
+	var indexDocument, errorDocument, redirectAllRequestsTo, routingRules string
+	if v, ok := website["index_document"]; ok {
+		indexDocument = v.(string)
+	}
+	if v, ok := website["error_document"]; ok {
+		errorDocument = v.(string)
+	}
+	if v, ok := website["redirect_all_requests_to"]; ok {
+		redirectAllRequestsTo = v.(string)
+	}
+	if v, ok := website["routing_rules"]; ok {
+		routingRules = v.(string)
+	}
+
+	if indexDocument == "" && redirectAllRequestsTo == "" {
+		return fmt.Errorf("Must specify either index_document or redirect_all_requests_to.")
+	}
+
+	websiteConfiguration := &obs.SetBucketWebsiteConfigurationInput{}
+	websiteConfiguration.Bucket = bucket
+
+	if indexDocument != "" {
+		websiteConfiguration.IndexDocument = obs.IndexDocument{
+			Suffix: indexDocument,
+		}
+	}
+
+	if errorDocument != "" {
+		websiteConfiguration.ErrorDocument = obs.ErrorDocument{
+			Key: errorDocument,
+		}
+	}
+
+	if redirectAllRequestsTo != "" {
+		redirect, err := url.Parse(redirectAllRequestsTo)
+		if err == nil && redirect.Scheme != "" {
+			var redirectHostBuf bytes.Buffer
+			redirectHostBuf.WriteString(redirect.Host)
+			if redirect.Path != "" {
+				redirectHostBuf.WriteString(redirect.Path)
+			}
+			websiteConfiguration.RedirectAllRequestsTo = obs.RedirectAllRequestsTo{
+				HostName: redirectHostBuf.String(),
+				Protocol: obs.ProtocolType(redirect.Scheme),
+			}
+		} else {
+			websiteConfiguration.RedirectAllRequestsTo = obs.RedirectAllRequestsTo{
+				HostName: redirectAllRequestsTo,
+			}
+		}
+	}
+
+	if routingRules != "" {
+		var unmarshaledRules []obs.RoutingRule
+		if err := json.Unmarshal([]byte(routingRules), &unmarshaledRules); err != nil {
+			return err
+		}
+		websiteConfiguration.RoutingRules = unmarshaledRules
+	}
+
+	log.Printf("[DEBUG] set website configuration of OBS bucket %s: %#v", bucket, websiteConfiguration)
+	_, err := obsClient.SetBucketWebsiteConfiguration(websiteConfiguration)
+	if err != nil {
+		return getObsError("Error updating website configuration of OBS bucket", bucket, err)
+	}
+
+	return nil
+}
+
+func resourceObsBucketWebsiteDelete(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Get("bucket").(string)
+
+	log.Printf("[DEBUG] delete website configuration of OBS bucket %s", bucket)
+	_, err := obsClient.DeleteBucketWebsiteConfiguration(bucket)
+	if err != nil {
+		return getObsError("Error deleting website configuration of OBS bucket", bucket, err)
+	}
+
+	return nil
+}
+
 func setObsBucketStorageClass(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Id()
 	output, err := obsClient.GetBucketStoragePolicy(bucket)
@@ -674,6 +828,71 @@ func setObsBucketLifecycleConfiguration(obsClient *obs.ObsClient, d *schema.Reso
 	return nil
 }
 
+func setObsBucketWebsiteConfiguration(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Id()
+	output, err := obsClient.GetBucketWebsiteConfiguration(bucket)
+	if err != nil {
+		if obsError, ok := err.(obs.ObsError); ok {
+			if obsError.Code == "NoSuchWebsiteConfiguration" {
+				d.Set("website", nil)
+				return nil
+			} else {
+				return fmt.Errorf("Error getting website configuration of OBS bucket %s: %s,\n Reason: %s",
+					bucket, obsError.Code, obsError.Message)
+			}
+		} else {
+			return err
+		}
+	}
+
+	log.Printf("[DEBUG] getting website configuration of OBS bucket: %s, output: %#v", bucket, output.BucketWebsiteConfiguration)
+	var websites []map[string]interface{}
+	w := make(map[string]interface{})
+
+	w["index_document"] = output.IndexDocument.Suffix
+	w["error_document"] = output.ErrorDocument.Key
+
+	// redirect_all_requests_to
+	v := output.RedirectAllRequestsTo
+	if string(v.Protocol) == "" {
+		w["redirect_all_requests_to"] = v.HostName
+	} else {
+		var host string
+		var path string
+		parsedHostName, err := url.Parse(v.HostName)
+		if err == nil {
+			host = parsedHostName.Host
+			path = parsedHostName.Path
+		} else {
+			host = v.HostName
+			path = ""
+		}
+
+		w["redirect_all_requests_to"] = (&url.URL{
+			Host:   host,
+			Path:   path,
+			Scheme: string(v.Protocol),
+		}).String()
+	}
+
+	// routing_rules
+	rawRules := output.RoutingRules
+	if len(rawRules) > 0 {
+		rr, err := normalizeWebsiteRoutingRules(rawRules)
+		if err != nil {
+			return fmt.Errorf("Error while marshaling website routing rules: %s", err)
+		}
+		w["routing_rules"] = rr
+	}
+
+	websites = append(websites, w)
+	log.Printf("[DEBUG] saving website configuration of OBS bucket: %s, website: %#v", bucket, websites)
+	if err := d.Set("website", websites); err != nil {
+		return fmt.Errorf("Error saving website configuration of OBS bucket %s: %s", bucket, err)
+	}
+	return nil
+}
+
 func setObsBucketTags(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Id()
 	output, err := obsClient.GetBucketTagging(bucket)
@@ -719,4 +938,65 @@ func normalizeStorageClass(class string) string {
 		ret = "COLD"
 	}
 	return ret
+}
+
+func normalizeWebsiteRoutingRules(w []obs.RoutingRule) (string, error) {
+	// transform []obs.RoutingRule to []WebsiteRoutingRule
+	wrules := make([]WebsiteRoutingRule, 0, len(w))
+	for _, rawRule := range w {
+		rule := WebsiteRoutingRule{
+			Condition: Condition{
+				KeyPrefixEquals:             rawRule.Condition.KeyPrefixEquals,
+				HttpErrorCodeReturnedEquals: rawRule.Condition.HttpErrorCodeReturnedEquals,
+			},
+			Redirect: Redirect{
+				Protocol:             string(rawRule.Redirect.Protocol),
+				HostName:             rawRule.Redirect.HostName,
+				HttpRedirectCode:     rawRule.Redirect.HttpRedirectCode,
+				ReplaceKeyWith:       rawRule.Redirect.ReplaceKeyWith,
+				ReplaceKeyPrefixWith: rawRule.Redirect.ReplaceKeyPrefixWith,
+			},
+		}
+		wrules = append(wrules, rule)
+	}
+
+	// normalize
+	withNulls, err := json.Marshal(wrules)
+	if err != nil {
+		return "", err
+	}
+
+	var rules []map[string]interface{}
+	if err := json.Unmarshal(withNulls, &rules); err != nil {
+		return "", err
+	}
+
+	var cleanRules []map[string]interface{}
+	for _, rule := range rules {
+		cleanRules = append(cleanRules, removeNil(rule))
+	}
+
+	withoutNulls, err := json.Marshal(cleanRules)
+	if err != nil {
+		return "", err
+	}
+
+	return string(withoutNulls), nil
+}
+
+type Condition struct {
+	KeyPrefixEquals             string `json:"KeyPrefixEquals,omitempty"`
+	HttpErrorCodeReturnedEquals string `json:"HttpErrorCodeReturnedEquals,omitempty"`
+}
+
+type Redirect struct {
+	Protocol             string `json:"Protocol,omitempty"`
+	HostName             string `json:"HostName,omitempty"`
+	ReplaceKeyPrefixWith string `json:"ReplaceKeyPrefixWith,omitempty"`
+	ReplaceKeyWith       string `json:"ReplaceKeyWith,omitempty"`
+	HttpRedirectCode     string `json:"HttpRedirectCode,omitempty"`
+}
+type WebsiteRoutingRule struct {
+	Condition Condition `json:"Condition,omitempty"`
+	Redirect  Redirect  `json:"Redirect"`
 }
