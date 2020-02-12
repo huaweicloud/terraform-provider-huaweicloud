@@ -43,7 +43,7 @@ func resourceObsBucket() *schema.Resource {
 				Optional: true,
 				Default:  "private",
 				ValidateFunc: validation.StringInSlice([]string{
-					"private", "public-read", "public-read-write",
+					"private", "public-read", "public-read-write", "log-delivery-write",
 				}, true),
 			},
 
@@ -56,20 +56,16 @@ func resourceObsBucket() *schema.Resource {
 			"logging": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"enabled": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
 						"target_bucket": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"target_prefix": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "logs/",
 						},
 					},
 				},
@@ -356,6 +352,11 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	// for import case
+	if _, ok := d.GetOk("bucket"); !ok {
+		d.Set("bucket", d.Id())
+	}
+
 	d.Set("region", region)
 	d.Set("bucket_domain_name", bucketDomainName(d.Get("bucket").(string), region))
 
@@ -412,7 +413,7 @@ func resourceObsBucketDelete(d *schema.ResourceData, meta interface{}) error {
 			// todo
 			log.Printf("[DEBUG] OBS bucket: %s is not empty", bucket)
 		}
-		return fmt.Errorf("Error deleting OBS bucket: %s %s", err, bucket)
+		return fmt.Errorf("Error deleting OBS bucket: %s %s", bucket, err)
 	}
 	return nil
 }
@@ -507,23 +508,12 @@ func resourceObsBucketLoggingUpdate(obsClient *obs.ObsClient, d *schema.Resource
 
 	if len(rawLogging) > 0 {
 		c := rawLogging[0].(map[string]interface{})
-		enable := false
-
-		if val, ok := c["enabled"]; ok {
-			enable = val.(bool)
+		if val := c["target_bucket"].(string); val != "" {
+			loggingStatus.TargetBucket = val
 		}
-		if enable {
-			targetBucket := bucket
-			if val := c["target_bucket"].(string); val != "" {
-				targetBucket = val
-			}
-			loggingStatus.TargetBucket = targetBucket
 
-			if val := c["target_prefix"].(string); val != "" {
-				loggingStatus.TargetPrefix = val
-			} else {
-				loggingStatus.TargetPrefix = fmt.Sprintf("%s-log/", targetBucket)
-			}
+		if val := c["target_prefix"].(string); val != "" {
+			loggingStatus.TargetPrefix = val
 		}
 	}
 	log.Printf("[DEBUG] set logging of OBS bucket %s: %#v", bucket, loggingStatus)
@@ -827,16 +817,16 @@ func setObsBucketLogging(obsClient *obs.ObsClient, d *schema.ResourceData) error
 
 	lcList := make([]map[string]interface{}, 0, 1)
 	logging := make(map[string]interface{})
+
 	if output.TargetBucket != "" {
-		logging["enabled"] = true
 		logging["target_bucket"] = output.TargetBucket
-	} else {
-		logging["enabled"] = false
+		if output.TargetPrefix != "" {
+			logging["target_prefix"] = output.TargetPrefix
+		}
+		lcList = append(lcList, logging)
 	}
-	if output.TargetPrefix != "" {
-		logging["target_prefix"] = output.TargetPrefix
-	}
-	lcList = append(lcList, logging)
+	log.Printf("[DEBUG] saving logging configuration of OBS bucket: %s: %#v", bucket, lcList)
+
 	if err := d.Set("logging", lcList); err != nil {
 		return fmt.Errorf("Error saving logging configuration of OBS bucket %s: %s", bucket, err)
 	}
