@@ -231,6 +231,12 @@ func resourceObsBucket() *schema.Resource {
 				Optional: true,
 			},
 
+			"force_destroy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -405,13 +411,20 @@ func resourceObsBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	bucket := d.Id()
-	log.Printf("[DEBUG] Obs Delete Bucket: %s", bucket)
+	log.Printf("[DEBUG] deleting OBS Bucket: %s", bucket)
 	_, err = obsClient.DeleteBucket(bucket)
 	if err != nil {
 		obsError, ok := err.(obs.ObsError)
 		if ok && obsError.Code == "BucketNotEmpty" {
-			// todo
-			log.Printf("[DEBUG] OBS bucket: %s is not empty", bucket)
+			log.Printf("[WARN] OBS bucket: %s is not empty", bucket)
+			if d.Get("force_destroy").(bool) {
+				err = deleteAllBucketObjects(obsClient, bucket)
+				if err == nil {
+					log.Printf("[WARN] all objects of %s have been deleted, and try again", bucket)
+					return resourceObsBucketDelete(d, meta)
+				}
+			}
+			return err
 		}
 		return fmt.Errorf("Error deleting OBS bucket: %s %s", bucket, err)
 	}
@@ -1050,6 +1063,37 @@ func setObsBucketTags(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	}
 	if err := d.Set("tags", tagmap); err != nil {
 		return fmt.Errorf("Error saving tags of OBS bucket %s: %s", bucket, err)
+	}
+	return nil
+}
+
+func deleteAllBucketObjects(obsClient *obs.ObsClient, bucket string) error {
+	listOpts := &obs.ListObjectsInput{
+		Bucket: bucket,
+	}
+	// list all objects
+	resp, err := obsClient.ListObjects(listOpts)
+	if err != nil {
+		return getObsError("Error listing objects of OBS bucket", bucket, err)
+	}
+
+	objects := make([]obs.ObjectToDelete, len(resp.Contents))
+	for i, content := range resp.Contents {
+		objects[i].Key = content.Key
+	}
+
+	deleteOpts := &obs.DeleteObjectsInput{
+		Bucket:  bucket,
+		Objects: objects,
+	}
+	log.Printf("[DEBUG] objects of %s will be deleted: %v", bucket, objects)
+	output, err := obsClient.DeleteObjects(deleteOpts)
+	if err != nil {
+		return getObsError("Error deleting all objects of OBS bucket", bucket, err)
+	} else {
+		if len(output.Errors) > 0 {
+			return fmt.Errorf("Error some objects are still exist in %s: %#v", bucket, output.Errors)
+		}
 	}
 	return nil
 }
