@@ -72,6 +72,9 @@ The following arguments are supported:
 
 * `sse_kms_key_id` - (Optional) The ID of the kms key. If omitted, the default master key will be used.
 
+* `etag` - (Optional) Specifies the unique identifier of the object content. It can be used to trigger updates.
+  The only meaningful value is `md5(file("path_to_file"))`.
+
 Either `source` or `content` must be provided to specify the bucket content.
 These two arguments are mutually-exclusive.
 
@@ -80,6 +83,9 @@ These two arguments are mutually-exclusive.
 The following attributes are exported
 
 * `id` - the `key` of the resource supplied above.
+* `etag` - the ETag generated for the object (an MD5 sum of the object content).
+  When the object is encrypted on the server side, the ETag value is not the MD5 value of the object,
+  but the unique identifier calculated through the server-side encryption.
 * `size` - the size of the object in bytes.
 * `version_id` - A unique version ID value for the object, if bucket versioning is enabled.
 

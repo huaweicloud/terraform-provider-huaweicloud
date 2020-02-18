@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -72,6 +73,14 @@ func resourceObsBucketObject() *schema.Resource {
 			"content_type": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+
+			"etag": {
+				Type: schema.TypeString,
+				// This will conflict with server-side-encryption and multi-part upload
+				// if/when it's actually implemented. The Etag then won't match raw-file MD5.
+				Optional: true,
+				Computed: true,
 			},
 
 			"version_id": {
@@ -243,6 +252,8 @@ func resourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("storage_class", normalizeStorageClass(class))
 	}
 	d.Set("size", object.Size)
+	d.Set("etag", strings.Trim(object.ETag, `"`))
+
 	return nil
 }
 
