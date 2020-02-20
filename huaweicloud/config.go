@@ -20,6 +20,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	huaweisdk "github.com/huaweicloud/golangsdk/openstack"
 	"github.com/huaweicloud/golangsdk/openstack/objectstorage/v1/swauth"
+	"github.com/huaweicloud/golangsdk/openstack/obs"
 )
 
 const (
@@ -408,6 +409,31 @@ func (c *Config) computeS3conn(region string) (*s3.S3, error) {
 	s3conn := s3.New(S3Sess)
 
 	return s3conn, err
+}
+
+func (c *Config) newObjectStorageClient(region string) (*obs.ObsClient, error) {
+	if c.AccessKey == "" || c.SecretKey == "" {
+		return nil, fmt.Errorf("Missing credentials for OBS, need access_key and secret_key values for provider.")
+	}
+
+	client, err := huaweisdk.NewOBSService(c.HwClient, golangsdk.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getHwEndpointType(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// init log
+	if os.Getenv("OS_DEBUG") != "" {
+		var logfile = "./.obs-sdk.log"
+		// maxLogSize:10M, backups:10
+		if err = obs.InitLog(logfile, 1024*1024*10, 10, obs.LEVEL_DEBUG, false); err != nil {
+			log.Printf("[WARN] initial obs sdk log failed: %s", err)
+		}
+	}
+
+	return obs.New(c.AccessKey, c.SecretKey, client.Endpoint)
 }
 
 func (c *Config) blockStorageV1Client(region string) (*golangsdk.ServiceClient, error) {

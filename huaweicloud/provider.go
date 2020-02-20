@@ -283,6 +283,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_s3_bucket":                          resourceS3Bucket(),
 			"huaweicloud_s3_bucket_policy":                   resourceS3BucketPolicy(),
 			"huaweicloud_s3_bucket_object":                   resourceS3BucketObject(),
+			"huaweicloud_obs_bucket":                         resourceObsBucket(),
+			"huaweicloud_obs_bucket_object":                  resourceObsBucketObject(),
 			"huaweicloud_smn_topic_v2":                       resourceTopic(),
 			"huaweicloud_smn_subscription_v2":                resourceSubscription(),
 			"huaweicloud_rds_instance_v1":                    resourceRdsInstance(),
