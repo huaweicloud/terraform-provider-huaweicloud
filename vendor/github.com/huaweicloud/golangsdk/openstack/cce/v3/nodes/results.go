@@ -114,9 +114,14 @@ type ExtendParam struct {
 	OrderID string `json:"orderID,omitempty"`
 	// The Product ID.
 	ProductID string `json:"productID,omitempty"`
+	// The Public Key.
 	PublicKey string `json:"publicKey,omitempty"`
 	// The maximum number of instances a node is allowed to create.
 	MaxPods int `json:"maxPods,omitempty"`
+	// Script required before the installation.
+	PreInstall string `json:"alpha.cce/preInstall,omitempty"`
+	// Script required after the installation.
+	PostInstall string `json:"alpha.cce/postInstall,omitempty"`
 }
 
 type PublicIPSpec struct {

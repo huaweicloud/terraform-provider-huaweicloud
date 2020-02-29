@@ -39,6 +39,7 @@ type CreateOpts struct {
 	LogCollection         int             `json:"log_collection,omitempty"`
 	ComponentList         []ComponentOpts `json:"component_list" required:"true"`
 	AddJobs               []JobOpts       `json:"add_jobs,omitempty"`
+	BootstrapScripts      []ScriptOpts    `json:"bootstrap_scripts,omitempty"`
 }
 
 type ComponentOpts struct {
@@ -58,6 +59,16 @@ type JobOpts struct {
 	SubmitJobOnceClusterRun bool   `json:"submit_job_once_cluster_run" required:"true"`
 	Hql                     string `json:"hql,omitempty"`
 	HiveScriptPath          string `json:"hive_script_path" required:"true"`
+}
+
+type ScriptOpts struct {
+	Name                 string   `json:"name" required:"true"`
+	Uri                  string   `json:"uri" required:"true"`
+	Parameters           string   `json:"parameters,omitempty"`
+	Nodes                []string `json:"nodes" required:"true"`
+	ActiveMaster         bool     `json:"active_master,omitempty"`
+	BeforeComponentStart bool     `json:"before_component_start,omitempty"`
+	FailAction           string   `json:"fail_action" required:"true"`
 }
 
 type CreateOptsBuilder interface {
