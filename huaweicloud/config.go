@@ -436,6 +436,13 @@ func (c *Config) newObjectStorageClient(region string) (*obs.ObsClient, error) {
 	return obs.New(c.AccessKey, c.SecretKey, client.Endpoint)
 }
 
+func (c *Config) apiGatewayV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.ApiGateWayV1(c.HwClient, golangsdk.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getHwEndpointType(),
+	})
+}
+
 func (c *Config) blockStorageV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return huaweisdk.NewBlockStorageV1(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
