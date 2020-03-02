@@ -576,6 +576,15 @@ func initcommonServiceClient(client *golangsdk.ProviderClient, eo golangsdk.Endp
 	return sc, err
 }
 
+// TODO: Need to change to apig client type from apig once available
+// ApiGateWayV1 creates a service client that is used for Huawei cloud for API gateway.
+func ApiGateWayV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "apig", 1)
+	sc.ResourceBase = sc.Endpoint + "v1.0/apigw/"
+	return sc, err
+}
+
 // NewObjectStorageV1 creates a ServiceClient that may be used with the v1
 // object storage package.
 func NewObjectStorageV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
@@ -1023,6 +1032,14 @@ func SDRSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golan
 	return sc, err
 }
 
+// TMSV1 creates a ServiceClient that may be used with the v1 TMS service.
+func TMSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = "https://tms.myhuaweicloud.com/v1.0/"
+	sc.ResourceBase = sc.Endpoint
+	return sc, err
+}
+
 // NewSDRSV1 creates a ServiceClient that may be used to access the SDRS service.
 func NewSDRSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "sdrs")
@@ -1063,5 +1080,12 @@ func NewDDSV3(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 // NewLTSV2 creates a ServiceClient that may be used to access the LTS service.
 func NewLTSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc, err := initcommonServiceClient(client, eo, "lts", "v2.0")
+	return sc, err
+}
+
+// NewFGSV2 creates a ServiceClient that may be used with the v2 as
+// package.
+func NewFGSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "fgsv2")
 	return sc, err
 }
