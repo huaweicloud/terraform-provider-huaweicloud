@@ -2,72 +2,41 @@ package huaweicloud
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccHuaweiCloudNetworkingNetworkV2DataSource_basic(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccHuaweiCloudNetworkingNetworkV2DataSource_network,
-			},
-			{
-				Config: testAccHuaweiCloudNetworkingNetworkV2DataSource_basic,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingNetworkV2DataSourceID("data.huaweicloud_networking_network_v2.net"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_networking_network_v2.net", "name", "tf_test_network"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_networking_network_v2.net", "admin_state_up", "true"),
-				),
-			},
-		},
-	})
-}
+func TestAccNetworkingNetworkV2DataSource_basic(t *testing.T) {
+	rand.Seed(time.Now().UTC().UnixNano())
+	network := fmt.Sprintf("acc_test_network-%06x", rand.Int31n(1000000))
+	cidr := fmt.Sprintf("192.168.%d.0/24", rand.Intn(200))
 
-func TestAccHuaweiCloudNetworkingNetworkV2DataSource_subnet(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccHuaweiCloudNetworkingNetworkV2DataSource_network,
-			},
-			{
-				Config: testAccHuaweiCloudNetworkingNetworkV2DataSource_subnet,
+				Config: testAccNetworkingNetworkV2DataSource_basic(network, cidr),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingNetworkV2DataSourceID("data.huaweicloud_networking_network_v2.net"),
+					testAccCheckNetworkingNetworkV2DataSourceID("data.huaweicloud_networking_network_v2.net_by_name"),
+					testAccCheckNetworkingNetworkV2DataSourceID("data.huaweicloud_networking_network_v2.net_by_id"),
+					testAccCheckNetworkingNetworkV2DataSourceID("data.huaweicloud_networking_network_v2.net_by_cidr"),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloud_networking_network_v2.net", "name", "tf_test_network"),
+						"data.huaweicloud_networking_network_v2.net_by_name", "name", network),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloud_networking_network_v2.net", "admin_state_up", "true"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccHuaweiCloudNetworkingNetworkV2DataSource_networkID(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccHuaweiCloudNetworkingNetworkV2DataSource_network,
-			},
-			{
-				Config: testAccHuaweiCloudNetworkingNetworkV2DataSource_networkID,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingNetworkV2DataSourceID("data.huaweicloud_networking_network_v2.net"),
+						"data.huaweicloud_networking_network_v2.net_by_id", "name", network),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloud_networking_network_v2.net", "name", "tf_test_network"),
+						"data.huaweicloud_networking_network_v2.net_by_cidr", "name", network),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloud_networking_network_v2.net", "admin_state_up", "true"),
+						"data.huaweicloud_networking_network_v2.net_by_name", "admin_state_up", "true"),
+					resource.TestCheckResourceAttr(
+						"data.huaweicloud_networking_network_v2.net_by_id", "admin_state_up", "true"),
+					resource.TestCheckResourceAttr(
+						"data.huaweicloud_networking_network_v2.net_by_cidr", "matching_subnet_cidr", cidr),
 				),
 			},
 		},
@@ -89,40 +58,30 @@ func testAccCheckNetworkingNetworkV2DataSourceID(n string) resource.TestCheckFun
 	}
 }
 
-const testAccHuaweiCloudNetworkingNetworkV2DataSource_network = `
+func testAccNetworkingNetworkV2DataSource_basic(name, cidr string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "net" {
-        name = "tf_test_network"
-        admin_state_up = "true"
+  name = "%s"
+  admin_state_up = "true"
 }
 
 resource "huaweicloud_networking_subnet_v2" "subnet" {
-  name = "tf_test_subnet"
-  cidr = "192.168.199.0/24"
+  name = "huaweicloud_test_subnet"
+  cidr = "%s"
   no_gateway = true
-  network_id = "${huaweicloud_networking_network_v2.net.id}"
+  network_id = huaweicloud_networking_network_v2.net.id
 }
-`
 
-var testAccHuaweiCloudNetworkingNetworkV2DataSource_basic = fmt.Sprintf(`
-%s
-
-data "huaweicloud_networking_network_v2" "net" {
-	name = "${huaweicloud_networking_network_v2.net.name}"
+data "huaweicloud_networking_network_v2" "net_by_name" {
+	name = huaweicloud_networking_network_v2.net.name
 }
-`, testAccHuaweiCloudNetworkingNetworkV2DataSource_network)
 
-var testAccHuaweiCloudNetworkingNetworkV2DataSource_subnet = fmt.Sprintf(`
-%s
-
-data "huaweicloud_networking_network_v2" "net" {
-	matching_subnet_cidr = "${huaweicloud_networking_subnet_v2.subnet.cidr}"
+data "huaweicloud_networking_network_v2" "net_by_id" {
+	network_id = huaweicloud_networking_network_v2.net.id
 }
-`, testAccHuaweiCloudNetworkingNetworkV2DataSource_network)
 
-var testAccHuaweiCloudNetworkingNetworkV2DataSource_networkID = fmt.Sprintf(`
-%s
-
-data "huaweicloud_networking_network_v2" "net" {
-	network_id = "${huaweicloud_networking_network_v2.net.id}"
+data "huaweicloud_networking_network_v2" "net_by_cidr" {
+	matching_subnet_cidr = huaweicloud_networking_subnet_v2.subnet.cidr
 }
-`, testAccHuaweiCloudNetworkingNetworkV2DataSource_network)
+`, name, cidr)
+}

@@ -1,6 +1,9 @@
 package huaweicloud
 
 import (
+	"crypto/sha1"
+	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"time"
@@ -201,6 +204,32 @@ func resourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"preinstall": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				StateFunc: func(v interface{}) string {
+					switch v.(type) {
+					case string:
+						return installScriptHashSum(v.(string))
+					default:
+						return ""
+					}
+				},
+			},
+			"postinstall": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				StateFunc: func(v interface{}) string {
+					switch v.(type) {
+					case string:
+						return installScriptHashSum(v.(string))
+					default:
+						return ""
+					}
+				},
+			},
 			"private_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -283,6 +312,14 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node: key_pair or password must be set")
 	}
 
+	var base64PreInstall, base64PostInstall string
+	if v, ok := d.GetOk("preinstall"); ok {
+		base64PreInstall = installScriptEncode(v.(string))
+	}
+	if v, ok := d.GetOk("postinstall"); ok {
+		base64PostInstall = installScriptEncode(v.(string))
+	}
+
 	createOpts := nodes.CreateOpts{
 		Kind:       "Node",
 		ApiVersion: "v3",
@@ -319,6 +356,8 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 				OrderID:            d.Get("order_id").(string),
 				ProductID:          d.Get("product_id").(string),
 				PublicKey:          d.Get("public_key").(string),
+				PreInstall:         base64PreInstall,
+				PostInstall:        base64PostInstall,
 			},
 		},
 	}
@@ -333,6 +372,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	}
 	_, err = stateCluster.WaitForState()
 
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	s, err := nodes.Create(nodeClient, clusterid, createOpts).Extract()
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault403); ok {
@@ -400,8 +440,6 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("name", s.Metadata.Name)
-	d.Set("labels", s.Metadata.Labels)
-	d.Set("annotations", s.Metadata.Annotations)
 	d.Set("flavor_id", s.Spec.Flavor)
 	d.Set("availability_zone", s.Spec.Az)
 	d.Set("os", s.Spec.Os)
@@ -413,6 +451,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("max_pods", s.Spec.ExtendParam.MaxPods)
 	d.Set("ecs_performance_type", s.Spec.ExtendParam.EcsPerformanceType)
 	d.Set("key_pair", s.Spec.Login.SshKey)
+
 	var volumes []map[string]interface{}
 	for _, pairObject := range s.Spec.DataVolumes {
 		volume := make(map[string]interface{})
@@ -566,4 +605,24 @@ func recursiveCreate(cceClient *golangsdk.ServiceClient, opts nodes.CreateOptsBu
 		}
 	}
 	return nil, "fail"
+}
+
+func installScriptHashSum(script string) string {
+	// Check whether the preinstall/postinstall is not Base64 encoded.
+	// Always calculate hash of base64 decoded value since we
+	// check against double-encoding when setting it
+	v, base64DecodeError := base64.StdEncoding.DecodeString(script)
+	if base64DecodeError != nil {
+		v = []byte(script)
+	}
+
+	hash := sha1.Sum(v)
+	return hex.EncodeToString(hash[:])
+}
+
+func installScriptEncode(script string) string {
+	if _, err := base64.StdEncoding.DecodeString(script); err != nil {
+		return base64.StdEncoding.EncodeToString([]byte(script))
+	}
+	return script
 }
