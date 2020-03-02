@@ -89,6 +89,12 @@ If the eip_ids parameter is configured, you do not need to configure the eip_cou
 
 * `public_key` - (Optional) The Public key. Changing this parameter will create a new cluster resource.
 
+* `preinstall` - (Optional) Script required before installation. The input value can be a Base64 encoded string or not.
+    Changing this parameter will create a new resource.
+
+* `postinstall` - (Optional) Script required after installation. The input value can be a Base64 encoded string or not.
+   Changing this parameter will create a new resource.
+
 **root_volume** **- (Required)** It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
 
 * `size` - (Required) Disk size in GB.
