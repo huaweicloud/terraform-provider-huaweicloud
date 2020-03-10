@@ -1,4 +1,20 @@
-## 1.12.1 (Unreleased)
+## 1.13.0 (Unreleased)
+
+FEATURES:
+
+* **New Resource:** `huaweicloud_lb_whitelist_v2` [GH-261]
+* **New Resource:** `huaweicloud_nat_dnat_rule_v2` [GH-265]
+* **New Resource:** `huaweicloud_obs_bucket` [GH-268]
+* **New Resource:** `huaweicloud_api_gateway_group` [GH-270]
+* **New Resource:** `huaweicloud_api_gateway_api` [GH-270]
+* **New Resource:** `huaweicloud_fgs_function_v2` [GH-271]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_identity_user_v3: Add description parameter support [GH-266]
+* resource/huaweicloud_s3_bucket: Add tags support [GH-267]
+* resource/huaweicloud_cce_node_v3: Add preinstall/postinstall script support [GH-269]
+
 ## 1.12.0 (January 14, 2020)
 
 ENHANCEMENTS:
