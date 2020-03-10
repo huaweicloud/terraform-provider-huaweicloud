@@ -1,19 +1,19 @@
-## 1.13.0 (Unreleased)
+## 1.13.0 (March 10, 2020)
 
 FEATURES:
 
-* **New Resource:** `huaweicloud_lb_whitelist_v2` [GH-261]
-* **New Resource:** `huaweicloud_nat_dnat_rule_v2` [GH-265]
-* **New Resource:** `huaweicloud_obs_bucket` [GH-268]
-* **New Resource:** `huaweicloud_api_gateway_group` [GH-270]
-* **New Resource:** `huaweicloud_api_gateway_api` [GH-270]
-* **New Resource:** `huaweicloud_fgs_function_v2` [GH-271]
+* **New Resource:** `huaweicloud_lb_whitelist_v2` ([#261](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/261))
+* **New Resource:** `huaweicloud_nat_dnat_rule_v2` ([#265](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/265))
+* **New Resource:** `huaweicloud_obs_bucket` ([#268](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/268))
+* **New Resource:** `huaweicloud_api_gateway_group` ([#270](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/270))
+* **New Resource:** `huaweicloud_api_gateway_api` ([#270](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/270))
+* **New Resource:** `huaweicloud_fgs_function_v2` ([#271](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/271))
 
 ENHANCEMENTS:
 
-* resource/huaweicloud_identity_user_v3: Add description parameter support [GH-266]
-* resource/huaweicloud_s3_bucket: Add tags support [GH-267]
-* resource/huaweicloud_cce_node_v3: Add preinstall/postinstall script support [GH-269]
+* resource/huaweicloud_identity_user_v3: Add description parameter support ([#266](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/266))
+* resource/huaweicloud_s3_bucket: Add tags support ([#267](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/267))
+* resource/huaweicloud_cce_node_v3: Add preinstall/postinstall script support ([#269](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/269))
 
 ## 1.12.0 (January 14, 2020)
 
