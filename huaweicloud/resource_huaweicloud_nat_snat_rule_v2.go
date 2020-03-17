@@ -41,9 +41,10 @@ func resourceNatSnatRuleV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"floating_ip_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: suppressSnatFiplistDiffs,
 			},
 		},
 	}
