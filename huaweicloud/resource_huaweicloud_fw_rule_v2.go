@@ -8,6 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 func resourceFWRuleV2() *schema.Resource {
@@ -236,14 +237,42 @@ func resourceFWRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	if rule.PolicyID != "" {
-		_, err := policies.RemoveRule(fwClient, rule.PolicyID, rule.ID).Extract()
+	policyID, err := assignedPolicyID(fwClient, rule.ID)
+	if err != nil {
+		return err
+	}
+	if policyID != "" {
+		_, err := policies.RemoveRule(fwClient, policyID, rule.ID).Extract()
 		if err != nil {
 			return err
 		}
 	}
 
 	return rules.Delete(fwClient, d.Id()).Err
+}
+
+func assignedPolicyID(fwClient *golangsdk.ServiceClient, ruleID string) (string, error) {
+	pager := policies.List(fwClient, policies.ListOpts{})
+	policyID := ""
+	err := pager.EachPage(func(page pagination.Page) (b bool, err error) {
+		policyList, err := policies.ExtractPolicies(page)
+		if err != nil {
+			return false, err
+		}
+		for _, policy := range policyList {
+			for _, rule := range policy.Rules {
+				if rule == ruleID {
+					policyID = policy.ID
+					return false, nil
+				}
+			}
+		}
+		return true, nil
+	})
+	if err != nil {
+		return "", err
+	}
+	return policyID, nil
 }
 
 func resourceFWRuleV2DetermineIPVersion(ipv int) golangsdk.IPVersion {
