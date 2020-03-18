@@ -336,6 +336,10 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return CheckDeleted(d, err, "server")
 	}
+	if server.Status == "DELETED" {
+		d.SetId("")
+		return nil
+	}
 
 	log.Printf("[DEBUG] Retrieved Server %s: %+v", d.Id(), server)
 
