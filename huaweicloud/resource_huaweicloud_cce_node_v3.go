@@ -230,6 +230,11 @@ func resourceCCENodeV3() *schema.Resource {
 					}
 				},
 			},
+			"subnet_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"private_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -349,6 +354,11 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 			},
 			BillingMode: d.Get("billing_mode").(int),
 			Count:       1,
+			NodeNicSpec: nodes.NodeNicSpec{
+				PrimaryNic: nodes.PrimaryNic{
+					SubnetId: d.Get("subnet_id").(string),
+				},
+			},
 			ExtendParam: nodes.ExtendParam{
 				ChargingMode:       d.Get("extend_param_charging_mode").(int),
 				EcsPerformanceType: d.Get("ecs_performance_type").(string),

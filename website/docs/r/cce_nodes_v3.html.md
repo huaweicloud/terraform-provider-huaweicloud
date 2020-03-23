@@ -95,6 +95,8 @@ If the eip_ids parameter is configured, you do not need to configure the eip_cou
 * `postinstall` - (Optional) Script required after installation. The input value can be a Base64 encoded string or not.
    Changing this parameter will create a new resource.
 
+* `subnet_id` - (Optional) The ID of the subnet to which the NIC belongs. Changing this parameter will create a new resource.
+
 **root_volume** **- (Required)** It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
 
 * `size` - (Required) Disk size in GB.
