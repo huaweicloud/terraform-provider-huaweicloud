@@ -829,6 +829,15 @@ func NewMapReduceV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts)
 	return sc, err
 }
 
+// AntiDDoSV1 creates a ServiceClient that may be used with the v1 Anti DDoS service.
+func AntiDDoSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "antiddos", 1)
+	sc.Endpoint = sc.Endpoint + "v1/"
+	sc.ResourceBase = sc.Endpoint + client.ProjectID + "/"
+	return sc, err
+}
+
 // NewAntiDDoSV1 creates a ServiceClient that may be used with the v1 Anti DDoS Service
 // package.
 func NewAntiDDoSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
@@ -1028,6 +1037,15 @@ func SDRSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golan
 	sc, err := initClientOpts(client, eo, "network")
 	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "sdrs", 1)
 	sc.Endpoint = sc.Endpoint + "v1/" + client.ProjectID + "/"
+	sc.ResourceBase = sc.Endpoint
+	return sc, err
+}
+
+// CCIV1 creates a ServiceClient that may be used with the v1 CCI service.
+func CCIV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "cci", 1)
+	sc.Endpoint = sc.Endpoint + "apis/networking.cci.io/v1beta1/"
 	sc.ResourceBase = sc.Endpoint
 	return sc, err
 }

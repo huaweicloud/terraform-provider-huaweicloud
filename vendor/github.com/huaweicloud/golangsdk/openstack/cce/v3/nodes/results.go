@@ -60,8 +60,22 @@ type Spec struct {
 	BillingMode int `json:"billingMode,omitempty"`
 	// Number of nodes when creating in batch
 	Count int `json:"count" required:"true"`
+	// The node nic spec
+	NodeNicSpec NodeNicSpec `json:"nodeNicSpec,omitempty"`
 	// Extended parameter
 	ExtendParam ExtendParam `json:"extendParam,omitempty"`
+}
+
+// Gives the Nic spec of the node
+type NodeNicSpec struct {
+	// The primary Nic of the Node
+	PrimaryNic PrimaryNic `json:"primaryNic,omitempty"`
+}
+
+// Gives the Primary Nic of the node
+type PrimaryNic struct {
+	// The Subnet ID of the primary Nic
+	SubnetId string `json:"subnetId,omitempty"`
 }
 
 // Gives the current status of the node
