@@ -114,6 +114,11 @@ func resourceCCEClusterV3() *schema.Resource {
 				ForceNew: true,
 				Default:  "x509",
 			},
+			"authenticating_proxy_ca": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"multi_az": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -209,6 +214,10 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
 
+	authenticating_proxy := make(map[string]string)
+	if hasFilledOpt(d, "authenticating_proxy_ca") {
+		authenticating_proxy["ca"] = d.Get("authenticating_proxy_ca").(string)
+	}
 	createOpts := clusters.CreateOpts{
 		Kind:       "Cluster",
 		ApiVersion: "v3",
@@ -226,7 +235,7 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 			ContainerNetwork: clusters.ContainerNetworkSpec{Mode: d.Get("container_network_type").(string),
 				Cidr: d.Get("container_network_cidr").(string)},
 			Authentication: clusters.AuthenticationSpec{Mode: d.Get("authentication_mode").(string),
-				AuthenticatingProxy: make(map[string]string)},
+				AuthenticatingProxy: authenticating_proxy},
 			BillingMode: d.Get("billing_mode").(int),
 			ExtendParam: resourceClusterExtendParamV3(d),
 		},
