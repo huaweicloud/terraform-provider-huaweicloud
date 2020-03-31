@@ -58,9 +58,11 @@ The following arguments are supported:
 * `os` - (Optional) Operating System of the node, possible values are EulerOS 2.2 and CentOS 7.1. Defaults to EulerOS 2.2.
     Changing this parameter will create a new resource.
 
-* `key_pair` - (Optional) Key pair name when logging in to select the key pair mode. Changing this parameter will create a new resource.
+* `key_pair` - (Optional) Key pair name when logging in to select the key pair mode. This parameter and `password` are alternative.
+    Changing this parameter will create a new resource.
 
-* `password` - (Optional) root password when logging in to select the password mode. Changing this parameter will create a new resource.
+* `password` - (Optional) root password when logging in to select the password mode. This parameter must be salted and alternative to `key_pair`.
+    Changing this parameter will create a new resource.
 
 * `eip_ids` - (Optional) List of existing elastic IP IDs. Changing this parameter will create a new resource.
 
