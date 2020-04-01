@@ -7,9 +7,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/hw_snatrules"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/routers"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/snatrules"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
 )
@@ -53,7 +53,7 @@ func testAccCheckNatV2SnatRuleDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := snatrules.Get(natClient, rs.Primary.ID).Extract()
+		_, err := hw_snatrules.Get(natClient, rs.Primary.ID).Extract()
 		if err == nil {
 			return fmt.Errorf("Snat rule still exists")
 		}
@@ -79,7 +79,7 @@ func testAccCheckNatV2SnatRuleExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 		}
 
-		found, err := snatrules.Get(natClient, rs.Primary.ID).Extract()
+		found, err := hw_snatrules.Get(natClient, rs.Primary.ID).Extract()
 		if err != nil {
 			return err
 		}
