@@ -14,28 +14,26 @@ Manages a V2 topic resource within HuaweiCloud.
 
 ```hcl
 resource "huaweicloud_ces_alarmrule" "alarm_rule" {
-  "alarm_name" = "alarm_rule"
-  "metric" {
-    "namespace" = "SYS.ECS"
-    "metric_name" = "network_outgoing_bytes_rate_inband"
-    "dimensions" {
-        "name" = "instance_id"
-        "value" = "${huaweicloud_compute_instance_v2.webserver.id}"
+  alarm_name = "alarm_rule"
+  metric {
+    namespace = "SYS.ECS"
+    metric_name = "network_outgoing_bytes_rate_inband"
+    dimensions {
+      name = "instance_id"
+      value = var.webserver_instance_id
     }
   }
-  "condition"  {
-    "period" = 300
-    "filter" = "average"
-    "comparison_operator" = ">"
-    "value" = 6
-    "unit" = "B/s"
-    "count" = 1
+  condition  {
+    period = 300
+    filter = "average"
+    comparison_operator = ">"
+    value = 6
+    unit = "B/s"
+    count = 1
   }
-  "alarm_actions" {
-    "type" = "notification"
-    "notification_list" = [
-      "${huaweicloud_smn_topic_v2.topic.id}"
-    ]
+  alarm_actions {
+    type = "notification"
+    notification_list = [var.smn_topic_id]
   }
 }
 ```

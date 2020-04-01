@@ -12,16 +12,21 @@ Provides an VBS Backup resource.
  
 # Example Usage
 
- ```hcl
+```hcl
 variable "backup_name" {}
 
-variable "volume_id" {}
+resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
+  name        = "volume_1"
+  description = "test volume"
+  size        = 40
+  cascade     = true
+}
 
 resource "huaweicloud_vbs_backup_v2" "mybackup" {
-  volume_id = "${var.volume_id}"
-  name      = "${var.backup_name}"
+  volume_id = huaweicloud_blockstorage_volume_v2.volume_1.id
+  name      = var.backup_name
 }
- ```
+```
 
 # Argument Reference
 
