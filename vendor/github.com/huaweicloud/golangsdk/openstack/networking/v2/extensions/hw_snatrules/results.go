@@ -1,4 +1,4 @@
-package snatrules
+package hw_snatrules
 
 import (
 	"github.com/huaweicloud/golangsdk"
@@ -15,7 +15,7 @@ type SnatRule struct {
 	Status            string `json:"status"`
 	AdminStateUp      bool   `json:"admin_state_up"`
 	Cidr              string `json:"cidr"`
-	SourceType        string `json:"source_type"`
+	SourceType        int    `json:"source_type"`
 }
 
 // GetResult is a return struct of get method

@@ -1,4 +1,4 @@
-package snatrules
+package hw_snatrules
 
 import "github.com/huaweicloud/golangsdk"
 

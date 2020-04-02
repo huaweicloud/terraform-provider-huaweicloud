@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/huaweicloud/golangsdk"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/snatrules"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/hw_snatrules"
 )
 
 func resourceNatSnatRuleV2() *schema.Resource {
@@ -57,14 +57,14 @@ func resourceNatSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
-	createOpts := &snatrules.CreateOpts{
+	createOpts := &hw_snatrules.CreateOpts{
 		NatGatewayID: d.Get("nat_gateway_id").(string),
 		NetworkID:    d.Get("network_id").(string),
 		FloatingIPID: d.Get("floating_ip_id").(string),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	snatRule, err := snatrules.Create(natV2Client, createOpts).Extract()
+	snatRule, err := hw_snatrules.Create(natV2Client, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creatting Snat Rule: %s", err)
 	}
@@ -96,7 +96,7 @@ func resourceNatSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
-	snatRule, err := snatrules.Get(natV2Client, d.Id()).Extract()
+	snatRule, err := hw_snatrules.Get(natV2Client, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "Snat Rule")
 	}
@@ -137,7 +137,7 @@ func resourceNatSnatRuleV2Delete(d *schema.ResourceData, meta interface{}) error
 
 func waitForSnatRuleActive(natV2Client *golangsdk.ServiceClient, nId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		n, err := snatrules.Get(natV2Client, nId).Extract()
+		n, err := hw_snatrules.Get(natV2Client, nId).Extract()
 		if err != nil {
 			return nil, "", err
 		}
@@ -155,7 +155,7 @@ func waitForSnatRuleDelete(natV2Client *golangsdk.ServiceClient, nId string) res
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Snat Rule %s.\n", nId)
 
-		n, err := snatrules.Get(natV2Client, nId).Extract()
+		n, err := hw_snatrules.Get(natV2Client, nId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Snat Rule %s", nId)
@@ -164,7 +164,7 @@ func waitForSnatRuleDelete(natV2Client *golangsdk.ServiceClient, nId string) res
 			return n, "ACTIVE", err
 		}
 
-		err = snatrules.Delete(natV2Client, nId).ExtractErr()
+		err = hw_snatrules.Delete(natV2Client, nId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Snat Rule %s", nId)
