@@ -520,6 +520,13 @@ func (c *Config) cceV3Client(region string) (*golangsdk.ServiceClient, error) {
 	})
 }
 
+func (c *Config) cciV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.CCIV1(c.HwClient, golangsdk.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getHwEndpointType(),
+	})
+}
+
 func (c *Config) objectStorageV1Client(region string) (*golangsdk.ServiceClient, error) {
 	// If Swift Authentication is being used, return a swauth client.
 	if c.Swauth {

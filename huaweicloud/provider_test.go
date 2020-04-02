@@ -30,12 +30,14 @@ var (
 	OS_SRC_SECRET_KEY         = os.Getenv("OS_SRC_SECRET_KEY")
 	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
 	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
+	OS_DOMAIN_ID              = os.Getenv("OS_DOMAIN_ID")
 	OS_SSH_KEY                = os.Getenv("OS_SSH_KEY")
 	OS_DWS_ENVIRONMENT        = os.Getenv("OS_DWS_ENVIRONMENT")
 	OS_MRS_ENVIRONMENT        = os.Getenv("OS_MRS_ENVIRONMENT")
 	OS_DMS_ENVIRONMENT        = os.Getenv("OS_DMS_ENVIRONMENT")
 	OS_NAT_ENVIRONMENT        = os.Getenv("OS_NAT_ENVIRONMENT")
 	OS_KMS_ENVIRONMENT        = os.Getenv("OS_KMS_ENVIRONMENT")
+	OS_CCI_ENVIRONMENT        = os.Getenv("OS_CCI_ENVIRONMENT")
 	OS_CDN_DOMAIN_NAME        = os.Getenv("OS_CDN_DOMAIN_NAME")
 )
 
@@ -204,6 +206,14 @@ func testAccPreCheckCDN(t *testing.T) {
 
 	if OS_CDN_DOMAIN_NAME == "" {
 		t.Skip("This environment does not support CDN tests")
+	}
+}
+
+func testAccPreCheckCCI(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_CCI_ENVIRONMENT == "" {
+		t.Skip("This environment does not support CCI tests")
 	}
 }
 

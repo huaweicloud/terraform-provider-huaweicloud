@@ -308,6 +308,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpc_subnet_v1":                      resourceVpcSubnetV1(),
 			"huaweicloud_cce_cluster_v3":                     resourceCCEClusterV3(),
 			"huaweicloud_cce_node_v3":                        resourceCCENodeV3(),
+			"huaweicloud_cci_network_v1":                     resourceCCINetworkV1(),
 			"huaweicloud_rts_software_config_v1":             resourceSoftwareConfigV1(),
 			"huaweicloud_ces_alarmrule":                      resourceAlarmRule(),
 			"huaweicloud_as_configuration_v1":                resourceASConfiguration(),
