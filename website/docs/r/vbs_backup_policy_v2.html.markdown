@@ -20,11 +20,10 @@ resource "huaweicloud_vbs_backup_policy_v2" "vbs" {
   retain_first_backup = "N"
   rentention_num      = 2
   frequency           = 1
-  tags = [
-    {
-      key   = "k1"
-      value = "v1"
-  }]
+  tags {
+    key   = "k1"
+    value = "v1"
+  }
 }
  ```
 
