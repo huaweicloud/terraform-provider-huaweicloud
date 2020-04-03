@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/siteconnections"
-	"strconv"
 )
 
 func TestAccVpnSiteConnectionV2_basic(t *testing.T) {
@@ -24,7 +23,7 @@ func TestAccVpnSiteConnectionV2_basic(t *testing.T) {
 					testAccCheckSiteConnectionV2Exists(
 						"huaweicloud_vpnaas_site_connection_v2.conn_1", &conn),
 					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_site_connection_v2.conn_1", "ikepolicy_id", &conn.IKEPolicyID),
-					resource.TestCheckResourceAttr("huaweicloud_vpnaas_site_connection_v2.conn_1", "admin_state_up", strconv.FormatBool(conn.AdminStateUp)),
+					resource.TestCheckResourceAttr("huaweicloud_vpnaas_site_connection_v2.conn_1", "admin_state_up", "true"),
 					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_site_connection_v2.conn_1", "ipsecpolicy_id", &conn.IPSecPolicyID),
 					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_site_connection_v2.conn_1", "vpnservice_id", &conn.VPNServiceID),
 					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_site_connection_v2.conn_1", "local_ep_group_id", &conn.LocalEPGroupID),
@@ -110,8 +109,8 @@ var testAccSiteConnectionV2_basic = fmt.Sprintf(`
 	}
 	
 	resource "huaweicloud_vpnaas_service_v2" "service_1" {
+		name = "vpngw-acctest"
 		router_id = "${huaweicloud_networking_router_v2.router_1.id}"
-		admin_state_up = "false"
 	}
 
 	resource "huaweicloud_vpnaas_ipsec_policy_v2" "policy_1" {

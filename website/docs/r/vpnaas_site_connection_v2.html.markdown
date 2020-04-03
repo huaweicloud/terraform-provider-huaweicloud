@@ -43,7 +43,8 @@ The following arguments are supported:
 * `description` - (Optional) The human-readable description for the connection.
     Changing this updates the description of the existing connection.
 
-* `admin_state_up` - (Optional) The administrative state of the resource. Can either be up(true) or down(false).
+* `admin_state_up` - (Optional) The administrative state of the resource.
+    Can either be up(true) or down(false). Defaults to `true`.
     Changing this updates the administrative state of the existing connection.
 
 * `ikepolicy_id` - (Required) The ID of the IKE policy. Changing this creates a new connection.

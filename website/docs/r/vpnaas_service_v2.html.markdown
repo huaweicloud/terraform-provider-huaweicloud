@@ -38,7 +38,8 @@ The following arguments are supported:
 * `description` - (Optional) The human-readable description for the service.
     Changing this updates the description of the existing service.
 
-* `admin_state_up` - (Optional) The administrative state of the resource. Can either be up(true) or down(false).
+* `admin_state_up` - (Optional) The administrative state of the resource.
+    Can either be up(true) or down (false). Defaults to `true`.
     Changing this updates the administrative state of the existing service.
 
 * `subnet_id` - (Optional) SubnetID is the ID of the subnet. Default is null.
