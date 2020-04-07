@@ -171,7 +171,7 @@ The following arguments are supported:
 
 * `force_destroy` - (Optional) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. Default to `false`.
 
-* `region` - (Optional) If specified, the region this bucket should reside in. Otherwise, the region used by the provider.
+* `region` - (Optional) Specified the region where this bucket will be created. If not specified, used the region by the provider.
 
 The `logging` object supports the following:
 
@@ -256,7 +256,7 @@ The following attributes are exported:
 
 * `id` - The name of the bucket.
 * `bucket_domain_name` - The bucket domain name. Will be of format `bucketname.obs.region.myhuaweicloud.com`.
-* `region` - The region this bucket resides in.
+* `region` - The region where this bucket resides in.
 
 ## Import
 

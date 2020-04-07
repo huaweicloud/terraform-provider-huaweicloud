@@ -253,7 +253,8 @@ func resourceObsBucket() *schema.Resource {
 
 func resourceObsBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	obsClient, err := config.newObjectStorageClient(GetRegion(d, config))
+	region := GetRegion(d, config)
+	obsClient, err := config.newObjectStorageClient(region)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
@@ -266,7 +267,7 @@ func resourceObsBucketCreate(d *schema.ResourceData, meta interface{}) error {
 		ACL:          obs.AclType(acl),
 		StorageClass: obs.StorageClassType(class),
 	}
-	opts.Location = d.Get("region").(string)
+	opts.Location = region
 	log.Printf("[DEBUG] OBS bucket create opts: %#v", opts)
 
 	_, err = obsClient.CreateBucket(opts)
