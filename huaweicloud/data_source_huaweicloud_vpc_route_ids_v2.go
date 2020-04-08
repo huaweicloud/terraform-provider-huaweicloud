@@ -36,6 +36,9 @@ func dataSourceVPCRouteIdsV2() *schema.Resource {
 func dataSourceVpcRouteIdsV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	vpcRouteClient, err := config.networkingHwV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+	}
 
 	listOpts := routes.ListOpts{
 		VPC_ID: d.Get("vpc_id").(string),

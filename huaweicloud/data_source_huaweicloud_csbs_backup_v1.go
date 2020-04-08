@@ -184,6 +184,9 @@ func dataSourceCSBSBackupV1() *schema.Resource {
 func dataSourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	backupClient, err := config.csbsV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating csbs client: %s", err)
+	}
 
 	listOpts := backup.ListOpts{
 		ID:           d.Get("id").(string),

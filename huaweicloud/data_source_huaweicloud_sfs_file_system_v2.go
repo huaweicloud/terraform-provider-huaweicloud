@@ -121,6 +121,9 @@ func dataSourceSFSFileSystemV2() *schema.Resource {
 func dataSourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	sfsClient, err := config.sfsV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating Huaweicloud SFS Client: %s", err)
+	}
 
 	listOpts := shares.ListOpts{
 		ID:     d.Get("id").(string),
