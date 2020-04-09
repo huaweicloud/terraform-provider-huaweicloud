@@ -62,6 +62,9 @@ func dataSourceNetworkingNetworkV2() *schema.Resource {
 func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+	}
 
 	listOpts := networks.ListOpts{
 		ID:       d.Get("network_id").(string),
