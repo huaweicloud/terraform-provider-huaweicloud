@@ -47,6 +47,7 @@ The following arguments are supported:
 
 The following attributes are exported:
 
+* `id` -  The PTR record ID, which is in {region}:{floatingip_id} format.
 * `name` - See Argument Reference above.
 * `description` - See Argument Reference above.
 * `floatingip_id` - See Argument Reference above.
@@ -56,7 +57,8 @@ The following attributes are exported:
 
 ## Import
 
-PTR records can be imported using region and floatingip/eip ID <region>:<floatingip id>, e.g.
+PTR records can be imported using region and floatingip/eip ID, separated by a colon(:), e.g.
 
 ```
 $ terraform import huaweicloud_dns_ptrrecord_v2.ptr_1 cn-north-1:d90ce693-5ccf-4136-a0ed-152ce412b6b9
+```
