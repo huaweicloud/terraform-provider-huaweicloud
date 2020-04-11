@@ -5,7 +5,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
-	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"log"
 	"os"
 	"time"
@@ -14,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/bootfromvolume"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs"
@@ -849,7 +849,11 @@ func resourceComputeInstanceV2ImportState(d *schema.ResourceData, meta interface
 		return nil, CheckDeleted(d, raw.Err, "huaweicloud_compute_instance_v2")
 	}
 
-	raw.ExtractInto(&serverWithAttachments)
+	err = raw.ExtractInto(&serverWithAttachments)
+
+	if err != nil {
+		return nil, fmt.Errorf("Error reading attached volumes: %s", err)
+	}
 
 	log.Printf("[DEBUG] Retrieved huaweicloud_compute_instance_v2 %s volume attachments: %#v",
 		d.Id(), serverWithAttachments)
@@ -869,7 +873,10 @@ func resourceComputeInstanceV2ImportState(d *schema.ResourceData, meta interface
 		}{}
 		for i, b := range serverWithAttachments.VolumesAttached {
 			rawVolume := volumes.Get(blockStorageClient, b["id"].(string))
-			rawVolume.ExtractInto(&volMetaData)
+			err = rawVolume.ExtractInto(&volMetaData)
+			if err != nil {
+				return nil, fmt.Errorf("Error reading metadata from volume %s: %s", b["id"], err)
+			}
 
 			log.Printf("[DEBUG] retrieved volume%+v", volMetaData)
 			v := map[string]interface{}{
