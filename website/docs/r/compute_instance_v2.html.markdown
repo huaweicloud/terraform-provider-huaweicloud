@@ -527,3 +527,16 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   }
 }
 ```
+
+## Importing
+
+Instances can be imported by their `id`. For example,
+```
+terraform import huaweicloud_compute_instance_v2.my_instance b11b407c-e604-4e8d-8bc4-92398320b847
+```
+Note that the imported state may not be identical to your resource definition, which 
+could be because of a different network interface attachment order, missing ephemeral
+disk configuration, or some other reason. It is generally recommended running 
+`terraform plan` after importing an instance. You can then decide if changes should
+be applied to the instance, or the resource definition should be updated to align
+with the instance. 
