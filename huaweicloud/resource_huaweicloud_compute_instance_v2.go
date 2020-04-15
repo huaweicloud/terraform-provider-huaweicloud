@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/bootfromvolume"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs"
@@ -31,6 +32,10 @@ func resourceComputeInstanceV2() *schema.Resource {
 		Read:   resourceComputeInstanceV2Read,
 		Update: resourceComputeInstanceV2Update,
 		Delete: resourceComputeInstanceV2Delete,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceComputeInstanceV2ImportState,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -819,6 +824,85 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 
 	d.SetId("")
 	return nil
+}
+
+func resourceComputeInstanceV2ImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+
+	var serverWithAttachments struct {
+		VolumesAttached []map[string]interface{} `json:"os-extended-volumes:volumes_attached"`
+	}
+
+	config := meta.(*Config)
+	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	if err != nil {
+		return nil, fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+	}
+
+	results := make([]*schema.ResourceData, 1)
+	err = resourceComputeInstanceV2Read(d, meta)
+	if err != nil {
+		return nil, fmt.Errorf("Error reading huaweicloud_compute_instance_v2 %s: %s", d.Id(), err)
+	}
+
+	raw := servers.Get(computeClient, d.Id())
+	if raw.Err != nil {
+		return nil, CheckDeleted(d, raw.Err, "huaweicloud_compute_instance_v2")
+	}
+
+	err = raw.ExtractInto(&serverWithAttachments)
+
+	if err != nil {
+		return nil, fmt.Errorf("Error reading attached volumes: %s", err)
+	}
+
+	log.Printf("[DEBUG] Retrieved huaweicloud_compute_instance_v2 %s volume attachments: %#v",
+		d.Id(), serverWithAttachments)
+
+	bds := []map[string]interface{}{}
+	if len(serverWithAttachments.VolumesAttached) > 0 {
+		blockStorageClient, err := config.blockStorageV2Client(GetRegion(d, config))
+		if err != nil {
+			return nil, fmt.Errorf("Error creating HuaweiCloud volume client: %s", err)
+		}
+
+		var volMetaData = struct {
+			VolumeImageMetadata map[string]interface{} `json:"volume_image_metadata"`
+			Id                  string                 `json:"id"`
+			Size                int                    `json:"size"`
+			Bootable            string                 `json:"bootable"`
+		}{}
+		for i, b := range serverWithAttachments.VolumesAttached {
+			rawVolume := volumes.Get(blockStorageClient, b["id"].(string))
+			err = rawVolume.ExtractInto(&volMetaData)
+			if err != nil {
+				return nil, fmt.Errorf("Error reading metadata from volume %s: %s", b["id"], err)
+			}
+
+			log.Printf("[DEBUG] retrieved volume%+v", volMetaData)
+			v := map[string]interface{}{
+				"delete_on_termination": true,
+				"uuid":                  volMetaData.VolumeImageMetadata["image_id"],
+				"boot_index":            i,
+				"destination_type":      "volume",
+				"source_type":           "image",
+				"volume_size":           volMetaData.Size,
+				"disk_bus":              "",
+				"volume_type":           "",
+				"device_type":           "",
+			}
+
+			if volMetaData.Bootable == "true" {
+				bds = append(bds, v)
+			}
+		}
+
+		d.Set("block_device", bds)
+	}
+	metadata, err := servers.Metadata(computeClient, d.Id()).Extract()
+	d.Set("metadata", metadata)
+	results[0] = d
+
+	return results, nil
 }
 
 // ServerV2StateRefreshFunc returns a resource.StateRefreshFunc that is used to watch
