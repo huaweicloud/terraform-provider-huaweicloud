@@ -38,6 +38,8 @@ type ActionOpts struct {
 type CreateOpts struct {
 	AlarmName               string        `json:"alarm_name" required:"true"`
 	AlarmDescription        string        `json:"alarm_description,omitempty"`
+	AlarmType               string        `json:"alarm_type,omitempty"`
+	AlarmLevel              int           `json:"alarm_level,omitempty"`
 	Metric                  MetricOpts    `json:"metric" required:"true"`
 	Condition               ConditionOpts `json:"condition" required:"true"`
 	AlarmActions            []ActionOpts  `json:"alarm_actions,omitempty"`

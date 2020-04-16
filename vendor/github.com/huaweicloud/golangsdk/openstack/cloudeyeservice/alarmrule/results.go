@@ -47,6 +47,8 @@ type ActionInfo struct {
 type AlarmRule struct {
 	AlarmName               string        `json:"alarm_name"`
 	AlarmDescription        string        `json:"alarm_description"`
+	AlarmType               string        `json:"alarm_type"`
+	AlarmLevel              int           `json:"alarm_level"`
 	Metric                  MetricInfo    `json:"metric"`
 	Condition               ConditionInfo `json:"condition"`
 	AlarmActions            []ActionInfo  `json:"alarm_actions"`

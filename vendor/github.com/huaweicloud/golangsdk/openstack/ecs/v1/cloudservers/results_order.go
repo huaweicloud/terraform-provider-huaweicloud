@@ -60,6 +60,10 @@ func WaitForOrderSuccess(client *golangsdk.ServiceClient, secs int, orderID stri
 			return false, err
 		}
 		time.Sleep(5 * time.Second)
+
+		if len(order.Resources) == 0 {
+			return false, nil
+		}
 		instance := order.Resources[0]
 
 		if instance.Status == 1 {
@@ -82,6 +86,10 @@ func WaitForOrderDeleteSuccess(client *golangsdk.ServiceClient, secs int, orderI
 			return false, err
 		}
 		time.Sleep(5 * time.Second)
+
+		if len(order.Resources) == 0 {
+			return false, nil
+		}
 		instance := order.Resources[0]
 
 		if instance.Status == 8 {
