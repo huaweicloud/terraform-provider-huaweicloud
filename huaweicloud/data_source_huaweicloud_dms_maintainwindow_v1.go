@@ -42,7 +42,7 @@ func dataSourceDmsMaintainWindowV1Read(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 	dmsV1Client, err := config.dmsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud dms client: %s", err)
 	}
 
 	v, err := maintainwindows.Get(dmsV1Client).Extract()
