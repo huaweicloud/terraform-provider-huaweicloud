@@ -177,7 +177,7 @@ github.com/hashicorp/terraform-plugin-sdk/internal/svchost
 github.com/hashicorp/terraform-plugin-sdk/internal/svchost/auth
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20200416034153-3d1c2830a7e3
+# github.com/huaweicloud/golangsdk v0.0.0-20200417094504-2493b18ce626
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/openstack
 github.com/huaweicloud/golangsdk/openstack/antiddos/v1/antiddos
@@ -215,6 +215,8 @@ github.com/huaweicloud/golangsdk/openstack/dcs/v1/availablezones
 github.com/huaweicloud/golangsdk/openstack/dcs/v1/instances
 github.com/huaweicloud/golangsdk/openstack/dcs/v1/maintainwindows
 github.com/huaweicloud/golangsdk/openstack/dcs/v1/products
+github.com/huaweicloud/golangsdk/openstack/dds/v3/flavors
+github.com/huaweicloud/golangsdk/openstack/dds/v3/instances
 github.com/huaweicloud/golangsdk/openstack/dms/v1/availablezones
 github.com/huaweicloud/golangsdk/openstack/dms/v1/groups
 github.com/huaweicloud/golangsdk/openstack/dms/v1/instances
