@@ -25,6 +25,10 @@ func TestAccASV1Group_basic(t *testing.T) {
 					testAccCheckASV1GroupExists("huaweicloud_as_group_v1.hth_as_group", &asGroup),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_as_group_v1.hth_as_group", "lbaas_listeners.0.protocol_port", "8080"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_as_group_v1.hth_as_group", "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_as_group_v1.hth_as_group", "tags.key", "value"),
 				),
 			},
 		},
@@ -143,5 +147,9 @@ resource "huaweicloud_as_group_v1" "hth_as_group"{
     protocol_port = "${huaweicloud_lb_listener_v2.listener_1.protocol_port}"
   }
   vpc_id = "%s"
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, OS_SUBNET_ID, OS_IMAGE_ID, OS_NETWORK_ID, OS_VPC_ID)
