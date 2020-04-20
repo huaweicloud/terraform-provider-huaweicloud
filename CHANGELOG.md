@@ -1,4 +1,32 @@
 ## 1.14.0 (Unreleased)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_dds_flavors_v3` [GH-305]
+* **New Resource:** `huaweicloud_evs_snapshot` [GH-289]
+* **New Resource:** `huaweicloud_cci_network_v1` [GH-294]
+* **New Resource:** `huaweicloud_dds_instance_v3` [GH-305]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_cluster_v3: Add authenticatingProxy.ca support [GH-279]
+* resource/huaweicloud_cce_node_v3: Add subnet_id parameter support [GH-280]
+* resource/huaweicloud_vpnaas_service_v2: Set admin_state_up default to true [GH-293]
+* resource/huaweicloud_compute_instance_v2: Make compute_instance_v2 importable [GH-301]
+* resource/huaweicloud_as_group_v1: Add tags support [GH-306]
+* resource/huaweicloud_lb_listener_v2: Add http2_enable parameter support [GH-307]
+
+BUG FIXES:
+
+* resource/huaweicloud_nat_snat_rule_v2: Suppress diffs of floating_ip_id [GH-274]
+* resource/huaweicloud_fw_rule_v2: Fix removing FW rule assigned to FW policy [GH-275]
+* resource/huaweicloud_ecs_instance_v1: Fix DELETED status issue [GH-276]
+* resource/huaweicloud_cce_node_v3: Update docs for password parameter [GH-282]
+* resource/huaweicloud_nat_snat_rule_v2: Fix attribute type issue [GH-291]
+* resource/huaweicloud_obs_bucket: Fix region issue if not specified [GH-292]
+* resource/huaweicloud_cce_cluster_v3: Catch client creating exception [GH-299]
+* resource/huaweicloud_ecs_instance_v1: Fix PrePaid ECS instance issue [GH-304]
+
 ## 1.13.0 (March 10, 2020)
 
 FEATURES:
