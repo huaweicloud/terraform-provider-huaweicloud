@@ -34,6 +34,32 @@ resource "huaweicloud_as_group_v1" "my_as_group" {
 }
 ```
 
+### Autoscaling Group with tags
+
+```hcl
+resource "huaweicloud_as_group_v1" "my_as_group_tags" {
+  scaling_group_name       = "my_as_group_tags"
+  scaling_configuration_id = "37e310f5-db9d-446e-9135-c625f9c2bbfc"
+  desire_instance_number   = 2
+  min_instance_number      = 0
+  max_instance_number      = 10
+  vpc_id                   = "1d8f7e7c-fe04-4cf5-85ac-08b478c290e9"
+  delete_publicip          = true
+  delete_instances         = "yes"
+
+  networks {
+    id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  }
+  security_groups {
+    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
+  }
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+```
+
 ### Autoscaling Group Only Remove Members When Scaling Down
 
 ```hcl
@@ -199,6 +225,8 @@ The following arguments are supported:
     four options: `OLD_CONFIG_OLD_INSTANCE` (default), `OLD_CONFIG_NEW_INSTANCE`,
     `OLD_INSTANCE`, and `NEW_INSTANCE`.
 
+* `tags` - (Optional) The key/value pairs to associate with the scaling group.
+
 * `notifications` - (Optional) The notification mode. The system only supports `EMAIL`
     mode which refers to notification by email.
 
@@ -242,4 +270,5 @@ The following attributes are exported:
 * `scaling_configuration_id` - See Argument Reference above.
 * `delete_publicip` - See Argument Reference above.
 * `notifications` - See Argument Reference above.
+* `tags` - See Argument Reference above.
 * `instances` - The instances IDs of the AS group.
