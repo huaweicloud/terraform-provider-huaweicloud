@@ -29,7 +29,7 @@ The following arguments are supported:
     `region` argument of the provider is used. Changing this creates a new
     Listener.
 
-* `protocol` - (Required) The protocol - can either be TCP, HTTP, HTTPS or TERMINATED_HTTPS.
+* `protocol` - (Required) The protocol can either be TCP, HTTP, HTTPS or TERMINATED_HTTPS.
     Changing this creates a new Listener.
 
 * `protocol_port` - (Required) The port on which to listen for client traffic.
@@ -51,18 +51,18 @@ The following arguments are supported:
 * `description` - (Optional) Human-readable description for the Listener.
 
 * `connection_limit` - (Optional) The maximum number of connections allowed
-    for the Listener.
+    for the Listener. The value ranges from -1 to 2,147,483,647.
+    This parameter is reserved and has been not used.
+    Only the administrator can specify the maximum number of connections.
 
-* `default_tls_container_ref` - (Optional) A reference to a Barbican Secrets
-    container which stores TLS information. This is required if the protocol
-    is `TERMINATED_HTTPS`. See
-    [here](https://wiki.openstack.org/wiki/Network/LBaaS/docs/how-to-create-tls-loadbalancer)
-    for more information.
+* `http2_enable` - (Optional) Specifies whether to use HTTP/2. The default value is false.
+    This parameter is valid only when the protocol is set to `TERMINATED_HTTPS`.
 
-* `sni_container_refs` - (Optional) A list of references to Barbican Secrets
-    containers which store SNI information. See
-    [here](https://wiki.openstack.org/wiki/Network/LBaaS/docs/how-to-create-tls-loadbalancer)
-    for more information.
+* `default_tls_container_ref` - (Optional) Specifies the ID of the server certificate
+    used by the listener. This parameter is mandatory when protocol is set to `TERMINATED_HTTPS`.
+
+* `sni_container_refs` - (Optional) Lists the IDs of SNI certificates (server certificates
+    with a domain name) used by the listener. This parameter is valid when protocol is set to `TERMINATED_HTTPS`.
 
 * `admin_state_up` - (Optional) The administrative state of the Listener.
     A valid value is true (UP) or false (DOWN).
@@ -79,6 +79,7 @@ The following attributes are exported:
 * `default_port_id` - See Argument Reference above.
 * `description` - See Argument Reference above.
 * `connection_limit` - See Argument Reference above.
+* `http2_enable` - See Argument Reference above.
 * `default_tls_container_ref` - See Argument Reference above.
 * `sni_container_refs` - See Argument Reference above.
 * `admin_state_up` - See Argument Reference above.

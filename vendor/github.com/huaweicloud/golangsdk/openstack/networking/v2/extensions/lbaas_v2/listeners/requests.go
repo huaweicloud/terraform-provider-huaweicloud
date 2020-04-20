@@ -106,11 +106,17 @@ type CreateOpts struct {
 	// The maximum number of connections allowed for the Listener.
 	ConnLimit *int `json:"connection_limit,omitempty"`
 
+	// whether to use HTTP2.
+	Http2Enable *bool `json:"http2_enable,omitempty"`
+
 	// A reference to a Barbican container of TLS secrets.
 	DefaultTlsContainerRef string `json:"default_tls_container_ref,omitempty"`
 
 	// A list of references to TLS secrets.
 	SniContainerRefs []string `json:"sni_container_refs,omitempty"`
+
+	// the ID of the CA certificate used by the listener.
+	CAContainerRef string `json:"client_ca_tls_container_ref,omitempty"`
 
 	// Specifies the security policy used by the listener.
 	TlsCiphersPolicy string `json:"tls_ciphers_policy,omitempty"`
@@ -165,11 +171,17 @@ type UpdateOpts struct {
 	// The maximum number of connections allowed for the Listener.
 	ConnLimit *int `json:"connection_limit,omitempty"`
 
+	// whether to use HTTP2.
+	Http2Enable *bool `json:"http2_enable,omitempty"`
+
 	// A reference to a Barbican container of TLS secrets.
 	DefaultTlsContainerRef string `json:"default_tls_container_ref,omitempty"`
 
 	// A list of references to TLS secrets.
 	SniContainerRefs []string `json:"sni_container_refs,omitempty"`
+
+	// the ID of the CA certificate used by the listener.
+	CAContainerRef string `json:"client_ca_tls_container_ref,omitempty"`
 
 	// Specifies the security policy used by the listener.
 	TlsCiphersPolicy string `json:"tls_ciphers_policy,omitempty"`
