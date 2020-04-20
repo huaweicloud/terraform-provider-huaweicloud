@@ -44,8 +44,14 @@ type Listener struct {
 	// Default is -1, meaning no limit.
 	ConnLimit int `json:"connection_limit"`
 
+	// whether to use HTTP2.
+	Http2Enable bool `json:"http2_enable"`
+
 	// The list of references to TLS secrets.
 	SniContainerRefs []string `json:"sni_container_refs"`
+
+	// the ID of the CA certificate used by the listener.
+	CAContainerRef string `json:"client_ca_tls_container_ref"`
 
 	// A reference to a Barbican container of TLS secrets.
 	DefaultTlsContainerRef string `json:"default_tls_container_ref"`
