@@ -34,7 +34,7 @@ func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccVBSBackupPolicyV2Exists("huaweicloud_vbs_backup_policy_v2.vbs", &policy),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup_policy_v2.vbs", "name", "policy_002"),
+						"huaweicloud_vbs_backup_policy_v2.vbs", "name", "policy_001_update"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_vbs_backup_policy_v2.vbs", "status", "ON"),
 				),
@@ -43,7 +43,7 @@ func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
 	})
 }
 
-func TestAccVBSBackupPolicyV2_timeout(t *testing.T) {
+func TestAccVBSBackupPolicyV2_rentention_day(t *testing.T) {
 	var policy policies.Policy
 
 	resource.Test(t, resource.TestCase{
@@ -52,9 +52,15 @@ func TestAccVBSBackupPolicyV2_timeout(t *testing.T) {
 		CheckDestroy: testAccVBSBackupPolicyV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVBSBackupPolicyV2_timeout,
+				Config: testAccVBSBackupPolicyV2_rentention_day,
 				Check: resource.ComposeTestCheckFunc(
 					testAccVBSBackupPolicyV2Exists("huaweicloud_vbs_backup_policy_v2.vbs", &policy),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_vbs_backup_policy_v2.vbs", "name", "policy_002"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_vbs_backup_policy_v2.vbs", "status", "ON"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_vbs_backup_policy_v2.vbs", "rentention_day", "30"),
 				),
 			},
 		},
@@ -122,46 +128,33 @@ resource "huaweicloud_vbs_backup_policy_v2" "vbs" {
   retain_first_backup = "N"
   rentention_num = 2
   frequency = 1
-      tags =[
-        {
-          key = "k2"
-          value = "v2"
-          }]
+  tags {
+    key = "k2"
+    value = "v2"
+  }
 }
 `)
 
 var testAccVBSBackupPolicyV2_update = fmt.Sprintf(`
 resource "huaweicloud_vbs_backup_policy_v2" "vbs" {
-  name = "policy_002"
+  name = "policy_001_update"
   start_time  = "12:00"
   status  = "ON"
   retain_first_backup = "N"
   rentention_num = 2
   frequency = 1
-      tags =[
-        {
-          key = "k2"
-          value = "v2"
-          }] 
+  tags {
+    key = "k2"
+    value = "v2"
+  }
 }
 `)
 
-var testAccVBSBackupPolicyV2_timeout = fmt.Sprintf(`
+var testAccVBSBackupPolicyV2_rentention_day = fmt.Sprintf(`
 resource "huaweicloud_vbs_backup_policy_v2" "vbs" {
   name = "policy_002"
-  start_time  = "12:00"
-  status  = "ON"
+  start_time  = "00:00,12:00"
   retain_first_backup = "N"
-  rentention_num = 2
-  frequency = 1
-      tags =[
-        {
-          key = "k2"
-          value = "v2"
-          }]
-
-  timeouts {
-    create = "5m"
-    delete = "5m"
-  }
+  rentention_day = 30
+  week_frequency = ["MON","WED","SAT"]
 }`)

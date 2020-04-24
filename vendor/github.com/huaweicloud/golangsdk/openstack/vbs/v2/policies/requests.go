@@ -26,14 +26,18 @@ type CreateOpts struct {
 	Tags []Tag `json:"tags,omitempty"`
 }
 
-//Details about the scheduling policy for create
+// ScheduledPolicy defines the details about scheduling policy for create
 type ScheduledPolicy struct {
 	//Start time of the backup job.
 	StartTime string `json:"start_time" required:"true"`
 	//Backup interval (1 to 14 days)
 	Frequency int `json:"frequency,omitempty"`
+	//Specifies on which days of each week backup jobs are ececuted.
+	WeekFrequency []string `json:"week_frequency,omitempty"`
 	//Number of retained backups, minimum 2.
 	RententionNum int `json:"rentention_num,omitempty"`
+	//Days of retained backups, minimum 2.
+	RententionDay int `json:"rentention_day,omitempty"`
 	//Whether to retain the first backup in the current month, possible values Y or N
 	RemainFirstBackup string `json:"remain_first_backup_of_curMonth" required:"true"`
 	//Backup policy status, ON or OFF
@@ -82,14 +86,18 @@ type UpdateOpts struct {
 	ScheduledPolicy UpdateSchedule `json:"scheduled_policy,omitempty"`
 }
 
-//Details about the scheduling policy for update.
+// UpdateSchedule defiens the details about scheduling policy for update.
 type UpdateSchedule struct {
 	//Start time of the backup job.
 	StartTime string `json:"start_time,omitempty"`
 	//Backup interval (1 to 14 days)
 	Frequency int `json:"frequency,omitempty"`
+	//Specifies on which days of each week backup jobs are ececuted.
+	WeekFrequency []string `json:"week_frequency,omitempty"`
 	//Number of retained backups, minimum 2.
 	RententionNum int `json:"rentention_num,omitempty"`
+	//Days of retained backups, minimum 2.
+	RententionDay int `json:"rentention_day,omitempty"`
 	//Number of retained backups, minimum 2.
 	RemainFirstBackup string `json:"remain_first_backup_of_curMonth,omitempty"`
 	//Backup policy status, ON or OFF
