@@ -15,6 +15,7 @@ ENHANCEMENTS:
 * resource/huaweicloud_compute_instance_v2: Make compute_instance_v2 importable [GH-301]
 * resource/huaweicloud_as_group_v1: Add tags support [GH-306]
 * resource/huaweicloud_lb_listener_v2: Add http2_enable parameter support [GH-307]
+* resource/huaweicloud_vbs_backup_policy_v2: Add week_frequency and rentention_day support [GH-309]
 
 BUG FIXES:
 
