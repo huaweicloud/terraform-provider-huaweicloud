@@ -1,32 +1,32 @@
-## 1.14.0 (Unreleased)
+## 1.14.0 (April 24, 2020)
 
 FEATURES:
 
-* **New Data Source:** `huaweicloud_dds_flavors_v3` [GH-305]
-* **New Resource:** `huaweicloud_evs_snapshot` [GH-289]
-* **New Resource:** `huaweicloud_cci_network_v1` [GH-294]
-* **New Resource:** `huaweicloud_dds_instance_v3` [GH-305]
+* **New Data Source:** `huaweicloud_dds_flavors_v3` ([#305](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/305))
+* **New Resource:** `huaweicloud_evs_snapshot` ([#289](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/289))
+* **New Resource:** `huaweicloud_cci_network_v1` ([#294](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/294))
+* **New Resource:** `huaweicloud_dds_instance_v3` ([#305](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/305))
 
 ENHANCEMENTS:
 
-* resource/huaweicloud_cce_cluster_v3: Add authenticatingProxy.ca support [GH-279]
-* resource/huaweicloud_cce_node_v3: Add subnet_id parameter support [GH-280]
-* resource/huaweicloud_vpnaas_service_v2: Set admin_state_up default to true [GH-293]
-* resource/huaweicloud_compute_instance_v2: Make compute_instance_v2 importable [GH-301]
-* resource/huaweicloud_as_group_v1: Add tags support [GH-306]
-* resource/huaweicloud_lb_listener_v2: Add http2_enable parameter support [GH-307]
-* resource/huaweicloud_vbs_backup_policy_v2: Add week_frequency and rentention_day support [GH-309]
+* resource/huaweicloud_cce_cluster_v3: Add authenticatingProxy.ca support ([#279](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/279))
+* resource/huaweicloud_cce_node_v3: Add subnet_id parameter support ([#280](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/280))
+* resource/huaweicloud_vpnaas_service_v2: Set admin_state_up default to true ([#293](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/293))
+* resource/huaweicloud_compute_instance_v2: Make compute_instance_v2 importable ([#301](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/301))
+* resource/huaweicloud_as_group_v1: Add tags support ([#306](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/306))
+* resource/huaweicloud_lb_listener_v2: Add http2_enable parameter support ([#307](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/307))
+* resource/huaweicloud_vbs_backup_policy_v2: Add week_frequency and rentention_day support ([#309](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/309))
 
 BUG FIXES:
 
-* resource/huaweicloud_nat_snat_rule_v2: Suppress diffs of floating_ip_id [GH-274]
-* resource/huaweicloud_fw_rule_v2: Fix removing FW rule assigned to FW policy [GH-275]
-* resource/huaweicloud_ecs_instance_v1: Fix DELETED status issue [GH-276]
-* resource/huaweicloud_cce_node_v3: Update docs for password parameter [GH-282]
-* resource/huaweicloud_nat_snat_rule_v2: Fix attribute type issue [GH-291]
-* resource/huaweicloud_obs_bucket: Fix region issue if not specified [GH-292]
-* resource/huaweicloud_cce_cluster_v3: Catch client creating exception [GH-299]
-* resource/huaweicloud_ecs_instance_v1: Fix PrePaid ECS instance issue [GH-304]
+* resource/huaweicloud_nat_snat_rule_v2: Suppress diffs of floating_ip_id ([#274](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/274))
+* resource/huaweicloud_fw_rule_v2: Fix removing FW rule assigned to FW policy ([#275](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/275))
+* resource/huaweicloud_ecs_instance_v1: Fix DELETED status issue ([#276](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/276))
+* resource/huaweicloud_cce_node_v3: Update docs for password parameter ([#282](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/282))
+* resource/huaweicloud_nat_snat_rule_v2: Fix attribute type issue ([#291](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/291))
+* resource/huaweicloud_obs_bucket: Fix region issue if not specified ([#292](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/292))
+* resource/huaweicloud_cce_cluster_v3: Catch client creating exception ([#299](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/299))
+* resource/huaweicloud_ecs_instance_v1: Fix PrePaid ECS instance issue ([#304](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/304))
 
 ## 1.13.0 (March 10, 2020)
 
