@@ -109,6 +109,18 @@ The following arguments are supported:
   Please see the documentation at [EPS](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/eps).
   If omitted, the `HW_ENTERPRISE_PROJECT_ID` environment variable is used.
 
+* `endpoints` - (Optional) Configuration block in key/value pairs for customizing service endpoints.
+  An example provider configuration:
+
+```hcl
+provider "huaweicloud" {
+  ...
+  endpoints = {
+    ecs = "https://ecs-customizing-endpoint.com"
+  }
+}
+```
+
 
 ## Testing and Development
 

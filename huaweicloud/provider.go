@@ -1,6 +1,9 @@
 package huaweicloud
 
 import (
+	"fmt"
+	"log"
+	"strings"
 	"sync"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
@@ -217,6 +220,13 @@ func Provider() terraform.ResourceProvider {
 				Description: descriptions["cloud"],
 				DefaultFunc: schema.EnvDefaultFunc(
 					"HW_CLOUD", "myhuaweicloud.com"),
+			},
+
+			"endpoints": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: descriptions["endpoints"],
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"enterprise_project_id": {
@@ -600,6 +610,8 @@ func init() {
 
 		"cloud": "The endpoint of cloud provider, defaults to myhuaweicloud.com",
 
+		"endpoints": "The custom endpoints used to override the default endpoint URL.",
+
 		"max_retries": "How many times HTTP connection should be retried until giving up.",
 
 		"enterprise_project_id": "enterprise project id",
@@ -670,5 +682,37 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		config.RegionProjectIDMap[config.Region] = config.HwClient.ProjectID
 	}
 
+	// get custom endpoints
+	endpoints, err := flattenProviderEndpoints(d)
+	if err != nil {
+		return nil, err
+	}
+	config.endpoints = endpoints
+
 	return &config, nil
+}
+
+func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error) {
+	endpoints := d.Get("endpoints").(map[string]interface{})
+	epMap := make(map[string]string)
+
+	for key, val := range endpoints {
+		endpoint := strings.TrimSpace(val.(string))
+		// check empty string
+		if endpoint == "" {
+			return nil, fmt.Errorf("the value of customer endpoint %s must be specified", key)
+		}
+
+		// add prefix "https://" and suffix "/"
+		if !strings.HasPrefix(endpoint, "http") {
+			endpoint = fmt.Sprintf("https://%s", endpoint)
+		}
+		if !strings.HasSuffix(endpoint, "/") {
+			endpoint = fmt.Sprintf("%s/", endpoint)
+		}
+		epMap[key] = endpoint
+	}
+
+	log.Printf("[DEBUG] customer endpoints: %+v", epMap)
+	return epMap, nil
 }
