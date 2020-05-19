@@ -63,9 +63,10 @@ func resourceRdsInstanceV3() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"password": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:      schema.TypeString,
+							Sensitive: true,
+							Required:  true,
+							ForceNew:  true,
 						},
 						"type": {
 							Type:     schema.TypeString,

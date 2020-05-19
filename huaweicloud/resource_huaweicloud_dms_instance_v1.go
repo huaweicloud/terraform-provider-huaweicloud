@@ -44,8 +44,9 @@ func resourceDmsInstancesV1() *schema.Resource {
 				Required: true,
 			},
 			"password": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Optional:  true,
 			},
 			"access_user": {
 				Type:     schema.TypeString,

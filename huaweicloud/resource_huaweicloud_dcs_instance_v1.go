@@ -47,9 +47,10 @@ func resourceDcsInstanceV1() *schema.Resource {
 				ForceNew: true,
 			},
 			"password": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Optional:  true,
+				ForceNew:  true,
 			},
 			"access_user": {
 				Type:     schema.TypeString,
