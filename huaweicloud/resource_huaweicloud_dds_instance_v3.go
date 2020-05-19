@@ -90,9 +90,10 @@ func resourceDdsInstanceV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"password": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Required:  true,
+				ForceNew:  true,
 			},
 			"disk_encryption_id": {
 				Type:     schema.TypeString,

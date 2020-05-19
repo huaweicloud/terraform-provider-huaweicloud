@@ -70,9 +70,10 @@ func resourceMlsInstance() *schema.Resource {
 							ForceNew: true,
 						},
 						"user_password": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Type:      schema.TypeString,
+							Sensitive: true,
+							Optional:  true,
+							ForceNew:  true,
 						},
 					},
 				},
