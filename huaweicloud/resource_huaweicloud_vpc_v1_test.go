@@ -30,6 +30,10 @@ func TestAccVpcV1_basic(t *testing.T) {
 						"huaweicloud_vpc_v1.vpc_1", "status", "OK"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_vpc_v1.vpc_1", "shared", "false"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_vpc_v1.vpc_1", "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_vpc_v1.vpc_1", "tags.key", "value"),
 				),
 			},
 		},
@@ -139,6 +143,11 @@ const testAccVpcV1_basic = `
 resource "huaweicloud_vpc_v1" "vpc_1" {
 	name = "terraform_provider_test"
 	cidr="192.168.0.0/16"
+
+	tags = {
+        foo = "bar"
+        key = "value"
+	}
 }
 `
 

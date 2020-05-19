@@ -27,6 +27,15 @@ resource "huaweicloud_vpc_v1" "vpc_v1" {
   cidr = "${var.vpc_cidr}"
 }
 
+resource "huaweicloud_vpc_v1" "vpc_with_tags" {
+	name = "${var.vpc_name}"
+	cidr = "${var.vpc_cidr}"
+	tags = {
+          foo = "bar"
+          key = "value"
+	}
+}
+
 ```
 
 ## Argument Reference
@@ -39,7 +48,7 @@ The following arguments are supported:
 
 * `name` - (Required) The name of the VPC. The name must be unique for a tenant. The value is a string of no more than 64 characters and can contain digits, letters, underscores (_), and hyphens (-). Changing this updates the name of the existing VPC.
 
-
+* `tags` - (Optional) The key/value pairs to associate with the vpc.
 
 ## Attributes Reference
 
@@ -56,6 +65,8 @@ The following attributes are exported:
 * `shared` - Specifies whether the cross-tenant sharing is supported.
 
 * `region` - See Argument Reference above.
+
+* `tags` - See Argument Reference above.
 
 ## Import
 

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v1/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -54,6 +55,11 @@ func resourceVirtualPrivateCloudV1() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"tags": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: false,
+			},
 		},
 	}
 }
@@ -96,8 +102,20 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 			n.ID, stateErr)
 	}
 
-	return resourceVirtualPrivateCloudV1Read(d, meta)
+	//set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		vpcV2Client, err := config.networkingV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
+		}
+		taglist := expandVirtualPrivateCloudTags(tagRaw)
+		if tagErr := tags.Create(vpcV2Client, "vpcs", n.ID, taglist).ExtractErr(); tagErr != nil {
+			return fmt.Errorf("Error setting tags of VirtualPrivateCloud %q: %s", n.ID, tagErr)
+		}
+	}
 
+	return resourceVirtualPrivateCloudV1Read(d, meta)
 }
 
 func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{}) error {
@@ -123,6 +141,24 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 	d.Set("shared", n.EnableSharedSnat)
 	d.Set("region", GetRegion(d, config))
 
+	// save VirtualPrivateCloudV2 tags
+	vpcV2Client, err := config.networkingV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
+	}
+	resourceTags, err := tags.Get(vpcV2Client, "vpcs", d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching HuaweiCloud VirtualPrivateCloud tags: %s", err)
+	}
+
+	tagmap := make(map[string]string)
+	for _, val := range resourceTags.Tags {
+		tagmap[val.Key] = val.Value
+	}
+	if err := d.Set("tags", tagmap); err != nil {
+		return fmt.Errorf("Error saving tags for HuaweiCloud VirtualPrivateCloud (%s): %s", d.Id(), err)
+	}
+
 	return nil
 }
 
@@ -145,6 +181,31 @@ func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{
 	_, err = vpcs.Update(vpcClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error updating Huaweicloud Vpc: %s", err)
+	}
+
+	//update tags
+	if d.HasChange("tags") {
+		vpcV2Client, err := config.networkingV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
+		}
+		//remove old tags and set new tags
+		old, new := d.GetChange("tags")
+		oldRaw := old.(map[string]interface{})
+		if len(oldRaw) > 0 {
+			taglist := expandVirtualPrivateCloudTags(oldRaw)
+			if tagErr := tags.Delete(vpcV2Client, "vpcs", d.Id(), taglist).ExtractErr(); tagErr != nil {
+				return fmt.Errorf("Error deleting tags of VirtualPrivateCloud %q: %s", d.Id(), tagErr)
+			}
+		}
+
+		newRaw := new.(map[string]interface{})
+		if len(newRaw) > 0 {
+			taglist := expandVirtualPrivateCloudTags(newRaw)
+			if tagErr := tags.Create(vpcV2Client, "vpcs", d.Id(), taglist).ExtractErr(); tagErr != nil {
+				return fmt.Errorf("Error setting tags of VirtualPrivateCloud %q: %s", d.Id(), tagErr)
+			}
+		}
 	}
 
 	return resourceVirtualPrivateCloudV1Read(d, meta)
@@ -225,4 +286,18 @@ func waitForVpcDelete(vpcClient *golangsdk.ServiceClient, vpcId string) resource
 
 		return r, "ACTIVE", nil
 	}
+}
+
+func expandVirtualPrivateCloudTags(tagmap map[string]interface{}) []tags.ResourceTag {
+	var taglist []tags.ResourceTag
+
+	for k, v := range tagmap {
+		tag := tags.ResourceTag{
+			Key:   k,
+			Value: v.(string),
+		}
+		taglist = append(taglist, tag)
+	}
+
+	return taglist
 }
