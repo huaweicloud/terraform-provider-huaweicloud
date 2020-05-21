@@ -25,6 +25,19 @@ resource "huaweicloud_vpc_subnet_v1" "subnet_v1" {
   gateway_ip = "${var.subnet_gateway_ip}"
   vpc_id = "${huaweicloud_vpc_v1.vpc_v1.id}"
 }
+
+resource "huaweicloud_vpc_subnet_v1" "subnet_with_tags" {
+  name = "${var.subnet_name}"
+  cidr = "${var.subnet_cidr}"
+  gateway_ip = "${var.subnet_gateway_ip}"
+  vpc_id = "${huaweicloud_vpc_v1.vpc_v1.id}"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+
  ```
 
 # Argument Reference
@@ -49,6 +62,7 @@ The following arguments are supported:
 
 * `availability_zone` (Optional) - Identifies the availability zone (AZ) to which the subnet belongs. The value must be an existing AZ in the system. Changing this creates a new Subnet.
 
+* `tags` - (Optional) The key/value pairs to associate with the subnet.
 
 # Attributes Reference
 
