@@ -28,12 +28,13 @@ resource "huaweicloud_vpc_v1" "vpc_v1" {
 }
 
 resource "huaweicloud_vpc_v1" "vpc_with_tags" {
-	name = "${var.vpc_name}"
-	cidr = "${var.vpc_cidr}"
-	tags = {
-          foo = "bar"
-          key = "value"
-	}
+  name = "${var.vpc_name}"
+  cidr = "${var.vpc_cidr}"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 
 ```
