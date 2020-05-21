@@ -14,7 +14,7 @@ Use this data source to get the ID of an available HuaweiCloud image.
 
 ```hcl
 data "huaweicloud_images_image_v2" "ubuntu" {
-  name        = "Ubuntu 16.04"
+  name        = "Ubuntu 18.04 server 64bit"
   visibility  = "public"
   most_recent = true
 }
