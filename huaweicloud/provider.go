@@ -346,6 +346,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_networking_vip_v2":                  resourceNetworkingVIPV2(),
 			"huaweicloud_networking_vip_associate_v2":        resourceNetworkingVIPAssociateV2(),
 			"huaweicloud_fgs_function_v2":                    resourceFgsFunctionV2(),
+			"huaweicloud_cdn_domain_v1":                      resourceCdnDomainV1(),
 		},
 	}
 
