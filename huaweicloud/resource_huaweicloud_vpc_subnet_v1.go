@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v1/tags"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/huaweicloud/golangsdk"
@@ -106,11 +106,7 @@ func resourceVpcSubnetV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: false,
-			},
+			"tags": tagsSchema(),
 		},
 	}
 }
@@ -166,7 +162,7 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
-		taglist := expandVpcSubnetTags(tagRaw)
+		taglist := expandResourceTags(tagRaw)
 		if tagErr := tags.Create(vpcSubnetV2Client, "subnets", n.ID, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of VpcSubnet %q: %s", n.ID, tagErr)
 		}
@@ -215,10 +211,7 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error fetching HuaweiCloud VpcSubnet tags: %s", err)
 	}
 
-	tagmap := make(map[string]string)
-	for _, val := range resourceTags.Tags {
-		tagmap[val.Key] = val.Value
-	}
+	tagmap := tagsToMap(resourceTags.Tags)
 	if err := d.Set("tags", tagmap); err != nil {
 		return fmt.Errorf("Error saving tags for HuaweiCloud VpcSubnet (%s): %s", d.Id(), err)
 	}
@@ -267,22 +260,10 @@ func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
-		//remove old tags and set new tags
-		old, new := d.GetChange("tags")
-		oldRaw := old.(map[string]interface{})
-		if len(oldRaw) > 0 {
-			taglist := expandVpcSubnetTags(oldRaw)
-			if tagErr := tags.Delete(vpcSubnetV2Client, "subnets", d.Id(), taglist).ExtractErr(); tagErr != nil {
-				return fmt.Errorf("Error deleting tags of VpcSubnet %q: %s", d.Id(), tagErr)
-			}
-		}
 
-		newRaw := new.(map[string]interface{})
-		if len(newRaw) > 0 {
-			taglist := expandVpcSubnetTags(newRaw)
-			if tagErr := tags.Create(vpcSubnetV2Client, "subnets", d.Id(), taglist).ExtractErr(); tagErr != nil {
-				return fmt.Errorf("Error setting tags of VpcSubnet %q: %s", d.Id(), tagErr)
-			}
+		tagErr := UpdateResourceTags(vpcSubnetV2Client, d, "subnets")
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags of VPC subnet %s: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -377,18 +358,4 @@ func waitForVpcSubnetDelete(subnetClient *golangsdk.ServiceClient, vpcId string,
 
 		return r, "ACTIVE", nil
 	}
-}
-
-func expandVpcSubnetTags(tagmap map[string]interface{}) []tags.ResourceTag {
-	var taglist []tags.ResourceTag
-
-	for k, v := range tagmap {
-		tag := tags.ResourceTag{
-			Key:   k,
-			Value: v.(string),
-		}
-		taglist = append(taglist, tag)
-	}
-
-	return taglist
 }

@@ -54,6 +54,8 @@ func TestAccVpcV1_update(t *testing.T) {
 					testAccCheckVpcV1Exists("huaweicloud_vpc_v1.vpc_1", &vpc),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_vpc_v1.vpc_1", "name", "terraform_provider_test"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_vpc_v1.vpc_1", "tags.key", "value"),
 				),
 			},
 			{
@@ -62,6 +64,8 @@ func TestAccVpcV1_update(t *testing.T) {
 					testAccCheckVpcV1Exists("huaweicloud_vpc_v1.vpc_1", &vpc),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_vpc_v1.vpc_1", "name", "terraform_provider_test1"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_vpc_v1.vpc_1", "tags.key", "value_updated"),
 				),
 			},
 		},
@@ -141,26 +145,31 @@ func testAccCheckVpcV1Exists(n string, vpc *vpcs.Vpc) resource.TestCheckFunc {
 
 const testAccVpcV1_basic = `
 resource "huaweicloud_vpc_v1" "vpc_1" {
-	name = "terraform_provider_test"
-	cidr="192.168.0.0/16"
+  name = "terraform_provider_test"
+  cidr="192.168.0.0/16"
 
-	tags = {
-        foo = "bar"
-        key = "value"
-	}
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `
 
 const testAccVpcV1_update = `
 resource "huaweicloud_vpc_v1" "vpc_1" {
-    name = "terraform_provider_test1"
-	cidr="192.168.0.0/16"
+  name = "terraform_provider_test1"
+  cidr="192.168.0.0/16"
+
+  tags = {
+    foo = "bar"
+    key = "value_updated"
+  }
 }
 `
 const testAccVpcV1_timeout = `
 resource "huaweicloud_vpc_v1" "vpc_1" {
-	name = "terraform_provider_test"
-	cidr="192.168.0.0/16"
+  name = "terraform_provider_test"
+  cidr="192.168.0.0/16"
 
   timeouts {
     create = "5m"
