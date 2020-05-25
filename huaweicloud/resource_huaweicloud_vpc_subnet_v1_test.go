@@ -41,6 +41,8 @@ func TestAccVpcSubnetV1_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"huaweicloud_vpc_subnet_v1.subnet_1", "name", "huaweicloud_subnet_1"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_vpc_subnet_v1.subnet_1", "tags.key", "value_updated"),
 				),
 			},
 		},
@@ -129,6 +131,7 @@ resource "huaweicloud_vpc_subnet_v1" "subnet_1" {
   gateway_ip = "192.168.0.1"
   vpc_id = "${huaweicloud_vpc_v1.vpc_1.id}"
   availability_zone = "%s"
+
   tags = {
     foo = "bar"
     key = "value"
@@ -147,7 +150,12 @@ resource "huaweicloud_vpc_subnet_v1" "subnet_1" {
   gateway_ip = "192.168.0.1"
   vpc_id = "${huaweicloud_vpc_v1.vpc_1.id}"
   availability_zone = "%s"
- }
+
+  tags = {
+    foo = "bar"
+    key = "value_updated"
+  }
+}
 `, OS_AVAILABILITY_ZONE)
 
 var testAccVpcSubnetV1_timeout = fmt.Sprintf(`
