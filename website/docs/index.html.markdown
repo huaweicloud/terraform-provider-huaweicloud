@@ -193,20 +193,6 @@ The following arguments are supported:
   authentication. You can specify either a path to the file or the contents of
   the key. If omitted the `OS_KEY` environment variable is used.
 
-* `endpoint_type` - (Optional) Specify which type of endpoint to use from the
-  service catalog. It can be set using the OS_ENDPOINT_TYPE environment
-  variable. If not set, public endpoints is used.
-
-* `swauth` - (Optional) Set to `true` to authenticate against Swauth, a
-  Swift-native authentication system. If omitted, the `OS_SWAUTH` environment
-  variable is used. You must also set `username` to the Swauth/Swift username
-  such as `username:project`. Set the `password` to the Swauth/Swift key.
-  Finally, set `auth_url` as the location of the Swift service. Note that this
-  will only work when used with the HuaweiCloud Object Storage resources.
-
-* `use_octavia` - (Optional) If set to `true`, API requests will go the Load Balancer
-  service (Octavia) instead of the Networking service (Neutron).
-
 * `agency_name` - (Optional) if authorized by assume role, it must be set. The
   name of agency.
 

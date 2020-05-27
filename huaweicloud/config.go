@@ -19,7 +19,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/httpclient"
 	"github.com/huaweicloud/golangsdk"
 	huaweisdk "github.com/huaweicloud/golangsdk/openstack"
-	"github.com/huaweicloud/golangsdk/openstack/objectstorage/v1/swauth"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
 )
 
@@ -37,18 +36,15 @@ type Config struct {
 	Cloud            string
 	DomainID         string
 	DomainName       string
-	EndpointType     string
 	IdentityEndpoint string
 	Insecure         bool
 	Password         string
 	Region           string
-	Swauth           bool
 	TenantID         string
 	TenantName       string
 	Token            string
 	Username         string
 	UserID           string
-	useOctavia       bool
 	AgencyName       string
 	AgencyDomainName string
 	DelegatedProject string
@@ -61,24 +57,6 @@ type Config struct {
 }
 
 func (c *Config) LoadAndValidate() error {
-	validEndpoint := false
-	validEndpoints := []string{
-		"internal", "internalURL",
-		"admin", "adminURL",
-		"public", "publicURL",
-		"",
-	}
-
-	for _, endpoint := range validEndpoints {
-		if c.EndpointType == endpoint {
-			validEndpoint = true
-		}
-	}
-
-	if !validEndpoint {
-		return fmt.Errorf("Invalid endpoint type provided")
-	}
-
 	err := fmt.Errorf("Must config token or aksk or username password to be authorized")
 
 	if c.Token != "" {
@@ -178,12 +156,10 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 		},
 	}
 
-	// If using Swift Authentication, there's no need to validate authentication normally.
-	if !c.Swauth {
-		err = huaweisdk.Authenticate(client, ao)
-		if err != nil {
-			return nil, err
-		}
+	// Validate authentication normally.
+	err = huaweisdk.Authenticate(client, ao)
+	if err != nil {
+		return nil, err
 	}
 
 	return client, nil
@@ -527,21 +503,6 @@ func (c *Config) cciV1Client(region string) (*golangsdk.ServiceClient, error) {
 	})
 }
 
-func (c *Config) objectStorageV1Client(region string) (*golangsdk.ServiceClient, error) {
-	// If Swift Authentication is being used, return a swauth client.
-	if c.Swauth {
-		return swauth.NewObjectStorageV1(c.HwClient, swauth.AuthOpts{
-			User: c.Username,
-			Key:  c.Password,
-		})
-	}
-
-	return huaweisdk.NewObjectStorageV1(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
-}
-
 func (c *Config) loadBalancerV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return huaweisdk.NewLoadBalancerV2(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
@@ -603,12 +564,6 @@ func (c *Config) loadIAMV3Client(region string) (*golangsdk.ServiceClient, error
 }
 
 func (c *Config) getHwEndpointType() golangsdk.Availability {
-	if c.EndpointType == "internal" || c.EndpointType == "internalURL" {
-		return golangsdk.AvailabilityInternal
-	}
-	if c.EndpointType == "admin" || c.EndpointType == "adminURL" {
-		return golangsdk.AvailabilityAdmin
-	}
 	return golangsdk.AvailabilityPublic
 }
 
