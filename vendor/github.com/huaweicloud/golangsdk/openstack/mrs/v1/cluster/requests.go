@@ -23,8 +23,9 @@ type CreateOpts struct {
 	VpcID                 string          `json:"vpc_id" required:"true"`
 	SubnetID              string          `json:"subnet_id" required:"true"`
 	SubnetName            string          `json:"subnet_name" required:"true"`
-	ClusterVersion        string          `json:"cluster_version,omitempty"`
-	ClusterType           int             `json:"cluster_type,omitempty"`
+	SecurityGroupsID      string          `json:"security_groups_id,omitempty"`
+	ClusterVersion        string          `json:"cluster_version" required:"true"`
+	ClusterType           int             `json:"cluster_type"`
 	MasterDataVolumeType  string          `json:"master_data_volume_type,omitempty"`
 	MasterDataVolumeSize  int             `json:"master_data_volume_size,omitempty"`
 	MasterDataVolumeCount int             `json:"master_data_volume_count,omitempty"`
@@ -33,9 +34,11 @@ type CreateOpts struct {
 	CoreDataVolumeCount   int             `json:"core_data_volume_count,omitempty"`
 	VolumeType            string          `json:"volume_type,omitempty"`
 	VolumeSize            int             `json:"volume_size,omitempty"`
-	NodePublicCertName    string          `json:"node_public_cert_name" required:"true"`
 	SafeMode              int             `json:"safe_mode"`
-	ClusterAdminSecret    string          `json:"cluster_admin_secret,omitempty"`
+	ClusterAdminSecret    string          `json:"cluster_admin_secret" required:"true"`
+	LoginMode             int             `json:"login_mode"`
+	ClusterMasterSecret   string          `json:"cluster_master_secret,omitempty"`
+	NodePublicCertName    string          `json:"node_public_cert_name,omitempty"`
 	LogCollection         int             `json:"log_collection,omitempty"`
 	ComponentList         []ComponentOpts `json:"component_list" required:"true"`
 	AddJobs               []JobOpts       `json:"add_jobs,omitempty"`
