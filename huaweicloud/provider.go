@@ -120,12 +120,6 @@ func Provider() terraform.ResourceProvider {
 				Description: descriptions["insecure"],
 			},
 
-			"endpoint_type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_ENDPOINT_TYPE", ""),
-			},
-
 			"cacert_file": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -145,20 +139,6 @@ func Provider() terraform.ResourceProvider {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("OS_KEY", ""),
 				Description: descriptions["key"],
-			},
-
-			"swauth": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_SWAUTH", false),
-				Description: descriptions["swauth"],
-			},
-
-			"use_octavia": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_USE_OCTAVIA", false),
-				Description: descriptions["use_octavia"],
 			},
 
 			"cloud": {
@@ -393,17 +373,9 @@ func init() {
 
 		"cacert_file": "A Custom CA certificate.",
 
-		"endpoint_type": "The catalog endpoint type to use.",
-
 		"cert": "A client certificate to authenticate with.",
 
 		"key": "A client private key to authenticate with.",
-
-		"swauth": "Use Swift's authentication system instead of Keystone. Only used for\n" +
-			"interaction with Swift.",
-
-		"use_octavia": "If set to `true`, API requests will go the Load Balancer\n" +
-			"service (Octavia) instead of the Networking service (Neutron).",
 
 		"cloud": "An entry in a `clouds.yaml` file to use.",
 
@@ -425,18 +397,15 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		Cloud:            d.Get("cloud").(string),
 		DomainID:         d.Get("domain_id").(string),
 		DomainName:       d.Get("domain_name").(string),
-		EndpointType:     d.Get("endpoint_type").(string),
 		IdentityEndpoint: d.Get("auth_url").(string),
 		Insecure:         d.Get("insecure").(bool),
 		Password:         d.Get("password").(string),
 		Region:           d.Get("region").(string),
-		Swauth:           d.Get("swauth").(bool),
 		Token:            d.Get("token").(string),
 		TenantID:         d.Get("tenant_id").(string),
 		TenantName:       d.Get("tenant_name").(string),
 		Username:         d.Get("user_name").(string),
 		UserID:           d.Get("user_id").(string),
-		useOctavia:       d.Get("use_octavia").(bool),
 		AgencyName:       d.Get("agency_name").(string),
 		AgencyDomainName: d.Get("agency_domain_name").(string),
 		DelegatedProject: d.Get("delegated_project").(string),

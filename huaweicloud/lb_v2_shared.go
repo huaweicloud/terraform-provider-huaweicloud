@@ -254,9 +254,6 @@ func waitForLBV2viaPool(networkingClient *golangsdk.ServiceClient, id string, ta
 }
 
 func chooseLBV2Client(d *schema.ResourceData, config *Config) (*golangsdk.ServiceClient, error) {
-	if config.useOctavia {
-		return config.loadBalancerV2Client(GetRegion(d, config))
-	}
 	return config.networkingV2Client(GetRegion(d, config))
 }
 
