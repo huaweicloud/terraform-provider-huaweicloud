@@ -103,6 +103,7 @@ func resourceS3Bucket() *schema.Resource {
 			"website": {
 				Type:     schema.TypeList,
 				Optional: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"index_document": {
