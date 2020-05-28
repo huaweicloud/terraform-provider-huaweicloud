@@ -142,13 +142,6 @@ func Provider() terraform.ResourceProvider {
 				Description: descriptions["key"],
 			},
 
-			"cloud": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_CLOUD", ""),
-				Description: descriptions["cloud"],
-			},
-
 			"agency_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -378,8 +371,6 @@ func init() {
 
 		"key": "A client private key to authenticate with.",
 
-		"cloud": "An entry in a `clouds.yaml` file to use.",
-
 		"agency_name": "The name of agency",
 
 		"agency_domain_name": "The name of domain who created the agency (Identity v3).",
@@ -395,7 +386,6 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		CACertFile:       d.Get("cacert_file").(string),
 		ClientCertFile:   d.Get("cert").(string),
 		ClientKeyFile:    d.Get("key").(string),
-		Cloud:            d.Get("cloud").(string),
 		DomainID:         d.Get("domain_id").(string),
 		DomainName:       d.Get("domain_name").(string),
 		IdentityEndpoint: d.Get("auth_url").(string),

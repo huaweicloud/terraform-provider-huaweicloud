@@ -33,7 +33,6 @@ type Config struct {
 	CACertFile       string
 	ClientCertFile   string
 	ClientKeyFile    string
-	Cloud            string
 	DomainID         string
 	DomainName       string
 	IdentityEndpoint string
