@@ -24,7 +24,6 @@ provider "huaweicloud" {
   domain_name = "${var.domain_name}"
   tenant_name = "${var.tenant_name}"
   region      = "${var.region}"
-  auth_url    = "https://iam.myhwclouds.com:443/v3"
 }
 
 # Create a web server
@@ -51,7 +50,6 @@ provider "huaweicloud" {
   domain_name = "${var.domain_name}"
   tenant_name = "${var.tenant_name}"
   region      = "${var.region}"
-  auth_url    = "https://iam.myhwclouds.com:443/v3"
 }
 ```
 
@@ -64,7 +62,6 @@ provider "huaweicloud" {
   domain_name = "${var.domain_name}"
   tenant_name = "${var.tenant_name}"
   region      = "${var.region}"
-  auth_url    = "https://iam.myhwclouds.com:443/v3"
 }
 ```
 
@@ -76,7 +73,6 @@ provider "huaweicloud" {
   domain_name = "${var.domain_name}"
   tenant_name = "${var.tenant_name}"
   region      = "${var.region}"
-  auth_url    = "https://iam.myhwclouds.com:443/v3"
 }
 ```
 
@@ -93,7 +89,6 @@ provider "huaweicloud" {
   password           = "${var.password}"
   domain_name        = "${var.domain_name}"
   region             = "${var.region}"
-  auth_url           = "https://iam.myhwclouds.com:443/v3"
 }
 ```
 
@@ -108,7 +103,6 @@ provider "huaweicloud" {
   secret_key         = "${var.secret_key}"
   domain_name        = "${var.domain_name}"
   region             = "${var.region}"
-  auth_url           = "https://iam.myhwclouds.com:443/v3"
 }
 ```
 
@@ -121,7 +115,6 @@ provider "huaweicloud" {
   delegated_project  = "${var.delegated_project}"
   token              = "${var.token}"
   region             = "${var.region}"
-  auth_url           = "https://iam.myhwclouds.com:443/v3"
 }
 ```
 ```token``` specified is not the normal token, but must have the authority of 'Agent Operator'
@@ -136,9 +129,8 @@ The following arguments are supported:
 * `secret_key` - (Optional) The secret key of the HuaweiCloud to use.
   If omitted, the `OS_SECRET_KEY` environment variable is used.
 
-* `auth_url` - (Required) The Identity authentication URL. If omitted, the
-  `OS_AUTH_URL` environment variable is used. To find the auth_url, you can
-  refer to [Regions and Endpoints](https://developer.huaweicloud.com/en-us/endpoint)
+* `auth_url` - (Optional, Required before 1.14.0) The Identity authentication URL. If omitted, the
+  `OS_AUTH_URL` environment variable is used. This is not required if you use Huawei Cloud.
 
 * `region` - (Optional) The region of the HuaweiCloud to use. If omitted,
   the `OS_REGION_NAME` environment variable is used. If `OS_REGION_NAME` is
