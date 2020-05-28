@@ -28,9 +28,10 @@ func Provider() terraform.ResourceProvider {
 			},
 
 			"auth_url": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_AUTH_URL", ""),
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.EnvDefaultFunc(
+					"OS_AUTH_URL", "https://iam.myhuaweicloud.com:443/v3"),
 				Description: descriptions["auth_url"],
 			},
 
