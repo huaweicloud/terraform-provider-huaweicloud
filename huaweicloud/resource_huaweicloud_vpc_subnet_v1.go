@@ -208,12 +208,16 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract()
 	if err != nil {
-		return fmt.Errorf("Error fetching HuaweiCloud VpcSubnet tags: %s", err)
-	}
-
-	tagmap := tagsToMap(resourceTags.Tags)
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("Error saving tags for HuaweiCloud VpcSubnet (%s): %s", d.Id(), err)
+		if err404, ok := err.(golangsdk.ErrDefault404); ok {
+			log.Printf("[INFO] fetching Subnet tags failed: %s", err404)
+		} else {
+			return fmt.Errorf("Error fetching HuaweiCloud Subnet %s tags: %s", d.Id(), err)
+		}
+	} else {
+		tagmap := tagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving HuaweiCloud Subnet %s tags: %s", d.Id(), err)
+		}
 	}
 
 	return nil
