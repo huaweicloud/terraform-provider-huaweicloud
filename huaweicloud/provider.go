@@ -36,10 +36,11 @@ func Provider() terraform.ResourceProvider {
 			},
 
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: descriptions["region"],
-				DefaultFunc: schema.EnvDefaultFunc("OS_REGION_NAME", ""),
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  descriptions["region"],
+				DefaultFunc:  schema.EnvDefaultFunc("OS_REGION_NAME", nil),
+				InputDefault: "cn-north-1",
 			},
 
 			"user_name": {

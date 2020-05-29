@@ -19,109 +19,115 @@ Use the navigation to the left to read about the available resources.
 ```hcl
 # Configure the HuaweiCloud Provider
 provider "huaweicloud" {
-  user_name   = "${var.user_name}"
-  password    = "${var.password}"
-  domain_name = "${var.domain_name}"
-  tenant_name = "${var.tenant_name}"
-  region      = "${var.region}"
+  region     = "cn-north-1"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"
 }
 
-# Create a web server
-resource "huaweicloud_compute_instance_v2" "test-server" {
-  # ...
+# Create a VPC
+resource "huaweicloud_vpc_v1" "example" {
+  name = "my_vpc"
+  cidr = "192.168.0.0/16"
 }
 ```
 
 ## Authentication
 
-This provider offers 4 means for authentication.
+The Huawei Cloud provider offers a flexible means of providing credentials for
+authentication. The following methods are supported, in this order, and
+explained below:
 
-- User name + Password
-- AKSK
-- Token
-- Assume Role
+- Static credentials
+- Environment variables
 
-### User name + Password
+### Static credentials ###
 
-```hcl
-provider "huaweicloud" {
-  user_name   = "${var.user_name}"
-  password    = "${var.password}"
-  domain_name = "${var.domain_name}"
-  tenant_name = "${var.tenant_name}"
-  region      = "${var.region}"
-}
-```
+!> **Warning:** Hard-coding credentials into any Terraform configuration is not
+recommended, and risks secret leakage should this file ever be committed to a
+public version control system.
 
-### AKSK
+Static credentials can be provided by adding an `access_key` and `secret_key`
+in-line in the provider block:
+
+Usage:
 
 ```hcl
 provider "huaweicloud" {
-  access_key  = "${var.access_key}"
-  secret_key  = "${var.secret_key}"
-  domain_name = "${var.domain_name}"
-  tenant_name = "${var.tenant_name}"
-  region      = "${var.region}"
+  region     = "cn-north-1"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"
 }
 ```
+-> **NOTE:** `domain_name`, [Account](https://support.huaweicloud.com/en-us/usermanual-iam/iam_01_0552.html) need to be set if using IAM or prePaid resources.
 
-### Token
+
+By adding `user_name` and `password`:
 
 ```hcl
 provider "huaweicloud" {
-  token       = "${var.token}"
-  domain_name = "${var.domain_name}"
-  tenant_name = "${var.tenant_name}"
-  region      = "${var.region}"
+  region      = "cn-north-1"
+  domain_name = "my-account-name"
+  user_name   = "my-username"
+  password    = "my-password"
 }
 ```
 
-### Assume Role
-
-#### User name + Password
+By adding `token`:
 
 ```hcl
 provider "huaweicloud" {
-  agency_name        = "${var.agency_name}"
-  agency_domain_name = "${var.agency_domain_name}"
-  delegated_project  = "${var.delegated_project}"
-  user_name          = "${var.user_name}"
-  password           = "${var.password}"
-  domain_name        = "${var.domain_name}"
-  region             = "${var.region}"
+  region      = "cn-north-1"
+  domain_name = "my-account-name"
+  token       = "my-token"
 }
 ```
 
-#### AKSK
+
+Delegating Resource Access to Another Account by adding `agency_name`, `agency_domain_name` and `delegated_project`:
+
+Usage:
 
 ```hcl
 provider "huaweicloud" {
-  agency_name        = "${var.agency_name}"
-  agency_domain_name = "${var.agency_domain_name}"
-  delegated_project  = "${var.delegated_project}"
-  access_key         = "${var.access_key}"
-  secret_key         = "${var.secret_key}"
-  domain_name        = "${var.domain_name}"
-  region             = "${var.region}"
+  agency_name        = "agency-name"
+  agency_domain_name = "agency-domain-name"
+  delegated_project  = "delegated-project"
+
+  region     = "cn-north-1"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"
 }
 ```
 
-#### Token
+### Environment variables
+
+You can provide your credentials via the `OS_ACCESS_KEY` and
+`OS_SECRET_KEY`, environment variables, representing your Huawei
+Cloud Access Key and Secret Key, respectively.
+The `OS_USERNAME` and `OS_PASSWORD` environment variables
+are also used, if applicable:
 
 ```hcl
-provider "huaweicloud" {
-  agency_name        = "${var.agency_name}"
-  agency_domain_name = "${var.agency_domain_name}"
-  delegated_project  = "${var.delegated_project}"
-  token              = "${var.token}"
-  region             = "${var.region}"
-}
+provider "huaweicloud" {}
 ```
-```token``` specified is not the normal token, but must have the authority of 'Agent Operator'
+
+Usage:
+
+```sh
+$ export OS_ACCESS_KEY="anaccesskey"
+$ export OS_SECRET_KEY="asecretkey"
+$ export OS_REGION_NAME="cn-north-1"
+$ export OS_DOMAIN_NAME="account-name"
+$ terraform plan
+```
+
 
 ## Configuration Reference
 
 The following arguments are supported:
+
+* `region` - (Required) This is the Huawei Cloud region. It must be provided,
+  but it can also be sourced from the `OS_REGION_NAME` environment variables.
 
 * `access_key` - (Optional) The access key of the HuaweiCloud to use.
   If omitted, the `OS_ACCESS_KEY` environment variable is used.
@@ -129,46 +135,32 @@ The following arguments are supported:
 * `secret_key` - (Optional) The secret key of the HuaweiCloud to use.
   If omitted, the `OS_SECRET_KEY` environment variable is used.
 
-* `auth_url` - (Optional, Required before 1.14.0) The Identity authentication URL. If omitted, the
-  `OS_AUTH_URL` environment variable is used. This is not required if you use Huawei Cloud.
-
-* `region` - (Optional) The region of the HuaweiCloud to use. If omitted,
-  the `OS_REGION_NAME` environment variable is used. If `OS_REGION_NAME` is
-  not set, then no region will be used. It should be possible to omit the
-  region in single-region HuaweiCloud environments, but this behavior may vary
-  depending on the HuaweiCloud environment being used.
-
 * `user_name` - (Optional) The Username to login with. If omitted, the
   `OS_USERNAME` environment variable is used.
 
 * `user_id` - (Optional) The User ID to login with. If omitted, the
   `OS_USER_ID` environment variable is used.
 
-* `tenant_id` - (Optional) The ID of the Tenant (Identity v2) or Project
-  (Identity v3) to login with. If omitted, the `OS_TENANT_ID` or
-  `OS_PROJECT_ID` environment variables are used.
-
-* `tenant_name` - (Optional) The Name of the Tenant (Identity v2) or Project
-  (Identity v3) to login with. If omitted, the `OS_TENANT_NAME` or
-  `OS_PROJECT_NAME` environment variable are used.
-
 * `password` - (Optional) The Password to login with. If omitted, the
   `OS_PASSWORD` environment variable is used.
 
-* `token` - (Optional; Required if not using `user_name` and `password`)
-  A token is an expiring, temporary means of access issued via the Keystone
-  service. By specifying a token, you do not have to specify a username/password
-  combination, since the token was already created by a username/password out of
-  band of Terraform. If omitted, the `OS_AUTH_TOKEN` environment variable is used.
+* `tenant_name` - (Optional) The Name of the Tenant/Project to login with.
+  If omitted, the `OS_TENANT_NAME` or `OS_PROJECT_NAME` environment variable are used.
 
-* `domain_id` - (Optional) The ID of the Domain to scope to (Identity v3). If
-  If omitted, the following environment variables are checked (in this order):
-  `OS_USER_DOMAIN_ID`, `OS_PROJECT_DOMAIN_ID`, `OS_DOMAIN_ID`.
+* `tenant_id` - (Optional) The ID of the Tenant/Project to login with. If omitted,
+  the `OS_TENANT_ID` or `OS_PROJECT_ID` environment variables are used.
 
-* `domain_name` - (Optional) The Name of the Domain to scope to (Identity v3).
-  If omitted, the following environment variables are checked (in this order):
-  `OS_USER_DOMAIN_NAME`, `OS_PROJECT_DOMAIN_NAME`, `OS_DOMAIN_NAME`,
-  `DEFAULT_DOMAIN`.
+* `token` - (Optional) A token is an expiring, temporary means of access issued via
+  the IAM service. If omitted, the `OS_AUTH_TOKEN` environment variable is used.
+
+* `domain_name` - (Optional) The Account name of IAM to scope to. If omitted, the
+  `OS_DOMAIN_NAME` environment variable is used.
+
+* `domain_id` - (Optional) The Account ID of IAM to scope to. If omitted, the
+  `OS_DOMAIN_ID` environment variable is used.
+
+* `auth_url` - (Optional, Required before 1.14.0) The Identity authentication URL. If omitted, the
+  `OS_AUTH_URL` environment variable is used. This is not required if you use Huawei Cloud.
 
 * `insecure` - (Optional) Trust self-signed SSL certificates. If omitted, the
   `OS_INSECURE` environment variable is used.
@@ -185,13 +177,13 @@ The following arguments are supported:
   authentication. You can specify either a path to the file or the contents of
   the key. If omitted the `OS_KEY` environment variable is used.
 
-* `agency_name` - (Optional) if authorized by assume role, it must be set. The
+* `agency_name` - (Optional) if authorized by Agencies, it must be set. The
   name of agency.
 
-* `agency_domain_name` - (Optional) if authorized by assume role, it must be set.
-  The name of domain who created the agency (Identity v3).
+* `agency_domain_name` - (Optional) if authorized by Agencies, it must be set.
+  The name of the account who created the agency.
 
-* `delegated_project` - (Optional) The name of delegated project (Identity v3).
+* `delegated_project` - (Optional) The name of the delegated project.
 
 ## Additional Logging
 
