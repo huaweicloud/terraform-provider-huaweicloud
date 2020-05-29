@@ -380,6 +380,14 @@ func init() {
 }
 
 func configureProvider(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
+	var tenant_name string
+	// Use region as tenant_name if it's not set
+	if v, ok := d.GetOk("tenant_name"); ok && v.(string) != "" {
+		tenant_name = v.(string)
+	} else {
+		tenant_name = d.Get("region").(string)
+	}
+
 	config := Config{
 		AccessKey:        d.Get("access_key").(string),
 		SecretKey:        d.Get("secret_key").(string),
@@ -394,7 +402,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		Region:           d.Get("region").(string),
 		Token:            d.Get("token").(string),
 		TenantID:         d.Get("tenant_id").(string),
-		TenantName:       d.Get("tenant_name").(string),
+		TenantName:       tenant_name,
 		Username:         d.Get("user_name").(string),
 		UserID:           d.Get("user_id").(string),
 		AgencyName:       d.Get("agency_name").(string),
