@@ -385,12 +385,20 @@ func init() {
 }
 
 func configureProvider(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
-	var tenant_name string
+	var tenant_name, delegated_project string
+
 	// Use region as tenant_name if it's not set
 	if v, ok := d.GetOk("tenant_name"); ok && v.(string) != "" {
 		tenant_name = v.(string)
 	} else {
 		tenant_name = d.Get("region").(string)
+	}
+
+	// Use region as delegated_project if it's not set
+	if v, ok := d.GetOk("delegated_project"); ok && v.(string) != "" {
+		delegated_project = v.(string)
+	} else {
+		delegated_project = d.Get("region").(string)
 	}
 
 	config := Config{
@@ -412,7 +420,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		UserID:           d.Get("user_id").(string),
 		AgencyName:       d.Get("agency_name").(string),
 		AgencyDomainName: d.Get("agency_domain_name").(string),
-		DelegatedProject: d.Get("delegated_project").(string),
+		DelegatedProject: delegated_project,
 		terraformVersion: terraformVersion,
 	}
 
