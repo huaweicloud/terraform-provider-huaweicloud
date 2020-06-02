@@ -61,8 +61,12 @@ func (c *Config) LoadAndValidate() error {
 	if c.Token != "" {
 		err = buildClientByToken(c)
 
-	} else if c.Password != "" && (c.Username != "" || c.UserID != "") {
-		err = buildClientByPassword(c)
+	} else if c.Password != "" {
+		if c.Username == "" && c.UserID == "" {
+			err = fmt.Errorf("\"password\": one of `user_name, user_id` must be specified")
+		} else {
+			err = buildClientByPassword(c)
+		}
 
 	} else if c.AccessKey != "" && c.SecretKey != "" {
 		err = buildClientByAKSK(c)

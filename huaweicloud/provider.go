@@ -14,17 +14,19 @@ func Provider() terraform.ResourceProvider {
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"access_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_ACCESS_KEY", ""),
-				Description: descriptions["access_key"],
+				Type:         schema.TypeString,
+				Optional:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("OS_ACCESS_KEY", nil),
+				Description:  descriptions["access_key"],
+				RequiredWith: []string{"secret_key"},
 			},
 
 			"secret_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_SECRET_KEY", ""),
-				Description: descriptions["secret_key"],
+				Type:         schema.TypeString,
+				Optional:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("OS_SECRET_KEY", nil),
+				Description:  descriptions["secret_key"],
+				RequiredWith: []string{"access_key"},
 			},
 
 			"auth_url": {
@@ -144,17 +146,19 @@ func Provider() terraform.ResourceProvider {
 			},
 
 			"agency_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_AGENCY_NAME", ""),
-				Description: descriptions["agency_name"],
+				Type:         schema.TypeString,
+				Optional:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("OS_AGENCY_NAME", nil),
+				Description:  descriptions["agency_name"],
+				RequiredWith: []string{"agency_domain_name"},
 			},
 
 			"agency_domain_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_AGENCY_DOMAIN_NAME", ""),
-				Description: descriptions["agency_domain_name"],
+				Type:         schema.TypeString,
+				Optional:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("OS_AGENCY_DOMAIN_NAME", nil),
+				Description:  descriptions["agency_domain_name"],
+				RequiredWith: []string{"agency_name"},
 			},
 			"delegated_project": {
 				Type:        schema.TypeString,
