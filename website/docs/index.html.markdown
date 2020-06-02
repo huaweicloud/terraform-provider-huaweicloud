@@ -19,9 +19,10 @@ Use the navigation to the left to read about the available resources.
 ```hcl
 # Configure the HuaweiCloud Provider
 provider "huaweicloud" {
-  region     = "cn-north-1"
-  access_key = "my-access-key"
-  secret_key = "my-secret-key"
+  region      = "cn-north-1"
+  domain_name = "my-account-name"
+  access_key  = "my-access-key"
+  secret_key  = "my-secret-key"
 }
 
 # Create a VPC
@@ -53,12 +54,13 @@ Usage:
 
 ```hcl
 provider "huaweicloud" {
-  region     = "cn-north-1"
-  access_key = "my-access-key"
-  secret_key = "my-secret-key"
+  region      = "cn-north-1"
+  domain_name = "my-account-name"
+  access_key  = "my-access-key"
+  secret_key  = "my-secret-key"
 }
 ```
--> **NOTE:** `domain_name`, [Account](https://support.huaweicloud.com/en-us/usermanual-iam/iam_01_0552.html) need to be set if using IAM or prePaid resources.
+-> **NOTE:** `domain_name`, [Account name](https://support.huaweicloud.com/en-us/usermanual-iam/iam_01_0552.html) need to be set if using IAM or prePaid resources.
 
 
 By adding `user_name` and `password`:
@@ -71,6 +73,7 @@ provider "huaweicloud" {
   password    = "my-password"
 }
 ```
+-> **NOTE:** `domain_name` is required here.
 
 By adding `token`:
 
@@ -93,9 +96,10 @@ provider "huaweicloud" {
   agency_domain_name = "agency-domain-name"
   delegated_project  = "delegated-project"
 
-  region     = "cn-north-1"
-  access_key = "my-access-key"
-  secret_key = "my-secret-key"
+  region      = "cn-north-1"
+  domain_name = "my-account-name"
+  access_key  = "my-access-key"
+  secret_key  = "my-secret-key"
 }
 ```
 
@@ -129,6 +133,10 @@ The following arguments are supported:
 * `region` - (Required) This is the Huawei Cloud region. It must be provided,
   but it can also be sourced from the `OS_REGION_NAME` environment variables.
 
+* `domain_name` - (Optional, Required for IAM and prePaid resources) The
+  [Account name](https://support.huaweicloud.com/en-us/usermanual-iam/iam_01_0552.html)
+  of IAM to scope to. If omitted, the `OS_DOMAIN_NAME` environment variable is used.
+
 * `access_key` - (Optional) The access key of the HuaweiCloud to use.
   If omitted, the `OS_ACCESS_KEY` environment variable is used.
 
@@ -138,26 +146,14 @@ The following arguments are supported:
 * `user_name` - (Optional) The Username to login with. If omitted, the
   `OS_USERNAME` environment variable is used.
 
-* `user_id` - (Optional) The User ID to login with. If omitted, the
-  `OS_USER_ID` environment variable is used.
-
 * `password` - (Optional) The Password to login with. If omitted, the
   `OS_PASSWORD` environment variable is used.
 
 * `tenant_name` - (Optional) The Name of the Tenant/Project to login with.
   If omitted, the `OS_TENANT_NAME` or `OS_PROJECT_NAME` environment variable are used.
 
-* `tenant_id` - (Optional) The ID of the Tenant/Project to login with. If omitted,
-  the `OS_TENANT_ID` or `OS_PROJECT_ID` environment variables are used.
-
 * `token` - (Optional) A token is an expiring, temporary means of access issued via
   the IAM service. If omitted, the `OS_AUTH_TOKEN` environment variable is used.
-
-* `domain_name` - (Optional) The Account name of IAM to scope to. If omitted, the
-  `OS_DOMAIN_NAME` environment variable is used.
-
-* `domain_id` - (Optional) The Account ID of IAM to scope to. If omitted, the
-  `OS_DOMAIN_ID` environment variable is used.
 
 * `auth_url` - (Optional, Required before 1.14.0) The Identity authentication URL. If omitted, the
   `OS_AUTH_URL` environment variable is used. This is not required if you use Huawei Cloud.
