@@ -55,7 +55,7 @@ The following arguments are supported:
 * `description` - (Optional) Indicates the description of an instance. It is a character
     string containing not more than 1024 characters.
 
-* `engine` - (Optional) Indicates a message engine. Options: rabbitmq and kafka. Changing this
+* `engine` - (Optional) Indicates a cache engine. Options: Redis and Memcached. Changing this
     creates a new instance.
 
 * `engine_version` - (Optional) Indicates the version of a message engine.
