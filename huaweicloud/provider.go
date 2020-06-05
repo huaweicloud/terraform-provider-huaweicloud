@@ -14,17 +14,19 @@ func Provider() terraform.ResourceProvider {
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"access_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_ACCESS_KEY", ""),
-				Description: descriptions["access_key"],
+				Type:         schema.TypeString,
+				Optional:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("OS_ACCESS_KEY", nil),
+				Description:  descriptions["access_key"],
+				RequiredWith: []string{"secret_key"},
 			},
 
 			"secret_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_SECRET_KEY", ""),
-				Description: descriptions["secret_key"],
+				Type:         schema.TypeString,
+				Optional:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("OS_SECRET_KEY", nil),
+				Description:  descriptions["secret_key"],
+				RequiredWith: []string{"access_key"},
 			},
 
 			"auth_url": {
@@ -144,17 +146,19 @@ func Provider() terraform.ResourceProvider {
 			},
 
 			"agency_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_AGENCY_NAME", ""),
-				Description: descriptions["agency_name"],
+				Type:         schema.TypeString,
+				Optional:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("OS_AGENCY_NAME", nil),
+				Description:  descriptions["agency_name"],
+				RequiredWith: []string{"agency_domain_name"},
 			},
 
 			"agency_domain_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_AGENCY_DOMAIN_NAME", ""),
-				Description: descriptions["agency_domain_name"],
+				Type:         schema.TypeString,
+				Optional:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("OS_AGENCY_DOMAIN_NAME", nil),
+				Description:  descriptions["agency_domain_name"],
+				RequiredWith: []string{"agency_name"},
 			},
 			"delegated_project": {
 				Type:        schema.TypeString,
@@ -381,12 +385,20 @@ func init() {
 }
 
 func configureProvider(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
-	var tenant_name string
+	var tenant_name, delegated_project string
+
 	// Use region as tenant_name if it's not set
 	if v, ok := d.GetOk("tenant_name"); ok && v.(string) != "" {
 		tenant_name = v.(string)
 	} else {
 		tenant_name = d.Get("region").(string)
+	}
+
+	// Use region as delegated_project if it's not set
+	if v, ok := d.GetOk("delegated_project"); ok && v.(string) != "" {
+		delegated_project = v.(string)
+	} else {
+		delegated_project = d.Get("region").(string)
 	}
 
 	config := Config{
@@ -408,7 +420,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		UserID:           d.Get("user_id").(string),
 		AgencyName:       d.Get("agency_name").(string),
 		AgencyDomainName: d.Get("agency_domain_name").(string),
-		DelegatedProject: d.Get("delegated_project").(string),
+		DelegatedProject: delegated_project,
 		terraformVersion: terraformVersion,
 	}
 
