@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -15,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/hashicorp/errwrap"
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
 	"github.com/hashicorp/terraform-plugin-sdk/httpclient"
 	"github.com/huaweicloud/golangsdk"
@@ -76,11 +76,7 @@ func (c *Config) LoadAndValidate() error {
 		return err
 	}
 
-	var osDebug bool
-	if os.Getenv("OS_DEBUG") != "" {
-		osDebug = true
-	}
-	return c.newS3Session(osDebug)
+	return c.newS3Session(logging.IsDebugOrHigher())
 }
 
 func generateTLSConfig(c *Config) (*tls.Config, error) {
@@ -137,16 +133,10 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 	}
 	transport := &http.Transport{Proxy: http.ProxyFromEnvironment, TLSClientConfig: config}
 
-	// if OS_DEBUG is set, log the requests and responses
-	var osDebug bool
-	if os.Getenv("OS_DEBUG") != "" {
-		osDebug = true
-	}
-
 	client.HTTPClient = http.Client{
 		Transport: &LogRoundTripper{
 			Rt:      transport,
-			OsDebug: osDebug,
+			OsDebug: logging.IsDebugOrHigher(),
 		},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if client.AKSKAuthOptions.AccessKey != "" {
@@ -404,7 +394,7 @@ func (c *Config) newObjectStorageClient(region string) (*obs.ObsClient, error) {
 	}
 
 	// init log
-	if os.Getenv("OS_DEBUG") != "" {
+	if logging.IsDebugOrHigher() {
 		var logfile = "./.obs-sdk.log"
 		// maxLogSize:10M, backups:10
 		if err = obs.InitLog(logfile, 1024*1024*10, 10, obs.LEVEL_DEBUG, false); err != nil {
