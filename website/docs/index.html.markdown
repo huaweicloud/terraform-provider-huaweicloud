@@ -181,21 +181,6 @@ The following arguments are supported:
 
 * `delegated_project` - (Optional) The name of the delegated project.
 
-## Additional Logging
-
-This provider has the ability to log all HTTP requests and responses between
-Terraform and the HuaweiCloud cloud which is useful for troubleshooting and
-debugging.
-
-To enable these logs, set the `OS_DEBUG` environment variable to `1` along
-with the usual `TF_LOG=DEBUG` environment variable:
-
-```shell
-$ OS_DEBUG=1 TF_LOG=DEBUG terraform apply
-```
-
-If you submit these logs with a bug report, please ensure any sensitive
-information has been scrubbed first!
 
 ## Testing and Development
 
