@@ -17,17 +17,19 @@ Use this data source to get the ID of an available Huaweicloud dcs az.
 data "huaweicloud_dcs_az_v1" "az1" {
   name = "AZ1"
   port = "8004"
-  code = "sa-chile-1a"
+  code = "cn-north-1a"
 }
 ```
 
 ## Argument Reference
 
-* `name` - (Required) Indicates the name of an AZ.
+For details, See [Querying AZ Information](https://support.huaweicloud.com/en-us/api-dcs/dcs-api-0312039.html).
+
+* `name` - (Optional) Indicates the name of an AZ.
 
 * `code` - (Optional) Indicates the code of an AZ.
 
-* `port` - (Required) Indicates the port number of an AZ.
+* `port` - (Optional) Indicates the port number of an AZ.
 
 
 ## Attributes Reference
