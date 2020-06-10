@@ -94,12 +94,11 @@ Usage:
 provider "huaweicloud" {
   agency_name        = "agency-name"
   agency_domain_name = "agency-domain-name"
-  delegated_project  = "delegated-project"
 
   region      = "cn-north-1"
   domain_name = "my-account-name"
-  access_key  = "my-access-key"
-  secret_key  = "my-secret-key"
+  user_name   = "my-username"
+  password    = "my-password"
 }
 ```
 
