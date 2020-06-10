@@ -1,4 +1,19 @@
 ## 1.15.0 (Unreleased)
+
+ENHANCEMENTS:
+
+* Mark sensitive for password parameters [GH-314]
+* Add tags support for VPC and Subnet resources [GH-315]
+* Make `auth_url` optional for provider configuration [GH-328]
+* Use `region` as tenant_name if not set [GH-330]
+* Add some validations for parameters of provider configuration [GH-335]
+* Set external logs according to TF_LOG instead of OS_DEBUG [GH-339]
+
+BUG FIXES:
+
+* resource/huaweicloud_cdn_domain_v1: Fix resource not found issue [GH-319]
+* Ignore errors when fetching tags failed in ReadFunc [GH-332]
+
 ## 1.14.0 (April 24, 2020)
 
 FEATURES:
