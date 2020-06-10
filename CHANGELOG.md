@@ -1,18 +1,18 @@
-## 1.15.0 (Unreleased)
+## 1.15.0 (June 10, 2020)
 
 ENHANCEMENTS:
 
-* Mark sensitive for password parameters [GH-314]
-* Add tags support for VPC and Subnet resources [GH-315]
-* Make `auth_url` optional for provider configuration [GH-328]
-* Use `region` as tenant_name if not set [GH-330]
-* Add some validations for parameters of provider configuration [GH-335]
-* Set external logs according to TF_LOG instead of OS_DEBUG [GH-339]
+* Mark sensitive for password parameters ([#314](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/314))
+* Add tags support for VPC and Subnet resources ([#315](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/315))
+* Make `auth_url` optional for provider configuration ([#328](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/328))
+* Use `region` as tenant_name if not set ([#330](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/330))
+* Add some validations for parameters of provider configuration ([#335](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/335))
+* Set external logs according to TF_LOG instead of OS_DEBUG ([#339](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/339))
 
 BUG FIXES:
 
-* resource/huaweicloud_cdn_domain_v1: Fix resource not found issue [GH-319]
-* Ignore errors when fetching tags failed in ReadFunc [GH-332]
+* resource/huaweicloud_cdn_domain_v1: Fix resource not found issue ([#319](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/319))
+* Ignore errors when fetching tags failed in ReadFunc ([#332](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/332))
 
 ## 1.14.0 (April 24, 2020)
 
