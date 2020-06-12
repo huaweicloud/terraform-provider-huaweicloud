@@ -65,9 +65,17 @@ The following attributes are exported:
 
 * `shared` - Specifies whether the cross-tenant sharing is supported.
 
+* `routes` - Specifies the route information. Structure is documented below.
+
 * `region` - See Argument Reference above.
 
 * `tags` - See Argument Reference above.
+
+The `routes` block contains:
+
+* `destination` - Specifies the destination network segment of a route.
+
+* `nexthop` - Specifies the next hop of a route.
 
 ## Import
 

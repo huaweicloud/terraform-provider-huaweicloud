@@ -55,6 +55,22 @@ func resourceVirtualPrivateCloudV1() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"routes": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"destination": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"nexthop": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"tags": tagsSchema(),
 		},
 	}
@@ -136,6 +152,17 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 	d.Set("status", n.Status)
 	d.Set("shared", n.EnableSharedSnat)
 	d.Set("region", GetRegion(d, config))
+
+	// save route tables
+	routes := make([]map[string]interface{}, len(n.Routes))
+	for i, rtb := range n.Routes {
+		route := map[string]interface{}{
+			"destination": rtb.DestinationCIDR,
+			"nexthop":     rtb.NextHop,
+		}
+		routes[i] = route
+	}
+	d.Set("routes", routes)
 
 	// save VirtualPrivateCloudV2 tags
 	vpcV2Client, err := config.networkingV2Client(GetRegion(d, config))
