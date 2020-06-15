@@ -182,10 +182,17 @@ func resourceASGroup() *schema.Resource {
 			},
 			"instances": {
 				Type:        schema.TypeList,
-				Optional:    true,
+				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				ForceNew:    false,
 				Description: "The instances id list in the as group.",
+			},
+			"current_instance_number": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"tags": {
 				Type:     schema.TypeMap,
@@ -524,6 +531,8 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 
 	// set properties based on the read info
 	d.Set("scaling_group_name", asg.Name)
+	d.Set("status", asg.Status)
+	d.Set("current_instance_number", asg.ActualInstanceNumber)
 	d.Set("desire_instance_number", asg.DesireInstanceNumber)
 	d.Set("min_instance_number", asg.MinInstanceNumber)
 	d.Set("max_instance_number", asg.MaxInstanceNumber)
