@@ -23,6 +23,8 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 					testAccCheckDDSV3InstanceExists("huaweicloud_dds_instance_v3.instance", &instance),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_dds_instance_v3.instance", "name", "dds-instance"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_dds_instance_v3.instance", "ssl", "true"),
 				),
 			},
 		},

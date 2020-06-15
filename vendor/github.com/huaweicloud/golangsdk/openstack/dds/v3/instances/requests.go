@@ -15,6 +15,7 @@ type CreateOpts struct {
 	SecurityGroupId  string         `json:"security_group_id" required:"true"`
 	Password         string         `json:"password" required:"true"`
 	DiskEncryptionId string         `json:"disk_encryption_id,omitempty"`
+	Ssl              string         `json:"ssl_option,omitempty"`
 	Mode             string         `json:"mode" required:"true"`
 	Flavor           []Flavor       `json:"flavor" required:"true"`
 	BackupStrategy   BackupStrategy `json:"backup_strategy,omitempty"`
