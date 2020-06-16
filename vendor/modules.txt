@@ -129,6 +129,7 @@ github.com/hashicorp/terraform-json
 # github.com/hashicorp/terraform-plugin-sdk v1.13.0
 github.com/hashicorp/terraform-plugin-sdk/plugin
 github.com/hashicorp/terraform-plugin-sdk/helper/hashcode
+github.com/hashicorp/terraform-plugin-sdk/helper/logging
 github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv
 github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents
 github.com/hashicorp/terraform-plugin-sdk/helper/resource
@@ -144,7 +145,6 @@ github.com/hashicorp/terraform-plugin-sdk/internal/providers
 github.com/hashicorp/terraform-plugin-sdk/internal/provisioners
 github.com/hashicorp/terraform-plugin-sdk/internal/tfplugin5
 github.com/hashicorp/terraform-plugin-sdk/acctest
-github.com/hashicorp/terraform-plugin-sdk/helper/logging
 github.com/hashicorp/terraform-plugin-sdk/internal/addrs
 github.com/hashicorp/terraform-plugin-sdk/internal/command/format
 github.com/hashicorp/terraform-plugin-sdk/internal/configs
@@ -182,7 +182,7 @@ github.com/hashicorp/terraform-svchost
 github.com/hashicorp/terraform-svchost/auth
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20200522103936-0f79f7190275
+# github.com/huaweicloud/golangsdk v0.0.0-20200615044122-296c30220a0c
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/openstack
 github.com/huaweicloud/golangsdk/openstack/antiddos/v1/antiddos

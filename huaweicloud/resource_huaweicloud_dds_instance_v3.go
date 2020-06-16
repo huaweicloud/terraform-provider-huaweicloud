@@ -167,6 +167,12 @@ func resourceDdsInstanceV3() *schema.Resource {
 					},
 				},
 			},
+			"ssl": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  true,
+			},
 			"db_username": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -271,6 +277,9 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		Flavor:           resourceDdsFlavors(d),
 		BackupStrategy:   resourceDdsBackupStrategy(d),
 	}
+	if ssl := d.Get("ssl").(bool); !ssl {
+		createOpts.Ssl = "0"
+	}
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	instance, err := instances.Create(client, createOpts).Extract()
@@ -335,6 +344,12 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("mode", instance.Mode)
 	d.Set("db_username", instance.DbUserName)
 	d.Set("status", instance.Status)
+
+	sslEnable := true
+	if instance.Ssl == 0 {
+		sslEnable = false
+	}
+	d.Set("ssl", sslEnable)
 
 	datastoreList := make([]map[string]interface{}, 0, 1)
 	datastore := map[string]interface{}{

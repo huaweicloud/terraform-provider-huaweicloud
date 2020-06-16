@@ -24,6 +24,7 @@ type Instance struct {
 	SubnetId         string            `json:"subnet_id"`
 	SecurityGroupId  string            `json:"security_group_id"`
 	DiskEncryptionId string            `json:"disk_encryption_id"`
+	Ssl              string            `json:"ssl_option"`
 	Mode             string            `json:"mode"`
 	Flavor           []FlavorOpt       `json:"flavor"`
 	BackupStrategy   BackupStrategyOpt `json:"backup_strategy"`
