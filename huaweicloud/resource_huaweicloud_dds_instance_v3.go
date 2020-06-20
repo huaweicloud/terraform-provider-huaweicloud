@@ -181,6 +181,46 @@ func resourceDdsInstanceV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"port": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"nodes": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"role": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"private_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"public_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -344,6 +384,7 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("mode", instance.Mode)
 	d.Set("db_username", instance.DbUserName)
 	d.Set("status", instance.Status)
+	d.Set("port", instance.Port)
 
 	sslEnable := true
 	if instance.Ssl == 0 {
@@ -367,6 +408,13 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	backupStrategyList = append(backupStrategyList, backupStrategy)
 	d.Set("backup_strategy", backupStrategyList)
+
+	// save nodes attribute
+	err = d.Set("nodes", flattenDdsInstanceV3Nodes(instance))
+	if err != nil {
+		return fmt.Errorf("Error setting nodes of DDS instance, err: %s", err)
+	}
+
 	return nil
 }
 
@@ -399,4 +447,24 @@ func resourceDdsInstanceV3Delete(d *schema.ResourceData, meta interface{}) error
 	}
 	log.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
 	return nil
+}
+
+func flattenDdsInstanceV3Nodes(dds instances.InstanceResponse) interface{} {
+	nodesList := make([]map[string]interface{}, 0)
+	for _, group := range dds.Groups {
+		groupType := group.Type
+		for _, Node := range group.Nodes {
+			node := map[string]interface{}{
+				"type":       groupType,
+				"id":         Node.Id,
+				"name":       Node.Name,
+				"role":       Node.Role,
+				"status":     Node.Status,
+				"private_ip": Node.PrivateIP,
+				"public_ip":  Node.PublicIP,
+			}
+			nodesList = append(nodesList, node)
+		}
+	}
+	return nodesList
 }
