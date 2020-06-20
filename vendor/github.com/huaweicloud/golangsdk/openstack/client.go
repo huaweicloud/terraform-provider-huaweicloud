@@ -1107,3 +1107,15 @@ func NewFGSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 	sc, err := initClientOpts(client, eo, "fgsv2")
 	return sc, err
 }
+
+// NewGeminiDBV3 creates a ServiceClient that may be used with the GeminiDB service.
+// Note: the endpoint of GeminiDB was only published in "cn-east-2" and "cn-south-1" region,
+// other regions will raise an error.
+func NewGeminiDBV3(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc := new(golangsdk.ServiceClient)
+	sc.ProviderClient = client
+	sc.Endpoint = fmt.Sprintf("https://geminidb.%s.myhuaweicloud.com", eo.Region)
+	sc.ResourceBase = fmt.Sprintf("%s/v3/%s/", sc.Endpoint, client.ProjectID)
+
+	return sc, nil
+}

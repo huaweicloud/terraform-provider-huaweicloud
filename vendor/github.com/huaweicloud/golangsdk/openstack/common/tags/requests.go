@@ -52,7 +52,10 @@ func Delete(client *golangsdk.ServiceClient, srvType, id string, tags []Resource
 
 //Get is a method of getting the tags by id
 func Get(client *golangsdk.ServiceClient, srvType, id string) (r GetResult) {
-	_, r.Err = client.Get(getURL(client, srvType, id), &r.Body, nil)
+	_, r.Err = client.Get(getURL(client, srvType, id), &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{202, 200},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
 	return
 }
 
