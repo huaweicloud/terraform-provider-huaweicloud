@@ -189,4 +189,19 @@ The following attributes are exported:
 * `flavor` - See Argument Reference above.
 * `backup_strategy` - See Argument Reference above.
 * `db_username` - Indicates the DB Administator name.
-* `status` - Indicates the the DB instance status
+* `status` - Indicates the the DB instance status.
+* `port` - Indicates the database port number. The port range is 2100 to 9500.
+* `nodes` - Indicates the instance nodes information. Structure is documented below.
+
+The `nodes` block contains:
+
+  - `id` - Indicates the node ID.
+  - `name` - Indicates the node name.
+  - `role` - Indicates the node role.
+  - `type` - Indicates the node type.
+  - `private_ip` - Indicates the private IP address of a node. This parameter is valid only for
+     mongos nodes, replica set instances, and single node instances.
+  - `public_ip` - Indicates the EIP that has been bound on a node. This parameter is valid only for
+     mongos nodes of cluster instances, primary nodes and secondary nodes of replica set instances,
+     and single node instances.
+  - `status` - Indicates the node status.
