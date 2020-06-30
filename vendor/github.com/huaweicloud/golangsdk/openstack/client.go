@@ -26,6 +26,9 @@ const (
 	// v3 represents Keystone v3.
 	// The version can be anything from v3 to v3.x.
 	v3 = "v3"
+
+	// provider represents the suffix of endpoint url
+	provider = "myhuaweicloud.com"
 )
 
 /*
@@ -1118,4 +1121,19 @@ func NewGeminiDBV3(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) 
 	sc.ResourceBase = fmt.Sprintf("%s/v3/%s/", sc.Endpoint, client.ProjectID)
 
 	return sc, nil
+}
+
+// InitServiceClientByName create a ServiceClient which was assembled by service and region name.
+func InitServiceClientByName(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts, apiVersion string) (*golangsdk.ServiceClient, error) {
+	if eo.Name == "" || apiVersion == "" {
+		return nil, fmt.Errorf("must specify the service name and api version.")
+	}
+
+	sc := new(golangsdk.ServiceClient)
+	sc.ProviderClient = client
+	sc.Endpoint = fmt.Sprintf("https://%s.%s.%s", eo.Name, eo.Region, provider)
+	sc.ResourceBase = fmt.Sprintf("%s/%s/%s/", sc.Endpoint, apiVersion, client.ProjectID)
+
+	return sc, nil
+
 }
