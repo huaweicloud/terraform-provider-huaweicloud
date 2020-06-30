@@ -691,6 +691,14 @@ func (c *Config) FgsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	})
 }
 
+func (c *Config) initServiceClient(srv, region, apiVersion string) (*golangsdk.ServiceClient, error) {
+	var eo = golangsdk.EndpointOpts{
+		Name:   srv,
+		Region: c.determineRegion(region),
+	}
+	return huaweisdk.InitServiceClientByName(c.HwClient, eo, apiVersion)
+}
+
 func (c *Config) sdkClient(region, serviceType string, level string) (*golangsdk.ServiceClient, error) {
 	client := c.HwClient
 	if level == serviceDomainLevel {
