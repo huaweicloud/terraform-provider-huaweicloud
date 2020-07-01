@@ -276,6 +276,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_rds_parametergroup_v3":              resourceRdsConfigurationV3(),
 			"huaweicloud_gaussdb_instance":                   resourceGaussDBInstance(),
 			"huaweicloud_geminidb_instance":                  resourceGeminiDBInstanceV3(),
+			"huaweicloud_opengaussdb_instance":               resourceOpenGaussInstance(),
 			"huaweicloud_nat_gateway_v2":                     resourceNatGatewayV2(),
 			"huaweicloud_nat_snat_rule_v2":                   resourceNatSnatRuleV2(),
 			"huaweicloud_nat_dnat_rule_v2":                   resourceNatDnatRuleV2(),
