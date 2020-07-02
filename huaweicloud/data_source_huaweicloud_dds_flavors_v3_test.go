@@ -43,5 +43,6 @@ func testAccCheckDDSFlavorV3DataSourceID(n string) resource.TestCheckFunc {
 var testAccDDSFlavorV3DataSource_basic = `
 data "huaweicloud_dds_flavors_v3" "flavor" {
     engine_name = "DDS-Community"
+    vcpus = 8
 }
 `
