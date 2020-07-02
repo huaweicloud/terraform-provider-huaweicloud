@@ -178,6 +178,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_s3_bucket_object":              dataSourceS3BucketObject(),
 			"huaweicloud_kms_key_v1":                    dataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key_v1":               dataSourceKmsDataKeyV1(),
+			"huaweicloud_gaussdb_mysql_flavors":         dataSourceGaussdbMysqlFlavors(),
 			"huaweicloud_rds_flavors_v1":                dataSourceRdsFlavorV1(),
 			"huaweicloud_rds_flavors_v3":                dataSourceRdsFlavorV3(),
 			"huaweicloud_sfs_file_system_v2":            dataSourceSFSFileSystemV2(),
