@@ -17,6 +17,7 @@ func resourceOpenGaussInstance() *schema.Resource {
 		Create: resourceOpenGaussInstanceCreate,
 		Read:   resourceOpenGaussInstanceRead,
 		Delete: resourceOpenGaussInstanceDelete,
+		Update: resourceOpenGaussInstanceUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -178,7 +179,7 @@ func resourceOpenGaussInstance() *schema.Resource {
 			"volume": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -190,7 +191,7 @@ func resourceOpenGaussInstance() *schema.Resource {
 						"size": {
 							Type:     schema.TypeInt,
 							Required: true,
-							ForceNew: true,
+							ForceNew: false,
 						},
 					},
 				},
@@ -310,7 +311,7 @@ func OpenGaussInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instance
 
 func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.initServiceClient("gaussdb", GetRegion(d, config), "opengauss/v3")
+	client, err := config.openGaussV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}
@@ -395,7 +396,7 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	region := GetRegion(d, config)
-	client, err := config.initServiceClient("gaussdb", region, "opengauss/v3")
+	client, err := config.openGaussV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -480,7 +481,7 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceOpenGaussInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.initServiceClient("gaussdb", GetRegion(d, config), "opengauss/v3")
+	client, err := config.openGaussV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}
@@ -508,4 +509,46 @@ func resourceOpenGaussInstanceDelete(d *schema.ResourceData, meta interface{}) e
 	}
 	log.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
 	return nil
+}
+
+func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	client, err := config.openGaussV3Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
+	}
+
+	log.Printf("[DEBUG] Updating OpenGaussDB instances %s", d.Id())
+	instanceId := d.Id()
+
+	if d.HasChange("volume") {
+		volumeRaw := d.Get("volume").([]interface{})
+		updateVolumeOpts := instances.UpdateVolumeOpts{
+			Size: volumeRaw[0].(map[string]interface{})["size"].(int),
+		}
+		log.Printf("[DEBUG] Update Volume Options: %+v", updateVolumeOpts)
+		result := instances.UpdateVolume(client, updateVolumeOpts, instanceId)
+		if result.Err != nil {
+			return fmt.Errorf("Error updating instance %s: %s ", instanceId, result.Err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:    []string{"MODIFYING"},
+			Target:     []string{"ACTIVE"},
+			Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Delay:      40 * time.Second,
+			MinTimeout: 20 * time.Second,
+		}
+
+		_, err = stateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for instance (%s) volume to be Updated: %s ",
+				instanceId, err)
+		}
+	}
+	log.Printf("[DEBUG] Successfully updated instance %s", instanceId)
+
+	return resourceOpenGaussInstanceRead(d, meta)
 }

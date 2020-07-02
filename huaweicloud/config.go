@@ -699,6 +699,14 @@ func (c *Config) initServiceClient(srv, region, apiVersion string) (*golangsdk.S
 	return huaweisdk.InitServiceClientByName(c.HwClient, eo, apiVersion)
 }
 
+func (c *Config) openGaussV3Client(region string) (*golangsdk.ServiceClient, error) {
+	var eo = golangsdk.EndpointOpts{
+		Name:   "gaussdb",
+		Region: c.determineRegion(region),
+	}
+	return huaweisdk.InitServiceClientByName(c.HwClient, eo, "opengauss/v3")
+}
+
 func (c *Config) sdkClient(region, serviceType string, level string) (*golangsdk.ServiceClient, error) {
 	client := c.HwClient
 	if level == serviceDomainLevel {

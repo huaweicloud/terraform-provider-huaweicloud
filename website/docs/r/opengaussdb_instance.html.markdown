@@ -78,7 +78,6 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `volume` - (Required) Specifies the volume storage information. Structure is documented below.
-  Changing this parameter will create a new resource.
 
 * `port` - (Optional) Specifies the port information. Defaults to "8000".
   Changing this parameter will create a new resource.
