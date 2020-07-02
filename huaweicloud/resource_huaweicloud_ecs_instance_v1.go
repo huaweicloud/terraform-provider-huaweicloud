@@ -11,10 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
-	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
@@ -302,10 +302,10 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		d.SetId(instance_id)
 
 		if hasFilledOpt(d, "tags") {
-			tagmap := d.Get("tags").(map[string]interface{})
-			log.Printf("[DEBUG] Setting tags: %v", tagmap)
-			err = setTagForInstance(d, meta, instance_id, tagmap)
-			if err != nil {
+			tagRaw := d.Get("tags").(map[string]interface{})
+			taglist := expandResourceTags(tagRaw)
+			tagErr := tags.Create(computeV1Client, "cloudservers", instance_id, taglist).ExtractErr()
+			if tagErr != nil {
 				log.Printf("[WARN] Error setting tags of instance:%s, err=%s", instance_id, err)
 			}
 		}
@@ -355,15 +355,12 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("nics", nics)
 
 	// Set instance tags
-	Taglist, err := tags.Get(computeClient, d.Id()).Extract()
+	resourceTags, err := tags.Get(computeClient, "cloudservers", d.Id()).Extract()
 	if err != nil {
 		return fmt.Errorf("Error fetching HuaweiCloud instance tags: %s", err)
 	}
 
-	tagmap := make(map[string]string)
-	for _, val := range Taglist.Tags {
-		tagmap[val.Key] = val.Value
-	}
+	tagmap := tagsToMap(resourceTags.Tags)
 	if err := d.Set("tags", tagmap); err != nil {
 		return fmt.Errorf("[DEBUG] Error saving tag to state for HuaweiCloud instance (%s): %s", d.Id(), err)
 	}
@@ -481,31 +478,14 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("tags") {
-		computeClient, err := config.computeV1Client(GetRegion(d, config))
+		ecsClient, err := config.computeV1Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 		}
-		oldTags, err := tags.Get(computeClient, d.Id()).Extract()
-		if err != nil {
-			return fmt.Errorf("Error fetching HuaweiCloud instance tags: %s", err)
-		}
-		if len(oldTags.Tags) > 0 {
-			deleteopts := tags.BatchOpts{Action: tags.ActionDelete, Tags: oldTags.Tags}
-			deleteTags := tags.BatchAction(computeClient, d.Id(), deleteopts)
-			if deleteTags.Err != nil {
-				return fmt.Errorf("Error updating HuaweiCloud instance tags: %s", deleteTags.Err)
-			}
-		}
 
-		if hasFilledOpt(d, "tags") {
-			tagmap := d.Get("tags").(map[string]interface{})
-			if len(tagmap) > 0 {
-				log.Printf("[DEBUG] Setting tags: %v", tagmap)
-				err = setTagForInstance(d, meta, d.Id(), tagmap)
-				if err != nil {
-					return fmt.Errorf("Error updating tags of instance:%s, err:%s", d.Id(), err)
-				}
-			}
+		tagErr := UpdateResourceTags(ecsClient, d, "cloudservers")
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags of instance:%s, err:%s", d.Id(), err)
 		}
 	}
 
