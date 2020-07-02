@@ -18,16 +18,16 @@ The following example shows outputing all cidr blocks for every subnet id in a v
 
  ```hcl
 data "huaweicloud_vpc_subnet_ids_v1" "subnet_ids" {
-  vpc_id = "${var.vpc_id}" 
+  vpc_id = var.vpc_id
 }
 
 data "huaweicloud_vpc_subnet_v1" "subnet" {
-  count = "${length(data.huaweicloud_vpc_subnet_ids_v1.subnet_ids.ids)}"
-  id    = "${data.huaweicloud_vpc_subnet_ids_v1.subnet_ids.ids[count.index]}"
+  count = length(data.huaweicloud_vpc_subnet_ids_v1.subnet_ids.ids)
+  id    = tolist(data.huaweicloud_vpc_subnet_ids_v1.subnet_ids.ids)[count.index]
  }
 
 output "subnet_cidr_blocks" {
-  value = "${data.huaweicloud_vpc_subnet_v1.subnet.*.cidr}"
+  value = [for s in data.huaweicloud_vpc_subnet_v1.subnet: "${s.name}: ${s.id}: ${s.cidr}"]
 }
  ```
 
@@ -41,4 +41,4 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `ids` - A list of all the subnet ids found. This data source will fail if none are found.
+* `ids` - A set of all the subnet ids found. This data source will fail if none are found.
