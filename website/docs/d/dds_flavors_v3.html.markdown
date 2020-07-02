@@ -14,46 +14,33 @@ Use this data source to get the ID of an available HuaweiCloud dds flavor.
 
 ```hcl
 data "huaweicloud_dds_flavors_v3" "flavor" {
-    region = "cn-north-1"
     engine_name = "DDS-Community"
+    vcpus = 8
 }
 ```
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the V3 dds client.
+* `region` - (Optional) Specifies the region in which to obtain the V3 dds client.
 
-* `engine_name` - (Optional) The engine name of the dds, now only DDS-Community is supported.
+* `engine_name` - (Required) Specifies the engine name of the dds, "DDS-Community" and "DDS-Enhanced" are supported.
 
-* `speccode` - (Optional) The spec code of a dds flavor.
+* `type` - (Optional) Specifies the type of the dds falvor. "mongos", "shard", "config", "replica" and "single" are supported.
 
-## Available value for attributes
+* `vcpus` - (Optional) Specifies the vcpus of the dds flavor.
 
-engine_name | type | vcpus | ram | speccode
----- | --- | --- | --- | ---
-DDS-Community | mongos | 1 | 4 | dds.mongodb.c3.medium.4.mongos
-DDS-Community | mongos | 2 | 8 | dds.mongodb.c3.large.4.mongos
-DDS-Community | mongos | 4 | 16 | dds.mongodb.c3.xlarge.4.mongos
-DDS-Community | mongos | 8 | 32 | dds.mongodb.c3.2xlarge.4.mongos
-DDS-Community | mongos | 16 | 64 | dds.mongodb.c3.4xlarge.4.mongos
-DDS-Community | shard | 1 | 4 | dds.mongodb.c3.medium.4.shard
-DDS-Community | shard | 2 | 8 | dds.mongodb.c3.large.4.shard
-DDS-Community | shard | 4 | 16 | dds.mongodb.c3.xlarge.4.shard
-DDS-Community | shard | 8 | 32 | dds.mongodb.c3.2xlarge.4.shard
-DDS-Community | shard | 16 | 64 | dds.mongodb.c3.4xlarge.4.shard
-DDS-Community | config | 2 | 4 | dds.mongodb.c3.large.2.config
-DDS-Community | replica | 1 | 4 | dds.mongodb.c3.medium.4.repset
-DDS-Community | replica | 2 | 8 | dds.mongodb.c3.large.4.repset
-DDS-Community | replica | 4 | 16 | dds.mongodb.c3.xlarge.4.repset
-DDS-Community | replica | 8 | 32 | dds.mongodb.c3.2xlarge.4.repset
-DDS-Community | replica | 16 | 64 | dds.mongodb.c3.4xlarge.4.repset
+* `memory` - (Optional) Specifies the ram of the dds flavor in GB.
 
 
 ## Attributes Reference
 
 * `region` - See Argument Reference above.
-* `engine_name` - See Argument Reference above.
-* `speccode` - See Argument Reference above.
-* `type` - The type of the dds flavor.
-* `vcpus` - The vcpus of the dds flavor.
-* `ram` - The ram of the dds flavor.
+
+* `flavors` - Indicates the flavors information. Structure is documented below.
+
+The `flavors` block contains:
+
+* `spec_code - The name of the rds flavor.
+* `type` - See `type` above.
+* `vcpus` - See `vcpus` above.
+* `memory` - See 'memory' above.
