@@ -85,6 +85,32 @@ func Create(client *golangsdk.ServiceClient, opts CreateGaussDBBuilder) (r Creat
 	return
 }
 
+type UpdateVolumeOptsBuilder interface {
+	ToVolumeUpdateMap() (map[string]interface{}, error)
+}
+
+type UpdateVolumeOpts struct {
+	Size int `json:"size" required:"true"`
+}
+
+func (opts UpdateVolumeOpts) ToVolumeUpdateMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "enlarge_volume")
+}
+
+func UpdateVolume(client *golangsdk.ServiceClient, opts UpdateVolumeOptsBuilder, id string) (r UpdateResult) {
+	b, err := opts.ToVolumeUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(actionURL(client, id), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{202},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
+}
+
 func Delete(client *golangsdk.ServiceClient, instanceId string) (r DeleteResult) {
 	url := deleteURL(client, instanceId)
 

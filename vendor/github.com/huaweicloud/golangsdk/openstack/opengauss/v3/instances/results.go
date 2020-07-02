@@ -59,6 +59,10 @@ type CreateResult struct {
 	commonResult
 }
 
+type UpdateResult struct {
+	commonResult
+}
+
 func (r CreateResult) Extract() (*CreateResponse, error) {
 	var response CreateResponse
 	err := r.ExtractInto(&response)
