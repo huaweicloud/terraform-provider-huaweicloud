@@ -111,6 +111,41 @@ func UpdateVolume(client *golangsdk.ServiceClient, opts UpdateVolumeOptsBuilder,
 	return
 }
 
+type UpdateClusterOptsBuilder interface {
+	ToClusterUpdateMap() (map[string]interface{}, error)
+}
+
+type Shard struct {
+	Count int `json:"count" required:"true"`
+}
+
+type Coordinator struct {
+	AzCode string `json:"az_code" required:"true"`
+}
+
+type UpdateClusterOpts struct {
+	Shard        *Shard        `json:"shard,omitempty"`
+	Coordinators []Coordinator `json:"coordinators,omitempty"`
+}
+
+func (opts UpdateClusterOpts) ToClusterUpdateMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "expand_cluster")
+}
+
+func UpdateCluster(client *golangsdk.ServiceClient, opts UpdateClusterOptsBuilder, id string) (r UpdateResult) {
+	b, err := opts.ToClusterUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(actionURL(client, id), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{202},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
+}
+
 func Delete(client *golangsdk.ServiceClient, instanceId string) (r DeleteResult) {
 	url := deleteURL(client, instanceId)
 

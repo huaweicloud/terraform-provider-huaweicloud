@@ -22,9 +22,9 @@ func TestGaussDBInstance_basic(t *testing.T) {
 			{
 				Config: testAccGaussDBInstanceConfig_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGaussDBInstanceExists("huaweicloud_gaussdb_instance.instance_acc", &instance),
+					testAccCheckGaussDBInstanceExists("huaweicloud_gaussdb_mysql_instance.instance_acc", &instance),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_gaussdb_instance.instance_acc", "name", name),
+						"huaweicloud_gaussdb_mysql_instance.instance_acc", "name", name),
 				),
 			},
 		},
@@ -39,7 +39,7 @@ func testAccCheckGaussDBInstanceDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_gaussdb_instance" {
+		if rs.Type != "huaweicloud_gaussdb_mysql_instance" {
 			continue
 		}
 
@@ -88,7 +88,7 @@ resource "huaweicloud_networking_secgroup_v2" "secgroup_acc" {
   name = "secgroup_acc"
 }
 
-resource "huaweicloud_gaussdb_instance" "instance_acc" {
+resource "huaweicloud_gaussdb_mysql_instance" "instance_acc" {
   name        = "%s"
   password    = "Test@123"
   flavor      = "gaussdb.mysql.4xlarge.x86.4"

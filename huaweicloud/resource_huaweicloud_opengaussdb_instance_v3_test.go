@@ -22,9 +22,9 @@ func TestOpenGaussInstance_basic(t *testing.T) {
 			{
 				Config: testAccOpenGaussInstanceConfig_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckOpenGaussInstanceExists("huaweicloud_opengaussdb_instance.instance_acc", &instance),
+					testAccCheckOpenGaussInstanceExists("huaweicloud_gaussdb_opengauss_instance.instance_acc", &instance),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_opengaussdb_instance.instance_acc", "name", name),
+						"huaweicloud_gaussdb_opengauss_instance.instance_acc", "name", name),
 				),
 			},
 		},
@@ -39,7 +39,7 @@ func testAccCheckOpenGaussInstanceDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_opengaussdb_instance" {
+		if rs.Type != "huaweicloud_gaussdb_opengauss_instance" {
 			continue
 		}
 
@@ -88,7 +88,7 @@ data "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name = "default"
 }
 
-resource "huaweicloud_opengaussdb_instance" "instance_acc" {
+resource "huaweicloud_gaussdb_opengauss_instance" "instance_acc" {
   name        = "%s"
   password    = "Test@123"
   flavor      = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"

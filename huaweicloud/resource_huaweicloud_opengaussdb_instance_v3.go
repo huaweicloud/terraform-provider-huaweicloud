@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -82,12 +83,12 @@ func resourceOpenGaussInstance() *schema.Resource {
 			"sharding_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"coordinator_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"disk_encryption_id": {
 				Type:     schema.TypeString,
@@ -521,7 +522,87 @@ func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Updating OpenGaussDB instances %s", d.Id())
 	instanceId := d.Id()
 
-	if d.HasChange("volume") {
+	if d.HasChange("sharding_num") {
+		old, newnum := d.GetChange("sharding_num")
+		if newnum.(int) < old.(int) {
+			return fmt.Errorf(
+				"Error expanding shard for instance (%s): new num must be larger than the old one.",
+				instanceId)
+		}
+		expand_size := newnum.(int) - old.(int)
+		updateClusterOpts := instances.UpdateClusterOpts{
+			Shard: &instances.Shard{
+				Count: expand_size,
+			},
+		}
+		log.Printf("[DEBUG] Expand Shard Options: %+v", updateClusterOpts)
+		result := instances.UpdateCluster(client, updateClusterOpts, instanceId)
+		if result.Err != nil {
+			return fmt.Errorf("Error expanding shard for instance %s: %s ", instanceId, result.Err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:    []string{"MODIFYING", "EXPANDING"},
+			Target:     []string{"ACTIVE"},
+			Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Delay:      60 * time.Second,
+			MinTimeout: 30 * time.Second,
+		}
+
+		_, err = stateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for instance (%s) shard to be Updated: %s ",
+				instanceId, err)
+		}
+	}
+
+	if d.HasChange("coordinator_num") {
+		old, newnum := d.GetChange("coordinator_num")
+		if newnum.(int) < old.(int) {
+			return fmt.Errorf(
+				"Error expanding coordinator for instance (%s): new num must be larger than the old one.",
+				instanceId)
+		}
+		expand_size := newnum.(int) - old.(int)
+
+		var coordinators []instances.Coordinator
+		azs := d.Get("availability_zone").(string)
+		az_list := strings.Split(azs, ",")
+		for i := 0; i < expand_size; i++ {
+			coordinator := instances.Coordinator{
+				AzCode: az_list[0],
+			}
+			coordinators = append(coordinators, coordinator)
+		}
+		updateClusterOpts := instances.UpdateClusterOpts{
+			Coordinators: coordinators,
+		}
+		log.Printf("[DEBUG] Expand Coordinator Options: %+v", updateClusterOpts)
+		result := instances.UpdateCluster(client, updateClusterOpts, instanceId)
+		if result.Err != nil {
+			return fmt.Errorf("Error expanding coordinator for instance %s: %s ", instanceId, result.Err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:    []string{"MODIFYING", "EXPANDING"},
+			Target:     []string{"ACTIVE"},
+			Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Delay:      60 * time.Second,
+			MinTimeout: 30 * time.Second,
+		}
+
+		_, err = stateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for instance (%s) coordinator to be Updated: %s ",
+				instanceId, err)
+		}
+	}
+
+	if d.HasChange("volume") && !d.HasChange("sharding_num") {
 		volumeRaw := d.Get("volume").([]interface{})
 		updateVolumeOpts := instances.UpdateVolumeOpts{
 			Size: volumeRaw[0].(map[string]interface{})["size"].(int),
