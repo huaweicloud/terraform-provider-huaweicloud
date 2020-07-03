@@ -1,4 +1,25 @@
-## 1.16.0 (Unreleased)
+## 1.16.0 (July 4, 2020)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_gaussdb_mysql_flavors` ([#354](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/354))
+* **New Resource:** `huaweicloud_gaussdb_mysql_instance` ([#350](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/350))
+* **New Resource:** `huaweicloud_gaussdb_opengauss_instance` ([#353](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/353))
+* **New Resource:** `huaweicloud_geminidb_instance` ([#347](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/347))
+
+ENHANCEMENTS:
+
+* Improvement on dds flavors data source ([#355](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/355))
+* Support `port` and `nodes` attributes in dds instance ([#349](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/349))
+* Support `ssl` parameter in dds instance resource ([#343](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/343))
+* Support `routes` attribute in vpc resource ([#342](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/342))
+* Support `status` and `current_instance_number` attributes in as group ([#344](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/344))
+
+BUG FIXES:
+
+* resource/huaweicloud_rds_instance_v3: fix document issue ([#348](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/348))
+
+
 ## 1.15.0 (June 10, 2020)
 
 ENHANCEMENTS:
