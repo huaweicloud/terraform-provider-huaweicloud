@@ -200,6 +200,8 @@ The following arguments are supported:
 
 * `period` - (Optional) The charging period of the instance. Changing this creates a new server.
 
+* `auto_renew` - (Optional) Specifies whether auto renew is enabled. Changing this creates a new server.
+
 * `auto_recovery` - (Optional) Whether configure automatic recovery of an instance.
 
 * `delete_disks_on_termination` - (Optional) Delete the data disks upon termination of the instance. Defaults to false. Changing this creates a new server.
