@@ -14,6 +14,7 @@ ENHANCEMENTS:
 * Support `ssl` parameter in dds instance resource [GH-343]
 * Support `routes` attribute in vpc resource [GH-342]
 * Support `status` and `current_instance_number` attributes in as group [GH-344]
+* Support `auto_renew` for ecs instance [GH-359]
 
 BUG FIXES:
 
