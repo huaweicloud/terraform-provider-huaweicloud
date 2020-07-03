@@ -1,4 +1,25 @@
 ## 1.16.0 (Unreleased)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_gaussdb_mysql_flavors` [GH-354]
+* **New Resource:** `huaweicloud_gaussdb_mysql_instance` [GH-350]
+* **New Resource:** `huaweicloud_gaussdb_opengauss_instance` [GH-353]
+* **New Resource:** `huaweicloud_geminidb_instance` [GH-347]
+
+ENHANCEMENTS:
+
+* Improvement on dds flavors data source [GH-355]
+* Support `port` and `nodes` attributes in dds instance [GH-349]
+* Support `ssl` parameter in dds instance resource [GH-343]
+* Support `routes` attribute in vpc resource [GH-342]
+* Support `status` and `current_instance_number` attributes in as group [GH-344]
+
+BUG FIXES:
+
+* resource/huaweicloud_rds_instance_v3: fix document issue [GH-348]
+
+
 ## 1.15.0 (June 10, 2020)
 
 ENHANCEMENTS:
