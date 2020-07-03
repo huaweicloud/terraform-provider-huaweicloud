@@ -89,10 +89,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `sharding_num` - (Optional) The Sharding num. Values: 1~32.
-  Changing this parameter will create a new resource.
 
 * `coordinator_num` - (Optional) The Coordinator num. Values: 1~32.
-  Changing this parameter will create a new resource.
 
 * `disk_encryption_id` - (Optional) Specifies the volume encryption KMS id.
   Changing this parameter will create a new resource.
