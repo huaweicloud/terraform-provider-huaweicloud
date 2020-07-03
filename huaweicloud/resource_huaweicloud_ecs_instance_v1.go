@@ -184,6 +184,11 @@ func resourceEcsInstanceV1() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"auto_renew": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"tags": {
 				Type:         schema.TypeMap,
 				Optional:     true,
@@ -243,6 +248,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		extendParam.PeriodType = d.Get("period_unit").(string)
 		extendParam.PeriodNum = d.Get("period").(int)
 		extendParam.IsAutoPay = "true"
+		extendParam.IsAutoRenew = d.Get("auto_renew").(string)
 	}
 	if hasFilledOpt(d, "enterprise_project_id") {
 		extendParam.EnterpriseProjectId = d.Get("enterprise_project_id").(string)
