@@ -20,9 +20,9 @@ Provides a cluster resource (CCE).
     resource "huaweicloud_cce_cluster_v3" "cluster_1" {
      name = "cluster"
      cluster_type= "VirtualMachine"
-     flavor_id= "${var.flavor_id}"
-     vpc_id= "${var.vpc_id}"
-     subnet_id= "${var.subnet_id}"
+     flavor_id= var.flavor_id
+     vpc_id= var.vpc_id
+     subnet_id= var.subnet_id
      container_network_type= "overlay_l2"
      authentication_mode = "rbac"
      description= "Create cluster"
@@ -33,12 +33,7 @@ Provides a cluster resource (CCE).
 
 The following arguments are supported:
 
-
 * `name` - (Required) Cluster name. Changing this parameter will create a new cluster resource.
-
-* `labels` - (Optional) Cluster tag, key/value pair format. Changing this parameter will create a new cluster resource.
-
-* `annotations` - (Optional) Cluster annotation, key/value pair format. Changing this parameter will create a new cluster resource.
 
 * `flavor_id` - (Required) Cluster specifications. Changing this parameter will create a new cluster resource. Possible values:
 
@@ -55,11 +50,12 @@ The following arguments are supported:
 	* `cce.t2.medium` - medium-scale HA physical machine cluster (up to 100 nodes).
 	* `cce.t2.large` - large-scale HA physical machine cluster (up to 500 nodes).
 
-* `cluster_version` - (Optional) For the cluster version, possible values are v1.7.3-r10 or v1.9.2-r1.
+* `cluster_version` - (Optional) For the cluster version, defaults to the latest supported version. To learn which cluster
+versions are available, choose Dashboard > Buy Cluster on the CCE console. Changing this parameter will create a new cluster resource.
 
 * `cluster_type` - (Required) Cluster Type, possible values are VirtualMachine and BareMetal. Changing this parameter will create a new cluster resource.
 
-* `description` - (Optional) Cluster description.
+* `description` - (Optional) The Cluster description.
 
 * `billing_mode` - (Optional) Charging mode of the cluster, which is 0 (on demand). Changing this parameter will create a new cluster resource.
 

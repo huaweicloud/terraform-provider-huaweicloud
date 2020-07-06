@@ -31,8 +31,6 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_cluster_v3.cluster_1", "flavor_id", "cce.s1.small"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "cluster_version", "v1.7.3-r10"),
-					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_cluster_v3.cluster_1", "container_network_type", "overlay_l2"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_cluster_v3.cluster_1", "authentication_mode", "x509"),
@@ -127,7 +125,6 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
   flavor_id="cce.s1.small"
-  cluster_version = "v1.7.3-r10"
   vpc_id="%s"
   subnet_id="%s"
   container_network_type="overlay_l2"
@@ -138,7 +135,6 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
   flavor_id="cce.s1.small"
-  cluster_version = "v1.7.3-r10"
   vpc_id="%s"
   subnet_id="%s"
   container_network_type="overlay_l2"
@@ -153,13 +149,12 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
   flavor_id="cce.s1.small"
-  cluster_version = "v1.7.3-r10"
   vpc_id="%s"
   subnet_id="%s"
   eip= "${huaweicloud_networking_floatingip_v2.fip_1.address}"
   container_network_type="overlay_l2"
   authentication_mode = "rbac"
-    timeouts {
+  timeouts {
     create = "10m"
     delete = "10m"
   }
