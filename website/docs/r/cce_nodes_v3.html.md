@@ -35,7 +35,7 @@ Add a node to a container cluster.
       volumetype= "SATA"
     }
   }
- ```    
+ ``` 
 
 
 ## Argument Reference
@@ -43,14 +43,8 @@ The following arguments are supported:
 
 * `cluster_id` - (Required) ID of the cluster. Changing this parameter will create a new resource.
 
-* `billing_mode` - (Optional) Node's billing mode: The value is 0 (on demand). Changing this parameter will create a new resource.
-
 * `name` - (Optional) Node Name.
 
-* `labels` - (Optional) Node tag, key/value pair format. Changing this parameter will create a new resource.
-
-* `annotations` - (Optional) Node annotation, key/value pair format. Changing this parameter will create a new resource.
-    
 * `flavor_id` - (Required) Specifies the flavor id. Changing this parameter will create a new resource.
     
 * `availability_zone` - (Required) specify the name of the available partition (AZ). Changing this parameter will create a new resource.
@@ -79,17 +73,7 @@ If the eip_ids parameter is configured, you do not need to configure the eip_cou
 
 * `bandwidth_size` - (Optional) Bandwidth size. Changing this parameter will create a new resource.
 
-* `extend_param_charging_mode` - (Optional) Node charging mode, 0 is on-demand charging. Changing this parameter will create a new cluster resource.
-
-* `ecs_performance_type` - (Optional) Classification of cloud server specifications. Changing this parameter will create a new cluster resource.
-
-* `order_id` - (Optional) Order ID, mandatory when the node payment type is the automatic payment package period type. Changing this parameter will create a new cluster resource.
-
-* `product_id` - (Optional) The Product ID. Changing this parameter will create a new cluster resource.
-
 * `max_pods` - (Optional) The maximum number of instances a node is allowed to create. Changing this parameter will create a new cluster resource.
-
-* `public_key` - (Optional) The Public key. Changing this parameter will create a new cluster resource.
 
 * `preinstall` - (Optional) Script required before installation. The input value can be a Base64 encoded string or not.
     Changing this parameter will create a new resource.
