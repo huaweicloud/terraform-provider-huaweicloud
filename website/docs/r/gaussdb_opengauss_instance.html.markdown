@@ -1,25 +1,21 @@
 ---
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_opengaussdb_instance"
-sidebar_current: "docs-huaweicloud-resource-opengaussdb-instance"
+page_title: "HuaweiCloud: huaweicloud_gaussdb_opengauss_instance"
+sidebar_current: "docs-huaweicloud-resource-gaussdb-opengauss-instance"
 description: |-
-  OpenGaussDB instance management
+  GaussDB OpenGauss instance management
 ---
 
-# huaweicloud\_opengaussdb\_instance
+# huaweicloud\_gaussdb\_opengauss\_instance
 
-OpenGaussDB instance management within HuaweiCoud.
+GaussDB OpenGauss instance management within HuaweiCoud.
 
 ## Example Usage
 
 ### create a basic instance
 
 ```hcl
-data "huaweicloud_networking_secgroup_v2" "secgroup" {
-  name = "default"
-}
-
-resource "huaweicloud_opengaussdb_instance" "instance_acc" {
+resource "huaweicloud_gaussdb_opengauss_instance" "instance_acc" {
   name        = "opengaussdb_instance_1"
   password    = "Test@123"
   flavor      = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
@@ -37,7 +33,7 @@ resource "huaweicloud_opengaussdb_instance" "instance_acc" {
     type = "ULTRAHIGH"
     size = 120
   }
-  security_group_id = data.huaweicloud_networking_secgroup_v2.secgroup.id
+  security_group_id = var.secgroup.id
   sharding_num = 1
   coordinator_num = 1
 }
@@ -157,5 +153,5 @@ The `nodes` block contains:
 OpenGaussDB instance can be imported using the `id`, e.g.
 
 ```
-$ terraform import huaweicloud_opengaussdb_instance.instance_1 ee678f40-ce8e-4d0c-8221-38dead426f06
+$ terraform import huaweicloud_gaussdb_opengauss_instance.instance_1 ee678f40-ce8e-4d0c-8221-38dead426f06
 ```

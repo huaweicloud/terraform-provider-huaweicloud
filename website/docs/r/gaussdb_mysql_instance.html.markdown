@@ -1,21 +1,21 @@
 ---
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_gaussdb_instance"
-sidebar_current: "docs-huaweicloud-resource-gaussdb-instance"
+page_title: "HuaweiCloud: huaweicloud_gaussdb_mysql_instance"
+sidebar_current: "docs-huaweicloud-resource-gaussdb-mysql-instance"
 description: |-
-  GaussDB instance management
+  GaussDB Mysql instance management
 ---
 
-# huaweicloud\_gaussdb\_instance
+# huaweicloud\_gaussdb\_mysql\_instance
 
-GaussDB instance management within HuaweiCoud.
+GaussDB mysql instance management within HuaweiCoud.
 
 ## Example Usage
 
 ### create a basic instance
 
 ```hcl
-resource "huaweicloud_gaussdb_instance" "instance_1" {
+resource "huaweicloud_gaussdb_mysql_instance" "instance_1" {
   name        = "gaussdb_instance_1"
   password    = var.password
   flavor      = "gaussdb.mysql.4xlarge.x86.4" 
@@ -25,10 +25,10 @@ resource "huaweicloud_gaussdb_instance" "instance_1" {
 }
 ```
 
-### create a gaussdb instance with backup strategy
+### create a gaussdb mysql instance with backup strategy
 
 ```hcl
-resource "huaweicloud_gaussdb_instance" "instance_1" {
+resource "huaweicloud_gaussdb_mysql_instance" "instance_1" {
   name        = "gaussdb_instance_1"
   password    = var.password
   flavor      = "gaussdb.mysql.4xlarge.x86.4"
@@ -135,5 +135,5 @@ The `nodes` block contains:
 GaussDB instance can be imported using the `id`, e.g.
 
 ```
-$ terraform import huaweicloud_gaussdb_instance.instance_1 ee678f40-ce8e-4d0c-8221-38dead426f06
+$ terraform import huaweicloud_gaussdb_mysql_instance.instance_1 ee678f40-ce8e-4d0c-8221-38dead426f06
 ```
