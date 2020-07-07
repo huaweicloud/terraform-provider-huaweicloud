@@ -246,6 +246,10 @@ func resourceCCENodeV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -324,6 +328,13 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		base64PostInstall = installScriptEncode(v.(string))
 	}
 
+	// eip_count and bandwidth_size parameters must be set simultaneously
+	bandwidthSize := d.Get("bandwidth_size").(int)
+	eipCount := d.Get("eip_count").(int)
+	if bandwidthSize > 0 && eipCount == 0 {
+		eipCount = 1
+	}
+
 	createOpts := nodes.CreateOpts{
 		Kind:       "Node",
 		ApiVersion: "v3",
@@ -341,12 +352,12 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 			DataVolumes: resourceCCEDataVolume(d),
 			PublicIP: nodes.PublicIPSpec{
 				Ids:   resourceCCEEipIDs(d),
-				Count: d.Get("eip_count").(int),
+				Count: eipCount,
 				Eip: nodes.EipSpec{
 					IpType: d.Get("iptype").(string),
 					Bandwidth: nodes.BandwidthOpts{
 						ChargeMode: d.Get("bandwidth_charge_mode").(string),
-						Size:       d.Get("bandwidth_size").(int),
+						Size:       bandwidthSize,
 						ShareType:  d.Get("sharetype").(string),
 					},
 				},
@@ -421,12 +432,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node: %s", err)
 	}
 
-	node, err := nodes.Get(nodeClient, clusterid, nodeid).Extract()
-	d.SetId(node.Metadata.Id)
-	d.Set("iptype", s.Spec.PublicIP.Eip.IpType)
-	d.Set("bandwidth_charge_mode", s.Spec.PublicIP.Eip.Bandwidth.ChargeMode)
-	d.Set("bandwidth_size", s.Spec.PublicIP.Eip.Bandwidth.Size)
-	d.Set("sharetype", s.Spec.PublicIP.Eip.Bandwidth.ShareType)
+	d.SetId(nodeid)
 	return resourceCCENodeV3Read(d, meta)
 }
 
@@ -448,6 +454,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error retrieving HuaweiCloud Node: %s", err)
 	}
 
+	d.Set("region", GetRegion(d, config))
 	d.Set("name", s.Metadata.Name)
 	d.Set("flavor_id", s.Spec.Flavor)
 	d.Set("availability_zone", s.Spec.Az)
@@ -460,6 +467,17 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("max_pods", s.Spec.ExtendParam.MaxPods)
 	d.Set("ecs_performance_type", s.Spec.ExtendParam.EcsPerformanceType)
 	d.Set("key_pair", s.Spec.Login.SshKey)
+
+	// Spec.PublicIP field is empty in the response body even if eip was configured,
+	// so we should not set the following attributes
+	/*
+		// set PublicIPSpec
+		d.Set("eip_ids", s.Spec.PublicIP.Ids)
+		d.Set("iptype", s.Spec.PublicIP.Eip.IpType)
+		d.Set("bandwidth_charge_mode", s.Spec.PublicIP.Eip.Bandwidth.ChargeMode)
+		d.Set("bandwidth_size", s.Spec.PublicIP.Eip.Bandwidth.Size)
+		d.Set("sharetype", s.Spec.PublicIP.Eip.Bandwidth.ShareType)
+	*/
 
 	var volumes []map[string]interface{}
 	for _, pairObject := range s.Spec.DataVolumes {
@@ -485,11 +503,11 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node (%s): %s", d.Id(), err)
 	}
 
-	d.Set("eip_ids", s.Spec.PublicIP.Ids)
-	d.Set("region", GetRegion(d, config))
+	// set computed attributes
 	d.Set("private_ip", s.Status.PrivateIP)
 	d.Set("public_ip", s.Status.PublicIP)
 	d.Set("server_id", s.Status.ServerID)
+	d.Set("status", s.Status.Phase)
 
 	return nil
 }
