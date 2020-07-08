@@ -182,9 +182,10 @@ func resourceComputeInstanceV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"admin_pass": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Optional:  true,
+				ForceNew:  false,
 			},
 			"access_ip_v4": {
 				Type:     schema.TypeString,
