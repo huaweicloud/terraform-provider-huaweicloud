@@ -233,7 +233,6 @@ func resourceVpcEIPV1Update(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return fmt.Errorf("Error updating publicip: %s", err)
 		}
-
 	}
 
 	return resourceVpcEIPV1Read(d, meta)
@@ -249,7 +248,7 @@ func resourceVpcEIPV1Delete(d *schema.ResourceData, meta interface{}) error {
 	timeout := d.Timeout(schema.TimeoutDelete)
 	err = unbindToPort(d, d.Id(), networkingClient, timeout)
 	if err != nil {
-		return fmt.Errorf("Error unbinding eip:%s to port: %s", d.Id(), err)
+		log.Printf("[WARN] Error trying to unbind eip %s :%s", d.Id(), err)
 	}
 
 	stateConf := &resource.StateChangeConf{
