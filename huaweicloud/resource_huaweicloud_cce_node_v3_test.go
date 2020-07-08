@@ -24,8 +24,6 @@ func TestAccCCENodesV3_basic(t *testing.T) {
 					testAccCheckCCENodeV3Exists("huaweicloud_cce_node_v3.node_1", "huaweicloud_cce_cluster_v3.cluster_1", &node),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_node_v3.node_1", "name", "test-node"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_node_v3.node_1", "flavor_id", "s1.medium"),
 				),
 			},
 			{
@@ -35,24 +33,18 @@ func TestAccCCENodesV3_basic(t *testing.T) {
 						"huaweicloud_cce_node_v3.node_1", "name", "test-node2"),
 				),
 			},
-		},
-	})
-}
-
-func TestAccCCENodesV3_timeout(t *testing.T) {
-	var node nodes.Nodes
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckCCENode(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCENodeV3Destroy,
-		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodeV3_timeout,
+				Config: testAccCCENodeV3_auto_assign_eip,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCENodeV3Exists("huaweicloud_cce_node_v3.node_1", "huaweicloud_cce_cluster_v3.cluster_1", &node),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_node_v3.node_1", "os", "CentOS 7.1"),
+						"huaweicloud_cce_node_v3.node_1", "name", "test-node"),
+				),
+			},
+			{
+				Config: testAccCCENodeV3_existing_eip,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"huaweicloud_cce_node_v3.node_1", "name", "test-node"),
 				),
 			},
 		},
@@ -127,103 +119,129 @@ func testAccCheckCCENodeV3Exists(n string, cluster string, node *nodes.Nodes) re
 
 var testAccCCENodeV3_basic = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  name = "huaweicloud-cce"
-  cluster_type="VirtualMachine"
-  flavor_id="cce.s1.small"
-  cluster_version = "v1.7.3-r10"
-  vpc_id="%s"
-  subnet_id="%s"
-  container_network_type="overlay_l2"
+  name                   = "huaweicloud-cce"
+  cluster_type           = "VirtualMachine"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = "%s"
+  subnet_id              = "%s"
+  container_network_type ="overlay_l2"
 }
 
 resource "huaweicloud_cce_node_v3" "node_1" {
-cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
-  name = "test-node"
-  flavor_id="s1.medium"
-  iptype="5_bgp"
-  billing_mode=0
-  availability_zone= "%s"
-  key_pair="%s"
+  cluster_id        = huaweicloud_cce_cluster_v3.cluster_1.id
+  name              = "test-node"
+  flavor_id         = "s3.large.2"
+  availability_zone = "%s"
+  key_pair          = "%s"
+
   root_volume {
-    size= 40
-    volumetype= "SATA"
+    size       = 40
+    volumetype = "SATA"
   }
-  bandwidth_charge_mode="traffic"
-  sharetype= "PER"
-  bandwidth_size= 100
   data_volumes {
-    size= 100
-    volumetype= "SATA"
+    size       = 100
+    volumetype = "SATA"
   }
 }`, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)
 
 var testAccCCENodeV3_update = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  name = "huaweicloud-cce"
-  cluster_type="VirtualMachine"
-  flavor_id="cce.s1.small"
-  cluster_version = "v1.7.3-r10"
-  vpc_id="%s"
-  subnet_id="%s"
-  container_network_type="overlay_l2"
+  name                   = "huaweicloud-cce"
+  cluster_type           = "VirtualMachine"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = "%s"
+  subnet_id              = "%s"
+  container_network_type = "overlay_l2"
 }
 
 resource "huaweicloud_cce_node_v3" "node_1" {
-cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
-  name = "test-node2"
-  flavor_id="%s"
-  iptype="5_bgp"
-  billing_mode=0
-  availability_zone= "%s"
-  key_pair="%s"
-  root_volume {
-    size= 40
-    volumetype= "SATA"
-  }
-  bandwidth_charge_mode="traffic"
-  sharetype= "PER"
-  bandwidth_size= 100
-  data_volumes {
-    size= 100
-    volumetype= "SATA"
-  }
-}`, OS_VPC_ID, OS_NETWORK_ID, OS_FLAVOR_NAME, OS_AVAILABILITY_ZONE, OS_SSH_KEY)
+  cluster_id        = huaweicloud_cce_cluster_v3.cluster_1.id
+  name              = "test-node2"
+  flavor_id         = "s3.large.2"
+  availability_zone = "%s"
+  key_pair          = "%s"
 
-var testAccCCENodeV3_timeout = fmt.Sprintf(`
+  root_volume {
+    size       = 40
+    volumetype = "SATA"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SATA"
+  }
+}`, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)
+
+var testAccCCENodeV3_auto_assign_eip = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  name = "huaweicloud-cce"
-  cluster_type="VirtualMachine"
-  flavor_id="cce.s1.small"
-  cluster_version = "v1.7.3-r10"
-  vpc_id="%s"
-  subnet_id="%s"
-  container_network_type="overlay_l2"
+  name                   = "huaweicloud-cce"
+  cluster_type           = "VirtualMachine"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = "%s"
+  subnet_id              = "%s"
+  container_network_type ="overlay_l2"
 }
 
 resource "huaweicloud_cce_node_v3" "node_1" {
-  cluster_id = "${huaweicloud_cce_cluster_v3.cluster_1.id}"
-  name = "test-node2"
-  flavor_id="%s"
-  iptype="5_bgp"
-  billing_mode=0
-  availability_zone= "%s"
-  os= "CentOS 7.1"
-  key_pair="%s"
-  eip_count="1"
+  cluster_id        = huaweicloud_cce_cluster_v3.cluster_1.id
+  name              = "test-node"
+  flavor_id         = "s3.large.2"
+  availability_zone = "%s"
+  key_pair          = "%s"
+
   root_volume {
-    size= 40
-    volumetype= "SATA"
+    size       = 40
+    volumetype = "SATA"
   }
+  data_volumes {
+    size       = 100
+    volumetype = "SATA"
+  }
+
+  // Assign EIP
+  iptype="5_bgp"
   bandwidth_charge_mode="traffic"
   sharetype= "PER"
   bandwidth_size= 100
-  data_volumes {
-    size= 100
-    volumetype= "SATA"
-  }
-timeouts {
-create = "20m"
-delete = "10m"
-} 
+}`, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)
+
+var testAccCCENodeV3_existing_eip = fmt.Sprintf(`
+resource "huaweicloud_cce_cluster_v3" "cluster_1" {
+  name                   = "huaweicloud-cce"
+  cluster_type           = "VirtualMachine"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = "%s"
+  subnet_id              = "%s"
+  container_network_type ="overlay_l2"
 }
-`, OS_VPC_ID, OS_NETWORK_ID, OS_FLAVOR_NAME, OS_AVAILABILITY_ZONE, OS_SSH_KEY)
+
+resource "huaweicloud_vpc_eip_v1" "eip_1" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 8
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_cce_node_v3" "node_1" {
+  cluster_id        = huaweicloud_cce_cluster_v3.cluster_1.id
+  name              = "test-node"
+  flavor_id         = "s3.large.2"
+  availability_zone = "%s"
+  key_pair          = "%s"
+
+  root_volume {
+    size       = 40
+    volumetype = "SATA"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SATA"
+  }
+
+  // Assign existing EIP
+  eip_ids = [huaweicloud_vpc_eip_v1.eip_1.id]
+}`, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE, OS_SSH_KEY)
