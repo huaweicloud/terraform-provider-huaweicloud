@@ -129,37 +129,31 @@ func resourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
-				Computed: true,
 			},
 			"eip_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 			"iptype": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 			"bandwidth_charge_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 			"sharetype": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 			"bandwidth_size": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 			"billing_mode": {
 				Type:     schema.TypeInt,
@@ -171,37 +165,31 @@ func resourceCCENodeV3() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 			"ecs_performance_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 			"order_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 			"product_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 			"max_pods": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 			"public_key": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 			"preinstall": {
 				Type:     schema.TypeString,
@@ -460,24 +448,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("availability_zone", s.Spec.Az)
 	d.Set("os", s.Spec.Os)
 	d.Set("billing_mode", s.Spec.BillingMode)
-	d.Set("extend_param_charging_mode", s.Spec.ExtendParam.ChargingMode)
-	d.Set("ecs:performance_type", s.Spec.ExtendParam.PublicKey)
-	d.Set("order_id", s.Spec.ExtendParam.OrderID)
-	d.Set("product_id", s.Spec.ExtendParam.ProductID)
-	d.Set("max_pods", s.Spec.ExtendParam.MaxPods)
-	d.Set("ecs_performance_type", s.Spec.ExtendParam.EcsPerformanceType)
 	d.Set("key_pair", s.Spec.Login.SshKey)
-
-	// Spec.PublicIP field is empty in the response body even if eip was configured,
-	// so we should not set the following attributes
-	/*
-		// set PublicIPSpec
-		d.Set("eip_ids", s.Spec.PublicIP.Ids)
-		d.Set("iptype", s.Spec.PublicIP.Eip.IpType)
-		d.Set("bandwidth_charge_mode", s.Spec.PublicIP.Eip.Bandwidth.ChargeMode)
-		d.Set("bandwidth_size", s.Spec.PublicIP.Eip.Bandwidth.Size)
-		d.Set("sharetype", s.Spec.PublicIP.Eip.Bandwidth.ShareType)
-	*/
 
 	var volumes []map[string]interface{}
 	for _, pairObject := range s.Spec.DataVolumes {
