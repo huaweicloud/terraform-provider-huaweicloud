@@ -1,27 +1,26 @@
 ---
 layout: "huaweicloud"
-page_title: "Huaweicloud: huaweicloud_cce_nodes_v3"
-sidebar_current: "docs-huaweicloud-datasource-cce-nodes-v3"
+page_title: "Huaweicloud: huaweicloud_cce_node_v3"
+sidebar_current: "docs-huaweicloud-datasource-cce-node-v3"
 description: |-
   To get the specified node in a cluster.
 ---
 
-
-# huaweicloud_cce_nodes_v3
+# huaweicloud_cce_node_v3
 
 To get the specified node in a cluster.
 
 ## Example Usage
 
- ```hcl
-    variable "cluster_id" { }
-    variable "node_id" { }
-  
-    data "huaweicloud_cce_node_v3" "node" {
-     cluster_id = "${var.cluster_id}"
-     node_id= "${var.node_id}"
-    }
- ```
+```hcl
+variable "cluster_id" { }
+variable "node_name" { }
+
+data "huaweicloud_cce_node_v3" "node" {
+  cluster_id = var.cluster_id
+  name       = var.node_name
+}
+```
 ## Argument Reference
 
 The following arguments are supported:
@@ -84,11 +83,3 @@ Enumerated values: PER (indicates exclusive bandwidth) and WHOLE (indicates shar
 * `disk_size` - Disk size in GB.
 
 * `volumetype` - Disk type.
-
-
-
-
-
-
-
-

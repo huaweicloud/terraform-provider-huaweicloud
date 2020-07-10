@@ -4,25 +4,26 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccCCEClusterV3DataSource_basic(t *testing.T) {
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "data.huaweicloud_cce_cluster_v3.test"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCEClusterV3DataSource_cluster,
-			},
-			{
-				Config: testAccCCEClusterV3DataSource_basic,
+				Config: testAccCCEClusterV3DataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3DataSourceID("data.huaweicloud_cce_cluster_v3.clusters"),
-					resource.TestCheckResourceAttr("data.huaweicloud_cce_cluster_v3.clusters", "name", "huaweicloud-cce"),
-					resource.TestCheckResourceAttr("data.huaweicloud_cce_cluster_v3.clusters", "status", "Available"),
-					resource.TestCheckResourceAttr("data.huaweicloud_cce_cluster_v3.clusters", "cluster_type", "VirtualMachine"),
+					testAccCheckCCEClusterV3DataSourceID(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
+					resource.TestCheckResourceAttr(resourceName, "cluster_type", "VirtualMachine"),
 				),
 			},
 		},
@@ -44,20 +45,12 @@ func testAccCheckCCEClusterV3DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccCCEClusterV3DataSource_cluster = fmt.Sprintf(`
-resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  name = "huaweicloud-cce"
-  cluster_type = "VirtualMachine"
-  flavor_id = "cce.s1.small"
-  cluster_version = "v1.7.3-r10"
-  vpc_id = "%s"
-  subnet_id = "%s"
-  container_network_type = "overlay_l2"
-}`, OS_VPC_ID, OS_NETWORK_ID)
-
-var testAccCCEClusterV3DataSource_basic = fmt.Sprintf(`
+func testAccCCEClusterV3DataSource_basic(rName string) string {
+	return fmt.Sprintf(`
 %s
-data "huaweicloud_cce_cluster_v3" "clusters" {
-  name = "${huaweicloud_cce_cluster_v3.cluster_1.name}"
+
+data "huaweicloud_cce_cluster_v3" "test" {
+  name = huaweicloud_cce_cluster_v3.test.name
 }
-`, testAccCCEClusterV3DataSource_cluster)
+`, testAccCCEClusterV3_basic(rName))
+}

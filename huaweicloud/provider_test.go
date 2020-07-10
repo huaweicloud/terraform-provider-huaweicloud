@@ -31,7 +31,6 @@ var (
 	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
 	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
 	OS_DOMAIN_ID              = os.Getenv("OS_DOMAIN_ID")
-	OS_SSH_KEY                = os.Getenv("OS_SSH_KEY")
 	OS_DWS_ENVIRONMENT        = os.Getenv("OS_DWS_ENVIRONMENT")
 	OS_MRS_ENVIRONMENT        = os.Getenv("OS_MRS_ENVIRONMENT")
 	OS_DMS_ENVIRONMENT        = os.Getenv("OS_DMS_ENVIRONMENT")
@@ -124,13 +123,6 @@ func testAccPreCheckELB(t *testing.T) {
 
 	if OS_TENANT_ID == "" {
 		t.Skip("This environment does not support ELB tests")
-	}
-}
-
-func testAccPreCheckCCENode(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-	if OS_SSH_KEY == "" {
-		t.Skip("OS_SSH_KEY must be set for CCE Node acceptance tests")
 	}
 }
 
