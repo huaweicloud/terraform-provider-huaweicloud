@@ -1,43 +1,43 @@
 ---
 layout: "huaweicloud"
-page_title: "huaweicloud: huaweicloud_cce_nodes_v3"
-sidebar_current: "docs-huaweicloud-resource-cce-nodes-v3"
+page_title: "huaweicloud: huaweicloud_cce_node_v3"
+sidebar_current: "docs-huaweicloud-resource-cce-node-v3"
 description: |-
   Add a node to a container cluster. 
 ---
 
 
-# huaweicloud_cce_nodes_v3
+# huaweicloud_cce_node_v3
 Add a node to a container cluster. 
 
 ## Example Usage
 
- ```hcl
-   variable "cluster_id" { }
-   variable "ssh_key" { }
-   variable "availability_zone" { }
+```hcl
+variable "cluster_id" { }
+variable "ssh_key" { }
+variable "availability_zone" { }
 
-   resource "huaweicloud_cce_node_v3" "node_1" {
-    cluster_id = var.cluster_id
-    availability_zone= var.availability_zone
-    name = "node1"
-    flavor_id = "s1.medium"
-    key_pair = var.ssh_key
-    root_volume {
-     size= 40
-     volumetype= "SATA"
-    }
-    data_volumes {
-      size= 100
-      volumetype= "SATA"
-    }
+resource "huaweicloud_cce_node_v3" "node_1" {
+  cluster_id        = var.cluster_id
+  availability_zone = var.availability_zone
+  name              = "test"
+  flavor_id         = "s1.medium"
+  key_pair          = var.ssh_key
 
-    iptype = "5_bgp"
-    sharetype= "PER"
-    bandwidth_size= 100
+  root_volume {
+    size       = 40
+    volumetype = "SATA"
   }
- ``` 
+  data_volumes {
+    size       = 100
+    volumetype = "SATA"
+  }
 
+  iptype         = "5_bgp"
+  sharetype      = "PER"
+  bandwidth_size = 100
+}
+``` 
 
 ## Argument Reference
 The following arguments are supported:

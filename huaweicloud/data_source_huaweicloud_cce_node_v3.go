@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
 )
 
-func dataSourceCceNodesV3() *schema.Resource {
+func dataSourceCCENodeV3() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceCceNodesV3Read,
 

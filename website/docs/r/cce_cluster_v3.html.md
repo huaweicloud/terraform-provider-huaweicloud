@@ -8,25 +8,24 @@ description: |-
 
 # huaweicloud_cce_cluster_v3
 
-Provides a cluster resource (CCE).
+Provides a CCE cluster resource.
 
 ## Example Usage
 
- ```hcl
-    variable "flavor_id" { }
-    variable "vpc_id" { }
-    variable "subnet_id" { }
-	
-    resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-     name = "cluster"
-     cluster_type= "VirtualMachine"
-     flavor_id= var.flavor_id
-     vpc_id= var.vpc_id
-     subnet_id= var.subnet_id
-     container_network_type= "overlay_l2"
-     authentication_mode = "rbac"
-     description= "Create cluster"
-    }
+```hcl
+variable "flavor_id" { }
+variable "vpc_id" { }
+variable "subnet_id" { }
+
+resource "huaweicloud_cce_cluster_v3" "cluster_1" {
+  name                   = "cluster"
+  cluster_type           = "VirtualMachine"
+  flavor_id              = var.flavor_id
+  vpc_id                 = var.vpc_id
+  subnet_id              = var.subnet_id
+  container_network_type = "overlay_l2"
+  description            = "terraform created cluster"
+}
 ```
 
 ## Argument Reference

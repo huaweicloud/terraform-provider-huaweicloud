@@ -8,20 +8,17 @@ description: |-
 
 # huaweicloud_cce_cluster_v3
 
-   Provides details about all clusters and obtains certificate for accessing cluster information.
+Provides details about all clusters and obtains certificate for accessing cluster information.
 
 ## Example Usage
 
- ```hcl
-  variable "cluster_name" { }
-  variable "cluster_id" { }
-  variable "vpc_id" { }
+```hcl
+variable "cluster_name" { }
 
-  data "huaweicloud_cce_cluster_v3" "cluster" {
-   name = "${var.cluster_name}"
-   id= "${var.cluster_id}"
-   status= "Available"
-  }
+data "huaweicloud_cce_cluster_v3" "cluster" {
+  name   = var.cluster_name
+  status = Available"
+}
 ```
 
 ## Argument Reference
@@ -34,7 +31,7 @@ The following arguments are supported:
 
 * `status` - (Optional) The state of the cluster.
 
-* `cluster_type` - (Optional) Type of the cluster. Possible values: VirtualMachine, BareMetal or Windows
+* `cluster_type` - (Optional) Type of the cluster. Possible values: VirtualMachine, BareMetal.
 
 ## Attributes Reference
 

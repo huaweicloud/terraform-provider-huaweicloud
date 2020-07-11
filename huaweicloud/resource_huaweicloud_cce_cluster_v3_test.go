@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,42 +14,46 @@ import (
 func TestAccCCEClusterV3_basic(t *testing.T) {
 	var cluster clusters.Clusters
 
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_cluster_v3.test"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCEClusterV3_basic,
+				Config: testAccCCEClusterV3_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3Exists("huaweicloud_cce_cluster_v3.cluster_1", &cluster),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "name", "huaweicloud-cce"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "status", "Available"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "cluster_type", "VirtualMachine"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "flavor_id", "cce.s1.small"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "container_network_type", "overlay_l2"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "authentication_mode", "x509"),
+					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
+					resource.TestCheckResourceAttr(resourceName, "cluster_type", "VirtualMachine"),
+					resource.TestCheckResourceAttr(resourceName, "flavor_id", "cce.s1.small"),
+					resource.TestCheckResourceAttr(resourceName, "container_network_type", "overlay_l2"),
+					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "x509"),
 				),
 			},
 			{
-				Config: testAccCCEClusterV3_update,
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCCEClusterV3_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "description", "new description"),
+					resource.TestCheckResourceAttr(resourceName, "description", "new description"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccCCEClusterV3_timeout(t *testing.T) {
+func TestAccCCEClusterV3_withEip(t *testing.T) {
 	var cluster clusters.Clusters
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_cluster_v3.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -56,12 +61,19 @@ func TestAccCCEClusterV3_timeout(t *testing.T) {
 		CheckDestroy: testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCEClusterV3_timeout,
+				Config: testAccCCEClusterV3_withEip(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV3Exists("huaweicloud_cce_cluster_v3.cluster_1", &cluster),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "authentication_mode", "rbac"),
+					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"eip",
+				},
 			},
 		},
 	})
@@ -120,43 +132,82 @@ func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resour
 	}
 }
 
-var testAccCCEClusterV3_basic = fmt.Sprintf(`
-resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  name = "huaweicloud-cce"
-  cluster_type="VirtualMachine"
-  flavor_id="cce.s1.small"
-  vpc_id="%s"
-  subnet_id="%s"
-  container_network_type="overlay_l2"
-}`, OS_VPC_ID, OS_NETWORK_ID)
-
-var testAccCCEClusterV3_update = fmt.Sprintf(`
-resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  name = "huaweicloud-cce"
-  cluster_type="VirtualMachine"
-  flavor_id="cce.s1.small"
-  vpc_id="%s"
-  subnet_id="%s"
-  container_network_type="overlay_l2"
-  description="new description"
-}`, OS_VPC_ID, OS_NETWORK_ID)
-
-var testAccCCEClusterV3_timeout = fmt.Sprintf(`
-resource "huaweicloud_networking_floatingip_v2" "fip_1" {
+func testAccCCEClusterV3_Base(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_v1" "test" {
+  name = "%s"
+  cidr = "192.168.0.0/16"
 }
 
-resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  name = "huaweicloud-cce"
-  cluster_type="VirtualMachine"
-  flavor_id="cce.s1.small"
-  vpc_id="%s"
-  subnet_id="%s"
-  eip= "${huaweicloud_networking_floatingip_v2.fip_1.address}"
-  container_network_type="overlay_l2"
-  authentication_mode = "rbac"
-  timeouts {
-    create = "10m"
-    delete = "10m"
+resource "huaweicloud_vpc_subnet_v1" "test" {
+  name          = "%s"
+  cidr          = "192.168.0.0/16"
+  gateway_ip    = "192.168.0.1"
+
+  //dns is required for cce node installing
+  primary_dns   = "100.125.1.250"
+  secondary_dns = "100.125.21.250"
+  vpc_id        = huaweicloud_vpc_v1.test.id
+}
+`, rName, rName)
+}
+
+func testAccCCEClusterV3_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_cluster_v3" "test" {
+  name                   = "%s"
+  cluster_type           = "VirtualMachine"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc_v1.test.id
+  subnet_id              = huaweicloud_vpc_subnet_v1.test.id
+  container_network_type = "overlay_l2"
+}
+`, testAccCCEClusterV3_Base(rName), rName)
+}
+
+func testAccCCEClusterV3_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_cluster_v3" "test" {
+  name                   = "%s"
+  cluster_type           = "VirtualMachine"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc_v1.test.id
+  subnet_id              = huaweicloud_vpc_subnet_v1.test.id
+  container_network_type = "overlay_l2"
+  description            = "new description"
+}
+`, testAccCCEClusterV3_Base(rName), rName)
+}
+
+func testAccCCEClusterV3_withEip(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_eip_v1" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 8
+    share_type  = "PER"
+    charge_mode = "traffic"
   }
 }
-`, OS_VPC_ID, OS_NETWORK_ID)
+
+resource "huaweicloud_cce_cluster_v3" "test" {
+  name                   = "%s"
+  cluster_type           = "VirtualMachine"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc_v1.test.id
+  subnet_id              = huaweicloud_vpc_subnet_v1.test.id
+  container_network_type = "overlay_l2"
+  authentication_mode    = "rbac"
+  eip                    = huaweicloud_vpc_eip_v1.test.publicip.0.ip_address
+}
+`, testAccCCEClusterV3_Base(rName), rName)
+}
