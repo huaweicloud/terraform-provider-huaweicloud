@@ -99,6 +99,10 @@ func resourceVpcEIPV1() *schema.Resource {
 					},
 				},
 			},
+			"address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"value_specs": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -186,6 +190,7 @@ func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 		},
 	}
 	d.Set("bandwidth", bW)
+	d.Set("address", eIP.PublicAddress)
 	d.Set("region", GetRegion(d, config))
 
 	return nil

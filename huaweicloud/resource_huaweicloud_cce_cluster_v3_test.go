@@ -207,7 +207,7 @@ resource "huaweicloud_cce_cluster_v3" "test" {
   subnet_id              = huaweicloud_vpc_subnet_v1.test.id
   container_network_type = "overlay_l2"
   authentication_mode    = "rbac"
-  eip                    = huaweicloud_vpc_eip_v1.test.publicip.0.ip_address
+  eip                    = huaweicloud_vpc_eip_v1.test.address
 }
 `, testAccCCEClusterV3_Base(rName), rName)
 }
