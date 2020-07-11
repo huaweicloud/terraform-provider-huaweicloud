@@ -1,21 +1,19 @@
 ---
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_compute_availability_zones_v2"
-sidebar_current: "docs-huaweicloud-datasource-compute-availability-zones-v2"
+page_title: "HuaweiCloud: huaweicloud_availability_zones"
+sidebar_current: "docs-huaweicloud-datasource-availability-zones"
 description: |-
-  Get a list of availability zones from HuaweiCloud.
+  Get a list of availability zones from HuaweiCloud
 ---
 
-# huaweicloud\_compute\_availability\_zones\_v2
+# huaweicloud\_availability\_zones
 
 Use this data source to get a list of availability zones from HuaweiCloud
-
--> **NOTE:** It has been deprecated, use `huaweicloud_availability_zones` instead.
 
 ## Example Usage
 
 ```hcl
-data "huaweicloud_compute_availability_zones_v2" "zones" {}
+data "huaweicloud_availability_zones" "zones" {}
 ```
 
 ## Argument Reference

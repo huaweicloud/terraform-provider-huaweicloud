@@ -10,10 +10,9 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones"
 )
 
-func dataSourceComputeAvailabilityZonesV2() *schema.Resource {
+func dataSourceAvailabilityZones() *schema.Resource {
 	return &schema.Resource{
-		Read:               dataSourceComputeAvailabilityZonesV2Read,
-		DeprecationMessage: "use huaweicloud_availability_zones data source instead",
+		Read: dataSourceAvailabilityZonesRead,
 		Schema: map[string]*schema.Schema{
 			"names": {
 				Type:     schema.TypeList,
@@ -32,7 +31,7 @@ func dataSourceComputeAvailabilityZonesV2() *schema.Resource {
 	}
 }
 
-func dataSourceComputeAvailabilityZonesV2Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAvailabilityZonesRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	region := GetRegion(d, config)
 	computeClient, err := config.computeV2Client(region)
@@ -42,11 +41,11 @@ func dataSourceComputeAvailabilityZonesV2Read(d *schema.ResourceData, meta inter
 
 	allPages, err := availabilityzones.List(computeClient).AllPages()
 	if err != nil {
-		return fmt.Errorf("Error retrieving huaweicloud_compute_availability_zones_v2: %s", err)
+		return fmt.Errorf("Error retrieving Availability Zones: %s", err)
 	}
 	zoneInfo, err := availabilityzones.ExtractAvailabilityZones(allPages)
 	if err != nil {
-		return fmt.Errorf("Error extracting huaweicloud_compute_availability_zones_v2 from response: %s", err)
+		return fmt.Errorf("Error extracting Availability Zones: %s", err)
 	}
 
 	stateBool := d.Get("state").(string) == "available"
