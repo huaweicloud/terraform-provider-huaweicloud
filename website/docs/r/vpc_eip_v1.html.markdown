@@ -97,6 +97,7 @@ The following attributes are exported:
 * `bandwidth/size` - See Argument Reference above.
 * `bandwidth/share_type` - See Argument Reference above.
 * `bandwidth/charge_mode` - See Argument Reference above.
+* `address` - The IP address of the eip.
 
 ## Import
 
