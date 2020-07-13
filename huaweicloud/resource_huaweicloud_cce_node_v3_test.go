@@ -253,7 +253,7 @@ resource "huaweicloud_cce_node_v3" "test" {
   }
 
   // Assign existing EIP
-  eip_ids = [huaweicloud_vpc_eip_v1.test.id]
+  eip_id = huaweicloud_vpc_eip_v1.test.id
 }
 `, testAccCCENodeV3_Base(rName), rName)
 }

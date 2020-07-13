@@ -124,11 +124,19 @@ func resourceCCENodeV3() *schema.Resource {
 					}},
 			},
 			"eip_ids": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Type:          schema.TypeSet,
+				Optional:      true,
+				ForceNew:      true,
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				Set:           schema.HashString,
+				ConflictsWith: []string{"eip_id"},
+				Deprecated:    "use eip_id instead",
+			},
+			"eip_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"eip_ids"},
 			},
 			"eip_count": {
 				Type:     schema.TypeInt,
@@ -280,6 +288,9 @@ func resourceCCERootVolume(d *schema.ResourceData) nodes.VolumeSpec {
 	return nics
 }
 func resourceCCEEipIDs(d *schema.ResourceData) []string {
+	if v, ok := d.GetOk("eip_id"); ok {
+		return []string{v.(string)}
+	}
 	rawID := d.Get("eip_ids").(*schema.Set)
 	id := make([]string, rawID.Len())
 	for i, raw := range rawID.List() {
