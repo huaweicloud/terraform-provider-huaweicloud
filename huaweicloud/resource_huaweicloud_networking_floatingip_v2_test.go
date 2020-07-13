@@ -48,24 +48,6 @@ func TestAccNetworkingV2FloatingIP_fixedip_bind(t *testing.T) {
 	})
 }
 
-func TestAccNetworkingV2FloatingIP_timeout(t *testing.T) {
-	var fip floatingips.FloatingIP
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2FloatingIPDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccNetworkingV2FloatingIP_timeout,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_1", &fip),
-				),
-			},
-		},
-	})
-}
-
 func testAccCheckNetworkingV2FloatingIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	networkClient, err := config.networkingV2Client(OS_REGION_NAME)
@@ -195,12 +177,3 @@ resource "huaweicloud_networking_floatingip_v2" "fip_1" {
   fixed_ip = "${huaweicloud_networking_port_v2.port_1.fixed_ip.0.ip_address}"
 }
 `, OS_EXTGW_ID, OS_POOL_NAME)
-
-const testAccNetworkingV2FloatingIP_timeout = `
-resource "huaweicloud_networking_floatingip_v2" "fip_1" {
-  timeouts {
-    create = "5m"
-    delete = "5m"
-  }
-}
-`

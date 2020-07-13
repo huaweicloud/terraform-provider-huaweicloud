@@ -127,7 +127,7 @@ func testAccCCENodeV3_Base(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_compute_availability_zones_v2" "test" {}
+data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_compute_keypair_v2" "test" {
   name = "%s"
@@ -153,7 +153,7 @@ resource "huaweicloud_cce_node_v3" "test" {
   cluster_id        = huaweicloud_cce_cluster_v3.test.id
   name              = "%s"
   flavor_id         = "s3.large.2"
-  availability_zone = data.huaweicloud_compute_availability_zones_v2.test.names[0]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair_v2.test.name
 
   root_volume {
@@ -176,7 +176,7 @@ resource "huaweicloud_cce_node_v3" "test" {
   cluster_id        = huaweicloud_cce_cluster_v3.test.id
   name              = "%s"
   flavor_id         = "s3.large.2"
-  availability_zone = data.huaweicloud_compute_availability_zones_v2.test.names[0]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair_v2.test.name
 
   root_volume {
@@ -199,7 +199,7 @@ resource "huaweicloud_cce_node_v3" "test" {
   cluster_id        = huaweicloud_cce_cluster_v3.test.id
   name              = "%s"
   flavor_id         = "s3.large.2"
-  availability_zone = data.huaweicloud_compute_availability_zones_v2.test.names[0]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair_v2.test.name
 
   root_volume {
@@ -240,7 +240,7 @@ resource "huaweicloud_cce_node_v3" "test" {
   cluster_id        = huaweicloud_cce_cluster_v3.test.id
   name              = "%s"
   flavor_id         = "s3.large.2"
-  availability_zone = data.huaweicloud_compute_availability_zones_v2.test.names[0]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair_v2.test.name
 
   root_volume {
