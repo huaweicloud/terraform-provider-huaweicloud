@@ -8,10 +8,9 @@ description: |-
 
 # huaweicloud\_networking\_floatingip_v2
 
+-> **NOTE:** It has been deprecated, use `huaweicloud_vpc_eip_v1` instead.
+
 Manages a V2 floating IP resource within HuaweiCloud Neutron (networking)
-that can be used for load balancers.
-These are similar to Nova (compute) floating IP resources,
-but only compute floating IPs can be used with compute instances.
 
 ## Example Usage
 

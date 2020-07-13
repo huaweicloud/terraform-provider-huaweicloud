@@ -27,6 +27,7 @@ func resourceNetworkingFloatingIPV2() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		DeprecationMessage: "use huaweicloud_vpc_eip_v1 resource instead",
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
