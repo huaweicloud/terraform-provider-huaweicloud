@@ -186,7 +186,7 @@ func testAccComputeV2EIPAssociate_basic(rName string) string {
 %s
 
 resource "huaweicloud_compute_eip_associate_v2" "test" {
-  floating_ip = huaweicloud_vpc_eip_v1.test.address
+  public_ip = huaweicloud_vpc_eip_v1.test.address
   instance_id = huaweicloud_compute_instance_v2.test.id
 }
 `, testAccComputeV2EIPAssociate_Base(rName))
@@ -197,7 +197,7 @@ func testAccComputeV2EIPAssociate_fixedIP(rName string) string {
 %s
 
 resource "huaweicloud_compute_eip_associate_v2" "test" {
-  floating_ip = huaweicloud_vpc_eip_v1.test.address
+  public_ip = huaweicloud_vpc_eip_v1.test.address
   instance_id = huaweicloud_compute_instance_v2.test.id
   fixed_ip    = huaweicloud_compute_instance_v2.test.access_ip_v4
 }
