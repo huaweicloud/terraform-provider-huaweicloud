@@ -50,7 +50,7 @@ func testAccCheckVpcV1EIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	networkingClient, err := config.networkingV1Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating EIP: %s", err)
+		return fmt.Errorf("Error creating EIP Client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -67,7 +67,7 @@ func testAccCheckVpcV1EIPDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckVpcV1EIPExists(n string, kp *eips.PublicIp) resource.TestCheckFunc {
+func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -93,7 +93,7 @@ func testAccCheckVpcV1EIPExists(n string, kp *eips.PublicIp) resource.TestCheckF
 			return fmt.Errorf("EIP not found")
 		}
 
-		kp = &found
+		*eip = found
 
 		return nil
 	}
