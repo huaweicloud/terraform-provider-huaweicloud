@@ -11,7 +11,8 @@ import (
 
 func dataSourceNetworkingSubnetV2() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNetworkingSubnetV2Read,
+		Read:               dataSourceNetworkingSubnetV2Read,
+		DeprecationMessage: "use huaweicloud_vpc_subnet_v1 data source instead",
 
 		Schema: map[string]*schema.Schema{
 			"region": {
