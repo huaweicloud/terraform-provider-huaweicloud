@@ -37,7 +37,7 @@ resource "huaweicloud_vpc_eip_v1" "eip_1" {
 }
 
 resource "huaweicloud_compute_eip_associate_v2" "associate_1" {
-  floating_ip = huaweicloud_vpc_eip_v1.eip_1.address
+  public_ip   = huaweicloud_vpc_eip_v1.eip_1.address
   instance_id = huaweicloud_compute_instance_v2.instance_1.id
 }
 ```
@@ -74,7 +74,7 @@ resource "huaweicloud_vpc_eip_v1" "eip_1" {
 }
 
 resource "huaweicloud_compute_eip_associate_v2" "fip_1" {
-  floating_ip = huaweicloud_vpc_eip_v1.eip_1.address
+  public_ip   = huaweicloud_vpc_eip_v1.eip_1.address
   instance_id = huaweicloud_compute_instance_v2.instance_1.id
   fixed_ip    = huaweicloud_compute_instance_v2.instance_1.network.1.fixed_ip_v4
 }
@@ -84,7 +84,9 @@ resource "huaweicloud_compute_eip_associate_v2" "fip_1" {
 
 The following arguments are supported:
 
-* `floating_ip` - (Required) The EIP to associate.
+* `public_ip` - (Required) The EIP to associate.
+
+* `floating_ip` - (Deprecated) Use `public_ip` instead. The EIP to associate.
 
 * `instance_id` - (Required) The instance to associte the EIP with.
 
@@ -95,7 +97,8 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `region` - See Argument Reference above.
-* `floating_ip` - See Argument Reference above.
+* `floating_ip` - Deprecated. See Argument Reference above.
+* `public_ip` - See Argument Reference above.
 * `instance_id` - See Argument Reference above.
 * `fixed_ip` - See Argument Reference above.
 

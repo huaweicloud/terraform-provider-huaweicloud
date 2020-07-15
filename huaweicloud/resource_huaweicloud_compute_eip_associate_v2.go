@@ -30,9 +30,17 @@ func resourceComputeFloatingIPAssociateV2() *schema.Resource {
 			},
 
 			"floating_ip": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"public_ip"},
+				Deprecated:    "use public_ip instead",
+			},
+			"public_ip": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"floating_ip"},
 			},
 			"instance_id": {
 				Type:     schema.TypeString,
@@ -43,6 +51,7 @@ func resourceComputeFloatingIPAssociateV2() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
+				Computed:         true,
 				DiffSuppressFunc: suppressComputedFixedWhenFloatingIp,
 			},
 		},
@@ -56,9 +65,20 @@ func resourceComputeFloatingIPAssociateV2Create(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
-	floatingIP := d.Get("floating_ip").(string)
+	floating_ip, fip_ok := d.GetOk("floating_ip")
+	public_ip, pip_ok := d.GetOk("public_ip")
+	if !fip_ok && !pip_ok {
+		return fmt.Errorf("One of floating_ip or public_ip must be configured")
+	}
 	fixedIP := d.Get("fixed_ip").(string)
 	instanceId := d.Get("instance_id").(string)
+
+	var floatingIP string
+	if fip_ok {
+		floatingIP = floating_ip.(string)
+	} else {
+		floatingIP = public_ip.(string)
+	}
 
 	associateOpts := floatingips.AssociateOpts{
 		FloatingIP: floatingIP,
@@ -146,7 +166,12 @@ func resourceComputeFloatingIPAssociateV2Read(d *schema.ResourceData, meta inter
 	}
 
 	// Set the attributes pulled from the composed resource ID
-	d.Set("floating_ip", floatingIP)
+	if _, ok := d.GetOk("floating_ip"); ok {
+		d.Set("floating_ip", floatingIP)
+	} else {
+		d.Set("public_ip", floatingIP)
+	}
+	d.Set("public_ip", floatingIP)
 	d.Set("instance_id", instanceId)
 	d.Set("fixed_ip", fixedIP)
 	d.Set("region", GetRegion(d, config))
@@ -161,7 +186,12 @@ func resourceComputeFloatingIPAssociateV2Delete(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
-	floatingIP := d.Get("floating_ip").(string)
+	var floatingIP string
+	if _, ok := d.GetOk("floating_ip"); ok {
+		floatingIP = d.Get("floating_ip").(string)
+	} else {
+		floatingIP = d.Get("public_ip").(string)
+	}
 	instanceId := d.Get("instance_id").(string)
 
 	disassociateOpts := floatingips.DisassociateOpts{
