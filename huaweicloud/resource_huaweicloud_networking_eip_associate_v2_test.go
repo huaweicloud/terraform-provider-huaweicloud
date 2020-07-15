@@ -27,7 +27,7 @@ func TestAccNetworkingV2EIPAssociate_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip_v1.test", &eip),
 					resource.TestCheckResourceAttrPtr(
-						resourceName, "floating_ip", &eip.PublicAddress),
+						resourceName, "public_ip", &eip.PublicAddress),
 				),
 			},
 		},
@@ -91,7 +91,7 @@ resource "huaweicloud_vpc_eip_v1" "test" {
 }
 
 resource "huaweicloud_networking_eip_associate_v2" "test" {
-  floating_ip = huaweicloud_vpc_eip_v1.test.address
+  public_ip = huaweicloud_vpc_eip_v1.test.address
   port_id     = huaweicloud_networking_port_v2.test.id
 }
 `, rName, rName, rName)

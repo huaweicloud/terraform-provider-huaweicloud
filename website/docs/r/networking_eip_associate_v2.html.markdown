@@ -31,8 +31,8 @@ resource "huaweicloud_vpc_eip_v1" "eip_1" {
 }
 
 resource "huaweicloud_networking_eip_associate_v2" "fip_1" {
-  floating_ip = huaweicloud_vpc_eip_v1.eip_1.address
-  port_id     = huaweicloud_networking_port_v2.port_1.id
+  public_ip = huaweicloud_vpc_eip_v1.eip_1.address
+  port_id   = huaweicloud_networking_port_v2.port_1.id
 }
 ```
 
@@ -40,7 +40,9 @@ resource "huaweicloud_networking_eip_associate_v2" "fip_1" {
 
 The following arguments are supported:
 
-* `floating_ip` - (Required) IP Address of an existing EIP.
+* `public_ip` - (Required) The EIP to associate.
+
+* `floating_ip` - (Deprecated) Use `public_ip` instead. The EIP to associate.
 
 * `port_id` - (Required) ID of an existing port with at least one IP address to
     associate with this EIP.
@@ -50,7 +52,8 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `region` - See Argument Reference above.
-* `floating_ip` - See Argument Reference above.
+* `floating_ip` - Deprecated. See Argument Reference above.
+* `public_ip` - See Argument Reference above.
 * `port_id` - See Argument Reference above.
 
 ## Import
