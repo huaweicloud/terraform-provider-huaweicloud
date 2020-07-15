@@ -10,6 +10,8 @@ description: |-
 
 Manages a V2 router interface resource within HuaweiCloud.
 
+-> **NOTE:** It has been deprecated, use `huaweicloud_vpc_v1` instead.
+
 ## Example Usage
 
 ```hcl
