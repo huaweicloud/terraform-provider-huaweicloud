@@ -171,7 +171,6 @@ func resourceComputeFloatingIPAssociateV2Read(d *schema.ResourceData, meta inter
 	} else {
 		d.Set("public_ip", floatingIP)
 	}
-	d.Set("public_ip", floatingIP)
 	d.Set("instance_id", instanceId)
 	d.Set("fixed_ip", fixedIP)
 	d.Set("region", GetRegion(d, config))

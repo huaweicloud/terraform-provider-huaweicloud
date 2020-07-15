@@ -28,9 +28,18 @@ func resourceNetworkingFloatingIPAssociateV2() *schema.Resource {
 			},
 
 			"floating_ip": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"public_ip"},
+				Deprecated:    "use public_ip instead",
+			},
+
+			"public_ip": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"floating_ip"},
 			},
 
 			"port_id": {
@@ -49,7 +58,19 @@ func resourceNetworkingFloatingIPAssociateV2Create(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
-	floatingIP := d.Get("floating_ip").(string)
+	floating_ip, fip_ok := d.GetOk("floating_ip")
+	public_ip, pip_ok := d.GetOk("public_ip")
+	if !fip_ok && !pip_ok {
+		return fmt.Errorf("One of floating_ip or public_ip must be configured")
+	}
+
+	var floatingIP string
+	if fip_ok {
+		floatingIP = floating_ip.(string)
+	} else {
+		floatingIP = public_ip.(string)
+	}
+
 	portID := d.Get("port_id").(string)
 
 	floatingIPID, err := resourceNetworkingFloatingIPAssociateV2IP2ID(networkingClient, floatingIP)
@@ -86,7 +107,11 @@ func resourceNetworkingFloatingIPAssociateV2Read(d *schema.ResourceData, meta in
 		return CheckDeleted(d, err, "floating IP")
 	}
 
-	d.Set("floating_ip", floatingIP.FloatingIP)
+	if _, ok := d.GetOk("floating_ip"); ok {
+		d.Set("floating_ip", floatingIP.FloatingIP)
+	} else {
+		d.Set("public_ip", floatingIP.FloatingIP)
+	}
 	d.Set("port_id", floatingIP.PortID)
 	d.Set("region", GetRegion(d, config))
 
