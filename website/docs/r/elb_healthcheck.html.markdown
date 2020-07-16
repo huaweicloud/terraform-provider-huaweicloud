@@ -8,6 +8,8 @@ description: |-
 
 # huaweicloud\_elb\_healthcheck
 
+-> **NOTE:** It has been deprecated, use ELB(Enhanced) instead.
+
 Manages an elastic loadbalancer healthcheck resource within huawei cloud.
 
 ## Example Usage

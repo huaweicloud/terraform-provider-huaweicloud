@@ -17,10 +17,11 @@ const nameELBLB = "ELB-LoadBalancer"
 
 func resourceELBLoadBalancer() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceELBLoadBalancerCreate,
-		Read:   resourceELBLoadBalancerRead,
-		Update: resourceELBLoadBalancerUpdate,
-		Delete: resourceELBLoadBalancerDelete,
+		Create:             resourceELBLoadBalancerCreate,
+		Read:               resourceELBLoadBalancerRead,
+		Update:             resourceELBLoadBalancerUpdate,
+		Delete:             resourceELBLoadBalancerDelete,
+		DeprecationMessage: "use ELB(Enhanced) resource instead",
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
