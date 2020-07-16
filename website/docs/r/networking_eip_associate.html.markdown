@@ -1,12 +1,12 @@
 ---
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_networking_eip_associate_v2"
-sidebar_current: "docs-huaweicloud-resource-networking-eip-associate-v2"
+page_title: "HuaweiCloud: huaweicloud_networking_eip_associate"
+sidebar_current: "docs-huaweicloud-resource-networking-eip-associate"
 description: |-
   Associates a EIP to a Port
 ---
 
-# huaweicloud\_networking\_eip\_associate_v2
+# huaweicloud\_networking\_eip\_associate
 
 Associates an EIP to a port. This can be used instead of the
 `huaweicloud_networking_floatingip_associate_v2` resource.
@@ -30,7 +30,7 @@ resource "huaweicloud_vpc_eip_v1" "eip_1" {
   }
 }
 
-resource "huaweicloud_networking_eip_associate_v2" "fip_1" {
+resource "huaweicloud_networking_eip_associate" "fip_1" {
   public_ip = huaweicloud_vpc_eip_v1.eip_1.address
   port_id   = huaweicloud_networking_port_v2.port_1.id
 }
@@ -61,5 +61,5 @@ The following attributes are exported:
 EIP associations can be imported using the `id` of the EIP, e.g.
 
 ```
-$ terraform import huaweicloud_networking_eip_associate_v2.eip 2c7f39f3-702b-48d1-940c-b50384177ee1
+$ terraform import huaweicloud_networking_eip_associate.eip 2c7f39f3-702b-48d1-940c-b50384177ee1
 ```
