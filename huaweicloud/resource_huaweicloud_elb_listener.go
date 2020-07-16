@@ -16,10 +16,11 @@ const nameELBListener = "ELB-Listener"
 
 func resourceELBListener() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceELBListenerCreate,
-		Read:   resourceELBListenerRead,
-		Update: resourceELBListenerUpdate,
-		Delete: resourceELBListenerDelete,
+		Create:             resourceELBListenerCreate,
+		Read:               resourceELBListenerRead,
+		Update:             resourceELBListenerUpdate,
+		Delete:             resourceELBListenerDelete,
+		DeprecationMessage: "use ELB(Enhanced) resource instead",
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
