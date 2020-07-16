@@ -22,11 +22,11 @@ func TestGeminiDBInstance_basic(t *testing.T) {
 			{
 				Config: testAccGeminiDBInstanceConfig_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGeminiDBInstanceExists("huaweicloud_geminidb_instance.instance_acc", &instance),
+					testAccCheckGeminiDBInstanceExists("huaweicloud_gaussdb_cassandra_instance.instance_acc", &instance),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_geminidb_instance.instance_acc", "name", name),
+						"huaweicloud_gaussdb_cassandra_instance.instance_acc", "name", name),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_geminidb_instance.instance_acc", "status", "normal"),
+						"huaweicloud_gaussdb_cassandra_instance.instance_acc", "status", "normal"),
 				),
 			},
 		},
@@ -41,7 +41,7 @@ func testAccCheckGeminiDBInstanceDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_geminidb_instance" {
+		if rs.Type != "huaweicloud_gaussdb_cassandra_instance" {
 			continue
 		}
 
@@ -93,7 +93,7 @@ resource "huaweicloud_networking_secgroup_v2" "secgroup_acc" {
   name = "secgroup_acc"
 }
 
-resource "huaweicloud_geminidb_instance" "instance_acc" {
+resource "huaweicloud_gaussdb_cassandra_instance" "instance_acc" {
   name        = "%s"
   password    = "Test@123"
   flavor      = "geminidb.cassandra.xlarge.4"

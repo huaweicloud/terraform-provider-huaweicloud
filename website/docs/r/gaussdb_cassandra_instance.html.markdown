@@ -1,24 +1,24 @@
 ---
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_geminidb_instance"
-sidebar_current: "docs-huaweicloud-resource-geminidb-instance"
+page_title: "HuaweiCloud: huaweicloud_gaussdb_cassandra_instance"
+sidebar_current: "docs-huaweicloud-resource-gaussdb-cassandra-instance"
 description: |-
-  GeminiDB instance management
+  GaussDB for Cassandra instance management
 ---
 
-# huaweicloud\_geminidb\_instance
+# huaweicloud\_gaussdb\_cassandra\_instance
 
-GeminiDB instance management within HuaweiCoud.
+GaussDB for Cassandra instance management within HuaweiCoud.
 
 ## Example Usage
 
-### create a geminidb instance with tags
+### create a gaussdb for cassandra instance with tags
 
 ```hcl
-resource "huaweicloud_geminidb_instance" "instance_1" {
-  name        = "geminidb_instance_1"
+resource "huaweicloud_gaussdb_cassandra_instance" "instance_1" {
+  name        = "gaussdb_cassandra_instance_1"
   password    = var.password
-  flavor      = "geminidb.cassandra.xlarge.4" 
+  flavor      = "geminidb.cassandra.xlarge.4"
   volume_size = 100
   vpc_id      = var.vpc_id
   subnet_id   = var.subnet_id
@@ -32,11 +32,11 @@ resource "huaweicloud_geminidb_instance" "instance_1" {
 }
 ```
 
-### create a geminidb instance with backup strategy
+### create a gaussdb cassandra instance with backup strategy
 
 ```hcl
-resource "huaweicloud_geminidb_instance" "instance_1" {
-  name        = "geminidb_instance_1"
+resource "huaweicloud_gaussdb_cassandra_instance" "instance_1" {
+  name        = "gaussdb_cassandra_instance_1"
   password    = var.password
   flavor      = "geminidb.cassandra.xlarge.4"
   volume_size = 100
@@ -70,7 +70,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `volume_size` - (Required) Specifies the storage space in GB. The value must be a multiple of 10.
-  For a GeminiDB Cassandra DB instance, the minimum storage space is 100 GB, and the maximum
+  For a GaussDB Cassandra DB instance, the minimum storage space is 100 GB, and the maximum
   storage space is related to the instance performance specifications. For details, 
   see [DB Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-geminidb/geminidb_01_0006.html)
   Changing this parameter will create a new resource.
@@ -116,7 +116,7 @@ The `backup_strategy` block supports:
   the "hh:mm-HH:MM" format. The current time is in the UTC format.
   The HH value must be 1 greater than the hh value. The values of mm and MM
   must be the same and must be set to 00. Example value: 08:00-09:00, 03:00-04:00.
-  
+
 * `keep_days` - (Optional) Specifies the number of days to retain the generated
    backup files. The value ranges from 0 to 35.
    If this parameter is set to 0, the automated backup policy is not set.
@@ -143,8 +143,8 @@ The `nodes` block contains:
 
 ## Import
 
-GeminiDB instance can be imported using the `id`, e.g.
+GaussDB Cassandra instance can be imported using the `id`, e.g.
 
 ```
-$ terraform import huaweicloud_geminidb_instance.instance_1 2e045d8b-b226-4aa2-91b9-7e76357655c06
+$ terraform import huaweicloud_gaussdb_cassandra_instance.instance_1 2e045d8b-b226-4aa2-91b9-7e76357655c06
 ```
