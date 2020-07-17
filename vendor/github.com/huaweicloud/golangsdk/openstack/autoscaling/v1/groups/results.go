@@ -59,6 +59,7 @@ type Group struct {
 	IsScaling                 bool            `json:"is_scaling"`
 	HealthPeriodicAuditMethod string          `json:"health_periodic_audit_method"`
 	HealthPeriodicAuditTime   int             `json:"health_periodic_audit_time"`
+	HealthPeriodicAuditGrace  int             `json:"health_periodic_audit_grace_period"`
 	InstanceTerminatePolicy   string          `json:"instance_terminate_policy"`
 	Notifications             []string        `json:"notifications"`
 	DeletePublicip            bool            `json:"delete_publicip"`
