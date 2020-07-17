@@ -14,10 +14,11 @@ import (
 
 func resourceS3BucketPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceS3BucketPolicyPut,
-		Read:   resourceS3BucketPolicyRead,
-		Update: resourceS3BucketPolicyPut,
-		Delete: resourceS3BucketPolicyDelete,
+		Create:             resourceS3BucketPolicyPut,
+		Read:               resourceS3BucketPolicyRead,
+		Update:             resourceS3BucketPolicyPut,
+		Delete:             resourceS3BucketPolicyDelete,
+		DeprecationMessage: "use huaweicloud_obs_bucket_policy resource instead",
 
 		Schema: map[string]*schema.Schema{
 			"bucket": {

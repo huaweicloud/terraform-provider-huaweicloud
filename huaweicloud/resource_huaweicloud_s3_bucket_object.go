@@ -19,10 +19,11 @@ import (
 
 func resourceS3BucketObject() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceS3BucketObjectPut,
-		Read:   resourceS3BucketObjectRead,
-		Update: resourceS3BucketObjectPut,
-		Delete: resourceS3BucketObjectDelete,
+		Create:             resourceS3BucketObjectPut,
+		Read:               resourceS3BucketObjectRead,
+		Update:             resourceS3BucketObjectPut,
+		Delete:             resourceS3BucketObjectDelete,
+		DeprecationMessage: "use huaweicloud_obs_bucket_object resource instead",
 
 		Schema: map[string]*schema.Schema{
 			"bucket": {
