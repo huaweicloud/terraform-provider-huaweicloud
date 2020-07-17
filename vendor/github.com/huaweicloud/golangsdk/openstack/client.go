@@ -1119,8 +1119,6 @@ func NewVPCV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 }
 
 // NewGeminiDBV3 creates a ServiceClient that may be used with the GeminiDB service.
-// Note: the endpoint of GeminiDB was only published in "cn-east-2" and "cn-south-1" region,
-// other regions will raise an error.
 func NewGeminiDBV3(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc := new(golangsdk.ServiceClient)
 	sc.ProviderClient = client

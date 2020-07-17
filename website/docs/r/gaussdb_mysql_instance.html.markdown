@@ -74,7 +74,10 @@ The following arguments are supported:
 * `security_group_id` - (Required) Specifies the security group ID.
   Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional) The enterprise project id.
+* `configuration_id` - (Optional) Specifies the configuration ID.
+  Changing this parameter will create a new resource.
+
+* `enterprise_project_id` - (Optional) Specifies the enterprise project id.
   Changing this parameter will create a new resource.
 
 * `read_replicas` - (Optional) Specifies the count of read replicas. Defaults to 1.
@@ -82,6 +85,12 @@ The following arguments are supported:
 
 * `time_zone` - (Optional) Specifies the time zone. Defaults to "UTC+08:00".
   Changing this parameter will create a new resource.
+
+* `availability_zone_mode` - (Optional) Specifies the availability zone mode: "single" or "multi".
+  Defaults to "single". Changing this parameter will create a new resource.
+
+* `master_availability_zone` - (Optional) Specifies the availability zone where the master node resides.
+  The parameter is required in multi availability zone mode. Changing this parameter will create a new resource.
 
 * `datastore` - (Optional) Specifies the database information. Structure is documented below.
   Changing this parameter will create a new resource.
@@ -129,6 +138,7 @@ The `nodes` block contains:
 - `type` - Indicates the node type: master or slave.
 - `status` - Indicates the node status.
 - `private_read_ip` - Indicates the private IP address of a node.
+- `availability_zone` - Indicates the availability zone where the node resides.
 
 ## Import
 
