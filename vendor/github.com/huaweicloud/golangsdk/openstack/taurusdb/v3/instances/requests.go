@@ -62,7 +62,7 @@ func Create(client *golangsdk.ServiceClient, opts CreateTaurusDBBuilder) (r Crea
 	}
 
 	_, r.Err = client.Post(createURL(client), b, &r.Body, &golangsdk.RequestOpts{
-		OkCodes:     []int{202},
+		OkCodes:     []int{201, 202},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 

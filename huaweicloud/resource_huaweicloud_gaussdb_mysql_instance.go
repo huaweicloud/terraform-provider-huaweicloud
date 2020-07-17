@@ -59,6 +59,11 @@ func resourceGaussDBInstance() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"configuration_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -75,6 +80,21 @@ func resourceGaussDBInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Default:  "UTC+08:00",
+			},
+			"availability_zone_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "single",
+				ValidateFunc: validation.StringInSlice([]string{
+					"single", "multi",
+				}, true),
+			},
+			"master_availability_zone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 			"datastore": {
 				Type:     schema.TypeList,
@@ -170,6 +190,10 @@ func resourceGaussDBInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"availability_zone": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -241,14 +265,24 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		VpcId:               d.Get("vpc_id").(string),
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
+		ConfigurationId:     d.Get("configuration_id").(string),
 		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
 		TimeZone:            d.Get("time_zone").(string),
 		SlaveCount:          d.Get("read_replicas").(int),
 		Mode:                "Cluster",
-		AZMode:              "single",
 		DataStore:           resourceGaussDBDataStore(d),
 		BackupStrategy:      resourceGaussDBBackupStrategy(d),
 	}
+	azMode := d.Get("availability_zone_mode").(string)
+	createOpts.AZMode = azMode
+	if azMode == "multi" {
+		v, exist := d.GetOk("master_availability_zone")
+		if !exist {
+			return fmt.Errorf("missing master_availability_zone in a multi availability zone mode")
+		}
+		createOpts.MasterAZ = v.(string)
+	}
+
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	instance, err := instances.Create(client, createOpts).Extract()
@@ -312,8 +346,11 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("vpc_id", instance.VpcId)
 	d.Set("subnet_id", instance.SubnetId)
 	d.Set("security_group_id", instance.SecurityGroupId)
+	d.Set("configuration_id", instance.ConfigurationId)
 	d.Set("db_user_name", instance.DbUserName)
 	d.Set("time_zone", instance.TimeZone)
+	d.Set("availability_zone_mode", instance.AZMode)
+	d.Set("master_availability_zone", instance.MasterAZ)
 
 	if dbPort, err := strconv.Atoi(instance.Port); err == nil {
 		d.Set("port", dbPort)
@@ -340,10 +377,11 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	nodesList := make([]map[string]interface{}, 0, 1)
 	for _, raw := range instance.Nodes {
 		node := map[string]interface{}{
-			"id":     raw.Id,
-			"name":   raw.Name,
-			"status": raw.Status,
-			"type":   raw.Type,
+			"id":                raw.Id,
+			"name":              raw.Name,
+			"status":            raw.Status,
+			"type":              raw.Type,
+			"availability_zone": raw.AvailabilityZone,
 		}
 		if len(raw.PrivateIps) > 0 {
 			node["private_read_ip"] = raw.PrivateIps[0]
