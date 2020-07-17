@@ -10,7 +10,7 @@ func TestAccNetworkingV2Router_importBasic(t *testing.T) {
 	resourceName := "huaweicloud_networking_router_v2.router_1"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2RouterDestroy,
 		Steps: []resource.TestStep{
