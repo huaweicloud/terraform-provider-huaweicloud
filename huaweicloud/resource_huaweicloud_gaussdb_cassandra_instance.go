@@ -311,7 +311,7 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	instanceID := d.Id()
 	instance, err := instances.GetInstanceByID(client, instanceID)
 	if err != nil {
-		return fmt.Errorf("Error fetching GeminiDB instance: %s", err)
+		return CheckDeleted(d, err, "GeminiDB")
 	}
 	if instance.Id == "" {
 		d.SetId("")
