@@ -1,12 +1,12 @@
 ---
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_compute_eip_associate_v2"
-sidebar_current: "docs-huaweicloud-resource-compute-eip-associate-v2"
+page_title: "HuaweiCloud: huaweicloud_compute_eip_associate"
+sidebar_current: "docs-huaweicloud-resource-compute-eip-associate"
 description: |-
   Associate a EIP to an instance
 ---
 
-# huaweicloud\_compute\_eip_associate_v2
+# huaweicloud\_compute\_eip_associate
 
 Associate an EIP to an instance. This can be used instead of the
 `huaweicloud_compute_floatingip_associate_v2` resource.
@@ -36,7 +36,7 @@ resource "huaweicloud_vpc_eip_v1" "eip_1" {
   }
 }
 
-resource "huaweicloud_compute_eip_associate_v2" "associate_1" {
+resource "huaweicloud_compute_eip_associate" "associate_1" {
   public_ip   = huaweicloud_vpc_eip_v1.eip_1.address
   instance_id = huaweicloud_compute_instance_v2.instance_1.id
 }
@@ -73,7 +73,7 @@ resource "huaweicloud_vpc_eip_v1" "eip_1" {
   }
 }
 
-resource "huaweicloud_compute_eip_associate_v2" "fip_1" {
+resource "huaweicloud_compute_eip_associate" "fip_1" {
   public_ip   = huaweicloud_vpc_eip_v1.eip_1.address
   instance_id = huaweicloud_compute_instance_v2.instance_1.id
   fixed_ip    = huaweicloud_compute_instance_v2.instance_1.network.1.fixed_ip_v4
@@ -108,5 +108,5 @@ This resource can be imported by specifying all three arguments, separated
 by a forward slash:
 
 ```
-$ terraform import huaweicloud_compute_eip_associate_v2.eip_1 <eip>/<instance_id>/<fixed_ip>
+$ terraform import huaweicloud_compute_eip_associate.eip_1 <eip>/<instance_id>/<fixed_ip>
 ```

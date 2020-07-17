@@ -202,7 +202,7 @@ resource "huaweicloud_compute_instance_v2" "multi-net" {
   }
 }
 
-resource "huaweicloud_compute_floatingip_associate_v2" "myip" {
+resource "huaweicloud_compute_eip_associate" "myip" {
   floating_ip = "${huaweicloud_networking_floatingip_v2.myip.address}"
   instance_id = "${huaweicloud_compute_instance_v2.multi-net.id}"
   fixed_ip    = "${huaweicloud_compute_instance_v2.multi-net.network.1.fixed_ip_v4}"

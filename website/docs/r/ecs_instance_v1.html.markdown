@@ -117,7 +117,7 @@ resource "huaweicloud_ecs_instance_v1" "multi-net" {
   security_groups   = ["default"]
 }
 
-resource "huaweicloud_compute_floatingip_associate_v2" "myip" {
+resource "huaweicloud_compute_eip_associate" "myip" {
   floating_ip = "${huaweicloud_networking_floatingip_v2.myip.address}"
   instance_id = "${huaweicloud_ecs_instance_v1.multi-net.id}"
   fixed_ip    = "${huaweicloud_ecs_instance_v1.multi-net.nics.0.ip_address}"

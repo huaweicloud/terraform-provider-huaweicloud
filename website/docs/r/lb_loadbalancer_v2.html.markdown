@@ -27,7 +27,7 @@ resource "huaweicloud_lb_loadbalancer_v2" "lb_1" {
   vip_subnet_id = "d9415786-5f1a-428b-b35f-2f1523e146d2"
 }
 
-resource "huaweicloud_networking_floatingip_associate_v2" "fip_1" {
+resource "huaweicloud_networking_eip_associate" "eip_1" {
   floating_ip = "1.2.3.4"
   port_id     = "${huaweicloud_lb_loadbalancer_v2.lb_1.vip_port_id}"
 }
