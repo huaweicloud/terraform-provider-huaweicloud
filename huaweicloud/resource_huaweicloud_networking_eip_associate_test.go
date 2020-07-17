@@ -15,7 +15,7 @@ func TestAccNetworkingV2EIPAssociate_basic(t *testing.T) {
 	var eip eips.PublicIp
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_networking_eip_associate_v2.test"
+	resourceName := "huaweicloud_networking_eip_associate.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -90,7 +90,7 @@ resource "huaweicloud_vpc_eip_v1" "test" {
   }
 }
 
-resource "huaweicloud_networking_eip_associate_v2" "test" {
+resource "huaweicloud_networking_eip_associate" "test" {
   public_ip = huaweicloud_vpc_eip_v1.test.address
   port_id     = huaweicloud_networking_port_v2.test.id
 }
