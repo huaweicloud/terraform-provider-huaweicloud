@@ -28,6 +28,7 @@ func resourceS3Bucket() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceS3BucketImportState,
 		},
+		DeprecationMessage: "use huaweicloud_obs_bucket resource instead",
 
 		Schema: map[string]*schema.Schema{
 			"bucket": {

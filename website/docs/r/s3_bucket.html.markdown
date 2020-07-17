@@ -8,6 +8,8 @@ description: |-
 
 # huaweicloud\_s3\_bucket
 
+-> **NOTE:** It has been deprecated, use `huaweicloud_obs_bucket` instead.
+
 Provides a S3 bucket resource.
 
 ## Example Usage

@@ -32,7 +32,7 @@ func TestAccS3BucketObject_source(t *testing.T) {
 	var obj s3.GetObjectOutput
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
@@ -49,7 +49,7 @@ func TestAccS3BucketObject_content(t *testing.T) {
 	var obj s3.GetObjectOutput
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
@@ -79,7 +79,7 @@ func TestAccS3BucketObject_withContentCharacteristics(t *testing.T) {
 	var obj s3.GetObjectOutput
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
@@ -112,7 +112,7 @@ func TestAccS3BucketObject_updates(t *testing.T) {
 	var obj s3.GetObjectOutput
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
@@ -156,7 +156,7 @@ func TestAccS3BucketObject_updatesWithVersioning(t *testing.T) {
 	var originalObj, modifiedObj s3.GetObjectOutput
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
@@ -276,7 +276,7 @@ func TestAccS3BucketObject_sse(t *testing.T) {
 	var obj s3.GetObjectOutput
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{
@@ -301,7 +301,7 @@ func TestAccS3BucketObject_acl(t *testing.T) {
 	var obj s3.GetObjectOutput
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
 		Steps: []resource.TestStep{

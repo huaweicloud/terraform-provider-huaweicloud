@@ -8,6 +8,8 @@ description: |-
 
 # huaweicloud\_s3\_bucket\_policy
 
+-> **NOTE:** It has been deprecated, use `huaweicloud obs` instead.
+
 Attaches a policy to an S3 bucket resource.
 
 ## Example Usage

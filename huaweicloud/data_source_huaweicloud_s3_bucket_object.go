@@ -15,7 +15,8 @@ import (
 
 func dataSourceS3BucketObject() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceS3BucketObjectRead,
+		Read:               dataSourceS3BucketObjectRead,
+		DeprecationMessage: "use huaweicloud obs resource instead",
 
 		Schema: map[string]*schema.Schema{
 			"body": {
