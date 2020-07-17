@@ -18,7 +18,7 @@ func TestAccComputeV2EIPAssociate_basic(t *testing.T) {
 	var eip eips.PublicIp
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_compute_eip_associate_v2.test"
+	resourceName := "huaweicloud_compute_eip_associate.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -47,7 +47,7 @@ func TestAccComputeV2EIPAssociate_fixedIP(t *testing.T) {
 	var eip eips.PublicIp
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_compute_eip_associate_v2.test"
+	resourceName := "huaweicloud_compute_eip_associate.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -79,7 +79,7 @@ func testAccCheckComputeV2EIPAssociateDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_compute_eip_associate_v2" {
+		if rs.Type != "huaweicloud_compute_eip_associate" {
 			continue
 		}
 
@@ -185,7 +185,7 @@ func testAccComputeV2EIPAssociate_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_compute_eip_associate_v2" "test" {
+resource "huaweicloud_compute_eip_associate" "test" {
   public_ip = huaweicloud_vpc_eip_v1.test.address
   instance_id = huaweicloud_compute_instance_v2.test.id
 }
@@ -196,7 +196,7 @@ func testAccComputeV2EIPAssociate_fixedIP(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_compute_eip_associate_v2" "test" {
+resource "huaweicloud_compute_eip_associate" "test" {
   public_ip = huaweicloud_vpc_eip_v1.test.address
   instance_id = huaweicloud_compute_instance_v2.test.id
   fixed_ip    = huaweicloud_compute_instance_v2.test.access_ip_v4
