@@ -27,6 +27,7 @@ type CreateGeminiDBOpts struct {
 	Password            string             `json:"password" required:"true"`
 	Mode                string             `json:"mode" required:"true"`
 	EnterpriseProjectId string             `json:"enterprise_project_id,omitempty"`
+	Ssl                 string             `json:"ssl_option,omitempty"`
 	DataStore           DataStore          `json:"datastore" required:"true"`
 	Flavor              []FlavorOpt        `json:"flavor" required:"true"`
 	BackupStrategy      *BackupStrategyOpt `json:"backup_strategy,omitempty"`

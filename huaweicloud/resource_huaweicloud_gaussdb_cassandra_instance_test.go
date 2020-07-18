@@ -12,7 +12,9 @@ import (
 
 func TestGeminiDBInstance_basic(t *testing.T) {
 	var instance instances.GeminiDBInstance
-	name := fmt.Sprintf("acc-instance-%s", acctest.RandString(5))
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_gaussdb_cassandra_instance.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,13 +22,11 @@ func TestGeminiDBInstance_basic(t *testing.T) {
 		CheckDestroy: testAccCheckGeminiDBInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGeminiDBInstanceConfig_basic(name),
+				Config: testAccGeminiDBInstanceConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGeminiDBInstanceExists("huaweicloud_gaussdb_cassandra_instance.instance_acc", &instance),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_gaussdb_cassandra_instance.instance_acc", "name", name),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_gaussdb_cassandra_instance.instance_acc", "status", "normal"),
+					testAccCheckGeminiDBInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "normal"),
 				),
 			},
 		},
@@ -87,26 +87,57 @@ func testAccCheckGeminiDBInstanceExists(n string, instance *instances.GeminiDBIn
 	}
 }
 
-func testAccGeminiDBInstanceConfig_basic(name string) string {
+func testAccVpcConfig_Base(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_networking_secgroup_v2" "secgroup_acc" {
-  name = "secgroup_acc"
+resource "huaweicloud_vpc_v1" "test" {
+  name = "%s"
+  cidr = "192.168.0.0/16"
 }
 
-resource "huaweicloud_gaussdb_cassandra_instance" "instance_acc" {
+resource "huaweicloud_vpc_subnet_v1" "test" {
+  name          = "%s"
+  cidr          = "192.168.0.0/16"
+  gateway_ip    = "192.168.0.1"
+
+  primary_dns   = "100.125.1.250"
+  secondary_dns = "100.125.21.250"
+  vpc_id        = huaweicloud_vpc_v1.test.id
+}
+`, rName, rName)
+}
+
+func testAccGeminiDBInstanceConfig_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_networking_secgroup_v2" "test" {
+  name = "default"
+}
+
+resource "huaweicloud_gaussdb_cassandra_instance" "test" {
   name        = "%s"
   password    = "Test@123"
   flavor      = "geminidb.cassandra.xlarge.4"
   volume_size = 100
-  vpc_id      = "%s"
-  subnet_id   = "%s"
-  security_group_id = huaweicloud_networking_secgroup_v2.secgroup_acc.id
-  availability_zone = "%s"
+  vpc_id      = huaweicloud_vpc_v1.test.id
+  subnet_id   = huaweicloud_vpc_subnet_v1.test.id
+  ssl         = true
+  node_num    = 4
+
+  security_group_id = data.huaweicloud_networking_secgroup_v2.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   backup_strategy {
     start_time = "03:00-04:00"
     keep_days  = 14
   }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
-	`, name, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
+`, testAccVpcConfig_Base(rName), rName)
 }

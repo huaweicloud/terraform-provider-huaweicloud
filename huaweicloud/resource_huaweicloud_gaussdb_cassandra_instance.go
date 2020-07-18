@@ -45,6 +45,12 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"node_num": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      3,
+				ValidateFunc: validation.IntBetween(3, 12),
+			},
 			"volume_size": {
 				Type:     schema.TypeInt,
 				Required: true,
@@ -69,6 +75,11 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 				ForceNew: true,
 			},
 			"datastore": {
@@ -126,6 +137,11 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 						},
 					},
 				},
+			},
+			"ssl": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -209,7 +225,7 @@ func resourceGeminiDBBackupStrategy(d *schema.ResourceData) *instances.BackupStr
 func resourceGeminiDBFlavor(d *schema.ResourceData) []instances.FlavorOpt {
 	var flavorList []instances.FlavorOpt
 	flavor := instances.FlavorOpt{
-		Num:      "3",
+		Num:      strconv.Itoa(d.Get("node_num").(int)),
 		Size:     d.Get("volume_size").(int),
 		Storage:  "ULTRAHIGH",
 		SpecCode: d.Get("flavor").(string),
@@ -241,24 +257,22 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 	}
 
 	createOpts := instances.CreateGeminiDBOpts{
-		Name:             d.Get("name").(string),
-		Region:           GetRegion(d, config),
-		AvailabilityZone: d.Get("availability_zone").(string),
-		VpcId:            d.Get("vpc_id").(string),
-		SubnetId:         d.Get("subnet_id").(string),
-		SecurityGroupId:  d.Get("security_group_id").(string),
-		Password:         d.Get("password").(string),
-		Mode:             "Cluster",
-		Flavor:           resourceGeminiDBFlavor(d),
-		DataStore:        resourceGeminiDBDataStore(d),
-		BackupStrategy:   resourceGeminiDBBackupStrategy(d),
+		Name:                d.Get("name").(string),
+		Region:              GetRegion(d, config),
+		AvailabilityZone:    d.Get("availability_zone").(string),
+		VpcId:               d.Get("vpc_id").(string),
+		SubnetId:            d.Get("subnet_id").(string),
+		SecurityGroupId:     d.Get("security_group_id").(string),
+		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
+		Password:            d.Get("password").(string),
+		Mode:                "Cluster",
+		Flavor:              resourceGeminiDBFlavor(d),
+		DataStore:           resourceGeminiDBDataStore(d),
+		BackupStrategy:      resourceGeminiDBBackupStrategy(d),
 	}
-	/*
-		backupStrategy := resourceGeminiDBBackupStrategy(d)
-		if backupStrategy.StartTime != "" {
-			createOpts.BackupStrategy = backupStrategy
-		}
-	*/
+	if ssl := d.Get("ssl").(bool); ssl {
+		createOpts.Ssl = "1"
+	}
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	instance, err := instances.Create(client, createOpts).Extract()

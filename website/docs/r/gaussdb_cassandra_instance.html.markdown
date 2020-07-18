@@ -69,6 +69,9 @@ The following arguments are supported:
   see [DB Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-geminidb/geminidb_01_0006.html)
   Changing this parameter will create a new resource.
 
+* `node_num` - (Optional) Specifies the number of nodes, ranges from 3 to 12. Defaults to 3.
+  Changing this parameter will create a new resource.
+
 * `volume_size` - (Required) Specifies the storage space in GB. The value must be a multiple of 10.
   For a GaussDB Cassandra DB instance, the minimum storage space is 100 GB, and the maximum
   storage space is related to the instance performance specifications. For details, 
@@ -78,6 +81,7 @@ The following arguments are supported:
 * `password` - (Required) Specifies the database password. The value must be 8 to 32 characters
   in length, including uppercase and lowercase letters, digits, and special characters,
   such as ~!@#%^*-_=+?
+  Changing this parameter will create a new resource.
 
   You are advised to enter a strong password to improve security, preventing security risks
   such as brute force cracking.
@@ -90,6 +94,13 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `security_group_id` - (Required) Specifies the security group ID.
+  Changing this parameter will create a new resource.
+
+* `enterprise_project_id` - (Optional) Specifies the enterprise project id, Only valid for users who
+  have enabled the enterprise multi-project service.
+  Changing this parameter will create a new resource.
+
+* `ssl` - (Optional) Specifies whether to enable or disable SSL. Defaults to false.
   Changing this parameter will create a new resource.
 
 * `datastore` - (Optional) Specifies the database information. Structure is documented below.
