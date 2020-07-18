@@ -406,6 +406,7 @@ func resourceGeminiDBInstanceV3Delete(d *schema.ResourceData, meta interface{}) 
 			instanceId, err)
 	}
 	log.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
+	d.SetId("")
 	return nil
 }
 
