@@ -127,6 +127,11 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 					},
 				},
 			},
+			"ssl": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -253,12 +258,9 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 		DataStore:        resourceGeminiDBDataStore(d),
 		BackupStrategy:   resourceGeminiDBBackupStrategy(d),
 	}
-	/*
-		backupStrategy := resourceGeminiDBBackupStrategy(d)
-		if backupStrategy.StartTime != "" {
-			createOpts.BackupStrategy = backupStrategy
-		}
-	*/
+	if ssl := d.Get("ssl").(bool); ssl {
+		createOpts.Ssl = "1"
+	}
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	instance, err := instances.Create(client, createOpts).Extract()
