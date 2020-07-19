@@ -12,7 +12,9 @@ import (
 
 func TestGaussDBInstance_basic(t *testing.T) {
 	var instance instances.TaurusDBInstance
-	name := fmt.Sprintf("gauss-instance-%s", acctest.RandString(5))
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_gaussdb_mysql_instance.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,11 +22,10 @@ func TestGaussDBInstance_basic(t *testing.T) {
 		CheckDestroy: testAccCheckGaussDBInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGaussDBInstanceConfig_basic(name),
+				Config: testAccGaussDBInstanceConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGaussDBInstanceExists("huaweicloud_gaussdb_mysql_instance.instance_acc", &instance),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_gaussdb_mysql_instance.instance_acc", "name", name),
+					testAccCheckGaussDBInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
 		},
@@ -82,20 +83,26 @@ func testAccCheckGaussDBInstanceExists(n string, instance *instances.TaurusDBIns
 	}
 }
 
-func testAccGaussDBInstanceConfig_basic(name string) string {
+func testAccGaussDBInstanceConfig_basic(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_networking_secgroup_v2" "secgroup_acc" {
-  name = "secgroup_acc"
+%s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_networking_secgroup_v2" "test" {
+  name = "default"
 }
 
-resource "huaweicloud_gaussdb_mysql_instance" "instance_acc" {
+resource "huaweicloud_gaussdb_mysql_instance" "test" {
   name        = "%s"
   password    = "Test@123"
   flavor      = "gaussdb.mysql.4xlarge.x86.4"
-  vpc_id      = "%s"
-  subnet_id   = "%s"
-  security_group_id = huaweicloud_networking_secgroup_v2.secgroup_acc.id
+  vpc_id      = huaweicloud_vpc_v1.test.id
+  subnet_id   = huaweicloud_vpc_subnet_v1.test.id
+
+  security_group_id = data.huaweicloud_networking_secgroup_v2.test.id
+
   enterprise_project_id = "0"
 }
-`, name, OS_VPC_ID, OS_NETWORK_ID)
+`, testAccVpcConfig_Base(rName), rName)
 }
