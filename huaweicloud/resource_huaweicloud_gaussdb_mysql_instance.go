@@ -56,7 +56,7 @@ func resourceGaussDBInstance() *schema.Resource {
 			},
 			"security_group_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"configuration_id": {

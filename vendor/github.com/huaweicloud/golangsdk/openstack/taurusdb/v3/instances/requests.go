@@ -29,7 +29,7 @@ type CreateTaurusDBOpts struct {
 	Flavor              string             `json:"flavor_ref" required:"true"`
 	VpcId               string             `json:"vpc_id" required:"true"`
 	SubnetId            string             `json:"subnet_id" required:"true"`
-	SecurityGroupId     string             `json:"security_group_id" required:"true"`
+	SecurityGroupId     string             `json:"security_group_id,omitempty"`
 	Password            string             `json:"password" required:"true"`
 	TimeZone            string             `json:"time_zone" required:"true"`
 	AZMode              string             `json:"availability_zone_mode" required:"true"`
