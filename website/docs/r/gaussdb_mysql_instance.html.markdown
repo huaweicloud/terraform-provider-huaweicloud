@@ -71,7 +71,7 @@ The following arguments are supported:
 * `subnet_id` - (Required) Specifies the network ID of a subnet.
   Changing this parameter will create a new resource.
 
-* `security_group_id` - (Required) Specifies the security group ID.
+* `security_group_id` - (Optional) Specifies the security group ID. Required if the selected subnet doesn't enable network ACL.
   Changing this parameter will create a new resource.
 
 * `configuration_id` - (Optional) Specifies the configuration ID.

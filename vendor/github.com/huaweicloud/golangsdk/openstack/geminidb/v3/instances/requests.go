@@ -23,7 +23,7 @@ type CreateGeminiDBOpts struct {
 	AvailabilityZone    string             `json:"availability_zone" required:"true"`
 	VpcId               string             `json:"vpc_id" required:"true"`
 	SubnetId            string             `json:"subnet_id" required:"true"`
-	SecurityGroupId     string             `json:"security_group_id" required:"true"`
+	SecurityGroupId     string             `json:"security_group_id,omitempty"`
 	Password            string             `json:"password" required:"true"`
 	Mode                string             `json:"mode" required:"true"`
 	ConfigurationId     string             `json:"configuration_id,omitempty"`
