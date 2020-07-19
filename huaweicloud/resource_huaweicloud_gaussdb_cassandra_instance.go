@@ -77,6 +77,11 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"configuration_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -263,6 +268,7 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 		VpcId:               d.Get("vpc_id").(string),
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
+		ConfigurationId:     d.Get("configuration_id").(string),
 		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
 		Password:            d.Get("password").(string),
 		Mode:                "Cluster",
