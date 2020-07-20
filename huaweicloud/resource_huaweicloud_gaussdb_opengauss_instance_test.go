@@ -12,7 +12,9 @@ import (
 
 func TestOpenGaussInstance_basic(t *testing.T) {
 	var instance instances.GaussDBInstance
-	name := fmt.Sprintf("opengauss-instance-%s", acctest.RandString(5))
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_gaussdb_opengauss_instance.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,11 +22,10 @@ func TestOpenGaussInstance_basic(t *testing.T) {
 		CheckDestroy: testAccCheckOpenGaussInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOpenGaussInstanceConfig_basic(name),
+				Config: testAccOpenGaussInstanceConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckOpenGaussInstanceExists("huaweicloud_gaussdb_opengauss_instance.instance_acc", &instance),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_gaussdb_opengauss_instance.instance_acc", "name", name),
+					testAccCheckOpenGaussInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
 		},
@@ -82,33 +83,36 @@ func testAccCheckOpenGaussInstanceExists(n string, instance *instances.GaussDBIn
 	}
 }
 
-func testAccOpenGaussInstanceConfig_basic(name string) string {
+func testAccOpenGaussInstanceConfig_basic(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_networking_secgroup_v2" "secgroup_1" {
+%s
+
+data "huaweicloud_networking_secgroup_v2" "test" {
   name = "default"
 }
 
-resource "huaweicloud_gaussdb_opengauss_instance" "instance_acc" {
+resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   name        = "%s"
   password    = "Test@123"
   flavor      = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
-  vpc_id      = "%s"
-  subnet_id   = "%s"
+  vpc_id      = huaweicloud_vpc_v1.test.id
+  subnet_id   = huaweicloud_vpc_subnet_v1.test.id
+
   availability_zone = "cn-north-4a,cn-north-4a,cn-north-4a"
+  security_group_id = data.huaweicloud_networking_secgroup_v2.test.id
 
   ha {
-    mode = "enterprise"
+    mode             = "enterprise"
     replication_mode = "sync"
-    consistency = "strong"
+    consistency      = "strong"
   }
-
   volume {
     type = "ULTRAHIGH"
     size = 40
   }
-  security_group_id = data.huaweicloud_networking_secgroup_v2.secgroup_1.id
+
   sharding_num = 1
   coordinator_num = 1
 }
-`, name, OS_VPC_ID, OS_NETWORK_ID)
+`, testAccVpcConfig_Base(rName), rName)
 }
