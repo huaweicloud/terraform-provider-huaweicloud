@@ -144,6 +144,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `mode` - Indicates the instance type.
 * `db_user_name` - Indicates the default username.
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
+- `private_ips` - Indicates the IP address list of the db.
 
 The `nodes` block contains:
 

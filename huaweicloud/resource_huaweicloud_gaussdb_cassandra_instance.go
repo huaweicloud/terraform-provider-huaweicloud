@@ -148,6 +148,13 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"private_ips": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -362,6 +369,7 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	dbList = append(dbList, db)
 	d.Set("datastore", dbList)
 
+	ipsList := []string{}
 	nodesList := make([]map[string]interface{}, 0, 1)
 	for _, group := range instance.Groups {
 		for _, Node := range group.Nodes {
@@ -372,9 +380,11 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 				"private_ip": Node.PrivateIp,
 			}
 			nodesList = append(nodesList, node)
+			ipsList = append(ipsList, Node.PrivateIp)
 		}
 	}
 	d.Set("nodes", nodesList)
+	d.Set("private_ips", ipsList)
 
 	backupStrategyList := make([]map[string]interface{}, 0, 1)
 	backupStrategy := map[string]interface{}{
