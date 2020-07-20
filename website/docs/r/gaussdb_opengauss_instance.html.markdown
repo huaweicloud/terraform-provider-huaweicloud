@@ -31,7 +31,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "instance_acc" {
 
   volume {
     type = "ULTRAHIGH"
-    size = 120
+    size = 40
   }
   security_group_id = var.secgroup.id
   sharding_num = 1
@@ -114,7 +114,7 @@ The `volume` block supports:
 
 * `type` - (Required) Specifies the volume type. Only "ULTRAHIGH" is supported now.
 
-* `size` - (Required) Specifies the volume size (in gigabytes). The value should between sharding_num*40G ~ sharding_num*5TB.
+* `size` - (Required) Specifies the volume size (in gigabytes) for a single DN. The value should between 40G ~ 5TB.
 
 
 The `ha` block supports:
