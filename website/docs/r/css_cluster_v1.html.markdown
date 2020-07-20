@@ -3,12 +3,12 @@ layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_css_cluster_v1"
 sidebar_current: "docs-huaweicloud-resource-css-cluster-v1"
 description: |-
-  cluster management
+CSS  cluster management
 ---
 
 # huaweicloud\_css\_cluster\_v1
 
-cluster management
+CSS cluster management
 
 ## Example Usage
 
@@ -21,15 +21,16 @@ resource "huaweicloud_networking_secgroup_v2" "secgroup" {
 }
 
 resource "huaweicloud_css_cluster_v1" "cluster" {
-  expect_node_num = 1
-  name            = "terraform_test_cluster"
-  engine_version  = "6.2.3"
+  name           = "terraform_test_cluster"
+  engine_version = "7.1.1"
+  node_number    = 1
+
   node_config {
-    flavor = "ess.spec-2u16g"
+    flavor = "ess.spec-4u16g"
     network_info {
-      security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
-      subnet_id         = "{{ network_id }}"
       vpc_id            = "{{ vpc_id }}"
+      subnet_id         = "{{ network_id }}"
+      security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
     }
     volume {
       volume_type = "COMMON"
@@ -44,15 +45,29 @@ resource "huaweicloud_css_cluster_v1" "cluster" {
 
 The following arguments are supported:
 
-* `engine_version` -
-  (Required)
-  Engine version. Versions 5.5.1 and 6.2.3 are supported.  Changing this parameter will create a new resource.
-
 * `name` -
   (Required)
   Cluster name. It contains 4 to 32 characters. Only letters, digits,
   hyphens (-), and underscores (_) are allowed. The value must start
-  with a letter.  Changing this parameter will create a new resource.
+  with a letter. Changing this parameter will create a new resource.
+
+* `engine_type` -
+  (Optional)
+  Engine type. The default value is "elasticsearch". Currently, the value
+  can only be "elasticsearch".  Changing this parameter will create a new resource.
+
+* `engine_version` -
+  (Required)
+  Engine version. Versions 5.5.1 and 6.2.3 are supported.  Changing this parameter will create a new resource.
+
+* `node_number` -
+  (Optional)
+  Number of cluster instances. The value range is 1 to 32. Defaults to 1. If the input parameters 
+  include node_number and expect_node_num, take the value of node_number first.
+
+  * `expect_node_num` -
+  (Optional)
+  Number of cluster instances. The value range is 1 to 32.
 
 * `node_config` -
   (Required)
@@ -70,7 +85,8 @@ The `node_config` block supports:
   to 640 GB Value range of flavor ess.spec-2u16g: 40 GB to 1280 GB
   Value range of flavor ess.spec-4u32g: 40 GB to 2560 GB Value
   range of flavor ess.spec-8u64g: 80 GB to 5120 GB Value range of
-  flavor ess.spec-16u128g: 160 GB to 10240 GB.  Changing this parameter will create a new resource.
+  flavor ess.spec-16u128g: 160 GB to 10240 GB.
+  Changing this parameter will create a new resource.
 
 * `network_info` -
   (Required)
@@ -82,19 +98,19 @@ The `node_config` block supports:
 
 The `network_info` block supports:
 
-* `security_group_id` -
+* `vpc_id` -
   (Required)
-  Security group ID. All instances in a cluster must have the
-  same subnets and security groups.  Changing this parameter will create a new resource.
+  VPC ID, which is used for configuring cluster network.  Changing this parameter will create a new resource.
 
 * `subnet_id` -
   (Required)
   Subnet ID. All instances in a cluster must have the same
   subnets and security groups.  Changing this parameter will create a new resource.
 
-* `vpc_id` -
+* `security_group_id` -
   (Required)
-  VPC ID, which is used for configuring cluster network.  Changing this parameter will create a new resource.
+  Security group ID. All instances in a cluster must have the
+  same subnets and security groups.  Changing this parameter will create a new resource.
 
 The `volume` block supports:
 
@@ -108,27 +124,16 @@ The `volume` block supports:
   The SAS disk is used. ULTRAHIGH: Ultra-high I/O. The
   solid-state drive (SSD) is used.  Changing this parameter will create a new resource.
 
-- - -
-
-* `engine_type` -
-  (Optional)
-  Engine type. The default value is elasticsearch. Currently, the value
-  can only be elasticsearch.  Changing this parameter will create a new resource.
-
-* `expect_node_num` -
-  (Optional)
-  Number of cluster instances. The value range is 1 to 32.
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `endpoint` -
+  Indicates the IP address and port number.
+
 * `created` -
   Time when a cluster is created. The format is ISO8601:
   CCYY-MM-DDThh:mm:ss.
-
-* `endpoint` -
-  Indicates the IP address and port number.
 
 * `nodes` -
   List of node objects. Structure is documented below.
@@ -147,5 +152,6 @@ The `nodes` block contains:
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
+
 - `create` - Default is 30 minute.
 - `update` - Default is 30 minute.

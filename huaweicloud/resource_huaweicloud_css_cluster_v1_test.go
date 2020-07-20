@@ -34,6 +34,10 @@ func TestAccCssClusterV1_basic(t *testing.T) {
 				Config: testAccCssClusterV1_basic(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCssClusterV1Exists(),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_css_cluster_v1.cluster", "node_number", "1"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_css_cluster_v1.cluster", "engine_type", "elasticsearch"),
 				),
 			},
 		},
@@ -48,11 +52,11 @@ resource "huaweicloud_networking_secgroup_v2" "secgroup" {
 }
 
 resource "huaweicloud_css_cluster_v1" "cluster" {
-  expect_node_num = 1
   name = "terraform_test_cluster%s"
-  engine_version = "6.2.3"
+  engine_version = "7.1.1"
+  node_number    = 1
   node_config {
-    flavor = "ess.spec-2u16g"
+    flavor = "ess.spec-4u16g"
     network_info {
       security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
       subnet_id = "%s"
@@ -86,8 +90,7 @@ func testAccCheckCssClusterV1Destroy(s *terraform.State) error {
 		}
 		url = client.ServiceURL(url)
 
-		_, err = client.Get(url, nil, &golangsdk.RequestOpts{
-			MoreHeaders: map[string]string{"Content-Type": "application/json"}})
+		_, err = client.Get(url, nil, nil)
 		if err == nil {
 			return fmt.Errorf("huaweicloud_css_cluster_v1 still exists at %s", url)
 		}
@@ -115,8 +118,7 @@ func testAccCheckCssClusterV1Exists() resource.TestCheckFunc {
 		}
 		url = client.ServiceURL(url)
 
-		_, err = client.Get(url, nil, &golangsdk.RequestOpts{
-			MoreHeaders: map[string]string{"Content-Type": "application/json"}})
+		_, err = client.Get(url, nil, nil)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return fmt.Errorf("huaweicloud_css_cluster_v1.cluster is not exist")

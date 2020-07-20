@@ -54,7 +54,7 @@ func expandCssClusterV1ExtendClusterNodeNum(d interface{}, arrayIndex map[string
 	t, _ := navigateValue(d, []string{"terraform_resource_data"}, nil)
 	rd := t.(*schema.ResourceData)
 
-	oldv, newv := rd.GetChange("expect_node_num")
+	oldv, newv := rd.GetChange("node_number")
 	v := newv.(int) - oldv.(int)
 	if v < 0 {
 		return 0, fmt.Errorf("it only supports extending nodes")

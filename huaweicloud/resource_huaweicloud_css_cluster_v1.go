@@ -37,16 +37,35 @@ func resourceCssClusterV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+
+			"engine_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"engine_version": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+			"node_number": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  1,
+			},
+
+			"expect_node_num": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  1,
 			},
 
 			"node_config": {
@@ -115,19 +134,6 @@ func resourceCssClusterV1() *schema.Resource {
 				},
 			},
 
-			"engine_type": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-			},
-
-			"expect_node_num": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  1,
-			},
-
 			"created": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -163,14 +169,25 @@ func resourceCssClusterV1() *schema.Resource {
 }
 
 func resourceCssClusterV1UserInputParams(d *schema.ResourceData) map[string]interface{} {
-	return map[string]interface{}{
+	inputParams := map[string]interface{}{
 		"terraform_resource_data": d,
 		"engine_type":             d.Get("engine_type"),
 		"engine_version":          d.Get("engine_version"),
-		"expect_node_num":         d.Get("expect_node_num"),
+		"node_number":             d.Get("node_number"),
 		"name":                    d.Get("name"),
 		"node_config":             d.Get("node_config"),
 	}
+	node_number, node_ok := d.GetOk("node_number")
+	exp_node_num, exp_node_ok := d.GetOk("expect_node_num")
+	if node_ok && node_number.(int) != 1 {
+		inputParams["node_number"] = node_number
+	} else if exp_node_ok && exp_node_num.(int) != 1 {
+		inputParams["node_number"] = exp_node_num
+	} else {
+		inputParams["node_number"] = node_number
+	}
+
+	return inputParams
 }
 
 func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error {
@@ -293,8 +310,7 @@ func resourceCssClusterV1Delete(d *schema.ResourceData, meta interface{}) error 
 		d.Timeout(schema.TimeoutCreate),
 		1*time.Second,
 		func() (interface{}, string, error) {
-			_, err := client.Get(url, nil, &golangsdk.RequestOpts{
-				MoreHeaders: map[string]string{"Content-Type": "application/json"}})
+			_, err := client.Get(url, nil, nil)
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					return true, "Done", nil
@@ -330,7 +346,7 @@ func buildCssClusterV1CreateParameters(opts map[string]interface{}, arrayIndex m
 		params["instance"] = v
 	}
 
-	v, err = navigateValue(opts, []string{"expect_node_num"}, arrayIndex)
+	v, err = navigateValue(opts, []string{"node_number"}, arrayIndex)
 	if err != nil {
 		return nil, err
 	}
@@ -536,8 +552,7 @@ func asyncWaitCssClusterV1Create(d *schema.ResourceData, config *Config, result 
 		timeout, 1*time.Second,
 		func() (interface{}, string, error) {
 			r := golangsdk.Result{}
-			_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
-				MoreHeaders: map[string]string{"Content-Type": "application/json"}})
+			_, r.Err = client.Get(url, &r.Body, nil)
 			if r.Err != nil {
 				return nil, "", nil
 			}
@@ -604,8 +619,7 @@ func asyncWaitCssClusterV1ExtendCluster(d *schema.ResourceData, config *Config, 
 		[]string{"Done"}, []string{"Pending"}, timeout, 1*time.Second,
 		func() (interface{}, string, error) {
 			r := golangsdk.Result{}
-			_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
-				MoreHeaders: map[string]string{"Content-Type": "application/json"}})
+			_, r.Err = client.Get(url, &r.Body, nil)
 			if r.Err != nil {
 				return nil, "", nil
 			}
@@ -626,8 +640,7 @@ func sendCssClusterV1ReadRequest(d *schema.ResourceData, client *golangsdk.Servi
 	url = client.ServiceURL(url)
 
 	r := golangsdk.Result{}
-	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
-		MoreHeaders: map[string]string{"Content-Type": "application/json"}})
+	_, r.Err = client.Get(url, &r.Body, nil)
 	if r.Err != nil {
 		return nil, fmt.Errorf("Error running api(read) for resource(CssClusterV1), err=%s", r.Err)
 	}
@@ -827,6 +840,11 @@ func setCssClusterV1Properties(d *schema.ResourceData, response map[string]inter
 	}
 	if err = d.Set("nodes", v); err != nil {
 		return fmt.Errorf("Error setting Cluster:nodes, err: %s", err)
+	}
+
+	nodeNum := len(v.([]interface{}))
+	if err = d.Set("node_number", nodeNum); err != nil {
+		return fmt.Errorf("Error setting Cluster:nodes number, err: %s", err)
 	}
 
 	return nil
