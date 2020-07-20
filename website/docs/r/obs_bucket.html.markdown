@@ -159,6 +159,8 @@ The following arguments are supported:
 
 * `acl` - (Optional) Specifies the ACL policy for a bucket. The predefined common policies are as follows: "private", "public-read", "public-read-write" and "log-delivery-write". Defaults to `private`.
 
+* `policy` - (Optional) Specifies the [bucket policy](https://support.huaweicloud.com/intl/en-us/devg-obs/obs_06_0048.html) in JSON format.
+
 * `tags` - (Optional) A mapping of tags to assign to the bucket. Each tag is represented by one key-value pair.
 
 * `versioning` - (Optional) Whether enable versioning. Once you version-enable a bucket, it can never return to an unversioned state.
