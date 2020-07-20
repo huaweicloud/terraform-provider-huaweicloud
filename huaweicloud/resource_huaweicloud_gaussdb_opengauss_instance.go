@@ -349,13 +349,16 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
+	dn_num := d.Get("sharding_num").(int)
 	volumeRaw := d.Get("volume").([]interface{})
 	if len(volumeRaw) > 0 {
 		log.Printf("[DEBUG] volume: %+v", volumeRaw)
 		volume := volumeRaw[0].(map[string]interface{})
+		dn_size := volume["size"].(int)
+		volume_size := dn_size * dn_num
 		createOpts.Volume = instances.VolumeOpt{
 			Type: volume["type"].(string),
-			Size: volume["size"].(int),
+			Size: volume_size,
 		}
 	}
 
@@ -469,10 +472,13 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("backup_strategy", backupStrategyList)
 
 	// set volume
+	dn_num := d.Get("sharding_num").(int)
+	volume_size := instance.Volume.Size
+	dn_size := volume_size / dn_num
 	volumeList := make([]map[string]interface{}, 1)
 	volume := map[string]interface{}{
 		"type": instance.Volume.Type,
-		"size": instance.Volume.Size,
+		"size": dn_size,
 	}
 	volumeList[0] = volume
 	d.Set("volume", volumeList)
@@ -522,6 +528,7 @@ func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Updating OpenGaussDB instances %s", d.Id())
 	instanceId := d.Id()
 
+	dn_num := d.Get("sharding_num").(int)
 	if d.HasChange("sharding_num") {
 		old, newnum := d.GetChange("sharding_num")
 		if newnum.(int) < old.(int) {
@@ -529,6 +536,7 @@ func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 				"Error expanding shard for instance (%s): new num must be larger than the old one.",
 				instanceId)
 		}
+		dn_num = newnum.(int)
 		expand_size := newnum.(int) - old.(int)
 		updateClusterOpts := instances.UpdateClusterOpts{
 			Shard: &instances.Shard{
@@ -602,10 +610,12 @@ func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	if d.HasChange("volume") && !d.HasChange("sharding_num") {
+	if d.HasChange("volume") {
 		volumeRaw := d.Get("volume").([]interface{})
+		dn_size := volumeRaw[0].(map[string]interface{})["size"].(int)
+		volume_size := dn_size * dn_num
 		updateVolumeOpts := instances.UpdateVolumeOpts{
-			Size: volumeRaw[0].(map[string]interface{})["size"].(int),
+			Size: volume_size,
 		}
 		log.Printf("[DEBUG] Update Volume Options: %+v", updateVolumeOpts)
 		result := instances.UpdateVolume(client, updateVolumeOpts, instanceId)

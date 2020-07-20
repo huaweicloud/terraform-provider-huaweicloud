@@ -104,7 +104,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "instance_acc" {
 
   volume {
     type = "ULTRAHIGH"
-    size = 120
+    size = 40
   }
   security_group_id = data.huaweicloud_networking_secgroup_v2.secgroup_1.id
   sharding_num = 1
