@@ -94,11 +94,18 @@ The following arguments are supported:
 
 * `description` - (Optional) Human-readable description for the Certificate.
 
-* `domain` - (Optional) The domain of the Certificate.
-
-* `private_key` - (Required) The private encrypted key of the Certificate, PEM format.
+* `type` - (Optional) Specifies the certificate type. The default value is "server".
+    The value can be one of the following:
+    - server: indicates the server certificate.
+    - client: indicates the CA certificate.
 
 * `certificate` - (Required) The public encrypted key of the Certificate, PEM format.
+
+* `private_key` - (Optional) The private encrypted key of the Certificate, PEM format.
+    This parameter is valid and mandatory only when `type` is set to "server".
+
+* `domain` - (Optional) The domain of the Certificate. The value contains a maximum of 100 characters.
+    This parameter is valid only when `type` is set to "server".
 
 ## Attributes Reference
 
@@ -107,6 +114,7 @@ The following attributes are exported:
 * `region` - See Argument Reference above.
 * `name` - See Argument Reference above.
 * `description` - See Argument Reference above.
+* `type` - See Argument Reference above.
 * `domain` - See Argument Reference above.
 * `private_key` - See Argument Reference above.
 * `certificate` - See Argument Reference above.

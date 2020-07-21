@@ -59,3 +59,8 @@ func suppressSnatFiplistDiffs(k, old, new string, d *schema.ResourceData) bool {
 
 	return reflect.DeepEqual(old_array, new_array)
 }
+
+// Suppress changes if we get a string with or without new line
+func suppressNewLineDiffs(k, old, new string, d *schema.ResourceData) bool {
+	return strings.Trim(old, "\n") == strings.Trim(new, "\n")
+}

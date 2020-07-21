@@ -58,7 +58,7 @@ type CreateOpts struct {
 	Description string `json:"description,omitempty"`
 	Type        string `json:"type,omitempty"`
 	Domain      string `json:"domain,omitempty"`
-	PrivateKey  string `json:"private_key" required:"true"`
+	PrivateKey  string `json:"private_key,omitempty"`
 	Certificate string `json:"certificate" required:"true"`
 }
 

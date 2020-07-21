@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/certificates"
 )
@@ -42,19 +43,31 @@ func resourceCertificateV2() *schema.Resource {
 				Optional: true,
 			},
 
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "server",
+				ValidateFunc: validation.StringInSlice([]string{
+					"server", "client",
+				}, true),
+			},
+
 			"domain": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
 			"private_key": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: suppressNewLineDiffs,
 			},
 
 			"certificate": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: suppressNewLineDiffs,
 			},
 
 			"update_time": {
@@ -80,6 +93,7 @@ func resourceCertificateV2Create(d *schema.ResourceData, meta interface{}) error
 	createOpts := certificates.CreateOpts{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
+		Type:        d.Get("type").(string),
 		Domain:      d.Get("domain").(string),
 		PrivateKey:  d.Get("private_key").(string),
 		Certificate: d.Get("certificate").(string),
@@ -112,6 +126,7 @@ func resourceCertificateV2Read(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("name", c.Name)
 	d.Set("description", c.Description)
+	d.Set("type", c.Type)
 	d.Set("domain", c.Domain)
 	d.Set("certificate", c.Certificate)
 	d.Set("private_key", c.PrivateKey)
