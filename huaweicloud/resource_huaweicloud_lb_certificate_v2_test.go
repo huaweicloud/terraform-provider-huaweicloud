@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -12,6 +13,7 @@ import (
 
 func TestAccLBV2Certificate_basic(t *testing.T) {
 	var c certificates.Certificate
+	name := fmt.Sprintf("tf-cert-%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -19,16 +21,43 @@ func TestAccLBV2Certificate_basic(t *testing.T) {
 		CheckDestroy: testAccCheckLBV2CertificateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLBV2CertificateConfig_basic,
+				Config: testAccLBV2CertificateConfig_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2CertificateExists("huaweicloud_lb_certificate_v2.certificate_1", &c),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_lb_certificate_v2.certificate_1", "name", name),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_lb_certificate_v2.certificate_1", "type", "server"),
 				),
 			},
 			{
-				Config: testAccLBV2CertificateConfig_update,
+				Config: testAccLBV2CertificateConfig_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_certificate_v2.certificate_1", "name", "certificate_1_updated"),
+						"huaweicloud_lb_certificate_v2.certificate_1", "name", fmt.Sprintf("%s_updated", name)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccLBV2Certificate_client(t *testing.T) {
+	var c certificates.Certificate
+	name := fmt.Sprintf("tf-cert-%s", acctest.RandString(5))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLBV2CertificateDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLBV2CertificateConfig_client(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBV2CertificateExists("huaweicloud_lb_certificate_v2.certificate_client", &c),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_lb_certificate_v2.certificate_client", "name", name),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_lb_certificate_v2.certificate_client", "type", "client"),
 				),
 			},
 		},
@@ -89,9 +118,10 @@ func testAccCheckLBV2CertificateExists(
 	}
 }
 
-const testAccLBV2CertificateConfig_basic = `
+func testAccLBV2CertificateConfig_basic(name string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_lb_certificate_v2" "certificate_1" {
-  name = "certificate_1"
+  name = "%s"
   description = "terraform test certificate"
   domain = "www.elb.com"
   private_key = <<EOT
@@ -124,7 +154,7 @@ nEqm7HWkNxHhf8A6En/IjleuddS1sf9e/x+TJN1Xhnt9W6pe7Fk1
 -----END RSA PRIVATE KEY-----
 EOT
 
-certificate = <<EOT
+  certificate = <<EOT
 -----BEGIN CERTIFICATE-----
 MIIDpTCCAo2gAwIBAgIJAKdmmOBYnFvoMA0GCSqGSIb3DQEBCwUAMGkxCzAJBgNV
 BAYTAnh4MQswCQYDVQQIDAJ4eDELMAkGA1UEBwwCeHgxCzAJBgNVBAoMAnh4MQsw
@@ -155,11 +185,13 @@ EOT
     delete = "5m"
   }
 }
-`
+`, name)
+}
 
-const testAccLBV2CertificateConfig_update = `
+func testAccLBV2CertificateConfig_update(name string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_lb_certificate_v2" "certificate_1" {
-  name = "certificate_1_updated"
+  name = "%s_updated"
   description = "terraform test certificate"
   domain = "www.elb.com"
   private_key = <<EOT
@@ -192,7 +224,7 @@ nEqm7HWkNxHhf8A6En/IjleuddS1sf9e/x+TJN1Xhnt9W6pe7Fk1
 -----END RSA PRIVATE KEY-----
 EOT
 
-certificate = <<EOT
+  certificate = <<EOT
 -----BEGIN CERTIFICATE-----
 MIIDpTCCAo2gAwIBAgIJAKdmmOBYnFvoMA0GCSqGSIb3DQEBCwUAMGkxCzAJBgNV
 BAYTAnh4MQswCQYDVQQIDAJ4eDELMAkGA1UEBwwCeHgxCzAJBgNVBAoMAnh4MQsw
@@ -223,4 +255,40 @@ EOT
     delete = "5m"
   }
 }
-`
+`, name)
+}
+
+func testAccLBV2CertificateConfig_client(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lb_certificate_v2" "certificate_client" {
+  name = "%s"
+  description = "terraform CA certificate"
+  type = "client"
+
+  certificate = <<EOT
+-----BEGIN CERTIFICATE-----
+MIIDpTCCAo2gAwIBAgIJAKdmmOBYnFvoMA0GCSqGSIb3DQEBCwUAMGkxCzAJBgNV
+BAYTAnh4MQswCQYDVQQIDAJ4eDELMAkGA1UEBwwCeHgxCzAJBgNVBAoMAnh4MQsw
+CQYDVQQLDAJ4eDELMAkGA1UEAwwCeHgxGTAXBgkqhkiG9w0BCQEWCnh4QDE2My5j
+b20wHhcNMTcxMjA0MDM0MjQ5WhcNMjAxMjAzMDM0MjQ5WjBpMQswCQYDVQQGEwJ4
+eDELMAkGA1UECAwCeHgxCzAJBgNVBAcMAnh4MQswCQYDVQQKDAJ4eDELMAkGA1UE
+CwwCeHgxCzAJBgNVBAMMAnh4MRkwFwYJKoZIhvcNAQkBFgp4eEAxNjMuY29tMIIB
+IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwZ5UJULAjWr7p6FVwGRQRjFN
+2s8tZ/6LC3X82fajpVsYqF1xqEuUDndDXVD09E4u83MS6HO6a3bIVQDp6/klnYld
+iE6Vp8HH5BSKaCWKVg8lGWg1UM9wZFnlryi14KgmpIFmcu9nA8yV/6MZAe6RSDmb
+3iyNBmiZ8aZhGw2pI1YwR+15MVqFFGB+7ExkziROi7L8CFCyCezK2/oOOvQsH1dz
+Q8z1JXWdg8/9Zx7Ktvgwu5PQM3cJtSHX6iBPOkMU8Z8TugLlTqQXKZOEgwajwvQ5
+mf2DPkVgM08XAgaLJcLigwD513koAdtJd5v+9irw+5LAuO3JclqwTvwy7u/YwwID
+AQABo1AwTjAdBgNVHQ4EFgQUo5A2tIu+bcUfvGTD7wmEkhXKFjcwHwYDVR0jBBgw
+FoAUo5A2tIu+bcUfvGTD7wmEkhXKFjcwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0B
+AQsFAAOCAQEAWJ2rS6Mvlqk3GfEpboezx2J3X7l1z8Sxoqg6ntwB+rezvK3mc9H0
+83qcVeUcoH+0A0lSHyFN4FvRQL6X1hEheHarYwJK4agb231vb5erasuGO463eYEG
+r4SfTuOm7SyiV2xxbaBKrXJtpBp4WLL/s+LF+nklKjaOxkmxUX0sM4CTA7uFJypY
+c8Tdr8lDDNqoUtMD8BrUCJi+7lmMXRcC3Qi3oZJW76ja+kZA5mKVFPd1ATih8TbA
+i34R7EQDtFeiSvBdeKRsPp8c0KT8H1B4lXNkkCQs2WX5p4lm99+ZtLD4glw8x6Ic
+i1YhgnQbn5E0hz55OLu5jvOkKQjPCW+8Kg==
+-----END CERTIFICATE-----
+EOT
+}
+`, name)
+}
