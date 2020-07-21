@@ -49,6 +49,10 @@ func (r CreateResult) Extract() (*Instance, error) {
 	return &response, err
 }
 
+type UpdateInstanceResult struct {
+	commonResult
+}
+
 type DeleteInstanceResult struct {
 	commonResult
 }
@@ -93,6 +97,7 @@ type InstanceResponse struct {
 	Groups            []Group        `json:"groups"`
 	DiskEncryptionId  string         `json:"disk_encryption_id"`
 	TimeZone          string         `json:"time_zone"`
+	Actions           []string       `json:"actions"`
 }
 
 type Group struct {

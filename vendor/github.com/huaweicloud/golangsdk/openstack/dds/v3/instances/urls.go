@@ -13,3 +13,7 @@ func deleteURL(c *golangsdk.ServiceClient, serverID string) string {
 func listURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("instances")
 }
+
+func modifyURL(c *golangsdk.ServiceClient, serverID, action string) string {
+	return c.ServiceURL("instances", serverID, action)
+}
