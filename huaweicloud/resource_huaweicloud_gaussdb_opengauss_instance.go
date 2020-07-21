@@ -210,12 +210,18 @@ func resourceOpenGaussInstance() *schema.Resource {
 				Computed: true,
 			},
 			"private_ips": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeList,
 				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"public_ips": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeList,
 				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"db_user_name": {
 				Type:     schema.TypeString,
@@ -431,13 +437,8 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("dsspool_id", instance.DsspoolId)
 	d.Set("switch_strategy", instance.SwitchStrategy)
 	d.Set("maintenance_window", instance.MaintenanceWindow)
-
-	if len(instance.PrivateIps) > 0 {
-		d.Set("private_ips", instance.PrivateIps[0])
-	}
-	if len(instance.PublicIps) > 0 {
-		d.Set("pubilc_ips", instance.PublicIps[0])
-	}
+	d.Set("private_ips", instance.PrivateIps)
+	d.Set("pubilc_ips", instance.PublicIps)
 
 	// set data store
 	dbList := make([]map[string]interface{}, 1)
