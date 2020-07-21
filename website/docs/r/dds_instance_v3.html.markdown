@@ -87,7 +87,7 @@ The following arguments are supported:
 	a new instance.
 
 * `name` - (Required) Specifies the DB instance name. The DB instance name of the same
-	type is unique in the same tenant. Changing this creates a new instance.
+	type is unique in the same tenant.
 
 * `datastore` - (Required) Specifies database information. The structure is described
 	below. Changing this creates a new instance.
@@ -100,10 +100,8 @@ The following arguments are supported:
 * `subnet_id` - (Required) Specifies the subnet Network ID. Changing this creates a new instance.
 
 * `security_group_id` - (Required) Specifies the security group ID of the DDS instance.
-    Changing this creates a new instance.
 
 * `password` - (Required) Specifies the Administrator password of the database instance.
-	Changing this creates a new instance.
 
 * `disk_encryption_id` - (Required) Specifies the disk encryption ID of the instance.
 	Changing this creates a new instance.
@@ -118,7 +116,8 @@ The following arguments are supported:
 	described below. Changing this creates a new instance.
 
 * `ssl` - (Optional) Specifies whether to enable or disable SSL. Defaults to true.
-  Changing this creates a new instance.
+
+**Note:** The instance will be restarted in the background when switching SSL. Please operate with caution.
 
 The `datastore` block supports:
 

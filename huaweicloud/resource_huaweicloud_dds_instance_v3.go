@@ -16,6 +16,7 @@ func resourceDdsInstanceV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDdsInstanceV3Create,
 		Read:   resourceDdsInstanceV3Read,
+		Update: resourceDdsInstanceV3Update,
 		Delete: resourceDdsInstanceV3Delete,
 
 		Timeouts: &schema.ResourceTimeout{
@@ -33,7 +34,6 @@ func resourceDdsInstanceV3() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"datastore": {
 				Type:     schema.TypeList,
@@ -87,13 +87,11 @@ func resourceDdsInstanceV3() *schema.Resource {
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"password": {
 				Type:      schema.TypeString,
 				Sensitive: true,
 				Required:  true,
-				ForceNew:  true,
 			},
 			"disk_encryption_id": {
 				Type:     schema.TypeString,
@@ -170,7 +168,6 @@ func resourceDdsInstanceV3() *schema.Resource {
 			"ssl": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 				Default:  true,
 			},
 			"db_username": {
@@ -292,7 +289,12 @@ func DdsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID str
 		}
 		insts := instancesList.Instances
 
-		return insts[0], insts[0].Status, nil
+		status := insts[0].Status
+		// wait for updating
+		if status == "normal" && len(insts[0].Actions) > 0 {
+			status = "updating"
+		}
+		return insts[0], status, nil
 	}
 }
 
@@ -416,6 +418,82 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	client, err := config.ddsV3Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
+	}
+
+	var opts []instances.UpdateOpt
+	if d.HasChange("name") {
+		opt := instances.UpdateOpt{
+			Param:  "new_instance_name",
+			Value:  d.Get("name").(string),
+			Action: "modify-name",
+			Method: "put",
+		}
+		opts = append(opts, opt)
+	}
+
+	if d.HasChange("password") {
+		opt := instances.UpdateOpt{
+			Param:  "user_pwd",
+			Value:  d.Get("password").(string),
+			Action: "reset-password",
+			Method: "put",
+		}
+		opts = append(opts, opt)
+	}
+
+	if d.HasChange("ssl") {
+		opt := instances.UpdateOpt{
+			Param:  "ssl_option",
+			Action: "switch-ssl",
+			Method: "post",
+		}
+		if d.Get("ssl").(bool) {
+			opt.Value = "1"
+		} else {
+			opt.Value = "0"
+		}
+		opts = append(opts, opt)
+	}
+
+	if d.HasChange("security_group_id") {
+		opt := instances.UpdateOpt{
+			Param:  "security_group_id",
+			Value:  d.Get("security_group_id").(string),
+			Action: "modify-security-group",
+			Method: "post",
+		}
+		opts = append(opts, opt)
+	}
+
+	r := instances.Update(client, d.Id(), opts)
+	if r.Err != nil {
+		return fmt.Errorf("Error updating instance from result: %s ", r.Err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"updating"},
+		Target:     []string{"normal"},
+		Refresh:    DdsInstanceStateRefreshFunc(client, d.Id()),
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Delay:      15 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf(
+			"Error waiting for instance (%s) to become ready: %s ",
+			d.Id(), err)
+	}
+
+	return resourceDdsInstanceV3Read(d, meta)
 }
 
 func resourceDdsInstanceV3Delete(d *schema.ResourceData, meta interface{}) error {

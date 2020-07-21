@@ -1,6 +1,8 @@
 package instances
 
 import (
+	"net/http"
+
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/pagination"
 )
@@ -128,4 +130,40 @@ func List(client *golangsdk.ServiceClient, opts ListInstanceBuilder) pagination.
 	})
 
 	return pageList
+}
+
+// UpdateOpt defines the basic information for update APIs
+// URI: <Method> base_url/<Action>
+// Request body: {<Param>: <Value>}
+// the supported value for Method including: "post" and "put"
+type UpdateOpt struct {
+	Param  string
+	Value  interface{}
+	Action string
+	Method string
+}
+
+func Update(client *golangsdk.ServiceClient, instanceId string, opts []UpdateOpt) (r UpdateInstanceResult) {
+	for _, optRaw := range opts {
+		url := modifyURL(client, instanceId, optRaw.Action)
+		body := map[string]interface{}{
+			optRaw.Param: optRaw.Value,
+		}
+
+		var httpMethod func(string, interface{}, interface{}, *golangsdk.RequestOpts) (*http.Response, error)
+		if optRaw.Method == "post" {
+			httpMethod = client.Post
+		} else {
+			httpMethod = client.Put
+		}
+
+		_, r.Err = httpMethod(url, body, &r.Body, &golangsdk.RequestOpts{
+			OkCodes: []int{200, 202},
+		})
+
+		if r.Err != nil {
+			break
+		}
+	}
+	return
 }
