@@ -47,6 +47,13 @@ func resourceObsBucket() *schema.Resource {
 				}, true),
 			},
 
+			"policy": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ValidateFunc:     validateJsonString,
+				DiffSuppressFunc: suppressEquivalentAwsPolicyDiffs,
+			},
+
 			"versioning": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -301,6 +308,12 @@ func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	if d.HasChange("policy") {
+		if err := resourceObsBucketPolicyUpdate(obsClient, d); err != nil {
+			return err
+		}
+	}
+
 	if d.HasChange("tags") {
 		if err := resourceObsBucketTagsUpdate(obsClient, d); err != nil {
 			return err
@@ -474,6 +487,31 @@ func resourceObsBucketAclUpdate(obsClient *obs.ObsClient, d *schema.ResourceData
 
 	// acl policy can not be retrieved by obsClient.GetBucketAcl method
 	d.Set("acl", acl)
+	return nil
+}
+
+func resourceObsBucketPolicyUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Get("bucket").(string)
+	policy := d.Get("policy").(string)
+
+	if policy != "" {
+		log.Printf("[DEBUG] OBS bucket: %s, set policy: %s", bucket, policy)
+		params := &obs.SetBucketPolicyInput{
+			Bucket: bucket,
+			Policy: policy,
+		}
+
+		if _, err := obsClient.SetBucketPolicy(params); err != nil {
+			return getObsError("Error setting OBS bucket policy", bucket, err)
+		}
+	} else {
+		log.Printf("[DEBUG] OBS bucket: %s, delete policy", bucket)
+		_, err := obsClient.DeleteBucketPolicy(bucket)
+		if err != nil {
+			return getObsError("Error deleting policy of OBS bucket %s: %s", bucket, err)
+		}
+	}
+
 	return nil
 }
 
@@ -807,6 +845,19 @@ func setObsBucketStorageClass(obsClient *obs.ObsClient, d *schema.ResourceData) 
 	return nil
 }
 
+func setObsBucketPolicy(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Id()
+	output, err := obsClient.GetBucketPolicy(bucket)
+	if err != nil {
+		return getObsError("Error getting policy of OBS bucket", bucket, err)
+	}
+
+	pol := output.Policy
+	d.Set("policy", pol)
+
+	return nil
+}
+
 func setObsBucketVersioning(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Id()
 	output, err := obsClient.GetBucketVersioning(bucket)
@@ -1092,10 +1143,9 @@ func deleteAllBucketObjects(obsClient *obs.ObsClient, bucket string) error {
 	output, err := obsClient.DeleteObjects(deleteOpts)
 	if err != nil {
 		return getObsError("Error deleting all objects of OBS bucket", bucket, err)
-	} else {
-		if len(output.Errors) > 0 {
-			return fmt.Errorf("Error some objects are still exist in %s: %#v", bucket, output.Errors)
-		}
+	}
+	if len(output.Errors) > 0 {
+		return fmt.Errorf("Error some objects are still exist in %s: %#v", bucket, output.Errors)
 	}
 	return nil
 }
@@ -1103,9 +1153,8 @@ func deleteAllBucketObjects(obsClient *obs.ObsClient, bucket string) error {
 func getObsError(action string, bucket string, err error) error {
 	if obsError, ok := err.(obs.ObsError); ok {
 		return fmt.Errorf("%s %s: %s,\n Reason: %s", action, bucket, obsError.Code, obsError.Message)
-	} else {
-		return err
 	}
+	return err
 }
 
 // normalize format of storage class

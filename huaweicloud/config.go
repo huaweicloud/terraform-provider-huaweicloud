@@ -402,7 +402,7 @@ func (c *Config) newObjectStorageClient(region string) (*obs.ObsClient, error) {
 		}
 	}
 
-	return obs.New(c.AccessKey, c.SecretKey, client.Endpoint)
+	return obs.New(c.AccessKey, c.SecretKey, client.Endpoint, obs.WithSignature("OBS"))
 }
 
 func (c *Config) apiGatewayV1Client(region string) (*golangsdk.ServiceClient, error) {
