@@ -415,7 +415,17 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error fetching HuaweiCloud Job Details: %s", err)
 	}
-	nodeid := subjob.Spec.SubJobs[0].Spec.ResourceID
+
+	var nodeid string
+	for _, s := range subjob.Spec.SubJobs {
+		if s.Spec.Type == "CreateNodeVM" {
+			nodeid = s.Spec.ResourceID
+			break
+		}
+	}
+	if len(nodeid) == 0 {
+		return fmt.Errorf("Error fetching CreateNodeVM Job resource id")
+	}
 
 	log.Printf("[DEBUG] Waiting for CCE Node (%s) to become available", s.Metadata.Name)
 	stateConf := &resource.StateChangeConf{
