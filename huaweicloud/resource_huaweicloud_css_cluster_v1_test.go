@@ -34,6 +34,12 @@ func TestAccCssClusterV1_basic(t *testing.T) {
 				Config: testAccCssClusterV1_basic(acctest.RandString(10)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCssClusterV1Exists(),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_css_cluster_v1.cluster", "expect_node_num", "1"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_css_cluster_v1.cluster", "engine_type", "elasticsearch"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_css_cluster_v1.cluster", "tags.foo", "bar"),
 				),
 			},
 		},
@@ -54,7 +60,7 @@ resource "huaweicloud_css_cluster_v1" "cluster" {
   node_config {
     flavor = "ess.spec-2u16g"
     network_info {
-      security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
+      security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
       subnet_id = "%s"
       vpc_id = "%s"
     }
@@ -63,6 +69,10 @@ resource "huaweicloud_css_cluster_v1" "cluster" {
       size = 40
     }
     availability_zone = "%s"
+  }
+  tags = {
+    foo = "bar"
+    key = "value"
   }
 }
 	`, val, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE)
