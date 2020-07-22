@@ -438,7 +438,7 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("switch_strategy", instance.SwitchStrategy)
 	d.Set("maintenance_window", instance.MaintenanceWindow)
 	d.Set("private_ips", instance.PrivateIps)
-	d.Set("pubilc_ips", instance.PublicIps)
+	d.Set("public_ips", instance.PublicIps)
 
 	// set data store
 	dbList := make([]map[string]interface{}, 1)
