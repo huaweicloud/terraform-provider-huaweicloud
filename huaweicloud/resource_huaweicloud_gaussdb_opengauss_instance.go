@@ -24,7 +24,8 @@ func resourceOpenGaussInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -551,10 +552,10 @@ func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"MODIFYING", "EXPANDING"},
+			Pending:    []string{"MODIFYING", "EXPANDING", "BACKING UP"},
 			Target:     []string{"ACTIVE"},
 			Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			Delay:      60 * time.Second,
 			MinTimeout: 30 * time.Second,
 		}
@@ -595,10 +596,10 @@ func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"MODIFYING", "EXPANDING"},
+			Pending:    []string{"MODIFYING", "EXPANDING", "BACKING UP"},
 			Target:     []string{"ACTIVE"},
 			Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			Delay:      60 * time.Second,
 			MinTimeout: 30 * time.Second,
 		}
@@ -625,10 +626,10 @@ func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"MODIFYING"},
+			Pending:    []string{"MODIFYING", "EXPANDING", "BACKING UP"},
 			Target:     []string{"ACTIVE"},
 			Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			Delay:      40 * time.Second,
 			MinTimeout: 20 * time.Second,
 		}
