@@ -114,7 +114,7 @@ The `volume` block supports:
 
 * `type` - (Required) Specifies the volume type. Only "ULTRAHIGH" is supported now.
 
-* `size` - (Required) Specifies the volume size (in gigabytes) for a single DN. The value should between 40G ~ 5TB.
+* `size` - (Required) Specifies the volume size (in gigabytes) for a Sharding. The value should between 40G ~ 5TB.
 
 
 The `ha` block supports:
