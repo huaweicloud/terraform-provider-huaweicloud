@@ -76,11 +76,6 @@ func resourceOpenGaussInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"dsspool_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"sharding_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -90,11 +85,6 @@ func resourceOpenGaussInstance() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
-			},
-			"disk_encryption_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -333,12 +323,10 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		Port:                d.Get("port").(string),
-		DiskEncryptionId:    d.Get("disk_encryption_id").(string),
 		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
 		TimeZone:            d.Get("time_zone").(string),
 		AvailabilityZone:    d.Get("availability_zone").(string),
 		ConfigurationId:     d.Get("configuration_id").(string),
-		DsspoolId:           d.Get("dsspool_id").(string),
 		ShardingNum:         d.Get("sharding_num").(int),
 		CoordinatorNum:      d.Get("coordinator_num").(int),
 		DataStore:           resourceOpenGaussDataStore(d),
@@ -431,11 +419,9 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("vpc_id", instance.VpcId)
 	d.Set("subnet_id", instance.SubnetId)
 	d.Set("security_group_id", instance.SecurityGroupId)
-	d.Set("disk_encryption_id", instance.DiskEncryptionId)
 	d.Set("db_user_name", instance.DbUserName)
 	d.Set("time_zone", instance.TimeZone)
 	d.Set("flavor", instance.FlavorRef)
-	d.Set("dsspool_id", instance.DsspoolId)
 	d.Set("switch_strategy", instance.SwitchStrategy)
 	d.Set("maintenance_window", instance.MaintenanceWindow)
 	d.Set("private_ips", instance.PrivateIps)
