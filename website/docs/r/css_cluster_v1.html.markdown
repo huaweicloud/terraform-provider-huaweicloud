@@ -68,7 +68,6 @@ The following arguments are supported:
   Node configuration. Structure is documented below. Changing this parameter will create a new resource.
 
 * `backup_strategy` - (Optional) Specifies the advanced backup policy. Structure is documented below.
-  Changing this parameter will create a new resource.
 
 * `tags` - (Optional) The key/value pairs to associate with the cluster.
   Changing this parameter will create a new resource.
@@ -117,7 +116,6 @@ The `volume` block supports:
 * `size` -
   (Required)
   Specifies the volume size in GB, which must be a multiple of 10.
-  Changing this parameter will create a new resource.
 
 * `volume_type` -
   (Required)
@@ -129,7 +127,10 @@ The `volume` block supports:
 The `backup_strategy` block supports:
 
 * `start_time` - (Required) Specifies the time when a snapshot is automatically
-  created everyday. Example value: "04:00 GMT+08:00".
+  created everyday. Snapshots can only be created on the hour. The time format is
+  the time followed by the time zone, specifically, **HH:mm z**. In the format, HH:mm
+  refers to the hour time and z refers to the time zone. For example, "00:00 GMT+08:00"
+  and "01:00 GMT+08:00".
 
 * `keep_days` - (Optional) Specifies the number of days to retain the generated
    snapshots. Snapshots are reserved for seven days by default.
