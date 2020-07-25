@@ -21,27 +21,37 @@ resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
 }
 data "huaweicloud_dcs_az_v1" "az_1" {
   port = "8002"
+  code = "cn-north-1a"
 }
-data "huaweicloud_dcs_product_v1" "product_1" {
-  spec_code = "dcs.master_standby"
+
+resource "huaweicloud_vpc_v1" "vpc_4" {
+  name = "terraform_provider_vpc4"
+  cidr= "192.168.0.0/16"
 }
+resource "huaweicloud_vpc_subnet_v1" "subnet_1" {
+  name = "huaweicloud_subnet"
+  cidr = "192.168.0.0/16"
+  gateway_ip = "192.168.0.1"
+  vpc_id = huaweicloud_vpc_v1.vpc_4.id
+}
+
 resource "huaweicloud_dcs_instance_v1" "instance_1" {
   name              = "test_dcs_instance"
-  engine_version    = "3.0.7"
+  engine_version    = "3.0"
   password          = "Huawei_test"
   engine            = "Redis"
   capacity          = 2
-  vpc_id            = "1477393a-29c9-4de5-843f-18ef51257c7e"
+  vpc_id            = huaweicloud_vpc_v1.vpc_4.id
   security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup_1.id}"
-  subnet_id         = "27d99e17-42f2-4751-818f-5c8c6c03ff15"
+  subnet_id         = huaweicloud_vpc_subnet_v1.subnet_1.id
   available_zones   = ["${data.huaweicloud_dcs_az_v1.az_1.id}"]
-  product_id        = "${data.huaweicloud_dcs_product_v1.product_1.id}"
+  product_id        = "dcs.master_standby-h"
   save_days         = 1
   backup_type       = "manual"
   begin_at          = "00:00-01:00"
   period_type       = "weekly"
   backup_at         = [1]
-  depends_on        = ["data.huaweicloud_dcs_product_v1.product_1", "huaweicloud_networking_secgroup_v2.secgroup_1"]
+  depends_on        = ["huaweicloud_networking_secgroup_v2.secgroup_1"]
 }
 ```
 
@@ -49,56 +59,65 @@ resource "huaweicloud_dcs_instance_v1" "instance_1" {
 
 The following arguments are supported:
 
-* `name` - (Required) Indicates the name of an instance. An instance name starts with a letter,
-	consists of 4 to 64 characters, and supports only letters, digits, and hyphens (-).
+* `name` - (Required) Indicates the name of an instance. It starts with English characters 
+    and can only be composed of English letters, numbers, underscores and underscores. 
+    When creating a single instance, the name is a string of 4 to 64 bits in length. 
+    When creating instances in batches, the length of the name is a string of 4 to 56 characters, 
+    and the format of the instance name is "custom name-n", where n starts from 000 and increases in sequence.
+    For example, if you create two instances in batches and the custom name is dcs_demo, 
+    the names of the two instances are dcs_demo-000 and dcs_demo-001.
 
 * `description` - (Optional) Indicates the description of an instance. It is a character
     string containing not more than 1024 characters.
 
-* `engine` - (Optional) Indicates a cache engine. Options: Redis and Memcached. Changing this
+* `engine` - (Required) Indicates a cache engine. Options: Redis and Memcached. Changing this
     creates a new instance.
 
-* `engine_version` - (Optional) Indicates the version of a message engine.
+* `engine_version` - (Optional) Indicates the version of a message engine.When the cache engine is Redis, 
+    the value is 3.0, 4.0 or 5.0. 
     Changing this creates a new instance.
 
 * `capacity` - (Required) Indicates the Cache capacity. Unit: GB.
-    For a DCS Redis or Memcached instance in single-node or master/standby mode, the cache
-    capacity can be 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, or 64 GB.
-    For a DCS Redis instance in cluster mode, the cache capacity can be 64, 128, 256, 512,
-    or 1024 GB.
-    Changing this creates a new instance.
+    Redis3.0: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64. 
+    Proxy cluster instance specifications support 64, 128, 256, 512, and 1024.
 
-* `partition_num` - (Optional) This parameter is mandatory when a Kafka instance is created.
-    Indicates the maximum number of topics in a Kafka instance.
-    When specification is 300 MB: 900
-    When specification is 600 MB: 1800
-    When specification is 1200 MB: 1800
+    Redis4.0 and Redis5.0: Stand-alone and active/standby type instance 
+    values: 0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64. Cluster instance specifications 
+    support 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024.
+
+    Memcached: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64.
+    Changing this creates a new instance.
 
 * `access_user` - (Optional) Username used for accessing a DCS instance after password
     authentication. A username starts with a letter, consists of 1 to 64 characters,
     and supports only letters, digits, and hyphens (-).
+    - When the cache engine is Memcached, this parameter is optional.
+    - When the cache engine is Redis, this parameter does not need to be set.
     Changing this creates a new instance.
 
 * `password` - (Optional) Password of a DCS instance.
     The password of a DCS Redis instance must meet the following complexity requirements:
+    - Enter a string of 8 to 32 bits in length.
+    - The new password cannot be the same as the old password.
+    - Must contain three combinations of the following four characters: Lower case letters,
+        uppercase letter, digital, Special characters include (`~!@#$%^&*()-_=+|[{}]:'",<.>/?).
     Changing this creates a new instance.
 
-* `vpc_id` - (Required) Tenant's VPC ID. For details on how to create VPCs, see the
-    Virtual Private Cloud API Reference.
+* `vpc_id` - (Required) Specifies the id of the VPC.
     Changing this creates a new instance.
 
-* `security_group_id` - (Required) Tenant's security group ID. For details on how to
-    create security groups, see the Virtual Private Cloud API Reference.
+* `security_group_id` - (Required) Tenant's security group ID.
 
-* `subnet_id` - (Required) Subnet ID. For details on how to create subnets, see the
-    Virtual Private Cloud API Reference.
+* `subnet_id` - (Required) Specifies the id of the subnet.
     Changing this creates a new instance.
 
-* `available_zones` - (Required) IDs of the AZs where cache nodes reside. For details
-    on how to query AZs, see Querying AZ Information.
+* `available_zones` - (Required) IDs of the AZs where cache nodes reside.
+    If you are creating active/standby, Proxy cluster, and Cluster cluster instances to support 
+    cross-zone deployment, you can specify the standby zone for the standby node. When specifying 
+    availability zones for nodes, separate them with commas.
     Changing this creates a new instance.
 
-* `product_id` - (Required) Product ID used to differentiate DCS instance types.
+* `product_id` - (Required) Product ID or Names used to differentiate DCS instance types.
     Changing this creates a new instance.
 
 * `maintain_begin` - (Optional) Indicates the time at which a maintenance time window starts.
