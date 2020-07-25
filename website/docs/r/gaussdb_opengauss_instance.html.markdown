@@ -81,15 +81,9 @@ The following arguments are supported:
 * `configuration_id` - (Optional) The parameter template id.
   Changing this parameter will create a new resource.
 
-* `dsspool_id` - (Optional) The Dec dedicated storage pool id.
-  Changing this parameter will create a new resource.
-
 * `sharding_num` - (Optional) The Sharding num. Values: 1~32.
 
 * `coordinator_num` - (Optional) The Coordinator num. Values: 1~32.
-
-* `disk_encryption_id` - (Optional) Specifies the volume encryption KMS id.
-  Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional) The enterprise project id.
   Changing this parameter will create a new resource.
