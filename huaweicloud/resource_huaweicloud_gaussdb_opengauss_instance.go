@@ -283,7 +283,7 @@ func resourceOpenGaussBackupStrategy(d *schema.ResourceData) *instances.BackupSt
 		backupOpt.KeepDays = strategy["keep_days"].(int)
 	} else {
 		// set defautl backup strategy
-		backupOpt.StartTime = "00:00-01:00"
+		backupOpt.StartTime = "17:00-18:00"
 		backupOpt.KeepDays = 7
 	}
 
