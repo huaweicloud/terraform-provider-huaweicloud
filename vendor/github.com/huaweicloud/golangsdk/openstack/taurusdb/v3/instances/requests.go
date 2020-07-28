@@ -69,6 +69,48 @@ func Create(client *golangsdk.ServiceClient, opts CreateTaurusDBBuilder) (r Crea
 	return
 }
 
+type CreateReplicaOpts struct {
+	Priorities []int `json:"priorities" required:"true"`
+}
+
+type CreateReplicaBuilder interface {
+	ToReplicaCreateMap() (map[string]interface{}, error)
+}
+
+func (opts CreateReplicaOpts) ToReplicaCreateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func CreateReplica(client *golangsdk.ServiceClient, instanceId string, opts CreateReplicaBuilder) (r JobResult) {
+	b, err := opts.ToReplicaCreateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(enlargeURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{201, 202},
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
+
+func DeleteReplica(client *golangsdk.ServiceClient, instanceId, nodeId string) (r JobResult) {
+	url := deleteReplicaURL(client, instanceId, nodeId)
+
+	_, r.Err = client.DeleteWithResponse(url, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{200, 202},
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
+
 func Delete(client *golangsdk.ServiceClient, instanceId string) (r DeleteResult) {
 	url := deleteURL(client, instanceId)
 

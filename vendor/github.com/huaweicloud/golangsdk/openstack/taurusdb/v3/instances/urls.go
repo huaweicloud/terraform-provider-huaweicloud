@@ -17,3 +17,15 @@ func getURL(c *golangsdk.ServiceClient, instanceID string) string {
 func listURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("instances")
 }
+
+func enlargeURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "nodes/enlarge")
+}
+
+func deleteReplicaURL(c *golangsdk.ServiceClient, instanceID, nodeID string) string {
+	return c.ServiceURL("instances", instanceID, "nodes", nodeID)
+}
+
+func jobURL(sc *golangsdk.ServiceClient, jobId string) string {
+	return sc.ServiceURL("jobs?id=" + jobId)
+}
