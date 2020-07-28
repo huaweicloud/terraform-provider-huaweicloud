@@ -81,7 +81,6 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `read_replicas` - (Optional) Specifies the count of read replicas. Defaults to 1.
-  Changing this parameter will create a new resource.
 
 * `time_zone` - (Optional) Specifies the time zone. Defaults to "UTC+08:00".
   Changing this parameter will create a new resource.
