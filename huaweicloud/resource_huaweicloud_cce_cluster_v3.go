@@ -130,6 +130,10 @@ func resourceCCEClusterV3() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateIP,
 			},
+			"kube_proxy_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -200,6 +204,9 @@ func resourceClusterExtendParamV3(d *schema.ResourceData) map[string]string {
 	if multi_az, ok := d.GetOk("multi_az"); ok && multi_az == true {
 		m["clusterAZ"] = "multi_az"
 	}
+	if kube_proxy_mode, ok := d.GetOk("kube_proxy_mode"); ok{
+		m["kubeProxyMode"] = kube_proxy_mode.(string)
+	}
 	if eip, ok := d.GetOk("eip"); ok {
 		m["clusterExternalIP"] = eip.(string)
 	}
@@ -213,6 +220,7 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmt.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
+
 
 	authenticating_proxy := make(map[string]string)
 	if hasFilledOpt(d, "authenticating_proxy_ca") {
@@ -236,8 +244,9 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 				Cidr: d.Get("container_network_cidr").(string)},
 			Authentication: clusters.AuthenticationSpec{Mode: d.Get("authentication_mode").(string),
 				AuthenticatingProxy: authenticating_proxy},
-			BillingMode: d.Get("billing_mode").(int),
-			ExtendParam: resourceClusterExtendParamV3(d),
+			BillingMode:   d.Get("billing_mode").(int),
+			ExtendParam:   resourceClusterExtendParamV3(d),
+			//KubeProxyMode: d.Get("kube_proxy_mode").(string),
 		},
 	}
 

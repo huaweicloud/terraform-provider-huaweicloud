@@ -123,6 +123,26 @@ func resourceCCENodeV3() *schema.Resource {
 						},
 					}},
 			},
+			"taints": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"effect": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					}},
+			},
 			"eip_ids": {
 				Type:          schema.TypeSet,
 				Optional:      true,
@@ -277,6 +297,19 @@ func resourceCCEDataVolume(d *schema.ResourceData) []nodes.VolumeSpec {
 	}
 	return volumes
 }
+func resourceCCETaint(d *schema.ResourceData) []nodes.TaintSpec {
+	taintRaw := d.Get("taints").([]interface{})
+	taints := make([]nodes.TaintSpec, len(taintRaw))
+	for i, raw := range taintRaw {
+		rawMap := raw.(map[string]interface{})
+		taints[i] = nodes.TaintSpec{
+			Key:    rawMap["key"].(string),
+			Value:  rawMap["value"].(string),
+			Effect: rawMap["effect"].(string),
+		}
+	}
+	return taints
+}
 func resourceCCERootVolume(d *schema.ResourceData) nodes.VolumeSpec {
 	var nics nodes.VolumeSpec
 	nicsRaw := d.Get("root_volume").([]interface{})
@@ -378,6 +411,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 				PreInstall:         base64PreInstall,
 				PostInstall:        base64PostInstall,
 			},
+			Taints: resourceCCETaint(d),
 		},
 	}
 
@@ -490,8 +524,19 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 			"extend_param": s.Spec.RootVolume.ExtendParam,
 		},
 	}
-	d.Set("root_volume", rootVolume)
 	if err := d.Set("root_volume", rootVolume); err != nil {
+		return fmt.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node (%s): %s", d.Id(), err)
+	}
+
+	var tains []map[string]interface{}
+	for _, pairObject := range s.Spec.Taints {
+		tain := make(map[string]interface{})
+		tain["key"] = pairObject.Key
+		tain["value"] = pairObject.Value
+		tain["effect"] = pairObject.Effect
+		tains = append(tains, tain)
+	}
+	if err := d.Set("tains", tains); err != nil {
 		return fmt.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node (%s): %s", d.Id(), err)
 	}
 
