@@ -31,11 +31,6 @@ resource "huaweicloud_cce_node_v3" "node_1" {
     size       = 100
     volumetype = "SATA"
   }
-  taints {
-    key = "looks"
-    value = "bad"
-    effect = "NoSchedule"
-  }
 
   iptype         = "5_bgp"
   sharetype      = "PER"
@@ -105,7 +100,7 @@ If the eip_id parameter is configured, you do not need to configure the bandwidt
     
 * `extend_param` - (Optional) Disk expansion parameters. 
 
-**taints** **- (Optional)** Represents the data disk to be created. Changing this parameter will create a new resource.
+**taints** **- (Optional)** You can add taints to created nodes to configure anti-affinity. Each taint contains the following parameters:
     
 * `key` - (Required) A key must contain 1 to 63 characters starting with a letter or digit. Only letters, digits, hyphens (-), 
   underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the prefix of a key.

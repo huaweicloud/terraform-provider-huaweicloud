@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -16,6 +17,7 @@ import (
 func resourceGaussDBInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGaussDBInstanceCreate,
+		Update: resourceGaussDBInstanceUpdate,
 		Read:   resourceGaussDBInstanceRead,
 		Delete: resourceGaussDBInstanceDelete,
 		Importer: &schema.ResourceImporter{
@@ -24,6 +26,7 @@ func resourceGaussDBInstance() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -72,7 +75,7 @@ func resourceGaussDBInstance() *schema.Resource {
 			"read_replicas": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 				Default:  1,
 			},
 			"time_zone": {
@@ -402,6 +405,79 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("backup_strategy", backupStrategyList)
 
 	return nil
+}
+
+func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	client, err := config.initServiceClient("gaussdb", GetRegion(d, config), "mysql/v3")
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
+	}
+	instanceId := d.Id()
+
+	if d.HasChange("read_replicas") {
+		old, newnum := d.GetChange("read_replicas")
+		if newnum.(int) > old.(int) {
+			expand_size := newnum.(int) - old.(int)
+			priorities := []int{}
+			for i := 0; i < expand_size; i++ {
+				priorities = append(priorities, 1)
+			}
+			createReplicaOpts := instances.CreateReplicaOpts{
+				Priorities: priorities,
+			}
+			log.Printf("[DEBUG] Create Replica Options: %+v", createReplicaOpts)
+
+			n, err := instances.CreateReplica(client, instanceId, createReplicaOpts).ExtractJobResponse()
+			if err != nil {
+				d.Set("read_replicas", old.(int))
+				return fmt.Errorf("Error creating read replicas for instance %s: %s ", instanceId, err)
+			}
+
+			job_list := strings.Split(n.JobID, ",")
+			log.Printf("[DEBUG] Create Replica Jobs: %#v", job_list)
+			for i := 0; i < len(job_list); i++ {
+				job_id := job_list[i]
+				log.Printf("[DEBUG] Waiting for job: %s", job_id)
+				if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), job_id); err != nil {
+					return err
+				}
+			}
+		}
+		if newnum.(int) < old.(int) {
+			shrink_size := old.(int) - newnum.(int)
+
+			slave_nodes := []string{}
+			nodes := d.Get("nodes").([]interface{})
+			for i := range nodes {
+				node := nodes[i].(map[string]interface{})
+				if node["type"].(string) == "slave" && node["status"] == "ACTIVE" {
+					slave_nodes = append(slave_nodes, node["id"].(string))
+				}
+			}
+			log.Printf("[DEBUG] Slave Nodes: %+v", slave_nodes)
+			if len(slave_nodes) <= shrink_size {
+				d.Set("read_replicas", old.(int))
+				return fmt.Errorf("Error deleting read replicas for instance %s: Shrink Size is bigger than slave nodes", instanceId)
+			}
+			for i := 0; i < shrink_size; i++ {
+				n, err := instances.DeleteReplica(client, instanceId, slave_nodes[i]).ExtractJobResponse()
+				read_replicas := old.(int) - i
+				if err != nil {
+					d.Set("read_replicas", read_replicas)
+					return fmt.Errorf("Error creating read replica %s for instance %s: %s ", slave_nodes[i], instanceId, err)
+				}
+
+				if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+					d.Set("read_replicas", read_replicas)
+					return err
+				}
+				log.Printf("[DEBUG] Deleted Read Replica: %s", slave_nodes[i])
+			}
+		}
+	}
+
+	return resourceGaussDBInstanceRead(d, meta)
 }
 
 func resourceGaussDBInstanceDelete(d *schema.ResourceData, meta interface{}) error {

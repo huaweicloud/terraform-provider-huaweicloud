@@ -528,18 +528,6 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node (%s): %s", d.Id(), err)
 	}
 
-	var tains []map[string]interface{}
-	for _, pairObject := range s.Spec.Taints {
-		tain := make(map[string]interface{})
-		tain["key"] = pairObject.Key
-		tain["value"] = pairObject.Value
-		tain["effect"] = pairObject.Effect
-		tains = append(tains, tain)
-	}
-	if err := d.Set("tains", tains); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node (%s): %s", d.Id(), err)
-	}
-
 	// set computed attributes
 	d.Set("private_ip", s.Status.PrivateIP)
 	d.Set("public_ip", s.Status.PublicIP)

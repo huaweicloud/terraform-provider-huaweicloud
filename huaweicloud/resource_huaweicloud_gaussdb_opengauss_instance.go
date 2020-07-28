@@ -24,7 +24,8 @@ func resourceOpenGaussInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -75,11 +76,6 @@ func resourceOpenGaussInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"dsspool_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"sharding_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -89,11 +85,6 @@ func resourceOpenGaussInstance() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
-			},
-			"disk_encryption_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -292,7 +283,7 @@ func resourceOpenGaussBackupStrategy(d *schema.ResourceData) *instances.BackupSt
 		backupOpt.KeepDays = strategy["keep_days"].(int)
 	} else {
 		// set defautl backup strategy
-		backupOpt.StartTime = "00:00-01:00"
+		backupOpt.StartTime = "17:00-18:00"
 		backupOpt.KeepDays = 7
 	}
 
@@ -332,12 +323,10 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		Port:                d.Get("port").(string),
-		DiskEncryptionId:    d.Get("disk_encryption_id").(string),
 		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
 		TimeZone:            d.Get("time_zone").(string),
 		AvailabilityZone:    d.Get("availability_zone").(string),
 		ConfigurationId:     d.Get("configuration_id").(string),
-		DsspoolId:           d.Get("dsspool_id").(string),
 		ShardingNum:         d.Get("sharding_num").(int),
 		CoordinatorNum:      d.Get("coordinator_num").(int),
 		DataStore:           resourceOpenGaussDataStore(d),
@@ -430,11 +419,9 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("vpc_id", instance.VpcId)
 	d.Set("subnet_id", instance.SubnetId)
 	d.Set("security_group_id", instance.SecurityGroupId)
-	d.Set("disk_encryption_id", instance.DiskEncryptionId)
 	d.Set("db_user_name", instance.DbUserName)
 	d.Set("time_zone", instance.TimeZone)
 	d.Set("flavor", instance.FlavorRef)
-	d.Set("dsspool_id", instance.DsspoolId)
 	d.Set("switch_strategy", instance.SwitchStrategy)
 	d.Set("maintenance_window", instance.MaintenanceWindow)
 	d.Set("private_ips", instance.PrivateIps)
@@ -551,10 +538,10 @@ func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"MODIFYING", "EXPANDING"},
+			Pending:    []string{"MODIFYING", "EXPANDING", "BACKING UP"},
 			Target:     []string{"ACTIVE"},
 			Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			Delay:      60 * time.Second,
 			MinTimeout: 30 * time.Second,
 		}
@@ -595,10 +582,10 @@ func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"MODIFYING", "EXPANDING"},
+			Pending:    []string{"MODIFYING", "EXPANDING", "BACKING UP"},
 			Target:     []string{"ACTIVE"},
 			Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			Delay:      60 * time.Second,
 			MinTimeout: 30 * time.Second,
 		}
@@ -625,10 +612,10 @@ func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"MODIFYING"},
+			Pending:    []string{"MODIFYING", "EXPANDING", "BACKING UP"},
 			Target:     []string{"ACTIVE"},
 			Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			Delay:      40 * time.Second,
 			MinTimeout: 20 * time.Second,
 		}

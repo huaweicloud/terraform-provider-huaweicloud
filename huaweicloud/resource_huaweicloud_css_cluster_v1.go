@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/css/v1/snapshots"
 )
 
 func resourceCssClusterV1() *schema.Resource {
@@ -108,7 +109,6 @@ func resourceCssClusterV1() *schema.Resource {
 									"size": {
 										Type:     schema.TypeInt,
 										Required: true,
-										ForceNew: true,
 									},
 									"volume_type": {
 										Type:     schema.TypeString,
@@ -130,25 +130,21 @@ func resourceCssClusterV1() *schema.Resource {
 			"backup_strategy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"start_time": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"keep_days": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: true,
 							Default:  7,
 						},
 						"prefix": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Default:  "snapshot",
 						},
 					},
@@ -244,6 +240,14 @@ func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.SetId(id.(string))
 
+	// enable snapshot function when "backup_strategy" was not specified
+	if len(d.Get("backup_strategy").([]interface{})) == 0 {
+		err = snapshots.Enable(client, d.Id()).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error enable snapshot function: %s", err)
+		}
+	}
+
 	return resourceCssClusterV1Read(d, meta)
 }
 
@@ -262,7 +266,32 @@ func resourceCssClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	res["read"] = fillCssClusterV1ReadRespBody(v)
 
-	return setCssClusterV1Properties(d, res)
+	if err := setCssClusterV1Properties(d, res); err != nil {
+		return err
+	}
+
+	// set backup strategy property
+	policy, err := snapshots.PolicyGet(client, d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error extracting Cluster:backup_strategy, err: %s", err)
+	}
+
+	if policy.Enable == "true" {
+		strategy := []map[string]interface{}{
+			{
+				"prefix":     policy.Prefix,
+				"start_time": policy.Period,
+				"keep_days":  policy.KeepDay,
+			},
+		}
+		if err := d.Set("backup_strategy", strategy); err != nil {
+			return fmt.Errorf("Error setting Cluster:backup_strategy, err: %s", err)
+		}
+	} else {
+		d.Set("backup_strategy", nil)
+	}
+
+	return nil
 }
 
 func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error {
@@ -293,6 +322,31 @@ func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error 
 		_, err = asyncWaitCssClusterV1ExtendCluster(d, config, r, client, timeout)
 		if err != nil {
 			return err
+		}
+	}
+
+	// update backup strategy
+	if d.HasChange("backup_strategy") {
+		var opts = snapshots.PolicyCreateOpts{
+			Prefix:  "snapshot",
+			Period:  "00:00 GMT+08:00",
+			KeepDay: 7,
+			Enable:  "false",
+		}
+
+		rawList := d.Get("backup_strategy").([]interface{})
+		if len(rawList) == 1 {
+			raw := rawList[0].(map[string]interface{})
+			opts = snapshots.PolicyCreateOpts{
+				Prefix:  raw["prefix"].(string),
+				Period:  raw["start_time"].(string),
+				KeepDay: raw["keep_days"].(int),
+				Enable:  "true",
+			}
+		}
+		err := snapshots.PolicyCreate(client, &opts, d.Id()).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error updating backup strategy: %s", err)
 		}
 	}
 
@@ -650,24 +704,30 @@ func buildCssClusterV1ExtendClusterParameters(opts map[string]interface{}, array
 	if err != nil {
 		return nil, err
 	}
-	if e, err := isEmptyValue(reflect.ValueOf(v)); err != nil {
+	params["nodesize"] = v
+
+	v, err = expandCssClusterV1ExtendClusterVolumeSize(opts, arrayIndex)
+	if err != nil {
 		return nil, err
-	} else if !e {
-		params["modifySize"] = v
+	}
+	params["disksize"] = v
+
+	// both of nodesize and disksize can not be set to 0 simultaneously
+	if params["nodesize"].(int) == 0 && params["disksize"].(int) == 0 {
+		return nil, nil
 	}
 
-	if len(params) == 0 {
-		return params, nil
+	params["type"] = "ess"
+	updateOpts := map[string]interface{}{
+		"grow": []map[string]interface{}{params},
 	}
 
-	params = map[string]interface{}{"grow": params}
-
-	return params, nil
+	return updateOpts, nil
 }
 
 func sendCssClusterV1ExtendClusterRequest(d *schema.ResourceData, params interface{},
 	client *golangsdk.ServiceClient) (interface{}, error) {
-	url, err := replaceVars(d, "clusters/{id}/extend", nil)
+	url, err := replaceVars(d, "clusters/{id}/role_extend", nil)
 	if err != nil {
 		return nil, err
 	}

@@ -81,15 +81,9 @@ The following arguments are supported:
 * `configuration_id` - (Optional) The parameter template id.
   Changing this parameter will create a new resource.
 
-* `dsspool_id` - (Optional) The Dec dedicated storage pool id.
-  Changing this parameter will create a new resource.
-
 * `sharding_num` - (Optional) The Sharding num. Values: 1~32.
 
 * `coordinator_num` - (Optional) The Coordinator num. Values: 1~32.
-
-* `disk_encryption_id` - (Optional) Specifies the volume encryption KMS id.
-  Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional) The enterprise project id.
   Changing this parameter will create a new resource.
@@ -98,6 +92,9 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `datastore` - (Optional) Specifies the datastore information. Structure is documented below.
+  Changing this parameter will create a new resource.
+
+* `backup_strategy` - (Optional) Specifies the advanced backup policy. Structure is documented below.
   Changing this parameter will create a new resource.
 
 * `ha` - (Optional) Specifies the HA information. Structure is documented below.
@@ -114,7 +111,7 @@ The `volume` block supports:
 
 * `type` - (Required) Specifies the volume type. Only "ULTRAHIGH" is supported now.
 
-* `size` - (Required) Specifies the volume size (in gigabytes) for a single DN. The value should between 40G ~ 5TB.
+* `size` - (Required) Specifies the volume size (in gigabytes) for a Sharding. The value should between 40G ~ 5TB.
 
 
 The `ha` block supports:
@@ -124,6 +121,20 @@ The `ha` block supports:
 * `replication_mode` - (Required) Specifies the database replication mode. Only "sync" is supported now.
 
 * `consistency` - (Optional) Specifies the database consistency mode. Valid options are "strong" and "eventual".
+
+
+The `backup_strategy` block supports:
+
+* `start_time` - (Required) Specifies the backup time window. Automated backups
+  will be triggered during the backup time window. It must be a valid value in
+  the "hh:mm-HH:MM" format. The current time is in the UTC format.
+  The HH value must be 1 greater than the hh value. The values of mm and MM
+  must be the same and must be set to 00, 15, 30 or 45. Example value: 08:15-09:15, 23:00-00:00.
+
+* `keep_days` - (Optional) Specifies the number of days to retain the generated
+   backup files. The value ranges from 0 to 732.
+   If this parameter is set to 0, the automated backup policy is not set.
+   If this parameter is not transferred, the automated backup policy is enabled by default.
 
 ## Attributes Reference
 

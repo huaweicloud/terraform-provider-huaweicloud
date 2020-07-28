@@ -64,7 +64,7 @@ versions are available, choose Dashboard > Buy Cluster on the CCE console. Chang
 
 * `subnet_id` - (Required) The ID of the subnet used to create the node. Changing this parameter will create a new cluster resource.
 
-* `highway_subnet_id` - (Optional) The ID of the high speed network used to create bare metal nodes. Changing this parameter will create a new  cluster resource.
+* `highway_subnet_id` - (Optional) The ID of the high speed network used to create bare metal nodes. Changing this parameter will create a new cluster resource.
 
 * `container_network_type` - (Required) Container network parameters. Possible values:
 
