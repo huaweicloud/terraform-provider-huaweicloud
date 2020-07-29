@@ -53,9 +53,9 @@ The following arguments are supported:
   only letters, digits, hyphens (-), and underscores (_).
   Changing this parameter will create a new resource.
 
-* `flavor` - (Required) Specifies the instance specifications. Currently,
-  “gaussdb.mysql.4xlarge.x86.4”, "gaussdb.mysql.8xlarge.x86.4" and "gaussdb.mysql.16xlarge.x86.4"
-  are available. Changing this parameter will create a new resource.
+* `flavor` - (Required) Specifies the instance specifications. Please use
+  `gaussdb_mysql_flavors` data source to fetch the available flavors.
+  Changing this parameter will create a new resource.
 
 * `password` - (Required) Specifies the database password. The value must be 8 to 32 characters
   in length, including uppercase and lowercase letters, digits, and special characters,

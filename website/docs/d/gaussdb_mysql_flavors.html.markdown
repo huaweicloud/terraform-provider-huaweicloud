@@ -23,6 +23,8 @@ data "huaweicloud_gaussdb_mysql_flavors" "flavors" {
 
 * `version` - (Optional) Specifies the database version. Only "8.0" is supported now.
 
+* `availability_zone_mode` - (Optional) Specifies the availability zone mode. Currently support `single` and 'multi'. Defaults to `single`.
+
 ## Attributes Reference
 
 In addition, the following attributes are exported:

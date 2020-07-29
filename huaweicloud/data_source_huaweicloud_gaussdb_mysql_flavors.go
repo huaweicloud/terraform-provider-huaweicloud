@@ -22,6 +22,11 @@ func dataSourceGaussdbMysqlFlavors() *schema.Resource {
 				Optional: true,
 				Default:  "8.0",
 			},
+			"availability_zone_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "single",
+			},
 			"flavors": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -62,7 +67,7 @@ func dataSourceGaussdbMysqlFlavorsRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
 
-	link := fmt.Sprintf("flavors/%s?version_name=%s&availability_zone_mode=single", d.Get("engine").(string), d.Get("version").(string))
+	link := fmt.Sprintf("flavors/%s?version_name=%s&availability_zone_mode=%s", d.Get("engine").(string), d.Get("version").(string), d.Get("availability_zone_mode").(string))
 	url := client.ServiceURL(link)
 
 	r, err := sendGaussdbMysqlFlavorsListRequest(client, url)
