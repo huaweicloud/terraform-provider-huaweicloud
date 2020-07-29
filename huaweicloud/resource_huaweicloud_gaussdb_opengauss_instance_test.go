@@ -112,7 +112,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   }
 
   sharding_num = 1
-  coordinator_num = 1
+  coordinator_num = 2
 }
 `, testAccVpcConfig_Base(rName), rName)
 }

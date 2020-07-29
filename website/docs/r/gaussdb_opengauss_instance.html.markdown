@@ -146,6 +146,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `type` - Indicates the database type.
 * `private_ips` - Indicates the private IP address of the DB instance.
 * `public_ips` - Indicates the public IP address of the DB instance.
+* `endpoints` - Indicates the connection endpoints list of the DB instance. Example: [127.0.0.1:8000].
 * `db_user_name` - Indicates the default username.
 * `switch_strategy` - Indicates the switch strategy.
 * `maintenance_window` - Indicates the maintenance window.
