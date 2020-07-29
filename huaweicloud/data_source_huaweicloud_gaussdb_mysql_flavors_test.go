@@ -42,5 +42,6 @@ var testAccHuaweiCloudGaussdbMysqlFlavorsDataSource_basic = `
 data "huaweicloud_gaussdb_mysql_flavors" "flavor" {
   engine = "gaussdb-mysql"
   version = "8.0"
+  availability_zone_mode = "multi"
 }
 `
