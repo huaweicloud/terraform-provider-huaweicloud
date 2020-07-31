@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -69,6 +70,7 @@ func resourceOpenGaussInstance() *schema.Resource {
 			"port": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"configuration_id": {
@@ -208,6 +210,13 @@ func resourceOpenGaussInstance() *schema.Resource {
 				},
 			},
 			"public_ips": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"endpoints": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
@@ -422,10 +431,23 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("db_user_name", instance.DbUserName)
 	d.Set("time_zone", instance.TimeZone)
 	d.Set("flavor", instance.FlavorRef)
+	d.Set("port", strconv.Itoa(instance.Port))
 	d.Set("switch_strategy", instance.SwitchStrategy)
 	d.Set("maintenance_window", instance.MaintenanceWindow)
-	d.Set("private_ips", instance.PrivateIps)
 	d.Set("public_ips", instance.PublicIps)
+
+	if len(instance.PrivateIps) > 0 {
+		private_ips := instance.PrivateIps[0]
+		ip_list := strings.Split(private_ips, "/")
+		endpoints := []string{}
+		for i := 0; i < len(ip_list); i++ {
+			ip_list[i] = strings.Trim(ip_list[i], " ")
+			endpoint := fmt.Sprintf("%s:%d", ip_list[i], instance.Port)
+			endpoints = append(endpoints, endpoint)
+		}
+		d.Set("private_ips", ip_list)
+		d.Set("endpoints", endpoints)
+	}
 
 	// set data store
 	dbList := make([]map[string]interface{}, 1)
