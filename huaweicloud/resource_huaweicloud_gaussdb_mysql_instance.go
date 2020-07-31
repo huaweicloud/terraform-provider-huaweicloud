@@ -376,6 +376,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	dbList[0] = db
 	d.Set("datastore", dbList)
 
+	slave_nodes := 0
 	// set nodes
 	nodesList := make([]map[string]interface{}, 0, 1)
 	for _, raw := range instance.Nodes {
@@ -390,8 +391,12 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 			node["private_read_ip"] = raw.PrivateIps[0]
 		}
 		nodesList = append(nodesList, node)
+		if raw.Type == "slave" && raw.Status == "ACTIVE" {
+			slave_nodes += 1
+		}
 	}
 	d.Set("nodes", nodesList)
+	d.Set("read_replicas", slave_nodes)
 
 	// set backup_strategy
 	backupStrategyList := make([]map[string]interface{}, 1)
@@ -430,7 +435,6 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 			n, err := instances.CreateReplica(client, instanceId, createReplicaOpts).ExtractJobResponse()
 			if err != nil {
-				d.Set("read_replicas", old.(int))
 				return fmt.Errorf("Error creating read replicas for instance %s: %s ", instanceId, err)
 			}
 
