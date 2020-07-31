@@ -130,6 +130,11 @@ func resourceCCEClusterV3() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateIP,
 			},
+			"kube_proxy_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -199,6 +204,9 @@ func resourceClusterExtendParamV3(d *schema.ResourceData) map[string]string {
 	}
 	if multi_az, ok := d.GetOk("multi_az"); ok && multi_az == true {
 		m["clusterAZ"] = "multi_az"
+	}
+	if kube_proxy_mode, ok := d.GetOk("kube_proxy_mode"); ok {
+		m["kubeProxyMode"] = kube_proxy_mode.(string)
 	}
 	if eip, ok := d.GetOk("eip"); ok {
 		m["clusterExternalIP"] = eip.(string)

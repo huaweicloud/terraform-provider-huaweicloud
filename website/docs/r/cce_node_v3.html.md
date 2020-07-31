@@ -99,6 +99,16 @@ If the eip_id parameter is configured, you do not need to configure the bandwidt
 * `volumetype` - (Required) Disk type.
     
 * `extend_param` - (Optional) Disk expansion parameters. 
+
+**taints** **- (Optional)** You can add taints to created nodes to configure anti-affinity. Each taint contains the following parameters:
+    
+* `key` - (Required) A key must contain 1 to 63 characters starting with a letter or digit. Only letters, digits, hyphens (-), 
+  underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the prefix of a key.
+    
+* `value` - (Required) A value must start with a letter or digit and can contain a maximum of 63 characters, including letters, 
+  digits, hyphens (-), underscores (_), and periods (.).
+    
+* `effect` - (Required) Available options are NoSchedule, PreferNoSchedule, and NoExecute. 
     
 ## Attributes Reference
 
