@@ -1,4 +1,27 @@
 ## 1.17.0 (Unreleased)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_availability_zones` [GH-376]
+* **New Resource:** `huaweicloud_obs_bucket_policy` [GH-407]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_instance_v2: Add Sensitive to admin_pass argument [GH-370]
+* resource/huaweicloud_vpc_eip_v1: Add address attribute [GH-375]
+* resource/huaweicloud_cce_node_v3: Add eip_id argument support [GH-380]
+* resource/huaweicloud_compute_eip_associate_v2: Add public_ip argument support [GH-384]
+* resource/huaweicloud_networking_eip_associate_v2: Add public_ip argument support [GH-385]
+* resource/huaweicloud_gaussdb_mysql_instance: Add az mode and configuration_id support [GH-396]
+* resource/huaweicloud_gaussdb_cassandra_instance: Add private_ips support [GH-406]
+* resource/huaweicloud_cce_cluster_v3: Add kube_proxy_mode support [GH-424]
+* resource/huaweicloud_cce_node_v3: Add taints support [GH-424]
+
+BUG FIXES:
+
+* resource/huaweicloud_vpc_eip_v1: Ignore eip unbind error during deleting [GH-368]
+* resource/huaweicloud_cce_node_v3: Fix max_pods argument issue [GH-369]
+
 ## 1.16.0 (July 03, 2020)
 
 FEATURES:
