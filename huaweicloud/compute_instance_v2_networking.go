@@ -123,11 +123,15 @@ func getAllInstanceNetworks(d *schema.ResourceData, meta interface{}) ([]Instanc
 		}
 
 		v := InstanceNetwork{
-			UUID:          networkInfo["uuid"].(string),
-			Name:          networkInfo["name"].(string),
 			Port:          portID,
 			FixedIP:       network["fixed_ip_v4"].(string),
 			AccessNetwork: network["access_network"].(bool),
+		}
+		if networkInfo["uuid"] != nil {
+			v.UUID = networkInfo["uuid"].(string)
+		}
+		if networkInfo["name"] != nil {
+			v.Name = networkInfo["name"].(string)
 		}
 
 		instanceNetworks = append(instanceNetworks, v)
@@ -324,7 +328,7 @@ func getInstanceAddresses(addresses map[string]interface{}) []InstanceAddresses 
 				instanceNIC.MAC = v
 			}
 
-			if v["OS-EXT-IPS:type"] == "fixed" {
+			if v["OS-EXT-IPS:type"] == "fixed" || v["OS-EXT-IPS:type"] == nil {
 				switch v["version"].(float64) {
 				case 6:
 					instanceNIC.FixedIPv6 = fmt.Sprintf("[%s]", v["addr"].(string))
@@ -415,6 +419,19 @@ func flattenInstanceNetworks(
 					"fixed_ip_v6": instanceNIC.FixedIPv6,
 					"mac":         instanceNIC.MAC,
 				}
+
+				// Use the same method as getAllInstanceNetworks to get the network uuid
+				networkInfo, err := getInstanceNetworkInfo(d, meta, "name", instanceAddresses.NetworkName)
+				if err != nil {
+					log.Printf("[WARN] Error getting default network uuid: %s", err)
+				} else {
+					if v["uuid"] != nil {
+						v["uuid"] = networkInfo["uuid"].(string)
+					} else {
+						log.Printf("[WARN] Could not get default network uuid")
+					}
+				}
+
 				networks = append(networks, v)
 			}
 		}
@@ -426,6 +443,11 @@ func flattenInstanceNetworks(
 	// Loop through all networks and addresses, merge relevant address details.
 	for _, instanceNetwork := range allInstanceNetworks {
 		for _, instanceAddresses := range allInstanceAddresses {
+			// Skip if instanceAddresses has no NICs
+			if len(instanceAddresses.InstanceNICs) == 0 {
+				continue
+			}
+
 			if instanceNetwork.Name == instanceAddresses.NetworkName {
 				// Only use one NIC since it's possible the user defined another NIC
 				// on this same network in another Terraform network block.
