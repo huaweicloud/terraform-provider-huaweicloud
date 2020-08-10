@@ -234,6 +234,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dds_instance_v3":                    resourceDdsInstanceV3(),
 			"huaweicloud_ecs_instance_v1":                    resourceEcsInstanceV1(),
 			"huaweicloud_evs_snapshot":                       resourceEvsSnapshotV2(),
+			"huaweicloud_evs_volume":                         resourceEvsStorageVolumeV3(),
 			"huaweicloud_fw_firewall_group_v2":               resourceFWFirewallGroupV2(),
 			"huaweicloud_fw_policy_v2":                       resourceFWPolicyV2(),
 			"huaweicloud_fw_rule_v2":                         resourceFWRuleV2(),
