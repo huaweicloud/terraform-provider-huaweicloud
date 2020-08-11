@@ -1,4 +1,4 @@
-module github.com/terraform-providers/terraform-provider-huaweicloud
+module github.com/huaweicloud/terraform-provider-huaweicloud
 
 go 1.14
 

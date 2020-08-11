@@ -16,17 +16,17 @@ Requirements
 Building The Provider
 ---------------------
 
-Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-huaweicloud`
+Clone repository to: `$GOPATH/src/github.com/huaweicloud/terraform-provider-huaweicloud`
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-$ git clone https://github.com/terraform-providers/terraform-provider-huaweicloud
+$ mkdir -p $GOPATH/src/github.com/huaweicloud; cd $GOPATH/src/github.com/huaweicloud
+$ git clone https://github.com/huaweicloud/terraform-provider-huaweicloud
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-$ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-huaweicloud
+$ cd $GOPATH/src/github.com/huaweicloud/terraform-provider-huaweicloud
 $ make build
 ```
 
@@ -34,7 +34,7 @@ Using the provider
 ----------------------
 Please see the documentation at [provider usage](website/docs/index.html.markdown).
 
-Or you can browse the documentation within this repo [here](https://github.com/terraform-providers/terraform-provider-huaweicloud/tree/master/website/docs).
+Or you can browse the documentation within this repo [here](https://github.com/huaweicloud/terraform-provider-huaweicloud/tree/master/website/docs).
 
 Developing the Provider
 ---------------------------
