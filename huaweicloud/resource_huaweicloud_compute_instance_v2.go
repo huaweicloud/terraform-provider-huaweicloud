@@ -82,12 +82,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Computed:    true,
 				DefaultFunc: schema.EnvDefaultFunc("OS_FLAVOR_NAME", nil),
 			},
-			"floating_ip": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
-				Removed:  "Use the huaweicloud_compute_floatingip_associate_v2 resource instead",
-			},
 			"user_data": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -152,12 +146,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 							Computed: true,
-						},
-						"floating_ip": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							Removed:  "Use the huaweicloud_compute_floatingip_associate_v2 resource instead",
 						},
 						"mac": {
 							Type:     schema.TypeString,
@@ -244,29 +232,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-						},
-					},
-				},
-			},
-			"volume": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Removed:  "Use block_device or huaweicloud_compute_volume_attach_v2 instead",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"volume_id": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"device": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
 						},
 					},
 				},
