@@ -581,6 +581,10 @@ func (c *Config) sfsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	})
 }
 
+func (c *Config) sfsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.initServiceClient("sfs-turbo", region, "v1")
+}
+
 func (c *Config) orchestrationV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return huaweisdk.NewOrchestrationV1(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
