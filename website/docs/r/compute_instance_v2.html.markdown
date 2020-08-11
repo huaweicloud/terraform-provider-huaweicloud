@@ -383,27 +383,13 @@ The `block_device` block supports:
 The `scheduler_hints` block supports:
 
 * `group` - (Optional) A UUID of a Server Group. The instance will be placed
-    into that group.
+	into that group.
 
-* `different_host` - (Optional) A list of instance UUIDs. The instance will
-    be scheduled on a different host than all other instances.
+* `tenancy` - (Optional) The tenancy specifies whether the ECS is to be created on a Dedicated Host
+	(DeH) or in a shared pool.
 
-* `same_host` - (Optional) A list of instance UUIDs. The instance will be
-    scheduled on the same host of those specified.
-
-* `query` - (Optional) A conditional query that a compute node must pass in
-    order to host an instance.
-
-* `target_cell` - (Optional) The name of a cell to host the instance.
-
-* `build_near_host_ip` - (Optional) An IP Address in CIDR form. The instance
-    will be placed on a compute node that is in the same subnet.
-
- * `tenancy` - (Optional) The tenancy specifies whether the ECS is to be created on a Dedicated Host
-     (DeH) or in a shared pool.
-
- * `deh_id` - (Optional) The ID of DeH. This parameter takes effect only when the value
-     of tenancy is dedicated.
+* `deh_id` - (Optional) The ID of DeH. This parameter takes effect only when the value
+	of tenancy is dedicated.
 
 ## Attributes Reference
 
