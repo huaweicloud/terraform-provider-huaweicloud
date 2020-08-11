@@ -10,7 +10,7 @@ func TestAccVBSBackupPolicyV2_importBasic(t *testing.T) {
 	resourceName := "huaweicloud_vbs_backup_policy_v2.vbs"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckRequiredEnvVars(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccVBSBackupPolicyV2Destroy,
 		Steps: []resource.TestStep{

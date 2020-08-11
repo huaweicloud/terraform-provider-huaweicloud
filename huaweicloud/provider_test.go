@@ -50,37 +50,7 @@ func init() {
 	}
 }
 
-func testAccPreCheckRequiredEnvVars(t *testing.T) {
-	if OS_IMAGE_ID == "" && OS_IMAGE_NAME == "" {
-		t.Fatal("OS_IMAGE_ID or OS_IMAGE_NAME must be set for acceptance tests")
-	}
-
-	if OS_POOL_NAME == "" {
-		t.Fatal("OS_POOL_NAME must be set for acceptance tests")
-	}
-
-	if OS_AVAILABILITY_ZONE == "" {
-		t.Fatal("OS_AVAILABILITY_ZONE must be set for acceptance tests")
-	}
-	if OS_FLAVOR_ID == "" && OS_FLAVOR_NAME == "" {
-		t.Fatal("OS_FLAVOR_ID or OS_FLAVOR_NAME must be set for acceptance tests")
-	}
-
-	if OS_NETWORK_ID == "" {
-		t.Fatal("OS_NETWORK_ID must be set for acceptance tests")
-	}
-
-	if OS_EXTGW_ID == "" {
-		t.Fatal("OS_EXTGW_ID must be set for acceptance tests")
-	}
-	if OS_VPC_ID == "" {
-		t.Fatal("OS_VPC_ID must be set for acceptance tests")
-	}
-}
-
 func testAccPreCheck(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	// Do not run the test if this is a deprecated testing environment.
 	if OS_DEPRECATED_ENVIRONMENT != "" {
 		t.Skip("This environment only runs deprecated tests")
@@ -88,8 +58,6 @@ func testAccPreCheck(t *testing.T) {
 }
 
 func testAccPreCheckDeprecated(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	if OS_DEPRECATED_ENVIRONMENT == "" {
 		t.Skip("This environment does not support deprecated tests")
 	}
@@ -103,102 +71,78 @@ func testAccPreCheckAdminOnly(t *testing.T) {
 }
 
 func testAccPreCheckDNS(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	if OS_DNS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support DNS tests")
 	}
 }
 
 func testAccPreCheckULB(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	if OS_SUBNET_ID == "" {
 		t.Skip("OS_SUBNET must be set for LB acceptance tests")
 	}
 }
 
 func testAccPreCheckELB(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	if OS_TENANT_ID == "" {
 		t.Skip("This environment does not support ELB tests")
 	}
 }
 
 func testAccPreCheckMaas(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	if OS_ACCESS_KEY == "" || OS_SECRET_KEY == "" || OS_SRC_ACCESS_KEY == "" || OS_SRC_SECRET_KEY == "" {
 		t.Skip("OS_ACCESS_KEY, OS_SECRET_KEY, OS_SRC_ACCESS_KEY, and OS_SRC_SECRET_KEY  must be set for MAAS acceptance tests")
 	}
 }
 
 func testAccPreCheckS3(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
 	if OS_ACCESS_KEY == "" || OS_SECRET_KEY == "" {
 		t.Skip("OS_ACCESS_KEY and OS_SECRET_KEY  must be set for S3 acceptance tests")
 	}
 }
 
 func testAccPreCheckImage(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
 	if OS_ACCESS_KEY != "" && OS_SECRET_KEY != "" {
 		t.Skip("AK/SK authentication doesn't support images tests")
 	}
 }
 
 func testAccPreCheckDws(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	if OS_DWS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support DWS tests")
 	}
 }
 
 func testAccPreCheckMrs(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	if OS_MRS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support MRS tests")
 	}
 }
 
 func testAccPreCheckDms(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	if OS_DMS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support DMS tests")
 	}
 }
 
 func testAccPreCheckNat(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	if OS_NAT_ENVIRONMENT == "" {
 		t.Skip("This environment does not support NAT tests")
 	}
 }
 
 func testAccPreCheckKms(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	if OS_KMS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support KMS tests")
 	}
 }
 
 func testAccPreCheckCDN(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	if OS_CDN_DOMAIN_NAME == "" {
 		t.Skip("This environment does not support CDN tests")
 	}
 }
 
 func testAccPreCheckCCI(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
 	if OS_CCI_ENVIRONMENT == "" {
 		t.Skip("This environment does not support CCI tests")
 	}
@@ -358,7 +302,6 @@ func envVarFile(varName string) (string, error) {
 }
 
 func testAccAsConfigPreCheck(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
 	if OS_FLAVOR_ID == "" {
 		t.Skip("OS_FLAVOR_ID must be set for acceptance tests")
 	}
