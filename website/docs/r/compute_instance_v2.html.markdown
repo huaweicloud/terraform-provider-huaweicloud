@@ -311,9 +311,6 @@ The following arguments are supported:
 * `metadata` - (Optional) Metadata key/value pairs to make available from
     within the instance. Changing this updates the existing server metadata.
 
-* `config_drive` - (Optional) Whether to use the config_drive feature to
-    configure the instance. Changing this creates a new server.
-
 * `admin_pass` - (Optional) The administrative password to assign to the server.
     Changing this changes the root password on the existing server.
 
