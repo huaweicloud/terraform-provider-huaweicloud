@@ -377,6 +377,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("datastore", dbList)
 
 	// set nodes
+	slave_count := 0
 	nodesList := make([]map[string]interface{}, 0, 1)
 	for _, raw := range instance.Nodes {
 		node := map[string]interface{}{
@@ -390,8 +391,12 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 			node["private_read_ip"] = raw.PrivateIps[0]
 		}
 		nodesList = append(nodesList, node)
+		if raw.Type == "slave" && raw.Status == "ACTIVE" {
+			slave_count += 1
+		}
 	}
 	d.Set("nodes", nodesList)
+	d.Set("read_replicas", slave_count)
 
 	// set backup_strategy
 	backupStrategyList := make([]map[string]interface{}, 1)
@@ -430,7 +435,6 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 			n, err := instances.CreateReplica(client, instanceId, createReplicaOpts).ExtractJobResponse()
 			if err != nil {
-				d.Set("read_replicas", old.(int))
 				return fmt.Errorf("Error creating read replicas for instance %s: %s ", instanceId, err)
 			}
 
@@ -449,8 +453,8 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 			slave_nodes := []string{}
 			nodes := d.Get("nodes").([]interface{})
-			for i := range nodes {
-				node := nodes[i].(map[string]interface{})
+			for _, nodeRaw := range nodes {
+				node := nodeRaw.(map[string]interface{})
 				if node["type"].(string) == "slave" && node["status"] == "ACTIVE" {
 					slave_nodes = append(slave_nodes, node["id"].(string))
 				}
@@ -458,7 +462,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			log.Printf("[DEBUG] Slave Nodes: %+v", slave_nodes)
 			if len(slave_nodes) <= shrink_size {
 				d.Set("read_replicas", old.(int))
-				return fmt.Errorf("Error deleting read replicas for instance %s: Shrink Size is bigger than slave nodes", instanceId)
+				return fmt.Errorf("Error deleting read replicas for instance %s: Shrink Size is bigger than active slave nodes", instanceId)
 			}
 			for i := 0; i < shrink_size; i++ {
 				n, err := instances.DeleteReplica(client, instanceId, slave_nodes[i]).ExtractJobResponse()
