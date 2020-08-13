@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones"
@@ -24,6 +25,9 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/images"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/block_devices"
+	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
 )
 
 func resourceComputeInstanceV2() *schema.Resource {
@@ -160,9 +164,10 @@ func resourceComputeInstanceV2() *schema.Resource {
 				},
 			},
 			"metadata": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: false,
+				Type:          schema.TypeMap,
+				Optional:      true,
+				ForceNew:      false,
+				ConflictsWith: []string{"system_disk_type", "system_disk_size", "data_disks"},
 			},
 			"admin_pass": {
 				Type:      schema.TypeString,
@@ -188,8 +193,10 @@ func resourceComputeInstanceV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"block_device": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:          schema.TypeList,
+				Optional:      true,
+				ConflictsWith: []string{"system_disk_type", "system_disk_size", "data_disks"},
+				Deprecated:    "use system_disk_type, system_disk_size, data_disks instead",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"source_type": {
@@ -224,6 +231,48 @@ func resourceComputeInstanceV2() *schema.Resource {
 							ForceNew: true,
 						},
 						"guest_format": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+			"system_disk_type": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"block_device", "metadata"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"SATA", "SAS", "SSD", "co-p1", "uh-l1",
+				}, true),
+			},
+			"system_disk_size": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"block_device", "metadata"},
+			},
+			"data_disks": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"block_device", "metadata"},
+				MinItems:      1,
+				MaxItems:      23,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"size": {
+							Type:     schema.TypeInt,
+							Required: true,
+							ForceNew: true,
+						},
+						"snapshot_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
@@ -299,8 +348,6 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
-	var createOpts servers.CreateOptsBuilder
-
 	// Determines the Image ID using the following rules:
 	// If a bootable block_device was specified, ignore the image altogether.
 	// If an image_id was specified, use it.
@@ -321,96 +368,167 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	// Build a list of networks with the information given upon creation.
-	// Error out if an invalid network configuration was used.
-	allInstanceNetworks, err := getAllInstanceNetworks(d, meta)
-	if err != nil {
-		return err
-	}
-
-	// Build a []servers.Network to pass into the create options.
-	networks := expandInstanceNetworks(allInstanceNetworks)
-
-	createOpts = &servers.CreateOpts{
-		Name:             d.Get("name").(string),
-		ImageRef:         imageId,
-		FlavorRef:        flavorId,
-		SecurityGroups:   resourceInstanceSecGroupsV2(d),
-		AvailabilityZone: d.Get("availability_zone").(string),
-		Networks:         networks,
-		Metadata:         resourceInstanceMetadataV2(d),
-		AdminPass:        d.Get("admin_pass").(string),
-		UserData:         []byte(d.Get("user_data").(string)),
-	}
-
-	if keyName, ok := d.Get("key_pair").(string); ok && keyName != "" {
-		createOpts = &keypairs.CreateOptsExt{
-			CreateOptsBuilder: createOpts,
-			KeyName:           keyName,
+	_, sys_disk_type_ok := d.GetOk("system_disk_type")
+	_, sys_disk_size_ok := d.GetOk("system_disk_size")
+	_, data_disks_ok := d.GetOk("data_disks")
+	// If system_disk_type related parameters used, try to call API of Huawei ECS instead of OpenStack
+	if sys_disk_type_ok || sys_disk_size_ok || data_disks_ok {
+		client, err := config.computeV11Client(GetRegion(d, config))
+		v1Client, err := config.computeV1Client(GetRegion(d, config))
+		vpcClient, err := config.networkingV1Client(GetRegion(d, config))
+		sgClient, err := config.networkingV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud Client: %s", err)
 		}
-	}
 
-	if vL, ok := d.GetOk("block_device"); ok {
-		blockDevices, err := resourceInstanceBlockDevicesV2(d, vL.([]interface{}))
+		vpcId, err := getVpcID(vpcClient, d)
 		if err != nil {
 			return err
 		}
 
-		createOpts = &bootfromvolume.CreateOptsExt{
-			CreateOptsBuilder: createOpts,
-			BlockDevice:       blockDevices,
+		secGroups, err := resourceInstanceSecGroupIdsV1(sgClient, d)
+		if err != nil {
+			return err
 		}
-	}
 
-	schedulerHintsRaw := d.Get("scheduler_hints").(*schema.Set).List()
-	if len(schedulerHintsRaw) > 0 {
-		log.Printf("[DEBUG] schedulerhints: %+v", schedulerHintsRaw)
-		schedulerHints := resourceInstanceSchedulerHintsV2(d, schedulerHintsRaw[0].(map[string]interface{}))
-		createOpts = &schedulerhints.CreateOptsExt{
-			CreateOptsBuilder: createOpts,
-			SchedulerHints:    schedulerHints,
+		createOpts := &cloudservers.CreateOpts{
+			Name:             d.Get("name").(string),
+			ImageRef:         imageId,
+			FlavorRef:        flavorId,
+			KeyName:          d.Get("key_pair").(string),
+			VpcId:            vpcId,
+			SecurityGroups:   secGroups,
+			AvailabilityZone: d.Get("availability_zone").(string),
+			Nics:             resourceInstanceNicsV2(d),
+			RootVolume:       resourceInstanceRootVolumeV1(d),
+			DataVolumes:      resourceInstanceDataVolumesV1(d),
+			AdminPass:        d.Get("admin_pass").(string),
+			UserData:         []byte(d.Get("user_data").(string)),
 		}
-	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+		schedulerHintsRaw := d.Get("scheduler_hints").(*schema.Set).List()
+		if len(schedulerHintsRaw) > 0 {
+			log.Printf("[DEBUG] schedulerhints: %+v", schedulerHintsRaw)
+			schedulerHints := resourceInstanceSchedulerHintsV1(d, schedulerHintsRaw[0].(map[string]interface{}))
+			createOpts.SchedulerHints = &schedulerHints
+		}
 
-	// If a block_device is used, use the bootfromvolume.Create function as it allows an empty ImageRef.
-	// Otherwise, use the normal servers.Create function.
-	var server *servers.Server
-	if _, ok := d.GetOk("block_device"); ok {
-		server, err = bootfromvolume.Create(computeClient, createOpts).Extract()
+		log.Printf("[DEBUG] Create Options: %#v", createOpts)
+
+		n, err := cloudservers.Create(client, createOpts).ExtractJobResponse()
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
+		}
+
+		if err := cloudservers.WaitForJobSuccess(v1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+			return err
+		}
+
+		entity, err := cloudservers.GetJobEntity(v1Client, n.JobID, "server_id")
+		if err != nil {
+			return err
+		}
+		server_id := entity.(string)
+
+		// Store the ID now
+		d.SetId(server_id)
+
 	} else {
-		server, err = servers.Create(computeClient, createOpts).Extract()
-	}
+		// OpenStack API implementation.
 
-	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
-	}
-	log.Printf("[INFO] Instance ID: %s", server.ID)
+		// Build a list of networks with the information given upon creation.
+		// Error out if an invalid network configuration was used.
+		allInstanceNetworks, err := getAllInstanceNetworks(d, meta)
+		if err != nil {
+			return err
+		}
 
-	// Store the ID now
-	d.SetId(server.ID)
+		// Build a []servers.Network to pass into the create options.
+		networks := expandInstanceNetworks(allInstanceNetworks)
 
-	// Wait for the instance to become running so we can get some attributes
-	// that aren't available until later.
-	log.Printf(
-		"[DEBUG] Waiting for instance (%s) to become running",
-		server.ID)
+		var createOpts servers.CreateOptsBuilder
+		createOpts = &servers.CreateOpts{
+			Name:             d.Get("name").(string),
+			ImageRef:         imageId,
+			FlavorRef:        flavorId,
+			SecurityGroups:   resourceInstanceSecGroupsV2(d),
+			AvailabilityZone: d.Get("availability_zone").(string),
+			Networks:         networks,
+			Metadata:         resourceInstanceMetadataV2(d),
+			AdminPass:        d.Get("admin_pass").(string),
+			UserData:         []byte(d.Get("user_data").(string)),
+		}
 
-	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"BUILD"},
-		Target:     []string{"ACTIVE"},
-		Refresh:    ServerV2StateRefreshFunc(computeClient, server.ID),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      10 * time.Second,
-		MinTimeout: 3 * time.Second,
-	}
+		if keyName, ok := d.Get("key_pair").(string); ok && keyName != "" {
+			createOpts = &keypairs.CreateOptsExt{
+				CreateOptsBuilder: createOpts,
+				KeyName:           keyName,
+			}
+		}
 
-	_, err = stateConf.WaitForState()
-	if err != nil {
-		return fmt.Errorf(
-			"Error waiting for instance (%s) to become ready: %s",
-			server.ID, err)
+		if vL, ok := d.GetOk("block_device"); ok {
+			blockDevices, err := resourceInstanceBlockDevicesV2(d, vL.([]interface{}))
+			if err != nil {
+				return err
+			}
+
+			createOpts = &bootfromvolume.CreateOptsExt{
+				CreateOptsBuilder: createOpts,
+				BlockDevice:       blockDevices,
+			}
+		}
+
+		schedulerHintsRaw := d.Get("scheduler_hints").(*schema.Set).List()
+		if len(schedulerHintsRaw) > 0 {
+			log.Printf("[DEBUG] schedulerhints: %+v", schedulerHintsRaw)
+			schedulerHints := resourceInstanceSchedulerHintsV2(d, schedulerHintsRaw[0].(map[string]interface{}))
+			createOpts = &schedulerhints.CreateOptsExt{
+				CreateOptsBuilder: createOpts,
+				SchedulerHints:    schedulerHints,
+			}
+		}
+
+		log.Printf("[DEBUG] Create Options: %#v", createOpts)
+
+		// If a block_device is used, use the bootfromvolume.Create function as it allows an empty ImageRef.
+		// Otherwise, use the normal servers.Create function.
+		var server *servers.Server
+		if _, ok := d.GetOk("block_device"); ok {
+			server, err = bootfromvolume.Create(computeClient, createOpts).Extract()
+		} else {
+			server, err = servers.Create(computeClient, createOpts).Extract()
+		}
+
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
+		}
+
+		log.Printf("[INFO] Instance ID: %s", server.ID)
+
+		// Store the ID now
+		d.SetId(server.ID)
+
+		// Wait for the instance to become running so we can get some attributes
+		// that aren't available until later.
+		log.Printf(
+			"[DEBUG] Waiting for instance (%s) to become running",
+			server.ID)
+
+		stateConf := &resource.StateChangeConf{
+			Pending:    []string{"BUILD"},
+			Target:     []string{"ACTIVE"},
+			Refresh:    ServerV2StateRefreshFunc(computeClient, server.ID),
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Delay:      10 * time.Second,
+			MinTimeout: 3 * time.Second,
+		}
+
+		_, err = stateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for instance (%s) to become ready: %s",
+				server.ID, err)
+		}
 	}
 
 	return resourceComputeInstanceV2Read(d, meta)
@@ -856,6 +974,22 @@ func ServerV2StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string
 	}
 }
 
+func resourceInstanceSecGroupIdsV1(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]cloudservers.SecurityGroup, error) {
+	rawSecGroups := d.Get("security_groups").(*schema.Set).List()
+	secgroups := make([]cloudservers.SecurityGroup, len(rawSecGroups))
+	for i, raw := range rawSecGroups {
+		secName := raw.(string)
+		secId, err := groups.IDFromName(client, secName)
+		if err != nil {
+			return secgroups, err
+		}
+		secgroups[i] = cloudservers.SecurityGroup{
+			ID: secId,
+		}
+	}
+	return secgroups, nil
+}
+
 func resourceInstanceSecGroupsV2(d *schema.ResourceData) []string {
 	rawSecGroups := d.Get("security_groups").(*schema.Set).List()
 	secgroups := make([]string, len(rawSecGroups))
@@ -871,6 +1005,22 @@ func resourceInstanceMetadataV2(d *schema.ResourceData) map[string]string {
 		m[key] = val.(string)
 	}
 	return m
+}
+
+func resourceInstanceNicsV2(d *schema.ResourceData) []cloudservers.Nic {
+	var nicRequests []cloudservers.Nic
+
+	networks := d.Get("network").([]interface{})
+	for _, v := range networks {
+		network := v.(map[string]interface{})
+		nicRequest := cloudservers.Nic{
+			SubnetId:  network["uuid"].(string),
+			IpAddress: network["fixed_ip_v4"].(string),
+		}
+
+		nicRequests = append(nicRequests, nicRequest)
+	}
+	return nicRequests
 }
 
 func resourceInstanceBlockDevicesV2(d *schema.ResourceData, bds []interface{}) ([]bootfromvolume.BlockDevice, error) {
@@ -912,6 +1062,16 @@ func resourceInstanceBlockDevicesV2(d *schema.ResourceData, bds []interface{}) (
 
 	log.Printf("[DEBUG] Block Device Options: %+v", blockDeviceOpts)
 	return blockDeviceOpts, nil
+}
+
+func resourceInstanceSchedulerHintsV1(d *schema.ResourceData, schedulerHintsRaw map[string]interface{}) cloudservers.SchedulerHints {
+	schedulerHints := cloudservers.SchedulerHints{
+		Group:           schedulerHintsRaw["group"].(string),
+		Tenancy:         schedulerHintsRaw["tenancy"].(string),
+		DedicatedHostID: schedulerHintsRaw["deh_id"].(string),
+	}
+
+	return schedulerHints
 }
 
 func resourceInstanceSchedulerHintsV2(d *schema.ResourceData, schedulerHintsRaw map[string]interface{}) schedulerhints.SchedulerHints {
@@ -1014,6 +1174,27 @@ func getFlavorID(client *golangsdk.ServiceClient, d *schema.ResourceData) (strin
 
 	flavorName := d.Get("flavor_name").(string)
 	return flavors.IDFromName(client, flavorName)
+}
+
+func getVpcID(client *golangsdk.ServiceClient, d *schema.ResourceData) (string, error) {
+	var networkID string
+
+	networks := d.Get("network").([]interface{})
+	for _, v := range networks {
+		network := v.(map[string]interface{})
+		networkID = network["uuid"].(string)
+	}
+
+	if networkID == "" {
+		return "", fmt.Errorf("Network ID should not be empty.")
+	}
+
+	subnet, err := subnets.Get(client, networkID).Extract()
+	if err != nil {
+		return "", fmt.Errorf("Error retrieving Huaweicloud Subnets: %s", err)
+	}
+
+	return subnet.VPC_ID, nil
 }
 
 func resourceComputeSchedulerHintsHash(v interface{}) int {

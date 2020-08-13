@@ -318,12 +318,27 @@ The following arguments are supported:
     pair must already be created and associated with the tenant's account.
     Changing this creates a new server.
 
-* `block_device` - (Optional) Configuration of block devices. The block_device
+* `block_device` - (Optional, Deprecated) Use `system_disk_type`, `system_disk_size`, `data_disks` instead.
+	Configuration of block devices. The block_device
     structure is documented below. Changing this creates a new server.
     You can specify multiple block devices which will create an instance with
     multiple disks. This configuration is very flexible, so please see the
     following [reference](http://docs.openstack.org/developer/nova/block_device_mapping.html)
     for more information.
+
+* `system_disk_type` - (Optional) The system disk type of the server. For HANA, HL1, and HL2 ECSs use co-p1 and uh-l1 disks.
+    Changing this creates a new server. Available options are:
+	* `SATA`: common I/O disk type.
+	* `SAS`: high I/O disk type.
+	* `SSD`: ultra-high I/O disk type.
+	* `co-p1`: high I/O(performance-optimized) disk type.
+	* `uh-l1`: ultra-high I/O(latency-optimized) disk type.
+
+* `system_disk_size` - (Optional) The system disk size in GB, The value range is 1 to 1024. Changing this creates a new server.
+
+* `data_disks` - (Optional) An array of one or more data disks to attach to the
+    instance. The data_disks object structure is documented below. Changing this
+    creates a new server.
 
 * `scheduler_hints` - (Optional) Provide the Nova scheduler with hints on how
     the instance should be launched. The available hints are described below.
@@ -335,19 +350,10 @@ The following arguments are supported:
 
 The `network` block supports:
 
-* `uuid` - (Required unless `port`  or `name` is provided) The network UUID to
+* `uuid` - (Required) The network UUID to
     attach to the server. Changing this creates a new server.
 
-* `name` - (Required unless `uuid` or `port` is provided) The human-readable
-    name of the network. Changing this creates a new server.
-
-* `port` - (Required unless `uuid` or `name` is provided) The port UUID of a
-    network to attach to the server. Changing this creates a new server.
-
 * `fixed_ip_v4` - (Optional) Specifies a fixed IPv4 address to be used on this
-    network. Changing this creates a new server.
-
-* `fixed_ip_v6` - (Optional) Specifies a fixed IPv6 address to be used on this
     network. Changing this creates a new server.
 
 * `access_network` - (Optional) Specifies if this network should be used for
