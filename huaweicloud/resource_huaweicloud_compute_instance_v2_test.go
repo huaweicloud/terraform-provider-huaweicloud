@@ -37,6 +37,26 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeV2Instance_disks(t *testing.T) {
+	var instance servers.Server
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeV2Instance_disks,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_compute_instance_v2.instance_1", "availability_zone", OS_AVAILABILITY_ZONE),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeV2Instance_secgroupMulti(t *testing.T) {
 	var instance_1 servers.Server
 	var secgroup_1 secgroups.SecurityGroup
@@ -426,6 +446,24 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   }
   network {
     uuid = "%s"
+  }
+}
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+
+var testAccComputeV2Instance_disks = fmt.Sprintf(`
+resource "huaweicloud_compute_instance_v2" "instance_1" {
+  name = "instance_1"
+  security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
+  system_disk_type = "SAS"
+  system_disk_size = 50
+
+  data_disks {
+    type = "SATA"
+    size = "10"
   }
 }
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)

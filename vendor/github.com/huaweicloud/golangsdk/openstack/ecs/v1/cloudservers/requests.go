@@ -163,6 +163,12 @@ type SecurityGroup struct {
 
 type SchedulerHints struct {
 	Group string `json:"group,omitempty"`
+
+	// Specifies whether the ECS is created on a Dedicated Host (DeH) or in a shared pool.
+	Tenancy string `json:"tenancy,omitempty"`
+
+	// DedicatedHostID specifies a DeH ID.
+	DedicatedHostID string `json:"dedicated_host_id,omitempty"`
 }
 
 type ServerTags struct {
