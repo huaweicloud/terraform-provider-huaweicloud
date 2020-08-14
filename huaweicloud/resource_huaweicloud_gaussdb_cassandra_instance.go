@@ -49,7 +49,7 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      3,
-				ValidateFunc: validation.IntBetween(3, 12),
+				ValidateFunc: validation.IntBetween(3, 200),
 			},
 			"volume_size": {
 				Type:     schema.TypeInt,
