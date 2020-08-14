@@ -64,7 +64,7 @@ func resourceOpenGaussInstance() *schema.Resource {
 			},
 			"security_group_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"port": {
