@@ -1104,6 +1104,12 @@ func NewLTSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 	return sc, err
 }
 
+// NewHuaweiLTSV2 creates a ServiceClient that may be used to access the Huawei Cloud LTS service.
+func NewHuaweiLTSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initcommonServiceClient(client, eo, "lts", "v2")
+	return sc, err
+}
+
 // NewFGSV2 creates a ServiceClient that may be used with the v2 as
 // package.
 func NewFGSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {

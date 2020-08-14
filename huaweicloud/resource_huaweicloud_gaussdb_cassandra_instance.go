@@ -54,7 +54,7 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			"volume_size": {
 				Type:     schema.TypeInt,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"password": {
 				Type:      schema.TypeString,
@@ -447,10 +447,58 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error creating Huaweicloud Vpc: %s", err)
 	}
 	//update tags
-	tagErr := UpdateResourceTags(client, d, "instances")
-	if tagErr != nil {
-		return fmt.Errorf("Error updating tags of GeminiDB %q: %s", d.Id(), tagErr)
+	if d.HasChange("tags") {
+		tagErr := UpdateResourceTags(client, d, "instances")
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags of GeminiDB %q: %s", d.Id(), tagErr)
+		}
+	}
+
+	if d.HasChange("volume_size") {
+		extendOpts := instances.ExtendVolumeOpts{
+			Size: d.Get("volume_size").(int),
+		}
+
+		result := instances.ExtendVolume(client, d.Id(), extendOpts)
+		if result.Err != nil {
+			return fmt.Errorf("Error extending huaweicloud_gaussdb_cassandra_instance %s size: %s", d.Id(), err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:    []string{"extending"},
+			Target:     []string{"available"},
+			Refresh:    GeminiDBInstanceExtendVolumeRefreshFunc(client, d.Id()),
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Delay:      15 * time.Second,
+			MinTimeout: 10 * time.Second,
+		}
+
+		_, err := stateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
+		}
 	}
 
 	return resourceGeminiDBInstanceV3Read(d, meta)
+}
+
+func GeminiDBInstanceExtendVolumeRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		instance, err := instances.GetInstanceByID(client, instanceID)
+
+		if err != nil {
+			return nil, "", err
+		}
+		if instance.Id == "" {
+			return instance, "deleted", nil
+		}
+		for _, action := range instance.Actions {
+			if action == "RESIZE_VOLUME" {
+				return instance, "extending", nil
+			}
+		}
+
+		return instance, "available", nil
+	}
 }

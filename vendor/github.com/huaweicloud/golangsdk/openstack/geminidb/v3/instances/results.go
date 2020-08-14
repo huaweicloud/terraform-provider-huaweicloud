@@ -109,6 +109,20 @@ func (r DeleteResult) Extract() (*DeleteResponse, error) {
 	return &response, err
 }
 
+type ExtendResult struct {
+	commonResult
+}
+
+type ExtendResponse struct {
+	JobId string `json:"job_id"`
+}
+
+func (r ExtendResult) Extract() (*ExtendResponse, error) {
+	var response ExtendResponse
+	err := r.ExtractInto(&response)
+	return &response, err
+}
+
 type ListGeminiDBResult struct {
 	commonResult
 }
