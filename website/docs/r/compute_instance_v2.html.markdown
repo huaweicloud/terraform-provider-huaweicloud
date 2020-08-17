@@ -347,6 +347,18 @@ The following arguments are supported:
     before destroying it, thus giving chance for guest OS daemons to stop correctly.
     If instance doesn't stop within timeout, it will be destroyed anyway.
 
+* `enterprise_project_id` - (Optional) The enterprise project id. Changing this creates a new server.
+
+* `delete_disks_on_termination` - (Optional) Delete the data disks upon termination of the instance. Defaults to false. Changing this creates a new server.
+
+* `charging_mode` - (Optional) The charging mode of the instance. Valid options are: prePaid and postPaid, defaults to postPaid. Changing this creates a new server.
+
+* `period_unit` - (Optional) The charging period unit of the instance. Valid options are: month and year, defaults to month. Changing this creates a new server.
+
+* `period` - (Optional) The charging period of the instance. Changing this creates a new server.
+
+* `auto_renew` - (Optional) Specifies whether auto renew is enabled. Changing this creates a new server.
+
 
 The `network` block supports:
 
