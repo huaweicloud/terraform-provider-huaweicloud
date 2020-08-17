@@ -60,6 +60,36 @@ func Create(client *golangsdk.ServiceClient, opts CreateGeminiDBBuilder) (r Crea
 	return
 }
 
+type ExtendVolumeOpts struct {
+	Size int `json:"size" required:"true"`
+}
+
+type ExtendVolumeBuilder interface {
+	ToVolumeExtendMap() (map[string]interface{}, error)
+}
+
+func (opts ExtendVolumeOpts) ToVolumeExtendMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func ExtendVolume(client *golangsdk.ServiceClient, instanceId string, opts ExtendVolumeBuilder) (r ExtendResult) {
+	b, err := opts.ToVolumeExtendMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(extendURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{202},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
+}
+
 func Delete(client *golangsdk.ServiceClient, instanceId string) (r DeleteResult) {
 	url := deleteURL(client, instanceId)
 
