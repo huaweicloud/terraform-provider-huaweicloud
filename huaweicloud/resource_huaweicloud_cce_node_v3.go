@@ -71,22 +71,23 @@ func resourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"key_pair": {
-				Type:          schema.TypeString,
-				ConflictsWith: []string{"password"},
-				Optional:      true,
-				ForceNew:      true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"password", "key_pair"},
 			},
 			"password": {
-				Type:          schema.TypeString,
-				ConflictsWith: []string{"key_pair"},
-				Optional:      true,
-				ForceNew:      true,
-				Sensitive:     true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Sensitive:    true,
+				ExactlyOneOf: []string{"password", "key_pair"},
 			},
 			"root_volume": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"size": {
@@ -144,44 +145,53 @@ func resourceCCENodeV3() *schema.Resource {
 					}},
 			},
 			"eip_ids": {
-				Type:          schema.TypeSet,
-				Optional:      true,
-				ForceNew:      true,
-				Elem:          &schema.Schema{Type: schema.TypeString},
-				Set:           schema.HashString,
-				ConflictsWith: []string{"eip_id"},
-				Deprecated:    "use eip_id instead",
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				ConflictsWith: []string{
+					"eip_id", "iptype", "bandwidth_charge_mode", "bandwidth_size", "sharetype",
+				},
+				Deprecated: "use eip_id instead",
 			},
 			"eip_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				ConflictsWith: []string{
+					"eip_ids", "iptype", "bandwidth_charge_mode", "bandwidth_size", "sharetype",
+				},
+			},
+			"bandwidth_charge_mode": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ForceNew:      true,
-				ConflictsWith: []string{"eip_ids"},
-			},
-			"eip_count": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
+				ConflictsWith: []string{"eip_ids", "eip_id"},
 			},
 			"iptype": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-			},
-			"bandwidth_charge_mode": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				RequiredWith: []string{
+					"iptype", "bandwidth_size", "sharetype",
+				},
 			},
 			"sharetype": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				RequiredWith: []string{
+					"iptype", "bandwidth_size", "sharetype",
+				},
 			},
 			"bandwidth_size": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
+				RequiredWith: []string{
+					"iptype", "bandwidth_size", "sharetype",
+				},
 			},
 			"billing_mode": {
 				Type:     schema.TypeInt,
@@ -348,8 +358,6 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 				Password: d.Get("password").(string),
 			},
 		}
-	} else {
-		return fmt.Errorf("Error creating HuaweiCloud CCE Node: key_pair or password must be set")
 	}
 
 	var base64PreInstall, base64PostInstall string
@@ -360,10 +368,9 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		base64PostInstall = installScriptEncode(v.(string))
 	}
 
-	// eip_count and bandwidth_size parameters must be set simultaneously
-	bandwidthSize := d.Get("bandwidth_size").(int)
-	eipCount := d.Get("eip_count").(int)
-	if bandwidthSize > 0 && eipCount == 0 {
+	// eipCount must be specified when bandwidth_size parameters was set
+	eipCount := 0
+	if _, ok := d.GetOk("bandwidth_size"); ok {
 		eipCount = 1
 	}
 
@@ -389,7 +396,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 					IpType: d.Get("iptype").(string),
 					Bandwidth: nodes.BandwidthOpts{
 						ChargeMode: d.Get("bandwidth_charge_mode").(string),
-						Size:       bandwidthSize,
+						Size:       d.Get("bandwidth_size").(int),
 						ShareType:  d.Get("sharetype").(string),
 					},
 				},
@@ -419,9 +426,9 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	stateCluster := &resource.StateChangeConf{
 		Target:     []string{"Available"},
 		Refresh:    waitForClusterAvailable(nodeClient, clusterid),
-		Timeout:    15 * time.Minute,
+		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      15 * time.Second,
-		MinTimeout: 3 * time.Second,
+		MinTimeout: 5 * time.Second,
 	}
 	_, err = stateCluster.WaitForState()
 
@@ -467,8 +474,8 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		Target:     []string{"Active"},
 		Refresh:    waitForCceNodeActive(nodeClient, clusterid, nodeid),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Delay:      15 * time.Second,
+		MinTimeout: 5 * time.Second,
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
