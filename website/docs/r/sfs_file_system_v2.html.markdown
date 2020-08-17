@@ -61,6 +61,9 @@ The following arguments are supported:
         For a CIFS shared file system, the value in the format of *VPC_ID#IP_address#priority*.
         For example, 0157b53f-4974-4e80-91c9-098532bcaf00#2.2.2.2/16#0.
 
+-> **NOTE:** If you want to create more access rules, please using [huaweicloud_sfs_access_rule_v2](https://www.terraform.io/docs/providers/huaweicloud/r/sfs_access_rule_v2.html).
+
+
 ## Attributes Reference
 In addition to all arguments above, the following attributes are exported:
 
