@@ -465,6 +465,10 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     type = "SATA"
     size = "10"
   }
+
+  charging_mode = "prePaid"
+  period_unit = "month"
+  period = 1
 }
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 

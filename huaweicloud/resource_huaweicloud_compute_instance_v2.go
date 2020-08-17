@@ -310,8 +310,44 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Default:  false,
 			},
 			"enterprise_project_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"block_device", "metadata"},
+			},
+			"delete_disks_on_termination": {
+				Type:          schema.TypeBool,
+				Optional:      true,
+				ConflictsWith: []string{"block_device", "metadata"},
+			},
+			"charging_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, true),
+				ConflictsWith: []string{"block_device", "metadata"},
+			},
+			"period_unit": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, true),
+				ConflictsWith: []string{"block_device", "metadata"},
+			},
+			"period": {
+				Type:          schema.TypeInt,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"block_device", "metadata"},
+			},
+			"auto_renew": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"block_device", "metadata"},
 			},
 			"all_metadata": {
 				Type:     schema.TypeMap,
@@ -411,6 +447,13 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		}
 
 		var extendParam cloudservers.ServerExtendParam
+		if d.Get("charging_mode") == "prePaid" {
+			extendParam.ChargingMode = d.Get("charging_mode").(string)
+			extendParam.PeriodType = d.Get("period_unit").(string)
+			extendParam.PeriodNum = d.Get("period").(int)
+			extendParam.IsAutoPay = "true"
+			extendParam.IsAutoRenew = d.Get("auto_renew").(string)
+		}
 		if hasFilledOpt(d, "enterprise_project_id") {
 			extendParam.EnterpriseProjectId = d.Get("enterprise_project_id").(string)
 		}
@@ -427,26 +470,50 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 
 		log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
-		n, err := cloudservers.Create(client, createOpts).ExtractJobResponse()
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
-		}
+		var server_id string
+		if d.Get("charging_mode") == "prePaid" {
+			// prePaid.
+			bssV1Client, err := config.BssV1Client(GetRegion(d, config))
+			if err != nil {
+				return fmt.Errorf("Error creating HuaweiCloud bss V1 client: %s", err)
+			}
+			n, err := cloudservers.CreatePrePaid(computeClient, createOpts).ExtractOrderResponse()
+			if err != nil {
+				return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
+			}
 
-		if err := cloudservers.WaitForJobSuccess(v1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
-			return err
-		}
+			if err := cloudservers.WaitForOrderSuccess(bssV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.OrderID); err != nil {
+				return err
+			}
 
-		entity, err := cloudservers.GetJobEntity(v1Client, n.JobID, "server_id")
-		if err != nil {
-			return err
+			resource, err := cloudservers.GetOrderResource(bssV1Client, n.OrderID)
+			if err != nil {
+				return err
+			}
+			server_id = resource.(string)
+		} else {
+			// postPaid.
+			n, err := cloudservers.Create(client, createOpts).ExtractJobResponse()
+			if err != nil {
+				return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
+			}
+
+			if err := cloudservers.WaitForJobSuccess(v1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+				return err
+			}
+
+			entity, err := cloudservers.GetJobEntity(v1Client, n.JobID, "server_id")
+			if err != nil {
+				return err
+			}
+			server_id = entity.(string)
 		}
-		server_id := entity.(string)
 
 		// Store the ID now
 		d.SetId(server_id)
 
 	} else {
-		// OpenStack API implementation.
+		// OpenStack API implementation. Clean up this after removing block_device.
 
 		// Build a list of networks with the information given upon creation.
 		// Error out if an invalid network configuration was used.
@@ -831,6 +898,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	computeV1Client, err := config.computeV1Client(GetRegion(d, config))
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
@@ -857,29 +925,45 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	log.Printf("[DEBUG] Deleting HuaweiCloud Instance %s", d.Id())
-	err = servers.Delete(computeClient, d.Id()).ExtractErr()
-	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
-	}
+	if d.Get("charging_mode") == "prePaid" {
+		bssV1Client, err := config.BssV1Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud bss V1 client: %s", err)
+		}
 
-	// Wait for the instance to delete before moving on.
-	log.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
+		resourceIds := []string{d.Id()}
+		deleteOrderOpts := cloudservers.DeleteOrderOpts{
+			ResourceIds: resourceIds,
+			UnSubType:   1,
+		}
+		n, err := cloudservers.DeleteOrder(bssV1Client, deleteOrderOpts).ExtractDeleteOrderResponse()
+		if err != nil {
+			return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
+		}
 
-	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"ACTIVE", "SHUTOFF"},
-		Target:     []string{"DELETED", "SOFT_DELETED"},
-		Refresh:    ServerV2StateRefreshFunc(computeClient, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      10 * time.Second,
-		MinTimeout: 3 * time.Second,
-	}
+		if err := cloudservers.WaitForOrderDeleteSuccess(bssV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.OrderIDs[0]); err != nil {
+			return err
+		}
+	} else {
+		var serverRequests []cloudservers.Server
+		server := cloudservers.Server{
+			Id: d.Id(),
+		}
+		serverRequests = append(serverRequests, server)
 
-	_, err = stateConf.WaitForState()
-	if err != nil {
-		return fmt.Errorf(
-			"Error waiting for instance (%s) to delete: %s",
-			d.Id(), err)
+		deleteOpts := cloudservers.DeleteOpts{
+			Servers:      serverRequests,
+			DeleteVolume: d.Get("delete_disks_on_termination").(bool),
+		}
+
+		n, err := cloudservers.Delete(computeV1Client, deleteOpts).ExtractJobResponse()
+		if err != nil {
+			return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
+		}
+
+		if err := cloudservers.WaitForJobSuccess(computeV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+			return err
+		}
 	}
 
 	d.SetId("")
