@@ -309,6 +309,10 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"all_metadata": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -404,6 +408,14 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 			DataVolumes:      resourceInstanceDataVolumesV1(d),
 			AdminPass:        d.Get("admin_pass").(string),
 			UserData:         []byte(d.Get("user_data").(string)),
+		}
+
+		var extendParam cloudservers.ServerExtendParam
+		if hasFilledOpt(d, "enterprise_project_id") {
+			extendParam.EnterpriseProjectId = d.Get("enterprise_project_id").(string)
+		}
+		if extendParam != (cloudservers.ServerExtendParam{}) {
+			createOpts.ExtendParam = &extendParam
 		}
 
 		schedulerHintsRaw := d.Get("scheduler_hints").(*schema.Set).List()
