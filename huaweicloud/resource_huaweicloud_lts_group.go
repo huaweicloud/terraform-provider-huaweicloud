@@ -23,7 +23,6 @@ func resourceLTSGroupV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"ttl_in_days": {
 				Type:     schema.TypeInt,
 				Required: true,
