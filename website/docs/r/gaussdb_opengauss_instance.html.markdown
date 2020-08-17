@@ -70,7 +70,7 @@ The following arguments are supported:
 * `subnet_id` - (Required) Specifies the network ID of a subnet.
   Changing this parameter will create a new resource.
 
-* `security_group_id` - (Required) Specifies the security group ID.
+* `security_group_id` - (Optional) Specifies the security group ID.
   Changing this parameter will create a new resource.
 
 * `volume` - (Required) Specifies the volume storage information. Structure is documented below.

@@ -702,6 +702,13 @@ func (c *Config) FgsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	})
 }
 
+func (c *Config) ltsV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.NewHuaweiLTSV2(c.HwClient, golangsdk.EndpointOpts{
+		Region:       region,
+		Availability: c.getHwEndpointType(),
+	})
+}
+
 func (c *Config) initServiceClient(srv, region, apiVersion string) (*golangsdk.ServiceClient, error) {
 	var eo = golangsdk.EndpointOpts{
 		Name:   srv,
