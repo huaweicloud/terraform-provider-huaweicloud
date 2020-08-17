@@ -79,8 +79,8 @@ func resourceStreamV2Read(d *schema.ResourceData, meta interface{}) error {
 			d.SetId(stream.ID)
 			d.Set("stream_name", stream.Name)
 			d.Set("filter_count", stream.FilterCount)
+			return nil
 		}
-		return nil
 	}
 
 	return fmt.Errorf("Error HuaweiCloud log group stream %s: No Found", d.Id())
