@@ -1,12 +1,12 @@
 ---
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_lts_stream_v2"
-sidebar_current: "docs-huaweicloud-resource-lts-stream-v2"
+page_title: "HuaweiCloud: huaweicloud_lts_stream"
+sidebar_current: "docs-huaweicloud-resource-lts-stream"
 description: |-
   log stream management
 ---
 
-# huaweicloud\_lts\_stream\_v2
+# huaweicloud\_lts\_stream
 
 Manage a log stream resource within HuaweiCloud.
 
@@ -15,14 +15,13 @@ Manage a log stream resource within HuaweiCloud.
 ### create a log stream
 
 ```hcl
-resource "huaweicloud_lts_group_v2" "test_group" {
-  stream_name  = "test_group"
-  ttl_in_days = 7
+resource "huaweicloud_lts_group" "test_group" {
+	group_name  = "test_group"
+	ttl_in_days = 1
 }
-
-resource "huaweicloud_lts_stream_v2" "test_stream" {
-  group_id   = "${huaweicloud_lts_group_v2.test_group.id}"
-  stream_name = "test1"
+resource "huaweicloud_lts_stream" "test_stream" {
+  group_id = huaweicloud_lts_group.test_group.id
+  stream_name = "testacc_stream"
 }
 ```
 
@@ -55,5 +54,5 @@ The following attributes are exported:
 Log stream can be imported using the lts group ID and stream ID separated by a slash, e.g.
 
 ```
-$ terraform import huaweicloud_lts_stream_v2.stream_1 393f2bfd-2244-11ea-adb7-286ed488c87f/72855918-20b1-11ea-80e0-286ed488c880
+$ terraform import huaweicloud_lts_stream.stream_1 393f2bfd-2244-11ea-adb7-286ed488c87f/72855918-20b1-11ea-80e0-286ed488c880
 ```
