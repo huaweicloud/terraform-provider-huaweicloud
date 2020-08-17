@@ -79,6 +79,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `access_rule_status` - The status of the share access rule.
 
+* `access_rules` - All access rules of the shared file system. The object includes the following:
+    - `access_rule_id` - The UUID of the share access rule.
+    - `access_level` - The access level of the shared file system
+    - `access_type` - The type of the share access rule.
+    - `access_to` - The value that defines the access rule.
+    - `status` - The status of the share access rule.
+
 ## Import
 
 SFS can be imported using the `id`, e.g.
