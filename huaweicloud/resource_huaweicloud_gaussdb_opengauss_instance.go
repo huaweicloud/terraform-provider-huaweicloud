@@ -277,7 +277,7 @@ func resourceOpenGaussDataStore(d *schema.ResourceData) instances.DataStoreOpt {
 		db.Version = datastore["version"].(string)
 	} else {
 		db.Type = "GaussDB(openGauss)"
-		db.Version = "1.0"
+		db.Version = "1.1"
 	}
 	return db
 }
