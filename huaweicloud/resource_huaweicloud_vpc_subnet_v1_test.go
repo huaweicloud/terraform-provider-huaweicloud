@@ -37,6 +37,11 @@ func TestAccVpcSubnetV1_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_vpc_subnet_v1.subnet_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccVpcSubnetV1_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(

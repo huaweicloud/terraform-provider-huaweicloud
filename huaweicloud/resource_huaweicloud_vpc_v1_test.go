@@ -36,6 +36,11 @@ func TestAccVpcV1_basic(t *testing.T) {
 						"huaweicloud_vpc_v1.vpc_1", "tags.key", "value"),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_vpc_v1.vpc_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

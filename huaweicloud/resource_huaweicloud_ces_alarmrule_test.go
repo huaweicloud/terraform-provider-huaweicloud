@@ -10,7 +10,7 @@ import (
 )
 
 // PASS
-func TestCESAlarmRule_basic(t *testing.T) {
+func TestAccCESAlarmRule_basic(t *testing.T) {
 	var ar alarmrule.AlarmRule
 
 	resource.Test(t, resource.TestCase{

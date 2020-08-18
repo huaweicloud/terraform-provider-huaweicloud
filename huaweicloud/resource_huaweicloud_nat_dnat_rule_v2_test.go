@@ -25,6 +25,7 @@ import (
 )
 
 func TestAccNatDnat_basic(t *testing.T) {
+	resourceName := "huaweicloud_nat_dnat_rule_v2.dnat"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -35,6 +36,11 @@ func TestAccNatDnat_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNatDnatExists(),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

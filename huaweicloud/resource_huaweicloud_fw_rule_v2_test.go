@@ -65,6 +65,11 @@ func TestAccFWRuleV2_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_fw_rule_v2.rule_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccFWRuleV2_basic_3,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWRuleV2Exists("huaweicloud_fw_rule_v2.rule_1", rule3),

@@ -24,6 +24,11 @@ func TestAccComputeV2VolumeAttach_basic(t *testing.T) {
 					testAccCheckComputeV2VolumeAttachExists("huaweicloud_compute_volume_attach_v2.va_1", &va),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_compute_volume_attach_v2.va_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

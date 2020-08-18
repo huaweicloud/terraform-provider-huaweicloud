@@ -33,6 +33,11 @@ func TestAccRTSStackV1_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_rts_software_config_v1.config_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccRTSStackV1_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRTSStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),

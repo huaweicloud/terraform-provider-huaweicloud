@@ -35,6 +35,11 @@ func TestAccNetworkingV2SecGroupRule_basic(t *testing.T) {
 						"huaweicloud_networking_secgroup_rule_v2.secgroup_rule_2", &secgroup_rule_2),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_networking_secgroup_rule_v2.secgroup_rule_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

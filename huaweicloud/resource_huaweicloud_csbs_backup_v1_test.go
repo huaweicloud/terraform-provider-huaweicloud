@@ -29,6 +29,11 @@ func TestAccCSBSBackupV1_basic(t *testing.T) {
 						"huaweicloud_csbs_backup_v1.csbs", "resource_type", "OS::Nova::Server"),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_csbs_backup_v1.csbs",
+				ImportState:       true,
+				ImportStateVerify: false,
+			},
 		},
 	})
 }

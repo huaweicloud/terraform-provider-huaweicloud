@@ -12,7 +12,7 @@ import (
 
 func TestAccComputeV2FloatingIP_basic(t *testing.T) {
 	var fip floatingips.FloatingIP
-
+	resourceName := "huaweicloud_compute_floatingip_v2.fip_1"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
@@ -21,8 +21,13 @@ func TestAccComputeV2FloatingIP_basic(t *testing.T) {
 			{
 				Config: testAccComputeV2FloatingIP_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2FloatingIPExists("huaweicloud_compute_floatingip_v2.fip_1", &fip),
+					testAccCheckComputeV2FloatingIPExists(resourceName, &fip),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

@@ -30,6 +30,15 @@ func TestAccKmsKeyV1_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_kms_key_v1.key_2",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"key_usage",
+					"pending_days",
+				},
+			},
+			{
 				Config: testAccKmsV1Key_update(keyAliasUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_v1.key_2", &key),

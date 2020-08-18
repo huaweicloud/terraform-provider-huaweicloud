@@ -32,6 +32,17 @@ func TestAccImagesImageV2_basic(t *testing.T) {
 						"huaweicloud_images_image_v2.image_1", "schema", "/v2/schemas/image"),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_images_image_v2.image_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"region",
+					"local_file_path",
+					"image_cache_path",
+					"image_source_url",
+				},
+			},
 		},
 	})
 }
