@@ -14,6 +14,14 @@ func extendURL(c *golangsdk.ServiceClient, instanceID string) string {
 	return c.ServiceURL("instances", instanceID, "extend-volume")
 }
 
+func enlargeNodeURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "enlarge-node")
+}
+
+func reduceNodeURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "reduce-node")
+}
+
 func listURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("instances")
 }

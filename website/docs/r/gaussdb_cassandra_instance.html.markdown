@@ -70,7 +70,6 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `node_num` - (Optional) Specifies the number of nodes, ranges from 3 to 12. Defaults to 3.
-  Changing this parameter will create a new resource.
 
 * `volume_size` - (Required) Specifies the storage space in GB. The value must be a multiple of 10.
   For a GaussDB Cassandra DB instance, the minimum storage space is 100 GB, and the maximum

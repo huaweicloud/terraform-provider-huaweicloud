@@ -377,12 +377,12 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 
 	// waiting for the instance to become ready
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"BUILD", "BACKING UP"},
-		Target:     []string{"ACTIVE"},
-		Refresh:    OpenGaussInstanceStateRefreshFunc(client, id),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      180 * time.Second,
-		MinTimeout: 20 * time.Second,
+		Pending:      []string{"BUILD", "BACKING UP"},
+		Target:       []string{"ACTIVE"},
+		Refresh:      OpenGaussInstanceStateRefreshFunc(client, id),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        180 * time.Second,
+		PollInterval: 30 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()

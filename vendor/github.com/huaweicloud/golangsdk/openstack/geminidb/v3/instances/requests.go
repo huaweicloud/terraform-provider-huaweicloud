@@ -90,6 +90,66 @@ func ExtendVolume(client *golangsdk.ServiceClient, instanceId string, opts Exten
 	return
 }
 
+type EnlargeNodeOpts struct {
+	Num int `json:"num" required:"true"`
+}
+
+type EnlargeNodeBuilder interface {
+	ToNodeEnlargeMap() (map[string]interface{}, error)
+}
+
+func (opts EnlargeNodeOpts) ToNodeEnlargeMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func EnlargeNode(client *golangsdk.ServiceClient, instanceId string, opts EnlargeNodeBuilder) (r ExtendResult) {
+	b, err := opts.ToNodeEnlargeMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(enlargeNodeURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{202},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
+}
+
+type ReduceNodeOpts struct {
+	Num int `json:"num" required:"true"`
+}
+
+type ReduceNodeBuilder interface {
+	ToNodeReduceMap() (map[string]interface{}, error)
+}
+
+func (opts ReduceNodeOpts) ToNodeReduceMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func ReduceNode(client *golangsdk.ServiceClient, instanceId string, opts ReduceNodeBuilder) (r ExtendResult) {
+	b, err := opts.ToNodeReduceMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(reduceNodeURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{202},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
+}
+
 func Delete(client *golangsdk.ServiceClient, instanceId string) (r DeleteResult) {
 	url := deleteURL(client, instanceId)
 
