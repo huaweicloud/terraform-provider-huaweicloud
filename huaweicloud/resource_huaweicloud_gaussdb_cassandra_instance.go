@@ -296,12 +296,12 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 	d.SetId(instance.Id)
 	// waiting for the instance to become ready
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"creating"},
-		Target:     []string{"normal"},
-		Refresh:    GeminiDBInstanceStateRefreshFunc(client, instance.Id),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      120 * time.Second,
-		MinTimeout: 20 * time.Second,
+		Pending:      []string{"creating"},
+		Target:       []string{"normal"},
+		Refresh:      GeminiDBInstanceStateRefreshFunc(client, instance.Id),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        120 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()
@@ -386,6 +386,7 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	}
 	d.Set("nodes", nodesList)
 	d.Set("private_ips", ipsList)
+	d.Set("node_num", len(nodesList))
 
 	backupStrategyList := make([]map[string]interface{}, 0, 1)
 	backupStrategy := map[string]interface{}{
@@ -419,15 +420,15 @@ func resourceGeminiDBInstanceV3Delete(d *schema.ResourceData, meta interface{}) 
 	instanceId := d.Id()
 	result := instances.Delete(client, instanceId)
 	if result.Err != nil {
-		return err
+		return result.Err
 	}
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"normal", "abnormal", "creating", "createfail", "enlargefail", "data_disk_full"},
-		Target:     []string{"deleted"},
-		Refresh:    GeminiDBInstanceStateRefreshFunc(client, instanceId),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      15 * time.Second,
-		MinTimeout: 10 * time.Second,
+		Pending:      []string{"normal", "abnormal", "creating", "createfail", "enlargefail", "data_disk_full"},
+		Target:       []string{"deleted"},
+		Refresh:      GeminiDBInstanceStateRefreshFunc(client, instanceId),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        15 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()
@@ -462,15 +463,14 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 		result := instances.ExtendVolume(client, d.Id(), extendOpts)
 		if result.Err != nil {
-			return fmt.Errorf("Error extending huaweicloud_gaussdb_cassandra_instance %s size: %s", d.Id(), err)
+			return fmt.Errorf("Error extending huaweicloud_gaussdb_cassandra_instance %s size: %s", d.Id(), result.Err)
 		}
 
 		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"extending"},
+			Pending:    []string{"RESIZE_VOLUME"},
 			Target:     []string{"available"},
-			Refresh:    GeminiDBInstanceExtendVolumeRefreshFunc(client, d.Id()),
+			Refresh:    GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_VOLUME"),
 			Timeout:    d.Timeout(schema.TimeoutCreate),
-			Delay:      15 * time.Second,
 			MinTimeout: 10 * time.Second,
 		}
 
@@ -481,10 +481,72 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
+	if d.HasChange("node_num") {
+		old, newnum := d.GetChange("node_num")
+		if newnum.(int) > old.(int) {
+			//Enlarge Nodes
+			expand_size := newnum.(int) - old.(int)
+			enlargeNodeOpts := instances.EnlargeNodeOpts{
+				Num: expand_size,
+			}
+			log.Printf("[DEBUG] Enlarge Node Options: %+v", enlargeNodeOpts)
+
+			result := instances.EnlargeNode(client, d.Id(), enlargeNodeOpts)
+			if result.Err != nil {
+				return fmt.Errorf("Error enlarging huaweicloud_gaussdb_cassandra_instance %s node size: %s", d.Id(), result.Err)
+			}
+
+			stateConf := &resource.StateChangeConf{
+				Pending:      []string{"GROWING"},
+				Target:       []string{"available"},
+				Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "GROWING"),
+				Timeout:      d.Timeout(schema.TimeoutCreate),
+				Delay:        15 * time.Second,
+				PollInterval: 20 * time.Second,
+			}
+
+			_, err := stateConf.WaitForState()
+			if err != nil {
+				return fmt.Errorf(
+					"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
+			}
+		}
+		if newnum.(int) < old.(int) {
+			//Reduce Nodes
+			shrink_size := old.(int) - newnum.(int)
+			reduceNodeOpts := instances.ReduceNodeOpts{
+				Num: 1,
+			}
+			log.Printf("[DEBUG] Reduce Node Options: %+v", reduceNodeOpts)
+
+			for i := 0; i < shrink_size; i++ {
+				result := instances.ReduceNode(client, d.Id(), reduceNodeOpts)
+				if result.Err != nil {
+					return fmt.Errorf("Error shrinking huaweicloud_gaussdb_cassandra_instance %s node size: %s", d.Id(), result.Err)
+				}
+
+				stateConf := &resource.StateChangeConf{
+					Pending:      []string{"REDUCING"},
+					Target:       []string{"available"},
+					Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "REDUCING"),
+					Timeout:      d.Timeout(schema.TimeoutCreate),
+					Delay:        15 * time.Second,
+					PollInterval: 20 * time.Second,
+				}
+
+				_, err := stateConf.WaitForState()
+				if err != nil {
+					return fmt.Errorf(
+						"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
+				}
+			}
+		}
+	}
+
 	return resourceGeminiDBInstanceV3Read(d, meta)
 }
 
-func GeminiDBInstanceExtendVolumeRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
+func GeminiDBInstanceUpdateRefreshFunc(client *golangsdk.ServiceClient, instanceID, state string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		instance, err := instances.GetInstanceByID(client, instanceID)
 
@@ -495,8 +557,8 @@ func GeminiDBInstanceExtendVolumeRefreshFunc(client *golangsdk.ServiceClient, in
 			return instance, "deleted", nil
 		}
 		for _, action := range instance.Actions {
-			if action == "RESIZE_VOLUME" {
-				return instance, "extending", nil
+			if action == state {
+				return instance, state, nil
 			}
 		}
 
