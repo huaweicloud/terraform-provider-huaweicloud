@@ -19,7 +19,6 @@ variable "subnet_id" { }
 
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   name                   = "cluster"
-  cluster_type           = "VirtualMachine"
   flavor_id              = var.flavor_id
   vpc_id                 = var.vpc_id
   subnet_id              = var.subnet_id
@@ -52,7 +51,8 @@ The following arguments are supported:
 * `cluster_version` - (Optional) For the cluster version, defaults to the latest supported version. To learn which cluster
 versions are available, choose Dashboard > Buy Cluster on the CCE console. Changing this parameter will create a new cluster resource.
 
-* `cluster_type` - (Required) Cluster Type, possible values are VirtualMachine and BareMetal. Changing this parameter will create a new cluster resource.
+* `cluster_type` - (Optional) Cluster Type, possible values are VirtualMachine, BareMetal and ARM64. Defaults to *VirtualMachine*.
+  Changing this parameter will create a new cluster resource.
 
 * `description` - (Optional) The Cluster description.
 
@@ -62,7 +62,8 @@ versions are available, choose Dashboard > Buy Cluster on the CCE console. Chang
 
 * `vpc_id` - (Required) The ID of the VPC used to create the node. Changing this parameter will create a new cluster resource.
 
-* `subnet_id` - (Required) The ID of the subnet used to create the node. Changing this parameter will create a new cluster resource.
+* `subnet_id` - (Required) The ID of the subnet used to create the node  which should be configured with a *DNS address*.
+  Changing this parameter will create a new cluster resource.
 
 * `highway_subnet_id` - (Optional) The ID of the high speed network used to create bare metal nodes. Changing this parameter will create a new cluster resource.
 
@@ -74,7 +75,7 @@ versions are available, choose Dashboard > Buy Cluster on the CCE console. Chang
 
 * `container_network_cidr` - (Optional) Container network segment. Changing this parameter will create a new cluster resource.
 
-* `authentication_mode` - (Optional) Authentication mode of the cluster, possible values are x509 and rbac. Defaults to x509.
+* `authentication_mode` - (Optional) Authentication mode of the cluster, possible values are x509 and rbac. Defaults to *rbac*.
     Changing this parameter will create a new cluster resource.
 
 * `authenticating_proxy_ca` - (Optional) CA root certificate provided in the authenticating_proxy mode. The CA root certificate

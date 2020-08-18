@@ -20,7 +20,7 @@ resource "huaweicloud_cce_node_v3" "node_1" {
   cluster_id        = var.cluster_id
   availability_zone = var.availability_zone
   name              = "test"
-  flavor_id         = "s1.medium"
+  flavor_id         = "s6.large.2"
   key_pair          = var.ssh_key
 
   root_volume {
@@ -49,8 +49,9 @@ The following arguments are supported:
  
 * `availability_zone` - (Required) specify the name of the available partition (AZ). Changing this parameter will create a new resource.
 
-* `os` - (Optional) Operating System of the node, possible values are EulerOS 2.2 and CentOS 7.1. Defaults to EulerOS 2.2.
-    Changing this parameter will create a new resource.
+* `os` - (Optional) Operating System of the node. Changing this parameter will create a new resource.
+    - For VM nodes, clusters of v1.13 and later support *EulerOS 2.5* and *CentOS 7.6*.
+    - For BMS nodes purchased in the yearly/monthly billing mode, only *EulerOS 2.3* is supported.
 
 * `key_pair` - (Optional) Key pair name when logging in to select the key pair mode. This parameter and `password` are alternative.
     Changing this parameter will create a new resource.
@@ -62,12 +63,13 @@ The following arguments are supported:
 
 * `eip_id` - (Optional) The ID of the EIP. Changing this parameter will create a new resource.
 
-* `eip_ids` - (Deprecated) This has been deprecated, use eip_id instead. List of existing elastic IP IDs. Changing this parameter will create a new resource.
+* `eip_ids` - (Deprecated) This has been deprecated, use eip_id instead. List of existing elastic IP IDs.
+    Changing this parameter will create a new resource.
 
-**Note:**
-If the eip_id parameter is configured, you do not need to configure the bandwidth parameters: iptype, bandwidth_charge_mode, bandwidth_size and share_type.
+-> **Note:** If the eip_id parameter is configured, you do not need to configure the bandwidth parameters:
+  `iptype`, `bandwidth_charge_mode`, `bandwidth_size` and `share_type`.
 
-* `iptype` - (Optional) Elastic IP type. Default is 5_bgp. Changing this parameter will create a new resource.
+* `iptype` - (Optional) Elastic IP type. Changing this parameter will create a new resource.
 
 * `bandwidth_charge_mode` - (Optional) Bandwidth billing type. Changing this parameter will create a new resource.
 

@@ -31,7 +31,7 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cluster_type", "VirtualMachine"),
 					resource.TestCheckResourceAttr(resourceName, "flavor_id", "cce.s1.small"),
 					resource.TestCheckResourceAttr(resourceName, "container_network_type", "overlay_l2"),
-					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "x509"),
+					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
 				),
 			},
 			{
@@ -158,7 +158,6 @@ func testAccCCEClusterV3_basic(rName string) string {
 
 resource "huaweicloud_cce_cluster_v3" "test" {
   name                   = "%s"
-  cluster_type           = "VirtualMachine"
   flavor_id              = "cce.s1.small"
   vpc_id                 = huaweicloud_vpc_v1.test.id
   subnet_id              = huaweicloud_vpc_subnet_v1.test.id
@@ -173,7 +172,6 @@ func testAccCCEClusterV3_update(rName string) string {
 
 resource "huaweicloud_cce_cluster_v3" "test" {
   name                   = "%s"
-  cluster_type           = "VirtualMachine"
   flavor_id              = "cce.s1.small"
   vpc_id                 = huaweicloud_vpc_v1.test.id
   subnet_id              = huaweicloud_vpc_subnet_v1.test.id
