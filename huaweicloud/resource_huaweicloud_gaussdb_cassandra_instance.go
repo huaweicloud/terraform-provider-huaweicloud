@@ -382,6 +382,7 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 			nodesList = append(nodesList, node)
 			ipsList = append(ipsList, Node.PrivateIp)
 		}
+		d.Set("volume_size", group.Volume.Size)
 	}
 	d.Set("nodes", nodesList)
 	d.Set("private_ips", ipsList)
