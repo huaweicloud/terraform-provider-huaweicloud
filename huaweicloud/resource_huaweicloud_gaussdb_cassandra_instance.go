@@ -196,6 +196,10 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"support_reduce": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -374,10 +378,11 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	for _, group := range instance.Groups {
 		for _, Node := range group.Nodes {
 			node := map[string]interface{}{
-				"id":         Node.Id,
-				"name":       Node.Name,
-				"status":     Node.Status,
-				"private_ip": Node.PrivateIp,
+				"id":             Node.Id,
+				"name":           Node.Name,
+				"status":         Node.Status,
+				"private_ip":     Node.PrivateIp,
+				"support_reduce": Node.SupportReduce,
 			}
 			nodesList = append(nodesList, node)
 			ipsList = append(ipsList, Node.PrivateIp)

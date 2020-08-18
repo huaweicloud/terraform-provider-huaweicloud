@@ -79,6 +79,7 @@ type Nodes struct {
 	PrivateIp        string `json:"private_ip"`
 	SpecCode         string `json:"spec_code"`
 	AvailabilityZone string `json:"availability_zone"`
+	SupportReduce    bool   `json:"support_reduce"`
 }
 
 type commonResult struct {
