@@ -144,6 +144,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` - Indicates the DB instance status.
 * `region` - Indicates the region where the DB instance is deployed.
 * `type` - Indicates the database type.
+* `port` - Indicates the database port.
 * `private_ips` - Indicates the private IP address of the DB instance.
 * `public_ips` - Indicates the public IP address of the DB instance.
 * `endpoints` - Indicates the connection endpoints list of the DB instance. Example: [127.0.0.1:8000].
