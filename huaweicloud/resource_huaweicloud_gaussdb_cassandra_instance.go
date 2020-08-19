@@ -385,7 +385,10 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 				"support_reduce": Node.SupportReduce,
 			}
 			nodesList = append(nodesList, node)
-			ipsList = append(ipsList, Node.PrivateIp)
+			// Only return Node private ips which doesn't support reduce
+			if !Node.SupportReduce {
+				ipsList = append(ipsList, Node.PrivateIp)
+			}
 		}
 		d.Set("volume_size", group.Volume.Size)
 	}
