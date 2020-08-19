@@ -7,8 +7,10 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/servergroups"
@@ -31,11 +33,23 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
 )
 
+var maxTimeout = 10 * time.Minute
+
 // LogRoundTripper satisfies the http.RoundTripper interface and is used to
 // customize the default http client RoundTripper to allow for logging.
 type LogRoundTripper struct {
-	Rt      http.RoundTripper
-	OsDebug bool
+	Rt         http.RoundTripper
+	OsDebug    bool
+	MaxRetries int
+}
+
+func retryTimeout(count int) time.Duration {
+	seconds := math.Pow(2, float64(count))
+	timeout := time.Duration(seconds) * time.Second
+	if timeout > maxTimeout { // won't wait more than maxTimeout
+		timeout = maxTimeout
+	}
+	return timeout
 }
 
 // RoundTrip performs a round-trip HTTP request and logs relevant information about it.
@@ -64,8 +78,24 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 	}
 
 	response, err := lrt.Rt.RoundTrip(request)
-	if response == nil {
-		return nil, err
+	// Retrying connection
+	retry := 1
+	for response == nil {
+
+		if retry > lrt.MaxRetries {
+			if lrt.OsDebug {
+				log.Printf("[DEBUG] HuaweiCloud connection error, retries exhausted. Aborting")
+			}
+			err = fmt.Errorf("HuaweiCloud connection error, retries exhausted. Aborting. Last error was: %s", err)
+			return nil, err
+		}
+
+		if lrt.OsDebug {
+			log.Printf("[DEBUG] HuaweiCloud connection error, retry number %d: %s", retry, err)
+		}
+		time.Sleep(retryTimeout(retry))
+		response, err = lrt.Rt.RoundTrip(request)
+		retry += 1
 	}
 
 	if lrt.OsDebug {

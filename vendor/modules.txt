@@ -328,6 +328,7 @@ github.com/huaweicloud/golangsdk/openstack/vbs/v2/backups
 github.com/huaweicloud/golangsdk/openstack/vbs/v2/policies
 github.com/huaweicloud/golangsdk/openstack/vbs/v2/tags
 github.com/huaweicloud/golangsdk/pagination
+github.com/huaweicloud/golangsdk/testhelper
 # github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a
 ## explicit
 github.com/jen20/awspolicyequivalence

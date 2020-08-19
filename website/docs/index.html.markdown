@@ -180,6 +180,11 @@ The following arguments are supported:
 
 * `delegated_project` - (Optional) The name of the delegated project.
 
+* `max_retries` - (Optional) This is the maximum number of times an API
+  call is retried, in the case where requests are being throttled or
+  experiencing transient failures. The delay between the subsequent API
+  calls increases exponentially. If omitted, default value is `25`.
+
 
 ## Testing and Development
 
