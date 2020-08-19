@@ -47,6 +47,7 @@ type Config struct {
 	AgencyName       string
 	AgencyDomainName string
 	DelegatedProject string
+	MaxRetries       int
 	terraformVersion string
 
 	HwClient *golangsdk.ProviderClient
@@ -56,6 +57,10 @@ type Config struct {
 }
 
 func (c *Config) LoadAndValidate() error {
+	if c.MaxRetries < 0 {
+		return fmt.Errorf("max_retries should be a positive value")
+	}
+
 	err := fmt.Errorf("Must config token or aksk or username password to be authorized")
 
 	if c.Token != "" {
@@ -135,8 +140,9 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 
 	client.HTTPClient = http.Client{
 		Transport: &LogRoundTripper{
-			Rt:      transport,
-			OsDebug: logging.IsDebugOrHigher(),
+			Rt:         transport,
+			OsDebug:    logging.IsDebugOrHigher(),
+			MaxRetries: c.MaxRetries,
 		},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if client.AKSKAuthOptions.AccessKey != "" {

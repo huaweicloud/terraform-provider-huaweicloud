@@ -166,6 +166,12 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("OS_DELEGATED_PROJECT", ""),
 				Description: descriptions["delegated_project"],
 			},
+			"max_retries": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     25,
+				Description: descriptions["max_retries"],
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -394,6 +400,7 @@ func init() {
 		"agency_domain_name": "The name of domain who created the agency (Identity v3).",
 
 		"delegated_project": "The name of delegated project (Identity v3).",
+		"max_retries":       "How many times HTTP connection should be retried until giving up.",
 	}
 }
 
@@ -434,6 +441,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		AgencyName:       d.Get("agency_name").(string),
 		AgencyDomainName: d.Get("agency_domain_name").(string),
 		DelegatedProject: delegated_project,
+		MaxRetries:       d.Get("max_retries").(int),
 		terraformVersion: terraformVersion,
 	}
 
