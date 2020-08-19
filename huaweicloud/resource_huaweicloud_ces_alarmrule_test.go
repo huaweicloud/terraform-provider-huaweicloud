@@ -96,35 +96,35 @@ resource "huaweicloud_compute_instance_v2" "vm_1" {
 }
 
 resource "huaweicloud_smn_topic_v2" "topic_1" {
-  name		  = "topic_1"
-  display_name    = "The display name of topic_1"
+  name         = "topic_1"
+  display_name = "The display name of topic_1"
 }
 
 resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
-  "alarm_name" = "alarm_rule1"
+  alarm_name = "alarm_rule1"
+  alarm_action_enabled = false
 
-  "metric" {
-    "namespace" = "SYS.ECS"
-    "metric_name" = "network_outgoing_bytes_rate_inband"
-    "dimensions" {
-        "name" = "instance_id"
-        "value" = "${huaweicloud_compute_instance_v2.vm_1.id}"
+  metric {
+    namespace   = "SYS.ECS"
+    metric_name = "network_outgoing_bytes_rate_inband"
+    dimensions {
+        name  = "instance_id"
+        value = huaweicloud_compute_instance_v2.vm_1.id
     }
   }
-  "condition"  {
-    "period" = 300
-    "filter" = "average"
-    "comparison_operator" = ">"
-    "value" = 6
-    "unit" = "B/s"
-    "count" = 1
+  condition  {
+    period = 300
+    filter = "average"
+    comparison_operator = ">"
+    value = 6
+    unit  = "B/s"
+    count = 1
   }
-  "alarm_action_enabled" = false
 
-  "alarm_actions" {
-    "type" = "notification"
-    "notification_list" = [
-      "${huaweicloud_smn_topic_v2.topic_1.topic_urn}"
+  alarm_actions {
+    type = "notification"
+    notification_list = [
+      huaweicloud_smn_topic_v2.topic_1.topic_urn
     ]
   }
 }
@@ -140,36 +140,36 @@ resource "huaweicloud_compute_instance_v2" "vm_1" {
 }
 
 resource "huaweicloud_smn_topic_v2" "topic_1" {
-  name		  = "topic_1"
-  display_name    = "The display name of topic_1"
+  name         = "topic_1"
+  display_name = "The display name of topic_1"
 }
 
 resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
-  "alarm_name" = "alarm_rule1"
+  alarm_name = "alarm_rule1"
+  alarm_action_enabled = false
+  alarm_enabled = false
 
-  "metric" {
-    "namespace" = "SYS.ECS"
-    "metric_name" = "network_outgoing_bytes_rate_inband"
-    "dimensions" {
-        "name" = "instance_id"
-        "value" = "${huaweicloud_compute_instance_v2.vm_1.id}"
+  metric {
+    namespace = "SYS.ECS"
+    metric_name = "network_outgoing_bytes_rate_inband"
+    dimensions {
+        name  = "instance_id"
+        value = huaweicloud_compute_instance_v2.vm_1.id
     }
   }
-  "condition"  {
-    "period" = 300
-    "filter" = "average"
-    "comparison_operator" = ">"
-    "value" = 6
-    "unit" = "B/s"
-    "count" = 1
+  condition  {
+    period = 300
+    filter = "average"
+    comparison_operator = ">"
+    value = 6
+    unit  = "B/s"
+    count = 1
   }
-  "alarm_action_enabled" = false
-  "alarm_enabled" = false
 
-  "alarm_actions" {
-    "type" = "notification"
-    "notification_list" = [
-      "${huaweicloud_smn_topic_v2.topic_1.topic_urn}"
+  alarm_actions {
+    type = "notification"
+    notification_list = [
+      huaweicloud_smn_topic_v2.topic_1.topic_urn
     ]
   }
 }

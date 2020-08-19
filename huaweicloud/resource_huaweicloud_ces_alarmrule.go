@@ -187,15 +187,11 @@ func resourceAlarmRule() *schema.Resource {
 
 			"update_time": {
 				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 
 			"alarm_state": {
 				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 		},
