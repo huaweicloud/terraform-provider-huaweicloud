@@ -25,9 +25,10 @@ type ConditionOpts struct {
 	Period             int    `json:"period" required:"true"`
 	Filter             string `json:"filter" required:"true"`
 	ComparisonOperator string `json:"comparison_operator" required:"true"`
-	Value              int    `json:"value" required:"true"`
-	Unit               string `json:"unit,omitempty"`
-	Count              int    `json:"count" required:"true"`
+	// The Value ranges from 0 to MAX_VALUE
+	Value int    `json:"value"`
+	Unit  string `json:"unit,omitempty"`
+	Count int    `json:"count" required:"true"`
 }
 
 type ActionOpts struct {

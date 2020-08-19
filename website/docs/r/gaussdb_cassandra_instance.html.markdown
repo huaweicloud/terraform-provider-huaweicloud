@@ -149,6 +149,7 @@ The `nodes` block contains:
 - `id` - Indicates the node ID.
 - `name` - Indicates the node name.
 - `status` - Indicates the node status.
+- `support_reduce` - Indicates whether the node support reduce or not.
 - `private_ip` - Indicates the private IP address of a node.
 
 ## Import
