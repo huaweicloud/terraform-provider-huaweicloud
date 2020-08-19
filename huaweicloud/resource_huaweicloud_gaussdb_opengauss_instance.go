@@ -459,6 +459,8 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("datastore", dbList)
 
 	// set nodes
+	sharding_num := 0
+	coordinator_num := 0
 	nodesList := make([]map[string]interface{}, 0, 1)
 	for _, raw := range instance.Nodes {
 		node := map[string]interface{}{
@@ -469,8 +471,15 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 			"availability_zone": raw.AvailabilityZone,
 		}
 		nodesList = append(nodesList, node)
+		if strings.Contains(raw.Name, "_gaussdbv5cn") {
+			coordinator_num += 1
+		} else if strings.Contains(raw.Name, "_gaussdbv5dn") {
+			sharding_num += 1
+		}
 	}
 	d.Set("nodes", nodesList)
+	d.Set("coordinator_num", coordinator_num)
+	d.Set("sharding_num", sharding_num/3)
 
 	// set backup_strategy
 	backupStrategyList := make([]map[string]interface{}, 1)
