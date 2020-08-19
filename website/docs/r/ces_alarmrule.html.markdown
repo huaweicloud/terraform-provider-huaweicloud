@@ -3,23 +3,24 @@ layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ces-alarmrule"
 sidebar_current: "docs-huaweicloud-resource-ces-alarmrule"
 description: |-
-  Manages a V2 topic resource within HuaweiCloud.
+  Manages a Cloud Eye alarm rule resource within HuaweiCloud.
 ---
 
 # huaweicloud\_ces\_alarmrule
 
-Manages a V2 topic resource within HuaweiCloud.
+Manages a Cloud Eye alarm rule resource within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
 resource "huaweicloud_ces_alarmrule" "alarm_rule" {
   alarm_name = "alarm_rule"
+
   metric {
-    namespace = "SYS.ECS"
+    namespace   = "SYS.ECS"
     metric_name = "network_outgoing_bytes_rate_inband"
     dimensions {
-      name = "instance_id"
+      name  = "instance_id"
       value = var.webserver_instance_id
     }
   }
@@ -28,7 +29,7 @@ resource "huaweicloud_ces_alarmrule" "alarm_rule" {
     filter = "average"
     comparison_operator = ">"
     value = 6
-    unit = "B/s"
+    unit  = "B/s"
     count = 1
   }
   alarm_actions {
@@ -122,9 +123,9 @@ The `condition` block supports:
 the `alarm_actions` block supports:
 
 * `type` - (Optional) specifies the type of action triggered by an alarm. the
-    value can be notification or autoscaling.
-    notification: indicates that a notification will be sent to the user.
-    autoscaling: indicates that a scaling action will be triggered.
+    value can be *notification* or *autoscaling*.
+    - notification: indicates that a notification will be sent to the user.
+    - autoscaling: indicates that a scaling action will be triggered.
 
 * `notification_list` - (Optional) specifies the topic urn list of the target
     notification objects. the maximum length is 5. the topic urn list can be
@@ -171,7 +172,7 @@ The following attributes are exported:
 * `update_time` - Specifies the time when the alarm status changed. The value
     is a UNIX timestamp and the unit is ms.
 * `alarm_state` - Specifies the alarm status. The value can be:
-    ok: The alarm status is normal,
-    alarm: An alarm is generated,
-    insufficient_data: The required data is insufficient.
+    - ok: The alarm status is normal;
+    - alarm: An alarm is generated;
+    - insufficient_data: The required data is insufficient.
 
