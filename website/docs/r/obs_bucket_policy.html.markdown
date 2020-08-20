@@ -43,3 +43,18 @@ The following arguments are supported:
 
 * `bucket` - (Required) The name of the bucket to which to apply the policy.
 * `policy` - (Required) The text of the [bucket policy](https://support.huaweicloud.com/intl/en-us/devg-obs/obs_06_0048.html) in JSON format.
+
+## Attributes Reference
+
+The following attributes are exported:
+
+* `bucket` - See Argument Reference above.
+* `policy` - See Argument Reference above.
+
+## Import
+
+OBS bucket policy can be imported using the `bucket`, e.g.
+
+```
+$ terraform import huaweicloud_obs_bucket_policy.policy bucket-name
+```
