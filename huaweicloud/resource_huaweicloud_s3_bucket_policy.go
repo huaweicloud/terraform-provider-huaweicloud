@@ -55,7 +55,7 @@ func resourceS3BucketPolicyPut(d *schema.ResourceData, meta interface{}) error {
 		Bucket: aws.String(bucket),
 		Policy: aws.String(policy),
 	}
-
+	//lintignore:R006
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
 		if _, err := s3conn.PutBucketPolicy(params); err != nil {
 			if awserr, ok := err.(awserr.Error); ok {

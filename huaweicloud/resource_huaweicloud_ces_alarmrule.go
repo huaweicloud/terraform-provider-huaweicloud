@@ -336,6 +336,7 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating %s %s with options: %#v", nameCESAR, arId, updateOpts)
 
 	timeout := d.Timeout(schema.TimeoutUpdate)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err := alarmrule.Update(client, arId, updateOpts).ExtractErr()
 		if err != nil {
@@ -361,6 +362,7 @@ func resourceAlarmRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Deleting %s %s", nameCESAR, arId)
 
 	timeout := d.Timeout(schema.TimeoutDelete)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err := alarmrule.Delete(client, arId).ExtractErr()
 		if err != nil {

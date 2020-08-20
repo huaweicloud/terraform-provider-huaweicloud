@@ -563,9 +563,9 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	chargingStartTimeTm := time.Unix(chargingStartTime, 0)
 
-	d.Set("update_at", updateAtTm)
-	d.Set("create_at", createAtTm)
-	d.Set("charging_start_time", chargingStartTimeTm)
+	d.Set("update_at", updateAtTm.Format(time.RFC3339))
+	d.Set("create_at", createAtTm.Format(time.RFC3339))
+	d.Set("charging_start_time", chargingStartTimeTm.Format(time.RFC3339))
 	d.Set("component_list", clusterGet.Duration)
 
 	components := make([]map[string]interface{}, len(clusterGet.Componentlist))

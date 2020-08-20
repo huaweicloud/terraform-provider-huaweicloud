@@ -130,6 +130,7 @@ func resourceMonitorV2Create(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	log.Printf("[DEBUG] Attempting to create monitor")
 	var monitor *monitors.Monitor
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		monitor, err = monitors.Create(lbClient, createOpts).Extract()
 		if err != nil {
@@ -222,7 +223,7 @@ func resourceMonitorV2Update(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		_, err = monitors.Update(lbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
@@ -258,7 +259,7 @@ func resourceMonitorV2Delete(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err = monitors.Delete(lbClient, d.Id()).ExtractErr()
 		if err != nil {

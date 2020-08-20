@@ -446,13 +446,14 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 
 	aID := d.Id()
 
-	if d.HasChange("delegated_domain_name") || d.HasChange("description") {
+	if d.HasChanges("delegated_domain_name", "description") {
 		updateOpts := agency.UpdateOpts{
 			DelegatedDomain: d.Get("delegated_domain_name").(string),
 			Description:     d.Get("description").(string),
 		}
 		log.Printf("[DEBUG] Updating IAM-Agency %s with options: %#v", aID, updateOpts)
 		timeout := d.Timeout(schema.TimeoutUpdate)
+		//lintignore:R006
 		err = resource.Retry(timeout, func() *resource.RetryError {
 			_, err := agency.Update(client, aID, updateOpts).Extract()
 			if err != nil {
@@ -467,7 +468,7 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 
 	domainID := ""
 	var roles map[string]string
-	if d.HasChange("project_role") || d.HasChange("domain_roles") {
+	if d.HasChanges("project_role", "domain_roles") {
 		domainID, err = getDomainID(config, client)
 		if err != nil {
 			return fmt.Errorf("Error getting the domain id, err=%s", err)
@@ -569,6 +570,7 @@ func resourceIAMAgencyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Deleting IAM-Agency %s", rID)
 
 	timeout := d.Timeout(schema.TimeoutDelete)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err := agency.Delete(client, rID).ExtractErr()
 		if err != nil {

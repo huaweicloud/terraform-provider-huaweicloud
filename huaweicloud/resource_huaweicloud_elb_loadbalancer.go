@@ -282,6 +282,7 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[DEBUG] Updating %s %s with options: %#v", nameELBLB, lbId, updateOpts)
 	var job *elb.Job
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		j, err := loadbalancers.Update(networkingClient, lbId, updateOpts, not_pass_param).Extract()
 		if err != nil {
@@ -315,6 +316,7 @@ func resourceELBLoadBalancerDelete(d *schema.ResourceData, meta interface{}) err
 
 	var job *elb.Job
 	timeout := d.Timeout(schema.TimeoutDelete)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		j, err := loadbalancers.Delete(networkingClient, lbId).Extract()
 		if err != nil {

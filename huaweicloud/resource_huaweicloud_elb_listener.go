@@ -377,6 +377,7 @@ func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Updating %s %s with options: %#v", nameELBListener, lId, opts)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		_, err := listeners.Update(networkingClient, lId, opts, not_pass_params).Extract()
 		if err != nil {
@@ -402,6 +403,7 @@ func resourceELBListenerDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Deleting %s %s", nameELBListener, lId)
 
 	timeout := d.Timeout(schema.TimeoutDelete)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err := listeners.Delete(networkingClient, lId).ExtractErr()
 		if err != nil {

@@ -853,7 +853,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	if d.HasChange("flavor_id") || d.HasChange("flavor_name") {
+	if d.HasChanges("flavor_id", "flavor_name") {
 		var newFlavorId string
 		var err error
 		if d.HasChange("flavor_id") {

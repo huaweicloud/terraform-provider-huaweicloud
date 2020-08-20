@@ -68,7 +68,7 @@ func dataSourceNetworkingPortV2() *schema.Resource {
 			"fixed_ip": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.SingleIP(),
+				ValidateFunc: validation.IsIPAddress,
 			},
 
 			"status": {

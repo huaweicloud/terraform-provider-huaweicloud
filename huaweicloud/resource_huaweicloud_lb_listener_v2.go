@@ -161,6 +161,7 @@ func resourceListenerV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Attempting to create listener")
 	var listener *listeners.Listener
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		listener, err = listeners.Create(lbClient, createOpts).Extract()
 		if err != nil {
@@ -261,6 +262,7 @@ func resourceListenerV2Update(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Updating listener %s with options: %#v", d.Id(), updateOpts)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		_, err = listeners.Update(lbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
@@ -299,6 +301,7 @@ func resourceListenerV2Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Deleting listener %s", d.Id())
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err = listeners.Delete(lbClient, d.Id()).ExtractErr()
 		if err != nil {

@@ -165,6 +165,7 @@ func resourceL7PolicyV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Attempting to create L7 Policy")
 	var l7Policy *l7policies.L7Policy
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		l7Policy, err = l7policies.Create(lbClient, createOpts).Extract()
 		if err != nil {
@@ -293,6 +294,7 @@ func resourceL7PolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Updating L7 Policy %s with options: %#v", d.Id(), updateOpts)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		_, err = l7policies.Update(lbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
@@ -343,6 +345,7 @@ func resourceL7PolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Attempting to delete L7 Policy %s", d.Id())
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err = l7policies.Delete(lbClient, d.Id()).ExtractErr()
 		if err != nil {

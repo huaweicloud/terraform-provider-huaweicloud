@@ -342,7 +342,7 @@ func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("flavor") {
-		_, nflavor := d.GetChange("flavor")
+		nflavor := d.Get("flavor")
 		client, err := config.RdsV1Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud rds v1 client: %s ", err)
@@ -419,7 +419,7 @@ func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud rds v1 client: %s ", err)
 		}
-		_, nvolume := d.GetChange("volume")
+		nvolume := d.Get("volume")
 		var updateOpts instances.UpdateOps
 		volume := make(map[string]interface{})
 		volumeRaw := nvolume.([]interface{})
