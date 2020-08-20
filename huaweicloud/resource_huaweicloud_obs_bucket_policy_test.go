@@ -7,10 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/huaweicloud/golangsdk/openstack/obs"
 )
 
 func TestAccObsBucketPolicy_basic(t *testing.T) {
 	name := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	obsName := "huaweicloud_obs_bucket.bucket"
+	policyName := "huaweicloud_obs_bucket_policy.policy"
 
 	expectedPolicyText := fmt.Sprintf(
 		`{"Statement":[{"Sid":"test1","Effect":"Allow","Principal":{"ID":["*"]},"Action":["GetObject"],"Resource":["%s/*"]}]}`,
@@ -24,9 +27,15 @@ func TestAccObsBucketPolicy_basic(t *testing.T) {
 			{
 				Config: testAccObsBucketPolicyConfig(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckObsBucketExists("huaweicloud_obs_bucket.bucket"),
-					testAccCheckObsBucketHasPolicy("huaweicloud_obs_bucket.bucket", expectedPolicyText),
+					testAccCheckObsBucketExists(obsName),
+					testAccCheckObsBucketHasPolicy(policyName, expectedPolicyText),
+					resource.TestCheckResourceAttr(policyName, "policy_format", "obs"),
 				),
+			},
+			{
+				ResourceName:      policyName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -34,6 +43,8 @@ func TestAccObsBucketPolicy_basic(t *testing.T) {
 
 func TestAccObsBucketPolicy_update(t *testing.T) {
 	name := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	obsName := "huaweicloud_obs_bucket.bucket"
+	policyName := "huaweicloud_obs_bucket_policy.policy"
 
 	expectedPolicyText1 := fmt.Sprintf(
 		`{"Statement":[{"Sid":"test1","Effect":"Allow","Principal":{"ID":["*"]},"Action":["GetObject"],"Resource":["%s/*"]}]}`,
@@ -51,16 +62,43 @@ func TestAccObsBucketPolicy_update(t *testing.T) {
 			{
 				Config: testAccObsBucketPolicyConfig(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckObsBucketExists("huaweicloud_obs_bucket.bucket"),
-					testAccCheckObsBucketHasPolicy("huaweicloud_obs_bucket.bucket", expectedPolicyText1),
+					testAccCheckObsBucketExists(obsName),
+					testAccCheckObsBucketHasPolicy(policyName, expectedPolicyText1),
+					resource.TestCheckResourceAttr(policyName, "policy_format", "obs"),
 				),
 			},
 
 			{
 				Config: testAccObsBucketPolicyConfig_updated(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckObsBucketExists("huaweicloud_obs_bucket.bucket"),
-					testAccCheckObsBucketHasPolicy("huaweicloud_obs_bucket.bucket", expectedPolicyText2),
+					testAccCheckObsBucketExists(obsName),
+					testAccCheckObsBucketHasPolicy(policyName, expectedPolicyText2),
+				),
+			},
+		},
+	})
+}
+
+func TestAccObsBucketPolicy_s3(t *testing.T) {
+	name := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	obsName := "huaweicloud_obs_bucket.bucket"
+	policyName := "huaweicloud_obs_bucket_policy.s3_policy"
+
+	expectedPolicyText := fmt.Sprintf(
+		`{"Version":"2008-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:*"],"Resource":["arn:aws:s3:::%s","arn:aws:s3:::%s/*"]}]}`,
+		name, name)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckS3(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckObsBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccObsBucketPolicyS3Foramt(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(obsName),
+					testAccCheckObsBucketHasPolicy(policyName, expectedPolicyText),
+					resource.TestCheckResourceAttr(policyName, "policy_format", "s3"),
 				),
 			},
 		},
@@ -78,8 +116,16 @@ func testAccCheckObsBucketHasPolicy(n string, expectedPolicyText string) resourc
 			return fmt.Errorf("No OBS Bucket ID is set")
 		}
 
+		var err error
+		var obsClient *obs.ObsClient
+
 		config := testAccProvider.Meta().(*Config)
-		obsClient, err := config.newObjectStorageClient(OS_REGION_NAME)
+		format := rs.Primary.Attributes["policy_format"]
+		if format == "obs" {
+			obsClient, err = config.newObjectStorageClientWithSignature(OS_REGION_NAME)
+		} else {
+			obsClient, err = config.newObjectStorageClient(OS_REGION_NAME)
+		}
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}
@@ -153,4 +199,38 @@ resource "huaweicloud_obs_bucket_policy" "policy" {
 POLICY
 }
 `, bucketName, bucketName)
+}
+
+func testAccObsBucketPolicyS3Foramt(bucketName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "bucket" {
+	bucket = "%s"
+	tags = {
+	  TestName = "TestAccObsBucketPolicy_s3"
+	}
+}
+
+resource "huaweicloud_obs_bucket_policy" "s3_policy" {
+	bucket = huaweicloud_obs_bucket.bucket.bucket
+	policy_format = "s3"
+	policy =<<POLICY
+{
+	"Version": "2008-10-17",
+	"Statement": [{
+		"Effect": "Allow",
+		"Principal": {
+			"AWS": ["*"]
+		},
+		"Action": [
+			"s3:*"
+		],
+		"Resource": [
+			"arn:aws:s3:::%s",
+			"arn:aws:s3:::%s/*"
+		]
+	}]
+}
+POLICY
+}
+`, bucketName, bucketName, bucketName)
 }
