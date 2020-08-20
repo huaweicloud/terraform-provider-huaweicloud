@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/instances"
 )
 
-func TestGeminiDBInstance_basic(t *testing.T) {
+func TestAccGeminiDBInstance_basic(t *testing.T) {
 	var instance instances.GeminiDBInstance
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))

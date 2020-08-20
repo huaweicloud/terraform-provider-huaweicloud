@@ -29,6 +29,11 @@ func TestAccCTSTrackerV1_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_cts_tracker_v1.tracker_v1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccCTSTrackerV1_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCTSTrackerV1Exists("huaweicloud_cts_tracker_v1.tracker_v1", &tracker),

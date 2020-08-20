@@ -34,6 +34,15 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 						"huaweicloud_compute_instance_v2.instance_1", "availability_zone", OS_AVAILABILITY_ZONE),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_compute_instance_v2.instance_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"stop_before_destroy",
+					"force_delete",
+				},
+			},
 		},
 	})
 }
@@ -173,6 +182,15 @@ func TestAccComputeV2Instance_bootFromVolumeImage(t *testing.T) {
 					testAccCheckComputeV2InstanceBootVolumeAttachment(&instance),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_compute_instance_v2.instance_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"stop_before_destroy",
+					"force_delete",
+				},
+			},
 		},
 	})
 }
@@ -219,6 +237,15 @@ func TestAccComputeV2Instance_bootFromVolumeForceNew(t *testing.T) {
 						"huaweicloud_compute_instance_v2.instance_1", &instance1_2),
 					testAccCheckComputeV2InstanceInstanceIDsDoNotMatch(&instance1_1, &instance1_2),
 				),
+			},
+			{
+				ResourceName:      "huaweicloud_compute_instance_v2.instance_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"stop_before_destroy",
+					"force_delete",
+				},
 			},
 		},
 	})

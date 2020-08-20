@@ -31,6 +31,14 @@ func TestAccBlockStorageV2Volume_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_blockstorage_volume_v2.volume_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"cascade",
+				},
+			},
+			{
 				Config: testAccBlockStorageV2Volume_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckBlockStorageV2VolumeExists("huaweicloud_blockstorage_volume_v2.volume_1", &volume),

@@ -41,6 +41,11 @@ func TestAccFWPolicyV2_addRules(t *testing.T) {
 						"huaweicloud_fw_policy_v2.policy_1", "policy_1", "terraform acceptance test", 2),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_fw_policy_v2.policy_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

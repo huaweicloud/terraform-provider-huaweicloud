@@ -28,6 +28,11 @@ func TestAccCSBSBackupPolicyV1_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_csbs_backup_policy_v1.backup_policy_v1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccCSBSBackupPolicyV1_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCSBSBackupPolicyV1Exists("huaweicloud_csbs_backup_policy_v1.backup_policy_v1", &policy),

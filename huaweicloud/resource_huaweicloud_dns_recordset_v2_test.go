@@ -37,6 +37,11 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_dns_recordset_v2.recordset_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccDNSV2RecordSet_update(zoneName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("huaweicloud_dns_recordset_v2.recordset_1", "name", zoneName),

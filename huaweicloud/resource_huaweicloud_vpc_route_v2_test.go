@@ -28,6 +28,11 @@ func TestAccVpcRouteV2_basic(t *testing.T) {
 						"huaweicloud_vpc_route_v2.route_1", "type", "peering"),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_vpc_route_v2.route_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

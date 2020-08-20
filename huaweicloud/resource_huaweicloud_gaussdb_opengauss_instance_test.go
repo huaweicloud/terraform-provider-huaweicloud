@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances"
 )
 
-func TestOpenGaussInstance_basic(t *testing.T) {
+func TestAccOpenGaussInstance_basic(t *testing.T) {
 	var instance instances.GaussDBInstance
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))

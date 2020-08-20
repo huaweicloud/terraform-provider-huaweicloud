@@ -30,6 +30,14 @@ func TestAccNetworkingV2Port_basic(t *testing.T) {
 					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port_v2.port_1", &port),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_networking_subnet_v2.subnet_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"fixed_ip",
+				},
+			},
 		},
 	})
 }
@@ -98,6 +106,14 @@ func TestAccNetworkingV2Port_createExtraDHCPOpts(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"huaweicloud_networking_port_v2.port_1", "extra_dhcp_option.#", "2"),
 				),
+			},
+			{
+				ResourceName:      "huaweicloud_networking_subnet_v2.subnet_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"fixed_ip",
+				},
 			},
 		},
 	})

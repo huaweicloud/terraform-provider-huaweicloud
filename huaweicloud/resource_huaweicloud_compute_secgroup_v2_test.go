@@ -24,6 +24,11 @@ func TestAccComputeV2SecGroup_basic(t *testing.T) {
 					testAccCheckComputeV2SecGroupExists("huaweicloud_compute_secgroup_v2.sg_1", &secgroup),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_compute_secgroup_v2.sg_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

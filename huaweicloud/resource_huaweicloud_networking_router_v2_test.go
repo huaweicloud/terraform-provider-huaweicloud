@@ -25,6 +25,11 @@ func TestAccNetworkingV2Router_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_networking_router_v2.router_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccNetworkingV2Router_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(

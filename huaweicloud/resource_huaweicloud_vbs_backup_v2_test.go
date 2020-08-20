@@ -30,6 +30,11 @@ func TestAccVBSBackupV2_basic(t *testing.T) {
 						"huaweicloud_vbs_backup_v2.backup_1", "status", "available"),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_vbs_backup_v2.backup_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

@@ -39,6 +39,14 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_rds_instance_v3.instance",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"db",
+				},
+			},
+			{
 				Config: testAccRdsInstanceV3_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceV3Exists(),

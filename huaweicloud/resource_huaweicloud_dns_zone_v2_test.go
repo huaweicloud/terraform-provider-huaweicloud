@@ -30,6 +30,11 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 						"huaweicloud_dns_zone_v2.zone_1", "description", "a zone"),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_dns_zone_v2.zone_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

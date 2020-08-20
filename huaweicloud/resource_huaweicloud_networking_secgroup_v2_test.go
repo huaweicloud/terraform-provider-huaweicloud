@@ -27,6 +27,11 @@ func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_networking_secgroup_v2.secgroup_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccNetworkingV2SecGroup_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPtr(
