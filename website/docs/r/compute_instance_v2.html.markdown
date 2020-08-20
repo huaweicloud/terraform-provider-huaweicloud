@@ -3,12 +3,12 @@ layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_compute_instance_v2"
 sidebar_current: "docs-huaweicloud-resource-compute-instance-v2"
 description: |-
-  Manages a V2 VM instance resource within HuaweiCloud.
+  Manages a ECS VM instance resource within HuaweiCloud.
 ---
 
 # huaweicloud\_compute\_instance_v2
 
-Manages a V2 VM instance resource within HuaweiCloud.
+Manages a ECS VM instance resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -22,10 +22,6 @@ resource "huaweicloud_compute_instance_v2" "basic" {
   key_pair          = "my_key_pair_name"
   security_groups   = ["default"]
   availability_zone = "az"
-
-  metadata = {
-    this = "that"
-  }
 
   network {
     uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
@@ -271,18 +267,12 @@ function, or the `template_cloudinit_config` resource.
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the server instance. If
-    omitted, the `region` argument of the provider is used. Changing this
-    creates a new server.
-
 * `name` - (Required) A unique name for the resource.
 
-* `image_id` - (Optional; Required if `image_name` is empty and not booting
-    from a volume. Do not specify if booting from a volume.) The image ID of
+* `image_id` - (Optional; Required if `image_name` is empty) The image ID of
     the desired image for the server. Changing this creates a new server.
 
-* `image_name` - (Optional; Required if `image_id` is empty and not booting
-    from a volume. Do not specify if booting from a volume.) The name of the
+* `image_name` - (Optional; Required if `image_id` is empty) The name of the
     desired image for the server. Changing this creates a new server.
 
 * `flavor_id` - (Optional; Required if `flavor_name` is empty) The flavor ID of
@@ -296,22 +286,15 @@ The following arguments are supported:
 
 * `security_groups` - (Optional) An array of one or more security group names
     to associate with the server. Changing this results in adding/removing
-    security groups from the existing server. *Note*: When attaching the
-    instance to networks using Ports, place the security groups on the Port
-    and not the instance.
+    security groups from the existing server.
 
 * `availability_zone` - (Required) The availability zone in which to create
-    the server. Please refer to https://developer.huaweicloud.com/endpoint
+    the server. Please following [reference](https://developer.huaweicloud.com/endpoint)
     for the values. Changing this creates a new server.
 
 * `network` - (Optional) An array of one or more networks to attach to the
     instance. The network object structure is documented below. Changing this
     creates a new server.
-
-* `metadata` - (Optional) Metadata key/value pairs to make available from
-    within the instance. Changing this updates the existing server metadata.
-
-* `tags` - (Optional) Tags key/value pairs to associate with the instance.
 
 * `admin_pass` - (Optional) The administrative password to assign to the server.
     Changing this changes the root password on the existing server.
@@ -319,14 +302,6 @@ The following arguments are supported:
 * `key_pair` - (Optional) The name of a key pair to put on the server. The key
     pair must already be created and associated with the tenant's account.
     Changing this creates a new server.
-
-* `block_device` - (Optional, Deprecated) Use `system_disk_type`, `system_disk_size`, `data_disks` instead.
-	Configuration of block devices. The block_device
-    structure is documented below. Changing this creates a new server.
-    You can specify multiple block devices which will create an instance with
-    multiple disks. This configuration is very flexible, so please see the
-    following [reference](http://docs.openstack.org/developer/nova/block_device_mapping.html)
-    for more information.
 
 * `system_disk_type` - (Optional) The system disk type of the server. For HANA, HL1, and HL2 ECSs use co-p1 and uh-l1 disks.
     Changing this creates a new server. Available options are:
@@ -342,7 +317,9 @@ The following arguments are supported:
     instance. The data_disks object structure is documented below. Changing this
     creates a new server.
 
-* `scheduler_hints` - (Optional) Provide the Nova scheduler with hints on how
+* `tags` - (Optional) Tags key/value pairs to associate with the instance.
+
+* `scheduler_hints` - (Optional) Provide the scheduler with hints on how
     the instance should be launched. The available hints are described below.
 
 * `stop_before_destroy` - (Optional) Whether to try stop instance gracefully
@@ -361,6 +338,18 @@ The following arguments are supported:
 
 * `auto_renew` - (Optional) Specifies whether auto renew is enabled. Changing this creates a new server.
 
+* `block_device` - (Optional, Deprecated) Use `system_disk_type`, `system_disk_size`, `data_disks` instead.
+    Configuration of block devices. The block_device
+    structure is documented below. Changing this creates a new server.
+    You can specify multiple block devices which will create an instance with
+    multiple disks. This configuration is very flexible, so please see the
+    following [reference](http://docs.openstack.org/developer/nova/block_device_mapping.html)
+    for more information.
+
+* `metadata` - (Optional, Deprecated) Use `tags` instead.
+    Metadata key/value pairs to make available from
+    within the instance. Changing this updates the existing server metadata.
+
 
 The `network` block supports:
 
@@ -373,7 +362,18 @@ The `network` block supports:
 * `access_network` - (Optional) Specifies if this network should be used for
     provisioning access. Accepts true or false. Defaults to false.
 
-The `block_device` block supports:
+The `scheduler_hints` block supports:
+
+* `group` - (Optional) A UUID of a Server Group. The instance will be placed
+	into that group.
+
+* `tenancy` - (Optional) The tenancy specifies whether the ECS is to be created on a Dedicated Host
+	(DeH) or in a shared pool.
+
+* `deh_id` - (Optional) The ID of DeH. This parameter takes effect only when the value
+	of tenancy is dedicated.
+
+The `block_device` block supports(Deprecated):
 
 * `uuid` - (Required unless `source_type` is set to `"blank"` ) The UUID of
     the image, volume, or snapshot. Changing this creates a new server.
@@ -397,43 +397,20 @@ The `block_device` block supports:
     termination of the instance. Defaults to false. Changing this creates a
     new server.
 
-The `scheduler_hints` block supports:
-
-* `group` - (Optional) A UUID of a Server Group. The instance will be placed
-	into that group.
-
-* `tenancy` - (Optional) The tenancy specifies whether the ECS is to be created on a Dedicated Host
-	(DeH) or in a shared pool.
-
-* `deh_id` - (Optional) The ID of DeH. This parameter takes effect only when the value
-	of tenancy is dedicated.
-
 ## Attributes Reference
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
 * `access_ip_v4` - The first detected Fixed IPv4 address _or_ the
     Floating IP.
-* `access_ip_v6` - The first detected Fixed IPv6 address.
-* `metadata` - See Argument Reference above.
-* `security_groups` - See Argument Reference above.
-* `flavor_id` - See Argument Reference above.
-* `flavor_name` - See Argument Reference above.
-* `network/uuid` - See Argument Reference above.
-* `network/name` - See Argument Reference above.
-* `network/port` - See Argument Reference above.
 * `network/fixed_ip_v4` - The Fixed IPv4 address of the Instance on that
-    network.
-* `network/fixed_ip_v6` - The Fixed IPv6 address of the Instance on that
     network.
 * `network/mac` - The MAC address of the NIC on that network.
 * `volume_attached/volume_id` - The volume id on that attachment.
 * `volume_attached/pci_address` - The volume pci address on that attachment.
 * `volume_attached/boot_index` - The volume boot index on that attachment.
 * `volume_attached/size` - The volume size on that attachment.
-* `all_metadata` - Contains all instance metadata, even metadata not set
+* `all_metadata` - Deprecated, use `tags` instead. Contains all instance metadata, even metadata not set
     by Terraform.
 
 ## Notes

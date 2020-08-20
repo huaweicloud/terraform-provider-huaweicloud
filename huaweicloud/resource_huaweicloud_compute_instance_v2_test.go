@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -18,24 +19,23 @@ import (
 func TestAccComputeV2Instance_basic(t *testing.T) {
 	var instance servers.Server
 
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_compute_instance_v2.test"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2Instance_basic,
+				Config: testAccComputeV2Instance_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
-					testAccCheckComputeV2InstanceMetadata(&instance, "foo", "bar"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_compute_instance_v2.instance_1", "all_metadata.foo", "bar"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_compute_instance_v2.instance_1", "availability_zone", OS_AVAILABILITY_ZONE),
+					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_compute_instance_v2.instance_1",
+				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
@@ -79,31 +79,31 @@ func TestAccComputeV2Instance_tags(t *testing.T) {
 				Config: testAccComputeV2Instance_tags,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
-					testAccCheckComputeV2InstanceTagV1(&instance, "foo", "bar"),
-					testAccCheckComputeV2InstanceTagV1(&instance, "key", "value"),
+					testAccCheckComputeV2InstanceTags(&instance, "foo", "bar"),
+					testAccCheckComputeV2InstanceTags(&instance, "key", "value"),
 				),
 			},
 			{
 				Config: testAccComputeV2Instance_tags2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
-					testAccCheckComputeV2InstanceTagV1(&instance, "foo2", "bar2"),
-					testAccCheckComputeV2InstanceTagV1(&instance, "key", "value2"),
+					testAccCheckComputeV2InstanceTags(&instance, "foo2", "bar2"),
+					testAccCheckComputeV2InstanceTags(&instance, "key", "value2"),
 				),
 			},
 			{
 				Config: testAccComputeV2Instance_notags,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
-					testAccCheckComputeV2InstanceNoTagV1(&instance),
+					testAccCheckComputeV2InstanceNoTags(&instance),
 				),
 			},
 			{
 				Config: testAccComputeV2Instance_tags,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
-					testAccCheckComputeV2InstanceTagV1(&instance, "foo", "bar"),
-					testAccCheckComputeV2InstanceTagV1(&instance, "key", "value"),
+					testAccCheckComputeV2InstanceTags(&instance, "foo", "bar"),
+					testAccCheckComputeV2InstanceTags(&instance, "key", "value"),
 				),
 			},
 		},
@@ -296,60 +296,6 @@ func TestAccComputeV2Instance_stopBeforeDestroy(t *testing.T) {
 	})
 }
 
-func TestAccComputeV2Instance_metadataRemove(t *testing.T) {
-	var instance servers.Server
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeV2Instance_metadataRemove_1,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
-					testAccCheckComputeV2InstanceMetadata(&instance, "foo", "bar"),
-					testAccCheckComputeV2InstanceMetadata(&instance, "abc", "def"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_compute_instance_v2.instance_1", "all_metadata.foo", "bar"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_compute_instance_v2.instance_1", "all_metadata.abc", "def"),
-				),
-			},
-			{
-				Config: testAccComputeV2Instance_metadataRemove_2,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
-					testAccCheckComputeV2InstanceMetadata(&instance, "foo", "bar"),
-					testAccCheckComputeV2InstanceMetadata(&instance, "ghi", "jkl"),
-					testAccCheckComputeV2InstanceNoMetadataKey(&instance, "abc"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_compute_instance_v2.instance_1", "all_metadata.foo", "bar"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_compute_instance_v2.instance_1", "all_metadata.ghi", "jkl"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccComputeV2Instance_timeout(t *testing.T) {
-	var instance servers.Server
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeV2Instance_timeout,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
-				),
-			},
-		},
-	})
-}
-
 func testAccCheckComputeV2InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	computeClient, err := config.computeV2Client(OS_REGION_NAME)
@@ -425,47 +371,7 @@ func testAccCheckComputeV2InstanceDoesNotExist(n string, instance *servers.Serve
 	}
 }
 
-func testAccCheckComputeV2InstanceMetadata(
-	instance *servers.Server, k string, v string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if instance.Metadata == nil {
-			return fmt.Errorf("No metadata")
-		}
-
-		for key, value := range instance.Metadata {
-			if k != key {
-				continue
-			}
-
-			if v == value {
-				return nil
-			}
-
-			return fmt.Errorf("Bad value for %s: %s", k, value)
-		}
-
-		return fmt.Errorf("Metadata not found: %s", k)
-	}
-}
-
-func testAccCheckComputeV2InstanceNoMetadataKey(
-	instance *servers.Server, k string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if instance.Metadata == nil {
-			return nil
-		}
-
-		for key := range instance.Metadata {
-			if k == key {
-				return fmt.Errorf("Metadata found: %s", k)
-			}
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckComputeV2InstanceTagV1(
+func testAccCheckComputeV2InstanceTags(
 	instance *servers.Server, k, v string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -491,7 +397,7 @@ func testAccCheckComputeV2InstanceTagV1(
 	}
 }
 
-func testAccCheckComputeV2InstanceNoTagV1(
+func testAccCheckComputeV2InstanceNoTags(
 	instance *servers.Server) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -555,19 +461,31 @@ func testAccCheckComputeV2InstanceInstanceIDsDoNotMatch(
 	}
 }
 
-var testAccComputeV2Instance_basic = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default"]
-  availability_zone = "%s"
-  metadata = {
-    foo = "bar"
-  }
+func testAccComputeV2Instance_basic(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc_subnet_v1" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_images_image_v2" "test" {
+  name        = "Ubuntu 18.04 server 64bit"
+  most_recent = true
+}
+
+resource "huaweicloud_compute_instance_v2" "test" {
+  name              = "%s"
+  image_id          = data.huaweicloud_images_image_v2.test.id
+  security_groups   = ["default"]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+
   network {
-    uuid = "%s"
+    uuid = data.huaweicloud_vpc_subnet_v1.test.id
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, rName)
+}
 
 var testAccComputeV2Instance_disks = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
@@ -768,7 +686,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   availability_zone = "%s"
   network {
     uuid = "%s"
-    fixed_ip_v4 = "192.168.1.24"
+    fixed_ip_v4 = "192.168.0.24"
   }
 }
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
@@ -780,7 +698,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   availability_zone = "%s"
   network {
     uuid = "%s"
-    fixed_ip_v4 = "192.168.1.25"
+    fixed_ip_v4 = "192.168.0.25"
   }
 }
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
@@ -791,36 +709,6 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   security_groups = ["default"]
   availability_zone = "%s"
   stop_before_destroy = true
-  network {
-    uuid = "%s"
-  }
-}
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
-
-var testAccComputeV2Instance_metadataRemove_1 = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default"]
-  availability_zone = "%s"
-  metadata = {
-    foo = "bar"
-    abc = "def"
-  }
-  network {
-    uuid = "%s"
-  }
-}
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
-
-var testAccComputeV2Instance_metadataRemove_2 = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default"]
-  availability_zone = "%s"
-  metadata = {
-    foo = "bar"
-    ghi = "jkl"
-  }
   network {
     uuid = "%s"
   }
@@ -864,21 +752,6 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
   availability_zone = "%s"
   network {
     uuid = "%s"
-  }
-}
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
-
-var testAccComputeV2Instance_timeout = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default"]
-  availability_zone = "%s"
-  network {
-    uuid = "%s"
-  }
-
-  timeouts {
-    create = "10m"
   }
 }
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
