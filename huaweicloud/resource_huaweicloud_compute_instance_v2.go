@@ -169,6 +169,7 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Optional:      true,
 				ForceNew:      false,
 				ConflictsWith: []string{"system_disk_type", "system_disk_size", "data_disks"},
+				Deprecated:    "use tags instead",
 			},
 			"admin_pass": {
 				Type:      schema.TypeString,
@@ -356,8 +357,9 @@ func resourceComputeInstanceV2() *schema.Resource {
 				ValidateFunc: validateECSTagValue,
 			},
 			"all_metadata": {
-				Type:     schema.TypeMap,
-				Computed: true,
+				Type:       schema.TypeMap,
+				Computed:   true,
+				Deprecated: "use tags instead",
 			},
 			"volume_attached": {
 				Type:     schema.TypeList,
@@ -417,7 +419,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 
 	// Try to call API of Huawei ECS instead of OpenStack
 	if !hasFilledOpt(d, "block_device") && !hasFilledOpt(d, "metadata") {
-		client, err := config.computeV11Client(GetRegion(d, config))
+		computeV11Client, err := config.computeV11Client(GetRegion(d, config))
 		vpcClient, err := config.networkingV1Client(GetRegion(d, config))
 		sgClient, err := config.networkingV2Client(GetRegion(d, config))
 		if err != nil {
@@ -480,7 +482,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 			if err != nil {
 				return fmt.Errorf("Error creating HuaweiCloud bss V1 client: %s", err)
 			}
-			n, err := cloudservers.CreatePrePaid(computeClient, createOpts).ExtractOrderResponse()
+			n, err := cloudservers.CreatePrePaid(computeV11Client, createOpts).ExtractOrderResponse()
 			if err != nil {
 				return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
 			}
@@ -496,7 +498,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 			server_id = resource.(string)
 		} else {
 			// postPaid.
-			n, err := cloudservers.Create(client, createOpts).ExtractJobResponse()
+			n, err := cloudservers.Create(computeV11Client, createOpts).ExtractJobResponse()
 			if err != nil {
 				return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
 			}
@@ -684,6 +686,12 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	}
 
 	d.Set("all_metadata", server.Metadata)
+
+	secGrpNames := []string{}
+	for _, sg := range server.SecurityGroups {
+		secGrpNames = append(secGrpNames, sg["name"].(string))
+	}
+	d.Set("security_groups", secGrpNames)
 
 	flavorId, ok := server.Flavor["id"].(string)
 	if !ok {
@@ -997,6 +1005,23 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 		if err := cloudservers.WaitForJobSuccess(computeV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
 			return err
 		}
+	}
+
+	// Instance may still exist after Order/Job succeed.
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"ACTIVE", "SHUTOFF"},
+		Target:     []string{"DELETED", "SOFT_DELETED"},
+		Refresh:    ServerV2StateRefreshFunc(computeClient, d.Id()),
+		Timeout:    d.Timeout(schema.TimeoutDelete),
+		Delay:      10 * time.Second,
+		MinTimeout: 3 * time.Second,
+	}
+
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf(
+			"Error waiting for instance (%s) to delete: %s",
+			d.Id(), err)
 	}
 
 	d.SetId("")
