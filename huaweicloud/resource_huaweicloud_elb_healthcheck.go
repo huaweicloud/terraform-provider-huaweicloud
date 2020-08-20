@@ -182,6 +182,7 @@ func resourceELBHealthCheckUpdate(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Updating healthcheck %s(%s) with options: %#v", nameELBHC, hcId, updateOpts)
 
 	timeout := d.Timeout(schema.TimeoutUpdate)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		_, err := healthcheck.Update(networkingClient, hcId, updateOpts).Extract()
 		if err != nil {
@@ -207,6 +208,7 @@ func resourceELBHealthCheckDelete(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Deleting %s %s", nameELBHC, hcId)
 
 	timeout := d.Timeout(schema.TimeoutDelete)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err := healthcheck.Delete(networkingClient, hcId).ExtractErr()
 		if err != nil {

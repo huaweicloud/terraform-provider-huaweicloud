@@ -49,6 +49,7 @@ func resourceIdentityGroupMembershipV3Create(d *schema.ResourceData, meta interf
 		return err
 	}
 
+	//lintignore:R015
 	d.SetId(resource.UniqueId())
 
 	return resourceIdentityGroupMembershipV3Read(d, meta)

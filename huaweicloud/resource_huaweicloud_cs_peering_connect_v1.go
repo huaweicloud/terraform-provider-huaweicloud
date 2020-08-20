@@ -430,6 +430,7 @@ func setCsPeeringConnectV1States(d *schema.ResourceData, opts map[string]interfa
 	return nil
 }
 
+//lintignore:R014
 func actionCsPeeringConnectV1AcceptPeering(d *schema.ResourceData, result interface{}, client *golangsdk.ServiceClient) error {
 	pathParameters := map[string][]string{
 		"peering_id": []string{"peering", "id"},

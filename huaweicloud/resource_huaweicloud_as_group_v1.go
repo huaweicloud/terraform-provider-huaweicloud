@@ -590,7 +590,6 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
-	d.Partial(true)
 	var desireNum int
 	minNum := d.Get("min_instance_number").(int)
 	maxNum := d.Get("max_instance_number").(int)
@@ -599,7 +598,7 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	} else {
 		desireNum = minNum
 	}
-	if d.HasChange("min_instance_number") || d.HasChange("max_instance_number") || d.HasChange("desire_instance_number") {
+	if d.HasChanges("min_instance_number", "max_instance_number", "desire_instance_number") {
 		log.Printf("[DEBUG] Min instance number is: %#v", minNum)
 		log.Printf("[DEBUG] Max instance number is: %#v", maxNum)
 		log.Printf("[DEBUG] Desire instance number is: %#v", desireNum)
@@ -661,7 +660,6 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	d.Partial(false)
 	return resourceASGroupRead(d, meta)
 }
 

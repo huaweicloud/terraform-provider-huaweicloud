@@ -221,6 +221,7 @@ func resourceLoadBalancerV2Update(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Updating loadbalancer %s with options: %#v", d.Id(), updateOpts)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		_, err = loadbalancers.Update(lbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
@@ -259,6 +260,7 @@ func resourceLoadBalancerV2Delete(d *schema.ResourceData, meta interface{}) erro
 
 	log.Printf("[DEBUG] Deleting loadbalancer %s", d.Id())
 	timeout := d.Timeout(schema.TimeoutDelete)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err = loadbalancers.Delete(lbClient, d.Id()).ExtractErr()
 		if err != nil {

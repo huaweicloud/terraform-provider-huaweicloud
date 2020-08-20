@@ -165,6 +165,7 @@ func resourceCertificateV2Update(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Updating certificate %s with options: %#v", d.Id(), updateOpts)
 
 	timeout := d.Timeout(schema.TimeoutUpdate)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		_, err := certificates.Update(networkingClient, d.Id(), updateOpts).Extract()
 		if err != nil {
@@ -188,6 +189,7 @@ func resourceCertificateV2Delete(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[DEBUG] Deleting certificate %s", d.Id())
 	timeout := d.Timeout(schema.TimeoutDelete)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err := certificates.Delete(networkingClient, d.Id()).ExtractErr()
 		if err != nil {

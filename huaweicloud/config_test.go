@@ -35,6 +35,7 @@ func testRequestRetry(t *testing.T, count int) {
 			info.mut.RLock()
 			info.retries += 1
 			info.mut.RUnlock()
+			//lintignore:R009
 			panic(err) // simulate EOF
 		}
 		w.WriteHeader(500)

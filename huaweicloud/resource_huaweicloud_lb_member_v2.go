@@ -125,6 +125,7 @@ func resourceMemberV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Attempting to create member")
 	var member *pools.Member
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		member, err = pools.CreateMember(lbClient, poolID, createOpts).Extract()
 		if err != nil {
@@ -202,6 +203,7 @@ func resourceMemberV2Update(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Updating member %s with options: %#v", d.Id(), updateOpts)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		_, err = pools.UpdateMember(lbClient, poolID, d.Id(), updateOpts).Extract()
 		if err != nil {
@@ -238,6 +240,7 @@ func resourceMemberV2Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Attempting to delete member %s", d.Id())
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err = pools.DeleteMember(lbClient, poolID, d.Id()).ExtractErr()
 		if err != nil {

@@ -196,6 +196,7 @@ func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Attempting to create pool")
 	var pool *pools.Pool
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		pool, err = pools.Create(lbClient, createOpts).Extract()
 		if err != nil {
@@ -285,6 +286,7 @@ func resourcePoolV2Update(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Updating pool %s with options: %#v", d.Id(), updateOpts)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		_, err = pools.Update(lbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
@@ -328,6 +330,7 @@ func resourcePoolV2Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	log.Printf("[DEBUG] Attempting to delete pool %s", d.Id())
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err = pools.Delete(lbClient, d.Id()).ExtractErr()
 		if err != nil {
