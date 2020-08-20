@@ -391,24 +391,17 @@ func (c *Config) newObjectStorageClient(region string) (*obs.ObsClient, error) {
 		return nil, fmt.Errorf("Missing credentials for OBS, need access_key and secret_key values for provider.")
 	}
 
-	client, err := huaweisdk.NewOBSService(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	// init log
 	if logging.IsDebugOrHigher() {
 		var logfile = "./.obs-sdk.log"
 		// maxLogSize:10M, backups:10
-		if err = obs.InitLog(logfile, 1024*1024*10, 10, obs.LEVEL_DEBUG, false); err != nil {
+		if err := obs.InitLog(logfile, 1024*1024*10, 10, obs.LEVEL_DEBUG, false); err != nil {
 			log.Printf("[WARN] initial obs sdk log failed: %s", err)
 		}
 	}
 
-	return obs.New(c.AccessKey, c.SecretKey, client.Endpoint, obs.WithSignature("OBS"))
+	obsEndpoint := getOBSEndpoint(c, region)
+	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"))
 }
 
 func (c *Config) apiGatewayV1Client(region string) (*golangsdk.ServiceClient, error) {
@@ -747,4 +740,16 @@ func (c *Config) sdkClient(region, serviceType string, level string) (*golangsdk
 			Availability: c.getHwEndpointType(),
 		},
 		serviceType)
+}
+
+func getOBSEndpoint(c *Config, region string) string {
+	obsClient, err := huaweisdk.NewOBSService(c.HwClient, golangsdk.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getHwEndpointType(),
+	})
+	if err != nil {
+		log.Printf("[WARN] failed to get obs client: %s, try to assemble it from region", err)
+		return fmt.Sprintf("https://obs.%s.myhuaweicloud.com", region)
+	}
+	return obsClient.Endpoint
 }
