@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
+	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/tags"
 	"github.com/huaweicloud/golangsdk/pagination"
 )
 
@@ -51,6 +52,49 @@ func TestAccComputeV2Instance_disks(t *testing.T) {
 					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_compute_instance_v2.instance_1", "availability_zone", OS_AVAILABILITY_ZONE),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeV2Instance_tags(t *testing.T) {
+	var instance servers.Server
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeV2Instance_tags,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceTagV1(&instance, "foo", "bar"),
+					testAccCheckComputeV2InstanceTagV1(&instance, "key", "value"),
+				),
+			},
+			{
+				Config: testAccComputeV2Instance_tags2,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceTagV1(&instance, "foo2", "bar2"),
+					testAccCheckComputeV2InstanceTagV1(&instance, "key", "value2"),
+				),
+			},
+			{
+				Config: testAccComputeV2Instance_notags,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceNoTagV1(&instance),
+				),
+			},
+			{
+				Config: testAccComputeV2Instance_tags,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceTagV1(&instance, "foo", "bar"),
+					testAccCheckComputeV2InstanceTagV1(&instance, "key", "value"),
 				),
 			},
 		},
@@ -394,6 +438,54 @@ func testAccCheckComputeV2InstanceNoMetadataKey(
 	}
 }
 
+func testAccCheckComputeV2InstanceTagV1(
+	instance *servers.Server, k, v string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+		client, err := config.computeV1Client(OS_REGION_NAME)
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
+		}
+
+		taglist, err := tags.Get(client, instance.ID).Extract()
+		for _, val := range taglist.Tags {
+			if k != val.Key {
+				continue
+			}
+
+			if v == val.Value {
+				return nil
+			}
+
+			return fmt.Errorf("Bad value for %s: %s", k, val.Value)
+		}
+
+		return fmt.Errorf("Tag not found: %s", k)
+	}
+}
+
+func testAccCheckComputeV2InstanceNoTagV1(
+	instance *servers.Server) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+		client, err := config.computeV1Client(OS_REGION_NAME)
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
+		}
+
+		taglist, err := tags.Get(client, instance.ID).Extract()
+
+		if taglist.Tags == nil {
+			return nil
+		}
+		if len(taglist.Tags) == 0 {
+			return nil
+		}
+
+		return fmt.Errorf("Expected no tags, but found %v", taglist.Tags)
+	}
+}
+
 func testAccCheckComputeV2InstanceBootVolumeAttachment(
 	instance *servers.Server) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -702,6 +794,47 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     foo = "bar"
     ghi = "jkl"
   }
+  network {
+    uuid = "%s"
+  }
+}
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+
+var testAccComputeV2Instance_tags = fmt.Sprintf(`
+resource "huaweicloud_compute_instance_v2" "instance_1" {
+  name = "instance_1"
+  security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+
+var testAccComputeV2Instance_tags2 = fmt.Sprintf(`
+resource "huaweicloud_compute_instance_v2" "instance_1" {
+  name = "instance_1"
+  security_groups = ["default"]
+  availability_zone = "%s"
+  network {
+    uuid = "%s"
+  }
+  tags = {
+    foo2 = "bar2"
+    key = "value2"
+  }
+}
+`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+
+var testAccComputeV2Instance_notags = fmt.Sprintf(`
+resource "huaweicloud_compute_instance_v2" "instance_1" {
+  name = "instance_1"
+  security_groups = ["default"]
+  availability_zone = "%s"
   network {
     uuid = "%s"
   }

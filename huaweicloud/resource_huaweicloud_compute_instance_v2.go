@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/bootfromvolume"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs"
@@ -349,6 +350,11 @@ func resourceComputeInstanceV2() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"block_device", "metadata"},
 			},
+			"tags": {
+				Type:         schema.TypeMap,
+				Optional:     true,
+				ValidateFunc: validateECSTagValue,
+			},
 			"all_metadata": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -384,6 +390,7 @@ func resourceComputeInstanceV2() *schema.Resource {
 func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeV1Client, err := config.computeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -408,13 +415,9 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	_, sys_disk_type_ok := d.GetOk("system_disk_type")
-	_, sys_disk_size_ok := d.GetOk("system_disk_size")
-	_, data_disks_ok := d.GetOk("data_disks")
-	// If system_disk_type related parameters used, try to call API of Huawei ECS instead of OpenStack
-	if sys_disk_type_ok || sys_disk_size_ok || data_disks_ok {
+	// Try to call API of Huawei ECS instead of OpenStack
+	if !hasFilledOpt(d, "block_device") && !hasFilledOpt(d, "metadata") {
 		client, err := config.computeV11Client(GetRegion(d, config))
-		v1Client, err := config.computeV1Client(GetRegion(d, config))
 		vpcClient, err := config.networkingV1Client(GetRegion(d, config))
 		sgClient, err := config.networkingV2Client(GetRegion(d, config))
 		if err != nil {
@@ -498,11 +501,11 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 				return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
 			}
 
-			if err := cloudservers.WaitForJobSuccess(v1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+			if err := cloudservers.WaitForJobSuccess(computeV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
 				return err
 			}
 
-			entity, err := cloudservers.GetJobEntity(v1Client, n.JobID, "server_id")
+			entity, err := cloudservers.GetJobEntity(computeV1Client, n.JobID, "server_id")
 			if err != nil {
 				return err
 			}
@@ -610,12 +613,23 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
+	// Set tags
+	if hasFilledOpt(d, "tags") {
+		tagRaw := d.Get("tags").(map[string]interface{})
+		taglist := expandResourceTags(tagRaw)
+		tagErr := tags.Create(computeV1Client, "cloudservers", d.Id(), taglist).ExtractErr()
+		if tagErr != nil {
+			log.Printf("[WARN] Error setting tags of instance:%s, err=%s", d.Id(), err)
+		}
+	}
+
 	return resourceComputeInstanceV2Read(d, meta)
 }
 
 func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeV1Client, err := config.computeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -686,10 +700,6 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	// Set volume attached
 	bds := []map[string]interface{}{}
 	if len(server.VolumesAttached) > 0 {
-		computeV1Client, err := config.computeV1Client(GetRegion(d, config))
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud compute V1 client: %s", err)
-		}
 		for _, b := range server.VolumesAttached {
 			va, err := block_devices.Get(computeV1Client, d.Id(), b["id"]).Extract()
 			if err != nil {
@@ -729,6 +739,17 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 
 	// Set the region
 	d.Set("region", GetRegion(d, config))
+
+	// Set instance tags
+	resourceTags, err := tags.Get(computeV1Client, "cloudservers", d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching HuaweiCloud instance tags: %s", err)
+	}
+
+	tagmap := tagsToMap(resourceTags.Tags)
+	if err := d.Set("tags", tagmap); err != nil {
+		return fmt.Errorf("[DEBUG] Error saving tag to state for HuaweiCloud instance (%s): %s", d.Id(), err)
+	}
 
 	return nil
 }
@@ -890,6 +911,18 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 		_, err = stateConf.WaitForState()
 		if err != nil {
 			return fmt.Errorf("Error waiting for instance (%s) to confirm resize: %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("tags") {
+		ecsClient, err := config.computeV1Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
+		}
+
+		tagErr := UpdateResourceTags(ecsClient, d, "cloudservers")
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags of instance:%s, err:%s", d.Id(), err)
 		}
 	}
 

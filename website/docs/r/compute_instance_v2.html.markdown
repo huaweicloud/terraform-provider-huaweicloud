@@ -311,6 +311,8 @@ The following arguments are supported:
 * `metadata` - (Optional) Metadata key/value pairs to make available from
     within the instance. Changing this updates the existing server metadata.
 
+* `tags` - (Optional) Tags key/value pairs to associate with the instance.
+
 * `admin_pass` - (Optional) The administrative password to assign to the server.
     Changing this changes the root password on the existing server.
 
