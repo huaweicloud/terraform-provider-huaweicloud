@@ -58,6 +58,7 @@ func resourceKmsDataKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	//lintignore:R017
 	d.SetId(time.Now().UTC().String())
 	d.Set("plain_text", v.PlainText)
 	d.Set("cipher_text", v.CipherText)

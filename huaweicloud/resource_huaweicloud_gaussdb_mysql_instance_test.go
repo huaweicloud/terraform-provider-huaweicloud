@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/instances"
 )
 
-func TestGaussDBInstance_basic(t *testing.T) {
+func TestAccGaussDBInstance_basic(t *testing.T) {
 	var instance instances.TaurusDBInstance
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))

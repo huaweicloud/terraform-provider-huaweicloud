@@ -38,6 +38,11 @@ func TestAccSFSFileSystemV2_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_sfs_file_system_v2.sfs_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccSFSFileSystemV2_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSFileSystemV2Exists("huaweicloud_sfs_file_system_v2.sfs_1", &share),

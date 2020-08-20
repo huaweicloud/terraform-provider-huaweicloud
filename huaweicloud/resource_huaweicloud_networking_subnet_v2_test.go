@@ -27,6 +27,11 @@ func TestAccNetworkingV2Subnet_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_networking_subnet_v2.subnet_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccNetworkingV2Subnet_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(

@@ -32,6 +32,11 @@ func TestAccNetworkingV2RouterInterface_basic_subnet(t *testing.T) {
 					testAccCheckNetworkingV2RouterInterfaceExists("huaweicloud_networking_router_interface_v2.int_1"),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_networking_network_v2.network_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -56,6 +61,11 @@ func TestAccNetworkingV2RouterInterface_basic_port(t *testing.T) {
 					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port_v2.port_1", &port),
 					testAccCheckNetworkingV2RouterInterfaceExists("huaweicloud_networking_router_interface_v2.int_1"),
 				),
+			},
+			{
+				ResourceName:      "huaweicloud_networking_network_v2.network_1",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

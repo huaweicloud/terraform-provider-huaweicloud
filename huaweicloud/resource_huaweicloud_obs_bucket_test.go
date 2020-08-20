@@ -53,8 +53,9 @@ func TestAccObsBucket_tags(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheckS3(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheckS3(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccObsBucketConfigWithTags(rInt),

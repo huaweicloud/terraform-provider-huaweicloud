@@ -15,6 +15,10 @@ func resourceObsBucketPolicy() *schema.Resource {
 		Update: resourceObsBucketPolicyPut,
 		Delete: resourceObsBucketPolicyDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"bucket": {
 				Type:     schema.TypeString,

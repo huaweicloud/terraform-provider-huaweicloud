@@ -18,8 +18,9 @@ func TestAccNetworkingV2RouterRoute_basic(t *testing.T) {
 	var subnet [2]subnets.Subnet
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkingV2RouterRouteDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetworkingV2RouterRoute_create,
@@ -40,6 +41,11 @@ func TestAccNetworkingV2RouterRoute_basic(t *testing.T) {
 					testAccCheckNetworkingV2RouterRouteExists(
 						"huaweicloud_networking_router_route_v2.router_route_1"),
 				),
+			},
+			{
+				ResourceName:      "huaweicloud_networking_router_route_v2.router_route_1",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccNetworkingV2RouterRoute_update,

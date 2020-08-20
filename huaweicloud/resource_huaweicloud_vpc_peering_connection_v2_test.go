@@ -28,6 +28,11 @@ func TestAccVpcPeeringConnectionV2_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_vpc_peering_connection_v2.peering_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccVpcPeeringConnectionV2_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(

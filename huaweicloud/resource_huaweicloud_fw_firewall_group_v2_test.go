@@ -27,6 +27,11 @@ func TestAccFWFirewallGroupV2_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_fw_firewall_group_v2.fw_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccFWFirewallGroupV2_basic_2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFWFirewallGroupV2(

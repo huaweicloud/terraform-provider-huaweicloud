@@ -29,6 +29,14 @@ func TestAccEcsV1Instance_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "huaweicloud_ecs_instance_v1.instance_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password",
+				},
+			},
+			{
 				Config: testAccEcsV1Instance_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEcsV1InstanceExists("huaweicloud_ecs_instance_v1.instance_1", &instance),

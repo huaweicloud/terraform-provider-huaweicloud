@@ -28,6 +28,11 @@ func TestAccRtsSoftwareConfigV1_basic(t *testing.T) {
 						"huaweicloud_rts_software_config_v1.config_1", "group", "script"),
 				),
 			},
+			{
+				ResourceName:      "huaweicloud_rts_software_config_v1.config_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

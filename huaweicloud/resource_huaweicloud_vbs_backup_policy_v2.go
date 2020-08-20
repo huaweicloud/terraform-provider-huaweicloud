@@ -261,9 +261,8 @@ func resourceVBSBackupPolicyV2Update(d *schema.ResourceData, meta interface{}) e
 		updateOpts.ScheduledPolicy.WeekFrequency = weeks
 	}
 
-	if d.HasChange("name") || d.HasChange("start_time") || d.HasChange("retain_first_backup") ||
-		d.HasChange("rentention_num") || d.HasChange("rentention_day") || d.HasChange("status") ||
-		d.HasChange("frequency") || d.HasChange("week_frequency") {
+	if d.HasChanges("name", "start_time", "retain_first_backup", "rentention_num",
+		"rentention_day", "status", "frequency", "week_frequency") {
 		if d.HasChange("name") {
 			updateOpts.Name = d.Get("name").(string)
 		}

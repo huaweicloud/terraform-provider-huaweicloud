@@ -12,7 +12,7 @@ import (
 
 func TestAccComputeV2Keypair_basic(t *testing.T) {
 	var keypair keypairs.KeyPair
-
+	resourceName := "huaweicloud_compute_keypair_v2.kp_1"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -21,8 +21,13 @@ func TestAccComputeV2Keypair_basic(t *testing.T) {
 			{
 				Config: testAccComputeV2Keypair_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2KeypairExists("huaweicloud_compute_keypair_v2.kp_1", &keypair),
+					testAccCheckComputeV2KeypairExists(resourceName, &keypair),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

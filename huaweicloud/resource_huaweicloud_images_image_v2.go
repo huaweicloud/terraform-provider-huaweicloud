@@ -193,8 +193,6 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 		createOpts.Tags = resourceImagesImageV2BuildTags(tags)
 	}
 
-	d.Partial(true)
-
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	newImg, err := images.Create(imageClient, createOpts).Extract()
 	if err != nil {
@@ -241,8 +239,6 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error waiting for Image: %s", err)
 	}
 
-	d.Partial(false)
-
 	return resourceImagesImageV2Read(d, meta)
 }
 
@@ -269,8 +265,8 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("metadata", img.Metadata); err != nil {
 		return fmt.Errorf("[DEBUG] Error saving metadata to state for HuaweiCloud image (%s): %s", d.Id(), err)
 	}
-	d.Set("created_at", img.CreatedAt)
-	d.Set("update_at", img.UpdatedAt)
+	d.Set("created_at", img.CreatedAt.Format(time.RFC3339))
+	d.Set("update_at", img.UpdatedAt.Format(time.RFC3339))
 	d.Set("container_format", img.ContainerFormat)
 	d.Set("disk_format", img.DiskFormat)
 	d.Set("min_disk_gb", img.MinDiskGigabytes)

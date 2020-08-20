@@ -50,8 +50,9 @@ func TestAccS3Bucket_basic(t *testing.T) {
 func TestAccS3MultiBucket_withTags(t *testing.T) {
 	rInt := acctest.RandInt()
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheckDeprecated(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckS3BucketDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccS3MultiBucketConfigWithTags(rInt),
@@ -991,17 +992,13 @@ resource "huaweicloud_s3_bucket" "bucket6" {
 
 func testAccS3BucketConfigWithRegion(randInt int) string {
 	return fmt.Sprintf(`
-provider "huaweicloud" {
-	alias = "reg1"
-	region = "%s"
-}
 
 resource "huaweicloud_s3_bucket" "bucket" {
 	provider = "huaweicloud.reg1"
 	bucket = "tf-test-bucket-%d"
 	region = "%s"
 }
-`, OS_REGION_NAME, randInt, OS_REGION_NAME)
+`, randInt, OS_REGION_NAME)
 }
 
 func testAccS3BucketWebsiteConfig(randInt int) string {

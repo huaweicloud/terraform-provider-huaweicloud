@@ -180,6 +180,7 @@ func resourceELBBackendECSDelete(d *schema.ResourceData, meta interface{}) error
 	var job *elb.Job
 	timeout := d.Timeout(schema.TimeoutDelete)
 	lId := d.Get("listener_id").(string)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		j, err := backendecs.Delete(networkingClient, lId, deleteOpts).Extract()
 		if err != nil {

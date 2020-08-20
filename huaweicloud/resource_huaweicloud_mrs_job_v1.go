@@ -225,6 +225,7 @@ func resourceMRSJobV1Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Deleting MRS Job %s", rId)
 
 	timeout := d.Timeout(schema.TimeoutDelete)
+	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err := job.Delete(client, rId).ExtractErr()
 		if err != nil {
