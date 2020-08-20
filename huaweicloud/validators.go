@@ -108,6 +108,7 @@ func validateStackTemplate(v interface{}, k string) (ws []string, errors []error
 	return
 }
 
+//lintignore:V001
 func validateName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 {
@@ -154,6 +155,7 @@ func validateIP(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
+//lintignore:V001
 func validateVBSPolicyName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if strings.HasPrefix(strings.ToLower(value), "default") {
@@ -210,6 +212,7 @@ func validateVBSPolicyRetainBackup(v interface{}, k string) (ws []string, errors
 	return
 }
 
+//lintignore:V001
 func validateVBSTagKey(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 
@@ -226,6 +229,7 @@ func validateVBSTagKey(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
+//lintignore:V001
 func validateVBSTagValue(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 
@@ -242,6 +246,7 @@ func validateVBSTagValue(v interface{}, k string) (ws []string, errors []error) 
 	return
 }
 
+//lintignore:V001
 func validateVBSBackupName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if strings.HasPrefix(strings.ToLower(value), "autobk") {
@@ -262,6 +267,7 @@ func validateVBSBackupName(v interface{}, k string) (ws []string, errors []error
 	return
 }
 
+//lintignore:V001
 func validateVBSBackupDescription(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 {
@@ -277,6 +283,7 @@ func validateVBSBackupDescription(v interface{}, k string) (ws []string, errors 
 	return
 }
 
+//lintignore:V001
 func validateECSTagValue(v interface{}, k string) (ws []string, errors []error) {
 	tagmap := v.(map[string]interface{})
 	vv := regexp.MustCompile(`^[0-9a-zA-Z-_]+$`)

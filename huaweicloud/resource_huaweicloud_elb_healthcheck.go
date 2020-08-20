@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/healthcheck"
 )
 
@@ -47,14 +48,8 @@ func resourceELBHealthCheck() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					vv := regexp.MustCompile("^/[a-zA-Z0-9-/.%?#&_=]{0,79}$")
-					if !vv.MatchString(value) {
-						errors = append(errors, fmt.Errorf("%s is a string of 1 to 80 characters that must start with a slash (/) and can only contain letters, digits, and special characters such as -/.%%?#&_=", k))
-					}
-					return
-				},
+				ValidateFunc: validation.StringMatch(regexp.MustCompile("^/[a-zA-Z0-9-/.%?#&_=]{0,79}$"),
+					"Input is a string of 1 to 80 characters that must start with a slash (/) and can only contain letters, digits, and special characters such as -/.%%?#&_="),
 			},
 
 			"healthcheck_connect_port": {

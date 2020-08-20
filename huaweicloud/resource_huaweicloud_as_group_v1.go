@@ -771,6 +771,7 @@ func resourceASGroupValidateHealthAuditTime(v interface{}, k string) (ws []strin
 	return
 }
 
+//lintignore:V001
 func resourceASGroupValidateGroupName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 || len(value) < 1 {
