@@ -386,7 +386,7 @@ func (c *Config) computeS3conn(region string) (*s3.S3, error) {
 	return s3conn, err
 }
 
-func (c *Config) newObjectStorageClient(region string) (*obs.ObsClient, error) {
+func (c *Config) newObjectStorageClientWithSignature(region string) (*obs.ObsClient, error) {
 	if c.AccessKey == "" || c.SecretKey == "" {
 		return nil, fmt.Errorf("Missing credentials for OBS, need access_key and secret_key values for provider.")
 	}
@@ -402,6 +402,24 @@ func (c *Config) newObjectStorageClient(region string) (*obs.ObsClient, error) {
 
 	obsEndpoint := getOBSEndpoint(c, region)
 	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"))
+}
+
+func (c *Config) newObjectStorageClient(region string) (*obs.ObsClient, error) {
+	if c.AccessKey == "" || c.SecretKey == "" {
+		return nil, fmt.Errorf("Missing credentials for OBS, need access_key and secret_key values for provider.")
+	}
+
+	// init log
+	if logging.IsDebugOrHigher() {
+		var logfile = "./.obs-sdk.log"
+		// maxLogSize:10M, backups:10
+		if err := obs.InitLog(logfile, 1024*1024*10, 10, obs.LEVEL_DEBUG, false); err != nil {
+			log.Printf("[WARN] initial obs sdk log failed: %s", err)
+		}
+	}
+
+	obsEndpoint := getOBSEndpoint(c, region)
+	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint)
 }
 
 func (c *Config) apiGatewayV1Client(region string) (*golangsdk.ServiceClient, error) {
