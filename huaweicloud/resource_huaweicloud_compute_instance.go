@@ -170,6 +170,7 @@ func resourceComputeInstanceV2() *schema.Resource {
 				ForceNew:      false,
 				ConflictsWith: []string{"system_disk_type", "system_disk_size", "data_disks"},
 				Deprecated:    "use tags instead",
+				Elem:          &schema.Schema{Type: schema.TypeString},
 			},
 			"admin_pass": {
 				Type:      schema.TypeString,
@@ -355,11 +356,13 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Type:         schema.TypeMap,
 				Optional:     true,
 				ValidateFunc: validateECSTagValue,
+				Elem:         &schema.Schema{Type: schema.TypeString},
 			},
 			"all_metadata": {
 				Type:       schema.TypeMap,
 				Computed:   true,
 				Deprecated: "use tags instead",
+				Elem:       &schema.Schema{Type: schema.TypeString},
 			},
 			"volume_attached": {
 				Type:     schema.TypeList,

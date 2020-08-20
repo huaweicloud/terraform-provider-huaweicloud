@@ -59,6 +59,7 @@ func resourceRTSStackV1() *schema.Resource {
 			"files": {
 				Type:     schema.TypeMap,
 				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"environment": {
 				Type:         schema.TypeString,
@@ -73,6 +74,7 @@ func resourceRTSStackV1() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"timeout_mins": {
 				Type:     schema.TypeInt,
@@ -95,6 +97,7 @@ func resourceRTSStackV1() *schema.Resource {
 			"outputs": {
 				Type:     schema.TypeMap,
 				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"capabilities": {
 				Type:     schema.TypeSet,

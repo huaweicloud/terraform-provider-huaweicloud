@@ -166,6 +166,7 @@ func resourceASConfiguration() *schema.Resource {
 						"metadata": {
 							Type:     schema.TypeMap,
 							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},

@@ -54,9 +54,10 @@ func resourceCSBSBackupPolicyV1() *schema.Resource {
 			"common": {
 				Type:     schema.TypeMap,
 				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"scheduled_operation": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -328,7 +329,7 @@ func waitForVBSPolicyDelete(policyClient *golangsdk.ServiceClient, policyID stri
 }
 
 func resourceCSBSScheduleV1(d *schema.ResourceData) []policies.ScheduledOperation {
-	scheduledOperations := d.Get("scheduled_operation").(*schema.Set).List()
+	scheduledOperations := d.Get("scheduled_operation").([]interface{})
 	so := make([]policies.ScheduledOperation, len(scheduledOperations))
 	for i, raw := range scheduledOperations {
 		rawMap := raw.(map[string]interface{})
@@ -370,8 +371,8 @@ func resourceCSBSResourceV1(d *schema.ResourceData) []policies.Resource {
 func resourceCSBScheduleUpdateV1(d *schema.ResourceData) []policies.ScheduledOperationToUpdate {
 
 	oldSORaw, newSORaw := d.GetChange("scheduled_operation")
-	oldSOList := oldSORaw.(*schema.Set).List()
-	newSOSetList := newSORaw.(*schema.Set).List()
+	oldSOList := oldSORaw.([]interface{})
+	newSOSetList := newSORaw.([]interface{})
 
 	schedule := make([]policies.ScheduledOperationToUpdate, len(newSOSetList))
 	for i, raw := range newSOSetList {

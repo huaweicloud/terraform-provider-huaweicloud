@@ -75,6 +75,7 @@ func dataSourceSFSFileSystemV2() *schema.Resource {
 			"metadata": {
 				Type:     schema.TypeMap,
 				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"export_locations": {
 				Type:     schema.TypeSet,

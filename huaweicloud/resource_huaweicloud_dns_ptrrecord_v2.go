@@ -56,6 +56,7 @@ func resourceDNSPtrRecordV2() *schema.Resource {
 				Optional:     true,
 				ForceNew:     false,
 				ValidateFunc: validateECSTagValue,
+				Elem:         &schema.Schema{Type: schema.TypeString},
 			},
 			"address": {
 				Type:     schema.TypeString,

@@ -94,6 +94,7 @@ func resourceImagesImageV2() *schema.Resource {
 			"metadata": {
 				Type:     schema.TypeMap,
 				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"min_disk_gb": {

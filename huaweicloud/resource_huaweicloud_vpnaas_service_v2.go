@@ -61,7 +61,6 @@ func resourceVpnServiceV2() *schema.Resource {
 			"router_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				Computed: false,
 				ForceNew: true,
 			},
 			"status": {
@@ -80,6 +79,7 @@ func resourceVpnServiceV2() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

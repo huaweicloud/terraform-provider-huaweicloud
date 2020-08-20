@@ -26,38 +26,32 @@ func dataSourceImagesImageV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"visibility": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: dataSourceImagesImageV2Visibility,
 			},
 
 			"owner": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"size_min": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"size_max": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"sort_key": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				Default:      "name",
 				ValidateFunc: dataSourceImagesImageV2SortKey,
 			},
@@ -65,7 +59,6 @@ func dataSourceImagesImageV2() *schema.Resource {
 			"sort_direction": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				Default:      "asc",
 				ValidateFunc: dataSourceImagesImageV2SortDirection,
 			},
@@ -73,14 +66,12 @@ func dataSourceImagesImageV2() *schema.Resource {
 			"tag": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"most_recent": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
-				ForceNew: true,
 			},
 
 			// Computed values
@@ -122,6 +113,7 @@ func dataSourceImagesImageV2() *schema.Resource {
 			"metadata": {
 				Type:     schema.TypeMap,
 				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"updated_at": {
