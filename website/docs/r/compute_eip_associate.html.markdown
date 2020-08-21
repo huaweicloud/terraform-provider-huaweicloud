@@ -8,15 +8,15 @@ description: |-
 
 # huaweicloud\_compute\_eip_associate
 
-Associate an EIP to an instance. This can be used instead of the
-`huaweicloud_compute_floatingip_associate_v2` resource.
+Associate an EIP to an instance. This is an alternative to
+`huaweicloud_compute_floatingip_associate_v2`.
 
 ## Example Usage
 
 ### Automatically detect the correct network
 
 ```hcl
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name            = "instance_1"
   image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
   flavor_id       = 3

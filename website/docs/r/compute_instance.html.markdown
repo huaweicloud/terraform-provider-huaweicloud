@@ -1,21 +1,22 @@
 ---
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_compute_instance_v2"
-sidebar_current: "docs-huaweicloud-resource-compute-instance-v2"
+page_title: "HuaweiCloud: huaweicloud_compute_instance"
+sidebar_current: "docs-huaweicloud-resource-compute-instance"
 description: |-
   Manages a ECS VM instance resource within HuaweiCloud.
 ---
 
-# huaweicloud\_compute\_instance_v2
+# huaweicloud\_compute\_instance
 
 Manages a ECS VM instance resource within HuaweiCloud.
+This is an alternative to `huaweicloud_compute_instance_v2`
 
 ## Example Usage
 
 ### Basic Instance
 
 ```hcl
-resource "huaweicloud_compute_instance_v2" "basic" {
+resource "huaweicloud_compute_instance" "basic" {
   name              = "basic"
   image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
   flavor_id         = "3"
@@ -37,7 +38,7 @@ resource "huaweicloud_blockstorage_volume_v2" "myvol" {
   size = 1
 }
 
-resource "huaweicloud_compute_instance_v2" "myinstance" {
+resource "huaweicloud_compute_instance" "myinstance" {
   name              = "myinstance"
   image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
   flavor_id         = "3"
@@ -51,7 +52,7 @@ resource "huaweicloud_compute_instance_v2" "myinstance" {
 }
 
 resource "huaweicloud_compute_volume_attach_v2" "attached" {
-  instance_id = "${huaweicloud_compute_instance_v2.myinstance.id}"
+  instance_id = "${huaweicloud_compute_instance.myinstance.id}"
   volume_id  = "${huaweicloud_blockstorage_volume_v2.myvol.id}"
 }
 ```
@@ -59,7 +60,7 @@ resource "huaweicloud_compute_volume_attach_v2" "attached" {
 ### Boot From Volume
 
 ```hcl
-resource "huaweicloud_compute_instance_v2" "boot-from-volume" {
+resource "huaweicloud_compute_instance" "boot-from-volume" {
   name              = "boot-from-volume"
   flavor_id         = "3"
   key_pair          = "my_key_pair_name"
@@ -90,7 +91,7 @@ resource "huaweicloud_blockstorage_volume_v1" "myvol" {
   image_id = "<image-id>"
 }
 
-resource "huaweicloud_compute_instance_v2" "boot-from-volume" {
+resource "huaweicloud_compute_instance" "boot-from-volume" {
   name              = "bootfromvolume"
   flavor_id         = "3"
   key_pair          = "my_key_pair_name"
@@ -114,7 +115,7 @@ resource "huaweicloud_compute_instance_v2" "boot-from-volume" {
 ### Boot Instance, Create Volume, and Attach Volume as a Block Device
 
 ```hcl
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name              = "instance_1"
   image_id          = "<image-id>"
   flavor_id         = "3"
@@ -148,7 +149,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   size = 1
 }
 
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name              = "instance_1"
   image_id          = "<image-id>"
   flavor_id         = "3"
@@ -181,7 +182,7 @@ resource "huaweicloud_networking_floatingip_v2" "myip" {
   pool = "admin_external_net"
 }
 
-resource "huaweicloud_compute_instance_v2" "multi-net" {
+resource "huaweicloud_compute_instance" "multi-net" {
   name              = "multi-net"
   image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
   flavor_id         = "3"
@@ -200,15 +201,15 @@ resource "huaweicloud_compute_instance_v2" "multi-net" {
 
 resource "huaweicloud_compute_eip_associate" "myip" {
   floating_ip = "${huaweicloud_networking_floatingip_v2.myip.address}"
-  instance_id = "${huaweicloud_compute_instance_v2.multi-net.id}"
-  fixed_ip    = "${huaweicloud_compute_instance_v2.multi-net.network.1.fixed_ip_v4}"
+  instance_id = "${huaweicloud_compute_instance.multi-net.id}"
+  fixed_ip    = "${huaweicloud_compute_instance.multi-net.network.1.fixed_ip_v4}"
 }
 ```
 
 ### Instance with Multiple Ephemeral Disks
 
 ```hcl
-resource "huaweicloud_compute_instance_v2" "multi-eph" {
+resource "huaweicloud_compute_instance" "multi-eph" {
   name              = "multi_eph"
   image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
   flavor_id         = "3"
@@ -245,7 +246,7 @@ resource "huaweicloud_compute_instance_v2" "multi-eph" {
 ### Instance with User Data (cloud-init)
 
 ```hcl
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name              = "basic"
   image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
   flavor_id         = "3"
@@ -426,7 +427,7 @@ The following example shows how to create an instance with multiple ephemeral
 disks:
 
 ```
-resource "huaweicloud_compute_instance_v2" "foo" {
+resource "huaweicloud_compute_instance" "foo" {
   name            = "terraform-test"
   security_groups = ["default"]
 
@@ -487,7 +488,7 @@ resource "huaweicloud_networking_port_v2" "port_1" {
   ]
 }
 
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
 
   network {
@@ -512,7 +513,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 
 Instances can be imported by their `id`. For example,
 ```
-terraform import huaweicloud_compute_instance_v2.my_instance b11b407c-e604-4e8d-8bc4-92398320b847
+terraform import huaweicloud_compute_instance.my_instance b11b407c-e604-4e8d-8bc4-92398320b847
 ```
 Note that the imported state may not be identical to your resource definition, which 
 could be because of a different network interface attachment order, missing ephemeral
