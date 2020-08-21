@@ -8,7 +8,7 @@ description: |-
 
 # huaweicloud\_networking\_floatingip_v2
 
--> **NOTE:** It has been deprecated, use `huaweicloud_vpc_eip_v1` instead.
+!> **Warning:** It has been deprecated, use `huaweicloud_eip` instead.
 
 Manages a V2 floating IP resource within HuaweiCloud Neutron (networking)
 

@@ -10,7 +10,7 @@ description: |-
 
 Use this data source to get the ID of an available HuaweiCloud network.
 
--> **NOTE:** It has been deprecated, use `huaweicloud_vpc_subnet_v1` instead.
+!> **Warning:** It has been deprecated, use `huaweicloud_vpc_subnet` instead.
 
 ## Example Usage
 

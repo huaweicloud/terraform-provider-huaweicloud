@@ -10,7 +10,7 @@ description: |-
 
 Manages a V2 Neutron network resource within HuaweiCloud.
 
--> **NOTE:** It has been deprecated, use `huaweicloud_vpc_subnet_v1` instead.
+!> **Warning:** It has been deprecated, use `huaweicloud_vpc_subnet` instead.
 
 ## Example Usage
 

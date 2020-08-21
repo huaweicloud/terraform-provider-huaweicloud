@@ -10,7 +10,7 @@ description: |-
 
 Use this data source to get a list of availability zones from HuaweiCloud
 
--> **NOTE:** It has been deprecated, use `huaweicloud_availability_zones` instead.
+!> **Warning:** It has been deprecated, use `huaweicloud_availability_zones` instead.
 
 ## Example Usage
 

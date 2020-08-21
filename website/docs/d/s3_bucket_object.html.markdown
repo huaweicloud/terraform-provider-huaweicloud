@@ -8,7 +8,7 @@ description: |-
 
 # huaweicloud\_s3\_bucket\_object
 
--> **NOTE:** It has been deprecated, use `huaweicloud obs` instead.
+!> **Warning:** It has been deprecated, use `huaweicloud obs` instead.
 
 The S3 object data source allows access to the metadata and
 _optionally_ (see below) content of an object stored inside S3 bucket.
