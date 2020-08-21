@@ -74,7 +74,6 @@ func dataSourceNetworkingPortV2() *schema.Resource {
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"security_group_ids": {

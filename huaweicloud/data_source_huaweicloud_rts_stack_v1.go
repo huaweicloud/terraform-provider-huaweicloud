@@ -38,10 +38,12 @@ func dataSourceRTSStackV1() *schema.Resource {
 			"outputs": {
 				Type:     schema.TypeMap,
 				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"parameters": {
 				Type:     schema.TypeMap,
 				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"timeout_mins": {
 				Type:     schema.TypeInt,

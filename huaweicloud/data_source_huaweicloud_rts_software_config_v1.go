@@ -35,12 +35,18 @@ func dataSourceRtsSoftwareConfigV1() *schema.Resource {
 			"input_values": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Elem: &schema.Schema{
+					Type: schema.TypeMap,
+					Elem: &schema.Schema{Type: schema.TypeString},
+				},
 			},
 			"output_values": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Elem: &schema.Schema{
+					Type: schema.TypeMap,
+					Elem: &schema.Schema{Type: schema.TypeString},
+				},
 			},
 			"config": {
 				Type:     schema.TypeString,
@@ -49,6 +55,7 @@ func dataSourceRtsSoftwareConfigV1() *schema.Resource {
 			"options": {
 				Type:     schema.TypeMap,
 				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

@@ -40,6 +40,7 @@ func resourceRdsConfigurationV3() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"datastore": {
 				Type:     schema.TypeList,

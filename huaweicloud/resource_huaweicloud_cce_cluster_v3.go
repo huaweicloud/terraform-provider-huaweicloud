@@ -43,11 +43,13 @@ func resourceCCEClusterV3() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"annotations": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"flavor_id": {
 				Type:     schema.TypeString,
@@ -97,6 +99,7 @@ func resourceCCEClusterV3() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"container_network_type": {
 				Type:     schema.TypeString,

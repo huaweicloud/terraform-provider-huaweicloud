@@ -50,18 +50,25 @@ func resourceSoftwareConfigV1() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"input_values": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Elem: &schema.Schema{
+					Type: schema.TypeMap,
+					Elem: &schema.Schema{Type: schema.TypeString},
+				},
 			},
 			"output_values": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeMap},
+				Elem: &schema.Schema{
+					Type: schema.TypeMap,
+					Elem: &schema.Schema{Type: schema.TypeString},
+				},
 			},
 		},
 	}

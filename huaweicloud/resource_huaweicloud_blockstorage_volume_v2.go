@@ -61,8 +61,8 @@ func resourceBlockStorageVolumeV2() *schema.Resource {
 			"metadata": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"snapshot_id": {
 				Type:     schema.TypeString,
