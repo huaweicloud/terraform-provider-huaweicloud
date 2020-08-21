@@ -18,22 +18,22 @@ Attaches a policy to an S3 bucket resource.
 
 ```hcl
 resource "huaweicloud_s3_bucket" "b" {
-  bucket = "my_tf_test_bucket"
+  bucket = "my-tf-test-bucket"
 }
 
-resource "huaweicloud_s3_bucket_policy" "b" {
-  bucket = "${huaweicloud_s3_bucket.b.id}"
+resource "huaweicloud_s3_bucket_policy" "policy" {
+  bucket = huaweicloud_s3_bucket.b.id
   policy = <<POLICY
 {
-  "Version": "2012-10-17",
+  "Version": "2008-10-17",
   "Id": "MYBUCKETPOLICY",
   "Statement": [
     {
       "Sid": "IPAllow",
-      "Effect": "Deny",
+      "Effect": "Allow",
       "Principal": "*",
       "Action": "s3:*",
-      "Resource": "arn:aws:s3:::my_tf_test_bucket/*",
+      "Resource": "arn:aws:s3:::my-tf-test-bucket/*",
       "Condition": {
          "IpAddress": {"aws:SourceIp": "8.8.8.8/32"}
       } 
