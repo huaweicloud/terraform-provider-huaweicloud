@@ -20,7 +20,7 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 	var instance servers.Server
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_compute_instance_v2.test"
+	resourceName := "huaweicloud_compute_instance.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -58,9 +58,9 @@ func TestAccComputeV2Instance_disks(t *testing.T) {
 			{
 				Config: testAccComputeV2Instance_disks,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_compute_instance_v2.instance_1", "availability_zone", OS_AVAILABILITY_ZONE),
+						"huaweicloud_compute_instance.instance_1", "availability_zone", OS_AVAILABILITY_ZONE),
 				),
 			},
 		},
@@ -78,7 +78,7 @@ func TestAccComputeV2Instance_tags(t *testing.T) {
 			{
 				Config: testAccComputeV2Instance_tags,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
 					testAccCheckComputeV2InstanceTags(&instance, "foo", "bar"),
 					testAccCheckComputeV2InstanceTags(&instance, "key", "value"),
 				),
@@ -86,7 +86,7 @@ func TestAccComputeV2Instance_tags(t *testing.T) {
 			{
 				Config: testAccComputeV2Instance_tags2,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
 					testAccCheckComputeV2InstanceTags(&instance, "foo2", "bar2"),
 					testAccCheckComputeV2InstanceTags(&instance, "key", "value2"),
 				),
@@ -94,14 +94,14 @@ func TestAccComputeV2Instance_tags(t *testing.T) {
 			{
 				Config: testAccComputeV2Instance_notags,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
 					testAccCheckComputeV2InstanceNoTags(&instance),
 				),
 			},
 			{
 				Config: testAccComputeV2Instance_tags,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
 					testAccCheckComputeV2InstanceTags(&instance, "foo", "bar"),
 					testAccCheckComputeV2InstanceTags(&instance, "key", "value"),
 				),
@@ -125,7 +125,7 @@ func TestAccComputeV2Instance_secgroupMulti(t *testing.T) {
 					testAccCheckComputeV2SecGroupExists(
 						"huaweicloud_compute_secgroup_v2.secgroup_1", &secgroup_1),
 					testAccCheckComputeV2InstanceExists(
-						"huaweicloud_compute_instance_v2.instance_1", &instance_1),
+						"huaweicloud_compute_instance.instance_1", &instance_1),
 				),
 			},
 		},
@@ -149,7 +149,7 @@ func TestAccComputeV2Instance_secgroupMultiUpdate(t *testing.T) {
 					testAccCheckComputeV2SecGroupExists(
 						"huaweicloud_compute_secgroup_v2.secgroup_2", &secgroup_2),
 					testAccCheckComputeV2InstanceExists(
-						"huaweicloud_compute_instance_v2.instance_1", &instance_1),
+						"huaweicloud_compute_instance.instance_1", &instance_1),
 				),
 			},
 			{
@@ -160,7 +160,7 @@ func TestAccComputeV2Instance_secgroupMultiUpdate(t *testing.T) {
 					testAccCheckComputeV2SecGroupExists(
 						"huaweicloud_compute_secgroup_v2.secgroup_2", &secgroup_2),
 					testAccCheckComputeV2InstanceExists(
-						"huaweicloud_compute_instance_v2.instance_1", &instance_1),
+						"huaweicloud_compute_instance.instance_1", &instance_1),
 				),
 			},
 		},
@@ -178,12 +178,12 @@ func TestAccComputeV2Instance_bootFromVolumeImage(t *testing.T) {
 			{
 				Config: testAccComputeV2Instance_bootFromVolumeImage,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
 					testAccCheckComputeV2InstanceBootVolumeAttachment(&instance),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_compute_instance_v2.instance_1",
+				ResourceName:      "huaweicloud_compute_instance.instance_1",
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
@@ -206,7 +206,7 @@ func TestAccComputeV2Instance_bootFromVolumeVolume(t *testing.T) {
 			{
 				Config: testAccComputeV2Instance_bootFromVolumeVolume,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
 					testAccCheckComputeV2InstanceBootVolumeAttachment(&instance),
 				),
 			},
@@ -227,19 +227,19 @@ func TestAccComputeV2Instance_bootFromVolumeForceNew(t *testing.T) {
 				Config: testAccComputeV2Instance_bootFromVolumeForceNew_1,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists(
-						"huaweicloud_compute_instance_v2.instance_1", &instance1_1),
+						"huaweicloud_compute_instance.instance_1", &instance1_1),
 				),
 			},
 			{
 				Config: testAccComputeV2Instance_bootFromVolumeForceNew_2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists(
-						"huaweicloud_compute_instance_v2.instance_1", &instance1_2),
+						"huaweicloud_compute_instance.instance_1", &instance1_2),
 					testAccCheckComputeV2InstanceInstanceIDsDoNotMatch(&instance1_1, &instance1_2),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_compute_instance_v2.instance_1",
+				ResourceName:      "huaweicloud_compute_instance.instance_1",
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
@@ -264,14 +264,14 @@ func TestAccComputeV2Instance_changeFixedIP(t *testing.T) {
 				Config: testAccComputeV2Instance_changeFixedIP_1,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists(
-						"huaweicloud_compute_instance_v2.instance_1", &instance1_1),
+						"huaweicloud_compute_instance.instance_1", &instance1_1),
 				),
 			},
 			{
 				Config: testAccComputeV2Instance_changeFixedIP_2,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists(
-						"huaweicloud_compute_instance_v2.instance_1", &instance1_2),
+						"huaweicloud_compute_instance.instance_1", &instance1_2),
 					testAccCheckComputeV2InstanceInstanceIDsDoNotMatch(&instance1_1, &instance1_2),
 				),
 			},
@@ -289,7 +289,7 @@ func TestAccComputeV2Instance_stopBeforeDestroy(t *testing.T) {
 			{
 				Config: testAccComputeV2Instance_stopBeforeDestroy,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.instance_1", &instance),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
 				),
 			},
 		},
@@ -304,7 +304,7 @@ func testAccCheckComputeV2InstanceDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_compute_instance_v2" {
+		if rs.Type != "huaweicloud_compute_instance" {
 			continue
 		}
 
@@ -474,7 +474,7 @@ data "huaweicloud_images_image_v2" "test" {
   most_recent = true
 }
 
-resource "huaweicloud_compute_instance_v2" "test" {
+resource "huaweicloud_compute_instance" "test" {
   name              = "%s"
   image_id          = data.huaweicloud_images_image_v2.test.id
   security_groups   = ["default"]
@@ -488,7 +488,7 @@ resource "huaweicloud_compute_instance_v2" "test" {
 }
 
 var testAccComputeV2Instance_disks = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
@@ -521,7 +521,7 @@ resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
   }
 }
 
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
   availability_zone = "%s"
@@ -554,7 +554,7 @@ resource "huaweicloud_compute_secgroup_v2" "secgroup_2" {
   }
 }
 
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
@@ -587,7 +587,7 @@ resource "huaweicloud_compute_secgroup_v2" "secgroup_2" {
   }
 }
 
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}", "${huaweicloud_compute_secgroup_v2.secgroup_2.name}"]
   availability_zone = "%s"
@@ -598,7 +598,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_bootFromVolumeImage = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
@@ -624,7 +624,7 @@ resource "huaweicloud_blockstorage_volume_v2" "vol_1" {
   availability_zone = "%s"
 }
 
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
@@ -642,7 +642,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 `, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_bootFromVolumeForceNew_1 = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
@@ -661,7 +661,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 `, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_bootFromVolumeForceNew_2 = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
@@ -680,7 +680,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 `, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_changeFixedIP_1 = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
@@ -692,7 +692,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_changeFixedIP_2 = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
@@ -704,7 +704,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_stopBeforeDestroy = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
@@ -716,7 +716,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_tags = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
@@ -731,7 +731,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_tags2 = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"
@@ -746,7 +746,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_notags = fmt.Sprintf(`
-resource "huaweicloud_compute_instance_v2" "instance_1" {
+resource "huaweicloud_compute_instance" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
   availability_zone = "%s"

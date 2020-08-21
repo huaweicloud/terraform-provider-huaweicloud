@@ -8,7 +8,9 @@ description: |-
 
 # huaweicloud\_ecs\_instance_v1
 
-Manages a V1 ECS instance resource within HuaweiCloud.
+!> **Warning:** It has been deprecated, use `huaweicloud_compute_instance` instead.
+
+Manages a ECS instance resource within HuaweiCloud.
 
 ## Example Usage
 
