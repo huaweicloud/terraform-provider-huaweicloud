@@ -10,7 +10,7 @@ description: |-
 
 Manages a V2 router resource within HuaweiCloud.
 
--> **NOTE:** It has been deprecated, use `huaweicloud_vpc_v1` instead.
+!> **Warning:** It has been deprecated, use `huaweicloud_vpc` instead.
 
 ## Example Usage
 

@@ -8,7 +8,7 @@ description: |-
 
 # huaweicloud\_s3\_bucket\_object
 
--> **NOTE:** It has been deprecated, use `huaweicloud_obs_bucket_object` instead.
+!> **Warning:** It has been deprecated, use `huaweicloud_obs_bucket_object` instead.
 
 Provides a S3 bucket object resource.
 
