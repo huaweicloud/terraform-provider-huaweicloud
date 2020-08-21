@@ -19,7 +19,7 @@ func resourceObsBucket() *schema.Resource {
 		Update: resourceObsBucketUpdate,
 		Delete: resourceObsBucketDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceObsBucketImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -50,8 +50,15 @@ func resourceObsBucket() *schema.Resource {
 			"policy": {
 				Type:             schema.TypeString,
 				Optional:         true,
+				Computed:         true,
 				ValidateFunc:     validateJsonString,
 				DiffSuppressFunc: suppressEquivalentAwsPolicyDiffs,
+			},
+
+			"policy_format": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "obs",
 			},
 
 			"versioning": {
@@ -309,7 +316,15 @@ func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if d.HasChange("policy") {
-		if err := resourceObsBucketPolicyUpdate(obsClient, d); err != nil {
+		policyClient := obsClient
+		format := d.Get("policy_format").(string)
+		if format == "obs" {
+			policyClient, err = config.newObjectStorageClientWithSignature(GetRegion(d, config))
+			if err != nil {
+				return fmt.Errorf("Error creating HuaweiCloud OBS policy client: %s", err)
+			}
+		}
+		if err := resourceObsBucketPolicyUpdate(policyClient, d); err != nil {
 			return err
 		}
 	}
@@ -410,6 +425,19 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	// Read the bucket policy
+	policyClient := obsClient
+	format := d.Get("policy_format").(string)
+	if format == "obs" {
+		policyClient, err = config.newObjectStorageClientWithSignature(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud OBS policy client: %s", err)
+		}
+	}
+	if err := setObsBucketPolicy(policyClient, d); err != nil {
+		return err
+	}
+
 	// Read the tags
 	if err := setObsBucketTags(obsClient, d); err != nil {
 		return err
@@ -441,7 +469,7 @@ func resourceObsBucketDelete(d *schema.ResourceData, meta interface{}) error {
 			}
 			return err
 		}
-		return fmt.Errorf("Error deleting OBS bucket: %s %s", bucket, err)
+		return fmt.Errorf("Error deleting OBS bucket %s, %s", bucket, err)
 	}
 	return nil
 }
@@ -840,6 +868,7 @@ func setObsBucketStorageClass(obsClient *obs.ObsClient, d *schema.ResourceData) 
 	}
 
 	class := string(output.StorageClass)
+	log.Printf("[DEBUG] getting storage class of OBS bucket %s: %s", bucket, class)
 	d.Set("storage_class", normalizeStorageClass(class))
 
 	return nil
@@ -849,10 +878,19 @@ func setObsBucketPolicy(obsClient *obs.ObsClient, d *schema.ResourceData) error 
 	bucket := d.Id()
 	output, err := obsClient.GetBucketPolicy(bucket)
 	if err != nil {
-		return getObsError("Error getting policy of OBS bucket", bucket, err)
+		if obsError, ok := err.(obs.ObsError); ok {
+			if obsError.Code == "NoSuchBucketPolicy" {
+				d.Set("policy", nil)
+				return nil
+			}
+			return fmt.Errorf("Error getting policy of OBS bucket %s: %s,\n Reason: %s",
+				bucket, obsError.Code, obsError.Message)
+		}
+		return err
 	}
 
 	pol := output.Policy
+	log.Printf("[DEBUG] getting policy of OBS bucket %s: %s", bucket, pol)
 	d.Set("policy", pol)
 
 	return nil
@@ -865,6 +903,7 @@ func setObsBucketVersioning(obsClient *obs.ObsClient, d *schema.ResourceData) er
 		return getObsError("Error getting versioning status of OBS bucket", bucket, err)
 	}
 
+	log.Printf("[DEBUG] getting versioning status of OBS bucket %s: %s", bucket, output.Status)
 	if output.Status == obs.VersioningStatusEnabled {
 		d.Set("versioning", true)
 	} else {
@@ -891,7 +930,7 @@ func setObsBucketLogging(obsClient *obs.ObsClient, d *schema.ResourceData) error
 		}
 		lcList = append(lcList, logging)
 	}
-	log.Printf("[DEBUG] saving logging configuration of OBS bucket: %s: %#v", bucket, lcList)
+	log.Printf("[DEBUG] getting logging configuration of OBS bucket %s: %#v", bucket, lcList)
 
 	if err := d.Set("logging", lcList); err != nil {
 		return fmt.Errorf("Error saving logging configuration of OBS bucket %s: %s", bucket, err)
@@ -908,17 +947,15 @@ func setObsBucketLifecycleConfiguration(obsClient *obs.ObsClient, d *schema.Reso
 			if obsError.Code == "NoSuchLifecycleConfiguration" {
 				d.Set("lifecycle_rule", nil)
 				return nil
-			} else {
-				return fmt.Errorf("Error getting lifecycle configuration of OBS bucket %s: %s,\n Reason: %s",
-					bucket, obsError.Code, obsError.Message)
 			}
-		} else {
-			return err
+			return fmt.Errorf("Error getting lifecycle configuration of OBS bucket %s: %s,\n Reason: %s",
+				bucket, obsError.Code, obsError.Message)
 		}
+		return err
 	}
 
 	rawRules := output.LifecycleRules
-	log.Printf("[DEBUG] getting lifecycle configuration of OBS bucket: %s, lifecycle: %#v", bucket, rawRules)
+	log.Printf("[DEBUG] getting original lifecycle configuration of OBS bucket %s, lifecycle: %#v", bucket, rawRules)
 
 	rules := make([]map[string]interface{}, 0, len(rawRules))
 	for _, lifecycleRule := range rawRules {
@@ -976,7 +1013,7 @@ func setObsBucketLifecycleConfiguration(obsClient *obs.ObsClient, d *schema.Reso
 		rules = append(rules, rule)
 	}
 
-	log.Printf("[DEBUG] saving lifecycle configuration of OBS bucket: %s, lifecycle: %#v", bucket, rules)
+	log.Printf("[DEBUG] saving lifecycle configuration of OBS bucket %s, lifecycle: %#v", bucket, rules)
 	if err := d.Set("lifecycle_rule", rules); err != nil {
 		return fmt.Errorf("Error saving lifecycle configuration of OBS bucket %s: %s", bucket, err)
 	}
@@ -992,16 +1029,14 @@ func setObsBucketWebsiteConfiguration(obsClient *obs.ObsClient, d *schema.Resour
 			if obsError.Code == "NoSuchWebsiteConfiguration" {
 				d.Set("website", nil)
 				return nil
-			} else {
-				return fmt.Errorf("Error getting website configuration of OBS bucket %s: %s,\n Reason: %s",
-					bucket, obsError.Code, obsError.Message)
 			}
-		} else {
-			return err
+			return fmt.Errorf("Error getting website configuration of OBS bucket %s: %s,\n Reason: %s",
+				bucket, obsError.Code, obsError.Message)
 		}
+		return err
 	}
 
-	log.Printf("[DEBUG] getting website configuration of OBS bucket: %s, output: %#v", bucket, output.BucketWebsiteConfiguration)
+	log.Printf("[DEBUG] getting original website configuration of OBS bucket %s, output: %#v", bucket, output.BucketWebsiteConfiguration)
 	var websites []map[string]interface{}
 	w := make(map[string]interface{})
 
@@ -1042,7 +1077,7 @@ func setObsBucketWebsiteConfiguration(obsClient *obs.ObsClient, d *schema.Resour
 	}
 
 	websites = append(websites, w)
-	log.Printf("[DEBUG] saving website configuration of OBS bucket: %s, website: %#v", bucket, websites)
+	log.Printf("[DEBUG] saving website configuration of OBS bucket %s, website: %#v", bucket, websites)
 	if err := d.Set("website", websites); err != nil {
 		return fmt.Errorf("Error saving website configuration of OBS bucket %s: %s", bucket, err)
 	}
@@ -1057,17 +1092,15 @@ func setObsBucketCorsRules(obsClient *obs.ObsClient, d *schema.ResourceData) err
 			if obsError.Code == "NoSuchCORSConfiguration" {
 				d.Set("cors_rule", nil)
 				return nil
-			} else {
-				return fmt.Errorf("Error getting CORS configuration of OBS bucket %s: %s,\n Reason: %s",
-					bucket, obsError.Code, obsError.Message)
 			}
-		} else {
-			return err
+			return fmt.Errorf("Error getting CORS configuration of OBS bucket %s: %s,\n Reason: %s",
+				bucket, obsError.Code, obsError.Message)
 		}
+		return err
 	}
 
 	corsRules := output.CorsRules
-	log.Printf("[DEBUG] getting CORS rules of OBS bucket: %s, CORS: %#v", bucket, corsRules)
+	log.Printf("[DEBUG] getting original CORS rules of OBS bucket %s, CORS: %#v", bucket, corsRules)
 
 	rules := make([]map[string]interface{}, 0, len(corsRules))
 	for _, ruleObject := range corsRules {
@@ -1085,7 +1118,7 @@ func setObsBucketCorsRules(obsClient *obs.ObsClient, d *schema.ResourceData) err
 		rules = append(rules, rule)
 	}
 
-	log.Printf("[DEBUG] saving CORS rules of OBS bucket: %s, CORS: %#v", bucket, rules)
+	log.Printf("[DEBUG] saving CORS rules of OBS bucket %s, CORS: %#v", bucket, rules)
 	if err := d.Set("cors_rule", rules); err != nil {
 		return fmt.Errorf("Error saving CORS rules of OBS bucket %s: %s", bucket, err)
 	}
@@ -1101,19 +1134,18 @@ func setObsBucketTags(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 			if obsError.Code == "NoSuchTagSet" {
 				d.Set("tags", nil)
 				return nil
-			} else {
-				return fmt.Errorf("Error getting tags of OBS bucket %s: %s,\n Reason: %s",
-					bucket, obsError.Code, obsError.Message)
 			}
-		} else {
-			return err
+			return fmt.Errorf("Error getting tags of OBS bucket %s: %s,\n Reason: %s",
+				bucket, obsError.Code, obsError.Message)
 		}
+		return err
 	}
 
 	tagmap := make(map[string]string)
 	for _, tag := range output.Tags {
 		tagmap[tag.Key] = tag.Value
 	}
+	log.Printf("[DEBUG] getting tags of OBS bucket %s: %#v", bucket, tagmap)
 	if err := d.Set("tags", tagmap); err != nil {
 		return fmt.Errorf("Error saving tags of OBS bucket %s: %s", bucket, err)
 	}

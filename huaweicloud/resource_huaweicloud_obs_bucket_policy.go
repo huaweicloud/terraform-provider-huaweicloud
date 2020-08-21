@@ -17,7 +17,7 @@ func resourceObsBucketPolicy() *schema.Resource {
 		Delete: resourceObsBucketPolicyDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceObsBucketPolicyImport,
+			State: resourceObsBucketImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -132,7 +132,7 @@ func resourceObsBucketPolicyDelete(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func resourceObsBucketPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceObsBucketImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	var policyFormat = "obs"
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) == 2 {

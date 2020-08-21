@@ -159,7 +159,10 @@ The following arguments are supported:
 
 * `acl` - (Optional) Specifies the ACL policy for a bucket. The predefined common policies are as follows: "private", "public-read", "public-read-write" and "log-delivery-write". Defaults to `private`.
 
-* `policy` - (Optional) Specifies the [bucket policy](https://support.huaweicloud.com/intl/en-us/devg-obs/obs_06_0048.html) in JSON format.
+* `policy` - (Optional) Specifies the text of the bucket policy in JSON format. For more information about
+  obs format bucket policy, see the [Developer Guide](https://support.huaweicloud.com/intl/en-us/devg-obs/obs_06_0048.html).
+
+* `policy_format` - (Optional) Specifies the policy format, the supported values are *obs* and *s3*. Defaults to *obs*.
 
 * `tags` - (Optional) A mapping of tags to assign to the bucket. Each tag is represented by one key-value pair.
 
@@ -265,5 +268,11 @@ The following attributes are exported:
 OBS bucket can be imported using the `bucket`, e.g.
 
 ```
-$ terraform import huaweicloud_obs_bucket.bucket bucket-name
+$ terraform import huaweicloud_obs_bucket.bucket <bucket-name>
+```
+
+OBS bucket with S3 foramt bucket policy can be imported using the `bucket` and "s3" by a slash, e.g.
+
+```
+$ terraform import huaweicloud_obs_bucket_policy.s3_policy <bucket-name>/s3
 ```
