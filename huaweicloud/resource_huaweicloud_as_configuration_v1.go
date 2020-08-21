@@ -440,6 +440,7 @@ func resourceASConfigurationValidateVolumeType(v interface{}, k string) (ws []st
 	return
 }
 
+//lintignore:V001
 func resourceASConfigurationValidateName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 || len(value) < 1 {

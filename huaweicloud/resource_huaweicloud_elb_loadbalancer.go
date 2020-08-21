@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/loadbalancers"
 )
@@ -33,28 +34,16 @@ func resourceELBLoadBalancer() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					vv := regexp.MustCompile("^[a-zA-Z0-9-_]{1,64}$")
-					if !vv.MatchString(value) {
-						errors = append(errors, fmt.Errorf("%s is a string of 1 to 64 characters that consist of letters, digits, underscores (_), and hyphens (-)", k))
-					}
-					return
-				},
+				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[a-zA-Z0-9-_]{1,64}$"),
+					"Input is a string of 1 to 64 characters that consist of letters, digits, underscores (_), and hyphens (-)"),
 			},
 
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					vv := regexp.MustCompile("^[^<>]{0,128}$")
-					if !vv.MatchString(value) {
-						errors = append(errors, fmt.Errorf("%s is a string of 0 to 128 characters and cannot contain angle brackets (<>)", k))
-					}
-					return
-				},
+				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{0,128}$"),
+					"Input is a string of 0 to 128 characters and cannot contain angle brackets (<>)"),
 			},
 
 			"vpc_id": {
@@ -139,14 +128,8 @@ func resourceELBLoadBalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					vv := regexp.MustCompile("^[a-zA-Z0-9-]{1,200}$")
-					if !vv.MatchString(value) {
-						errors = append(errors, fmt.Errorf("%s is a string of 1 to 200 characters that consists of uppercase and lowercase letters, digits, and hyphens (-)", k))
-					}
-					return
-				},
+				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[a-zA-Z0-9-]{1,200}$"),
+					"Input is a string of 1 to 200 characters that consists of uppercase and lowercase letters, digits, and hyphens (-)"),
 			},
 
 			"vip_address": {
