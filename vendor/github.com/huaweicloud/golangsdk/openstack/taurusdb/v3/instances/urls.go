@@ -26,6 +26,18 @@ func deleteReplicaURL(c *golangsdk.ServiceClient, instanceID, nodeID string) str
 	return c.ServiceURL("instances", instanceID, "nodes", nodeID)
 }
 
+func nameURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "name")
+}
+
+func passwordURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "password")
+}
+
+func actionURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "action")
+}
+
 func jobURL(sc *golangsdk.ServiceClient, jobId string) string {
 	return sc.ServiceURL("jobs?id=" + jobId)
 }

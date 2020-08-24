@@ -174,3 +174,96 @@ func List(client *golangsdk.ServiceClient, opts ListTaurusDBBuilder) pagination.
 
 	return pageList
 }
+
+type UpdateNameOpts struct {
+	Name string `json:"name" required:"true"`
+}
+
+type UpdateNameBuilder interface {
+	ToNameUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdateNameOpts) ToNameUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdateName(client *golangsdk.ServiceClient, instanceId string, opts UpdateNameBuilder) (r JobResult) {
+	b, err := opts.ToNameUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(nameURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
+
+type UpdatePassOpts struct {
+	Password string `json:"password" required:"true"`
+}
+
+type UpdatePassBuilder interface {
+	ToPassUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdatePassOpts) ToPassUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdatePass(client *golangsdk.ServiceClient, instanceId string, opts UpdatePassBuilder) (r JobResult) {
+	b, err := opts.ToPassUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(passwordURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
+
+type ResizeOpts struct {
+	Spec string `json:"spec_code" required:"true"`
+}
+
+type ResizeBuilder interface {
+	ToResizeMap() (map[string]interface{}, error)
+}
+
+func (opts ResizeOpts) ToResizeMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "resize_flavor")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func Resize(client *golangsdk.ServiceClient, instanceId string, opts ResizeBuilder) (r JobResult) {
+	b, err := opts.ToResizeMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(actionURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}

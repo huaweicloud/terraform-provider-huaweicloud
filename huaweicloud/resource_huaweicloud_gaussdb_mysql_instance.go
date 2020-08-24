@@ -34,18 +34,18 @@ func resourceGaussDBInstance() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"password": {
 				Type:      schema.TypeString,
 				Sensitive: true,
 				Required:  true,
-				ForceNew:  true,
+				ForceNew:  false,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -420,6 +420,56 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 	instanceId := d.Id()
 
+	if d.HasChange("name") {
+		newName := d.Get("name").(string)
+		updateNameOpts := instances.UpdateNameOpts{
+			Name: newName,
+		}
+		log.Printf("[DEBUG] Update Name Options: %+v", updateNameOpts)
+
+		n, err := instances.UpdateName(client, instanceId, updateNameOpts).ExtractJobResponse()
+		if err != nil {
+			return fmt.Errorf("Error updating name for instance %s: %s ", instanceId, err)
+		}
+
+		if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Updated Name to %s for instance %s", newName, instanceId)
+	}
+
+	if d.HasChange("password") {
+		newPass := d.Get("password").(string)
+		updatePassOpts := instances.UpdatePassOpts{
+			Password: newPass,
+		}
+		log.Printf("[DEBUG] Update Password Options: %+v", updatePassOpts)
+
+		_, err := instances.UpdatePass(client, instanceId, updatePassOpts).ExtractJobResponse()
+		if err != nil {
+			return fmt.Errorf("Error updating password for instance %s: %s ", instanceId, err)
+		}
+		log.Printf("[DEBUG] Updated Password for instance %s", instanceId)
+	}
+
+	if d.HasChange("flavor") {
+		newFlavor := d.Get("flavor").(string)
+		resizeOpts := instances.ResizeOpts{
+			Spec: newFlavor,
+		}
+		log.Printf("[DEBUG] Update Flavor Options: %+v", resizeOpts)
+
+		n, err := instances.Resize(client, instanceId, resizeOpts).ExtractJobResponse()
+		if err != nil {
+			return fmt.Errorf("Error updating flavor for instance %s: %s ", instanceId, err)
+		}
+
+		if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Updated Flavor for instance %s", instanceId)
+	}
+
 	if d.HasChange("read_replicas") {
 		old, newnum := d.GetChange("read_replicas")
 		if newnum.(int) > old.(int) {
@@ -461,19 +511,15 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 			log.Printf("[DEBUG] Slave Nodes: %+v", slave_nodes)
 			if len(slave_nodes) <= shrink_size {
-				d.Set("read_replicas", old.(int))
 				return fmt.Errorf("Error deleting read replicas for instance %s: Shrink Size is bigger than active slave nodes", instanceId)
 			}
 			for i := 0; i < shrink_size; i++ {
 				n, err := instances.DeleteReplica(client, instanceId, slave_nodes[i]).ExtractJobResponse()
-				read_replicas := old.(int) - i
 				if err != nil {
-					d.Set("read_replicas", read_replicas)
 					return fmt.Errorf("Error creating read replica %s for instance %s: %s ", slave_nodes[i], instanceId, err)
 				}
 
 				if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
-					d.Set("read_replicas", read_replicas)
 					return err
 				}
 				log.Printf("[DEBUG] Deleted Read Replica: %s", slave_nodes[i])
