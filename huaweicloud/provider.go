@@ -199,6 +199,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_kms_data_key":           dataSourceKmsDataKeyV1(),
 			"huaweicloud_networking_port":        dataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":    dataSourceNetworkingSecGroupV2(),
+			"huaweicloud_obs_bucket_object":      dataSourceObsBucketObject(),
 			"huaweicloud_rds_flavors":            dataSourceRdsFlavorV3(),
 			"huaweicloud_sfs_file_system":        dataSourceSFSFileSystemV2(),
 			"huaweicloud_vpc":                    dataSourceVirtualPrivateCloudVpcV1(),
