@@ -38,7 +38,7 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"flavor": {
 				Type:     schema.TypeString,
@@ -60,7 +60,7 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 				Type:      schema.TypeString,
 				Sensitive: true,
 				Required:  true,
-				ForceNew:  true,
+				ForceNew:  false,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -461,6 +461,28 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		tagErr := UpdateResourceTags(client, d, "instances")
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of GeminiDB %q: %s", d.Id(), tagErr)
+		}
+	}
+
+	if d.HasChange("name") {
+		updateNameOpts := instances.UpdateNameOpts{
+			Name: d.Get("name").(int),
+		}
+
+		err := instances.UpdateName(client, d.Id(), updateNameOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error updating name for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("password") {
+		updatePassOpts := instances.UpdatePassOpts{
+			Password: d.Get("password").(int),
+		}
+
+		err := instances.UpdatePass(client, d.Id(), updatePassOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error updating password for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
 		}
 	}
 

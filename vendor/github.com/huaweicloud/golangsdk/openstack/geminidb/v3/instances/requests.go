@@ -227,3 +227,63 @@ func GetInstanceByID(client *golangsdk.ServiceClient, instanceId string) (Gemini
 	instance = all.Instances[0]
 	return instance, nil
 }
+
+type UpdateNameOpts struct {
+	Name int `json:"name" required:"true"`
+}
+
+type UpdateNameBuilder interface {
+	ToNameUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdateNameOpts) ToNameUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdateName(client *golangsdk.ServiceClient, instanceId string, opts UpdateNameBuilder) (r UpdateResult) {
+	b, err := opts.ToNameUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(updateNameURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{202},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
+}
+
+type UpdatePassOpts struct {
+	Password int `json:"password" required:"true"`
+}
+
+type UpdatePassBuilder interface {
+	ToPassUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdatePassOpts) ToPassUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdatePass(client *golangsdk.ServiceClient, instanceId string, opts UpdatePassBuilder) (r UpdateResult) {
+	b, err := opts.ToPassUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(updatePassURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{202},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
+}

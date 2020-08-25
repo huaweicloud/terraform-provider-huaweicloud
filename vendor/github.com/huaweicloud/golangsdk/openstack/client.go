@@ -863,6 +863,14 @@ func NewCCEV3(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 	return sc, err
 }
 
+func NewCCEAddonV3(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "cce", 1)
+	sc.Endpoint = strings.Replace(sc.Endpoint, "myhwclouds", "myhuaweicloud", 1)
+	sc.ResourceBase = sc.Endpoint + "api/v3/"
+	return sc, err
+}
+
 // NewDMSServiceV1 creates a ServiceClient that may be used to access the v1 Distributed Message Service.
 func NewDMSServiceV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "network")
