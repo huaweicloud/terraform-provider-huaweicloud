@@ -51,19 +51,14 @@ The following arguments are supported:
   as an existing instance name. The value must be 4 to 64 characters in
   length and start with a letter. It is case-sensitive and can contain
   only letters, digits, hyphens (-), and underscores (_).
-  Changing this parameter will create a new resource.
 
 * `flavor` - (Required) Specifies the instance specifications. Please use
   `gaussdb_mysql_flavors` data source to fetch the available flavors.
-  Changing this parameter will create a new resource.
 
 * `password` - (Required) Specifies the database password. The value must be 8 to 32 characters
   in length, including uppercase and lowercase letters, digits, and special characters,
-  such as ~!@#%^*-_=+?
-
-  You are advised to enter a strong password to improve security, preventing security risks
-  such as brute force cracking.
-  Changing this parameter will create a new resource.
+  such as ~!@#%^*-_=+? You are advised to enter a strong password to improve security, preventing
+  security risks such as brute force cracking.
 
 * `vpc_id` -  (Required) Specifies the VPC ID.
   Changing this parameter will create a new resource.
