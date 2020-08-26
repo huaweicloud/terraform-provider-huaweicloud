@@ -22,6 +22,22 @@ func reduceNodeURL(c *golangsdk.ServiceClient, instanceID string) string {
 	return c.ServiceURL("instances", instanceID, "reduce-node")
 }
 
+func updateNameURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "name")
+}
+
+func updatePassURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "password")
+}
+
+func resizeURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "resize")
+}
+
+func updateSgURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "security-group")
+}
+
 func listURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("instances")
 }

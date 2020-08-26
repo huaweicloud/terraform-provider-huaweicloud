@@ -124,6 +124,10 @@ func (r ExtendResult) Extract() (*ExtendResponse, error) {
 	return &response, err
 }
 
+type UpdateResult struct {
+	golangsdk.ErrResult
+}
+
 type ListGeminiDBResult struct {
 	commonResult
 }
