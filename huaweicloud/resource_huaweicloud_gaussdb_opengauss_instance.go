@@ -387,12 +387,6 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		// the instance has created, but the status is unnormal
-		deleteErr := resourceOpenGaussInstanceDelete(d, meta)
-		if deleteErr != nil {
-			log.Printf("[ERROR] Error deleting OpenGauss instance: %s", deleteErr)
-		}
-
 		return fmt.Errorf(
 			"Error waiting for instance (%s) to become ready: %s",
 			id, err)

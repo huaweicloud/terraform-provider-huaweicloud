@@ -38,7 +38,7 @@ type CreateTaurusDBOpts struct {
 	ConfigurationId     string             `json:"configuration_id,omitempty"`
 	EnterpriseProjectId string             `json:"enterprise_project_id,omitempty"`
 	DataStore           DataStoreOpt       `json:"datastore" required:"true"`
-	BackupStrategy      *BackupStrategyOpt `json:"backup_strategy" required:"true"`
+	BackupStrategy      *BackupStrategyOpt `json:"backup_strategy,omitempty"`
 	ChargeInfo          *ChargeInfoOpt     `json:"charge_info,omitempty"`
 }
 
