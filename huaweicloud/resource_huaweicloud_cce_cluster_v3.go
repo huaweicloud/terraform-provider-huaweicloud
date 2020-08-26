@@ -143,6 +143,10 @@ func resourceCCEClusterV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"security_group_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"certificate_clusters": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -316,6 +320,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("container_network_type", n.Spec.ContainerNetwork.Mode)
 	d.Set("container_network_cidr", n.Spec.ContainerNetwork.Cidr)
 	d.Set("authentication_mode", n.Spec.Authentication.Mode)
+	d.Set("security_group_id", n.Spec.HostNetwork.SecurityGroup)
 	d.Set("region", GetRegion(d, config))
 
 	cert, err := clusters.GetCert(cceClient, d.Id()).Extract()
