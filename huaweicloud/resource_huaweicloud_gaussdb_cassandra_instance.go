@@ -461,7 +461,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("name") {
 		updateNameOpts := instances.UpdateNameOpts{
-			Name: d.Get("name").(int),
+			Name: d.Get("name").(string),
 		}
 
 		err := instances.UpdateName(client, d.Id(), updateNameOpts).ExtractErr()
@@ -472,7 +472,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("password") {
 		updatePassOpts := instances.UpdatePassOpts{
-			Password: d.Get("password").(int),
+			Password: d.Get("password").(string),
 		}
 
 		err := instances.UpdatePass(client, d.Id(), updatePassOpts).ExtractErr()
