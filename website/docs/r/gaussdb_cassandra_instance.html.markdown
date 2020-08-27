@@ -63,7 +63,6 @@ The following arguments are supported:
   as an existing instance name. The value must be 4 to 64 characters in
   length and start with a letter. It is case-sensitive and can contain
   only letters, digits, hyphens (-), and underscores (_).
-  Changing this parameter will create a new resource.
 
 * `flavor` - (Required) Specifies the instance specifications. For details, 
   see [DB Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-geminidb/geminidb_01_0006.html)
@@ -79,7 +78,6 @@ The following arguments are supported:
 * `password` - (Required) Specifies the database password. The value must be 8 to 32 characters
   in length, including uppercase and lowercase letters, digits, and special characters,
   such as ~!@#%^*-_=+?
-  Changing this parameter will create a new resource.
 
   You are advised to enter a strong password to improve security, preventing security risks
   such as brute force cracking.
