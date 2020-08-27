@@ -252,7 +252,7 @@ func UpdateName(client *golangsdk.ServiceClient, instanceId string, opts UpdateN
 	}
 
 	_, r.Err = client.Put(updateNameURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
-		OkCodes:     []int{202},
+		OkCodes:     []int{204},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
 	return
@@ -282,7 +282,7 @@ func UpdatePass(client *golangsdk.ServiceClient, instanceId string, opts UpdateP
 	}
 
 	_, r.Err = client.Put(updatePassURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
-		OkCodes:     []int{202},
+		OkCodes:     []int{204},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
 	return

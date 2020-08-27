@@ -312,17 +312,20 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 		return err
 	}
 
+	// Override the generated service endpoint with the one returned by the version endpoint.
 	if endpoint != "" {
 		v3Client.Endpoint = endpoint
 	}
 
+	// update AKSKAuthOptions of ProviderClient
+	// ProviderClient(client) is a reference to the ServiceClient(v3Client)
 	defer func() {
-		v3Client.AKSKAuthOptions.ProjectId = options.ProjectId
-		v3Client.AKSKAuthOptions.DomainID = options.DomainID
+		client.AKSKAuthOptions.ProjectId = options.ProjectId
+		client.AKSKAuthOptions.DomainID = options.DomainID
 	}()
-	v3Client.AKSKAuthOptions = options
-	v3Client.AKSKAuthOptions.ProjectId = ""
-	v3Client.AKSKAuthOptions.DomainID = ""
+
+	client.AKSKAuthOptions = options
+	client.AKSKAuthOptions.DomainID = ""
 
 	if options.ProjectId == "" && options.ProjectName != "" {
 		id, err := getProjectID(v3Client, options.ProjectName)
@@ -330,6 +333,7 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 			return err
 		}
 		options.ProjectId = id
+		client.AKSKAuthOptions.ProjectId = options.ProjectId
 	}
 
 	if options.DomainID == "" && options.Domain != "" {
@@ -352,7 +356,6 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 
 	client.ProjectID = options.ProjectId
 	client.DomainID = options.BssDomainID
-	v3Client.ProjectID = options.ProjectId
 
 	var entries = make([]tokens3.CatalogEntry, 0, 1)
 	err = catalog.List(v3Client).EachPage(func(page pagination.Page) (bool, error) {
