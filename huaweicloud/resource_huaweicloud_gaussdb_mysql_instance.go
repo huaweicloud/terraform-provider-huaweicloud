@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/instances"
 )
 
@@ -126,7 +127,7 @@ func resourceGaussDBInstance() *schema.Resource {
 			"backup_strategy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -134,12 +135,12 @@ func resourceGaussDBInstance() *schema.Resource {
 						"start_time": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
+							ForceNew: false,
 						},
 						"keep_days": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: true,
+							ForceNew: false,
 						},
 					},
 				},
@@ -219,23 +220,6 @@ func resourceGaussDBDataStore(d *schema.ResourceData) instances.DataStoreOpt {
 	return db
 }
 
-func resourceGaussDBBackupStrategy(d *schema.ResourceData) *instances.BackupStrategyOpt {
-	var backupOpt instances.BackupStrategyOpt
-
-	backupStrategyRaw := d.Get("backup_strategy").([]interface{})
-	if len(backupStrategyRaw) == 1 {
-		strategy := backupStrategyRaw[0].(map[string]interface{})
-		backupOpt.StartTime = strategy["start_time"].(string)
-		backupOpt.KeepDays = strconv.Itoa(strategy["keep_days"].(int))
-	} else {
-		// set defautl backup strategy
-		backupOpt.StartTime = "00:00-01:00"
-		backupOpt.KeepDays = "7"
-	}
-
-	return &backupOpt
-}
-
 func GaussDBInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		v, err := instances.Get(client, instanceID).Extract()
@@ -274,7 +258,6 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		SlaveCount:          d.Get("read_replicas").(int),
 		Mode:                "Cluster",
 		DataStore:           resourceGaussDBDataStore(d),
-		BackupStrategy:      resourceGaussDBBackupStrategy(d),
 	}
 	azMode := d.Get("availability_zone_mode").(string)
 	createOpts.AZMode = azMode
@@ -308,15 +291,26 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		// the instance has created, but the status is unnormal
-		deleteErr := resourceGaussDBInstanceDelete(d, meta)
-		if deleteErr != nil {
-			log.Printf("[ERROR] Error deleting GaussDB instance: %s", deleteErr)
-		}
-
 		return fmt.Errorf(
 			"Error waiting for instance (%s) to become ready: %s",
 			id, err)
+	}
+
+	if hasFilledOpt(d, "backup_strategy") {
+		var updateOpts backups.UpdateOpts
+		backupRaw := d.Get("backup_strategy").([]interface{})
+		rawMap := backupRaw[0].(map[string]interface{})
+		keep_days := rawMap["keep_days"].(int)
+		updateOpts.KeepDays = &keep_days
+		updateOpts.StartTime = rawMap["start_time"].(string)
+		// Fixed to "1,2,3,4,5,6,7"
+		updateOpts.Period = "1,2,3,4,5,6,7"
+		log.Printf("[DEBUG] Update backup_strategy: %#v", updateOpts)
+
+		err = backups.Update(client, id, updateOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error updating backup_strategy: %s", err)
+		}
 	}
 
 	return resourceGaussDBInstanceRead(d, meta)
@@ -524,6 +518,23 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				}
 				log.Printf("[DEBUG] Deleted Read Replica: %s", slave_nodes[i])
 			}
+		}
+	}
+
+	if d.HasChange("backup_strategy") {
+		var updateOpts backups.UpdateOpts
+		backupRaw := d.Get("backup_strategy").([]interface{})
+		rawMap := backupRaw[0].(map[string]interface{})
+		keep_days := rawMap["keep_days"].(int)
+		updateOpts.KeepDays = &keep_days
+		updateOpts.StartTime = rawMap["start_time"].(string)
+		// Fixed to "1,2,3,4,5,6,7"
+		updateOpts.Period = "1,2,3,4,5,6,7"
+		log.Printf("[DEBUG] Update backup_strategy: %#v", updateOpts)
+
+		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error updating backup_strategy: %s", err)
 		}
 	}
 

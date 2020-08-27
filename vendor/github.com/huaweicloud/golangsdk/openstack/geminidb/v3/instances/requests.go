@@ -229,7 +229,7 @@ func GetInstanceByID(client *golangsdk.ServiceClient, instanceId string) (Gemini
 }
 
 type UpdateNameOpts struct {
-	Name int `json:"name" required:"true"`
+	Name string `json:"name" required:"true"`
 }
 
 type UpdateNameBuilder interface {
@@ -259,7 +259,7 @@ func UpdateName(client *golangsdk.ServiceClient, instanceId string, opts UpdateN
 }
 
 type UpdatePassOpts struct {
-	Password int `json:"password" required:"true"`
+	Password string `json:"password" required:"true"`
 }
 
 type UpdatePassBuilder interface {

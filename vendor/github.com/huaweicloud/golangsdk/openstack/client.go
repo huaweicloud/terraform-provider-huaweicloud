@@ -9,10 +9,9 @@ import (
 
 	"github.com/huaweicloud/golangsdk"
 	tokens2 "github.com/huaweicloud/golangsdk/openstack/identity/v2/tokens"
+	"github.com/huaweicloud/golangsdk/openstack/identity/v3/catalog"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/domains"
-	"github.com/huaweicloud/golangsdk/openstack/identity/v3/endpoints"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/projects"
-	"github.com/huaweicloud/golangsdk/openstack/identity/v3/services"
 	tokens3 "github.com/huaweicloud/golangsdk/openstack/identity/v3/tokens"
 	"github.com/huaweicloud/golangsdk/openstack/utils"
 	"github.com/huaweicloud/golangsdk/pagination"
@@ -356,48 +355,17 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 	v3Client.ProjectID = options.ProjectId
 
 	var entries = make([]tokens3.CatalogEntry, 0, 1)
-	err = services.List(v3Client, services.ListOpts{}).EachPage(func(page pagination.Page) (bool, error) {
-		serviceLst, err := services.ExtractServices(page)
+	err = catalog.List(v3Client).EachPage(func(page pagination.Page) (bool, error) {
+		catalogList, err := catalog.ExtractServiceCatalog(page)
 		if err != nil {
 			return false, err
 		}
 
-		for _, svc := range serviceLst {
-			entry := tokens3.CatalogEntry{
-				Type: svc.Type,
-				//Name: svc.Name,
-				ID: svc.ID,
-			}
-			entries = append(entries, entry)
-		}
+		entries = append(entries, catalogList...)
 
 		return true, nil
 	})
 
-	if err != nil {
-		return err
-	}
-
-	err = endpoints.List(v3Client, endpoints.ListOpts{}).EachPage(func(page pagination.Page) (bool, error) {
-		endpoints, err := endpoints.ExtractEndpoints(page)
-		if err != nil {
-			return false, err
-		}
-
-		for _, endpoint := range endpoints {
-			entry := getEntryByServiceId(entries, endpoint.ServiceID)
-
-			if entry != nil {
-				entry.Endpoints = append(entry.Endpoints, tokens3.Endpoint{
-					URL:       strings.Replace(endpoint.URL, "$(tenant_id)s", options.ProjectId, -1),
-					Region:    endpoint.Region,
-					Interface: string(endpoint.Availability),
-					ID:        endpoint.ID,
-				})
-			}
-		}
-		return true, nil
-	})
 	if err != nil {
 		return err
 	}

@@ -111,6 +111,8 @@ All above argument parameters can be exported as attribute parameters along with
 
   * `certificate_users/client_key_data` - The client key data.
 
+  * `security_group_id` - Security group ID of the cluster.
+
 ## Import
 
  Cluster can be imported using the cluster id, e.g.

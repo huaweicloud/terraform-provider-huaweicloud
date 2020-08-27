@@ -90,7 +90,6 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `backup_strategy` - (Optional) Specifies the advanced backup policy. Structure is documented below.
-  Changing this parameter will create a new resource.
 
 The `datastore` block supports:
 
