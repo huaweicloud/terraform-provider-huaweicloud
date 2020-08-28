@@ -44,7 +44,7 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"node_num": {
 				Type:         schema.TypeInt,
@@ -76,7 +76,7 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"configuration_id": {
 				Type:     schema.TypeString,
@@ -369,6 +369,7 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	dbList = append(dbList, db)
 	d.Set("datastore", dbList)
 
+	specCode := ""
 	ipsList := []string{}
 	nodesList := make([]map[string]interface{}, 0, 1)
 	for _, group := range instance.Groups {
@@ -380,6 +381,9 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 				"private_ip":     Node.PrivateIp,
 				"support_reduce": Node.SupportReduce,
 			}
+			if specCode == "" {
+				specCode = Node.SpecCode
+			}
 			nodesList = append(nodesList, node)
 			// Only return Node private ips which doesn't support reduce
 			if !Node.SupportReduce {
@@ -387,6 +391,10 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 			}
 		}
 		d.Set("volume_size", group.Volume.Size)
+		if specCode != "" {
+			log.Printf("[DEBUG] Node SpecCode: %s", specCode)
+			d.Set("flavor", specCode)
+		}
 	}
 	d.Set("nodes", nodesList)
 	d.Set("private_ips", ipsList)
@@ -566,6 +574,57 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 						"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
 				}
 			}
+		}
+	}
+
+	if d.HasChange("flavor") {
+		resizeOpts := instances.ResizeOpts{
+			InstanceID: d.Id(),
+			SpecCode:   d.Get("flavor").(string),
+		}
+
+		result := instances.Resize(client, d.Id(), resizeOpts)
+		if result.Err != nil {
+			return fmt.Errorf("Error resizing huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), result.Err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"RESIZE_FLAVOR"},
+			Target:       []string{"available"},
+			Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),
+			Timeout:      d.Timeout(schema.TimeoutCreate),
+			PollInterval: 20 * time.Second,
+		}
+
+		_, err := stateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("security_group_id") {
+		updateSgOpts := instances.UpdateSgOpts{
+			SecurityGroupID: d.Get("security_group_id").(string),
+		}
+
+		result := instances.UpdateSg(client, d.Id(), updateSgOpts)
+		if result.Err != nil {
+			return fmt.Errorf("Error updating security group for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), result.Err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"MODIFY_SECURITYGROUP"},
+			Target:       []string{"available"},
+			Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "MODIFY_SECURITYGROUP"),
+			Timeout:      d.Timeout(schema.TimeoutCreate),
+			PollInterval: 3 * time.Second,
+		}
+
+		_, err := stateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
 		}
 	}
 
