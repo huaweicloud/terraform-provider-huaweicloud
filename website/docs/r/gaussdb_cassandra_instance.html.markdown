@@ -66,7 +66,6 @@ The following arguments are supported:
 
 * `flavor` - (Required) Specifies the instance specifications. For details, 
   see [DB Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-geminidb/geminidb_01_0006.html)
-  Changing this parameter will create a new resource.
 
 * `node_num` - (Optional) Specifies the number of nodes, ranges from 3 to 12. Defaults to 3.
 
@@ -89,6 +88,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `security_group_id` - (Optional) Specifies the security group ID. Required if the selected subnet doesn't enable network ACL.
+
+* `configuration_id` - (Optional) Specifies the configuration ID.
   Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional) Specifies the enterprise project id, Only valid for users who

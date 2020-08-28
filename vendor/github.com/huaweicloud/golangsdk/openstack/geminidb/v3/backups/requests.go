@@ -36,7 +36,7 @@ func Update(c *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r Up
 		r.Err = err
 		return
 	}
-	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200},
+	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{204},
 		MoreHeaders: RequestOpts.MoreHeaders}
 	_, r.Err = c.Put(resourceURL(c, id), b, nil, reqOpt)
 	return
