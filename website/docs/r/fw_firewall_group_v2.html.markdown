@@ -54,10 +54,10 @@ The following arguments are supported:
     `region` argument of the provider is used. Changing this creates a new
     firewall group.
 
-* `ingress_policy_id` - The ingress policy resource id for the firewall group. Changing
+* `ingress_policy_id` - (Optional) The ingress policy resource id for the firewall group. Changing
     this updates the `ingress_policy_id` of an existing firewall group.
 
-* `egress_policy_id` - The egress policy resource id for the firewall group. Changing
+* `egress_policy_id` - (Optional) The egress policy resource id for the firewall group. Changing
     this updates the `egress_policy_id` of an existing firewall group.
 
 * `name` - (Optional) A name for the firewall group. Changing this

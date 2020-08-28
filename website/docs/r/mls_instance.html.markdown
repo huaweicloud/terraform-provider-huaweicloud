@@ -140,9 +140,6 @@ The `public_ip` block supports:
   (Required)
   Bind type. Possible values: auto_assign, not_use
 
-* `eip_id` -
-  EIP ID. This parameter value is returned only when bindType
-  is set to auto_assign
 
 - - -
 
@@ -184,6 +181,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `updated` -
   Time when the instance is updated. The parameter format is the same
   as the format of the created parameter
+
+* `eip_id` -
+  EIP ID. This parameter value is returned only when bindType
+  is set to auto_assign
 
 ## Timeouts
 

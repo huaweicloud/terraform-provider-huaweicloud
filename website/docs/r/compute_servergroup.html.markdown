@@ -32,7 +32,7 @@ The following arguments are supported:
     a new server group.
 
 * `policies` - (Required) The set of policies for the server group. Only two
-    two policies are available right now, and both are mutually exclusive. See
+    policies are available right now, and both are mutually exclusive. See
     the Policies section for more information. Changing this creates a new
     server group.
 
@@ -40,10 +40,10 @@ The following arguments are supported:
 
 ## Policies
 
-* `affinity` - All instances/servers launched in this group will be hosted on
+* `affinity` - (Optional) All instances/servers launched in this group will be hosted on
     the same compute node.
 
-* `anti-affinity` - All instances/servers launched in this group will be
+* `anti-affinity` - (Optional) All instances/servers launched in this group will be
     hosted on different compute nodes.
 
 ## Attributes Reference
