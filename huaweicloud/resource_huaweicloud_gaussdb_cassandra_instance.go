@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
+	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/instances"
 )
 
@@ -125,7 +126,7 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			"backup_strategy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -133,12 +134,12 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 						"start_time": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
+							ForceNew: false,
 						},
 						"keep_days": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: true,
+							ForceNew: false,
 						},
 					},
 				},
@@ -565,6 +566,23 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 						"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
 				}
 			}
+		}
+	}
+
+	if d.HasChange("backup_strategy") {
+		var updateOpts backups.UpdateOpts
+		backupRaw := d.Get("backup_strategy").([]interface{})
+		rawMap := backupRaw[0].(map[string]interface{})
+		keep_days := rawMap["keep_days"].(int)
+		updateOpts.KeepDays = &keep_days
+		updateOpts.StartTime = rawMap["start_time"].(string)
+		// Fixed to "1,2,3,4,5,6,7"
+		updateOpts.Period = "1,2,3,4,5,6,7"
+		log.Printf("[DEBUG] Update backup_strategy: %#v", updateOpts)
+
+		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error updating backup_strategy: %s", err)
 		}
 	}
 

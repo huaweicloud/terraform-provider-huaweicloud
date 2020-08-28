@@ -251,7 +251,7 @@ func UpdateName(client *golangsdk.ServiceClient, instanceId string, opts UpdateN
 		return
 	}
 
-	_, r.Err = client.Put(updateNameURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Put(updateNameURL(client, instanceId), b, nil, &golangsdk.RequestOpts{
 		OkCodes:     []int{204},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
@@ -281,8 +281,69 @@ func UpdatePass(client *golangsdk.ServiceClient, instanceId string, opts UpdateP
 		return
 	}
 
-	_, r.Err = client.Put(updatePassURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Put(updatePassURL(client, instanceId), b, nil, &golangsdk.RequestOpts{
 		OkCodes:     []int{204},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
+}
+
+type ResizeOpts struct {
+	InstanceID string `json:"target_id" required:"true"`
+	SpecCode   string `json:"target_spec_code" required:"true"`
+}
+
+type ResizeBuilder interface {
+	ToResizeMap() (map[string]interface{}, error)
+}
+
+func (opts ResizeOpts) ToResizeMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "resize")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func Resize(client *golangsdk.ServiceClient, instanceId string, opts ResizeBuilder) (r ExtendResult) {
+	b, err := opts.ToResizeMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(resizeURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{202},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
+}
+
+type UpdateSgOpts struct {
+	SecurityGroupID string `json:"security_group_id" required:"true"`
+}
+
+type UpdateSgBuilder interface {
+	ToSgUpdateMap() (map[string]interface{}, error)
+}
+
+func (opts UpdateSgOpts) ToSgUpdateMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func UpdateSg(client *golangsdk.ServiceClient, instanceId string, opts UpdateSgBuilder) (r ExtendResult) {
+	b, err := opts.ToSgUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(updateSgURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{202},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
 	return

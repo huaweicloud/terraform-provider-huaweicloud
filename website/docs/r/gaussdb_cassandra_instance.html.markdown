@@ -78,7 +78,6 @@ The following arguments are supported:
 * `password` - (Required) Specifies the database password. The value must be 8 to 32 characters
   in length, including uppercase and lowercase letters, digits, and special characters,
   such as ~!@#%^*-_=+?
-
   You are advised to enter a strong password to improve security, preventing security risks
   such as brute force cracking.
   Changing this parameter will create a new resource.
@@ -103,7 +102,6 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `backup_strategy` - (Optional) Specifies the advanced backup policy. Structure is documented below.
-  Changing this parameter will create a new resource.
 
 * `tags` - (Optional) The key/value pairs to associate with the instance.
 
