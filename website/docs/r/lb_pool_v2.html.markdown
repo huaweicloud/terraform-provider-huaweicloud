@@ -57,7 +57,7 @@ The following arguments are supported:
     distribute traffic to the pool's members. Must be one of
     ROUND_ROBIN, LEAST_CONNECTIONS, or SOURCE_IP.
 
-* `persistence` - Omit this field to prevent session persistence.  Indicates
+* `persistence` - (Optional) Omit this field to prevent session persistence.  Indicates
     whether connections in the same session will be processed by the same Pool
     member or not. Changing this creates a new pool.
 
