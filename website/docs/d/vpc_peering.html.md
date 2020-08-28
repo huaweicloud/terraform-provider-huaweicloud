@@ -6,29 +6,34 @@ description: |-
   Provides details about a specific VPC peering connection.
 ---
 
-# Data Source: huaweicloud_vpc_peering_connection
+# huaweicloud\_vpc\_peering\_connection
 
 The VPC Peering Connection data source provides details about a specific VPC peering connection.
 This is an alternative to `huaweicloud_vpc_peering_connection_v2`
 
 ## Example Usage
 
- ```hcl
+```hcl
+data "huaweicloud_vpc" "vpc" {
+  name = "vpc"
+}
+
+data "huaweicloud_vpc" "peer_vpc" {
+  name = "peer_vpc"
+}
 
 data "huaweicloud_vpc_peering_connection" "peering" {
-   vpc_id          = "${huaweicloud_vpc.vpc.id}"
-   peer_vpc_id     = "${huaweicloud_vpc.peer_vpc.id}"
- }
-
+  vpc_id      = data.huaweicloud_vpc.vpc.id
+  peer_vpc_id = data.huaweicloud_vpc.peer_vpc.id
+}
 
 resource "huaweicloud_vpc_route" "vpc_route" {
-  type       = "peering"
-  nexthop    = "${data.huaweicloud_vpc_peering_connection.peering.id}"
+  type        = "peering"
+  nexthop     = data.huaweicloud_vpc_peering_connection.peering.id
   destination = "192.168.0.0/16"
-  vpc_id = "${huaweicloud_vpc.vpc.id}"
+  vpc_id      = data.huaweicloud_vpc.vpc.id
 }
- ```
-
+```
 
 ## Argument Reference
 

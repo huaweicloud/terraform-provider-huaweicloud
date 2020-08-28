@@ -6,7 +6,7 @@ description: |-
   Provides details about a specific VPC subnet
 ---
 
-# Data Source: huaweicloud_vpc_subnet
+# huaweicloud\_vpc\_subnet
 
 Provides details about a specific VPC subnet.
 This is an alternative to `huaweicloud_vpc_subnet_v1`
@@ -18,12 +18,12 @@ VPC that the subnet belongs to.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_vpc_subnet" "subnet_v1" {
-  id   = "${var.subnet_id}"
- }
+data "huaweicloud_vpc_subnet" "subnet" {
+  id = var.subnet_id
+}
 
 output "subnet_vpc_id" {
-  value = "${data.huaweicloud_vpc_subnet.subnet_v1.vpc_id}"
+  value = "${data.huaweicloud_vpc_subnet.subnet.vpc_id}"
 }
 ```
 

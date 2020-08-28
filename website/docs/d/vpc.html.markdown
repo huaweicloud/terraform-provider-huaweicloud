@@ -6,12 +6,10 @@ description: |-
   Get information on a VPC.
 ---
 
-# huaweicloud_vpc
+# huaweicloud\_vpc
 
 Provides details about a specific VPC.
 This is an alternative to `huaweicloud_vpc_v1`
-
-This resource can prove useful when a module accepts a vpc id as an input variable and needs to, for example, determine the CIDR block of that VPC.
 
 ## Example Usage
 
@@ -31,7 +29,6 @@ data "huaweicloud_vpc" "vpc" {
 
 The arguments of this data source act as filters for querying the available VPCs in the current region. The given filters must match exactly one VPC whose data will be exported as attributes.
 
-* `region` - (Optional) The region in which to obtain the V1 VPC client. A VPC client is needed to retrieve VPCs. If omitted, the region argument of the provider is used.
 
 * `id` - (Optional) The id of the specific VPC to retrieve.
 
@@ -58,6 +55,3 @@ The following attributes are exported:
 * `routes` - The list of route information with destination and nexthop fields.
 
 * `shared` - Specifies whether the cross-tenant sharing is supported.
-
-* `region` - See Argument Reference above.
-

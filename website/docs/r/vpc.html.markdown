@@ -14,7 +14,6 @@ This is an alternative to `huaweicloud_vpc_v1`
 ## Example Usage
 
 ```hcl
-
 variable "vpc_name" {
   default = "huaweicloud_vpc"
 }
@@ -23,14 +22,14 @@ variable "vpc_cidr" {
   default = "192.168.0.0/16"
 }
 
-resource "huaweicloud_vpc" "vpc_v1" {
-  name = "${var.vpc_name}"
-  cidr = "${var.vpc_cidr}"
+resource "huaweicloud_vpc" "vpc" {
+  name = var.vpc_name
+  cidr = var.vpc_cidr
 }
 
 resource "huaweicloud_vpc" "vpc_with_tags" {
-  name = "${var.vpc_name}"
-  cidr = "${var.vpc_cidr}"
+  name = var.vpc_name
+  cidr = var.vpc_cidr
 
   tags = {
     foo = "bar"
@@ -45,8 +44,6 @@ resource "huaweicloud_vpc" "vpc_with_tags" {
 The following arguments are supported:
 
 * `cidr` - (Required) The range of available subnets in the VPC. The value ranges from 10.0.0.0/8 to 10.255.255.0/24, 172.16.0.0/12 to 172.31.255.0/24, or 192.168.0.0/16 to 192.168.255.0/24.
-
-* `region` - (Optional) The region in which to obtain the V1 VPC client. A VPC client is needed to create a VPC. If omitted, the region argument of the provider is used. Changing this creates a new VPC.
 
 * `name` - (Required) The name of the VPC. The name must be unique for a tenant. The value is a string of no more than 64 characters and can contain digits, letters, underscores (_), and hyphens (-). Changing this updates the name of the existing VPC.
 

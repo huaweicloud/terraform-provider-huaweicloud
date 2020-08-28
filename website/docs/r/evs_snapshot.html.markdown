@@ -12,19 +12,27 @@ Provides an EVS snapshot resource.
  
 # Example Usage
 
- ```hcl
-resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
-  name = "volume_1"
-  description = "test volume"
-  size = 40
+```hcl
+resource "huaweicloud_evs_volume" "myvolume" {
+  name        = "volume"
+  description = "my volume"
+  volume_type = "SATA"
+  size        = 20
+
+  availability_zone = "cn-north-4a"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 
 resource "huaweicloud_evs_snapshot" "snapshot_1" {
-  volume_id = huaweicloud_blockstorage_volume_v2.volume_1.id
-  name = "snapshot-001"
+  name        = "snapshot-001"
   description = "Daily backup"
+  volume_id   = huaweicloud_evs_volume.myvolume.id
 }
- ```
+```
 
 # Argument Reference
 

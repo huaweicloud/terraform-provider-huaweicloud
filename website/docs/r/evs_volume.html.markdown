@@ -13,13 +13,15 @@ Manages a volume resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_evs_volume" "volume_1" {
-  name        = "volume_1"
-  description = "first test volume"
-  availability_zone = "eu-de-01"
+resource "huaweicloud_evs_volume" "volume" {
+  name        = "volume"
+  description = "my volume"
   volume_type = "SATA"
   size        = 20
-  tags        = {
+
+  availability_zone = "cn-north-4a"
+
+  tags = {
     foo = "bar"
     key = "value"
   }
@@ -29,14 +31,16 @@ resource "huaweicloud_evs_volume" "volume_1" {
 ## Example Usage with KMS encryption
 
 ```hcl
-resource "huaweicloud_evs_volume" "volume_1" {
-  name        = "volume_1"
-  description = "first test volume"
-  availability_zone = "eu-de-01"
+resource "huaweicloud_evs_volume" "volume" {
+  name        = "volume"
+  description = "my volume"
   volume_type = "SATA"
-  kms_id = "${var.kms_id}"
   size        = 20
-  tags        = {
+  kms_id      = var.kms_id
+
+  availability_zone = "cn-north-4a"
+
+  tags = {
     foo = "bar"
     key = "value"
   }

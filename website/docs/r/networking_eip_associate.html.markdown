@@ -14,11 +14,11 @@ Associates an EIP to a port. This can be used instead of the
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_networking_port_v2" "port_1" {
+resource "huaweicloud_networking_port" "myport" {
   network_id = "a5bbd213-e1d3-49b6-aed1-9df60ea94b9a"
 }
 
-resource "huaweicloud_vpc_eip_v1" "eip_1" {
+resource "huaweicloud_vpc_eip_v1" "myeip" {
   publicip {
     type = "5_bgp"
   }
@@ -30,9 +30,9 @@ resource "huaweicloud_vpc_eip_v1" "eip_1" {
   }
 }
 
-resource "huaweicloud_networking_eip_associate" "fip_1" {
-  public_ip = huaweicloud_vpc_eip_v1.eip_1.address
-  port_id   = huaweicloud_networking_port_v2.port_1.id
+resource "huaweicloud_networking_eip_associate" "associated" {
+  public_ip = huaweicloud_vpc_eip.myeip.address
+  port_id   = huaweicloud_networking_port.myport.id
 }
 ```
 
@@ -51,7 +51,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
 * `floating_ip` - Deprecated. See Argument Reference above.
 * `public_ip` - See Argument Reference above.
 * `port_id` - See Argument Reference above.

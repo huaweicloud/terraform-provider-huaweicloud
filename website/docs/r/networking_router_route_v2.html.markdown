@@ -10,6 +10,8 @@ description: |-
 
 Creates a routing entry on a HuaweiCloud V2 router.
 
+!> **Warning:** It has been deprecated, use `huaweicloud_vpc_route` instead.
+
 ## Example Usage
 
 ```hcl

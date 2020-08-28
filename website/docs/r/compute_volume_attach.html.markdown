@@ -16,59 +16,66 @@ This is an alternative to `huaweicloud_compute_volume_attach_v2`
 ### Basic attachment of a single volume to a single instance
 
 ```hcl
-resource "huaweicloud_evs_volume" "test" {
-  name = "volume_1"
-  availability_zone = "cn-norht-1a"
-  volume_type = "SAS"
-  size = 10
+resource "huaweicloud_evs_volume" "myvol" {
+  name              = "volume"
+  availability_zone = "cn-norht-4a"
+  volume_type       = "SAS"
+  size              = 10
 }
 
-resource "huaweicloud_compute_instance" "instance_1" {
-  name            = "instance_1"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance" "myinstance" {
+  name              = "instance"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "s6.small.1"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "cn-north-4a"
+
+  network {
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
+  }
 }
 
-resource "huaweicloud_compute_volume_attach" "va_1" {
-  instance_id = "${huaweicloud_compute_instance.instance_1.id}"
-  volume_id = "${huaweicloud_evs_volume.test.id}"
+resource "huaweicloud_compute_volume_attach" "attached" {
+  instance_id = huaweicloud_compute_instance.myinstance.id
+  volume_id   = huaweicloud_evs_volume.myvol.id
 }
 ```
 
 ### Attaching multiple volumes to a single instance
 
 ```hcl
-resource "huaweicloud_evs_volume" "test" {
-  count = 2
-  name = "volume_1"
-  availability_zone = "cn-norht-1a"
-  volume_type = "SAS"
-  size = 10
+resource "huaweicloud_evs_volume" "myvol" {
+  count             = 2
+  name              = "volume_1"
+  availability_zone = "cn-norht-4a"
+  volume_type       = "SAS"
+  size              = 10
 }
 
-resource "huaweicloud_compute_instance" "instance_1" {
-  name            = "instance_1"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance" "myinstance" {
+  name              = "instance"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "s6.small.1"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "cn-north-4a"
 }
 
 resource "huaweicloud_compute_volume_attach" "attachments" {
   count       = 2
-  instance_id = "${huaweicloud_compute_instance.instance_1.id}"
-  volume_id   = "${element(huaweicloud_evs_volume.test.*.id, count.index)}"
+  instance_id = huaweicloud_compute_instance.myinstance.id
+  volume_id   = element(huaweicloud_evs_volume.myvol.*.id, count.index)
 }
 
 output "volume devices" {
-  value = "${huaweicloud_compute_volume_attach.attachments.*.device}"
+  value = huaweicloud_compute_volume_attach.attachments.*.device
 }
 ```
 
 ## Argument Reference
 
 The following arguments are supported:
-
-* `region` - (Optional) The region in which to obtain the V2 Compute client.
-    A Compute client is needed to create a volume attachment. If omitted, the
-    `region` argument of the provider is used. Changing this creates a
-    new volume attachment.
 
 * `instance_id` - (Required) The ID of the Instance to attach the Volume to.
 
@@ -85,7 +92,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
 * `instance_id` - See Argument Reference above.
 * `volume_id` - See Argument Reference above.
 * `device` - See Argument Reference above. _NOTE_: The correctness of this
