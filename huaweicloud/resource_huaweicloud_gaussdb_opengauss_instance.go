@@ -290,13 +290,10 @@ func resourceOpenGaussBackupStrategy(d *schema.ResourceData) *instances.BackupSt
 		strategy := backupStrategyRaw[0].(map[string]interface{})
 		backupOpt.StartTime = strategy["start_time"].(string)
 		backupOpt.KeepDays = strategy["keep_days"].(int)
-	} else {
-		// set defautl backup strategy
-		backupOpt.StartTime = "17:00-18:00"
-		backupOpt.KeepDays = 7
+		return &backupOpt
 	}
 
-	return &backupOpt
+	return nil
 }
 
 func OpenGaussInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID string) resource.StateRefreshFunc {

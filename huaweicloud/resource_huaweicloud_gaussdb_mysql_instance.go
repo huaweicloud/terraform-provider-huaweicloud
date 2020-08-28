@@ -371,6 +371,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("datastore", dbList)
 
 	// set nodes
+	flavor := ""
 	slave_count := 0
 	nodesList := make([]map[string]interface{}, 0, 1)
 	for _, raw := range instance.Nodes {
@@ -388,9 +389,16 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 		if raw.Type == "slave" && raw.Status == "ACTIVE" {
 			slave_count += 1
 		}
+		if flavor == "" {
+			flavor = raw.Flavor
+		}
 	}
 	d.Set("nodes", nodesList)
 	d.Set("read_replicas", slave_count)
+	if flavor != "" {
+		log.Printf("[DEBUG] Node Flavor: %s", flavor)
+		d.Set("flavor", flavor)
+	}
 
 	// set backup_strategy
 	backupStrategyList := make([]map[string]interface{}, 1)
