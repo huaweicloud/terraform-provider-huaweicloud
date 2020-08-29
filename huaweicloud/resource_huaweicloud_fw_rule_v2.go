@@ -20,6 +20,7 @@ func resourceFWRuleV2() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		DeprecationMessage: "use huaweicloud_network_acl_rule resource instead",
 
 		Schema: map[string]*schema.Schema{
 			"region": {

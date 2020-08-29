@@ -10,6 +10,8 @@ description: |-
 
 Manages a v2 firewall rule resource within HuaweiCloud.
 
+!> **Warning:** It has been deprecated, use `huaweicloud_network_acl_rule` instead.
+
 ## Example Usage
 
 ```hcl
