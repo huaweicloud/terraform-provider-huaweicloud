@@ -9,10 +9,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
-	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/tags"
 	"github.com/huaweicloud/golangsdk/pagination"
 )
 
@@ -380,7 +380,7 @@ func testAccCheckComputeV2InstanceTags(
 			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 		}
 
-		taglist, err := tags.Get(client, instance.ID).Extract()
+		taglist, err := tags.Get(client, "cloudservers", instance.ID).Extract()
 		for _, val := range taglist.Tags {
 			if k != val.Key {
 				continue
@@ -406,7 +406,7 @@ func testAccCheckComputeV2InstanceNoTags(
 			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 		}
 
-		taglist, err := tags.Get(client, instance.ID).Extract()
+		taglist, err := tags.Get(client, "cloudservers", instance.ID).Extract()
 
 		if taglist.Tags == nil {
 			return nil
