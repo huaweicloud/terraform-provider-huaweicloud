@@ -513,6 +513,13 @@ func (c *Config) cceV3Client(region string) (*golangsdk.ServiceClient, error) {
 	})
 }
 
+func (c *Config) cceAddonV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return huaweisdk.NewCCEAddonV3(c.HwClient, golangsdk.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getHwEndpointType(),
+	})
+}
+
 func (c *Config) cciV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return huaweisdk.CCIV1(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),

@@ -264,6 +264,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_as_policy":                       resourceASPolicy(),
 			"huaweicloud_cce_cluster":                     resourceCCEClusterV3(),
 			"huaweicloud_cce_node":                        resourceCCENodeV3(),
+			"huaweicloud_cce_addon":                       resourceCCEAddonV3(),
 			"huaweicloud_cci_network":                     resourceCCINetworkV1(),
 			"huaweicloud_cdm_cluster":                     resourceCdmClusterV1(),
 			"huaweicloud_cdn_domain":                      resourceCdnDomainV1(),
