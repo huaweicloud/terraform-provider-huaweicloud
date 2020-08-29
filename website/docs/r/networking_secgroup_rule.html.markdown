@@ -14,30 +14,25 @@ This is an alternative to `huaweicloud_networking_secgroup_rule_v2`
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_networking_secgroup" "secgroup_1" {
-  name        = "secgroup_1"
-  description = "My neutron security group"
+resource "huaweicloud_networking_secgroup" "mysecgroup" {
+  name        = "secgroup"
+  description = "My security group"
 }
 
-resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_1" {
+resource "huaweicloud_networking_secgroup_rule" "secgroup_rule" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 22
   port_range_max    = 22
   remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = "${huaweicloud_networking_secgroup.secgroup_1.id}"
+  security_group_id = huaweicloud_networking_secgroup.mysecgroup.id
 }
 ```
 
 ## Argument Reference
 
 The following arguments are supported:
-
-* `region` - (Optional) The region in which to obtain the V2 networking client.
-    A networking client is needed to create a port. If omitted, the
-    `region` argument of the provider is used. Changing this creates a new
-    security group rule.
 
 * `direction` - (Required) The direction of the rule, valid values are __ingress__
     or __egress__. Changing this creates a new security group rule.
@@ -95,7 +90,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
 * `direction` - See Argument Reference above.
 * `ethertype` - See Argument Reference above.
 * `protocol` - See Argument Reference above.

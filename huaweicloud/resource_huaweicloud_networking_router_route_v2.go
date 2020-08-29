@@ -19,6 +19,7 @@ func resourceNetworkingRouterRouteV2() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		DeprecationMessage: "use huaweicloud_vpc_route resource instead",
 
 		Schema: map[string]*schema.Schema{
 			"region": {

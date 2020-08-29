@@ -26,7 +26,8 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -390,7 +391,9 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 				ipsList = append(ipsList, Node.PrivateIp)
 			}
 		}
-		d.Set("volume_size", group.Volume.Size)
+		if volSize, err := strconv.Atoi(group.Volume.Size); err == nil {
+			d.Set("volume_size", volSize)
+		}
 		if specCode != "" {
 			log.Printf("[DEBUG] Node SpecCode: %s", specCode)
 			d.Set("flavor", specCode)
@@ -438,7 +441,7 @@ func resourceGeminiDBInstanceV3Delete(d *schema.ResourceData, meta interface{}) 
 		Pending:      []string{"normal", "abnormal", "creating", "createfail", "enlargefail", "data_disk_full"},
 		Target:       []string{"deleted"},
 		Refresh:      GeminiDBInstanceStateRefreshFunc(client, instanceId),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        15 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
@@ -504,7 +507,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			Pending:    []string{"RESIZE_VOLUME"},
 			Target:     []string{"available"},
 			Refresh:    GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_VOLUME"),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			MinTimeout: 10 * time.Second,
 		}
 
@@ -534,7 +537,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 				Pending:      []string{"GROWING"},
 				Target:       []string{"available"},
 				Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "GROWING"),
-				Timeout:      d.Timeout(schema.TimeoutCreate),
+				Timeout:      d.Timeout(schema.TimeoutUpdate),
 				Delay:        15 * time.Second,
 				PollInterval: 20 * time.Second,
 			}
@@ -563,7 +566,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 					Pending:      []string{"REDUCING"},
 					Target:       []string{"available"},
 					Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "REDUCING"),
-					Timeout:      d.Timeout(schema.TimeoutCreate),
+					Timeout:      d.Timeout(schema.TimeoutUpdate),
 					Delay:        15 * time.Second,
 					PollInterval: 20 * time.Second,
 				}
@@ -592,7 +595,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			Pending:      []string{"RESIZE_FLAVOR"},
 			Target:       []string{"available"},
 			Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),
-			Timeout:      d.Timeout(schema.TimeoutCreate),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			PollInterval: 20 * time.Second,
 		}
 
@@ -617,7 +620,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			Pending:      []string{"MODIFY_SECURITYGROUP"},
 			Target:       []string{"available"},
 			Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "MODIFY_SECURITYGROUP"),
-			Timeout:      d.Timeout(schema.TimeoutCreate),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
 			PollInterval: 3 * time.Second,
 		}
 

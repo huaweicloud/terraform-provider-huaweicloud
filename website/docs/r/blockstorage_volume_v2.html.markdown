@@ -10,6 +10,8 @@ description: |-
 
 Manages a V2 volume resource within HuaweiCloud.
 
+!> **Warning:** It has been deprecated, use `huaweicloud_evs_volume` instead.
+
 ## Example Usage
 
 ```hcl

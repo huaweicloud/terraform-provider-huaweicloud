@@ -14,31 +14,13 @@ This is an alternative to `huaweicloud_networking_vip`
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
+data "huaweicloud_vpc_subnet" "mynet" {
+  name = "subnet-default"
 }
 
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  cidr = "192.168.199.0/24"
-  ip_version = 4
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-}
-
-resource "huaweicloud_networking_router_interface_v2" "router_interface_1" {
-  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
-  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
-}
-
-resource "huaweicloud_networking_router_v2" "router_1" {
-  name = "router_1"
-  external_network_id = "0a2228f2-7f8a-45f1-8e09-9039e1d09975"
-}
-
-resource "huaweicloud_networking_vip" "vip_1" {
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+resource "huaweicloud_networking_vip" "myvip" {
+  network_id = data.huaweicloud_vpc_subnet.mynet.id
+  subnet_id  = data.huaweicloud_vpc_subnet.mynet.subnet_id
 }
 ```
 
@@ -46,7 +28,7 @@ resource "huaweicloud_networking_vip" "vip_1" {
 
 The following arguments are supported:
 
-* `network_id` - (Required) The ID of the network to attach the vip to.
+* `network_id` - (Required) The Network ID of the VPC subnet to attach the vip to.
     Changing this creates a new vip.
 
 * `subnet_id` - (Required) Subnet in which to allocate IP address for this vip.

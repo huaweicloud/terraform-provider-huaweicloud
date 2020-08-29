@@ -14,74 +14,18 @@ This is an alternative to `huaweicloud_networking_vip_associate_v2`
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
+data "huaweicloud_vpc_subnet" "mynet" {
+  name = "subnet-default"
 }
 
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  cidr = "192.168.199.0/24"
-  ip_version = 4
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+resource "huaweicloud_networking_vip" "myvip" {
+  network_id = data.huaweicloud_vpc_subnet.mynet.id
+  subnet_id  = data.huaweicloud_vpc_subnet.mynet.subnet_id
 }
 
-resource "huaweicloud_networking_router_interface_v2" "router_interface_1" {
-  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
-  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
-}
-
-resource "huaweicloud_networking_router_v2" "router_1" {
-  name = "router_1"
-  external_network_id = "0a2228f2-7f8a-45f1-8e09-9039e1d09975"
-}
-
-resource "huaweicloud_networking_port_v2" "port_1" {
-  name = "port_1"
-  admin_state_up = "true"
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-
-  fixed_ip {
-    subnet_id =  "${huaweicloud_networking_subnet_v2.subnet_1.id}"
-  }
-}
-
-resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default"]
-
-  network {
-    port = "${huaweicloud_networking_port_v2.port_1.id}"
-  }
-}
-
-resource "huaweicloud_networking_port_v2" "port_2" {
-  name = "port_2"
-  admin_state_up = "true"
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-
-  fixed_ip {
-    subnet_id =  "${huaweicloud_networking_subnet_v2.subnet_1.id}"
-  }
-}
-
-resource "huaweicloud_compute_instance_v2" "instance_2" {
-  name = "instance_2"
-  security_groups = ["default"]
-
-  network {
-    port = "${huaweicloud_networking_port_v2.port_2.id}"
-  }
-}
-
-resource "huaweicloud_networking_vip" "vip_1" {
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
-}
-
-resource "huaweicloud_networking_vip_associate" "vip_associate_1" {
-  vip_id = "${huaweicloud_networking_vip.vip_1.id}"
-  port_ids = ["${huaweicloud_networking_port.port_1.id}", "${huaweicloud_networking_port.port_2.id}"]
+resource "huaweicloud_networking_vip_associate" "vip_associated" {
+  vip_id   = huaweicloud_networking_vip.myvip.id
+  port_ids = [var.port_1, var.port_2]
 }
 ```
 

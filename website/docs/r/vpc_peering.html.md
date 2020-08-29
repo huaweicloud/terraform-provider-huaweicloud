@@ -17,9 +17,9 @@ This is an alternative to `huaweicloud_vpc_peering_connection_v2`
 
  ```hcl
 resource "huaweicloud_vpc_peering_connection" "peering" {
-  name = "${var.peer_conn_name}"
-  vpc_id = "${var.vpc_id}"
-  peer_vpc_id = "${var.accepter_vpc_id}"
+  name        = var.peer_conn_name
+  vpc_id      = var.vpc_id
+  peer_vpc_id = var.accepter_vpc_id
 }
  ```
 

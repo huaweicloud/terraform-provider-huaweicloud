@@ -13,25 +13,24 @@ This is an alternative to `huaweicloud_vpc_subnet_v1`
 
 # Example Usage
 
- ```hcl
-resource "huaweicloud_vpc" "vpc_v1" {
-  name = "${var.vpc_name}"
-  cidr = "${var.vpc_cidr}"
+```hcl
+resource "huaweicloud_vpc" "vpc" {
+  name = var.vpc_name
+  cidr = var.vpc_cidr
 }
 
-
-resource "huaweicloud_vpc_subnet" "subnet_v1" {
-  name = "${var.subnet_name}"
-  cidr = "${var.subnet_cidr}"
-  gateway_ip = "${var.subnet_gateway_ip}"
-  vpc_id = "${huaweicloud_vpc.vpc_v1.id}"
+resource "huaweicloud_vpc_subnet" "subnet" {
+  name       = var.subnet_name
+  cidr       = var.subnet_cidr
+  gateway_ip = var.subnet_gateway_ip
+  vpc_id     = huaweicloud_vpc.vpc.id
 }
 
 resource "huaweicloud_vpc_subnet" "subnet_with_tags" {
-  name = "${var.subnet_name}"
-  cidr = "${var.subnet_cidr}"
-  gateway_ip = "${var.subnet_gateway_ip}"
-  vpc_id = "${huaweicloud_vpc.vpc_v1.id}"
+  name       = var.subnet_name
+  cidr       = var.subnet_cidr
+  gateway_ip = var.subnet_gateway_ip
+  vpc_id     = huaweicloud_vpc.vpc.id
 
   tags = {
     foo = "bar"

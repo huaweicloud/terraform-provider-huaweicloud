@@ -6,28 +6,18 @@ description: |-
   Provides details about a specific VPC Route.
 ---
 
-# Data Source: huaweicloud_vpc_route
+# huaweicloud\_vpc\_route
 
 Provides details about a specific VPC route.
 This is an alternative to `huaweicloud_vpc_route_v2`
 
 ## Example Usage
 
- ```hcl
- variable "route_id" { }
-
+```hcl
 data "huaweicloud_vpc_route" "vpc_route" {
-  id = "${var.route_id}"
+  vpc_id = var.vpc_id
 }
-
-resource "huaweicloud_vpc_subnet" "subnet_v1" {
-  name = "test-subnet"
-  cidr = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id = "${data.huaweicloud_vpc_route.vpc_route.vpc_id}"
-}
-
- ```
+```
 
 ## Argument Reference
 

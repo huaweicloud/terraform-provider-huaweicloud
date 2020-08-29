@@ -16,15 +16,20 @@ Associate an EIP to an instance. This is an alternative to
 ### Automatically detect the correct network
 
 ```hcl
-resource "huaweicloud_compute_instance" "instance_1" {
-  name            = "instance_1"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = 3
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance" "myinstance" {
+  name              = "instance"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "s6.small.1"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "cn-north-4a"
+
+  network {
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
+  }
 }
 
-resource "huaweicloud_vpc_eip_v1" "eip_1" {
+resource "huaweicloud_vpc_eip" "myeip" {
   publicip {
     type = "5_bgp"
   }
@@ -36,32 +41,33 @@ resource "huaweicloud_vpc_eip_v1" "eip_1" {
   }
 }
 
-resource "huaweicloud_compute_eip_associate" "associate_1" {
-  public_ip   = huaweicloud_vpc_eip_v1.eip_1.address
-  instance_id = huaweicloud_compute_instance_v2.instance_1.id
+resource "huaweicloud_compute_eip_associate" "associated" {
+  public_ip   = huaweicloud_vpc_eip.myeip.address
+  instance_id = huaweicloud_compute_instance.myinstance.id
 }
 ```
 
 ### Explicitly set the network to attach to
 
 ```hcl
-resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name            = "instance_1"
-  image_id        = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id       = 3
-  key_pair        = "my_key_pair_name"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance" "myinstance" {
+  name              = "instance"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "s6.small.1"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "cn-north-4a"
 
   network {
-    name = "my_network"
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
   }
 
   network {
-    name = "default"
+    uuid = "3c4a0d74-24b9-46cf-9d7f-8b7a4dc2f65c"
   }
 }
 
-resource "huaweicloud_vpc_eip_v1" "eip_1" {
+resource "huaweicloud_vpc_eip" "myeip" {
   publicip {
     type = "5_bgp"
   }
@@ -73,10 +79,10 @@ resource "huaweicloud_vpc_eip_v1" "eip_1" {
   }
 }
 
-resource "huaweicloud_compute_eip_associate" "fip_1" {
-  public_ip   = huaweicloud_vpc_eip_v1.eip_1.address
-  instance_id = huaweicloud_compute_instance_v2.instance_1.id
-  fixed_ip    = huaweicloud_compute_instance_v2.instance_1.network.1.fixed_ip_v4
+resource "huaweicloud_compute_eip_associate" "associated" {
+  public_ip   = huaweicloud_vpc_eip.myeip.address
+  instance_id = huaweicloud_compute_instance.myinstance.id
+  fixed_ip    = huaweicloud_compute_instance.myinstance.network.1.fixed_ip_v4
 }
 ```
 
@@ -96,7 +102,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
 * `floating_ip` - Deprecated. See Argument Reference above.
 * `public_ip` - See Argument Reference above.
 * `instance_id` - See Argument Reference above.

@@ -11,20 +11,74 @@ description: |-
 Provides a CCE cluster resource.
 This is an alternative to `huaweicloud_cce_cluster_v3`
 
-## Example Usage
+## Basic Usage
 
 ```hcl
-variable "flavor_id" { }
-variable "vpc_id" { }
-variable "subnet_id" { }
+resource "huaweicloud_vpc" "myvpc" {
+  name = "vpc"
+  cidr = "192.168.0.0/16"
+}
 
-resource "huaweicloud_cce_cluster" "cluster_1" {
+resource "huaweicloud_vpc_subnet" "mysubnet" {
+  name          = "subnet"
+  cidr          = "192.168.0.0/16"
+  gateway_ip    = "192.168.0.1"
+
+  //dns is required for cce node installing
+  primary_dns   = "100.125.1.250"
+  secondary_dns = "100.125.21.250"
+  vpc_id        = huaweicloud_vpc.myvpc.id
+}
+
+resource "huaweicloud_cce_cluster" "cluster" {
   name                   = "cluster"
-  flavor_id              = var.flavor_id
-  vpc_id                 = var.vpc_id
-  subnet_id              = var.subnet_id
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.myvpc.id
+  subnet_id              = huaweicloud_vpc_subnet.mysubnet.id
   container_network_type = "overlay_l2"
-  description            = "terraform created cluster"
+}
+```
+
+## Cluster With Eip
+
+```hcl
+resource "huaweicloud_vpc" "myvpc" {
+  name = "vpc"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "mysubnet" {
+  name          = "subnet"
+  cidr          = "192.168.0.0/16"
+  gateway_ip    = "192.168.0.1"
+
+  //dns is required for cce node installing
+  primary_dns   = "100.125.1.250"
+  secondary_dns = "100.125.21.250"
+  vpc_id        = huaweicloud_vpc.myvpc.id
+}
+
+resource "huaweicloud_vpc_eip_v1" "myeip" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 8
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_cce_cluster_v3" "cluster" {
+  name                   = "cluster"
+  cluster_type           = "VirtualMachine"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.myvpc.id
+  subnet_id              = huaweicloud_vpc_subnet.mysubnet.id
+  container_network_type = "overlay_l2"
+  authentication_mode    = "rbac"
+  eip                    = huaweicloud_vpc_eip.myeip.address
 }
 ```
 

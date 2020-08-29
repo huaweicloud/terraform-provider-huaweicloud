@@ -19,54 +19,42 @@ connection into management.
 
 ## Example Usage
 
- ```hcl
- provider "huaweicloud"  {
-    alias = "main"
-    user_name   = "${var.username}"
-    domain_name = "${var.domain_name}"
-    password    = "${var.password}"
-    auth_url    = "${var.auth_url}"
-    region      = "${var.region}"
-    tenant_id   = "${var.tenant_id}"
+```hcl
+provider "huaweicloud"  {
+  alias = "main"
 }
 
 provider "huaweicloud"  {
-    alias = "peer"
-    user_name = "${var.peer_username}"
-    domain_name = "${var.peer_domain_name}"
-    password    = "${var.peer_password}"
-    auth_url    = "${var.peer_auth_url}"
-    region      = "${var.peer_region}"
-    tenant_id   = "${var.peer_tenant_id}"
+  alias = "peer"
 }
 
 resource "huaweicloud_vpc" "vpc_main" {
-    provider = "huaweicloud.main"
-    name = "${var.vpc_name}"
-    cidr = "${var.vpc_cidr}"
+  provider = "huaweicloud.main"
+  name     = var.vpc_name
+  cidr     = var.vpc_cidr
 }
 
 resource "huaweicloud_vpc" "vpc_peer" {
-    provider = "huaweicloud.peer"
-    name = "${var.peer_vpc_name}"
-    cidr = "${var.peer_vpc_cidr}"
+  provider = "huaweicloud.peer"
+  name     = var.peer_vpc_name
+  cidr     = var.peer_vpc_cidr
 }
 
 # Requester's side of the connection.
 resource "huaweicloud_vpc_peering_connection" "peering" {
-    provider = "huaweicloud.main"
-    name = "${var.peer_name}"
-    vpc_id = "${huaweicloud_vpc.vpc_main.id}"
-    peer_vpc_id = "${huaweicloud_vpc.vpc_peer.id}"
-    peer_tenant_id =  "${var.tenant_id}"
+  provider       = "huaweicloud.main"
+  name           = var.peer_name
+  vpc_id         = huaweicloud_vpc.vpc_main.id
+  peer_vpc_id    = huaweicloud_vpc.vpc_peer.id
+  peer_tenant_id = var.tenant_id
 }
 
 # Accepter's side of the connection.
 resource "huaweicloud_vpc_peering_connection_accepter" "peer" {
-    provider = "huaweicloud.peer"
-    vpc_peering_connection_id = "${huaweicloud_vpc_peering_connection.peering.id}"
-    accept = true
-  
+  provider = "huaweicloud.peer"
+  accept   = true
+
+  vpc_peering_connection_id = huaweicloud_vpc_peering_connection.peering.id
 }
  ```
 

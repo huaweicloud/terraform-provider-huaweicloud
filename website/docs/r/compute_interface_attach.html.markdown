@@ -16,142 +16,93 @@ This is an alternative to `huaweicloud_compute_interface_attach_v2`
 ### Basic Attachment
 
 ```hcl
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name           = "network_1"
-  admin_state_up = "true"
+data "huaweicloud_vpc_subnet" "mynet" {
+  name = "subnet-default"
 }
 
-resource "huaweicloud_compute_instance" "instance_1" {
-  name            = "instance_1"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance" "myinstance" {
+  name              = "instance"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "s6.small.1"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "cn-north-4a"
+
+  network {
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
+  }
 }
 
-resource "huaweicloud_compute_interface_attach" "ai_1" {
-  instance_id = "${huaweicloud_compute_instance.instance_1.id}"
-  network_id  = "${huaweicloud_networking_network_v2.network_1.id}"
+resource "huaweicloud_compute_interface_attach" "attached" {
+  instance_id = huaweicloud_compute_instance.myinstance.id
+  network_id  = data.huaweicloud_vpc_subnet.mynet.id
 }
-
 ```
 
 ### Attachment Specifying a Fixed IP
 
 ```hcl
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name           = "network_1"
-  admin_state_up = "true"
+data "huaweicloud_vpc_subnet" "mynet" {
+  name = "subnet-default"
 }
 
-resource "huaweicloud_compute_instance" "instance_1" {
-  name            = "instance_1"
-  security_groups = ["default"]
+resource "huaweicloud_compute_instance" "myinstance" {
+  name              = "instance"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "s6.small.1"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "cn-north-4a"
+
+  network {
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
+  }
 }
 
-resource "huaweicloud_compute_interface_attach" "ai_1" {
-  instance_id = "${huaweicloud_compute_instance.instance_1.id}"
-  network_id  = "${huaweicloud_networking_network_v2.network_1.id}"
+resource "huaweicloud_compute_interface_attach" "attached" {
+  instance_id = huaweicloud_compute_instance.myinstance.id
+  network_id  = data.huaweicloud_vpc_subnet.mynet.id
   fixed_ip    = "10.0.10.10"
 }
 
 ```
 
-
 ### Attachment Using an Existing Port
 
 ```hcl
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name           = "network_1"
+data "huaweicloud_vpc_subnet" "mynet" {
+  name = "subnet-default"
+}
+
+resource "huaweicloud_networking_port" "myport" {
+  name           = "port"
+  network_id     = data.huaweicloud_vpc_subnet.mynet.id
   admin_state_up = "true"
 }
 
-resource "huaweicloud_networking_port_v2" "port_1" {
-  name           = "port_1"
-  network_id     = "${huaweicloud_networking_network_v2.network_1.id}"
-  admin_state_up = "true"
+resource "huaweicloud_compute_instance" "myinstance" {
+  name              = "instance"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "s6.small.1"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "cn-north-4a"
+
+  network {
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
+  }
 }
 
-
-resource "huaweicloud_compute_instance" "instance_1" {
-  name            = "instance_1"
-  security_groups = ["default"]
+resource "huaweicloud_compute_interface_attach" "attached" {
+  instance_id = huaweicloud_compute_instance.myinstance.id
+  port_id     = huaweicloud_networking_port.myport.id
 }
 
-resource "huaweicloud_compute_interface_attach" "ai_1" {
-  instance_id = "${huaweicloud_compute_instance.instance_1.id}"
-  port_id     = "${huaweicloud_networking_port_v2.port_1.id}"
-}
-
-```
-
-### Attaching Multiple Interfaces
-
-```hcl
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name           = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_port_v2" "ports" {
-  count          = 2
-  name           = "${format("port-%02d", count.index + 1)}"
-  network_id     = "${huaweicloud_networking_network_v2.network_1.id}"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_compute_instance" "instance_1" {
-  name            = "instance_1"
-  security_groups = ["default"]
-}
-
-resource "huaweicloud_compute_interface_attach" "attachments" {
-  count          = 2
-  instance_id = "${huaweicloud_compute_instance.instance_1.id}"
-  port_id     = "${huaweicloud_networking_port_v2.ports.*.id[count.index]}"
-}
-```
-
-Note that the above example will not guarantee that the ports are attached in
-a deterministic manner. The ports will be attached in a seemingly random
-order.
-
-If you want to ensure that the ports are attached in a given order, create
-explicit dependencies between the ports, such as:
-
-```hcl
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name           = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_port_v2" "ports" {
-  count          = 2
-  name           = "${format("port-%02d", count.index + 1)}"
-  network_id     = "${huaweicloud_networking_network_v2.network_1.id}"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_compute_instance" "instance_1" {
-  name            = "instance_1"
-  security_groups = ["default"]
-}
-
-resource "huaweicloud_compute_interface_attach" "ai_1" {
-  instance_id = "${huaweicloud_compute_instance.instance_1.id}"
-  port_id     = "${huaweicloud_networking_port_v2.ports.*.id[0]}"
-}
-
-resource "huaweicloud_compute_interface_attach" "ai_2" {
-  instance_id = "${huaweicloud_compute_instance.instance_1.id}"
-  port_id     = "${huaweicloud_networking_port_v2.ports.*.id[1]}"
-}
 ```
 
 ## Argument Reference
 
 The following arguments are supported:
-
-* `region` - (Optional) The region in which to create the interface attachment.
-    If omitted, the `region` argument of the provider is used. Changing this
-    creates a new attachment.
 
 * `instance_id` - (Required) The ID of the Instance to attach the Port or Network to.
 
@@ -168,7 +119,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
 * `instance_id` - See Argument Reference above.
 * `port_id` - See Argument Reference above.
 * `network_id` - See Argument Reference above.

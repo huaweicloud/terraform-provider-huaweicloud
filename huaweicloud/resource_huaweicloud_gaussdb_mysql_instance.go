@@ -26,8 +26,8 @@ func resourceGaussDBInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(30 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -434,7 +434,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating name for instance %s: %s ", instanceId, err)
 		}
 
-		if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+		if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.JobID); err != nil {
 			return err
 		}
 		log.Printf("[DEBUG] Updated Name to %s for instance %s", newName, instanceId)
@@ -466,7 +466,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating flavor for instance %s: %s ", instanceId, err)
 		}
 
-		if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+		if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.JobID); err != nil {
 			return err
 		}
 		log.Printf("[DEBUG] Updated Flavor for instance %s", instanceId)
@@ -495,7 +495,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			for i := 0; i < len(job_list); i++ {
 				job_id := job_list[i]
 				log.Printf("[DEBUG] Waiting for job: %s", job_id)
-				if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), job_id); err != nil {
+				if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), job_id); err != nil {
 					return err
 				}
 			}
@@ -521,7 +521,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return fmt.Errorf("Error creating read replica %s for instance %s: %s ", slave_nodes[i], instanceId, err)
 				}
 
-				if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+				if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.JobID); err != nil {
 					return err
 				}
 				log.Printf("[DEBUG] Deleted Read Replica: %s", slave_nodes[i])
@@ -566,7 +566,7 @@ func resourceGaussDBInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		Pending:    []string{"ACTIVE", "BACKING UP", "FAILED"},
 		Target:     []string{"DELETED"},
 		Refresh:    GaussDBInstanceStateRefreshFunc(client, instanceId),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      10 * time.Second,
 		MinTimeout: 10 * time.Second,
 	}

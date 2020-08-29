@@ -16,13 +16,88 @@ This is an alternative to `huaweicloud_compute_instance_v2`
 ### Basic Instance
 
 ```hcl
+data "huaweicloud_availability_zones" "myaz" {}
+
+data "huaweicloud_vpc_subnet" "mynet" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_images_image" "myimage" {
+  name        = "Ubuntu 18.04 server 64bit"
+  most_recent = true
+}
+
 resource "huaweicloud_compute_instance" "basic" {
   name              = "basic"
+  image_id          = data.huaweicloud_images_image.myimage.id
+  flavor_id         = "s6.small.1"
+  security_groups   = ["default"]
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+
+  network {
+    uuid = data.huaweicloud_vpc_subnet.mynet.id
+  }
+}
+```
+
+### Instance With Associated Eip
+
+```hcl
+resource "huaweicloud_compute_instance" "myinstance" {
+  name              = "myinstance"
   image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "3"
+  flavor_id         = "s6.small.1"
   key_pair          = "my_key_pair_name"
   security_groups   = ["default"]
-  availability_zone = "az"
+  availability_zone = "cn-north-4a"
+
+  network {
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
+  }
+}
+
+resource "huaweicloud_vpc_eip" "myeip" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 8
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_compute_eip_associate" "associated" {
+  public_ip   = huaweicloud_vpc_eip.myeip.address
+  instance_id = huaweicloud_compute_instance.myinstance.id
+}
+```
+
+### Instance With Multiple Data Disks
+
+```hcl
+resource "huaweicloud_compute_instance" "multi-disk" {
+  name              = "multi-net"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "s6.small.1"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "cn-north-4a"
+
+  system_disk_type = "SAS"
+  system_disk_size = 40
+
+  data_disks {
+    type = "SATA"
+    size = "10"
+  }
+  data_disks {
+    type = "SAS"
+    size = "20"
+  }
+
+  delete_disks_on_termination = true
 
   network {
     uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
@@ -33,212 +108,49 @@ resource "huaweicloud_compute_instance" "basic" {
 ### Instance With Attached Volume
 
 ```hcl
-resource "huaweicloud_blockstorage_volume_v2" "myvol" {
-  name = "myvol"
-  size = 1
+resource "huaweicloud_evs_volume" "myvolume" {
+  name              = "myvolume"
+  availability_zone = "cn-north-4a"
+  volume_type       = "SAS"
+  size              = 10
 }
 
 resource "huaweicloud_compute_instance" "myinstance" {
   name              = "myinstance"
   image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "3"
+  flavor_id         = "s6.small.1"
   key_pair          = "my_key_pair_name"
   security_groups   = ["default"]
-  availability_zone = "az"
+  availability_zone = "cn-north-4a"
 
   network {
     uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
   }
 }
 
-resource "huaweicloud_compute_volume_attach_v2" "attached" {
+resource "huaweicloud_compute_volume_attach" "attached" {
   instance_id = "${huaweicloud_compute_instance.myinstance.id}"
-  volume_id  = "${huaweicloud_blockstorage_volume_v2.myvol.id}"
-}
-```
-
-### Boot From Volume
-
-```hcl
-resource "huaweicloud_compute_instance" "boot-from-volume" {
-  name              = "boot-from-volume"
-  flavor_id         = "3"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "az"
-
-  block_device {
-    uuid                  = "<image-id>"
-    source_type           = "image"
-    volume_size           = 5
-    boot_index            = 0
-    destination_type      = "volume"
-    delete_on_termination = true
-  }
-
-  network {
-    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
-  }
-}
-```
-
-### Boot From an Existing Volume
-
-```hcl
-resource "huaweicloud_blockstorage_volume_v1" "myvol" {
-  name     = "myvol"
-  size     = 5
-  image_id = "<image-id>"
-}
-
-resource "huaweicloud_compute_instance" "boot-from-volume" {
-  name              = "bootfromvolume"
-  flavor_id         = "3"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "az"
-
-  block_device {
-    uuid                  = "${huaweicloud_blockstorage_volume_v1.myvol.id}"
-    source_type           = "volume"
-    boot_index            = 0
-    destination_type      = "volume"
-    delete_on_termination = true
-  }
-
-  network {
-    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
-  }
-}
-```
-
-### Boot Instance, Create Volume, and Attach Volume as a Block Device
-
-```hcl
-resource "huaweicloud_compute_instance" "instance_1" {
-  name              = "instance_1"
-  image_id          = "<image-id>"
-  flavor_id         = "3"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "az"
-
-  block_device {
-    uuid                  = "<image-id>"
-    source_type           = "image"
-    destination_type      = "local"
-    boot_index            = 0
-    delete_on_termination = true
-  }
-
-  block_device {
-    source_type           = "blank"
-    destination_type      = "volume"
-    volume_size           = 1
-    boot_index            = 1
-    delete_on_termination = true
-  }
-}
-```
-
-### Boot Instance and Attach Existing Volume as a Block Device
-
-```hcl
-resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
-  name = "volume_1"
-  size = 1
-}
-
-resource "huaweicloud_compute_instance" "instance_1" {
-  name              = "instance_1"
-  image_id          = "<image-id>"
-  flavor_id         = "3"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "az"
-
-  block_device {
-    uuid                  = "<image-id>"
-    source_type           = "image"
-    destination_type      = "local"
-    boot_index            = 0
-    delete_on_termination = true
-  }
-
-  block_device {
-    uuid                  = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
-    source_type           = "volume"
-    destination_type      = "volume"
-    boot_index            = 1
-    delete_on_termination = true
-  }
+  volume_id   = "${huaweicloud_evs_volume.myvolume.id}"
 }
 ```
 
 ### Instance With Multiple Networks
 
 ```hcl
-resource "huaweicloud_networking_floatingip_v2" "myip" {
-  pool = "admin_external_net"
-}
-
 resource "huaweicloud_compute_instance" "multi-net" {
   name              = "multi-net"
   image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "3"
+  flavor_id         = "s6.small.1"
   key_pair          = "my_key_pair_name"
   security_groups   = ["default"]
-  availability_zone = "az"
+  availability_zone = "cn-north-4a"
 
   network {
     uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
   }
 
   network {
-    name = "my_second_network"
-  }
-}
-
-resource "huaweicloud_compute_eip_associate" "myip" {
-  floating_ip = "${huaweicloud_networking_floatingip_v2.myip.address}"
-  instance_id = "${huaweicloud_compute_instance.multi-net.id}"
-  fixed_ip    = "${huaweicloud_compute_instance.multi-net.network.1.fixed_ip_v4}"
-}
-```
-
-### Instance with Multiple Ephemeral Disks
-
-```hcl
-resource "huaweicloud_compute_instance" "multi-eph" {
-  name              = "multi_eph"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "3"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "az"
-
-  block_device {
-    boot_index            = 0
-    delete_on_termination = true
-    destination_type      = "local"
-    source_type           = "image"
-    uuid                  = "<image-id>"
-  }
-
-  block_device {
-    boot_index            = -1
-    delete_on_termination = true
-    destination_type      = "local"
-    source_type           = "blank"
-    volume_size           = 1
-  }
-
-  block_device {
-    boot_index            = -1
-    delete_on_termination = true
-    destination_type      = "local"
-    source_type           = "blank"
-    volume_size           = 1
+    uuid = "3c4a0d74-24b9-46cf-9d7f-8b7a4dc2f65c"
   }
 }
 ```
@@ -246,10 +158,10 @@ resource "huaweicloud_compute_instance" "multi-eph" {
 ### Instance with User Data (cloud-init)
 
 ```hcl
-resource "huaweicloud_compute_instance" "instance_1" {
-  name              = "basic"
+resource "huaweicloud_compute_instance" "myinstance" {
+  name              = "instance"
   image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "3"
+  flavor_id         = "s6.small.1"
   key_pair          = "my_key_pair_name"
   security_groups   = ["default"]
   availability_zone = "az"
@@ -413,101 +325,6 @@ The following attributes are exported:
 * `volume_attached/size` - The volume size on that attachment.
 * `all_metadata` - Deprecated, use `tags` instead. Contains all instance metadata, even metadata not set
     by Terraform.
-
-## Notes
-
-### Multiple Ephemeral Disks
-
-It's possible to specify multiple `block_device` entries to create an instance
-with multiple ephemeral (local) disks. In order to create multiple ephemeral
-disks, the sum of the total amount of ephemeral space must be less than or
-equal to what the chosen flavor supports.
-
-The following example shows how to create an instance with multiple ephemeral
-disks:
-
-```
-resource "huaweicloud_compute_instance" "foo" {
-  name            = "terraform-test"
-  security_groups = ["default"]
-
-  block_device {
-    boot_index            = 0
-    delete_on_termination = true
-    destination_type      = "local"
-    source_type           = "image"
-    uuid                  = "<image uuid>"
-  }
-
-  block_device {
-    boot_index            = -1
-    delete_on_termination = true
-    destination_type      = "local"
-    source_type           = "blank"
-    volume_size           = 1
-  }
-
-  block_device {
-    boot_index            = -1
-    delete_on_termination = true
-    destination_type      = "local"
-    source_type           = "blank"
-    volume_size           = 1
-  }
-}
-```
-
-### Instances and Ports
-
-Neutron Ports are a great feature and provide a lot of functionality. However,
-there are some notes to be aware of when mixing Instances and Ports:
-
-* When attaching an Instance to one or more networks using Ports, place the
-security groups on the Port and not the Instance. If you place the security
-groups on the Instance, the security groups will not be applied upon creation,
-but they will be applied upon a refresh. This is a known HuaweiCloud bug.
-
-* Network IP information is not available within an instance for networks that
-are attached with Ports. This is mostly due to the flexibility Neutron Ports
-provide when it comes to IP addresses. For example, a Neutron Port can have
-multiple Fixed IP addresses associated with it. It's not possible to know which
-single IP address the user would want returned to the Instance's state
-information. Therefore, in order for a Provisioner to connect to an Instance
-via it's network Port, customize the `connection` information:
-
-```hcl
-resource "huaweicloud_networking_port_v2" "port_1" {
-  name           = "port_1"
-  admin_state_up = "true"
-
-  network_id = "0a1d0a27-cffa-4de3-92c5-9d3fd3f2e74d"
-
-  security_group_ids = [
-    "2f02d20a-8dca-49b7-b26f-b6ce9fddaf4f",
-    "ca1e5ed7-dae8-4605-987b-fadaeeb30461",
-  ]
-}
-
-resource "huaweicloud_compute_instance" "instance_1" {
-  name = "instance_1"
-
-  network {
-    port = "${huaweicloud_networking_port_v2.port_1.id}"
-  }
-
-  connection {
-    user        = "root"
-    host        = "${huaweicloud_networking_port_v2.port_1.fixed_ip.0.ip_address}"
-    private_key = "~/path/to/key"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "echo terraform executed > /tmp/foo",
-    ]
-  }
-}
-```
 
 ## Importing
 

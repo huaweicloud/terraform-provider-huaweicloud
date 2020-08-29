@@ -513,7 +513,7 @@ func resourceOpenGaussInstanceDelete(d *schema.ResourceData, meta interface{}) e
 		Pending:    []string{"ACTIVE", "BACKING UP", "FAILED"},
 		Target:     []string{"DELETED"},
 		Refresh:    OpenGaussInstanceStateRefreshFunc(client, instanceId),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      10 * time.Second,
 		MinTimeout: 10 * time.Second,
 	}
