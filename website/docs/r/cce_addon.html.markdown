@@ -11,9 +11,9 @@ description: |-
 variable "cluster_id" { }
 
 resource "huaweicloud_cce_addon" "addon_test" {
-    cluster_id = var.cluster_id
+    cluster_id    = var.cluster_id
     template_name = "metrics-server"
-    version = "1.0.0"
+    version       = "1.0.0"
 }
 ``` 
 
@@ -28,7 +28,5 @@ The following arguments are supported:
 All above argument parameters can be exported as attribute parameters along with attribute reference.
 
  * `id` -  ID of the addon instance.
-
  * `status` - Addon status information.
-
  * `description` - Description of addon instance.
