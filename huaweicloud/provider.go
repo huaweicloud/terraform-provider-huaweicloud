@@ -327,6 +327,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_nat_dnat_rule":                   resourceNatDnatRuleV2(),
 			"huaweicloud_nat_gateway":                     resourceNatGatewayV2(),
 			"huaweicloud_nat_snat_rule":                   resourceNatSnatRuleV2(),
+			"huaweicloud_network_acl":                     resourceNetworkACL(),
 			"huaweicloud_network_acl_rule":                resourceNetworkACLRule(),
 			"huaweicloud_networking_eip_associate":        resourceNetworkingFloatingIPAssociateV2(),
 			"huaweicloud_networking_port":                 resourceNetworkingPortV2(),

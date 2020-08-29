@@ -111,7 +111,7 @@ type UpdateOpts struct {
 	Description string   `json:"description,omitempty"`
 	Shared      *bool    `json:"shared,omitempty"`
 	Audited     *bool    `json:"audited,omitempty"`
-	Rules       []string `json:"firewall_rules,omitempty"`
+	Rules       []string `json:"firewall_rules"`
 }
 
 // ToFirewallPolicyUpdateMap casts a CreateOpts struct to a map.
