@@ -113,7 +113,7 @@ func testAccCheckFWRuleV2Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_firewall_rule" {
+		if rs.Type != "huaweicloud_fw_rule_v2" {
 			continue
 		}
 		_, err = rules.Get(fwClient, rs.Primary.ID).Extract()
