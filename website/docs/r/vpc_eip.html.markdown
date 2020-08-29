@@ -40,7 +40,7 @@ resource "huaweicloud_vpc_eip" "eip_1" {
     type = "5_bgp"
   }
   bandwidth {
-    id = "${huaweicloud_vpc_bandwidth.bandwidth_1.id}"
+    id = huaweicloud_vpc_bandwidth.bandwidth_1.id
     share_type = "WHOLE"
   }
 }

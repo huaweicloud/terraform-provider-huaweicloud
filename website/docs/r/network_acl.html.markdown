@@ -13,8 +13,8 @@ Manages a network ACL resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_vpc_subnet_v1" "subnet" {
-  name = "my_subnet"
+data "huaweicloud_vpc_subnet" "subnet" {
+  name = "subnet-default"
 }
 
 resource "huaweicloud_network_acl_rule" "rule_1" {
