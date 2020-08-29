@@ -1,4 +1,26 @@
-## 1.18.0 (Unreleased)
+## 1.19.0 (Unreleased)
+## 1.18.0 (August 29, 2020)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_obs_bucket` ([#482](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/482))
+* **New Resource:** `huaweicloud_evs_volume` ([#429](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/429))
+* **New Resource:** `huaweicloud_sfs_turbo` ([#433](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/433))
+* **New Resource:** `huaweicloud_lts_group` ([#446](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/446))
+* **New Resource:** `huaweicloud_lts_stream` ([#446](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/446))
+* **New Resource:** `huaweicloud_sfs_access_rule` ([#451](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/451))
+* **New Resource:** `huaweicloud_cce_addon` ([#484](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/484))
+* **New Resource:** `huaweicloud_network_acl_rule` ([#495](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/495))
+* **New Resource:** `huaweicloud_network_acl` ([#496](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/496))
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_instance: Add disk related parameters ([#440](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/440))
+* resource/huaweicloud_gaussdb_opengauss: Set security_group_id to Optional ([#445](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/445))
+* resource/huaweicloud_compute_instance: Add enterprise_project_id support ([#450](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/450))
+* resource/huaweicloud_gaussdb_cassandra: Add extend-volume support ([#444](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/444))
+* provider: Add max_retries support ([#463](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/463))
+
 ## 1.17.0 (July 31, 2020)
 
 FEATURES:
