@@ -1,4 +1,5 @@
 ---
+subcategory: "Relational Database Service (RDS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_rds_parametergroup"
 sidebar_current: "docs-huaweicloud-resource-rds-parametergroup"

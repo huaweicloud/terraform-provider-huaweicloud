@@ -1,4 +1,5 @@
 ---
+subcategory: "Virtual Private Cloud (VPC)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: resource_huaweicloud_vpc_peering_connection_accepter"
 sidebar_current: "docs-huaweicloud-resource-vpc-peering-accepter"

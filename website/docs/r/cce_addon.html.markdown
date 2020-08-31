@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Container Engine (CCE)"
 layout: "huaweicloud"
 page_title: "huaweicloud: huaweicloud_cce_addon"
 sidebar_current: "docs-huaweicloud-resource-cce-addon"

@@ -1,4 +1,5 @@
 ---
+subcategory: "Document Database Service (DDS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dds_flavors"
 sidebar_current: "docs-huaweicloud-datasource-dds-flavors"

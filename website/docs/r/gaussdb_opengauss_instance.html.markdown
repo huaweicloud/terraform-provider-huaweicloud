@@ -1,4 +1,5 @@
 ---
+subcategory: "GaussDB"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_gaussdb_opengauss_instance"
 sidebar_current: "docs-huaweicloud-resource-gaussdb-opengauss-instance"

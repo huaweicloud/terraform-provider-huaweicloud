@@ -1,4 +1,5 @@
 ---
+subcategory: "Content Delivery Network (CDN)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cdn_domain"
 sidebar_current: "docs-huaweicloud-resource-cdn-domain"

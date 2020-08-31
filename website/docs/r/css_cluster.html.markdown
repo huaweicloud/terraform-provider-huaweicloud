@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Search Service (CSS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_css_cluster"
 sidebar_current: "docs-huaweicloud-resource-css-cluster"

@@ -1,4 +1,5 @@
 ---
+subcategory: "Volume Backup Service (VBS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_vbs_backup"
 sidebar_current: "docs-huaweicloud-datasource-vbs-backup"
@@ -6,7 +7,7 @@ description: |-
   Provides details about a specific VBS Backup.
 ---
 
-# Data Source: huaweicloud\_vbs\_backup
+# huaweicloud\_vbs\_backup
 
 The VBS Backup data source provides details about a specific VBS Backup.
 This is an alternative to `huaweicloud_vbs_backup`

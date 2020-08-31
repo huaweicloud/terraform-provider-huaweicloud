@@ -1,4 +1,5 @@
 ---
+subcategory: "Distributed Cache Service"
 layout: "huaweicloud"
 page_title: "Huaweicloud: huaweicloud_dcs_maintainwindow"
 sidebar_current: "docs-huaweicloud-datasource-dcs-maintainwindow"

@@ -1,4 +1,5 @@
 ---
+subcategory: "GaussDB"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_gaussdb_mysql_flavors"
 sidebar_current: "docs-huaweicloud-datasource-gaussdb-mysql-flavors"

@@ -1,4 +1,5 @@
 ---
+subcategory: "Elastic Load Balance (ELB)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lb_l7rule_v2"
 sidebar_current: "docs-huaweicloud-resource-lb-l7rule-v2"

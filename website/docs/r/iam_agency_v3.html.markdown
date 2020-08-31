@@ -1,4 +1,5 @@
 ---
+subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_iam_agency_v3"
 sidebar_current: "docs-huaweicloud-resource-iam-agency-v3"

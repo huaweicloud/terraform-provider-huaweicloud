@@ -1,4 +1,5 @@
 ---
+subcategory: "Scalable File Service (SFS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_sfs_access_rule"
 sidebar_current: "docs-huaweicloud-resource-sfs-access-rule"

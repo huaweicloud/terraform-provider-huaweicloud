@@ -1,4 +1,5 @@
 ---
+subcategory: "Auto Scaling"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_as_policy"
 sidebar_current: "docs-huaweicloud-resource-as-policy"

@@ -1,4 +1,5 @@
 ---
+subcategory: "Identity and Access Management (IAM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_identity_role_v3"
 sidebar_current: "docs-huaweicloud-datasource-identity-role-v3"

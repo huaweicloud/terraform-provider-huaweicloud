@@ -1,4 +1,5 @@
 ---
+subcategory: "Elastic Cloud Server (ECS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_compute_instance"
 sidebar_current: "docs-huaweicloud-resource-compute-instance"

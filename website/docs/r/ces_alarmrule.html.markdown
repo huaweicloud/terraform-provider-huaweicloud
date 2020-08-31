@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Eye"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ces-alarmrule"
 sidebar_current: "docs-huaweicloud-resource-ces-alarmrule"

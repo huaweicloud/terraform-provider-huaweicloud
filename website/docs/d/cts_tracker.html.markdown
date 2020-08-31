@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Trace Service (CTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cts_tracker"
 sidebar_current: "docs-huaweicloud-datasource-cts-tracker"
@@ -6,7 +7,7 @@ description: |-
   CTS tracker allows you to collect, store, and query cloud resource operation records and use these records for security analysis, compliance auditing, resource tracking, and fault locating.
 ---
 
-# Data Source: huaweicloud\_cts\_tracker
+# huaweicloud\_cts\_tracker
 
 CTS Tracker data source allows access of Cloud Tracker.
 This is an alternative to `huaweicloud_cts_tracker_v1`

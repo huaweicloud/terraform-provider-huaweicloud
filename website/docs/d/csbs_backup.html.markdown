@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Server Backup Service (CSBS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_csbs_backup"
 sidebar_current: "docs-huaweicloud-datasource-csbs-backup"
@@ -6,7 +7,7 @@ description: |-
   Provides details about a specific Backup.
 ---
 
-# Data Source: huaweicloud\_csbs\_backup
+# huaweicloud\_csbs\_backup
 
 The HuaweiCloud CSBS Backup data source allows access of backup resources.
 This is an alternative to `huaweicloud_csbs_backup_v1`

@@ -1,4 +1,5 @@
 ---
+subcategory: "Key Management Service (KMS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_kms-key"
 sidebar_current: "docs-huaweicloud-resource-kms-key"
