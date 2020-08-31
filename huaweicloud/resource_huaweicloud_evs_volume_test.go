@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,25 +14,27 @@ import (
 func TestAccEvsStorageV3Volume_basic(t *testing.T) {
 	var volume volumes.Volume
 
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_evs_volume.test"
+	rNameUpdate := rName + "-updated"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckEvsStorageV3VolumeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEvsStorageV3Volume_basic,
+				Config: testAccEvsStorageV3Volume_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsStorageV3VolumeExists("huaweicloud_evs_volume.volume_1", &volume),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_evs_volume.volume_1", "name", "volume_1"),
+					testAccCheckEvsStorageV3VolumeExists(resourceName, &volume),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
 			{
-				Config: testAccEvsStorageV3Volume_update,
+				Config: testAccEvsStorageV3Volume_basic(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsStorageV3VolumeExists("huaweicloud_evs_volume.volume_1", &volume),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_evs_volume.volume_1", "name", "volume_1-updated"),
+					testAccCheckEvsStorageV3VolumeExists(resourceName, &volume),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 				),
 			},
 		},
@@ -39,23 +42,26 @@ func TestAccEvsStorageV3Volume_basic(t *testing.T) {
 }
 
 func TestAccEvsStorageV3Volume_tags(t *testing.T) {
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_evs_volume.test"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckEvsStorageV3VolumeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEvsStorageV3Volume_tags,
+				Config: testAccEvsStorageV3Volume_tags(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsStorageV3VolumeTags("huaweicloud_evs_volume.volume_tags", "foo", "bar"),
-					testAccCheckEvsStorageV3VolumeTags("huaweicloud_evs_volume.volume_tags", "key", "value"),
+					testAccCheckEvsStorageV3VolumeTags(resourceName, "foo", "bar"),
+					testAccCheckEvsStorageV3VolumeTags(resourceName, "key", "value"),
 				),
 			},
 			{
-				Config: testAccEvsStorageV3Volume_tags_update,
+				Config: testAccEvsStorageV3Volume_tags_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsStorageV3VolumeTags("huaweicloud_evs_volume.volume_tags", "foo2", "bar2"),
-					testAccCheckEvsStorageV3VolumeTags("huaweicloud_evs_volume.volume_tags", "key2", "value2"),
+					testAccCheckEvsStorageV3VolumeTags(resourceName, "foo2", "bar2"),
+					testAccCheckEvsStorageV3VolumeTags(resourceName, "key2", "value2"),
 				),
 			},
 		},
@@ -65,25 +71,8 @@ func TestAccEvsStorageV3Volume_tags(t *testing.T) {
 func TestAccEvsStorageV3Volume_image(t *testing.T) {
 	var volume volumes.Volume
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckEvsStorageV3VolumeDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccEvsStorageV3Volume_image,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsStorageV3VolumeExists("huaweicloud_evs_volume.volume_1", &volume),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_evs_volume.volume_1", "name", "volume_1"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccEvsStorageV3Volume_timeout(t *testing.T) {
-	var volume volumes.Volume
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_evs_volume.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -91,9 +80,10 @@ func TestAccEvsStorageV3Volume_timeout(t *testing.T) {
 		CheckDestroy: testAccCheckEvsStorageV3VolumeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEvsStorageV3Volume_timeout,
+				Config: testAccEvsStorageV3Volume_image(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsStorageV3VolumeExists("huaweicloud_evs_volume.volume_1", &volume),
+					testAccCheckEvsStorageV3VolumeExists(resourceName, &volume),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
 		},
@@ -197,75 +187,73 @@ func testAccCheckEvsStorageV3VolumeTags(n string, k string, v string) resource.T
 	}
 }
 
-var testAccEvsStorageV3Volume_basic = fmt.Sprintf(`
-resource "huaweicloud_evs_volume" "volume_1" {
-  name = "volume_1"
-  description = "first test volume"
-  availability_zone = "%s"
-  volume_type = "SAS"
-  size = 12
-}
-`, OS_AVAILABILITY_ZONE)
+func testAccEvsStorageV3Volume_basic(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
 
-var testAccEvsStorageV3Volume_update = fmt.Sprintf(`
-resource "huaweicloud_evs_volume" "volume_1" {
-  name = "volume_1-updated"
-  description = "first test volume"
-  availability_zone = "%s"
-  volume_type = "SAS"
-  size = 12
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%s"
+  description       = "test volume"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  volume_type       = "SAS"
+  size              = 12
 }
-`, OS_AVAILABILITY_ZONE)
+`, rName)
+}
 
-var testAccEvsStorageV3Volume_tags = fmt.Sprintf(`
-resource "huaweicloud_evs_volume" "volume_tags" {
-  name = "volume_tags"
-  description = "test volume with tags"
-  availability_zone = "%s"
-  volume_type = "SAS"
+func testAccEvsStorageV3Volume_tags(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%s"
+  description       = "test volume with tags"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  volume_type       = "SAS"
+  size              = 12
+
   tags = {
     foo = "bar"
 	key = "value"
   }
-  size = 12
 }
-`, OS_AVAILABILITY_ZONE)
+`, rName)
+}
 
-var testAccEvsStorageV3Volume_tags_update = fmt.Sprintf(`
-resource "huaweicloud_evs_volume" "volume_tags" {
-  name = "volume_tags-updated"
-  description = "test volume with tags"
-  availability_zone = "%s"
-  volume_type = "SAS"
+func testAccEvsStorageV3Volume_tags_update(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%s"
+  description       = "test volume with tags"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  volume_type       = "SAS"
+  size              = 12
+
   tags = {
     foo2 = "bar2"
 	key2 = "value2"
   }
-  size = 12
 }
-`, OS_AVAILABILITY_ZONE)
+`, rName)
+}
 
-var testAccEvsStorageV3Volume_image = fmt.Sprintf(`
-resource "huaweicloud_evs_volume" "volume_1" {
-  name = "volume_1"
-  availability_zone = "%s"
-  volume_type = "SAS"
-  size = 12
-  image_id = "%s"
-}
-`, OS_AVAILABILITY_ZONE, OS_IMAGE_ID)
+func testAccEvsStorageV3Volume_image(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
 
-var testAccEvsStorageV3Volume_timeout = fmt.Sprintf(`
-resource "huaweicloud_evs_volume" "volume_1" {
-  name = "volume_1"
-  description = "first test volume"
-  availability_zone = "%s"
-  size = 12
-  volume_type = "SAS"
-  device_type = "SCSI"
-  timeouts {
-    create = "10m"
-    delete = "5m"
-  }
+data "huaweicloud_images_image_v2" "test" {
+  name        = "Ubuntu 18.04 server 64bit"
+  most_recent = true
 }
-`, OS_AVAILABILITY_ZONE)
+
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  volume_type       = "SAS"
+  size              = 40
+  image_id          = data.huaweicloud_images_image_v2.test.id
+}
+`, rName)
+}
