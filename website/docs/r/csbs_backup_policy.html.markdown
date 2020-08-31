@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Server Backup Service (CSBS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: resource_huaweicloud_csbs_backup_policy"
 sidebar_current: "docs-huaweicloud-resource-csbs-backup-policy"

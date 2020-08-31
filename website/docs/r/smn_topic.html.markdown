@@ -1,4 +1,5 @@
 ---
+subcategory: "Simple Message Notification (SMN)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_smn_topic"
 sidebar_current: "docs-huaweicloud-resource-smn-topic"

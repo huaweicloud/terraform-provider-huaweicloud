@@ -1,4 +1,5 @@
 ---
+subcategory: "Elastic Cloud Server (ECS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_compute_volume_attach"
 sidebar_current: "docs-huaweicloud-resource-compute-volume-attach"

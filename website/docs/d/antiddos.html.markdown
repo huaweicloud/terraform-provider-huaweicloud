@@ -1,4 +1,5 @@
 ---
+subcategory: "Anti-DDoS"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_antiddos"
 sidebar_current: "docs-huaweicloud-datasource-antiddos"
@@ -6,7 +7,7 @@ description: |-
   Provides status of a specific EIP.
 ---
 
-# Data Source: huaweicloud\_antiddos
+# huaweicloud\_antiddos
 
 Query the Anti-DDos resource.
 This is an alternative to `huaweicloud_antiddos_v1`

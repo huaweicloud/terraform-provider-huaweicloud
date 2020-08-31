@@ -1,4 +1,5 @@
 ---
+subcategory: "Scalable File Service (SFS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_sfs_turbo"
 sidebar_current: "docs-huaweicloud-resource-sfs-turbo"

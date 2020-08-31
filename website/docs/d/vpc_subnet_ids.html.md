@@ -1,4 +1,5 @@
 ---
+subcategory: "Virtual Private Cloud (VPC)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_subnet_ids"
 sidebar_current: "docs-huaweicloud-datasource-subnet-ids"

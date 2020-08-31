@@ -1,4 +1,5 @@
 ---
+subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_stream"
 sidebar_current: "docs-huaweicloud-resource-lts-stream"

@@ -1,4 +1,5 @@
 ---
+subcategory: "MapReduce Service (MRS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_mrs_cluster"
 sidebar_current: "docs-huaweicloud-resource-mrs-cluster"

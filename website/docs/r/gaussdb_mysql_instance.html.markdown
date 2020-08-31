@@ -1,4 +1,5 @@
 ---
+subcategory: "GaussDB"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_gaussdb_mysql_instance"
 sidebar_current: "docs-huaweicloud-resource-gaussdb-mysql-instance"

@@ -1,4 +1,5 @@
 ---
+subcategory: "FunctionGraph"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_fgs_function"
 sidebar_current: "docs-huaweicloud-resource-fgs-function"

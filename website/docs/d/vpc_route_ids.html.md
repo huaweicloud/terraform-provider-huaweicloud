@@ -1,4 +1,5 @@
 ---
+subcategory: "Virtual Private Cloud (VPC)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_vpc_route_ids"
 sidebar_current: "docs-huaweicloud-datasource-vpc-route-ids"

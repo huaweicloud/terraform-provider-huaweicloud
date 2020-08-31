@@ -1,4 +1,5 @@
 ---
+subcategory: "Virtual Private Cloud (VPC)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_networking_secgroup"
 sidebar_current: "docs-huaweicloud-datasource-networking-secgroup"

@@ -1,4 +1,5 @@
 ---
+subcategory: "Virtual Private Cloud (VPC)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_vpc_peering_connection"
 sidebar_current: "docs-huaweicloud-resource-vpc-peering"

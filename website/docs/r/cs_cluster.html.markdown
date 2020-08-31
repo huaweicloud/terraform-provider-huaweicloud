@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Stream"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cs_cluster"
 sidebar_current: "docs-huaweicloud-resource-cs-cluster"

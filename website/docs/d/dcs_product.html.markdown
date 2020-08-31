@@ -1,4 +1,5 @@
 ---
+subcategory: "Distributed Cache Service"
 layout: "huaweicloud"
 page_title: "Flexibleengine: huaweicloud_dcs_product_v1"
 sidebar_current: "docs-huaweicloud-datasource-dcs-product-v1"

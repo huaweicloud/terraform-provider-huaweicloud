@@ -1,4 +1,5 @@
 ---
+subcategory: "Data Lake Insight (DLI)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dli_queue"
 sidebar_current: "docs-huaweicloud-resource-dli-queue"

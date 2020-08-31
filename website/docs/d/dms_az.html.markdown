@@ -1,4 +1,5 @@
 ---
+subcategory: "Distributed Message Service (DMS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dms_az"
 sidebar_current: "docs-huaweicloud-datasource-dms-az"

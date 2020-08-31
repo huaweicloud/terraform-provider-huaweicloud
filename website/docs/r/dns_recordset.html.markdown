@@ -1,4 +1,5 @@
 ---
+subcategory: "Domain Name Service (DNS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dns_recordset"
 sidebar_current: "docs-huaweicloud-resource-dns-recordset"

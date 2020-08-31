@@ -1,4 +1,5 @@
 ---
+subcategory: "Object Storage Migration Service"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_maas_task"
 sidebar_current: "docs-huaweicloud-resource-maas-task"

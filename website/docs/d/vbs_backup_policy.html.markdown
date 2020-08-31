@@ -1,4 +1,5 @@
 ---
+subcategory: "Volume Backup Service (VBS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_vbs_backup_policy"
 sidebar_current: "docs-huaweicloud-datasource-vbs-backup-policy"

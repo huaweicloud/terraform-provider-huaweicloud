@@ -1,5 +1,5 @@
 ---
-layout: "huaweicloud"
+subcategory: "API Gateway (APIG)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_api_gateway_api"
 sidebar_current: "docs-huaweicloud-resource-api-gateway-api"

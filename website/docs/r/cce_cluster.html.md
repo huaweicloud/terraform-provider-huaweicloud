@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Container Engine (CCE)"
 layout: "huaweicloud"
 page_title: "Huaweicloud: huaweicloud_cce_cluster"
 sidebar_current: "docs-huaweicloud-resource-cce-cluster"

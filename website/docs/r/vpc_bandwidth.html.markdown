@@ -1,4 +1,5 @@
 ---
+subcategory: "Elastic IP (EIP)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_vpc_bandwidth"
 sidebar_current: "docs-huaweicloud-resource-vpc-bandwidth"

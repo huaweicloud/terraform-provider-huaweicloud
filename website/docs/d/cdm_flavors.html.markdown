@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Data Migration (CDM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cdm_flavors"
 sidebar_current: "docs-huaweicloud-datasource-cdm-flavors"

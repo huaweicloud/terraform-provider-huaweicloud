@@ -1,4 +1,5 @@
 ---
+subcategory: "Object Storage Service (OBS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_obs_bucket"
 sidebar_current: "docs-huaweicloud-resource-obs-bucket"

@@ -1,4 +1,5 @@
 ---
+subcategory: "Cloud Table"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cloudtable_cluster"
 sidebar_current: "docs-huaweicloud-resource-cloudtable-cluster"

@@ -1,4 +1,5 @@
 ---
+subcategory: "Virtual Private Network (VPN)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_vpnaas_site_connection_v2"
 sidebar_current: "docs-huaweicloud-resource-vpnaas-site-connection-v2"

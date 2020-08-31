@@ -1,4 +1,5 @@
 ---
+subcategory: "Data Warehouse Service (DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_cluster"
 sidebar_current: "docs-huaweicloud-resource-dws-cluster"

@@ -1,4 +1,5 @@
 ---
+subcategory: "Distributed Cache Service"
 layout: "huaweicloud"
 page_title: "huaweicloud: huaweicloud_dcs_instance"
 sidebar_current: "docs-huaweicloud-resource-dcs-instance"
