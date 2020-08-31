@@ -1,4 +1,8 @@
 ## 1.19.0 (Unreleased)
+## 1.18.1 (August 31, 2020)
+
+* Add subcategories to frontmatter for Terrafrom Registry website
+
 ## 1.18.0 (August 29, 2020)
 
 FEATURES:
