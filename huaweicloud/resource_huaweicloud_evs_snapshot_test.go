@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,21 +14,21 @@ import (
 func TestAccEvsSnapshotV2_basic(t *testing.T) {
 	var snapshot snapshots.Snapshot
 
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_evs_snapshot.test"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckEvsSnapshotV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEvsSnapshotV2_basic,
+				Config: testAccEvsSnapshotV2_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsSnapshotV2Exists("huaweicloud_evs_snapshot.snapshot_1", &snapshot),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_evs_snapshot.snapshot_1", "name", "snapshot_acc"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_evs_snapshot.snapshot_1", "description", "Daily backup"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_evs_snapshot.snapshot_1", "status", "available"),
+					testAccCheckEvsSnapshotV2Exists(resourceName, &snapshot),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "Daily backup"),
+					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 				),
 			},
 		},
@@ -87,17 +88,14 @@ func testAccCheckEvsSnapshotV2Exists(n string, sp *snapshots.Snapshot) resource.
 	}
 }
 
-const testAccEvsSnapshotV2_basic = `
-resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
-  name = "volume_acc"
-  description = "volume for snapshot testing"
-  size = 40
-  cascade = true
-}
+func testAccEvsSnapshotV2_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
-resource "huaweicloud_evs_snapshot" "snapshot_1" {
-  volume_id = huaweicloud_blockstorage_volume_v2.volume_1.id
-  name = "snapshot_acc"
+resource "huaweicloud_evs_snapshot" "test" {
+  volume_id   = huaweicloud_evs_volume.test.id
+  name        = "%s"
   description = "Daily backup"
 }
-`
+`, testAccEvsStorageV3Volume_basic(rName), rName)
+}
