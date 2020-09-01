@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,27 +14,29 @@ import (
 func TestAccVpcBandWidthV2_basic(t *testing.T) {
 	var bandwidth bandwidths.BandWidth
 
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_vpc_bandwidth.test"
+	rNameUpdate := rName + "-updated"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcBandWidthV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVpcBandWidthV2_basic,
+				Config: testAccVpcBandWidthV2_basic(rName, 5),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVpcBandWidthV2Exists("huaweicloud_vpc_bandwidth_v2.bandwidth_1", &bandwidth),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_vpc_bandwidth_v2.bandwidth_1", "name", "bandwidth_1"),
+					testAccCheckVpcBandWidthV2Exists(resourceName, &bandwidth),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "size", "5"),
 				),
 			},
 			{
-				Config: testAccVpcBandWidthV2_update,
+				Config: testAccVpcBandWidthV2_basic(rNameUpdate, 6),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVpcBandWidthV2Exists("huaweicloud_vpc_bandwidth_v2.bandwidth_1", &bandwidth),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_vpc_bandwidth_v2.bandwidth_1", "name", "bandwidth_1_updated"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_vpc_bandwidth_v2.bandwidth_1", "size", "6"),
+					testAccCheckVpcBandWidthV2Exists(resourceName, &bandwidth),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "size", "6"),
 				),
 			},
 		},
@@ -48,7 +51,7 @@ func testAccCheckVpcBandWidthV2Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_vpc_bandwidth_v2" {
+		if rs.Type != "huaweicloud_vpc_bandwidth" {
 			continue
 		}
 
@@ -93,14 +96,11 @@ func testAccCheckVpcBandWidthV2Exists(n string, bandwidth *bandwidths.BandWidth)
 	}
 }
 
-const testAccVpcBandWidthV2_basic = `
-resource "huaweicloud_vpc_bandwidth_v2" "bandwidth_1" {
-	name = "bandwidth_1"
-	size = 5
-}`
-
-const testAccVpcBandWidthV2_update = `
-resource "huaweicloud_vpc_bandwidth_v2" "bandwidth_1" {
-	name = "bandwidth_1_updated"
-	size = 6
-}`
+func testAccVpcBandWidthV2_basic(rName string, size int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_bandwidth" "test" {
+	name = "%s"
+	size = "%d"
+}
+`, rName, size)
+}
