@@ -201,7 +201,7 @@ The `datastore` block supports:
 * `version` - (Required) Specifies the DB instance version.
 
 
-* Available value for attributes
+Available value for attributes
 
 type | version
 ---- | ---

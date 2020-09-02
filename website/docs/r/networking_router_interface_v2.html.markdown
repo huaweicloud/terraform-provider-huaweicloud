@@ -49,10 +49,10 @@ The following arguments are supported:
 * `router_id` - (Required) ID of the router this interface belongs to. Changing
     this creates a new router interface.
 
-* `subnet_id` - ID of the subnet this interface connects to. Changing
+* `subnet_id` - (Optional) ID of the subnet this interface connects to. Changing
     this creates a new router interface.
 
-* `port_id` - ID of the port this interface connects to. Changing
+* `port_id` - (Optional) ID of the port this interface connects to. Changing
     this creates a new router interface.
 
 ## Attributes Reference

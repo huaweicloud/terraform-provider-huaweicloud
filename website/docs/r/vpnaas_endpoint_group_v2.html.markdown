@@ -43,7 +43,7 @@ The following arguments are supported:
 * `type` -  (Optional) The type of the endpoints in the group. A valid value is subnet, cidr, network, router, or vlan.
     Changing this creates a new group.
 
-* `endpoints` - List of endpoints of the same type, for the endpoint group. The values will depend on the type.
+* `endpoints` - (Optional) List of endpoints of the same type, for the endpoint group. The values will depend on the type.
     Changing this creates a new group.
 
 * `value_specs` - (Optional) Map of additional options.

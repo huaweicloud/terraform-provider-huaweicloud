@@ -93,9 +93,9 @@ The following arguments are supported:
 
 The `segments` block supports:
 
-* `physical_network` - The phisical network where this network is implemented.
-* `segmentation_id` - An isolated segment on the physical network.
-* `network_type` - The type of physical network.
+* `physical_network` - (Optional) The phisical network where this network is implemented.
+* `segmentation_id` - (Optional) An isolated segment on the physical network.
+* `network_type` - (Optional) The type of physical network.
 
 ## Attributes Reference
 
