@@ -70,7 +70,7 @@ data "huaweicloud_identity_role_v3" "auth_admin" {
 
 ## Argument Reference
 
-* `name` - The name of the role.
+* `name` - (Required) The name of the role.
 
 * `domain_id` - (Optional) The domain the role belongs to.
 
