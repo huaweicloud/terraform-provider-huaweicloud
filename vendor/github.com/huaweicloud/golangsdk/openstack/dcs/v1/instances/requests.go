@@ -63,7 +63,7 @@ type CreateOps struct {
 	VPCID string `json:"vpc_id" required:"true"`
 
 	// Tenant's security group ID.
-	SecurityGroupID string `json:"security_group_id" required:"true"`
+	SecurityGroupID string `json:"security_group_id,omitempty"`
 
 	// Subnet ID.
 	SubnetID string `json:"subnet_id" required:"true"`

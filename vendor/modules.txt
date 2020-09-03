@@ -186,7 +186,7 @@ github.com/hashicorp/terraform-svchost/auth
 github.com/hashicorp/terraform-svchost/disco
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20200829051431-68dcb72fe133
+# github.com/huaweicloud/golangsdk v0.0.0-20200903081431-238a36e8008f
 ## explicit
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/internal
@@ -413,14 +413,14 @@ go.opencensus.io/trace
 go.opencensus.io/trace/internal
 go.opencensus.io/trace/propagation
 go.opencensus.io/trace/tracestate
-# golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
+# golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/cast5
+golang.org/x/crypto/chacha20
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/ed25519
 golang.org/x/crypto/ed25519/internal/edwards25519
-golang.org/x/crypto/internal/chacha20
 golang.org/x/crypto/internal/subtle
 golang.org/x/crypto/openpgp
 golang.org/x/crypto/openpgp/armor
@@ -430,6 +430,7 @@ golang.org/x/crypto/openpgp/packet
 golang.org/x/crypto/openpgp/s2k
 golang.org/x/crypto/poly1305
 golang.org/x/crypto/ssh
+golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
 # golang.org/x/net v0.0.0-20200301022130-244492dfa37a
 golang.org/x/net/context
 golang.org/x/net/context/ctxhttp
@@ -524,6 +525,6 @@ google.golang.org/grpc/stats
 google.golang.org/grpc/status
 google.golang.org/grpc/tap
 google.golang.org/grpc/test/bufconn
-# gopkg.in/yaml.v2 v2.2.2
+# gopkg.in/yaml.v2 v2.3.0
 ## explicit
 gopkg.in/yaml.v2
