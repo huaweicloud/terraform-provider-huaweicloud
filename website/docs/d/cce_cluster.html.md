@@ -77,7 +77,7 @@ All above argument parameters can be exported as attribute parameters along with
 
 * `certificate_users/client_key_data` - The client key data.
 
-
+* `kube_config_raw` - Raw Kubernetes config to be used by kubectl and other compatible tools.
 
 
 
