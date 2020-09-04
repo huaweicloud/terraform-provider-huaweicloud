@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,15 +14,18 @@ import (
 func TestAccVpcV1EIP_basic(t *testing.T) {
 	var eip eips.PublicIp
 
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_vpc_eip.test"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcV1EIPDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVpcV1EIP_basic,
+				Config: testAccVpcV1EIP_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip_v1.eip_1", &eip),
+					testAccCheckVpcV1EIPExists(resourceName, &eip),
 				),
 			},
 		},
@@ -31,15 +35,18 @@ func TestAccVpcV1EIP_basic(t *testing.T) {
 func TestAccVpcV1EIP_share(t *testing.T) {
 	var eip eips.PublicIp
 
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_vpc_eip.test"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcV1EIPDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVpcV1EIP_share,
+				Config: testAccVpcV1EIP_share(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip_v1.eip_1", &eip),
+					testAccCheckVpcV1EIPExists(resourceName, &eip),
 				),
 			},
 		},
@@ -99,33 +106,37 @@ func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheck
 	}
 }
 
-const testAccVpcV1EIP_basic = `
-resource "huaweicloud_vpc_eip_v1" "eip_1" {
+func testAccVpcV1EIP_basic(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type = "5_bgp"
   }
   bandwidth {
-    name = "test"
-    size = 8
-    share_type = "PER"
+    name        = "%s"
+    size        = 8
+    share_type  = "PER"
     charge_mode = "traffic"
   }
 }
-`
+`, rName)
+}
 
-const testAccVpcV1EIP_share = `
-resource "huaweicloud_vpc_bandwidth_v2" "bandwidth_1" {
-	name = "bandwidth_1"
+func testAccVpcV1EIP_share(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_bandwidth" "test" {
+	name = "%s"
 	size = 5
 }
 
-resource "huaweicloud_vpc_eip_v1" "eip_1" {
+resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type = "5_bgp"
   }
   bandwidth {
-    id = "${huaweicloud_vpc_bandwidth_v2.bandwidth_1.id}"
+    id         = huaweicloud_vpc_bandwidth.test.id
     share_type = "WHOLE"
   }
 }
-`
+`, rName)
+}

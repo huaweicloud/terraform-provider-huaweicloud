@@ -2,28 +2,24 @@ package huaweicloud
 
 import (
 	"fmt"
-	"math/rand"
 	"testing"
 
-	"time"
-
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccVpcIdsV1DataSource_basic(t *testing.T) {
-	rand.Seed(time.Now().UTC().UnixNano())
-	rInt := rand.Intn(50)
-	cidr := fmt.Sprintf("172.16.%d.0/24", rInt)
-	name := fmt.Sprintf("terraform-testacc-vpc-data-source-%d", rInt)
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceVpcIdsV1Config(name, cidr),
+				Config: testAccDataSourceVpcIdsV1Config(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccVpcIdsV2DataSourceID("data.huaweicloud_vpc_ids_v1.vpc_ids"),
+					testAccVpcIdsV2DataSourceID("data.huaweicloud_vpc_ids.test"),
 				),
 			},
 		},
@@ -45,14 +41,14 @@ func testAccVpcIdsV2DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccDataSourceVpcIdsV1Config(name, cidr string) string {
+func testAccDataSourceVpcIdsV1Config(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc_v1" "vpc_1" {
-	name = "%s"
-	cidr = "%s"
+resource "huaweicloud_vpc" "test" {
+  name = "%s"
+  cidr = "172.16.9.0/24"
 }
 
-data "huaweicloud_vpc_ids_v1" "vpc_ids" {
+data "huaweicloud_vpc_ids" "test" {
 }
-`, name, cidr)
+`, rName)
 }
