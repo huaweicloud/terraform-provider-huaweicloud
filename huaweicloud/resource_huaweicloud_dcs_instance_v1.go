@@ -7,8 +7,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v1/instances"
+	"github.com/huaweicloud/golangsdk/openstack/dcs/v2/whitelists"
 )
 
 func resourceDcsInstanceV1() *schema.Resource {
@@ -35,6 +37,9 @@ func resourceDcsInstanceV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"Redis", "Memcached",
+				}, true),
 			},
 			"engine_version": {
 				Type:     schema.TypeString,
@@ -62,14 +67,15 @@ func resourceDcsInstanceV1() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"security_group_id": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+			"security_group_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{"security_group_id", "whitelists"},
 			},
 			"available_zones": {
 				Type:     schema.TypeList,
@@ -118,6 +124,29 @@ func resourceDcsInstanceV1() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 				ForceNew: true,
 			},
+			"whitelist_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+			"whitelists": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				MaxItems: 4,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"group_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"ip_address": {
+							Type:     schema.TypeList,
+							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 			"order_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -131,10 +160,6 @@ func resourceDcsInstanceV1() *schema.Resource {
 				Computed: true,
 			},
 			"subnet_name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"port": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -162,6 +187,10 @@ func resourceDcsInstanceV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"port": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -186,6 +215,46 @@ func getInstanceBackupPolicy(d *schema.ResourceData) *instances.InstanceBackupPo
 	}
 
 	return instanceBackupPolicy
+}
+
+func getDcsInstanceWhitelist(d *schema.ResourceData) whitelists.WhitelistOpts {
+	groupsRaw := d.Get("whitelists").(*schema.Set).List()
+	whitelitGroups := make([]whitelists.WhitelistGroupOpts, len(groupsRaw))
+	for i, v := range groupsRaw {
+		groups := v.(map[string]interface{})
+
+		ipRaw := groups["ip_address"].([]interface{})
+		ipList := make([]string, len(ipRaw))
+		for j, ip := range ipRaw {
+			ipList[j] = ip.(string)
+		}
+
+		whitelitGroups[i] = whitelists.WhitelistGroupOpts{
+			GroupName: groups["group_name"].(string),
+			IPList:    ipList,
+		}
+	}
+
+	enable := d.Get("whitelist_enable").(bool)
+	if len(groupsRaw) == 0 {
+		enable = false
+	}
+
+	return whitelists.WhitelistOpts{
+		Enable: &enable,
+		Groups: whitelitGroups,
+	}
+}
+
+func flattenDcsInstanceWhitelist(object *whitelists.Whitelist) interface{} {
+	whilteList := make([]map[string]interface{}, len(object.Groups))
+	for i, group := range object.Groups {
+		whilteList[i] = map[string]interface{}{
+			"group_name": group.GroupName,
+			"ip_address": group.IPList,
+		}
+	}
+	return whilteList
 }
 
 func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) error {
@@ -243,6 +312,18 @@ func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	// Store the instance ID now
 	d.SetId(v.InstanceID)
 
+	// set whitelist
+	dcsV2Client, err := config.initServiceClient("dcs", GetRegion(d, config), "v2")
+	whitelistOpts := getDcsInstanceWhitelist(d)
+	log.Printf("[DEBUG] Create whitelist options: %#v", whitelistOpts)
+
+	if *whitelistOpts.Enable {
+		err = whitelists.Put(dcsV2Client, d.Id(), whitelistOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error creating whitelist for instance (%s): %s", d.Id(), err)
+		}
+	}
+
 	return resourceDcsInstancesV1Read(d, meta)
 }
 
@@ -267,6 +348,7 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("capacity", v.Capacity)
 	d.Set("used_memory", v.UsedMemory)
 	d.Set("max_memory", v.MaxMemory)
+	d.Set("ip", v.IP)
 	d.Set("port", v.Port)
 	d.Set("status", v.Status)
 	d.Set("description", v.Description)
@@ -287,39 +369,56 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("maintain_end", v.MaintainEnd)
 	d.Set("access_user", v.AccessUser)
 
+	dcsV2Client, err := config.initServiceClient("dcs", GetRegion(d, config), "v2")
+	object, err := whitelists.Get(dcsV2Client, d.Id()).Extract()
+
+	enable := object.Enable
+	// change enable to true when none whitelist groups exists
+	if len(object.Groups) == 0 {
+		enable = true
+	}
+	d.Set("whitelist_enable", enable)
+	err = d.Set("whitelists", flattenDcsInstanceWhitelist(object))
+	if err != nil {
+		return fmt.Errorf("Error setting whitelists for DCS instance, err: %s", err)
+	}
+
 	return nil
 }
 
 func resourceDcsInstancesV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	dcsV1Client, err := config.dcsV1Client(GetRegion(d, config))
-	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud dcs instance client: %s", err)
-	}
-	var updateOpts instances.UpdateOpts
-	if d.HasChange("name") {
-		updateOpts.Name = d.Get("name").(string)
-	}
-	if d.HasChange("description") {
+
+	if d.HasChanges("name", "description", "security_group_id", "maintain_begin", "maintain_end") {
+		dcsV1Client, err := config.dcsV1Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error updating HuaweiCloud dcs instance client: %s", err)
+		}
+
 		description := d.Get("description").(string)
-		updateOpts.Description = &description
-	}
-	if d.HasChange("maintain_begin") {
-		maintain_begin := d.Get("maintain_begin").(string)
-		updateOpts.MaintainBegin = maintain_begin
-	}
-	if d.HasChange("maintain_end") {
-		maintain_end := d.Get("maintain_end").(string)
-		updateOpts.MaintainEnd = maintain_end
-	}
-	if d.HasChange("security_group_id") {
-		security_group_id := d.Get("security_group_id").(string)
-		updateOpts.SecurityGroupID = security_group_id
+		updateOpts := instances.UpdateOpts{
+			Name:            d.Get("name").(string),
+			Description:     &description,
+			MaintainBegin:   d.Get("maintain_begin").(string),
+			MaintainEnd:     d.Get("maintain_end").(string),
+			SecurityGroupID: d.Get("security_group_id").(string),
+		}
+
+		err = instances.Update(dcsV1Client, d.Id(), updateOpts).Err
+		if err != nil {
+			return fmt.Errorf("Error updating HuaweiCloud Dcs Instance: %s", err)
+		}
 	}
 
-	err = instances.Update(dcsV1Client, d.Id(), updateOpts).Err
-	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud Dcs Instance: %s", err)
+	if d.HasChange("whitelists") {
+		dcsV2Client, err := config.initServiceClient("dcs", GetRegion(d, config), "v2")
+		whitelistOpts := getDcsInstanceWhitelist(d)
+		log.Printf("[DEBUG] update whitelist options: %#v", whitelistOpts)
+
+		err = whitelists.Put(dcsV2Client, d.Id(), whitelistOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error updating whitelist for instance (%s): %s", d.Id(), err)
+		}
 	}
 
 	return resourceDcsInstancesV1Read(d, meta)

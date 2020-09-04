@@ -14,39 +14,38 @@ This is an alternative to `huaweicloud_dcs_instance_v1`
 
 ## Example Usage
 
-### Automatically detect the correct network
+### DCS instance for Redis 3.0
 
 ```hcl
+data "huaweicloud_dcs_az" "az_1" {
+  code = "cn-north-1a"
+}
+
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name        = "secgroup_1"
   description = "secgroup_1"
 }
-data "huaweicloud_dcs_az" "az_1" {
-  port = "8002"
-  code = "cn-north-1a"
-}
-
-resource "huaweicloud_vpc" "vpc_4" {
-  name = "terraform_provider_vpc4"
+resource "huaweicloud_vpc" "vpc_1" {
+  name = "terraform_provider_vpc1"
   cidr= "192.168.0.0/16"
 }
 resource "huaweicloud_vpc_subnet" "subnet_1" {
   name = "huaweicloud_subnet"
   cidr = "192.168.0.0/16"
   gateway_ip = "192.168.0.1"
-  vpc_id = huaweicloud_vpc.vpc_4.id
+  vpc_id = huaweicloud_vpc.vpc_1.id
 }
 
 resource "huaweicloud_dcs_instance" "instance_1" {
   name              = "test_dcs_instance"
+  engine            = "Redis"
   engine_version    = "3.0"
   password          = "Huawei_test"
-  engine            = "Redis"
   capacity          = 2
-  vpc_id            = huaweicloud_vpc.vpc_4.id
-  security_group_id = "${huaweicloud_networking_secgroup.secgroup_1.id}"
+  vpc_id            = huaweicloud_vpc.vpc_1.id
   subnet_id         = huaweicloud_vpc_subnet.subnet_1.id
-  available_zones   = ["${data.huaweicloud_dcs_az.az_1.id}"]
+  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
+  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
   product_id        = "dcs.master_standby-h"
   save_days         = 1
   backup_type       = "manual"
@@ -54,6 +53,36 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   period_type       = "weekly"
   backup_at         = [1]
   depends_on        = ["huaweicloud_networking_secgroup.secgroup_1"]
+}
+```
+
+### DCS instance for Redis 5.0
+
+```hcl
+resource "huaweicloud_dcs_instance" "instance_1" {
+  name              = "test_dcs_instance"
+  engine            = "Redis"
+  engine_version    = "5.0"
+  password          = "Huawei_test"
+  capacity          = 2
+  vpc_id            = huaweicloud_vpc.vpc_1.id
+  subnet_id         = huaweicloud_vpc_subnet.subnet_1.id
+  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
+  product_id        = "redis.ha.au1.large.r2.2-h"
+  save_days         = 1
+  backup_type       = "manual"
+  begin_at          = "00:00-01:00"
+  period_type       = "weekly"
+  backup_at         = [1]
+
+  whitelists {
+    group_name = "test-group1"
+    ip_address = ["192.168.10.100", "192.168.0.0/24"]
+  }
+  whitelists {
+    group_name = "test-group2"
+    ip_address = ["172.16.10.100", "172.16.0.0/24"]
+  }
 }
 ```
 
@@ -108,10 +137,17 @@ The following arguments are supported:
 * `vpc_id` - (Required) Specifies the id of the VPC.
     Changing this creates a new instance.
 
-* `security_group_id` - (Required) Tenant's security group ID.
-
 * `subnet_id` - (Required) Specifies the id of the subnet.
     Changing this creates a new instance.
+
+* `security_group_id` - (Optional) Specifies the id of the security group which the instance belongs to.
+    This parameter is mandatory for Memcached and Redis 3.0 versions.
+
+* `whitelists` - (Optional) Specifies the IP addresses which can access the instance.
+    This parameter is mandatory for Redis 4.0 and 5.0 versions. The structure is described below.
+
+* `whitelist_enable` - (Optional) Enable or disable the IP addresse whitelists. Default to true.
+    If the whitelist is disabled, all IP addresses connected to the VPC can access the instance.
 
 * `available_zones` - (Required) IDs of the AZs where cache nodes reside.
     If you are creating active/standby, Proxy cluster, and Cluster cluster instances to support 
@@ -157,10 +193,15 @@ The following arguments are supported:
 * `backup_at` - (Optional) Day in a week on which backup starts. Range: 1–7. Where: 1
     indicates Monday; 7 indicates Sunday. Changing this creates a new instance.
 
+The `whitelists` block supports:
+
+* `group_name` - (Required) Specifies the name of IP address group.
+
+* `ip_address` - (Required) Specifies the list of IP address or CIDR which can be whitelisted for an instance.
+
 ## Attributes Reference
 
 The following attributes are exported:
-
 
 * `name` - See Argument Reference above.
 * `description` - See Argument Reference above.
@@ -171,10 +212,12 @@ The following attributes are exported:
 * `password` - See Argument Reference above.
 * `vpc_id` - See Argument Reference above.
 * `vpc_name` - Indicates the name of a vpc.
-* `security_group_id` - See Argument Reference above.
-* `security_group_name` - Indicates the name of a security group.
 * `subnet_id` - See Argument Reference above.
 * `subnet_name` - Indicates the name of a subnet.
+* `security_group_id` - See Argument Reference above.
+* `security_group_name` - Indicates the name of a security group.
+* `whitelists` - See Argument Reference above.
+* `whitelist_enable` - See Argument Reference above.
 * `available_zones` - See Argument Reference above.
 * `product_id` - See Argument Reference above.
 * `maintain_begin` - See Argument Reference above.
@@ -186,7 +229,6 @@ The following attributes are exported:
 * `backup_at` - See Argument Reference above.
 * `order_id` - An order ID is generated only in the monthly or yearly billing mode.
     In other billing modes, no value is returned for this parameter.
-* `port` - Port of the cache node.
 * `resource_spec_code` - Resource specifications.
     dcs.single_node: indicates a DCS instance in single-node mode.
     dcs.master_standby: indicates a DCS instance in master/standby mode.
@@ -196,3 +238,4 @@ The following attributes are exported:
 * `max_memory` - Overall memory size. Unit: MB.
 * `user_id` - Indicates a user ID.
 * `ip` - Cache node's IP address in tenant's VPC.
+* `port` - Port of the cache node.
