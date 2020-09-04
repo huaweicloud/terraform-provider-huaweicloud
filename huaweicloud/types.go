@@ -78,6 +78,13 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 	}
 
 	response, err := lrt.Rt.RoundTrip(request)
+	if response == nil {
+		errMessage := err.Error()
+		if strings.Contains(errMessage, "no such host") {
+			return nil, err
+		}
+	}
+
 	// Retrying connection
 	retry := 1
 	for response == nil {
