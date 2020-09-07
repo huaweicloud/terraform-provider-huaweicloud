@@ -371,6 +371,7 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("datastore", dbList)
 
 	specCode := ""
+	wrongFlavor := "Inconsistent Flavor"
 	ipsList := []string{}
 	nodesList := make([]map[string]interface{}, 0, 1)
 	for _, group := range instance.Groups {
@@ -384,6 +385,8 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 			}
 			if specCode == "" {
 				specCode = Node.SpecCode
+			} else if specCode != Node.SpecCode && specCode != wrongFlavor {
+				specCode = wrongFlavor
 			}
 			nodesList = append(nodesList, node)
 			// Only return Node private ips which doesn't support reduce
