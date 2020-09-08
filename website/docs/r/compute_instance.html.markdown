@@ -75,7 +75,40 @@ resource "huaweicloud_compute_eip_associate" "associated" {
 }
 ```
 
+### Instance With Attached Volume
+
+```hcl
+resource "huaweicloud_evs_volume" "myvolume" {
+  name              = "myvolume"
+  availability_zone = "cn-north-4a"
+  volume_type       = "SAS"
+  size              = 10
+}
+
+resource "huaweicloud_compute_instance" "myinstance" {
+  name              = "myinstance"
+  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id         = "s6.small.1"
+  key_pair          = "my_key_pair_name"
+  security_groups   = ["default"]
+  availability_zone = "cn-north-4a"
+
+  network {
+    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
+  }
+}
+
+resource "huaweicloud_compute_volume_attach" "attached" {
+  instance_id = "${huaweicloud_compute_instance.myinstance.id}"
+  volume_id   = "${huaweicloud_evs_volume.myvolume.id}"
+}
+```
+
 ### Instance With Multiple Data Disks
+
+It's possible to specify multiple `data_disks` entries to create an instance
+with multiple data disks, but we can't ensure the volume attached order. So it's
+recommended to use `Instance With Attached Volume` above.
 
 ```hcl
 resource "huaweicloud_compute_instance" "multi-disk" {
@@ -103,35 +136,6 @@ resource "huaweicloud_compute_instance" "multi-disk" {
   network {
     uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
   }
-}
-```
-
-### Instance With Attached Volume
-
-```hcl
-resource "huaweicloud_evs_volume" "myvolume" {
-  name              = "myvolume"
-  availability_zone = "cn-north-4a"
-  volume_type       = "SAS"
-  size              = 10
-}
-
-resource "huaweicloud_compute_instance" "myinstance" {
-  name              = "myinstance"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "s6.small.1"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "cn-north-4a"
-
-  network {
-    uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
-  }
-}
-
-resource "huaweicloud_compute_volume_attach" "attached" {
-  instance_id = "${huaweicloud_compute_instance.myinstance.id}"
-  volume_id   = "${huaweicloud_evs_volume.myvolume.id}"
 }
 ```
 
@@ -324,6 +328,7 @@ The following attributes are exported:
 * `volume_attached/pci_address` - The volume pci address on that attachment.
 * `volume_attached/boot_index` - The volume boot index on that attachment.
 * `volume_attached/size` - The volume size on that attachment.
+* `system_disk_id` - The system disk voume ID.
 * `all_metadata` - Deprecated, use `tags` instead. Contains all instance metadata, even metadata not set
     by Terraform.
 
