@@ -56,17 +56,22 @@ func testAccCheckCCENodePoolDestroy(s *terraform.State) error {
 	}
 
 	var clusterId string
+	var nodepollId string
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type == "huaweicloud_cce_cluster" {
 			clusterId = rs.Primary.ID
 		}
 
-		if rs.Type != "huaweicloud_cce_node_pool" {
+		if rs.Type == "huaweicloud_cce_node_pool" {
+			nodepollId = rs.Primary.ID
+		}
+
+		if clusterId == "" || nodepollId == "" {
 			continue
 		}
 
-		_, err := nodepools.Get(cceClient, clusterId, rs.Primary.ID).Extract()
+		_, err := nodepools.Get(cceClient, clusterId, nodepollId).Extract()
 		if err == nil {
 			return fmt.Errorf("Node still exists")
 		}
@@ -120,7 +125,7 @@ func testAccCCENodePool_Base(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
-resource "huaweicloud_compute_keypair_v2" "test" {
+resource "huaweicloud_compute_keypair" "test" {
   name = "%s"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
@@ -147,7 +152,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   flavor_id          = "s6.large.2"
   initial_node_count = 1
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  key_pair           = huaweicloud_compute_keypair_v2.test.name
+  key_pair           = huaweicloud_compute_keypair.test.name
   scall_enable      = false
   min_node_count    = 0
   max_node_count    = 0
@@ -177,7 +182,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   flavor_id          = "s6.large.2"
   initial_node_count = 2
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  key_pair           = huaweicloud_compute_keypair_v2.test.name
+  key_pair           = huaweicloud_compute_keypair.test.name
   scall_enable      = true
   min_node_count    = 2
   max_node_count    = 9

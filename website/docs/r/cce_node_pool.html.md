@@ -57,8 +57,8 @@ The following arguments are supported:
     to create nodes in a random AZ in the node pool.
     Changing this parameter will create a new resource.
 
-* `os` - (Optional) Operating System of the node. Changing this parameter will create a new resource.
-    - node pools only support VM nodes cluster, so the supported OS are EulerOS 2.5 and CentOS 7.6.
+* `os` - (Optional) Operating System of the node. The value can be EulerOS 2.5 and CentOS 7.6.
+    Changing this parameter will create a new resource.
 
 * `key_pair` - (Optional) Key pair name when logging in to select the key pair mode. This parameter and `password` are alternative.
     Changing this parameter will create a new resource.
@@ -74,7 +74,7 @@ The following arguments are supported:
 * `postinstall` - (Optional) Script required after the installation. The input value can be a Base64 encoded string or not.
     Changing this parameter will create a new resource.
 
-* `scall_enable` - (Optional) Whether to enable auto scaling.
+* `scall_enable` - (Optional) Whether to enable auto scaling. If Autoscaler is enabled, install the autoscaler add-on to use the auto scaling feature.
 
 * `min_node_count` - (Optional) Minimum number of nodes allowed if auto scaling is enabled.
 
