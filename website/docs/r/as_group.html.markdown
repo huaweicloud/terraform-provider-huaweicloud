@@ -10,7 +10,7 @@ description: |-
 # huaweicloud\_as\_group
 
 Manages a Autoscaling Group resource within HuaweiCloud.
-This is an alternative to `huaweicloud_as_group_v1`
+This is an alternative to `huaweicloud_as_group`
 
 ## Example Usage
 

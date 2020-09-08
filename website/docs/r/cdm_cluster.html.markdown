@@ -26,7 +26,7 @@ resource "huaweicloud_cdm_cluster" "cluster" {
   availability_zone = "{{ availability_zone }}"
   flavor_id         = "{{ flavor_id }}"
   name              = "terraform_test_cdm_cluster"
-  security_group_id = "${huaweicloud_networking_secgroup.secgroup.id}"
+  security_group_id = huaweicloud_networking_secgroup.secgroup.id
   subnet_id         = "{{ network_id }}"
   vpc_id            = "{{ vpc_id }}"
   version           = "{{ version }}"
