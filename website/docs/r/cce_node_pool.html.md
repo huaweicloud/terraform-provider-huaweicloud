@@ -25,7 +25,6 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
   flavor_id         = "s3.large.4"
   availability_zone = var.availability_zone
   key_pair          = var.keypair
-  region           =  "cn-east-3"
   scall_enable      = true
   min_node_count    = 1
   max_node_count    = 10
@@ -54,11 +53,12 @@ The following arguments are supported:
 
 * `flavor_id` - (Required) Specifies the flavor id. Changing this parameter will create a new resource.
  
-* `availability_zone` - (Required) specify the name of the available partition (AZ). Changing this parameter will create a new resource.
+* `availability_zone` - (Optional) specify the name of the available partition (AZ). Default value is random 
+    to create nodes in a random AZ in the node pool.
+    Changing this parameter will create a new resource.
 
 * `os` - (Optional) Operating System of the node. Changing this parameter will create a new resource.
-    - For VM nodes, clusters of v1.13 and later support *EulerOS 2.5* and *CentOS 7.6*.
-    - For BMS nodes purchased in the yearly/monthly billing mode, only *EulerOS 2.3* is supported.
+    - node pools only support VM nodes cluster, so the supported OS are EulerOS 2.5 and CentOS 7.6.
 
 * `key_pair` - (Optional) Key pair name when logging in to select the key pair mode. This parameter and `password` are alternative.
     Changing this parameter will create a new resource.
@@ -67,11 +67,6 @@ The following arguments are supported:
     Changing this parameter will create a new resource.
 
 * `subnet_id` - (Optional) The ID of the subnet to which the NIC belongs. Changing this parameter will create a new resource.
-
-* `bandwidth_charge_mode` - (Optional) Bandwidth billing type. Changing this parameter will create a new resource.
-
-* `extend_param_charging_mode` - (Optional) Billing mode of a node. Value 0 indicates pay-per-use.
-    Changing this parameter will create a new resource.
 
 * `preinstall` - (Optional) Script required before installation. The input value can be a Base64 encoded string or not.
     Changing this parameter will create a new resource.

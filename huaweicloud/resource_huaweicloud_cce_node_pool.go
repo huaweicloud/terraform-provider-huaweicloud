@@ -43,11 +43,6 @@ func resourceCCENodePool() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"availability_zone": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
 			"root_volume": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -89,6 +84,12 @@ func resourceCCENodePool() *schema.Resource {
 						},
 					}},
 			},
+			"availability_zone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "random",
+			},
 			"os": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -127,19 +128,9 @@ func resourceCCENodePool() *schema.Resource {
 						},
 					}},
 			},
-			"bandwidth_charge_mode": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"billing_mode": {
 				Type:     schema.TypeInt,
 				Computed: true,
-			},
-			"extend_param_charging_mode": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
 			},
 			"preinstall": {
 				Type:     schema.TypeString,
@@ -249,9 +240,8 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 					},
 				},
 				ExtendParam: nodes.ExtendParam{
-					ChargingMode: d.Get("extend_param_charging_mode").(int),
-					PreInstall:   base64PreInstall,
-					PostInstall:  base64PostInstall,
+					PreInstall:  base64PreInstall,
+					PostInstall: base64PostInstall,
 				},
 				Taints: resourceCCETaint(d),
 			},

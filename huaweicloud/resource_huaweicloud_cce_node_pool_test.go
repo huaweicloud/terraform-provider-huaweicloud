@@ -18,7 +18,7 @@ func TestAccCCENodePool_basic(t *testing.T) {
 	updateName := rName + "update"
 	resourceName := "huaweicloud_cce_node_pool.test"
 	//clusterName here is used to provide the cluster id to fetch cce node pool.
-	clusterName := "huaweicloud_cce_cluster_v3.test"
+	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -58,7 +58,7 @@ func testAccCheckCCENodePoolDestroy(s *terraform.State) error {
 	var clusterId string
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type == "huaweicloud_cce_cluster_v3" {
+		if rs.Type == "huaweicloud_cce_cluster" {
 			clusterId = rs.Primary.ID
 		}
 
@@ -125,7 +125,7 @@ resource "huaweicloud_compute_keypair_v2" "test" {
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
-resource "huaweicloud_cce_cluster_v3" "test" {
+resource "huaweicloud_cce_cluster" "test" {
   name                   = "%s"
   cluster_type           = "VirtualMachine"
   flavor_id              = "cce.s1.small"
@@ -141,7 +141,7 @@ func testAccCCENodePool_basic(rName string) string {
 %s
 
 resource "huaweicloud_cce_node_pool" "test" {
-  cluster_id         = huaweicloud_cce_cluster_v3.test.id
+  cluster_id         = huaweicloud_cce_cluster.test.id
   name               = "%s"
   os                 = "EulerOS 2.5"
   flavor_id          = "s6.large.2"
@@ -171,7 +171,7 @@ func testAccCCENodePool_update(rName, updateName string) string {
 %s
 
 resource "huaweicloud_cce_node_pool" "test" {
-  cluster_id         = huaweicloud_cce_cluster_v3.test.id
+  cluster_id         = huaweicloud_cce_cluster.test.id
   name               = "%s"
   os                 = "EulerOS 2.5"
   flavor_id          = "s6.large.2"
