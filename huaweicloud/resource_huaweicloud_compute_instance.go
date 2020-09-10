@@ -245,6 +245,7 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ForceNew:      true,
+				Computed:      true,
 				ConflictsWith: []string{"block_device", "metadata"},
 				ValidateFunc: validation.StringInSlice([]string{
 					"SATA", "SAS", "SSD", "co-p1", "uh-l1",
@@ -254,6 +255,7 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				ForceNew:      true,
+				Computed:      true,
 				ConflictsWith: []string{"block_device", "metadata"},
 			},
 			"data_disks": {
@@ -387,6 +389,10 @@ func resourceComputeInstanceV2() *schema.Resource {
 						},
 					},
 				},
+			},
+			"system_disk_id": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -635,8 +641,9 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	computeV1Client, err := config.computeV1Client(GetRegion(d, config))
+	blockStorageClient, err := config.blockStorageV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud client: %s", err)
 	}
 
 	server, err := servers.Get(computeClient, d.Id()).Extract()
@@ -708,6 +715,7 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	}
 	d.Set("flavor_name", flavor.Name)
 
+	root_volume := ""
 	// Set volume attached
 	bds := []map[string]interface{}{}
 	if len(server.VolumesAttached) > 0 {
@@ -724,8 +732,24 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 				"size":        va.Size,
 			}
 			bds = append(bds, v)
+			if va.BootIndex == 0 {
+				root_volume = b["id"]
+			}
 		}
 		d.Set("volume_attached", bds)
+	}
+
+	// Set root volume
+	if root_volume != "" {
+		v, err := volumes.Get(blockStorageClient, root_volume).Extract()
+		if err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Retrieved root volume %s: %+v", root_volume, v)
+
+		d.Set("system_disk_id", root_volume)
+		d.Set("system_disk_size", v.Size)
+		d.Set("system_disk_type", v.VolumeType)
 	}
 
 	// Set the instance's image information appropriately
