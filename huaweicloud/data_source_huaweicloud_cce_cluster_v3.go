@@ -84,7 +84,48 @@ func dataSourceCCEClusterV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-					}},
+					},
+				},
+			},
+			"certificate_clusters": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"server": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"certificate_authority_data": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"certificate_users": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"client_certificate_data": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"client_key_data": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -152,6 +193,33 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 	d.Set("region", GetRegion(d, config))
+
+	cert, err := clusters.GetCert(cceClient, d.Id()).Extract()
+	if err != nil {
+		log.Printf("Error retrieving opentelekomcloud CCE cluster cert: %s", err)
+	}
+
+	//Set Certificate Clusters
+	var clusterList []map[string]interface{}
+	for _, clusterObj := range cert.Clusters {
+		clusterCert := make(map[string]interface{})
+		clusterCert["name"] = clusterObj.Name
+		clusterCert["server"] = clusterObj.Cluster.Server
+		clusterCert["certificate_authority_data"] = clusterObj.Cluster.CertAuthorityData
+		clusterList = append(clusterList, clusterCert)
+	}
+	d.Set("certificate_clusters", clusterList)
+
+	//Set Certificate Users
+	var userList []map[string]interface{}
+	for _, userObj := range cert.Users {
+		userCert := make(map[string]interface{})
+		userCert["name"] = userObj.Name
+		userCert["client_certificate_data"] = userObj.User.ClientCertData
+		userCert["client_key_data"] = userObj.User.ClientKeyData
+		userList = append(userList, userCert)
+	}
+	d.Set("certificate_users", userList)
 
 	return nil
 }
