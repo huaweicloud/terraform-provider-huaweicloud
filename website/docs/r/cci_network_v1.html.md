@@ -15,25 +15,25 @@ This is an alternative to `huaweicloud_cci_network_v1`
 ## Example Usage
 
  ```hcl
-    variable "sg_id" { }
-    variable "project_id" { }
-    variable "domain_id" { }
-    variable "vpc_id" { }
-    variable "net_id" { }
-    variable "subnet_id" { }
+variable "sg_id" { }
+variable "project_id" { }
+variable "domain_id" { }
+variable "vpc_id" { }
+variable "net_id" { }
+variable "subnet_id" { }
 	
-    resource "huaweicloud_cci_network" "net_1" {
-      name = "cci-net"
-      namespace = "test-ns"
-      security_group = var.sg_id
-      project_id = var.project_id
-      domain_id = var.domain_id
-      vpc_id = var.vpc_id
-      network_id = var.net_id
-      subnet_id = var.subnet_id
-      available_zone = "cn-north-1a"
-      cidr = "192.168.0.0/24"
-    }
+resource "huaweicloud_cci_network" "net_1" {
+  name           = "cci-net"
+  namespace      = "test-ns"
+  security_group = var.sg_id
+  project_id     = var.project_id
+  domain_id      = var.domain_id
+  vpc_id         = var.vpc_id
+  network_id     = var.net_id
+  subnet_id      = var.subnet_id
+  available_zone = "cn-north-1a"
+  cidr           = "192.168.0.0/24"
+}
 ```
 
 ## Argument Reference

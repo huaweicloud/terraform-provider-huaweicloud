@@ -18,11 +18,11 @@ This is an alternative to `huaweicloud_cdn_domain_v1`
 
 ```hcl
 resource "huaweicloud_cdn_domain" "domain_1" {
-  name = "${var.domain_name}"
+  name = var.domain_name
   type = "web"
 
   sources {
-    origin      = "${var.origin_server}"
+    origin      = var.origin_server
     origin_type = "ipaddr"
     active      = 1
   }
