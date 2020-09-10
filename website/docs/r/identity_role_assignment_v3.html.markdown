@@ -63,7 +63,7 @@ The following arguments are supported:
 
 * `domain_id` - (Optional; Required if `project_id` is empty) The domain to assign the role in.
 
-* `group_id` - (Optional; Required if `user_id` is empty) The group to assign the role to.
+* `group_id` - (Required) The group to assign the role to.
 
 * `project_id` - (Optional; Required if `domain_id` is empty) The project to assign the role in.
 
