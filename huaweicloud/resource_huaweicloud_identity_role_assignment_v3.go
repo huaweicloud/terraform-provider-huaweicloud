@@ -30,10 +30,9 @@ func resourceIdentityRoleAssignmentV3() *schema.Resource {
 			},
 
 			"group_id": {
-				Type:          schema.TypeString,
-				ConflictsWith: []string{"user_id"},
-				Optional:      true,
-				ForceNew:      true,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"project_id": {
@@ -47,13 +46,6 @@ func resourceIdentityRoleAssignmentV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-			},
-
-			"user_id": {
-				Type:          schema.TypeString,
-				ConflictsWith: []string{"group_id"},
-				Optional:      true,
-				ForceNew:      true,
 			},
 		},
 	}
@@ -70,12 +62,10 @@ func resourceIdentityRoleAssignmentV3Create(d *schema.ResourceData, meta interfa
 	groupID := d.Get("group_id").(string)
 	projectID := d.Get("project_id").(string)
 	roleID := d.Get("role_id").(string)
-	userID := d.Get("user_id").(string)
 	opts := roles.AssignOpts{
 		DomainID:  domainID,
 		GroupID:   groupID,
 		ProjectID: projectID,
-		UserID:    userID,
 	}
 
 	err = roles.Assign(identityClient, roleID, opts).ExtractErr()
@@ -83,7 +73,7 @@ func resourceIdentityRoleAssignmentV3Create(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error assigning role: %s", err)
 	}
 
-	d.SetId(buildRoleAssignmentID(domainID, projectID, groupID, userID, roleID))
+	d.SetId(buildRoleAssignmentID(domainID, projectID, groupID, roleID))
 
 	return resourceIdentityRoleAssignmentV3Read(d, meta)
 }
@@ -99,13 +89,12 @@ func resourceIdentityRoleAssignmentV3Read(d *schema.ResourceData, meta interface
 	if err != nil {
 		return fmt.Errorf("Error getting role assignment: %s", err)
 	}
-	domainID, projectID, groupID, userID, _ := extractRoleAssignmentID(d.Id())
+	domainID, projectID, groupID, _ := extractRoleAssignmentID(d.Id())
 
 	log.Printf("[DEBUG] Retrieved HuaweiCloud role assignment: %#v", roleAssignment)
 	d.Set("domain_id", domainID)
 	d.Set("project_id", projectID)
 	d.Set("group_id", groupID)
-	d.Set("user_id", userID)
 	d.Set("role_id", roleAssignment.ID)
 	d.Set("region", GetRegion(d, config))
 
@@ -119,13 +108,12 @@ func resourceIdentityRoleAssignmentV3Delete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
-	domainID, projectID, groupID, userID, roleID := extractRoleAssignmentID(d.Id())
+	domainID, projectID, groupID, roleID := extractRoleAssignmentID(d.Id())
 	var opts roles.UnassignOpts
 	opts = roles.UnassignOpts{
 		DomainID:  domainID,
 		GroupID:   groupID,
 		ProjectID: projectID,
-		UserID:    userID,
 	}
 	roles.Unassign(identityClient, roleID, opts).ExtractErr()
 	if err != nil {
@@ -136,14 +124,13 @@ func resourceIdentityRoleAssignmentV3Delete(d *schema.ResourceData, meta interfa
 }
 
 func getRoleAssignment(identityClient *golangsdk.ServiceClient, d *schema.ResourceData) (roles.RoleAssignment, error) {
-	domainID, projectID, groupID, userID, roleID := extractRoleAssignmentID(d.Id())
+	domainID, projectID, groupID, roleID := extractRoleAssignmentID(d.Id())
 
 	var opts roles.ListAssignmentsOpts
 	opts = roles.ListAssignmentsOpts{
 		GroupID:        groupID,
 		ScopeDomainID:  domainID,
 		ScopeProjectID: projectID,
-		UserID:         userID,
 	}
 
 	pager := roles.ListAssignments(identityClient, opts)
@@ -169,11 +156,11 @@ func getRoleAssignment(identityClient *golangsdk.ServiceClient, d *schema.Resour
 }
 
 // Role assignments have no ID in HuaweiCloud. Build an ID out of the IDs that make up the role assignment
-func buildRoleAssignmentID(domainID, projectID, groupID, userID, roleID string) string {
-	return fmt.Sprintf("%s/%s/%s/%s/%s", domainID, projectID, groupID, userID, roleID)
+func buildRoleAssignmentID(domainID, projectID, groupID, roleID string) string {
+	return fmt.Sprintf("%s/%s/%s/%s", domainID, projectID, groupID, roleID)
 }
 
-func extractRoleAssignmentID(roleAssignmentID string) (string, string, string, string, string) {
+func extractRoleAssignmentID(roleAssignmentID string) (string, string, string, string) {
 	split := strings.Split(roleAssignmentID, "/")
-	return split[0], split[1], split[2], split[3], split[4]
+	return split[0], split[1], split[2], split[3]
 }

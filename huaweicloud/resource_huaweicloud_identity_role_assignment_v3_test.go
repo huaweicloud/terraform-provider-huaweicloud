@@ -81,14 +81,13 @@ func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, grou
 			return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}
 
-		domainID, projectID, groupID, userID, roleID := extractRoleAssignmentID(rs.Primary.ID)
+		domainID, projectID, groupID, roleID := extractRoleAssignmentID(rs.Primary.ID)
 
 		var opts roles.ListAssignmentsOpts
 		opts = roles.ListAssignmentsOpts{
 			GroupID:        groupID,
 			ScopeDomainID:  domainID,
 			ScopeProjectID: projectID,
-			UserID:         userID,
 		}
 
 		pager := roles.ListAssignments(identityClient, opts)
