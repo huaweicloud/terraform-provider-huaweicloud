@@ -470,7 +470,9 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 	}
 	d.Set("nodes", nodesList)
 	d.Set("coordinator_num", coordinator_num)
-	d.Set("sharding_num", sharding_num/3)
+
+	dn_num := sharding_num / 3
+	d.Set("sharding_num", dn_num)
 
 	// set backup_strategy
 	backupStrategyList := make([]map[string]interface{}, 1)
@@ -482,7 +484,6 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("backup_strategy", backupStrategyList)
 
 	// set volume
-	dn_num := d.Get("sharding_num").(int)
 	volume_size := instance.Volume.Size
 	dn_size := volume_size / dn_num
 	volumeList := make([]map[string]interface{}, 1)
