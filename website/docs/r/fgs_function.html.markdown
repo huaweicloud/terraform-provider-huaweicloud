@@ -16,16 +16,15 @@ This is an alternative to `huaweicloud_fgs_function_v2`
 
 ```hcl
 resource "huaweicloud_fgs_function" "f_1" {
-  name = "func_1"
-  package = "default"
+  name        = "func_1"
+  package     = "default"
   description = "fuction test"
-  handler = "test.handler"
+  handler     = "test.handler"
   memory_size = 128
-  timeout = 3
-  runtime = "Python2.7"
-  code_type = "inline"
-  func_code = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
-}
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
 ```
 
 ## Argument Reference

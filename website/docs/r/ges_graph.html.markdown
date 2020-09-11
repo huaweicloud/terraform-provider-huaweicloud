@@ -27,7 +27,7 @@ resource "huaweicloud_ges_graph" "graph" {
   graph_size_type   = 0
   name              = "terraform_ges_graph_test"
   region            = "{{ region_name }}"
-  security_group_id = "${huaweicloud_networking_secgroup.secgroup.id}"
+  security_group_id = huaweicloud_networking_secgroup.secgroup.id
   subnet_id         = "{{ network_id }}"
   vpc_id            = "{{ vpc_id }}"
 }

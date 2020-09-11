@@ -27,13 +27,13 @@ resource "huaweicloud_networking_secgroup" "secgroup_1" {
 }
 resource "huaweicloud_vpc" "vpc_1" {
   name = "terraform_provider_vpc1"
-  cidr= "192.168.0.0/16"
+  cidr = "192.168.0.0/16"
 }
 resource "huaweicloud_vpc_subnet" "subnet_1" {
-  name = "huaweicloud_subnet"
-  cidr = "192.168.0.0/16"
+  name       = "huaweicloud_subnet"
+  cidr       = "192.168.0.0/16"
   gateway_ip = "192.168.0.1"
-  vpc_id = huaweicloud_vpc.vpc_1.id
+  vpc_id     = huaweicloud_vpc.vpc_1.id
 }
 
 resource "huaweicloud_dcs_instance" "instance_1" {

@@ -32,7 +32,7 @@ resource "huaweicloud_elb_listener" "listener" {
   port             = 12345
   backend_port     = 8080
   lb_algorithm     = "roundrobin"
-  loadbalancer_id  = "${huaweicloud_elb_loadbalancer.elb.id}"
+  loadbalancer_id  = huaweicloud_elb_loadbalancer.elb.id
   timeouts {
     create = "5m"
     update = "5m"

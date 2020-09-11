@@ -18,39 +18,39 @@ This is an alternativeto `huaweicloud_dds_instance_v3`
 resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
   datastore {
-    type = "DDS-Community"
-    version = "3.4"
+    type           = "DDS-Community"
+    version        = "3.4"
     storage_engine = "wiredTiger"
   }
 
   availability_zone = "{{ availability_zone }}"
-  vpc_id = "{{ vpc_id }}"
-  subnet_id = "{{ subnet_network_id }}}"
+  vpc_id            = "{{ vpc_id }}"
+  subnet_id         = "{{ subnet_network_id }}}"
   security_group_id = "{{ security_group_id }}"
-  password = "Test@123"
-  mode = "Sharding"
+  password          = "Test@123"
+  mode              = "Sharding"
   flavor {
-    type = "mongos"
-    num = 2
+    type      = "mongos"
+    num       = 2
     spec_code = "dds.mongodb.c3.medium.4.mongos"
   }
   flavor {
-    type = "shard"
-    num = 2
-    storage = "ULTRAHIGH"
-    size = 20
+    type      = "shard"
+    num       = 2
+    storage   = "ULTRAHIGH"
+    size      = 20
     spec_code = "dds.mongodb.c3.medium.4.shard"
   }
   flavor {
-    type = "config"
-    num = 1
-    storage = "ULTRAHIGH"
-    size = 20
+    type      = "config"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 20
     spec_code = "dds.mongodb.c3.large.2.config"
   }
   backup_strategy {
     start_time = "08:00-09:00"
-    keep_days = "8"
+    keep_days  = "8"
   }
 }
 ```
@@ -60,22 +60,22 @@ resource "huaweicloud_dds_instance" "instance" {
 resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
   datastore {
-    type = "DDS-Community"
-    version = "3.4"
+    type           = "DDS-Community"
+    version        = "3.4"
     storage_engine = "wiredTiger"
   }
 
   availability_zone = "{{ availability_zone }}"
-  vpc_id = "{{ vpc_id }}"
-  subnet_id = "{{ subnet_network_id }}}"
+  vpc_id            = "{{ vpc_id }}"
+  subnet_id         = "{{ subnet_network_id }}}"
   security_group_id = "{{ security_group_id }}"
-  password = "Test@123"
-  mode = "ReplicaSet"
+  password          = "Test@123"
+  mode              = "ReplicaSet"
   flavor {
-    type = "replica"
-    num = 1
-    storage = "ULTRAHIGH"
-    size = 30
+    type      = "replica"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 30
     spec_code = "dds.mongodb.c3.medium.4.repset"
   }
 }

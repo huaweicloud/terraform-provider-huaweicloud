@@ -17,12 +17,12 @@ GaussDB for Cassandra instance management within HuaweiCoud.
 
 ```hcl
 resource "huaweicloud_gaussdb_cassandra_instance" "instance_1" {
-  name        = "gaussdb_cassandra_instance_1"
-  password    = var.password
-  flavor      = "geminidb.cassandra.xlarge.4"
-  volume_size = 100
-  vpc_id      = var.vpc_id
-  subnet_id   = var.subnet_id
+  name              = "gaussdb_cassandra_instance_1"
+  password          = var.password
+  flavor            = "geminidb.cassandra.xlarge.4"
+  volume_size       = 100
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
   security_group_id = var.secgroup_id
   availability_zone = var.availability_zone
 
@@ -37,12 +37,12 @@ resource "huaweicloud_gaussdb_cassandra_instance" "instance_1" {
 
 ```hcl
 resource "huaweicloud_gaussdb_cassandra_instance" "instance_1" {
-  name        = "gaussdb_cassandra_instance_1"
-  password    = var.password
-  flavor      = "geminidb.cassandra.xlarge.4"
-  volume_size = 100
-  vpc_id      = var.vpc_id
-  subnet_id   = var.subnet_id
+  name              = "gaussdb_cassandra_instance_1"
+  password          = var.password
+  flavor            = "geminidb.cassandra.xlarge.4"
+  volume_size       = 100
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
   security_group_id = var.secgroup_id
   availability_zone = var.availability_zone
 

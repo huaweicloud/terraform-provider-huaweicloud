@@ -26,7 +26,7 @@ resource "huaweicloud_dms_queue" "queue_1" {
 
 resource "huaweicloud_dms_group" "group_1" {
   name     = "group_1"
-  queue_id = "${huaweicloud_dms_queue.queue_1.id}"
+  queue_id = huaweicloud_dms_queue.queue_1.id
 }
 ```
 

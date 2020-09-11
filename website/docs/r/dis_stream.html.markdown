@@ -26,7 +26,7 @@ resource "huaweicloud_dis_stream" "stream" {
 ### create a stream that type is JSON
 
 ```hcl
-resource "huaweicloud_dis_stream_v2" "stream" {
+resource "huaweicloud_dis_stream" "stream" {
   stream_name     = "terraform_test_dis_stream"
   partition_count = 1
   data_type       = "JSON"
