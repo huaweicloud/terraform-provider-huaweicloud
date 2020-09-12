@@ -88,8 +88,7 @@ The following arguments are supported:
 
 * `security_group_id` - (Optional) Specifies the security group ID. Required if the selected subnet doesn't enable network ACL.
 
-* `configuration_id` - (Optional) Specifies the configuration ID.
-  Changing this parameter will create a new resource.
+* `configuration_id` - (Optional) Specifies the Parameter Template ID.
 
 * `enterprise_project_id` - (Optional) Specifies the enterprise project id, Only valid for users who
   have enabled the enterprise multi-project service.
