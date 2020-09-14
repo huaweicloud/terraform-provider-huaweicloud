@@ -389,6 +389,9 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 			id, err)
 	}
 
+	// This is a workaround to avoid db connection issue
+	time.Sleep(360 * time.Second)
+
 	return resourceOpenGaussInstanceRead(d, meta)
 }
 
