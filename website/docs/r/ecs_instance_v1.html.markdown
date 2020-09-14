@@ -88,7 +88,7 @@ resource "huaweicloud_ecs_instance_v1" "basic" {
   security_groups   = ["default"]
 }
 
-resource "huaweicloud_compute_volume_attach_v2" "attached" {
+resource "huaweicloud_compute_volume_attach" "attached" {
   instance_id = huaweicloud_ecs_instance_v1.basic.id
   volume_id   = huaweicloud_blockstorage_volume_v2.myvol.id
 }

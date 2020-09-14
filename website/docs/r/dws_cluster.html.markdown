@@ -26,7 +26,7 @@ resource "huaweicloud_dws_cluster" "cluster" {
   number_of_node    = 3
   network_id        = "{{ network_id }}"
   vpc_id            = "{{ vpc_id }}"
-  security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
+  security_group_id = huaweicloud_networking_secgroup.secgroup.id
   availability_zone = "{{ availability_zone }}"
   name              = "terraform_dws_cluster_test"
   user_name         = "test_cluster_admin"
