@@ -1,6 +1,8 @@
 package huaweicloud
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sort"
@@ -166,4 +168,12 @@ func strSliceContains(haystack []string, needle string) bool {
 		}
 	}
 	return false
+}
+
+func jsonMarshal(t interface{}) ([]byte, error) {
+	buffer := &bytes.Buffer{}
+	enc := json.NewEncoder(buffer)
+	enc.SetEscapeHTML(false)
+	err := enc.Encode(t)
+	return buffer.Bytes(), err
 }

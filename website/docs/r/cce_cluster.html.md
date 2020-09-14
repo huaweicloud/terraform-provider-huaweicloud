@@ -168,6 +168,8 @@ All above argument parameters can be exported as attribute parameters along with
 
   * `security_group_id` - Security group ID of the cluster.
 
+  * `kube_config_raw` - Raw Kubernetes config to be used by kubectl and other compatible tools.
+
 ## Import
 
  Cluster can be imported using the cluster id, e.g.

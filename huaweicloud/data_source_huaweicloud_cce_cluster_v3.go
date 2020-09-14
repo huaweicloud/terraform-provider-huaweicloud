@@ -87,6 +87,10 @@ func dataSourceCCEClusterV3() *schema.Resource {
 					},
 				},
 			},
+			"kube_config_raw": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"certificate_clusters": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -194,7 +198,18 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.Set("region", GetRegion(d, config))
 
-	cert, err := clusters.GetCert(cceClient, d.Id()).Extract()
+	r := clusters.GetCert(cceClient, d.Id())
+
+	kubeConfigRaw, err := jsonMarshal(r.Body)
+
+	if err != nil {
+		log.Printf("Error marshaling r.Body: %s", err)
+	}
+
+	d.Set("kube_config_raw", string(kubeConfigRaw))
+
+	cert, err := r.Extract()
+
 	if err != nil {
 		log.Printf("Error retrieving opentelekomcloud CCE cluster cert: %s", err)
 	}
