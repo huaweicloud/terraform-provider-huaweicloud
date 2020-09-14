@@ -99,8 +99,8 @@ resource "huaweicloud_compute_instance" "myinstance" {
 }
 
 resource "huaweicloud_compute_volume_attach" "attached" {
-  instance_id = "${huaweicloud_compute_instance.myinstance.id}"
-  volume_id   = "${huaweicloud_evs_volume.myvolume.id}"
+  instance_id = huaweicloud_compute_instance.myinstance.id
+  volume_id   = huaweicloud_evs_volume.myvolume.id
 }
 ```
 

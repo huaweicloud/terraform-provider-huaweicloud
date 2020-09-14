@@ -1,12 +1,12 @@
 ---
 layout: "huaweicloud"
-page_title: "Huaweicloud: huaweicloud_cci_network"
-sidebar_current: "docs-huaweicloud-resource-cci-network"
+page_title: "Huaweicloud: huaweicloud_cci_network_v1"
+sidebar_current: "docs-huaweicloud-resource-cci-network-v1"
 description: |-
   Provides Cloud Container Instance(CCI) resource.
 ---
 
-# huaweicloud_cci_network
+# huaweicloud_cci_network_v1
 
 Provides a CCI resource.
 This is an alternative to `huaweicloud_cci_network_v1`
@@ -22,7 +22,7 @@ variable "vpc_id" { }
 variable "net_id" { }
 variable "subnet_id" { }
 	
-resource "huaweicloud_cci_network" "net_1" {
+resource "huaweicloud_cci_network_v1" "net_1" {
   name           = "cci-net"
   namespace      = "test-ns"
   security_group = var.sg_id
