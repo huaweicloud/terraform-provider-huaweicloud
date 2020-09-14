@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/backups"
+	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/configurations"
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/instances"
 )
 
@@ -81,8 +82,8 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			},
 			"configuration_id": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
-				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -483,6 +484,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return fmt.Errorf("Error updating name for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
 		}
+
 	}
 
 	if d.HasChange("password") {
@@ -493,6 +495,57 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		err := instances.UpdatePass(client, d.Id(), updatePassOpts).ExtractErr()
 		if err != nil {
 			return fmt.Errorf("Error updating password for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("configuration_id") {
+		instanceIds := []string{d.Id()}
+		applyOpts := configurations.ApplyOpts{
+			InstanceIds: instanceIds,
+		}
+
+		configId := d.Get("configuration_id").(string)
+		ret, err := configurations.Apply(client, configId, applyOpts).Extract()
+		if err != nil || !ret.Success {
+			return fmt.Errorf("Error updating configuration_id for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:    []string{"SET_CONFIGURATION"},
+			Target:     []string{"available"},
+			Refresh:    GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "SET_CONFIGURATION"),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			MinTimeout: 10 * time.Second,
+		}
+
+		_, err = stateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
+		}
+
+		// Compare the target configuration and the instance configuration
+		config, err := configurations.Get(client, configId).Extract()
+		if err != nil {
+			return fmt.Errorf("Error fetching configuration %s: %s", configId, err)
+		}
+		configParams := config.Parameters
+		log.Printf("[DEBUG] Configuration Parameters %#v", configParams)
+
+		instanceConfig, err := configurations.GetInstanceConfig(client, d.Id()).Extract()
+		if err != nil {
+			return fmt.Errorf("Error fetching instance configuration for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
+		}
+		instanceConfigParams := instanceConfig.Parameters
+		log.Printf("[DEBUG] Instance Configuration Parameters %#v", instanceConfigParams)
+
+		if len(configParams) != len(instanceConfigParams) {
+			return fmt.Errorf("Error updating configuration for instance: %s", d.Id())
+		}
+		for i, _ := range configParams {
+			if !configParams[i].ReadOnly && configParams[i] != instanceConfigParams[i] {
+				return fmt.Errorf("Error updating configuration for instance: %s", d.Id())
+			}
 		}
 	}
 
