@@ -7,9 +7,11 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
+	"github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions"
 	volumes_v2 "github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/huaweicloud/golangsdk/openstack/evs/v3/volumes"
 )
@@ -26,6 +28,7 @@ func resourceEvsStorageVolumeV3() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(3 * time.Minute),
 			Delete: schema.DefaultTimeout(3 * time.Minute),
 		},
 
@@ -48,7 +51,6 @@ func resourceEvsStorageVolumeV3() *schema.Resource {
 			"size": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"name": {
@@ -265,13 +267,40 @@ func resourceEvsVolumeV3Update(d *schema.ResourceData, meta interface{}) error {
 		Description: d.Get("description").(string),
 	}
 
+	if d.HasChange("tags") {
+		_, err = resourceEVSTagV2Create(d, meta, "volumes", d.Id(), resourceContainerTags(d))
+	}
+
+	if d.HasChange("size") {
+		extendOpts := volumeactions.ExtendSizeOpts{
+			NewSize: d.Get("size").(int),
+		}
+
+		err = volumeactions.ExtendSize(blockStorageClient, d.Id(), extendOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error extending huaweicloud_evs_volume %s size: %s", d.Id(), err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:    []string{"extending"},
+			Target:     []string{"available", "in-use"},
+			Refresh:    VolumeV2StateRefreshFunc(blockStorageClient, d.Id()),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			Delay:      10 * time.Second,
+			MinTimeout: 3 * time.Second,
+		}
+
+		_, err := stateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for huaweicloud_evs_volume %s to become ready: %s", d.Id(), err)
+		}
+	}
+
 	_, err = volumes_v2.Update(blockStorageClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error updating HuaweiCloud volume: %s", err)
 	}
 
-	if d.HasChange("tags") {
-		_, err = resourceEVSTagV2Create(d, meta, "volumes", d.Id(), resourceContainerTags(d))
-	}
 	return resourceEvsVolumeV3Read(d, meta)
 }

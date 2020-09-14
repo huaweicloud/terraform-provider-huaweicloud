@@ -76,6 +76,8 @@ The following arguments are supported:
     This parameter is mandatory when you create the disk from an image. Ensure that the disk size is greater than or equal to 
     the minimum disk capacity required by min_disk in the image attributes.
     This parameter is optional when you create the disk from a backup. If this parameter is not specified, the disk size is equal to the backup size.
+    Changing this parameter will update the disk. You can extend the disk by setting this parameter to a new value, which must be between current size
+    and the max size(System disk: 1024 GB; Data disk: 32768 GB). Shrinking the disk is not supported.
 
 * `description` - (Optional) Specifies the disk description. The value can contain a maximum of 255 bytes.
 
