@@ -17,11 +17,11 @@ GaussDB mysql instance management within HuaweiCoud.
 
 ```hcl
 resource "huaweicloud_gaussdb_mysql_instance" "instance_1" {
-  name        = "gaussdb_instance_1"
-  password    = var.password
-  flavor      = "gaussdb.mysql.4xlarge.x86.4" 
-  vpc_id      = var.vpc_id
-  subnet_id   = var.subnet_id
+  name              = "gaussdb_instance_1"
+  password          = var.password
+  flavor            = "gaussdb.mysql.4xlarge.x86.4"
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
   security_group_id = var.secgroup_id
 }
 ```
@@ -30,11 +30,11 @@ resource "huaweicloud_gaussdb_mysql_instance" "instance_1" {
 
 ```hcl
 resource "huaweicloud_gaussdb_mysql_instance" "instance_1" {
-  name        = "gaussdb_instance_1"
-  password    = var.password
-  flavor      = "gaussdb.mysql.4xlarge.x86.4"
-  vpc_id      = var.vpc_id
-  subnet_id   = var.subnet_id
+  name              = "gaussdb_instance_1"
+  password          = var.password
+  flavor            = "gaussdb.mysql.4xlarge.x86.4"
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
   security_group_id = var.secgroup_id
 
   backup_strategy {

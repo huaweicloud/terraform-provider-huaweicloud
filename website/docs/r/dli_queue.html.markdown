@@ -18,7 +18,7 @@ This is an alternative to `huaweicloud_dli_queue`
 
 ```hcl
 resource "huaweicloud_dli_queue" "queue" {
-  name = "terraform_dli_queue_test"
+  name     = "terraform_dli_queue_test"
   cu_count = 4
 }
 ```

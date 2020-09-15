@@ -19,10 +19,10 @@ resource "huaweicloud_networking_floatingip_v2" "fip_1" {
 }
 
 resource "huaweicloud_dns_ptrrecord" "ptr_1" {
-  name        = "ptr.example.com."
-  description = "An example PTR record"
-  floatingip_id = "${huaweicloud_networking_floatingip_v2.fip_1.id}"
-  ttl         = 3000
+  name          = "ptr.example.com."
+  description   = "An example PTR record"
+  floatingip_id = huaweicloud_networking_floatingip_v2.fip_1.id
+  ttl           = 3000
   tags = {
     foo = "bar"
   }

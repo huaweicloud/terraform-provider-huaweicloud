@@ -31,15 +31,15 @@ data "huaweicloud_dms_product" "product_1" {
 resource "huaweicloud_dms_instance" "instance_1" {
   name              = "%s"
   engine            = "rabbitmq"
-  storage_space     = "${data.huaweicloud_dms_product.product_1.storage}"
+  storage_space     = data.huaweicloud_dms_product.product_1.storage
   access_user       = "user"
   password          = "Dmstest@123"
   vpc_id            = "%s"
-  security_group_id = "${huaweicloud_networking_secgroup.secgroup_1.id}"
+  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
   subnet_id         = "%s"
-  available_zones   = ["${data.huaweicloud_dms_az.az_1.id}"]
-  product_id        = "${data.huaweicloud_dms_product.product_1.id}"
-  engine_version    = "${data.huaweicloud_dms_product.product_1.version}"
+  available_zones   = [data.huaweicloud_dms_az.az_1.id]
+  product_id        = data.huaweicloud_dms_product.product_1.id
+  engine_version    = data.huaweicloud_dms_product.product_1.version
 }
 ```
 

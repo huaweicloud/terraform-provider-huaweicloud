@@ -17,26 +17,26 @@ GaussDB OpenGauss instance management within HuaweiCoud.
 
 ```hcl
 resource "huaweicloud_gaussdb_opengauss_instance" "instance_acc" {
-  name        = "opengaussdb_instance_1"
-  password    = "Test@123"
-  flavor      = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
-  vpc_id      = var.vpc_id
-  subnet_id   = var.subnet_id
+  name              = "opengaussdb_instance_1"
+  password          = "Test@123"
+  flavor            = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
   availability_zone = "cn-north-4a,cn-north-4a,cn-north-4a"
+  security_group_id = var.secgroup.id
+  sharding_num      = 1
+  coordinator_num   = 1
 
   ha {
-    mode = "enterprise"
+    mode             = "enterprise"
     replication_mode = "sync"
-    consistency = "strong"
+    consistency      = "strong"
   }
 
   volume {
     type = "ULTRAHIGH"
     size = 40
   }
-  security_group_id = var.secgroup.id
-  sharding_num = 1
-  coordinator_num = 1
 }
 ```
 

@@ -36,8 +36,8 @@ resource "huaweicloud_fw_rule_v2" "rule_2" {
 resource "huaweicloud_fw_policy_v2" "policy_1" {
   name = "my-policy"
 
-  rules = ["${huaweicloud_fw_rule_v2.rule_1.id}",
-    "${huaweicloud_fw_rule_v2.rule_2.id}",
+  rules = [huaweicloud_fw_rule_v2.rule_1.id,
+    huaweicloud_fw_rule_v2.rule_2.id,
   ]
 }
 ```

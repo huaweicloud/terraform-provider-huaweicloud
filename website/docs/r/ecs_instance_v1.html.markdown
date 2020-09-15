@@ -59,9 +59,9 @@ resource "huaweicloud_ecs_instance_v1" "basic" {
   }
 
   delete_disks_on_termination = true
-  availability_zone = "cn-north-1a"
-  key_name          = "KeyPair-test"
-  security_groups   = ["default"]
+  availability_zone           = "cn-north-1a"
+  key_name                    = "KeyPair-test"
+  security_groups             = ["default"]
 }
 ```
 
@@ -88,9 +88,9 @@ resource "huaweicloud_ecs_instance_v1" "basic" {
   security_groups   = ["default"]
 }
 
-resource "huaweicloud_compute_volume_attach_v2" "attached" {
-  instance_id = "${huaweicloud_ecs_instance_v1.basic.id}"
-  volume_id   = "${huaweicloud_blockstorage_volume_v2.myvol.id}"
+resource "huaweicloud_compute_volume_attach" "attached" {
+  instance_id = huaweicloud_ecs_instance_v1.basic.id
+  volume_id   = huaweicloud_blockstorage_volume_v2.myvol.id
 }
 ```
 
@@ -120,9 +120,9 @@ resource "huaweicloud_ecs_instance_v1" "multi-net" {
 }
 
 resource "huaweicloud_compute_eip_associate" "myip" {
-  floating_ip = "${huaweicloud_networking_floatingip_v2.myip.address}"
-  instance_id = "${huaweicloud_ecs_instance_v1.multi-net.id}"
-  fixed_ip    = "${huaweicloud_ecs_instance_v1.multi-net.nics.0.ip_address}"
+  floating_ip = huaweicloud_networking_floatingip_v2.myip.address
+  instance_id = huaweicloud_ecs_instance_v1.multi-net.id
+  fixed_ip    = huaweicloud_ecs_instance_v1.multi-net.nics.0.ip_address
 }
 ```
 

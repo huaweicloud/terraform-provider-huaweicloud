@@ -26,7 +26,7 @@ resource "huaweicloud_dns_zone" "example_zone" {
 }
 
 resource "huaweicloud_dns_recordset" "rs_example_com" {
-  zone_id     = "${huaweicloud_dns_zone.example_zone.id}"
+  zone_id     = huaweicloud_dns_zone.example_zone.id
   name        = "rs.example.com."
   description = "An example record set"
   ttl         = 3000
