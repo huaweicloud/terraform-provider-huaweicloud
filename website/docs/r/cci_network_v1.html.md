@@ -9,8 +9,6 @@ description: |-
 # huaweicloud_cci_network_v1
 
 Provides a CCI resource.
-This is an alternative to `huaweicloud_cci_network_v1`
-
 
 ## Example Usage
 
