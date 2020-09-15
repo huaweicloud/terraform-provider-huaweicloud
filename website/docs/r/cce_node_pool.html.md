@@ -8,7 +8,6 @@ description: |-
 
 # huaweicloud\_cce\_node\_pool
 Add a node pool to a container cluster. 
-This is an alternative to `huaweicloud_cce_node_pool`
 
 ## Example Usage
 
@@ -18,18 +17,18 @@ variable "key_pair" { }
 variable "availability_zone" { }
 
 resource "huaweicloud_cce_node_pool" "node_pool" {
-  cluster_id        = var.cluster_id
-  name              = "testpool"
-  os                = "EulerOS"
-  initial_node_count = 2
-  flavor_id         = "s3.large.4"
-  availability_zone = var.availability_zone
-  key_pair          = var.keypair
-  scall_enable      = true
-  min_node_count    = 1
-  max_node_count    = 10
+  cluster_id               = var.cluster_id
+  name                     = "testpool"
+  os                       = "EulerOS"
+  initial_node_count       = 2
+  flavor_id                = "s3.large.4"
+  availability_zone        = var.availability_zone
+  key_pair                 = var.keypair
+  scall_enable             = true
+  min_node_count           = 1
+  max_node_count           = 10
   scale_down_cooldown_time = 100
-  priority         = 1
+  priority                 = 1
 
   root_volume {
     size       = 40

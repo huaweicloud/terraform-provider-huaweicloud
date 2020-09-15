@@ -15,8 +15,8 @@ Provides an API gateway group resource.
 
 ```hcl
 resource "huaweicloud_api_gateway_group" "apigw_group" {
-    name = "apigw_group"
-    description = "your descpiption"
+  name        = "apigw_group"
+  description = "your descpiption"
 }
 ```
 

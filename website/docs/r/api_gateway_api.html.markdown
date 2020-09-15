@@ -15,29 +15,29 @@ Provides an API gateway API resource.
 
 ```hcl
 resource "huaweicloud_api_gateway_group" "tf_apigw_group" {
-    name = "tf_apigw_group"
-    description = "your descpiption"
+  name        = "tf_apigw_group"
+  description = "your descpiption"
 }
 
 resource "huaweicloud_api_gateway_api" "tf_apigw_api" {
-  group_id = huaweicloud_api_gateway_group.tf_apigw_group.id
-  name   = "tf_apigw_api"
-  description  = "your descpiption"
-  tags = ["tag1","tag2"]
-  visibility = 2
-  auth_type = "IAM"
-  backend_type = "HTTP"
-  request_protocol = "HTTPS"
-  request_method = "GET"
-  request_uri = "/test/path1"
+  group_id                 = huaweicloud_api_gateway_group.tf_apigw_group.id
+  name                     = "tf_apigw_api"
+  description              = "your descpiption"
+  tags                     = ["tag1", "tag2"]
+  visibility               = 2
+  auth_type                = "IAM"
+  backend_type             = "HTTP"
+  request_protocol         = "HTTPS"
+  request_method           = "GET"
+  request_uri              = "/test/path1"
   example_success_response = "example response"
 
   http_backend {
-    protocol = "HTTPS"
-    method = "GET"
-    uri = "/web/openapi"
+    protocol   = "HTTPS"
+    method     = "GET"
+    uri        = "/web/openapi"
     url_domain = "myhuaweicloud.com"
-    timeout = 10000
+    timeout    = 10000
   }
 }
 ```

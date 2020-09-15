@@ -20,11 +20,11 @@ variable "id" {}
 variable "resource_name" {}
 
 resource "huaweicloud_csbs_backup_policy" "backup_policy_v1" {
-  name = "${var.name}"
+  name = var.name
   resource {
-    id   = "${var.id}"
+    id   = var.id
     type = "OS::Nova::Server"
-    name = "${var.resource_name}"
+    name = var.resource_name
   }
   scheduled_operation {
     enabled         = true

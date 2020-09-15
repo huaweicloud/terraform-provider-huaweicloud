@@ -25,16 +25,16 @@ resource "huaweicloud_ces_alarmrule" "alarm_rule" {
       value = var.webserver_instance_id
     }
   }
-  condition  {
-    period = 300
-    filter = "average"
+  condition {
+    period              = 300
+    filter              = "average"
     comparison_operator = ">"
-    value = 6
-    unit  = "B/s"
-    count = 1
+    value               = 6
+    unit                = "B/s"
+    count               = 1
   }
   alarm_actions {
-    type = "notification"
+    type              = "notification"
     notification_list = [var.smn_topic_id]
   }
 }

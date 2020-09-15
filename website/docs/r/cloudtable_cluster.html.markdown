@@ -26,7 +26,7 @@ resource "huaweicloud_cloudtable_cluster" "cluster" {
   availability_zone = "{{ availability_zone }}"
   name              = "terraform-test-cluster"
   rs_num            = 2
-  security_group_id = "${huaweicloud_networking_secgroup.secgroup.id}"
+  security_group_id = huaweicloud_networking_secgroup.secgroup.id
   subnet_id         = "{{ network_id }}"
   vpc_id            = "{{ vpc_id }}"
   storage_type      = "COMMON"

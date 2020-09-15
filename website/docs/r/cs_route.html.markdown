@@ -27,24 +27,24 @@ resource "huaweicloud_vpc" "vpc" {
 }
 
 resource "huaweicloud_vpc_subnet" "subnet" {
-  name = "terraform_vpc_subnet_test"
-  cidr = "192.168.0.0/16"
+  name       = "terraform_vpc_subnet_test"
+  cidr       = "192.168.0.0/16"
   gateway_ip = "192.168.0.1"
-  vpc_id = "${huaweicloud_vpc.vpc.id}"
+  vpc_id     = huaweicloud_vpc.vpc.id
 }
 
 resource "huaweicloud_cs_peering_connect" "peering" {
   name = "terraform_cs_peering_connect_test"
   target_vpc_info {
-    vpc_id = "${huaweicloud_vpc.vpc.id}"
+    vpc_id = huaweicloud_vpc.vpc.id
   }
-  cluster_id = "${huaweicloud_cs_cluster.cluster.id}"
+  cluster_id = huaweicloud_cs_cluster.cluster.id
 }
 
 resource "huaweicloud_cs_route" "route" {
-  cluster_id = "${huaweicloud_cs_cluster.cluster.id}"
-  peering_id = "${huaweicloud_cs_peering_connect.peering.id}"
-  destination = "${huaweicloud_vpc_subnet.subnet.cidr}"
+  cluster_id  = huaweicloud_cs_cluster.cluster.id
+  peering_id  = huaweicloud_cs_peering_connect.peering.id
+  destination = huaweicloud_vpc_subnet.subnet.cidr
 }
 ```
 

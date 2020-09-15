@@ -59,7 +59,7 @@ resource "huaweicloud_vpc_subnet" "mysubnet" {
   vpc_id        = huaweicloud_vpc.myvpc.id
 }
 
-resource "huaweicloud_vpc_eip_v1" "myeip" {
+resource "huaweicloud_vpc_eip" "myeip" {
   publicip {
     type = "5_bgp"
   }
@@ -71,7 +71,7 @@ resource "huaweicloud_vpc_eip_v1" "myeip" {
   }
 }
 
-resource "huaweicloud_cce_cluster_v3" "cluster" {
+resource "huaweicloud_cce_cluster" "cluster" {
   name                   = "cluster"
   cluster_type           = "VirtualMachine"
   flavor_id              = "cce.s1.small"
