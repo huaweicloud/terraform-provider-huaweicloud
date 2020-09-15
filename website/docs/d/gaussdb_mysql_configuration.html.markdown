@@ -25,6 +25,8 @@ data "huaweicloud_gaussdb_mysql_configuration" "this" {
 
 ## Attributes Reference
 
+
+* `id` - Indicates the ID of the configuration.
 * `description` - Indicates the description of the configuration.
 * `datastore_name` - Indicates the datastore name of the configuration.
 * `datastore_version` - Indicates the datastore version of the configuration.
