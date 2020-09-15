@@ -97,7 +97,7 @@ resource "huaweicloud_s3_bucket" "b" {
   acl    = "private"
 
   logging {
-    target_bucket = "${huaweicloud_s3_bucket.log_bucket.id}"
+    target_bucket = huaweicloud_s3_bucket.log_bucket.id
     target_prefix = "log/"
   }
 }
