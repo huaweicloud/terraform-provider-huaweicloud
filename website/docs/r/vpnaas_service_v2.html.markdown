@@ -15,8 +15,8 @@ Manages a V2 VPN service resource within HuaweiCloud.
 
 ```hcl
 resource "huaweicloud_vpnaas_service_v2" "service_1" {
-  name = "my_service"
-  router_id = "14a75700-fc03-4602-9294-26ee44f366b3"
+  name           = "my_service"
+  router_id      = "14a75700-fc03-4602-9294-26ee44f366b3"
   admin_state_up = "true"
 }
 ```
