@@ -26,9 +26,9 @@ data "huaweicloud_identity_role_v3" "role_1" {
 }
 
 resource "huaweicloud_identity_role_assignment_v3" "role_assignment_1" {
-  group_id   = "${huaweicloud_identity_group_v3.group_1.id}"
-  project_id = "${var.project_id}"
-  role_id    = "${data.huaweicloud_identity_role_v3.role_1.id}"
+  group_id   = huaweicloud_identity_group_v3.group_1.id
+  project_id = var.project_id
+  role_id    = data.huaweicloud_identity_role_v3.role_1.id
 }
 ```
 

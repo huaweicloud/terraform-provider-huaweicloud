@@ -15,7 +15,7 @@ mls instance
 ### Mls Instance Example
 
 ```hcl
-resource "huaweicloud_mrs_cluster_v1" "cluster1" {
+resource "huaweicloud_mrs_cluster" "cluster1" {
   cluster_name          = "mrs-cluster-acc"
   region                = "en-OS_REGION_NAME"
   billing_type          = 12
@@ -60,7 +60,7 @@ resource "huaweicloud_mls_instance" "instance" {
     }
   }
   mrs_cluster {
-    id = "${huaweicloud_mrs_cluster_v1.cluster1.id}"
+    id = huaweicloud_mrs_cluster.cluster1.id
   }
 
   timeouts {

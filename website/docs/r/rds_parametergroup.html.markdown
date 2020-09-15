@@ -15,18 +15,17 @@ This is an alternative to `huaweicloud_rds_parametergroup_v3`
 ## Example Usage
 
 ```hcl
-
 resource "huaweicloud_rds_parametergroup" "pg_1" {
-	name = "pg_1"
-	description = "description_1"
-	values = {
-		max_connections = "10"
-		autocommit = "OFF"
-	}
-	datastore {
-		type = "mysql"
-		version = "5.6"
-	}
+  name        = "pg_1"
+  description = "description_1"
+  values = {
+    max_connections = "10"
+    autocommit      = "OFF"
+  }
+  datastore {
+    type    = "mysql"
+    version = "5.6"
+  }
 }
 
 ```

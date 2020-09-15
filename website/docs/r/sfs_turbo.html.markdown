@@ -20,11 +20,11 @@ variable "secgroup_id" {}
 variable "test_az" {}
 
 resource "huaweicloud_sfs_turbo" "sfs-turbo-1" {
-  name        = "sfs-turbo-1"
-  size        = 500
-  share_proto = "NFS"
-  vpc_id      = var.vpc_id
-  subnet_id   = var.subnet_id
+  name              = "sfs-turbo-1"
+  size              = 500
+  share_proto       = "NFS"
+  vpc_id            = var.vpc_id
+  subnet_id         = var.subnet_id
   security_group_id = var.secgroup_id
   availability_zone = var.test_az
 }

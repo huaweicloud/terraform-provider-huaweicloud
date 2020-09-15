@@ -15,7 +15,7 @@ Manages a V2 monitor resource within HuaweiCloud.
 
 ```hcl
 resource "huaweicloud_lb_monitor_v2" "monitor_1" {
-  pool_id     = "${huaweicloud_lb_pool_v2.pool_1.id}"
+  pool_id     = huaweicloud_lb_pool_v2.pool_1.id
   type        = "PING"
   delay       = 20
   timeout     = 10

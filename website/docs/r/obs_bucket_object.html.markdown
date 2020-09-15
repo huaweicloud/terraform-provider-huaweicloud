@@ -17,9 +17,9 @@ Provides an OBS bucket object resource.
 
 ```hcl
 resource "huaweicloud_obs_bucket_object" "object" {
-  bucket  = "your_bucket_name"
-  key     = "new_key_from_content"
-  content = "some object content"
+  bucket       = "your_bucket_name"
+  key          = "new_key_from_content"
+  content      = "some object content"
   content_type = "application/xml"
 }
 ```

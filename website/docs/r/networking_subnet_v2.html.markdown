@@ -21,7 +21,7 @@ resource "huaweicloud_networking_network_v2" "network_1" {
 }
 
 resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+  network_id = huaweicloud_networking_network_v2.network_1.id
   cidr       = "192.168.199.0/24"
 }
 ```

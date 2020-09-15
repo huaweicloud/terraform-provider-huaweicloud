@@ -13,14 +13,14 @@ Manages rds instance resource within HuaweiCloud
 ## Example Usage:  Creating a PostgreSQL RDS instance
 
 ```hcl
-data "huaweicloud_rds_flavors_v1" "flavor" {
+data "huaweicloud_rds_flavors" "flavor" {
   region            = "eu-de"
   datastore_name    = "PostgreSQL"
   datastore_version = "9.5.5"
   speccode          = "rds.pg.s1.large"
 }
 
-resource "huaweicloud_networking_secgroup_v2" "secgrp_rds" {
+resource "huaweicloud_networking_secgroup" "secgrp_rds" {
   name        = "secgrp-rds-instance"
   description = "Rds Security Group"
 }
@@ -31,7 +31,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     type    = "PostgreSQL"
     version = "9.5.5"
   }
-  flavorref = "${data.huaweicloud_rds_flavors_v1.flavor.id}"
+  flavorref = data.huaweicloud_rds_flavors.flavor.id
   volume {
     type = "COMMON"
     size = 200
@@ -43,7 +43,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     subnetid = "b65f8d25-c533-47e2-8601-cfaa265a3e3e"
   }
   securitygroup {
-    id = "${huaweicloud_networking_secgroup_v2.secgrp_rds.id}"
+    id = huaweicloud_networking_secgroup.secgrp_rds.id
   }
   dbport = "8635"
   backupstrategy {
@@ -55,20 +55,20 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     enable          = true
     replicationmode = "async"
   }
-  depends_on = ["huaweicloud_networking_secgroup_v2.secgrp_rds"]
+  depends_on = ["huaweicloud_networking_secgroup.secgrp_rds"]
 }
 ```
 
 ## Example Usage:  Creating a SQLServer RDS instance
 ```hcl
-data "huaweicloud_rds_flavors_v1" "flavor" {
+data "huaweicloud_rds_flavors" "flavor" {
   region            = "eu-de"
   datastore_name    = "SQLServer"
   datastore_version = "2014 SP2 SE"
   speccode          = "rds.mssql.s1.2xlarge"
 }
 
-resource "huaweicloud_networking_secgroup_v2" "secgrp_rds" {
+resource "huaweicloud_networking_secgroup" "secgrp_rds" {
   name        = "secgrp-rds-instance"
   description = "Rds Security Group"
 }
@@ -79,7 +79,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     type    = "SQLServer"
     version = "2014 SP2 SE"
   }
-  flavorref = "${data.huaweicloud_rds_flavors_v1.flavor.id}"
+  flavorref = data.huaweicloud_rds_flavors.flavor.id
   volume {
     type = "COMMON"
     size = 200
@@ -91,7 +91,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     subnetid = "b65f8d25-c533-47e2-8601-cfaa265a3e3e"
   }
   securitygroup {
-    id = "${huaweicloud_networking_secgroup_v2.secgrp_rds.id}"
+    id = huaweicloud_networking_secgroup.secgrp_rds.id
   }
   dbport = "8635"
   backupstrategy {
@@ -99,20 +99,20 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     keepdays  = 4
   }
   dbrtpd     = "Huangwei!120521"
-  depends_on = ["huaweicloud_networking_secgroup_v2.secgrp_rds"]
+  depends_on = ["huaweicloud_networking_secgroup.secgrp_rds"]
 }
 ```
 
 ## Example Usage:  Creating a MySQL RDS instance
 ```hcl
-data "huaweicloud_rds_flavors_v1" "flavor" {
+data "huaweicloud_rds_flavors" "flavor" {
   region            = "eu-de"
   datastore_name    = "MySQL"
   datastore_version = "5.6.33"
   speccode          = "rds.mysql.s1.medium"
 }
 
-resource "huaweicloud_networking_secgroup_v2" "secgrp_rds" {
+resource "huaweicloud_networking_secgroup" "secgrp_rds" {
   name        = "secgrp-rds-instance"
   description = "Rds Security Group"
 }
@@ -123,7 +123,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     type    = "MySQL"
     version = "5.6.33"
   }
-  flavorref = "${data.huaweicloud_rds_flavors_v1.flavor.id}"
+  flavorref = data.huaweicloud_rds_flavors.flavor.id
   volume {
     type = "COMMON"
     size = 200
@@ -135,7 +135,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     subnetid = "b65f8d25-c533-47e2-8601-cfaa265a3e3e"
   }
   securitygroup {
-    id = "${huaweicloud_networking_secgroup_v2.secgrp_rds.id}"
+    id = huaweicloud_networking_secgroup.secgrp_rds.id
   }
   dbport = "8635"
   backupstrategy {
@@ -147,7 +147,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     enable          = true
     replicationmode = "async"
   }
-  depends_on = ["huaweicloud_networking_secgroup_v2.secgrp_rds"]
+  depends_on = ["huaweicloud_networking_secgroup.secgrp_rds"]
 }
 ```
 ## Argument Reference

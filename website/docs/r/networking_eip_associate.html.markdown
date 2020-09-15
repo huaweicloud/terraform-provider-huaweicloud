@@ -19,7 +19,7 @@ resource "huaweicloud_networking_port" "myport" {
   network_id = "a5bbd213-e1d3-49b6-aed1-9df60ea94b9a"
 }
 
-resource "huaweicloud_vpc_eip_v1" "myeip" {
+resource "huaweicloud_vpc_eip" "myeip" {
   publicip {
     type = "5_bgp"
   }

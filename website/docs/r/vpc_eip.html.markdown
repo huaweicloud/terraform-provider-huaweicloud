@@ -32,8 +32,8 @@ resource "huaweicloud_vpc_eip" "eip_1" {
 
 ```hcl
 resource "huaweicloud_vpc_bandwidth" "bandwidth_1" {
-	name = "bandwidth_1"
-	size = 5
+  name = "bandwidth_1"
+  size = 5
 }
 
 resource "huaweicloud_vpc_eip" "eip_1" {
@@ -41,7 +41,7 @@ resource "huaweicloud_vpc_eip" "eip_1" {
     type = "5_bgp"
   }
   bandwidth {
-    id = huaweicloud_vpc_bandwidth.bandwidth_1.id
+    id         = huaweicloud_vpc_bandwidth.bandwidth_1.id
     share_type = "WHOLE"
   }
 }

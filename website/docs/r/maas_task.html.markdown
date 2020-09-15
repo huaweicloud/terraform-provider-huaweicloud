@@ -17,21 +17,21 @@ This is an alternative to `huaweicloud_maas_task_v1`
 ```hcl
 resource "huaweicloud_maas_task" "task_1" {
   description = "migration task"
-  enable_kms = true
-  thread_num = 1
+  enable_kms  = true
+  thread_num  = 1
   src_node {
-    region = "cn-beijing"
-    ak = "AK",
-	sk = "SK",
-    object_key = "123.txt",
-    bucket = "maas-bucket",
+    region     = "cn-beijing"
+    ak         = "AK"
+    sk         = "SK"
+    object_key = "123.txt"
+    bucket     = "maas-bucket"
   }
   dst_node {
-    region = "eu-de",
-    ak = "AK",
-    sk = "SK",
-    object_key = "maas",
-    bucket = "test-maas",
+    region     = "eu-de"
+    ak         = "AK"
+    sk         = "SK"
+    object_key = "maas"
+    bucket     = "test-maas"
   }
 }
 ```
