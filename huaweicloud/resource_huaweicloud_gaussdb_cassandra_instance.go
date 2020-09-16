@@ -642,8 +642,11 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("flavor") {
 		instance, err := instances.GetInstanceByID(client, d.Id())
 		if err != nil {
-			return CheckDeleted(d, err, "GeminiDB")
+			return fmt.Errorf(
+				"Error fetching huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
 		}
+
+		specCode := ""
 		for _, action := range instance.Actions {
 			if action == "RESIZE_FLAVOR" {
 				// Wait here if the instance already in RESIZE_FLAVOR state
@@ -661,9 +664,13 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 						"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
 				}
 
-				flavor := d.Get("flavor").(string)
+				instance, err := instances.GetInstanceByID(client, d.Id())
+				if err != nil {
+					return fmt.Errorf(
+						"Error fetching huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
+				}
+
 				// Fetch node flavor
-				specCode := ""
 				wrongFlavor := "Inconsistent Flavor"
 				for _, group := range instance.Groups {
 					for _, Node := range group.Nodes {
@@ -674,33 +681,36 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 						}
 					}
 				}
-				if specCode != flavor {
-					log.Printf("[DEBUG] Inconsistent Node SpecCode: %s, Flavor: %s", specCode, flavor)
-					// Do resize action
-					resizeOpts := instances.ResizeOpts{
-						InstanceID: d.Id(),
-						SpecCode:   d.Get("flavor").(string),
-					}
+				break
+			}
+		}
 
-					result := instances.Resize(client, d.Id(), resizeOpts)
-					if result.Err != nil {
-						return fmt.Errorf("Error resizing huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), result.Err)
-					}
+		flavor := d.Get("flavor").(string)
+		if specCode != flavor {
+			log.Printf("[DEBUG] Inconsistent Node SpecCode: %s, Flavor: %s", specCode, flavor)
+			// Do resize action
+			resizeOpts := instances.ResizeOpts{
+				InstanceID: d.Id(),
+				SpecCode:   d.Get("flavor").(string),
+			}
 
-					stateConf := &resource.StateChangeConf{
-						Pending:      []string{"RESIZE_FLAVOR"},
-						Target:       []string{"available"},
-						Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),
-						Timeout:      d.Timeout(schema.TimeoutUpdate),
-						PollInterval: 20 * time.Second,
-					}
+			result := instances.Resize(client, d.Id(), resizeOpts)
+			if result.Err != nil {
+				return fmt.Errorf("Error resizing huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), result.Err)
+			}
 
-					_, err := stateConf.WaitForState()
-					if err != nil {
-						return fmt.Errorf(
-							"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
-					}
-				}
+			stateConf := &resource.StateChangeConf{
+				Pending:      []string{"RESIZE_FLAVOR"},
+				Target:       []string{"available"},
+				Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),
+				Timeout:      d.Timeout(schema.TimeoutUpdate),
+				PollInterval: 20 * time.Second,
+			}
+
+			_, err := stateConf.WaitForState()
+			if err != nil {
+				return fmt.Errorf(
+					"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
 			}
 		}
 	}
