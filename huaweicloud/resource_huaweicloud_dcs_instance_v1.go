@@ -313,7 +313,7 @@ func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(v.InstanceID)
 
 	// set whitelist
-	dcsV2Client, err := config.initServiceClient("dcs", GetRegion(d, config), "v2")
+	dcsV2Client, err := config.NewServiceClient("dcsv2", GetRegion(d, config))
 	whitelistOpts := getDcsInstanceWhitelist(d)
 	log.Printf("[DEBUG] Create whitelist options: %#v", whitelistOpts)
 
@@ -369,7 +369,7 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("maintain_end", v.MaintainEnd)
 	d.Set("access_user", v.AccessUser)
 
-	dcsV2Client, err := config.initServiceClient("dcs", GetRegion(d, config), "v2")
+	dcsV2Client, err := config.NewServiceClient("dcsv2", GetRegion(d, config))
 	object, err := whitelists.Get(dcsV2Client, d.Id()).Extract()
 
 	enable := object.Enable
@@ -411,7 +411,7 @@ func resourceDcsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if d.HasChange("whitelists") {
-		dcsV2Client, err := config.initServiceClient("dcs", GetRegion(d, config), "v2")
+		dcsV2Client, err := config.NewServiceClient("dcsv2", GetRegion(d, config))
 		whitelistOpts := getDcsInstanceWhitelist(d)
 		log.Printf("[DEBUG] update whitelist options: %#v", whitelistOpts)
 
