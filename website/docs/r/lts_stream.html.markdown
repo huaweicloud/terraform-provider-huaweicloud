@@ -17,11 +17,11 @@ Manage a log stream resource within HuaweiCloud.
 
 ```hcl
 resource "huaweicloud_lts_group" "test_group" {
-	group_name  = "test_group"
-	ttl_in_days = 1
+  group_name  = "test_group"
+  ttl_in_days = 1
 }
 resource "huaweicloud_lts_stream" "test_stream" {
-  group_id = huaweicloud_lts_group.test_group.id
+  group_id    = huaweicloud_lts_group.test_group.id
   stream_name = "testacc_stream"
 }
 ```

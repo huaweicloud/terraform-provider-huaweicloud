@@ -18,9 +18,9 @@ This is an alternative to `huaweicloud_vbs_backup_policy_v2`
 
 ```hcl
 resource "huaweicloud_vbs_backup_policy" "vbs_policy1" {
-  name   = "policy_001"
-  status = "ON"
-  start_time  = "12:00"
+  name                = "policy_001"
+  status              = "ON"
+  start_time          = "12:00"
   retain_first_backup = "N"
   rentention_num      = 7
   frequency           = 1
@@ -35,15 +35,14 @@ resource "huaweicloud_vbs_backup_policy" "vbs_policy1" {
 
 ```hcl
 variable "volume_id" {}
-
 resource "huaweicloud_vbs_backup_policy" "vbs_policy2" {
-  name   = "policy_002"
-  status = "ON"
-  start_time  = "12:00"
+  name                = "policy_002"
+  status              = "ON"
+  start_time          = "12:00"
   retain_first_backup = "N"
-  rentention_num = 5
-  frequency = 3
-  resources = [var.volume_id]
+  rentention_num      = 5
+  frequency           = 3
+  resources           = [var.volume_id]
 }
 ```
 

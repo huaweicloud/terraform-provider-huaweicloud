@@ -13,21 +13,21 @@ Provides an Huawei Cloud Stack resource.
 ## Example Usage
 
  ```hcl
- variable "name" { }
- variable "network_id" { }
- variable "instance_type" { }
-variable "image_id" { }
-  
+variable "name" {}
+variable "network_id" {}
+variable "instance_type" {}
+variable "image_id" {}
+
 resource "huaweicloud_rts_stack_v1" "stack" {
-  name = "${var.name}"
-    disable_rollback = true
-    timeout_mins=60
-    parameters {
-      "network_id" = "${var.network_id}"
-      "instance_type" = "${var.instance_type}"
-      "image_id" = "${var.image_id}"
-    }
-    template_body = <<STACK
+  name             = var.name
+  disable_rollback = true
+  timeout_mins     = 60
+  parameters {
+    network_id    = var.network_id
+    instance_type = var.instance_type
+    image_id      = var.image_id
+  }
+  template_body = <<STACK
     {
       "heat_template_version": "2016-04-08",
       "description": "Simple template to deploy",

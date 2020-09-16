@@ -21,14 +21,14 @@ resource "huaweicloud_smn_topic" "topic_1" {
 }
 
 resource "huaweicloud_smn_subscription" "subscription_1" {
-  topic_urn = "${huaweicloud_smn_topic.topic_1.id}"
+  topic_urn = huaweicloud_smn_topic.topic_1.id
   endpoint  = "mailtest@gmail.com"
   protocol  = "email"
   remark    = "O&M"
 }
 
 resource "huaweicloud_smn_subscription" "subscription_2" {
-  topic_urn = "${huaweicloud_smn_topic.topic_1.id}"
+  topic_urn = huaweicloud_smn_topic.topic_1.id
   endpoint  = "13600000000"
   protocol  = "sms"
   remark    = "O&M"

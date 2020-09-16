@@ -15,9 +15,9 @@ Manages a V2 certificate resource within HuaweiCloud.
 
 ```hcl
 resource "huaweicloud_lb_certificate_v2" "certificate_1" {
-  name = "certificate_1"
+  name        = "certificate_1"
   description = "terraform test certificate"
-  domain = "www.elb.com"
+  domain      = "www.elb.com"
   private_key = <<EOT
 -----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAwZ5UJULAjWr7p6FVwGRQRjFN2s8tZ/6LC3X82fajpVsYqF1x
@@ -48,7 +48,7 @@ nEqm7HWkNxHhf8A6En/IjleuddS1sf9e/x+TJN1Xhnt9W6pe7Fk1
 -----END RSA PRIVATE KEY-----
 EOT
 
-certificate = <<EOT
+  certificate = <<EOT
 -----BEGIN CERTIFICATE-----
 MIIDpTCCAo2gAwIBAgIJAKdmmOBYnFvoMA0GCSqGSIb3DQEBCwUAMGkxCzAJBgNV
 BAYTAnh4MQswCQYDVQQIDAJ4eDELMAkGA1UEBwwCeHgxCzAJBgNVBAoMAnh4MQsw

@@ -38,7 +38,7 @@ resource "huaweicloud_network_acl_rule" "rule_2" {
 
 resource "huaweicloud_network_acl" "fw_acl" {
   name          = "my-fw-acl"
-  subnets       = [data.huaweicloud_vpc_subnet_v1.subnet.id]
+  subnets       = [data.huaweicloud_vpc_subnet.subnet.id]
   inbound_rules = [huaweicloud_network_acl_rule.rule_1.id,
     huaweicloud_network_acl_rule.rule_2.id]
 }

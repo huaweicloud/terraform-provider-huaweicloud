@@ -21,7 +21,7 @@ resource "huaweicloud_s3_bucket_object" "object" {
   bucket = "your_bucket_name"
   key    = "new_object_key"
   source = "path/to/file"
-  etag   = "${md5(file("path/to/file"))}"
+  etag   = md5(file("path/to/file"))
 }
 
 resource "huaweicloud_s3_bucket" "examplebucket" {
@@ -30,9 +30,9 @@ resource "huaweicloud_s3_bucket" "examplebucket" {
 }
 
 resource "huaweicloud_s3_bucket_object" "examplebucket_object" {
-  key        = "someobject"
-  bucket     = "${huaweicloud_s3_bucket.examplebucket.bucket}"
-  source     = "index.html"
+  key    = "someobject"
+  bucket = huaweicloud_s3_bucket.examplebucket.bucket
+  source = "index.html"
 }
 ```
 
@@ -46,7 +46,7 @@ resource "huaweicloud_s3_bucket" "examplebucket" {
 
 resource "huaweicloud_s3_bucket_object" "examplebucket_object" {
   key                    = "someobject"
-  bucket                 = "${huaweicloud_s3_bucket.examplebucket.bucket}"
+  bucket                 = huaweicloud_s3_bucket.examplebucket.bucket
   source                 = "index.html"
   server_side_encryption = "aws:kms"
 }
