@@ -13,7 +13,7 @@ Manages rds instance resource within HuaweiCloud
 ## Example Usage:  Creating a PostgreSQL RDS instance
 
 ```hcl
-data "huaweicloud_rds_flavors" "flavor" {
+data "huaweicloud_rds_flavors_v1" "flavor" {
   region            = "eu-de"
   datastore_name    = "PostgreSQL"
   datastore_version = "9.5.5"
@@ -31,7 +31,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     type    = "PostgreSQL"
     version = "9.5.5"
   }
-  flavorref = data.huaweicloud_rds_flavors.flavor.id
+  flavorref = data.huaweicloud_rds_flavors_v1.flavor.id
   volume {
     type = "COMMON"
     size = 200
@@ -61,7 +61,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
 
 ## Example Usage:  Creating a SQLServer RDS instance
 ```hcl
-data "huaweicloud_rds_flavors" "flavor" {
+data "huaweicloud_rds_flavors_v1" "flavor" {
   region            = "eu-de"
   datastore_name    = "SQLServer"
   datastore_version = "2014 SP2 SE"
@@ -79,7 +79,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     type    = "SQLServer"
     version = "2014 SP2 SE"
   }
-  flavorref = data.huaweicloud_rds_flavors.flavor.id
+  flavorref = data.huaweicloud_rds_flavors_v1.flavor.id
   volume {
     type = "COMMON"
     size = 200
@@ -105,7 +105,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
 
 ## Example Usage:  Creating a MySQL RDS instance
 ```hcl
-data "huaweicloud_rds_flavors" "flavor" {
+data "huaweicloud_rds_flavors_v1" "flavor" {
   region            = "eu-de"
   datastore_name    = "MySQL"
   datastore_version = "5.6.33"
@@ -123,7 +123,7 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     type    = "MySQL"
     version = "5.6.33"
   }
-  flavorref = data.huaweicloud_rds_flavors.flavor.id
+  flavorref = data.huaweicloud_rds_flavors_v1.flavor.id
   volume {
     type = "COMMON"
     size = 200

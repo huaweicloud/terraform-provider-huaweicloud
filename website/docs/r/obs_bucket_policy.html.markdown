@@ -46,9 +46,9 @@ resource "huaweicloud_obs_bucket" "b" {
 }
 
 resource "huaweicloud_obs_bucket_policy" "s3_policy" {
-  bucket = huaweicloud_obs_bucket.bucket.id
+  bucket        = huaweicloud_obs_bucket.bucket.id
   policy_format = "s3"
-  policy = <<POLICY
+  policy        = <<POLICY
 {
   "Version": "2008-10-17",
   "Id": "MYBUCKETPOLICY",
