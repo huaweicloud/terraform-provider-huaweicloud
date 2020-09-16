@@ -17,12 +17,11 @@ This is an alternative to `huaweicloud_vbs_backup_policy_v2`
  ```hcl
 
 variable "policy_name" {}
-
 variable "policy_id" {}
 
 data "huaweicloud_vbs_backup_policy" "policies" {
-  name = "${var.policy_name}"
-  id   = "${var.policy_id}"
+  name = var.policy_name
+  id   = var.policy_id
 }
  ```
 

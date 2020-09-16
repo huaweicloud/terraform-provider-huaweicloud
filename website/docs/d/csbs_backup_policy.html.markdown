@@ -19,7 +19,7 @@ This is an alternative to `huaweicloud_csbs_backup_policy_v1`
 variable "policy_id" {}
 
 data "huaweicloud_csbs_backup_policy" "csbs_policy" {
-  id = "${var.policy_id}"
+  id = var.policy_id
 }
 
 ```

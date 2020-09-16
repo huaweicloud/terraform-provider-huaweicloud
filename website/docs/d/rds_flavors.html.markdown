@@ -16,9 +16,9 @@ This is an alternative to `huaweicloud_rds_flavors_v3`
 
 ```hcl
 data "huaweicloud_rds_flavors" "flavor" {
-    db_type = "PostgreSQL"
-    db_version = "9.5"
-    instance_mode = "ha"
+  db_type       = "PostgreSQL"
+  db_version    = "9.5"
+  instance_mode = "ha"
 }
 ```
 

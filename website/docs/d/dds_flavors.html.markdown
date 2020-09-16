@@ -16,8 +16,8 @@ This is an alternative to `huaweicloud_dds_flavors_v3`
 
 ```hcl
 data "huaweicloud_dds_flavors" "flavor" {
-    engine_name = "DDS-Community"
-    vcpus = 8
+  engine_name = "DDS-Community"
+  vcpus       = 8
 }
 ```
 

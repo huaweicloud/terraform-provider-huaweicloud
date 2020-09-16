@@ -18,7 +18,7 @@ This is an alternative to `huaweicloud_antiddos_v1`
 variable "eip_id" {}
 
 data "huaweicloud_antiddos" "antiddos" {
-  floating_ip_id = "${var.eip_id}"
+  floating_ip_id = var.eip_id
 }
 
 ```
