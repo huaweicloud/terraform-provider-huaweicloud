@@ -17,8 +17,8 @@ Manages a V2 member resource within HuaweiCloud.
 resource "huaweicloud_lb_member_v2" "member_1" {
   address       = "192.168.199.23"
   protocol_port = 8080
-  pool_id 		= var.pool_id
-  subnet_id 	= var.subnet_id
+  pool_id       = var.pool_id
+  subnet_id     = var.subnet_id
 }
 ```
 
