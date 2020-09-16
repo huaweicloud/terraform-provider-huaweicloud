@@ -19,7 +19,7 @@ This is an alternative to `huaweicloud_cts_tracker_v1`
 variable "bucket_name" {}
 
 data "huaweicloud_cts_tracker" "tracker_v1" {
-  bucket_name = "${var.bucket_name}"
+  bucket_name = var.bucket_name
 }
 
 ```

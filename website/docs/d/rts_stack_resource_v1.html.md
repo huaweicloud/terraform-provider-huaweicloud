@@ -13,13 +13,13 @@ The HuaweiCloud RTS Stack Resource data source allows access to stack resource m
 ## Example Usage
 
 ```hcl
-variable "stack_name" { }
-variable "resource_name" { }
+variable "stack_name" {}
+variable "resource_name" {}
 
 data "huaweicloud_rts_stack_resource_v1" "stackresource" {
-  stack_name = "${var.stack_name}"
-  resource_name = "${var.resource_name}"
-  
+  stack_name    = var.stack_name
+  resource_name = var.resource_name
+
 }
 ```
 

@@ -15,15 +15,13 @@ This is an alternative to `huaweicloud_sfs_file_sharing_v2`
 ## Example Usage
 
 ```hcl
-    variable "share_name" { }
+variable "share_name" {}
+variable "share_id" {}
 
-    variable "share_id" { }
-
-    data "huaweicloud_sfs_file_sharing" "shared_file" {
-      name = "${var.share_name}"
-      id   = "${var.share_id}"
-    }
-
+data "huaweicloud_sfs_file_sharing" "shared_file" {
+  name = var.share_name
+  id   = var.share_id
+}
 ```
 
 ## Argument Reference

@@ -18,7 +18,7 @@ This is an alternative to `huaweicloud_vbs_backup`
 variable "backup_id" {}
 
 data "huaweicloud_vbs_backup" "mybackup" {
-  id = "${var.backup_id}"
+  id = var.backup_id
 }
 ```
 

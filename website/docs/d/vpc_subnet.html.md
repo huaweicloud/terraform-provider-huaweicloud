@@ -24,7 +24,7 @@ data "huaweicloud_vpc_subnet" "subnet" {
 }
 
 output "subnet_vpc_id" {
-  value = "${data.huaweicloud_vpc_subnet.subnet.vpc_id}"
+  value = data.huaweicloud_vpc_subnet.subnet.vpc_id
 }
 ```
 

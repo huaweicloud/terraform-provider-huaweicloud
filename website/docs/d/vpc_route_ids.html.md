@@ -17,15 +17,15 @@ This resource can be useful for getting back a list of route ids for a vpc.
 ## Example Usage
 
  ```hcl
- variable "vpc_id" { }
+variable "vpc_id" {}
 
 data "huaweicloud_vpc_route_ids" "example" {
-  vpc_id = "${var.vpc_id}"
+  vpc_id = var.vpc_id
 }
 
 data "huaweicloud_vpc_route" "vpc_route" {
-  count = "${length(data.huaweicloud_vpc_route_ids.example.ids)}"
-  id = "${data.huaweicloud_vpc_route_ids.example.ids[count.index]}"
+  count = length(data.huaweicloud_vpc_route_ids.example.ids)
+  id    = data.huaweicloud_vpc_route_ids.example.ids[count.index]
 }
 
 output "route_nexthop" {

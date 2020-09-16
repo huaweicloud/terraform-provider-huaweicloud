@@ -19,7 +19,7 @@ This is an alternative to `huaweicloud_csbs_backup_v1`
 variable "backup_name" {}
 
 data "huaweicloud_csbs_backup" "csbs" {
-  backup_name = "${var.backup_name}"
+  backup_name = var.backup_name
 }
 ```
 

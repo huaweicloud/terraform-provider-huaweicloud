@@ -18,7 +18,7 @@ The following example shows how one might accept a VPC id as a variable and use 
 variable "stack_name" { }
 
 data "huaweicloud_rts_stack_v1" "stacks" {
-  name = "${var.stack_name}"
+  name = var.stack_name
 }
 ```
 

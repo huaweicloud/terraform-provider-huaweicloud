@@ -24,7 +24,7 @@ resource "huaweicloud_kms_key" "key1" {
 }
 
 data "huaweicloud_kms_data_key" "kms_datakey1" {
-  key_id         = "${huaweicloud_kms_key.key1.id}"
+  key_id         = huaweicloud_kms_key.key1.id
   datakey_length = "512"
 }
 

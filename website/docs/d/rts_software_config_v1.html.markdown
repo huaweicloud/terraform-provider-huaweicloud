@@ -15,17 +15,12 @@ The RTS Software Config data source provides details about a specific RTS Softwa
 
 ```hcl
 variable "config_name" {}
-
 variable "server_id" {}
 
 data "huaweicloud_rts_software_config_v1" "myconfig" {
-  id = "${var.config_name}"
+  id = var.config_name
 }
 
-resource "huaweicloud_rts_software_deployment_v1" "mydeployment" {
-  config_id = "${data.huaweicloud_rts_software_config_v1.myconfig.id}"
-  server_id = "${var.server_id}"
-}
 ```
 
 ## Argument Reference
