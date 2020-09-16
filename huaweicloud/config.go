@@ -47,6 +47,7 @@ type Config struct {
 	AgencyName       string
 	AgencyDomainName string
 	DelegatedProject string
+	Cloud            string
 	MaxRetries       int
 	terraformVersion string
 
