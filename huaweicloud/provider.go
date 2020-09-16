@@ -166,6 +166,15 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("OS_DELEGATED_PROJECT", ""),
 				Description: descriptions["delegated_project"],
 			},
+
+			"cloud": {
+				Type:     schema.TypeString,
+				Optional: true,
+				DefaultFunc: schema.EnvDefaultFunc(
+					"OS_CLOUD", "myhuaweicloud.com"),
+				Description: descriptions["cloud"],
+			},
+
 			"max_retries": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -525,7 +534,10 @@ func init() {
 		"agency_domain_name": "The name of domain who created the agency (Identity v3).",
 
 		"delegated_project": "The name of delegated project (Identity v3).",
-		"max_retries":       "How many times HTTP connection should be retried until giving up.",
+
+		"cloud": "The endpoint of cloud provider, defaults to myhuaweicloud.com",
+
+		"max_retries": "How many times HTTP connection should be retried until giving up.",
 	}
 }
 
@@ -566,6 +578,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		AgencyName:       d.Get("agency_name").(string),
 		AgencyDomainName: d.Get("agency_domain_name").(string),
 		DelegatedProject: delegated_project,
+		Cloud:            d.Get("cloud").(string),
 		MaxRetries:       d.Get("max_retries").(int),
 		terraformVersion: terraformVersion,
 	}
