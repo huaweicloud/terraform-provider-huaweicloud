@@ -1,4 +1,22 @@
-## 1.19.0 (Unreleased)
+## 1.20.0 (Unreleased)
+
+## 1.19.0 (September 16, 2020)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_nat_gateway` ([#501](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/501))
+* **New Data Source:** `huaweicloud_gaussdb_mysql_configuration` ([#529](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/529))
+* **New Resource:** `huaweicloud_cce_node_pool` ([#511](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/511))
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_dcs_instance: Add IP whitelists support for Redis 4.0 and 5.0 ([#510](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/510))
+* resource/huaweicloud_cce_cluster: Add kube_config_raw support ([#512](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/512))
+* data/huaweicloud_cce_cluster: Add TLS certificates support ([#516](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/516))
+* resource/huaweicloud_gaussdb_cassandra_instance: Add configuration_id update support ([#522](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/522))
+* resource/huaweicloud_evs_volume: Add evs volume extend support ([#524](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/524))
+* resource/huaweicloud_compute_instance: Add system disk extend support ([#527](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/527))
+
 ## 1.18.1 (August 31, 2020)
 
 * Add subcategories to frontmatter for Terrafrom Registry website
