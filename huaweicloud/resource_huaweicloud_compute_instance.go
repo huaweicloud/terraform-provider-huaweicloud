@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions"
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones"
@@ -254,7 +255,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 			"system_disk_size": {
 				Type:          schema.TypeInt,
 				Optional:      true,
-				ForceNew:      true,
 				Computed:      true,
 				ConflictsWith: []string{"block_device", "metadata"},
 			},
@@ -958,6 +958,40 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 		tagErr := UpdateResourceTags(ecsClient, d, "cloudservers")
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of instance:%s, err:%s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("system_disk_size") {
+		extendOpts := volumeactions.ExtendSizeOpts{
+			NewSize: d.Get("system_disk_size").(int),
+		}
+
+		blockStorageClient, err := config.blockStorageV2Client(GetRegion(d, config))
+
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
+		}
+
+		systemDiskID := d.Get("system_disk_id").(string)
+
+		err = volumeactions.ExtendSize(blockStorageClient, systemDiskID, extendOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error extending huaweicloud_compute_instance system disk %s size: %s", systemDiskID, err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:    []string{"extending"},
+			Target:     []string{"available", "in-use"},
+			Refresh:    VolumeV2StateRefreshFunc(blockStorageClient, systemDiskID),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			Delay:      10 * time.Second,
+			MinTimeout: 3 * time.Second,
+		}
+
+		_, err = stateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for huaweicloud_compute_instance system disk %s to become ready: %s", systemDiskID, err)
 		}
 	}
 

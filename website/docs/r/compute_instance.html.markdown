@@ -229,7 +229,9 @@ The following arguments are supported:
 	* `co-p1`: high I/O(performance-optimized) disk type.
 	* `uh-l1`: ultra-high I/O(latency-optimized) disk type.
 
-* `system_disk_size` - (Optional) The system disk size in GB, The value range is 1 to 1024. Changing this creates a new server.
+* `system_disk_size` - (Optional) The system disk size in GB, The value range is 1 to 1024. Changing this parameter will update the disk. 
+    You can extend the disk by setting this parameter to a new value, which must be between current size and the max size(1024). 
+    Shrinking the disk is not supported.
 
 * `data_disks` - (Optional) An array of one or more data disks to attach to the
     instance. The data_disks object structure is documented below. Changing this
