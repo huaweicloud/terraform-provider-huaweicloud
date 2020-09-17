@@ -105,6 +105,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v2",
 		WithOutProjectID: true,
 	},
+	"bms": {
+		Name:    "bms",
+		Version: "v1",
+	},
 
 	// ******* catalog for storage ******
 	"volumev2": {

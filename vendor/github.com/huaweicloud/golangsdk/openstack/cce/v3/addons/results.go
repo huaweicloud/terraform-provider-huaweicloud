@@ -4,15 +4,24 @@ import (
 	"github.com/huaweicloud/golangsdk"
 )
 
+type ListAddon struct {
+	// API type, fixed value "List"
+	Kind string `json:"kind"`
+	// API version, fixed value "v3"
+	Apiversion string `json:"apiVersion"`
+	// all Node Pools
+	Addons []Addon `json:"items"`
+}
+
 type Addon struct {
 	// API type, fixed value Addon
-	Kind string `json:"kind" required:"true"`
+	Kind string `json:"kind"`
 	// API version, fixed value v3
-	ApiVersion string `json:"apiVersion" required:"true"`
+	ApiVersion string `json:"apiVersion"`
 	// Metadata of an Addon
-	Metadata MetaData `json:"metadata" required:"true"`
+	Metadata MetaData `json:"metadata"`
 	// Specifications of an Addon
-	Spec Spec `json:"spec" required:"true"`
+	Spec Spec `json:"spec"`
 	// Status of an Addon
 	Status Status `json:"status"`
 }
@@ -32,19 +41,19 @@ type MetaData struct {
 //Specifications to create an addon
 type Spec struct {
 	// For the addon version.
-	Version string `json:"version" required:"true"`
+	Version string `json:"version"`
 	// Cluster ID.
-	ClusterID string `json:"clusterID" required:"true"`
+	ClusterID string `json:"clusterID"`
 	// Addon Template Name.
-	AddonTemplateName string `json:"addonTemplateName" required:"true"`
+	AddonTemplateName string `json:"addonTemplateName"`
 	// Addon Template Type.
-	AddonTemplateType string `json:"addonTemplateType" required:"true"`
+	AddonTemplateType string `json:"addonTemplateType"`
 	// Addon Template Labels.
-	AddonTemplateLables []string `json:"addonTemplateLables,omitempty"`
+	AddonTemplateLables []string `json:"addonTemplateLables"`
 	// Addon Description.
-	Description string `json:"description" required:"true"`
+	Description string `json:"description"`
 	// Addon Parameters
-	Values Values `json:"values" required:"true"`
+	Values Values `json:"values"`
 }
 
 type Status struct {
@@ -56,8 +65,27 @@ type Status struct {
 	Message string `json:"message"`
 	//The target versions of the addon
 	TargetVersions []string `json:"targetVersions"`
+	//Current version of the addon
+	CurrentVersion Versions `json:"currentVersion"`
 }
 
+type Versions struct {
+	// Version of the addon
+	Version string `json:"version"`
+	// The installing param of the addon
+	Input map[string]interface{} `json:"input"`
+	// Wether it is a stable version
+	Stable bool `json:"stable"`
+	// Translate information
+	Translate map[string]interface{} `json:"translate"`
+	// Supported versions
+	SupportVersions []SupportVersions `json:"supportVersions"`
+}
+
+type SupportVersions struct {
+	ClusterType    string   `json:"clusterType"`
+	ClusterVersion []string `json:"clusterVersion"`
+}
 type commonResult struct {
 	golangsdk.Result
 }
@@ -67,6 +95,23 @@ func (r commonResult) Extract() (*Addon, error) {
 	var s Addon
 	err := r.ExtractInto(&s)
 	return &s, err
+}
+
+// ExtractAddon is a function that accepts a ListOpts struct, which allows you to filter and sort
+// the returned collection for greater efficiency.
+func (r commonResult) ExtractAddon() ([]Addon, error) {
+	var s ListAddon
+	err := r.ExtractInto(&s)
+	if err != nil {
+		return nil, err
+	}
+	return s.Addons, nil
+}
+
+// ListResult represents the result of a list operation. Call its ExtractAddon
+// method to interpret it as a Addon.
+type ListResult struct {
+	commonResult
 }
 
 // CreateResult represents the result of a create operation. Call its Extract
