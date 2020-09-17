@@ -241,7 +241,8 @@ func resourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if !exist {
 		d.SetId("")
-		return fmt.Errorf("object %s not found in bucket %s", key, bucket)
+		log.Printf("[WARN] object %s not found in bucket %s", key, bucket)
+		return nil
 	}
 	log.Printf("[DEBUG] Reading OBS Bucket Object %s: %#v", key, object)
 

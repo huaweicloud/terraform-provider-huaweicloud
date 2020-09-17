@@ -179,7 +179,7 @@ func resourceNetworkingSecGroupV2Delete(d *schema.ResourceData, meta interface{}
 	}
 
 	d.SetId("")
-	return err
+	return nil
 }
 
 func waitForSecGroupDelete(networkingClient *golangsdk.ServiceClient, secGroupId string) resource.StateRefreshFunc {

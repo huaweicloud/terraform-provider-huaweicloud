@@ -208,7 +208,7 @@ func resourceNetworkingSecGroupRuleV2Delete(d *schema.ResourceData, meta interfa
 	}
 
 	d.SetId("")
-	return err
+	return nil
 }
 
 func resourceNetworkingSecGroupRuleV2DetermineDirection(v string) rules.RuleDirection {
