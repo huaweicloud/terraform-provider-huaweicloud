@@ -423,6 +423,38 @@ func (c *Config) newObjectStorageClient(region string) (*obs.ObsClient, error) {
 	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint)
 }
 
+// NewServiceClient create a ServiceClient which was assembled from ServiceCatalog.
+// If you want to add new ServiceClient, please make sure the catalog was already in allServiceCatalog.
+// the endpoint likes https://{Name}.{Region}.myhuaweicloud.com/{Version}/{project_id}/{ResourceBase}
+func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient, error) {
+	return c.newServiceClientByName(c.HwClient, allServiceCatalog[srv], c.Region)
+}
+
+func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalog ServiceCatalog, region string) (*golangsdk.ServiceClient, error) {
+	if catalog.Name == "" || catalog.Version == "" {
+		return nil, fmt.Errorf("must specify the service name and api version")
+	}
+
+	sc := new(golangsdk.ServiceClient)
+	sc.ProviderClient = client
+
+	if catalog.Scope == "domain" || region == "" {
+		sc.Endpoint = fmt.Sprintf("https://%s.%s/", catalog.Name, c.Cloud)
+	} else {
+		sc.Endpoint = fmt.Sprintf("https://%s.%s.%s/", catalog.Name, region, c.Cloud)
+	}
+
+	sc.ResourceBase = sc.Endpoint + catalog.Version + "/"
+	if !catalog.WithOutProjectID {
+		sc.ResourceBase = sc.ResourceBase + client.ProjectID + "/"
+	}
+	if catalog.ResourceBase != "" {
+		sc.ResourceBase = sc.ResourceBase + catalog.ResourceBase + "/"
+	}
+
+	return sc, nil
+}
+
 func (c *Config) apiGatewayV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return huaweisdk.ApiGateWayV1(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
@@ -607,7 +639,7 @@ func (c *Config) sfsV2Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) sfsV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.initServiceClient("sfs-turbo", region, "v1")
+	return c.NewServiceClient("sfs-turbo", region)
 }
 
 func (c *Config) orchestrationV1Client(region string) (*golangsdk.ServiceClient, error) {
@@ -734,24 +766,12 @@ func (c *Config) ltsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	})
 }
 
-func (c *Config) initServiceClient(srv, region, apiVersion string) (*golangsdk.ServiceClient, error) {
-	var eo = golangsdk.EndpointOpts{
-		Name:   srv,
-		Region: c.determineRegion(region),
-	}
-	return huaweisdk.InitServiceClientByName(c.HwClient, eo, apiVersion)
-}
-
 func (c *Config) GeminiDBV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.initServiceClient("gaussdb-nosql", region, "v3")
+	return c.NewServiceClient("cassandra", region)
 }
 
 func (c *Config) openGaussV3Client(region string) (*golangsdk.ServiceClient, error) {
-	var eo = golangsdk.EndpointOpts{
-		Name:   "gaussdb",
-		Region: c.determineRegion(region),
-	}
-	return huaweisdk.InitServiceClientByName(c.HwClient, eo, "opengauss/v3")
+	return c.NewServiceClient("opengauss", region)
 }
 
 func (c *Config) sdkClient(region, serviceType string, level string) (*golangsdk.ServiceClient, error) {

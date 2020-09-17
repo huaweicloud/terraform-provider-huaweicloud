@@ -79,10 +79,10 @@ func TestAccServiceEndpoints(t *testing.T) {
 	if actualURL != expectedURL {
 		t.Fatalf("GeminiDB endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
-	t.Logf("GeminiDB endpoint:\t %s", actualURL)
+	t.Logf("GeminiDB/Cassandra endpoint:\t %s", actualURL)
 
 	// test the endpoint of gaussdb service
-	serviceClient, err = config.initServiceClient("gaussdb", OS_REGION_NAME, "mysql/v3")
+	serviceClient, err = config.NewServiceClient("gaussdb", OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud gaussdb client: %s", err)
 	}
@@ -106,7 +106,7 @@ func TestAccServiceEndpoints(t *testing.T) {
 	t.Logf("openGauss endpoint:\t %s", actualURL)
 
 	// test the endpoint of DCS v2 service
-	serviceClient, err = config.initServiceClient("dcs", OS_REGION_NAME, "v2")
+	serviceClient, err = config.NewServiceClient("dcsv2", OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud dcs v2 client: %s", err)
 	}
