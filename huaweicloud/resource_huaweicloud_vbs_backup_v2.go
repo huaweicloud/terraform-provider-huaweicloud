@@ -55,10 +55,6 @@ func resourceVBSBackupV2() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateVBSBackupDescription,
 			},
-			"container": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -71,7 +67,11 @@ func resourceVBSBackupV2() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"service_metadata": {
+			"object_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -167,13 +167,12 @@ func resourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("name", n.Name)
-	d.Set("description", n.Description)
 	d.Set("status", n.Status)
 	d.Set("availability_zone", n.AvailabilityZone)
 	d.Set("snapshot_id", n.SnapshotId)
-	d.Set("service_metadata", n.ServiceMetadata)
 	d.Set("size", n.Size)
-	d.Set("container", n.Container)
+	d.Set("object_count", n.ObjectCount)
+	d.Set("created_at", n.CreatedAt.String())
 	d.Set("volume_id", n.VolumeId)
 	d.Set("region", GetRegion(d, config))
 

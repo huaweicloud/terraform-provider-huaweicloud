@@ -32,7 +32,7 @@ type Backup struct {
 	//Container of the backup
 	Container string `json:"container"`
 	//Backup creation time
-	CreatedAt time.Time `json:"-"`
+	CreatedAt time.Time `json:"created_at"`
 	//ID of the tenant to which the backup belongs
 	TenantId string `json:"os-bak-tenant-attr:tenant_id"`
 	//Backup metadata
