@@ -365,7 +365,7 @@ func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId("")
-	return err
+	return nil
 }
 
 func getGWPortFromSubnet(config *Config, subnetID string) (string, error) {

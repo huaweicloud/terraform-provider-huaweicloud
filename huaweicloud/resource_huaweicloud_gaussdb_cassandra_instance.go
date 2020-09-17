@@ -347,7 +347,8 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	}
 	if instance.Id == "" {
 		d.SetId("")
-		return fmt.Errorf("Error fetching GeminiDB instance: deleted")
+		log.Printf("[WARN] failed to fetch GeminiDB instance: deleted")
+		return nil
 	}
 
 	log.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)

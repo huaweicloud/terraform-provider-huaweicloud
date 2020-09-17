@@ -84,7 +84,6 @@ func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 	if !exist {
-		d.SetId("")
 		return fmt.Errorf("object %s not found in bucket %s", key, bucket)
 	}
 
