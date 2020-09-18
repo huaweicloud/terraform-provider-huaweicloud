@@ -71,6 +71,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The id of the vbs backup.
 
+* `container` - The container of the backup.
+
 * `created_at` - Backup creation time.
 
 * `status` - The status of the VBS backup.
@@ -81,6 +83,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `object_count` - Number of objects on Object Storage Service (OBS) for the disk data.
 
+* `service_metadata` - The metadata of the vbs backup.
  
 # Import
 
