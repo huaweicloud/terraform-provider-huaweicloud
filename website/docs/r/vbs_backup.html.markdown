@@ -26,7 +26,7 @@ resource "huaweicloud_evs_volume" "volume" {
 
 resource "huaweicloud_evs_snapshot" "snapshot_1" {
   name        = "snapshot-001"
-  description = "Daily backup"
+  description = "for vbs backup"
   volume_id   = huaweicloud_evs_volume.volume.id
 }
 
