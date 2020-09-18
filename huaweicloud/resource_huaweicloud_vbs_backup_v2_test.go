@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -12,6 +13,7 @@ import (
 
 func TestAccVBSBackupV2_basic(t *testing.T) {
 	var config backups.Backup
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -19,11 +21,11 @@ func TestAccVBSBackupV2_basic(t *testing.T) {
 		CheckDestroy: testAccCheckVBSBackupV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVBSBackupV2_basic,
+				Config: testAccVBSBackupV2_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVBSBackupV2Exists("huaweicloud_vbs_backup.backup_1", &config),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup.backup_1", "name", "vbs-backup"),
+						"huaweicloud_vbs_backup.backup_1", "name", rName),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_vbs_backup.backup_1", "status", "available"),
 				),
@@ -39,6 +41,7 @@ func TestAccVBSBackupV2_basic(t *testing.T) {
 
 func TestAccVBSBackupV2_timeout(t *testing.T) {
 	var config backups.Backup
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -46,7 +49,7 @@ func TestAccVBSBackupV2_timeout(t *testing.T) {
 		CheckDestroy: testAccCheckVBSBackupV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVBSBackupV2_timeout,
+				Config: testAccVBSBackupV2_timeout(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVBSBackupV2Exists("huaweicloud_vbs_backup.backup_1", &config),
 				),
@@ -108,21 +111,18 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 	}
 }
 
-const testAccVBSBackupV2_basic = `
+func testAccVBSBackupV2_basic(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_evs_volume" "volume" {
-  name              = "volume"
+  name              = "%s"
   description       = "my volume"
-  volume_type       = "SATA"
+  volume_type       = "SAS"
   size              = 20
-  availability_zone = "cn-north-4a"
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
+  availability_zone = "%s"
 }
   
 resource "huaweicloud_evs_snapshot" "snapshot_1" {
-  name        = "snapshot-001"
+  name        = "%s"
   description = "Daily backup"
   volume_id   = huaweicloud_evs_volume.volume.id
 }
@@ -130,25 +130,23 @@ resource "huaweicloud_evs_snapshot" "snapshot_1" {
 resource "huaweicloud_vbs_backup" "backup_1" {
   volume_id   = huaweicloud_evs_volume.volume.id
   snapshot_id = huaweicloud_evs_snapshot.snapshot_1.id
-  name        = "vbs-backup"
+  name        = "%s"
 }
-`
+`, rName, OS_AVAILABILITY_ZONE, rName, rName)
+}
 
-const testAccVBSBackupV2_timeout = `
+func testAccVBSBackupV2_timeout(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_evs_volume" "volume" {
-  name              = "volume"
+  name              = "%s"
   description       = "my volume"
-  volume_type       = "SATA"
+  volume_type       = "SAS"
   size              = 20
-  availability_zone = "cn-north-4a"
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
+  availability_zone = "%s"
 }
 
 resource "huaweicloud_evs_snapshot" "snapshot_1" {
-  name        = "snapshot-001"
+  name        = "%s"
   description = "Daily backup"
   volume_id   = huaweicloud_evs_volume.volume.id
 }
@@ -156,10 +154,11 @@ resource "huaweicloud_evs_snapshot" "snapshot_1" {
 resource "huaweicloud_vbs_backup" "backup_1" {
   volume_id   = huaweicloud_evs_volume.volume.id
   snapshot_id = huaweicloud_evs_snapshot.snapshot_1.id
-  name        = "vbs-backup"
+  name        = "%s"
   timeouts {
     create = "5m"
     delete = "5m"
   }
 }
-`
+`, rName, OS_AVAILABILITY_ZONE, rName, rName)
+}

@@ -182,7 +182,7 @@ func resourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("size", n.Size)
 	d.Set("container", n.Container)
 	d.Set("object_count", n.ObjectCount)
-	d.Set("created_at", n.CreatedAt.String())
+	d.Set("created_at", n.CreatedAt.Format(time.RFC3339))
 	d.Set("volume_id", n.VolumeId)
 	d.Set("region", GetRegion(d, config))
 
