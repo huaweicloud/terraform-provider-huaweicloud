@@ -22,11 +22,6 @@ resource "huaweicloud_evs_volume" "volume" {
   volume_type       = "SATA"
   size              = 20
   availability_zone = "cn-north-4a"
-
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
 }
 
 resource "huaweicloud_evs_snapshot" "snapshot_1" {
