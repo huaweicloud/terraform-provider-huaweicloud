@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,6 +14,8 @@ import (
 
 func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
 	var policy policies.Policy
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	updateName := fmt.Sprintf("tf-acc-test-update-%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,28 +23,30 @@ func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
 		CheckDestroy: testAccVBSBackupPolicyV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVBSBackupPolicyV2_basic,
+				Config: testAccVBSBackupPolicyV2_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccVBSBackupPolicyV2Exists("huaweicloud_vbs_backup_policy_v2.vbs", &policy),
+					testAccVBSBackupPolicyV2Exists("huaweicloud_vbs_backup_policy.vbs", &policy),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup_policy_v2.vbs", "name", "policy_001"),
+						"huaweicloud_vbs_backup_policy.vbs", "name", rName),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup_policy_v2.vbs", "status", "ON"),
+						"huaweicloud_vbs_backup_policy.vbs", "status", "ON"),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_vbs_backup_policy_v2.vbs",
+				ResourceName:      "huaweicloud_vbs_backup_policy.vbs",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccVBSBackupPolicyV2_update,
+				Config: testAccVBSBackupPolicyV2_update(updateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccVBSBackupPolicyV2Exists("huaweicloud_vbs_backup_policy_v2.vbs", &policy),
+					testAccVBSBackupPolicyV2Exists("huaweicloud_vbs_backup_policy.vbs", &policy),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup_policy_v2.vbs", "name", "policy_001_update"),
+						"huaweicloud_vbs_backup_policy.vbs", "name", updateName),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup_policy_v2.vbs", "status", "ON"),
+						"huaweicloud_vbs_backup_policy.vbs", "status", "ON"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_vbs_backup_policy.vbs", "rentention_num", "7"),
 				),
 			},
 		},
@@ -50,6 +55,7 @@ func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
 
 func TestAccVBSBackupPolicyV2_rentention_day(t *testing.T) {
 	var policy policies.Policy
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -57,15 +63,15 @@ func TestAccVBSBackupPolicyV2_rentention_day(t *testing.T) {
 		CheckDestroy: testAccVBSBackupPolicyV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVBSBackupPolicyV2_rentention_day,
+				Config: testAccVBSBackupPolicyV2_rentention_day(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccVBSBackupPolicyV2Exists("huaweicloud_vbs_backup_policy_v2.vbs", &policy),
+					testAccVBSBackupPolicyV2Exists("huaweicloud_vbs_backup_policy.vbs", &policy),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup_policy_v2.vbs", "name", "policy_002"),
+						"huaweicloud_vbs_backup_policy.vbs", "name", rName),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup_policy_v2.vbs", "status", "ON"),
+						"huaweicloud_vbs_backup_policy.vbs", "status", "ON"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup_policy_v2.vbs", "rentention_day", "30"),
+						"huaweicloud_vbs_backup_policy.vbs", "rentention_day", "30"),
 				),
 			},
 		},
@@ -80,7 +86,7 @@ func testAccVBSBackupPolicyV2Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_vbs_backup_policy_v2" {
+		if rs.Type != "huaweicloud_vbs_backup_policy" {
 			continue
 		}
 
@@ -125,41 +131,47 @@ func testAccVBSBackupPolicyV2Exists(n string, policy *policies.Policy) resource.
 	}
 }
 
-var testAccVBSBackupPolicyV2_basic = fmt.Sprintf(`
-resource "huaweicloud_vbs_backup_policy_v2" "vbs" {
-  name = "policy_001"
-  start_time  = "12:00"
-  status  = "ON"
+func testAccVBSBackupPolicyV2_basic(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vbs_backup_policy" "vbs" {
+  name                = "%s"
+  start_time          = "12:00"
+  status              = "ON"
   retain_first_backup = "N"
-  rentention_num = 2
-  frequency = 1
+  rentention_num      = 2
+  frequency           = 1
   tags {
-    key = "k2"
-    value = "v2"
+	key   = "k2"
+	value = "v2"
   }
 }
-`)
+`, rName)
+}
 
-var testAccVBSBackupPolicyV2_update = fmt.Sprintf(`
-resource "huaweicloud_vbs_backup_policy_v2" "vbs" {
-  name = "policy_001_update"
-  start_time  = "12:00"
-  status  = "ON"
+func testAccVBSBackupPolicyV2_update(updateName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vbs_backup_policy" "vbs" {
+  name                = "%s"
+  start_time          = "12:00"
+  status              = "ON"
   retain_first_backup = "N"
-  rentention_num = 2
-  frequency = 1
+  rentention_num      = 7
+  frequency           = 1
   tags {
-    key = "k2"
-    value = "v2"
+	key   = "k2"
+	value = "v2"
   }
 }
-`)
+`, updateName)
+}
 
-var testAccVBSBackupPolicyV2_rentention_day = fmt.Sprintf(`
-resource "huaweicloud_vbs_backup_policy_v2" "vbs" {
-  name = "policy_002"
-  start_time  = "00:00,12:00"
+func testAccVBSBackupPolicyV2_rentention_day(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vbs_backup_policy" "vbs" {
+  name                = "%s"
+  start_time          = "00:00,12:00"
   retain_first_backup = "N"
-  rentention_day = 30
-  week_frequency = ["MON","WED","SAT"]
-}`)
+  rentention_day      = 30
+  week_frequency      = ["MON", "WED", "SAT"]
+}`, rName)
+}
