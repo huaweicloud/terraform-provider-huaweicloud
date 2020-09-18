@@ -54,11 +54,11 @@ The following arguments are supported:
 
 * `description` - (Optional) The description of the vbs backup. Changing the parameter creates a new backup.
 
-**tags** **- (Optional)** List of tags to be configured for the backup resources. Changing the parameter creates a new backup.
+* `tags` - (Optional) List of tags to be configured for the backup resources. Changing the parameter creates a new backup.
 
-* `key` - (Required) Specifies the tag key. Changing the parameter creates a new backup
+    * `key` - (Required) Specifies the tag key. Changing the parameter creates a new backup.
 
-* `value` - (Required) Specifies the tag value. Changing the parameter creates a new backup
+    * `value` - (Required) Specifies the tag value. Changing the parameter creates a new backup.
 
 # Attributes Reference
 
