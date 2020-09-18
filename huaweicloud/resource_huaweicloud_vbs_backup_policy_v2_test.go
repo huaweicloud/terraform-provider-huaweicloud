@@ -141,8 +141,8 @@ resource "huaweicloud_vbs_backup_policy" "vbs" {
   rentention_num      = 2
   frequency           = 1
   tags {
-	key   = "k2"
-	value = "v2"
+    key   = "k2"
+    value = "v2"
   }
 }
 `, rName)
@@ -158,8 +158,8 @@ resource "huaweicloud_vbs_backup_policy" "vbs" {
   rentention_num      = 7
   frequency           = 1
   tags {
-	key   = "k2"
-	value = "v2"
+    key   = "k2"
+    value = "v2"
   }
 }
 `, updateName)
