@@ -49,7 +49,8 @@ type Config struct {
 	DelegatedProject string
 	Cloud            string
 	MaxRetries       int
-	terraformVersion string
+	TerraformVersion string
+	RegionClient     bool
 
 	HwClient *golangsdk.ProviderClient
 	s3sess   *session.Session
@@ -131,7 +132,7 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 	}
 
 	// Set UserAgent
-	client.UserAgent.Prepend(httpclient.TerraformUserAgent(c.terraformVersion))
+	client.UserAgent.Prepend(httpclient.TerraformUserAgent(c.TerraformVersion))
 
 	config, err := generateTLSConfig(c)
 	if err != nil {
@@ -505,15 +506,23 @@ func (c *Config) computeV2Client(region string) (*golangsdk.ServiceClient, error
 }
 
 func (c *Config) dnsV2Client(region string) (*golangsdk.ServiceClient, error) {
+	region = ""
+	if c.RegionClient {
+		region = c.determineRegion(region)
+	}
 	return huaweisdk.NewDNSV2(c.HwClient, golangsdk.EndpointOpts{
-		Region:       "",
+		Region:       region,
 		Availability: c.getHwEndpointType(),
 	})
 }
 
 func (c *Config) identityV3Client(region string) (*golangsdk.ServiceClient, error) {
+	region = ""
+	if c.RegionClient {
+		region = c.determineRegion(region)
+	}
 	return huaweisdk.NewIdentityV3(c.DomainClient, golangsdk.EndpointOpts{
-		//Region:       c.determineRegion(region),
+		Region:       region,
 		Availability: c.getHwEndpointType(),
 	})
 }
