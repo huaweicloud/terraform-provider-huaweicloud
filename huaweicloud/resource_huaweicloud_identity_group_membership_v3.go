@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/users"
 )
 
-func resourceIdentityGroupMembershipV3() *schema.Resource {
+func ResourceIdentityGroupMembershipV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityGroupMembershipV3Create,
 		Read:   resourceIdentityGroupMembershipV3Read,

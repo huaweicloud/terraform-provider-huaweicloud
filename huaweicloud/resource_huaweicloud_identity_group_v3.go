@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/groups"
 )
 
-func resourceIdentityGroupV3() *schema.Resource {
+func ResourceIdentityGroupV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityGroupV3Create,
 		Read:   resourceIdentityGroupV3Read,

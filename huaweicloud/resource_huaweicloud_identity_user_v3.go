@@ -15,7 +15,7 @@ var userOptions = map[users.Option]string{
 	users.MultiFactorAuthEnabled:           "multi_factor_auth_enabled",
 }
 
-func resourceIdentityUserV3() *schema.Resource {
+func ResourceIdentityUserV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityUserV3Create,
 		Read:   resourceIdentityUserV3Read,

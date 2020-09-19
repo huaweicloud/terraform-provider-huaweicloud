@@ -12,7 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk/pagination"
 )
 
-func resourceIdentityRoleAssignmentV3() *schema.Resource {
+func ResourceIdentityRoleAssignmentV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityRoleAssignmentV3Create,
 		Read:   resourceIdentityRoleAssignmentV3Read,

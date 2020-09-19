@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/projects"
 )
 
-func resourceIdentityProjectV3() *schema.Resource {
+func ResourceIdentityProjectV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityProjectV3Create,
 		Read:   resourceIdentityProjectV3Read,
