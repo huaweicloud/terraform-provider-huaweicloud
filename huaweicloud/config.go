@@ -484,24 +484,15 @@ func (c *Config) blockStorageV3Client(region string) (*golangsdk.ServiceClient, 
 }
 
 func (c *Config) computeV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewComputeV1(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("ecs", region)
 }
 
 func (c *Config) computeV11Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewComputeV11(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("computeV11", region)
 }
 
 func (c *Config) computeV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewComputeV2(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("computeV2", region)
 }
 
 func (c *Config) dnsV2Client(region string) (*golangsdk.ServiceClient, error) {
@@ -526,17 +517,11 @@ func (c *Config) imageV2Client(region string) (*golangsdk.ServiceClient, error) 
 }
 
 func (c *Config) networkingV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewNetworkV1(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("network", region)
 }
 
 func (c *Config) networkingV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewNetworkV2(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("networkV2", region)
 }
 
 func (c *Config) cceV3Client(region string) (*golangsdk.ServiceClient, error) {
@@ -575,10 +560,7 @@ func (c *Config) databaseV1Client(region string) (*golangsdk.ServiceClient, erro
 }
 
 func (c *Config) fwV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewNetworkV2(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("fwV2", region)
 }
 
 func (c *Config) loadEVSV2Client(region string) (*golangsdk.ServiceClient, error) {
@@ -747,9 +729,7 @@ func (c *Config) CdnV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) BssV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewBSSV1(c.HwClient, golangsdk.EndpointOpts{
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("bss", region)
 }
 
 func (c *Config) FgsV2Client(region string) (*golangsdk.ServiceClient, error) {

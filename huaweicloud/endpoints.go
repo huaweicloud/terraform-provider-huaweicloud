@@ -16,17 +16,28 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "ecs",
 		Version: "v1",
 	},
-	"compute": ServiceCatalog{
+	"computeV11": ServiceCatalog{
+		Name:    "ecs",
+		Version: "v1.1",
+	},
+	"computeV2": ServiceCatalog{
 		Name:    "ecs",
 		Version: "v2.1",
 	},
 	"network": ServiceCatalog{
-		Name:    "vpc",
-		Version: "v2.0",
+		Name:             "vpc",
+		Version:          "v1",
+		WithOutProjectID: true,
+	},
+	"networkV2": ServiceCatalog{
+		Name:             "vpc",
+		Version:          "v2.0",
+		WithOutProjectID: true,
 	},
 	"vpc": ServiceCatalog{
-		Name:    "vpc",
-		Version: "v1",
+		Name:             "vpc",
+		Version:          "v1",
+		WithOutProjectID: true,
 	},
 	"volumev2": ServiceCatalog{
 		Name:    "evs",
@@ -55,5 +66,15 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"opengauss": ServiceCatalog{
 		Name:    "gaussdb",
 		Version: "opengauss/v3",
+	},
+	"bss": ServiceCatalog{
+		Name:             "bss",
+		Version:          "v1.0",
+		WithOutProjectID: true,
+	},
+	"fwV2": ServiceCatalog{
+		Name:             "vpc",
+		Version:          "v2.0",
+		WithOutProjectID: true,
 	},
 }
