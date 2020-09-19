@@ -43,6 +43,11 @@ func resourceCCENodePool() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
 			"root_volume": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -225,6 +230,7 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 			Name: d.Get("name").(string),
 		},
 		Spec: nodepools.CreateSpec{
+			Type: d.Get("type").(string),
 			NodeTemplate: nodes.Spec{
 				Flavor:      d.Get("flavor_id").(string),
 				Az:          d.Get("availability_zone").(string),

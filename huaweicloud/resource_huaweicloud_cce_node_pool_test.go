@@ -158,6 +158,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   max_node_count    = 0
   scale_down_cooldown_time = 0
   priority          = 0
+  type 				= "vm"
 
   root_volume {
     size       = 40
@@ -188,6 +189,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   max_node_count    = 9
   scale_down_cooldown_time = 100
   priority          = 1
+  type 				= "vm"
 
   root_volume {
     size       = 40
