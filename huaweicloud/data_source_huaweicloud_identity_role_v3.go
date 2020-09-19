@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/roles"
 )
 
-func dataSourceIdentityRoleV3() *schema.Resource {
+func DataSourceIdentityRoleV3() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceIdentityRoleV3Read,
 

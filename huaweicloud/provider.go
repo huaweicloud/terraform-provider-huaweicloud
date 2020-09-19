@@ -203,7 +203,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_gaussdb_mysql_configuration": dataSourceGaussdbMysqlConfigurations(),
 			"huaweicloud_gaussdb_mysql_flavors":       dataSourceGaussdbMysqlFlavors(),
 			"huaweicloud_iam_role":                    dataSourceIAMRoleV3(),
-			"huaweicloud_identity_role":               dataSourceIdentityRoleV3(),
+			"huaweicloud_identity_role":               DataSourceIdentityRoleV3(),
 			"huaweicloud_images_image":                dataSourceImagesImageV2(),
 			"huaweicloud_kms_key":                     dataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key":                dataSourceKmsDataKeyV1(),
@@ -253,7 +253,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dcs_maintainwindow_v1":     dataSourceDcsMaintainWindowV1(),
 			"huaweicloud_dcs_product_v1":            dataSourceDcsProductV1(),
 			"huaweicloud_dds_flavors_v3":            dataSourceDDSFlavorV3(),
-			"huaweicloud_identity_role_v3":          dataSourceIdentityRoleV3(),
+			"huaweicloud_identity_role_v3":          DataSourceIdentityRoleV3(),
 			"huaweicloud_cdm_flavors_v1":            dataSourceCdmFlavorV1(),
 			"huaweicloud_dis_partition_v2":          dataSourceDisPartitionV2(),
 			// Deprecated
