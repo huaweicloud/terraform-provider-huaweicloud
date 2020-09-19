@@ -54,7 +54,7 @@ The following arguments are supported:
 
 * `flavor_id` - (Required) Specifies the flavor id. Changing this parameter will create a new resource.
 
-*  `type` - (Required) Node Pool type. This is an enumerated value, the possible values are {"vm", "ElasticBMS"}.
+*  `type` - (Required) Node Pool type. Possible values are: "vm" and "ElasticBMS".
  
 * `availability_zone` - (Optional) specify the name of the available partition (AZ). Default value is random 
     to create nodes in a random AZ in the node pool.
