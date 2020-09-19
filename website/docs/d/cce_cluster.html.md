@@ -19,7 +19,7 @@ variable "cluster_name" { }
 
 data "huaweicloud_cce_cluster" "cluster" {
   name   = var.cluster_name
-  status = Available"
+  status = "Available"
 }
 ```
 
