@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func resourceDNSPtrRecordV2() *schema.Resource {
+func ResourceDNSPtrRecordV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDNSPtrRecordV2Create,
 		Read:   resourceDNSPtrRecordV2Read,

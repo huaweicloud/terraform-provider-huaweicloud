@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func resourceDNSZoneV2() *schema.Resource {
+func ResourceDNSZoneV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDNSZoneV2Create,
 		Read:   resourceDNSZoneV2Read,
