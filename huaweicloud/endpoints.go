@@ -12,6 +12,7 @@ type ServiceCatalog struct {
 }
 
 var allServiceCatalog = map[string]ServiceCatalog{
+	// ******* client for Compute start *******
 	"ecs": ServiceCatalog{
 		Name:    "ecs",
 		Version: "v1",
@@ -24,6 +25,35 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "ecs",
 		Version: "v2.1",
 	},
+	"autoscalingV1": ServiceCatalog{
+		Name:    "as",
+		Version: "autoscaling-api/v1",
+	},
+	"imageV2": ServiceCatalog{
+		Name:             "ims",
+		Version:          "v2",
+		WithOutProjectID: true,
+	},
+	"cceV3": ServiceCatalog{
+		Name:    "cce",
+		Version: "api/v3/projects",
+	},
+	"cceAddonV3": ServiceCatalog{
+		Name:             "cce",
+		Version:          "api/v3",
+		WithOutProjectID: true,
+	},
+	"cciV1": ServiceCatalog{
+		Name:             "cci",
+		Version:          "apis/networking.cci.io/v1beta1",
+		WithOutProjectID: true,
+	},
+	"FgsV2": ServiceCatalog{
+		Name:    "functiongraph",
+		Version: "v2",
+	},
+	// ******* client for Compute end *******
+
 	"network": ServiceCatalog{
 		Name:             "vpc",
 		Version:          "v1",

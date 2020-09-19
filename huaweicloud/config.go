@@ -501,45 +501,27 @@ func (c *Config) computeV2Client(region string) (*golangsdk.ServiceClient, error
 }
 
 func (c *Config) autoscalingV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewAutoScalingService(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("autoscalingV1", region)
 }
 
 func (c *Config) imageV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewImageServiceV2(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("imageV2", region)
 }
 
 func (c *Config) cceV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewCCEV3(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("cceV3", region)
 }
 
 func (c *Config) cceAddonV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewCCEAddonV3(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("cceAddonV3", region)
 }
 
 func (c *Config) cciV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.CCIV1(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("cciV1", region)
 }
 
 func (c *Config) FgsV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewFGSV2(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("FgsV2", region)
 }
 
 // ********** client for Storage **********
