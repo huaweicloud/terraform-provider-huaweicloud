@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -12,6 +13,7 @@ import (
 
 func TestAccVBSBackupV2_basic(t *testing.T) {
 	var config backups.Backup
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -19,19 +21,17 @@ func TestAccVBSBackupV2_basic(t *testing.T) {
 		CheckDestroy: testAccCheckVBSBackupV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVBSBackupV2_basic,
+				Config: testAccVBSBackupV2_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVBSBackupV2Exists("huaweicloud_vbs_backup_v2.backup_1", &config),
+					testAccCheckVBSBackupV2Exists("huaweicloud_vbs_backup.backup_1", &config),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup_v2.backup_1", "name", "vbs-backup"),
+						"huaweicloud_vbs_backup.backup_1", "name", rName),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup_v2.backup_1", "description", "Backup_Demo"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_vbs_backup_v2.backup_1", "status", "available"),
+						"huaweicloud_vbs_backup.backup_1", "status", "available"),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_vbs_backup_v2.backup_1",
+				ResourceName:      "huaweicloud_vbs_backup.backup_1",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -41,6 +41,7 @@ func TestAccVBSBackupV2_basic(t *testing.T) {
 
 func TestAccVBSBackupV2_timeout(t *testing.T) {
 	var config backups.Backup
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -48,9 +49,9 @@ func TestAccVBSBackupV2_timeout(t *testing.T) {
 		CheckDestroy: testAccCheckVBSBackupV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVBSBackupV2_timeout,
+				Config: testAccVBSBackupV2_timeout(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVBSBackupV2Exists("huaweicloud_vbs_backup_v2.backup_1", &config),
+					testAccCheckVBSBackupV2Exists("huaweicloud_vbs_backup.backup_1", &config),
 				),
 			},
 		},
@@ -65,7 +66,7 @@ func testAccCheckVBSBackupV2Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_vbs_backup_v2" {
+		if rs.Type != "huaweicloud_vbs_backup" {
 			continue
 		}
 
@@ -110,37 +111,54 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 	}
 }
 
-const testAccVBSBackupV2_basic = `
-resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
-  name = "volume_123"
-  description = "first test volume"
-  size = 40
-  cascade = true
+func testAccVBSBackupV2_basic(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_evs_volume" "volume" {
+  name              = "%s"
+  description       = "my volume"
+  volume_type       = "SAS"
+  size              = 20
+  availability_zone = "%s"
+}
+  
+resource "huaweicloud_evs_snapshot" "snapshot_1" {
+  name        = "%s"
+  description = "for vbs backup"
+  volume_id   = huaweicloud_evs_volume.volume.id
+}
+  
+resource "huaweicloud_vbs_backup" "backup_1" {
+  volume_id   = huaweicloud_evs_volume.volume.id
+  snapshot_id = huaweicloud_evs_snapshot.snapshot_1.id
+  name        = "%s"
+}
+`, rName, OS_AVAILABILITY_ZONE, rName, rName)
 }
 
-resource "huaweicloud_vbs_backup_v2" "backup_1" {
-  volume_id = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
-  name = "vbs-backup"
-  description = "Backup_Demo"
-}
-`
-
-const testAccVBSBackupV2_timeout = `
-resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
-  name = "volume_123"
-  description = "first test volume"
-  size = 40
-  cascade = true
+func testAccVBSBackupV2_timeout(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_evs_volume" "volume" {
+  name              = "%s"
+  description       = "my volume"
+  volume_type       = "SAS"
+  size              = 20
+  availability_zone = "%s"
 }
 
-resource "huaweicloud_vbs_backup_v2" "backup_1" {
-  volume_id = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
-  name = "vbs-backup"
-  description = "Backup_Demo"
+resource "huaweicloud_evs_snapshot" "snapshot_1" {
+  name        = "%s"
+  description = "for vbs backup"
+  volume_id   = huaweicloud_evs_volume.volume.id
+}
 
+resource "huaweicloud_vbs_backup" "backup_1" {
+  volume_id   = huaweicloud_evs_volume.volume.id
+  snapshot_id = huaweicloud_evs_snapshot.snapshot_1.id
+  name        = "%s"
   timeouts {
     create = "5m"
     delete = "5m"
   }
 }
-`
+`, rName, OS_AVAILABILITY_ZONE, rName, rName)
+}

@@ -580,7 +580,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		DelegatedProject: delegated_project,
 		Cloud:            d.Get("cloud").(string),
 		MaxRetries:       d.Get("max_retries").(int),
-		terraformVersion: terraformVersion,
+		TerraformVersion: terraformVersion,
 	}
 
 	if err := config.LoadAndValidate(); err != nil {
