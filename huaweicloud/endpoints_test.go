@@ -50,7 +50,7 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 	config := testProvider.Meta().(*Config)
 
 	// test the endpoint of IAM service
-	serviceClient, err = config.identityV3Client(OS_REGION_NAME)
+	serviceClient, err = config.IdentityV3Client(OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud IAM client: %s", err)
 	}

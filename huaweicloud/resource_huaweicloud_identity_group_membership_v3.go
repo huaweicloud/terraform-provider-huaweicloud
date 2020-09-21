@@ -37,7 +37,7 @@ func ResourceIdentityGroupMembershipV3() *schema.Resource {
 
 func resourceIdentityGroupMembershipV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	identityClient, err := config.identityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -57,7 +57,7 @@ func resourceIdentityGroupMembershipV3Create(d *schema.ResourceData, meta interf
 
 func resourceIdentityGroupMembershipV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	identityClient, err := config.identityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -95,7 +95,7 @@ func resourceIdentityGroupMembershipV3Read(d *schema.ResourceData, meta interfac
 
 func resourceIdentityGroupMembershipV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	identityClient, err := config.identityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -130,7 +130,7 @@ func resourceIdentityGroupMembershipV3Update(d *schema.ResourceData, meta interf
 
 func resourceIdentityGroupMembershipV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	identityClient, err := config.identityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
