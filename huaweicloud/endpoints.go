@@ -7,11 +7,33 @@ type ServiceCatalog struct {
 	Name             string
 	Version          string
 	Scope            string
+	Admin            bool
 	ResourceBase     string
 	WithOutProjectID bool
 }
 
 var allServiceCatalog = map[string]ServiceCatalog{
+	// catalog for global service
+	"iam": ServiceCatalog{
+		Name:             "iam",
+		Version:          "v3",
+		Scope:            "global",
+		Admin:            true,
+		WithOutProjectID: true,
+	},
+	"cdn": ServiceCatalog{
+		Name:             "cdn",
+		Version:          "v1.0",
+		Scope:            "global",
+		WithOutProjectID: true,
+	},
+	"dns": ServiceCatalog{
+		Name:             "dns",
+		Version:          "v2",
+		Scope:            "global",
+		WithOutProjectID: true,
+	},
+
 	"ecs": ServiceCatalog{
 		Name:    "ecs",
 		Version: "v1",
@@ -55,5 +77,30 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"opengauss": ServiceCatalog{
 		Name:    "gaussdb",
 		Version: "opengauss/v3",
+	},
+
+	// catalog for management service
+	"ces": ServiceCatalog{
+		Name:    "ces",
+		Version: "V1.0",
+	},
+	"cts": ServiceCatalog{
+		Name:    "cts",
+		Version: "v1.0",
+	},
+	"lts": ServiceCatalog{
+		Name:    "lts",
+		Version: "v2",
+	},
+
+	// catalog for Security service
+	"anti-ddos": ServiceCatalog{
+		Name:    "antiddos",
+		Version: "v1",
+	},
+	"kms": ServiceCatalog{
+		Name:             "kms",
+		Version:          "v1.0",
+		WithOutProjectID: true,
 	},
 }
