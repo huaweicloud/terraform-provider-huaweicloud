@@ -38,6 +38,7 @@ var (
 	OS_KMS_ENVIRONMENT        = os.Getenv("OS_KMS_ENVIRONMENT")
 	OS_CCI_ENVIRONMENT        = os.Getenv("OS_CCI_ENVIRONMENT")
 	OS_CDN_DOMAIN_NAME        = os.Getenv("OS_CDN_DOMAIN_NAME")
+	OS_ADMIN                  = os.Getenv("OS_ADMIN")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -64,8 +65,7 @@ func testAccPreCheckDeprecated(t *testing.T) {
 }
 
 func testAccPreCheckAdminOnly(t *testing.T) {
-	v := os.Getenv("OS_USERGROUP_NAME")
-	if v != "admin" {
+	if OS_ADMIN == "" {
 		t.Skip("Skipping test because it requires the admin user group")
 	}
 }

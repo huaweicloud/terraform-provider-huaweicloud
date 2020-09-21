@@ -465,7 +465,7 @@ func (c *Config) loadIAMV3Client(region string) (*golangsdk.ServiceClient, error
 	return huaweisdk.NewIdentityV3(c.DomainClient, golangsdk.EndpointOpts{})
 }
 
-func (c *Config) identityV3Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) IdentityV3Client(region string) (*golangsdk.ServiceClient, error) {
 	region = ""
 	if c.RegionClient {
 		region = c.determineRegion(region)
