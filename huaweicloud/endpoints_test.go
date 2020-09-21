@@ -61,6 +61,18 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 	}
 	t.Logf("IAM endpoint:\t %s", actualURL)
 
+	// test the endpoint of CDN service
+	serviceClient, err = config.CdnV1Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud CDN client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://cdn.%s/v1.0/", config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("CDN endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("CDN endpoint:\t %s", actualURL)
+
 	// test the endpoint of DNS service
 	serviceClient, err = config.DnsV2Client(OS_REGION_NAME)
 	if err != nil {
@@ -144,7 +156,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud RDS v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://rds.%s.%s/v1/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmt.Sprintf("https://rds.%s.%s/rds/v1/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("RDS v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -188,7 +200,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	t.Logf("GeminiDB/Cassandra endpoint:\t %s", actualURL)
 
 	// test the endpoint of gaussdb service
-	serviceClient, err = config.NewServiceClient("gaussdb", OS_REGION_NAME)
+	serviceClient, err = config.gaussdbV3Client(OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud gaussdb client: %s", err)
 	}
@@ -314,7 +326,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	t.Logf("DMS endpoint:\t %s", actualURL)
 }
 
-func TestAccServiceEndpoints_EnterpriseInteligence(t *testing.T) {
+func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 
 	testProvider := Provider().(*schema.Provider)
