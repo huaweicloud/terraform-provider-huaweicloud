@@ -476,7 +476,7 @@ func (c *Config) identityV3Client(region string) (*golangsdk.ServiceClient, erro
 	})
 }
 
-func (c *Config) dnsV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) DnsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	region = ""
 	if c.RegionClient {
 		region = c.determineRegion(region)

@@ -69,7 +69,7 @@ func ResourceDNSPtrRecordV2() *schema.Resource {
 func resourceDNSPtrRecordV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	region := GetRegion(d, config)
-	dnsClient, err := config.dnsV2Client(region)
+	dnsClient, err := config.DnsV2Client(region)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -123,7 +123,7 @@ func resourceDNSPtrRecordV2Create(d *schema.ResourceData, meta interface{}) erro
 
 func resourceDNSPtrRecordV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	dnsClient, err := config.dnsV2Client(GetRegion(d, config))
+	dnsClient, err := config.DnsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -153,7 +153,7 @@ func resourceDNSPtrRecordV2Read(d *schema.ResourceData, meta interface{}) error 
 func resourceDNSPtrRecordV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	region := GetRegion(d, config)
-	dnsClient, err := config.dnsV2Client(region)
+	dnsClient, err := config.DnsV2Client(region)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -207,7 +207,7 @@ func resourceDNSPtrRecordV2Update(d *schema.ResourceData, meta interface{}) erro
 
 func resourceDNSPtrRecordV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	dnsClient, err := config.dnsV2Client(GetRegion(d, config))
+	dnsClient, err := config.DnsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}

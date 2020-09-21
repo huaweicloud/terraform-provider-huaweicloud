@@ -62,7 +62,7 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 	t.Logf("IAM endpoint:\t %s", actualURL)
 
 	// test the endpoint of DNS service
-	serviceClient, err = config.dnsV2Client(OS_REGION_NAME)
+	serviceClient, err = config.DnsV2Client(OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DNS client: %s", err)
 	}
