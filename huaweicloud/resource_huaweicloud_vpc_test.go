@@ -54,7 +54,7 @@ func TestAccVpcV1_basic(t *testing.T) {
 
 func testAccCheckVpcV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	vpcClient, err := config.networkingV1Client(OS_REGION_NAME)
+	vpcClient, err := config.NetworkingV1Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud vpc client: %s", err)
 	}
@@ -85,7 +85,7 @@ func testAccCheckVpcV1Exists(n string, vpc *vpcs.Vpc) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		vpcClient, err := config.networkingV1Client(OS_REGION_NAME)
+		vpcClient, err := config.NetworkingV1Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud vpc client: %s", err)
 		}

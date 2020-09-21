@@ -254,7 +254,7 @@ func waitForLBV2viaPool(networkingClient *golangsdk.ServiceClient, id string, ta
 }
 
 func chooseLBV2Client(d *schema.ResourceData, config *Config) (*golangsdk.ServiceClient, error) {
-	return config.networkingV2Client(GetRegion(d, config))
+	return config.NetworkingV2Client(GetRegion(d, config))
 }
 
 func resourceLBV2LoadBalancerStatusRefreshFuncNeutron(lbClient *golangsdk.ServiceClient, lbID, resourceType, resourceID string) resource.StateRefreshFunc {

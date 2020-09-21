@@ -35,7 +35,7 @@ func TestAccLBV2Pool_basic(t *testing.T) {
 
 func testAccCheckLBV2PoolDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
+	networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -66,7 +66,7 @@ func testAccCheckLBV2PoolExists(n string, pool *pools.Pool) resource.TestCheckFu
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
+		networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}

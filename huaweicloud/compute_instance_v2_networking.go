@@ -155,7 +155,7 @@ func getInstanceNetworkInfo(
 	config := meta.(*Config)
 
 	if _, ok := os.LookupEnv("OS_NOVA_NETWORK"); !ok {
-		networkClient, err := config.networkingV2Client(GetRegion(d, config))
+		networkClient, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err == nil {
 			networkInfo, err := getInstanceNetworkInfoNeutron(networkClient, queryType, queryTerm)
 			if err != nil {

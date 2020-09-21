@@ -22,7 +22,7 @@ func resourceSubnetDNSListV1(d *schema.ResourceData) []string {
 	return dnsn
 }
 
-func resourceVpcSubnetV1() *schema.Resource {
+func ResourceVpcSubnetV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVpcSubnetV1Create,
 		Read:   resourceVpcSubnetV1Read,
@@ -113,7 +113,7 @@ func resourceVpcSubnetV1() *schema.Resource {
 
 func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	subnetClient, err := config.networkingV1Client(GetRegion(d, config))
+	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
 
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud networking client: %s", err)
@@ -158,7 +158,7 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		vpcSubnetV2Client, err := config.networkingV2Client(GetRegion(d, config))
+		vpcSubnetV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
@@ -174,7 +174,7 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	subnetClient, err := config.networkingV1Client(GetRegion(d, config))
+	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud networking client: %s", err)
 	}
@@ -202,7 +202,7 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("region", GetRegion(d, config))
 
 	// save VpcSubnet tags
-	vpcSubnetV2Client, err := config.networkingV2Client(GetRegion(d, config))
+	vpcSubnetV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 	}
@@ -225,7 +225,7 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	subnetClient, err := config.networkingV1Client(GetRegion(d, config))
+	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud networking client: %s", err)
 	}
@@ -260,7 +260,7 @@ func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	//update tags
 	if d.HasChange("tags") {
-		vpcSubnetV2Client, err := config.networkingV2Client(GetRegion(d, config))
+		vpcSubnetV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
@@ -277,7 +277,7 @@ func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 func resourceVpcSubnetV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*Config)
-	subnetClient, err := config.networkingV1Client(GetRegion(d, config))
+	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud networking client: %s", err)
 	}

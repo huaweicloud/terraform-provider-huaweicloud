@@ -66,7 +66,7 @@ func resourceNetworkingVIPAssociateV2Create(d *schema.ResourceData, meta interfa
 	vipid := d.Get("vip_id").(string)
 	portids := resourceNetworkingPortIDs(d)
 
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -159,7 +159,7 @@ func resourceNetworkingVIPAssociateV2Read(d *schema.ResourceData, meta interface
 	}
 
 	// First see if the port still exists
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -214,7 +214,7 @@ func resourceNetworkingVIPAssociateV2Read(d *schema.ResourceData, meta interface
 
 func resourceNetworkingVIPAssociateV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

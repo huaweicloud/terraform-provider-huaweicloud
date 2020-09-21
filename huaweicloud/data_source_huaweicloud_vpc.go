@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func dataSourceVirtualPrivateCloudVpcV1() *schema.Resource {
+func DataSourceVirtualPrivateCloudVpcV1() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceVirtualPrivateCloudV1Read,
 
@@ -62,7 +62,7 @@ func dataSourceVirtualPrivateCloudVpcV1() *schema.Resource {
 
 func dataSourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vpcClient, err := config.networkingV1Client(GetRegion(d, config))
+	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}

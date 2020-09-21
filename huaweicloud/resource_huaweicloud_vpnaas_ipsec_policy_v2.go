@@ -103,7 +103,7 @@ func resourceVpnIPSecPolicyV2() *schema.Resource {
 
 func resourceVpnIPSecPolicyV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -158,7 +158,7 @@ func resourceVpnIPSecPolicyV2Read(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Retrieve information about IPSec policy: %s", d.Id())
 
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -196,7 +196,7 @@ func resourceVpnIPSecPolicyV2Read(d *schema.ResourceData, meta interface{}) erro
 
 func resourceVpnIPSecPolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -274,7 +274,7 @@ func resourceVpnIPSecPolicyV2Delete(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Destroy IPSec policy: %s", d.Id())
 
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

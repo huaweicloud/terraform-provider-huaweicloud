@@ -136,7 +136,7 @@ func resourceLoadBalancerV2Create(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -179,7 +179,7 @@ func resourceLoadBalancerV2Read(d *schema.ResourceData, meta interface{}) error 
 
 	// Get any security groups on the VIP Port
 	if lb.VipPortID != "" {
-		networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+		networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -238,7 +238,7 @@ func resourceLoadBalancerV2Update(d *schema.ResourceData, meta interface{}) erro
 
 	// Security Groups get updated separately
 	if d.HasChange("security_group_ids") {
-		networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+		networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}

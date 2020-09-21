@@ -66,7 +66,7 @@ func TestAccLBV2Certificate_client(t *testing.T) {
 
 func testAccCheckLBV2CertificateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
+	networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -98,7 +98,7 @@ func testAccCheckLBV2CertificateExists(
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
+		networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}

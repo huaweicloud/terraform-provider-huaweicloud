@@ -107,7 +107,7 @@ func TestAccNetworkingV2Network_multipleSegmentMappings(t *testing.T) {
 
 func testAccCheckNetworkingV2NetworkDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
+	networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -138,7 +138,7 @@ func testAccCheckNetworkingV2NetworkExists(n string, network *networks.Network) 
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
+		networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}

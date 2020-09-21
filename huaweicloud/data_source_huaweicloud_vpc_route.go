@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func dataSourceVPCRouteV2() *schema.Resource {
+func DataSourceVPCRouteV2() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceVpcRouteV2Read,
 
@@ -51,7 +51,7 @@ func dataSourceVPCRouteV2() *schema.Resource {
 
 func dataSourceVpcRouteV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vpcRouteClient, err := config.networkingHwV2Client(GetRegion(d, config))
+	vpcRouteClient, err := config.NetworkingHwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}
