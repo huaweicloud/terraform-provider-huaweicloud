@@ -66,6 +66,20 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "dcs",
 		Version: "v2",
 	},
+
+	// catalog for database
+	"rdsv1": ServiceCatalog{
+		Name:    "rds",
+		Version: "rds/v1",
+	},
+	"rdsv3": ServiceCatalog{
+		Name:    "rds",
+		Version: "v3",
+	},
+	"ddsv3": ServiceCatalog{
+		Name:    "dds",
+		Version: "v3",
+	},
 	"cassandra": ServiceCatalog{
 		Name:    "gaussdb-nosql",
 		Version: "v3",
@@ -102,5 +116,32 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:             "kms",
 		Version:          "v1.0",
 		WithOutProjectID: true,
+	},
+
+	// catalog for Enterprise Intelligence
+	"mrs": ServiceCatalog{
+		Name:    "mrs",
+		Version: "v1.1",
+	},
+	"smn": ServiceCatalog{
+		Name:         "smn",
+		Version:      "v2",
+		ResourceBase: "notifications",
+	},
+
+	// catalog for Application
+	"apig": ServiceCatalog{
+		Name:             "apig",
+		Version:          "v1.0",
+		ResourceBase:     "apigw",
+		WithOutProjectID: true,
+	},
+	"dcsv1": ServiceCatalog{
+		Name:    "dcs",
+		Version: "v1.0",
+	},
+	"dms": ServiceCatalog{
+		Name:    "dms",
+		Version: "v1.0",
 	},
 }

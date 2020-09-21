@@ -156,7 +156,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud RDS v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://rds.%s.%s/v1/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmt.Sprintf("https://rds.%s.%s/rds/v1/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("RDS v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
