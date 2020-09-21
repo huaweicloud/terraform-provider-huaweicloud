@@ -52,8 +52,36 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "functiongraph",
 		Version: "v2",
 	},
-	// ******* client for Compute end *******
+	// ******* client for Compute end  *******//
 
+	// ******* client for storage start ******//
+	"blockStorageV2": ServiceCatalog{
+		Name:    "evs",
+		Version: "v2",
+	},
+	"blockStorageV3": ServiceCatalog{
+		Name:    "evs",
+		Version: "v3",
+	},
+	"evsV2": {
+		Name:    "evs",
+		Version: "v2",
+	},
+	"sfsV2": {
+		Name:    "sfs",
+		Version: "v2",
+	},
+	"csbsV1": {
+		Name:    "csbs",
+		Version: "v1",
+	},
+	"vbsV2": {
+		Name:    "vbs",
+		Version: "v2",
+	},
+	// ******* client for storage end   ******//
+
+	// ******* client for network start ******//
 	"network": ServiceCatalog{
 		Name:             "vpc",
 		Version:          "v1",
@@ -64,6 +92,28 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v2.0",
 		WithOutProjectID: true,
 	},
+	"networkingHwV2": ServiceCatalog{
+		Name:             "vpc",
+		Version:          "v2.0",
+		WithOutProjectID: true,
+	},
+	"natV2": ServiceCatalog{
+		Name:             "nat",
+		Version:          "v2.0",
+		WithOutProjectID: true,
+	},
+	"loadElasticLoadBalancer": ServiceCatalog{
+		Name:             "elb",
+		Version:          "v1.0",
+		WithOutProjectID: true,
+	},
+	"fwV2": ServiceCatalog{
+		Name:             "vpc",
+		Version:          "v2.0",
+		WithOutProjectID: true,
+	},
+	// ******* client for network end   ******//
+
 	"vpc": ServiceCatalog{
 		Name:             "vpc",
 		Version:          "v1",
@@ -100,11 +150,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"bss": ServiceCatalog{
 		Name:             "bss",
 		Version:          "v1.0",
-		WithOutProjectID: true,
-	},
-	"fwV2": ServiceCatalog{
-		Name:             "vpc",
-		Version:          "v2.0",
 		WithOutProjectID: true,
 	},
 }
