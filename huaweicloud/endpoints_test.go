@@ -200,7 +200,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	t.Logf("GeminiDB/Cassandra endpoint:\t %s", actualURL)
 
 	// test the endpoint of gaussdb service
-	serviceClient, err = config.NewServiceClient("gaussdb", OS_REGION_NAME)
+	serviceClient, err = config.gaussdbV3Client(OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud gaussdb client: %s", err)
 	}

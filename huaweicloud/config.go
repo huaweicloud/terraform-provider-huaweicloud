@@ -714,6 +714,10 @@ func (c *Config) openGaussV3Client(region string) (*golangsdk.ServiceClient, err
 	return c.NewServiceClient("opengauss", region)
 }
 
+func (c *Config) gaussdbV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("gaussdb", region)
+}
+
 // ********** client for Others **********
 func (c *Config) BssV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return huaweisdk.NewBSSV1(c.HwClient, golangsdk.EndpointOpts{
