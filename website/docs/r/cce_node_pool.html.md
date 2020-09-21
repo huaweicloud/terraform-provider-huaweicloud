@@ -30,6 +30,7 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
   max_node_count           = 10
   scale_down_cooldown_time = 100
   priority                 = 1
+  type                     = "vm"
 
   root_volume {
     size       = 40
@@ -52,6 +53,8 @@ The following arguments are supported:
 * `initial_node_count` - (Required) Initial number of expected nodes in the node pool.
 
 * `flavor_id` - (Required) Specifies the flavor id. Changing this parameter will create a new resource.
+
+*  `type` - (Required) Node Pool type. Possible values are: "vm" and "ElasticBMS".
  
 * `availability_zone` - (Optional) specify the name of the available partition (AZ). Default value is random 
     to create nodes in a random AZ in the node pool.
