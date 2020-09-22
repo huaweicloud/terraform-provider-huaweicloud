@@ -336,24 +336,24 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 		t.Fatalf("DMS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("DMS endpoint:\t %s", actualURL)
-
-	testEndpointOfCompute(config, t)
-
-	testEndpointOfStorage(config, t)
-
-	testEndpointOfNetWork(config, t)
 }
 
-// testEndpointOfCompute test for endpoints of the clients used in ecs
+// TestAccServiceEndpoints_Compute test for endpoints of the clients used in ecs
 // include computeV1Client,computeV11Client,computeV2Client,autoscalingV1Client,imageV2Client,
 // cceV3Client,cceAddonV3Client,cciV1Client and FgsV2Client
-func testEndpointOfCompute(config *Config, t *testing.T) {
+func TestAccServiceEndpoints_Compute(t *testing.T) {
 
+	testProvider := Provider().(*schema.Provider)
+	raw := make(map[string]interface{})
+	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
+	if err != nil {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	}
+
+	config := testProvider.Meta().(*Config)
 	var expectedURL, actualURL string
-	var (
-		serviceClient *golangsdk.ServiceClient
-		err           error
-	)
+	var serviceClient *golangsdk.ServiceClient
+
 	// test for computeV1Client
 	serviceClient, err = config.computeV1Client(OS_REGION_NAME)
 	if err != nil {
@@ -444,16 +444,21 @@ func testEndpointOfCompute(config *Config, t *testing.T) {
 	compareURL(expectedURL, actualURL, "fgs", "v2", t)
 }
 
-// testEndpointOfStorage test for the endpoints of the clients used in storage
+// TestAccServiceEndpoints_Storage test for the endpoints of the clients used in storage
 // include blockStorageV2Client,blockStorageV3Client,loadEVSV2Client,sfsV2Client
 // sfsV1Client,csbsV1Client and vbsV2Client
-func testEndpointOfStorage(config *Config, t *testing.T) {
+func TestAccServiceEndpoints_Storage(t *testing.T) {
 
+	testProvider := Provider().(*schema.Provider)
+	raw := make(map[string]interface{})
+	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
+	if err != nil {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	}
+
+	config := testProvider.Meta().(*Config)
 	var expectedURL, actualURL string
-	var (
-		serviceClient *golangsdk.ServiceClient
-		err           error
-	)
+	var serviceClient *golangsdk.ServiceClient
 
 	// test for blockStorageV2Client
 	serviceClient, err = nil, nil
@@ -527,15 +532,20 @@ func testEndpointOfStorage(config *Config, t *testing.T) {
 
 }
 
-// testEndpointOfNetWork test for the endpoints of the clients used in network
+// TestAccServiceEndpoints_Network test for the endpoints of the clients used in network
 // include networkingV1Client, networkingV2Client, networkingHwV2Client, natV2Client, loadElasticLoadBalancerClient and fwV2Client
-func testEndpointOfNetWork(config *Config, t *testing.T) {
+func TestAccServiceEndpoints_Network(t *testing.T) {
 
+	testProvider := Provider().(*schema.Provider)
+	raw := make(map[string]interface{})
+	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
+	if err != nil {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	}
+
+	config := testProvider.Meta().(*Config)
 	var expectedURL, actualURL string
-	var (
-		serviceClient *golangsdk.ServiceClient
-		err           error
-	)
+	var serviceClient *golangsdk.ServiceClient
 
 	// test endpoint of network v1 service
 	serviceClient, err = config.networkingV1Client(OS_REGION_NAME)
