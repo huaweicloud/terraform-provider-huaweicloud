@@ -152,17 +152,17 @@ func testAccCCENodeV3_basic(rName string) string {
 resource "huaweicloud_cce_node_v3" "test" {
   cluster_id        = huaweicloud_cce_cluster_v3.test.id
   name              = "%s"
-  flavor_id         = "s3.large.2"
+  flavor_id         = "s6.small.1"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair_v2.test.name
 
   root_volume {
     size       = 40
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
   data_volumes {
     size       = 100
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
 }
 `, testAccCCENodeV3_Base(rName), rName)
@@ -175,17 +175,17 @@ func testAccCCENodeV3_update(rName, updateName string) string {
 resource "huaweicloud_cce_node_v3" "test" {
   cluster_id        = huaweicloud_cce_cluster_v3.test.id
   name              = "%s"
-  flavor_id         = "s3.large.2"
+  flavor_id         = "s6.small.1"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair_v2.test.name
 
   root_volume {
     size       = 40
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
   data_volumes {
     size       = 100
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
 }
 `, testAccCCENodeV3_Base(rName), updateName)
@@ -198,17 +198,17 @@ func testAccCCENodeV3_auto_assign_eip(rName string) string {
 resource "huaweicloud_cce_node_v3" "test" {
   cluster_id        = huaweicloud_cce_cluster_v3.test.id
   name              = "%s"
-  flavor_id         = "s3.large.2"
+  flavor_id         = "s6.small.1"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair_v2.test.name
 
   root_volume {
     size       = 40
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
   data_volumes {
     size       = 100
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
 
   // Assign EIP
@@ -239,17 +239,17 @@ resource "huaweicloud_vpc_eip_v1" "test" {
 resource "huaweicloud_cce_node_v3" "test" {
   cluster_id        = huaweicloud_cce_cluster_v3.test.id
   name              = "%s"
-  flavor_id         = "s3.large.2"
+  flavor_id         = "s6.small.1"
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   key_pair          = huaweicloud_compute_keypair_v2.test.name
 
   root_volume {
     size       = 40
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
   data_volumes {
     size       = 100
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
 
   // Assign existing EIP
