@@ -149,7 +149,7 @@ func resourceEvsVolumeV3Create(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
-
+	blockStorageClient.Endpoint = blockStorageClient.ResourceBase
 	if !hasFilledOpt(d, "backup_id") && !hasFilledOpt(d, "size") {
 		return fmt.Errorf("Missing required argument: 'size' is required, but no definition was found.")
 	}
