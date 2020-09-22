@@ -343,6 +343,8 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 // cceV3Client,cceAddonV3Client,cciV1Client and FgsV2Client
 func TestAccServiceEndpoints_Compute(t *testing.T) {
 
+	testAccPreCheckServiceEndpoints(t)
+
 	testProvider := Provider().(*schema.Provider)
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
@@ -449,6 +451,8 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 // sfsV1Client,csbsV1Client and vbsV2Client
 func TestAccServiceEndpoints_Storage(t *testing.T) {
 
+	testAccPreCheckServiceEndpoints(t)
+
 	testProvider := Provider().(*schema.Provider)
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
@@ -529,12 +533,13 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	expectedURL = fmt.Sprintf("https://vbs.%s.%s/v2/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "vbsV2", "v2", t)
-
 }
 
 // TestAccServiceEndpoints_Network test for the endpoints of the clients used in network
 // include networkingV1Client, networkingV2Client, networkingHwV2Client, natV2Client, loadElasticLoadBalancerClient and fwV2Client
 func TestAccServiceEndpoints_Network(t *testing.T) {
+
+	testAccPreCheckServiceEndpoints(t)
 
 	testProvider := Provider().(*schema.Provider)
 	raw := make(map[string]interface{})
