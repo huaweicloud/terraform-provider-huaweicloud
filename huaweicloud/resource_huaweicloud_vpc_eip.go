@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func resourceVpcEIPV1() *schema.Resource {
+func ResourceVpcEIPV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVpcEIPV1Create,
 		Read:   resourceVpcEIPV1Read,
@@ -115,7 +115,7 @@ func resourceVpcEIPV1() *schema.Resource {
 
 func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV1Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating networking client: %s", err)
 	}
@@ -156,7 +156,7 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV1Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating networking client: %s", err)
 	}
@@ -199,7 +199,7 @@ func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVpcEIPV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV1Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating networking client: %s", err)
 	}
@@ -246,7 +246,7 @@ func resourceVpcEIPV1Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVpcEIPV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV1Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating VPC client: %s", err)
 	}

@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 )
 
-func resourceVirtualPrivateCloudV1() *schema.Resource {
+func ResourceVirtualPrivateCloudV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVirtualPrivateCloudV1Create,
 		Read:   resourceVirtualPrivateCloudV1Read,
@@ -78,7 +78,7 @@ func resourceVirtualPrivateCloudV1() *schema.Resource {
 
 func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vpcClient, err := config.networkingV1Client(GetRegion(d, config))
+	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
@@ -117,7 +117,7 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		vpcV2Client, err := config.networkingV2Client(GetRegion(d, config))
+		vpcV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
 		}
@@ -132,7 +132,7 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 
 func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vpcClient, err := config.networkingV1Client(GetRegion(d, config))
+	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}
@@ -165,7 +165,7 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 	d.Set("routes", routes)
 
 	// save VirtualPrivateCloudV2 tags
-	vpcV2Client, err := config.networkingV2Client(GetRegion(d, config))
+	vpcV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
 	}
@@ -188,7 +188,7 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 
 func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vpcClient, err := config.networkingV1Client(GetRegion(d, config))
+	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc: %s", err)
 	}
@@ -209,7 +209,7 @@ func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{
 
 	//update tags
 	if d.HasChange("tags") {
-		vpcV2Client, err := config.networkingV2Client(GetRegion(d, config))
+		vpcV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
 		}
@@ -226,7 +226,7 @@ func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{
 func resourceVirtualPrivateCloudV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*Config)
-	vpcClient, err := config.networkingV1Client(GetRegion(d, config))
+	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud vpc: %s", err)
 	}

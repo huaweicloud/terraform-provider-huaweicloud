@@ -372,11 +372,11 @@ func getGWPortFromSubnet(config *Config, subnetID string) (string, error) {
 	var gatewayIP string
 	var gatewayPort string
 
-	subnetClient, err := config.networkingV1Client(config.Region)
+	subnetClient, err := config.NetworkingV1Client(config.Region)
 	if err != nil {
 		return "", fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
 	}
-	networkingClient, err := config.networkingV2Client(config.Region)
+	networkingClient, err := config.NetworkingV2Client(config.Region)
 	if err != nil {
 		return "", fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

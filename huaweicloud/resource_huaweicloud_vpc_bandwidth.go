@@ -53,8 +53,8 @@ func resourceVpcBandWidthV2() *schema.Resource {
 
 func resourceVpcBandWidthV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
-	networkingV1Client, err := config.networkingV1Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	NetworkingV1Client, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating networking client: %s", err)
 	}
@@ -76,7 +76,7 @@ func resourceVpcBandWidthV2Create(d *schema.ResourceData, meta interface{}) erro
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"NORMAL"},
 		Pending:    []string{"CREATING"},
-		Refresh:    waitForBandwidth(networkingV1Client, b.ID),
+		Refresh:    waitForBandwidth(NetworkingV1Client, b.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      3 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -96,7 +96,7 @@ func resourceVpcBandWidthV2Create(d *schema.ResourceData, meta interface{}) erro
 
 func resourceVpcBandWidthV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating networking client: %s", err)
 	}
@@ -125,7 +125,7 @@ func resourceVpcBandWidthV2Update(d *schema.ResourceData, meta interface{}) erro
 
 func resourceVpcBandWidthV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV1Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating networking client: %s", err)
 	}
@@ -144,8 +144,8 @@ func resourceVpcBandWidthV2Read(d *schema.ResourceData, meta interface{}) error 
 
 func resourceVpcBandWidthV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
-	networkingV1Client, err := config.networkingV1Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	NetworkingV1Client, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating networking client: %s", err)
 	}
@@ -158,7 +158,7 @@ func resourceVpcBandWidthV2Delete(d *schema.ResourceData, meta interface{}) erro
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
-		Refresh:    waitForBandwidth(networkingV1Client, d.Id()),
+		Refresh:    waitForBandwidth(NetworkingV1Client, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      3 * time.Second,
 		MinTimeout: 3 * time.Second,
