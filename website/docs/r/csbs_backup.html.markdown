@@ -18,9 +18,10 @@ This is an alternative to `huaweicloud_csbs_backup_v1`
 variable "backup_name" {}
 variable "resource_id" {}
 
-resource "huaweicloud_csbs_backup" "backup_v1" {
+resource "huaweicloud_csbs_backup" "backup" {
   backup_name   = var.backup_name
   resource_id   = var.resource_id
+  description   = "create backup"
   resource_type = "OS::Nova::Server"
 }
 
@@ -42,6 +43,10 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - It specifies the status of backup.
 
 * `backup_record_id` - Specifies backup record ID.
+
+* `created_at` - Creation time.
+
+* `auto_trigger` - Whether automatic trigger is enabled.
 
 * `volume_backups` block supports the following arguments:
 
@@ -95,5 +100,5 @@ In addition to all arguments above, the following attributes are exported:
 Backup can be imported using  `backup_record_id`, e.g.
 
 ```
-$ terraform import huaweicloud_csbs_backup.backup_v1.backup_v1 7056d636-ac60-4663-8a6c-82d3c32c1c64
+$ terraform import huaweicloud_csbs_backup.backup 7056d636-ac60-4663-8a6c-82d3c32c1c64
 ```
