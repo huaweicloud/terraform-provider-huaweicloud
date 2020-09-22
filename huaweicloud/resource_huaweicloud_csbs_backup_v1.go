@@ -63,6 +63,14 @@ func resourceCSBSBackupV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"auto_trigger": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 			"volume_backups": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -272,9 +280,11 @@ func resourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("description", backupObject.Description)
 	d.Set("resource_type", backupObject.ResourceType)
 	d.Set("status", backupObject.Status)
+	d.Set("created_at", backupObject.CreatedAt.Format(time.RFC3339))
 	d.Set("volume_backups", flattenCSBSVolumeBackups(backupObject))
 	d.Set("vm_metadata", flattenCSBSVMMetadata(backupObject))
 	d.Set("backup_record_id", backupObject.CheckpointId)
+	d.Set("auto_trigger", backupObject.ExtendInfo.AutoTrigger)
 
 	d.Set("region", GetRegion(d, config))
 
