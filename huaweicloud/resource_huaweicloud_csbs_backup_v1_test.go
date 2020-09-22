@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,6 +14,7 @@ import (
 
 func TestAccCSBSBackupV1_basic(t *testing.T) {
 	var backups backup.Backup
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,17 +22,17 @@ func TestAccCSBSBackupV1_basic(t *testing.T) {
 		CheckDestroy: testAccCSBSBackupV1Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCSBSBackupV1_basic,
+				Config: testAccCSBSBackupV1_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCSBSBackupV1Exists("huaweicloud_csbs_backup_v1.csbs", &backups),
+					testAccCSBSBackupV1Exists("huaweicloud_csbs_backup.csbs", &backups),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_csbs_backup_v1.csbs", "backup_name", "csbs-test1"),
+						"huaweicloud_csbs_backup.csbs", "backup_name", rName),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_csbs_backup_v1.csbs", "resource_type", "OS::Nova::Server"),
+						"huaweicloud_csbs_backup.csbs", "resource_type", "OS::Nova::Server"),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_csbs_backup_v1.csbs",
+				ResourceName:      "huaweicloud_csbs_backup.csbs",
 				ImportState:       true,
 				ImportStateVerify: false,
 			},
@@ -40,6 +42,7 @@ func TestAccCSBSBackupV1_basic(t *testing.T) {
 
 func TestAccCSBSBackupV1_timeout(t *testing.T) {
 	var backups backup.Backup
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -47,9 +50,9 @@ func TestAccCSBSBackupV1_timeout(t *testing.T) {
 		CheckDestroy: testAccCSBSBackupV1Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCSBSBackupV1_timeout,
+				Config: testAccCSBSBackupV1_timeout(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCSBSBackupV1Exists("huaweicloud_csbs_backup_v1.csbs", &backups),
+					testAccCSBSBackupV1Exists("huaweicloud_csbs_backup.csbs", &backups),
 				),
 			},
 		},
@@ -64,7 +67,7 @@ func testAccCSBSBackupV1Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_csbs_backup_v1" {
+		if rs.Type != "huaweicloud_csbs_backup" {
 			continue
 		}
 
@@ -109,13 +112,14 @@ func testAccCSBSBackupV1Exists(n string, backups *backup.Backup) resource.TestCh
 	}
 }
 
-var testAccCSBSBackupV1_basic = fmt.Sprintf(`
+func testAccCSBSBackupV1_basic(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name = "instance_1"
-  image_id = "%s"
-  security_groups = ["default"]
+  name              = "%s"
+  image_id          = "%s"
+  security_groups   = ["default"]
   availability_zone = "%s"
-  flavor_id = "%s"
+  flavor_id         = "%s"
   metadata = {
     foo = "bar"
   }
@@ -123,21 +127,23 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-resource "huaweicloud_csbs_backup_v1" "csbs" {
-  backup_name      = "csbs-test1"
+resource "huaweicloud_csbs_backup" "csbs" {
+  backup_name      = "%s"
   description      = "test-code"
-  resource_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
-  resource_type = "OS::Nova::Server"
+  resource_id      = huaweicloud_compute_instance_v2.instance_1.id
+  resource_type    = "OS::Nova::Server"
 }
-`, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_FLAVOR_ID, OS_NETWORK_ID)
+`, rName, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_FLAVOR_ID, OS_NETWORK_ID, rName)
+}
 
-var testAccCSBSBackupV1_timeout = fmt.Sprintf(`
+func testAccCSBSBackupV1_timeout(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name = "instance_1"
-  image_id = "%s"
-  security_groups = ["default"]
+  name              = "%s"
+  image_id          = "%s"
+  security_groups   = ["default"]
   availability_zone = "%s"
-  flavor_id = "%s"
+  flavor_id         = "%s"
   metadata = {
     foo = "bar"
   }
@@ -145,10 +151,11 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
     uuid = "%s"
   }
 }
-resource "huaweicloud_csbs_backup_v1" "csbs" {
-  backup_name      = "csbs-test1"
+resource "huaweicloud_csbs_backup" "csbs" {
+  backup_name      = "%s"
   description      = "test-code"
-  resource_id = "${huaweicloud_compute_instance_v2.instance_1.id}"
-  resource_type = "OS::Nova::Server"
+  resource_id      = huaweicloud_compute_instance_v2.instance_1.id
+  resource_type    = "OS::Nova::Server"
 }
-`, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_FLAVOR_ID, OS_NETWORK_ID)
+`, rName, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_FLAVOR_ID, OS_NETWORK_ID, rName)
+}
