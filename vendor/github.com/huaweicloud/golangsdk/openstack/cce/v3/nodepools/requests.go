@@ -108,6 +108,8 @@ type CreateMetaData struct {
 
 // CreateSpec describes Node pools specification
 type CreateSpec struct {
+	//Node pool type
+	Type string `json:"type" required:"true"`
 	// Node template
 	NodeTemplate nodes.Spec `json:"nodeTemplate" required:"true"`
 	// Initial number of expected nodes

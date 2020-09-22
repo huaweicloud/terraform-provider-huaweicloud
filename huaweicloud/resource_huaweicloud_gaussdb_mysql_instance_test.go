@@ -34,7 +34,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 
 func testAccCheckGaussDBInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.NewServiceClient("gaussdb", OS_REGION_NAME)
+	client, err := config.gaussdbV3Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -65,7 +65,7 @@ func testAccCheckGaussDBInstanceExists(n string, instance *instances.TaurusDBIns
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.NewServiceClient("gaussdb", OS_REGION_NAME)
+		client, err := config.gaussdbV3Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 		}

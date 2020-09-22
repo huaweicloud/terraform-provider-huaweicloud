@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/projects"
 )
 
-func resourceIdentityProjectV3() *schema.Resource {
+func ResourceIdentityProjectV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityProjectV3Create,
 		Read:   resourceIdentityProjectV3Read,
@@ -53,7 +53,7 @@ func resourceIdentityProjectV3() *schema.Resource {
 
 func resourceIdentityProjectV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	identityClient, err := config.identityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud identity client: %s", err)
 	}
@@ -78,7 +78,7 @@ func resourceIdentityProjectV3Create(d *schema.ResourceData, meta interface{}) e
 
 func resourceIdentityProjectV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	identityClient, err := config.identityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud identity client: %s", err)
 	}
@@ -103,7 +103,7 @@ func resourceIdentityProjectV3Read(d *schema.ResourceData, meta interface{}) err
 
 func resourceIdentityProjectV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	identityClient, err := config.identityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud identity client: %s", err)
 	}
@@ -134,7 +134,7 @@ func resourceIdentityProjectV3Update(d *schema.ResourceData, meta interface{}) e
 
 func resourceIdentityProjectV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	identityClient, err := config.identityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud identity client: %s", err)
 	}
