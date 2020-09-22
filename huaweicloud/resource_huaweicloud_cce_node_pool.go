@@ -45,7 +45,7 @@ func resourceCCENodePool() *schema.Resource {
 			},
 			"type": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"root_volume": {
