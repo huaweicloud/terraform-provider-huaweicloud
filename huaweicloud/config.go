@@ -549,15 +549,15 @@ func (c *Config) vbsV2Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 // ********** client for Network **********
-func (c *Config) networkingV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) NetworkingV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("network", region)
 }
 
-func (c *Config) networkingV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) NetworkingV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("networkV2", region)
 }
 
-func (c *Config) networkingHwV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) NetworkingHwV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("networkingHwV2", region)
 }
 

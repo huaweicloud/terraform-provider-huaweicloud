@@ -548,7 +548,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	var serviceClient *golangsdk.ServiceClient
 
 	// test endpoint of network v1 service
-	serviceClient, err = config.networkingV1Client(OS_REGION_NAME)
+	serviceClient, err = config.NetworkingV1Client(OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud networking v1 client: %s", err)
 	}
@@ -558,7 +558,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 
 	// test endpoint of network v2 service
 	serviceClient, err = nil, nil
-	serviceClient, err = config.networkingV2Client(OS_REGION_NAME)
+	serviceClient, err = config.NetworkingV2Client(OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud networking v2 client: %s", err)
 	}
@@ -568,7 +568,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 
 	// test endpoint of networkingHw v2
 	serviceClient, err = nil, nil
-	serviceClient, err = config.networkingHwV2Client(OS_REGION_NAME)
+	serviceClient, err = config.NetworkingHwV2Client(OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud networkingHw v2 client: %s", err)
 	}
