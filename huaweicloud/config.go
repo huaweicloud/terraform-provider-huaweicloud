@@ -487,52 +487,52 @@ func (c *Config) computeV1Client(region string) (*golangsdk.ServiceClient, error
 }
 
 func (c *Config) computeV11Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("computeV11", region)
+	return c.NewServiceClient("ecsv11", region)
 }
 
 func (c *Config) computeV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("computeV2", region)
+	return c.NewServiceClient("ecsv21", region)
 }
 
 func (c *Config) autoscalingV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("autoscalingV1", region)
+	return c.NewServiceClient("autoscalingv1", region)
 }
 
 func (c *Config) imageV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("imageV2", region)
+	return c.NewServiceClient("imagev2", region)
 }
 
 func (c *Config) cceV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("cceV3", region)
+	return c.NewServiceClient("ccev3", region)
 }
 
 func (c *Config) cceAddonV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("cceAddonV3", region)
+	return c.NewServiceClient("cceaddonv3", region)
 }
 
 func (c *Config) cciV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("cciV1", region)
+	return c.NewServiceClient("cciv1", region)
 }
 
 func (c *Config) FgsV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("FgsV2", region)
+	return c.NewServiceClient("fgsv2", region)
 }
 
 // ********** client for Storage **********
 func (c *Config) blockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("blockStorageV2", region)
+	return c.NewServiceClient("blockStoragev2", region)
 }
 
 func (c *Config) blockStorageV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("blockStorageV3", region)
+	return c.NewServiceClient("blockStoragev3", region)
 }
 
 func (c *Config) loadEVSV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("evsV2", region)
+	return c.NewServiceClient("blockStoragev2", region)
 }
 
 func (c *Config) sfsV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("sfsV2", region)
+	return c.NewServiceClient("sfsv2", region)
 }
 
 func (c *Config) sfsV1Client(region string) (*golangsdk.ServiceClient, error) {
@@ -540,12 +540,12 @@ func (c *Config) sfsV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) csbsV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("csbsV1", region)
+	return c.NewServiceClient("csbsv1", region)
 }
 
 func (c *Config) vbsV2Client(region string) (*golangsdk.ServiceClient, error) {
 
-	return c.NewServiceClient("vbsV2", region)
+	return c.NewServiceClient("vbsv2", region)
 }
 
 // ********** client for Network **********
@@ -554,15 +554,15 @@ func (c *Config) NetworkingV1Client(region string) (*golangsdk.ServiceClient, er
 }
 
 func (c *Config) NetworkingV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("networkV2", region)
+	return c.NewServiceClient("networkv2", region)
 }
 
 func (c *Config) NetworkingHwV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("networkingHwV2", region)
+	return c.NewServiceClient("networkv2", region)
 }
 
 func (c *Config) natV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("natV2", region)
+	return c.NewServiceClient("natv2", region)
 }
 
 func (c *Config) loadElasticLoadBalancerClient(region string) (*golangsdk.ServiceClient, error) {
@@ -570,7 +570,7 @@ func (c *Config) loadElasticLoadBalancerClient(region string) (*golangsdk.Servic
 }
 
 func (c *Config) fwV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("fwV2", region)
+	return c.NewServiceClient("networkv2", region)
 }
 
 // ********** client for Management **********

@@ -38,65 +38,61 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "ecs",
 		Version: "v1",
 	},
-	"computeV11": ServiceCatalog{
+	"ecsv11": ServiceCatalog{
 		Name:    "ecs",
 		Version: "v1.1",
 	},
-	"computeV2": ServiceCatalog{
+	"ecsv21": ServiceCatalog{
 		Name:    "ecs",
 		Version: "v2.1",
 	},
-	"autoscalingV1": ServiceCatalog{
+	"autoscalingv1": ServiceCatalog{
 		Name:    "as",
 		Version: "autoscaling-api/v1",
 	},
-	"imageV2": ServiceCatalog{
+	"imagev2": ServiceCatalog{
 		Name:             "ims",
 		Version:          "v2",
 		WithOutProjectID: true,
 	},
-	"cceV3": ServiceCatalog{
+	"ccev3": ServiceCatalog{
 		Name:    "cce",
 		Version: "api/v3/projects",
 	},
-	"cceAddonV3": ServiceCatalog{
+	"cceaddonv3": ServiceCatalog{
 		Name:             "cce",
 		Version:          "api/v3",
 		WithOutProjectID: true,
 	},
-	"cciV1": ServiceCatalog{
+	"cciv1": ServiceCatalog{
 		Name:             "cci",
 		Version:          "apis/networking.cci.io/v1beta1",
 		WithOutProjectID: true,
 	},
-	"FgsV2": ServiceCatalog{
+	"fgsv2": ServiceCatalog{
 		Name:    "functiongraph",
 		Version: "v2",
 	},
 	// ******* client for Compute end  *******//
 
 	// ******* client for storage start ******//
-	"blockStorageV2": ServiceCatalog{
+	"blockStoragev2": ServiceCatalog{
 		Name:    "evs",
 		Version: "v2",
 	},
-	"blockStorageV3": ServiceCatalog{
+	"blockStoragev3": ServiceCatalog{
 		Name:    "evs",
 		Version: "v3",
 	},
-	"evsV2": ServiceCatalog{
-		Name:    "evs",
-		Version: "v2",
-	},
-	"sfsV2": ServiceCatalog{
+	"sfsv2": ServiceCatalog{
 		Name:    "sfs",
 		Version: "v2",
 	},
-	"csbsV1": ServiceCatalog{
+	"csbsv1": ServiceCatalog{
 		Name:    "csbs",
 		Version: "v1",
 	},
-	"vbsV2": ServiceCatalog{
+	"vbsv2": ServiceCatalog{
 		Name:    "vbs",
 		Version: "v2",
 	},
@@ -108,17 +104,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v1",
 		WithOutProjectID: true,
 	},
-	"networkV2": ServiceCatalog{
+	"networkv2": ServiceCatalog{
 		Name:             "vpc",
 		Version:          "v2.0",
 		WithOutProjectID: true,
 	},
-	"networkingHwV2": ServiceCatalog{
-		Name:             "vpc",
-		Version:          "v2.0",
-		WithOutProjectID: true,
-	},
-	"natV2": ServiceCatalog{
+	"natv2": ServiceCatalog{
 		Name:             "nat",
 		Version:          "v2.0",
 		WithOutProjectID: true,
@@ -128,7 +119,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v1.0",
 		WithOutProjectID: true,
 	},
-	"fwV2": ServiceCatalog{
+	"fwv2": ServiceCatalog{
 		Name:             "vpc",
 		Version:          "v2.0",
 		WithOutProjectID: true,
