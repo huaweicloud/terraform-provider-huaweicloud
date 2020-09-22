@@ -100,5 +100,5 @@ In addition to all arguments above, the following attributes are exported:
 Backup can be imported using  `backup_record_id`, e.g.
 
 ```
-$ terraform import huaweicloud_csbs_backup.backup.backup 7056d636-ac60-4663-8a6c-82d3c32c1c64
+$ terraform import huaweicloud_csbs_backup.backup 7056d636-ac60-4663-8a6c-82d3c32c1c64
 ```
