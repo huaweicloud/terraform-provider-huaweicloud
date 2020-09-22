@@ -57,7 +57,7 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 	var nextHop string = d.Get("next_hop").(string)
 
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -115,7 +115,7 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 	routerId := d.Get("router_id").(string)
 
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -177,7 +177,7 @@ func resourceNetworkingRouterRouteV2Delete(d *schema.ResourceData, meta interfac
 
 	config := meta.(*Config)
 
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

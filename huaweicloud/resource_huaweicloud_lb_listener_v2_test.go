@@ -42,7 +42,7 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 
 func testAccCheckLBV2ListenerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
+	networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -73,7 +73,7 @@ func testAccCheckLBV2ListenerExists(n string, listener *listeners.Listener) reso
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
+		networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}

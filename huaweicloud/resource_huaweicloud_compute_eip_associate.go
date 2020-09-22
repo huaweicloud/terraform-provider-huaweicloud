@@ -119,7 +119,7 @@ func resourceComputeFloatingIPAssociateV2Read(d *schema.ResourceData, meta inter
 	// Now check and see whether the floating IP still exists.
 	// First try to do this by querying the Network API.
 	networkEnabled := true
-	networkClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		networkEnabled = false
 	}

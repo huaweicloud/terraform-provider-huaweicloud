@@ -45,7 +45,7 @@ func TestAccVpcBandWidthV2_basic(t *testing.T) {
 
 func testAccCheckVpcBandWidthV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.networkingV1Client(OS_REGION_NAME)
+	networkingClient, err := config.NetworkingV1Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud networking client: %s", err)
 	}
@@ -76,7 +76,7 @@ func testAccCheckVpcBandWidthV2Exists(n string, bandwidth *bandwidths.BandWidth)
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.networkingV1Client(OS_REGION_NAME)
+		networkingClient, err := config.NetworkingV1Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud networking client: %s", err)
 		}

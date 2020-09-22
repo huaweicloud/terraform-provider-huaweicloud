@@ -429,8 +429,8 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 	// Try to call API of Huawei ECS instead of OpenStack
 	if !hasFilledOpt(d, "block_device") && !hasFilledOpt(d, "metadata") {
 		computeV11Client, err := config.computeV11Client(GetRegion(d, config))
-		vpcClient, err := config.networkingV1Client(GetRegion(d, config))
-		sgClient, err := config.networkingV2Client(GetRegion(d, config))
+		vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
+		sgClient, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud Client: %s", err)
 		}

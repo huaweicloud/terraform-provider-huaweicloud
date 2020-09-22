@@ -25,7 +25,7 @@ func dataSourceVirtualPrivateCloudVpcIdsV1() *schema.Resource {
 
 func dataSourceVirtualPrivateCloudIdsV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vpcClient, err := config.networkingV1Client(GetRegion(d, config))
+	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}

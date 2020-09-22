@@ -144,7 +144,7 @@ func resourceVpnSiteConnectionV2() *schema.Resource {
 func resourceVpnSiteConnectionV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -217,7 +217,7 @@ func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Retrieve information about site connection: %s", d.Id())
 
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -266,7 +266,7 @@ func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) e
 func resourceVpnSiteConnectionV2Update(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -379,7 +379,7 @@ func resourceVpnSiteConnectionV2Delete(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Destroy service: %s", d.Id())
 
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

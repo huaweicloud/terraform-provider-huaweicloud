@@ -101,7 +101,7 @@ func resourceL7PolicyV2() *schema.Resource {
 
 func resourceL7PolicyV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.networkingV2Client(GetRegion(d, config))
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -191,7 +191,7 @@ func resourceL7PolicyV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceL7PolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.networkingV2Client(GetRegion(d, config))
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -218,7 +218,7 @@ func resourceL7PolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceL7PolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.networkingV2Client(GetRegion(d, config))
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -318,7 +318,7 @@ func resourceL7PolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceL7PolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.networkingV2Client(GetRegion(d, config))
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -368,7 +368,7 @@ func resourceL7PolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
 
 func resourceL7PolicyV2Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	lbClient, err := config.networkingV2Client(GetRegion(d, config))
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return nil, fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

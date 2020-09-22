@@ -68,7 +68,7 @@ func resourceVpcPeeringConnectionAccepterV2() *schema.Resource {
 
 func resourceVPCPeeringAccepterV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	peeringClient, err := config.networkingHwV2Client(GetRegion(d, config))
+	peeringClient, err := config.NetworkingHwV2Client(GetRegion(d, config))
 
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Peering client: %s", err)
@@ -125,7 +125,7 @@ func resourceVPCPeeringAccepterV2Create(d *schema.ResourceData, meta interface{}
 
 func resourceVpcPeeringAccepterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	peeringclient, err := config.networkingHwV2Client(GetRegion(d, config))
+	peeringclient, err := config.NetworkingHwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud peering client: %s", err)
 	}

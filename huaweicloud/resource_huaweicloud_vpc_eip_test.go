@@ -55,7 +55,7 @@ func TestAccVpcV1EIP_share(t *testing.T) {
 
 func testAccCheckVpcV1EIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.networkingV1Client(OS_REGION_NAME)
+	networkingClient, err := config.NetworkingV1Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating EIP Client: %s", err)
 	}
@@ -86,7 +86,7 @@ func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheck
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.networkingV1Client(OS_REGION_NAME)
+		networkingClient, err := config.NetworkingV1Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating networking client: %s", err)
 		}

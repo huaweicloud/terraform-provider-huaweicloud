@@ -649,7 +649,7 @@ func flattenInstanceNicsV1(
 	d *schema.ResourceData, meta interface{}, addresses map[string][]cloudservers.Address) []map[string]interface{} {
 
 	config := meta.(*Config)
-	networkingClient, err := config.networkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		log.Printf("Error creating HuaweiCloud networking client: %s", err)
 	}

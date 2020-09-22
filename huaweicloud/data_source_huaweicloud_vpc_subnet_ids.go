@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func dataSourceVpcSubnetIdsV1() *schema.Resource {
+func DataSourceVpcSubnetIdsV1() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceVpcSubnetIdsV1Read,
 
@@ -35,7 +35,7 @@ func dataSourceVpcSubnetIdsV1() *schema.Resource {
 
 func dataSourceVpcSubnetIdsV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	subnetClient, err := config.networkingV1Client(GetRegion(d, config))
+	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}
