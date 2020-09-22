@@ -1,16 +1,8 @@
----
-layout: "huaweicloud"
-page_title: "Provider: HuaweiCloud"
-sidebar_current: "docs-huaweicloud-index"
-description: |-
-  The HuaweiCloud provider is used to interact with the many resources supported by HuaweiCloud. The provider needs to be configured with the proper credentials before it can be used.
----
-
 # HuaweiCloud Provider
 
-The HuaweiCloud provider is used to interact with the
-many resources supported by HuaweiCloud. The provider needs to be configured
-with the proper credentials before it can be used.
+The HuaweiCloud provider is used to interact with the many resources
+supported by HuaweiCloud. The provider needs to be configured with the
+proper credentials before it can be used.
 
 Use the navigation to the left to read about the available resources.
 
@@ -26,7 +18,7 @@ provider "huaweicloud" {
 }
 
 # Create a VPC
-resource "huaweicloud_vpc_v1" "example" {
+resource "huaweicloud_vpc" "example" {
   name = "my_vpc"
   cidr = "192.168.0.0/16"
 }
