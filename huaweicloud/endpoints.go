@@ -33,22 +33,112 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Scope:            "global",
 		WithOutProjectID: true,
 	},
-
+	// ******* client for Compute start *******
 	"ecs": ServiceCatalog{
 		Name:    "ecs",
 		Version: "v1",
 	},
-	"compute": ServiceCatalog{
+	"computeV11": ServiceCatalog{
+		Name:    "ecs",
+		Version: "v1.1",
+	},
+	"computeV2": ServiceCatalog{
 		Name:    "ecs",
 		Version: "v2.1",
 	},
-	"network": ServiceCatalog{
-		Name:    "vpc",
-		Version: "v2.0",
+	"autoscalingV1": ServiceCatalog{
+		Name:    "as",
+		Version: "autoscaling-api/v1",
 	},
-	"vpc": ServiceCatalog{
-		Name:    "vpc",
+	"imageV2": ServiceCatalog{
+		Name:             "ims",
+		Version:          "v2",
+		WithOutProjectID: true,
+	},
+	"cceV3": ServiceCatalog{
+		Name:    "cce",
+		Version: "api/v3/projects",
+	},
+	"cceAddonV3": ServiceCatalog{
+		Name:             "cce",
+		Version:          "api/v3",
+		WithOutProjectID: true,
+	},
+	"cciV1": ServiceCatalog{
+		Name:             "cci",
+		Version:          "apis/networking.cci.io/v1beta1",
+		WithOutProjectID: true,
+	},
+	"FgsV2": ServiceCatalog{
+		Name:    "functiongraph",
+		Version: "v2",
+	},
+	// ******* client for Compute end  *******//
+
+	// ******* client for storage start ******//
+	"blockStorageV2": ServiceCatalog{
+		Name:    "evs",
+		Version: "v2",
+	},
+	"blockStorageV3": ServiceCatalog{
+		Name:    "evs",
+		Version: "v3",
+	},
+	"evsV2": ServiceCatalog{
+		Name:    "evs",
+		Version: "v2",
+	},
+	"sfsV2": ServiceCatalog{
+		Name:    "sfs",
+		Version: "v2",
+	},
+	"csbsV1": ServiceCatalog{
+		Name:    "csbs",
 		Version: "v1",
+	},
+	"vbsV2": ServiceCatalog{
+		Name:    "vbs",
+		Version: "v2",
+	},
+	// ******* client for storage end   ******//
+
+	// ******* client for network start ******//
+	"network": ServiceCatalog{
+		Name:             "vpc",
+		Version:          "v1",
+		WithOutProjectID: true,
+	},
+	"networkV2": ServiceCatalog{
+		Name:             "vpc",
+		Version:          "v2.0",
+		WithOutProjectID: true,
+	},
+	"networkingHwV2": ServiceCatalog{
+		Name:             "vpc",
+		Version:          "v2.0",
+		WithOutProjectID: true,
+	},
+	"natV2": ServiceCatalog{
+		Name:             "nat",
+		Version:          "v2.0",
+		WithOutProjectID: true,
+	},
+	"loadElasticLoadBalancer": ServiceCatalog{
+		Name:             "elb",
+		Version:          "v1.0",
+		WithOutProjectID: true,
+	},
+	"fwV2": ServiceCatalog{
+		Name:             "vpc",
+		Version:          "v2.0",
+		WithOutProjectID: true,
+	},
+	// ******* client for network end   ******//
+
+	"vpc": ServiceCatalog{
+		Name:             "vpc",
+		Version:          "v1",
+		WithOutProjectID: true,
 	},
 	"volumev2": ServiceCatalog{
 		Name:    "evs",
@@ -92,7 +182,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "gaussdb",
 		Version: "opengauss/v3",
 	},
-
+	"bss": ServiceCatalog{
+		Name:             "bss",
+		Version:          "v1.0",
+		WithOutProjectID: true,
+	},
 	// catalog for management service
 	"ces": ServiceCatalog{
 		Name:    "ces",
