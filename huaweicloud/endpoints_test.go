@@ -447,7 +447,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 }
 
 // TestAccServiceEndpoints_Storage test for the endpoints of the clients used in storage
-// include blockStorageV2Client,blockStorageV3Client,loadEVSV2Client,sfsV2Client
+// include blockStorageV2Client,blockStorageV3Client,sfsV2Client
 // sfsV1Client,csbsV1Client and vbsV2Client
 func TestAccServiceEndpoints_Storage(t *testing.T) {
 
@@ -483,16 +483,6 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	expectedURL = fmt.Sprintf("https://evs.%s.%s/v3/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "blockStorage", "v3", t)
-
-	// test for loadEVSV2Client
-	serviceClient, err = nil, nil
-	serviceClient, err = config.loadEVSV2Client(OS_REGION_NAME)
-	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud loadEVS v2 client: %s", err)
-	}
-	expectedURL = fmt.Sprintf("https://evs.%s.%s/v2/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
-	actualURL = serviceClient.ResourceBaseURL()
-	compareURL(expectedURL, actualURL, "loadEVS", "v2", t)
 
 	// test for	sfsV2Client
 	serviceClient, err = nil, nil
@@ -536,7 +526,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 }
 
 // TestAccServiceEndpoints_Network test for the endpoints of the clients used in network
-// include networkingV1Client, networkingV2Client, networkingHwV2Client, natV2Client, loadElasticLoadBalancerClient and fwV2Client
+// include networkingV1Client, networkingV2Client, natV2Client, loadElasticLoadBalancerClient and fwV2Client
 func TestAccServiceEndpoints_Network(t *testing.T) {
 
 	testAccPreCheckServiceEndpoints(t)
@@ -570,16 +560,6 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	expectedURL = fmt.Sprintf("https://vpc.%s.%s/v2.0/", OS_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "networking", "v2.0", t)
-
-	// test endpoint of networkingHw v2
-	serviceClient, err = nil, nil
-	serviceClient, err = config.NetworkingHwV2Client(OS_REGION_NAME)
-	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud networkingHw v2 client: %s", err)
-	}
-	expectedURL = fmt.Sprintf("https://vpc.%s.%s/v2.0/", OS_REGION_NAME, config.Cloud)
-	actualURL = serviceClient.ResourceBaseURL()
-	compareURL(expectedURL, actualURL, "networkingHw", "v2.0", t)
 
 	// test endpoint of nat v2
 	serviceClient, err = nil, nil
