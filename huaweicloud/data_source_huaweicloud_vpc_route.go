@@ -51,7 +51,7 @@ func DataSourceVPCRouteV2() *schema.Resource {
 
 func dataSourceVpcRouteV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vpcRouteClient, err := config.NetworkingHwV2Client(GetRegion(d, config))
+	vpcRouteClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}

@@ -66,7 +66,7 @@ func ResourceVPCRouteV2() *schema.Resource {
 
 func resourceVpcRouteV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vpcRouteClient, err := config.NetworkingHwV2Client(GetRegion(d, config))
+	vpcRouteClient, err := config.NetworkingV2Client(GetRegion(d, config))
 
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud vpc route client: %s", err)
@@ -97,7 +97,7 @@ func resourceVpcRouteV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVpcRouteV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vpcRouteClient, err := config.NetworkingHwV2Client(GetRegion(d, config))
+	vpcRouteClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc route client: %s", err)
 	}
@@ -125,7 +125,7 @@ func resourceVpcRouteV2Read(d *schema.ResourceData, meta interface{}) error {
 func resourceVpcRouteV2Delete(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*Config)
-	vpcRouteClient, err := config.NetworkingHwV2Client(GetRegion(d, config))
+	vpcRouteClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud vpc route: %s", err)
 	}

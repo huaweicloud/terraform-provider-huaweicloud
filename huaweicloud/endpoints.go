@@ -76,11 +76,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	// ******* client for Compute end  *******//
 
 	// ******* client for storage start ******//
-	"blockStoragev2": ServiceCatalog{
+	"blockstoragev2": ServiceCatalog{
 		Name:    "evs",
 		Version: "v2",
 	},
-	"blockStoragev3": ServiceCatalog{
+	"blockstoragev3": ServiceCatalog{
 		Name:    "evs",
 		Version: "v3",
 	},
@@ -114,7 +114,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v2.0",
 		WithOutProjectID: true,
 	},
-	"loadElasticLoadBalancer": ServiceCatalog{
+	"loadelasticloadbalancer": ServiceCatalog{
 		Name:             "elb",
 		Version:          "v1.0",
 		WithOutProjectID: true,

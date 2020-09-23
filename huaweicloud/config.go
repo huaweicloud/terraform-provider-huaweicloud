@@ -520,15 +520,11 @@ func (c *Config) FgsV2Client(region string) (*golangsdk.ServiceClient, error) {
 
 // ********** client for Storage **********
 func (c *Config) blockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("blockStoragev2", region)
+	return c.NewServiceClient("blockstoragev2", region)
 }
 
 func (c *Config) blockStorageV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("blockStoragev3", region)
-}
-
-func (c *Config) loadEVSV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("blockStoragev2", region)
+	return c.NewServiceClient("blockstoragev3", region)
 }
 
 func (c *Config) sfsV2Client(region string) (*golangsdk.ServiceClient, error) {
@@ -557,16 +553,12 @@ func (c *Config) NetworkingV2Client(region string) (*golangsdk.ServiceClient, er
 	return c.NewServiceClient("networkv2", region)
 }
 
-func (c *Config) NetworkingHwV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("networkv2", region)
-}
-
 func (c *Config) natV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("natv2", region)
 }
 
 func (c *Config) loadElasticLoadBalancerClient(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("loadElasticLoadBalancer", region)
+	return c.NewServiceClient("loadelasticloadbalancer", region)
 }
 
 func (c *Config) fwV2Client(region string) (*golangsdk.ServiceClient, error) {
