@@ -56,6 +56,10 @@ func resourceCSBSBackupPolicyV1() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"scheduled_operation": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -220,6 +224,7 @@ func resourceCSBSBackupPolicyRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("status", backupPolicy.Status)
 	d.Set("description", backupPolicy.Description)
 	d.Set("provider_id", backupPolicy.ProviderId)
+	d.Set("created_at", backupPolicy.CreatedAt.Format(time.RFC3339))
 
 	d.Set("region", GetRegion(d, config))
 
