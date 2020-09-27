@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
-	sdkroles "github.com/huaweicloud/golangsdk/openstack/identity/v3/roles"
+	"github.com/huaweicloud/golangsdk/openstack/identity/v3/roles"
 )
 
 func dataSourceIAMRoleV3() *schema.Resource {
@@ -40,15 +40,14 @@ func dataSourceIAMRoleV3() *schema.Resource {
 
 func dataSourceIAMRoleV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := agencyClient(d, config)
+	client, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	domainID, err := getDomainID(config, client)
 	if err != nil {
 		return fmt.Errorf("Error getting the domain id, err=%s", err)
-
 	}
 
 	roles, err := dsAllRolesOfDomain(domainID, client)
@@ -66,19 +65,15 @@ func dataSourceIAMRoleV3Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func dsListRolesOfDomain(domainID string, client *golangsdk.ServiceClient) (map[string]map[string]string, error) {
-	old := client.Endpoint
-	defer func() { client.Endpoint = old }()
-	client.Endpoint = "https://iam.myhwclouds.com:443/v3/"
-
-	opts := sdkroles.ListOpts{
+	opts := roles.ListOpts{
 		DomainID: domainID,
 	}
-	allPages, err := sdkroles.List(client, &opts).AllPages()
+	allPages, err := roles.List(client, &opts).AllPages()
 	if err != nil {
 		return nil, fmt.Errorf("List roles failed, err=%s", err)
 	}
 
-	all, err := sdkroles.ExtractRoles(allPages)
+	all, err := roles.ExtractRoles(allPages)
 	if err != nil {
 		return nil, fmt.Errorf("Extract roles failed, err=%s", err)
 	}

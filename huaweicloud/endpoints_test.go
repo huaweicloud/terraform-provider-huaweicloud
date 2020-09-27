@@ -50,16 +50,28 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 	config := testProvider.Meta().(*Config)
 
 	// test the endpoint of IAM service
-	serviceClient, err = config.IdentityV3Client(OS_REGION_NAME)
+	serviceClient, err = config.IAMV3Client(OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud IAM client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://iam.%s/v3/", config.Cloud)
+	expectedURL = fmt.Sprintf("https://iam.%s/v3.0/", config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("IAM endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("IAM endpoint:\t %s", actualURL)
+
+	// test the endpoint of identity service
+	serviceClient, err = config.IdentityV3Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud identity client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://iam.%s/v3/", config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("Identity endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("Identity endpoint:\t %s", actualURL)
 
 	// test the endpoint of CDN service
 	serviceClient, err = config.CdnV1Client(OS_REGION_NAME)

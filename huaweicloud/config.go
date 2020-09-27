@@ -461,12 +461,12 @@ func (c *Config) getHwEndpointType() golangsdk.Availability {
 }
 
 // ********** client for Global Service **********
-func (c *Config) loadIAMV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewIdentityV3(c.DomainClient, golangsdk.EndpointOpts{})
+func (c *Config) IAMV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("iam", region)
 }
 
 func (c *Config) IdentityV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("iam", region)
+	return c.NewServiceClient("identity", region)
 }
 
 func (c *Config) DnsV2Client(region string) (*golangsdk.ServiceClient, error) {

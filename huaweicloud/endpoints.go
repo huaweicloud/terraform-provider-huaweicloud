@@ -14,9 +14,18 @@ type ServiceCatalog struct {
 
 var allServiceCatalog = map[string]ServiceCatalog{
 	// catalog for global service
-	"iam": ServiceCatalog{
+	// identity is used for openstack keystone APIs
+	"identity": ServiceCatalog{
 		Name:             "iam",
 		Version:          "v3",
+		Scope:            "global",
+		Admin:            true,
+		WithOutProjectID: true,
+	},
+	// iam is used for huaweicloud IAM APIs
+	"iam": ServiceCatalog{
+		Name:             "iam",
+		Version:          "v3.0",
 		Scope:            "global",
 		Admin:            true,
 		WithOutProjectID: true,

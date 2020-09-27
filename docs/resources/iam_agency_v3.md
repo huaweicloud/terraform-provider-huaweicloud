@@ -13,14 +13,13 @@ resource "huaweicloud_iam_agency_v3" "agency" {
   name                  = "test_agency"
   description           = "test agency"
   delegated_domain_name = "***"
-  project_role = [
-    {
-      project = "cn-north-1"
-      roles = [
-        "Tenant Administrator",
-      ]
-    }
-  ]
+
+  project_role {
+    project = "cn-north-1"
+    roles = [
+      "Tenant Administrator",
+    ]
+  }
   domain_roles = [
     "Anti-DDoS Administrator",
   ]
@@ -62,6 +61,7 @@ creating an agency.
 
 The following attributes are exported:
 
+* `id` - The agency ID.
 * `name` - See Argument Reference above.
 * `description` - See Argument Reference above.
 * `delegated_domain_name` - See Argument Reference above.
@@ -69,6 +69,5 @@ The following attributes are exported:
 * `domain_roles` - See Argument Reference above.
 * `duration` - Validity period of an agency. The default value is null,
     indicating that the agency is permanently valid.
-* `expire_time` - The expiration time of agency
+* `expire_time` - The expiration time of agency.
 * `create_time` - The time when the agency was created.
-* `id` - The agency ID.
