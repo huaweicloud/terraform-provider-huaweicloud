@@ -12,6 +12,7 @@ import (
 
 func TestAccRTSStackV1_basic(t *testing.T) {
 	var stacks stacks.RetrievedStack
+	resourceName := "huaweicloud_rts_stack_v1.stack_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -21,32 +22,32 @@ func TestAccRTSStackV1_basic(t *testing.T) {
 			{
 				Config: testAccRTSStackV1_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRTSStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
+					testAccCheckRTSStackV1Exists(resourceName, &stacks),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "name", "terraform_provider_stack"),
+						resourceName, "name", "terraform_provider_stack"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "status", "CREATE_COMPLETE"),
+						resourceName, "status", "CREATE_COMPLETE"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "disable_rollback", "true"),
+						resourceName, "disable_rollback", "true"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "timeout_mins", "60"),
+						resourceName, "timeout_mins", "60"),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_rts_software_config_v1.config_1",
+				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				Config: testAccRTSStackV1_update,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRTSStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
+					testAccCheckRTSStackV1Exists(resourceName, &stacks),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "disable_rollback", "false"),
+						resourceName, "disable_rollback", "false"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "timeout_mins", "50"),
+						resourceName, "timeout_mins", "50"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "status", "UPDATE_COMPLETE"),
+						resourceName, "status", "UPDATE_COMPLETE"),
 				),
 			},
 		},
@@ -55,6 +56,7 @@ func TestAccRTSStackV1_basic(t *testing.T) {
 
 func TestAccRTSStackV1_timeout(t *testing.T) {
 	var stacks stacks.RetrievedStack
+	resourceName := "huaweicloud_rts_stack_v1.stack_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -64,7 +66,7 @@ func TestAccRTSStackV1_timeout(t *testing.T) {
 			{
 				Config: testAccRTSStackV1_timeout,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRTSStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
+					testAccCheckRTSStackV1Exists(resourceName, &stacks),
 				),
 			},
 		},

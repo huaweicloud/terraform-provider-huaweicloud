@@ -516,11 +516,11 @@ func (c *Config) FgsV2Client(region string) (*golangsdk.ServiceClient, error) {
 
 // ********** client for Storage **********
 func (c *Config) blockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("blockstoragev2", region)
+	return c.NewServiceClient("volumev2", region)
 }
 
 func (c *Config) blockStorageV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("blockstoragev3", region)
+	return c.NewServiceClient("volumev3", region)
 }
 
 func (c *Config) sfsV2Client(region string) (*golangsdk.ServiceClient, error) {
@@ -542,7 +542,7 @@ func (c *Config) vbsV2Client(region string) (*golangsdk.ServiceClient, error) {
 
 // ********** client for Network **********
 func (c *Config) NetworkingV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("network", region)
+	return c.NewServiceClient("vpc", region)
 }
 
 func (c *Config) NetworkingV2Client(region string) (*golangsdk.ServiceClient, error) {
@@ -553,8 +553,8 @@ func (c *Config) natV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("natv2", region)
 }
 
-func (c *Config) loadElasticLoadBalancerClient(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("loadelasticloadbalancer", region)
+func (c *Config) elasticLBClient(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("elb", region)
 }
 
 func (c *Config) fwV2Client(region string) (*golangsdk.ServiceClient, error) {
@@ -566,7 +566,7 @@ func (c *Config) ctsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cts", region)
 }
 
-func (c *Config) loadCESClient(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) newCESClient(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ces", region)
 }
 
@@ -636,17 +636,11 @@ func (c *Config) BssV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) maasV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.MAASV1(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("oms", region)
 }
 
 func (c *Config) orchestrationV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return huaweisdk.NewOrchestrationV1(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
+	return c.NewServiceClient("rts", region)
 }
 
 func (c *Config) sdkClient(region, serviceType string, level string) (*golangsdk.ServiceClient, error) {

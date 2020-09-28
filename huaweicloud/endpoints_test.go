@@ -137,7 +137,7 @@ func TestAccServiceEndpoints_Management(t *testing.T) {
 	t.Logf("LTS endpoint:\t %s", actualURL)
 
 	// test the endpoint of CES service
-	serviceClient, err = config.loadCESClient(OS_REGION_NAME)
+	serviceClient, err = config.newCESClient(OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud CES client: %s", err)
 	}
@@ -324,18 +324,6 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 		t.Fatalf("DCS v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("DCS v2 endpoint:\t %s", actualURL)
-
-	// test the endpoint of bss v1 service
-	serviceClient, err = config.BssV1Client(OS_REGION_NAME)
-	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud bss v1 client: %s", err)
-	}
-	expectedURL = fmt.Sprintf("https://bss.%s.%s/v1.0/", OS_REGION_NAME, config.Cloud)
-	actualURL = serviceClient.ResourceBaseURL()
-	if actualURL != expectedURL {
-		t.Fatalf("Bss v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
-	}
-	t.Logf("Bss v1 endpoint:\t %s", actualURL)
 
 	// test the endpoint of DMS service
 	serviceClient, err = config.dmsV1Client(OS_REGION_NAME)
@@ -561,7 +549,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	}
 	expectedURL = fmt.Sprintf("https://vpc.%s.%s/v1/", OS_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
-	compareURL(expectedURL, actualURL, "networking", "v1", t)
+	compareURL(expectedURL, actualURL, "vpc", "v1", t)
 
 	// test endpoint of network v2 service
 	serviceClient, err = nil, nil
@@ -585,13 +573,13 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 
 	// test endpoint of loadElasticLoadBalancer v1.0
 	serviceClient, err = nil, nil
-	serviceClient, err = config.loadElasticLoadBalancerClient(OS_REGION_NAME)
+	serviceClient, err = config.elasticLBClient(OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud loadElasticLoadBalancer v1.0 client: %s", err)
 	}
 	expectedURL = fmt.Sprintf("https://elb.%s.%s/v1.0/", OS_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
-	compareURL(expectedURL, actualURL, "loadElasticLoadBalancer", "v1.0", t)
+	compareURL(expectedURL, actualURL, "elb", "v1.0", t)
 
 	// test the endpoint of fw v2 service
 	serviceClient, err = config.fwV2Client(OS_REGION_NAME)
@@ -601,14 +589,6 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	expectedURL = fmt.Sprintf("https://vpc.%s.%s/v2.0/", OS_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "fw", "v2.0", t)
-}
-
-func compareURL(expectedURL, actualURL, client, version string, t *testing.T) {
-
-	if actualURL != expectedURL {
-		t.Fatalf("%s %s endpoint: expected %s but got %s", client, version, green(expectedURL), yellow(actualURL))
-	}
-	t.Logf("%s %s endpoint:\t %s", client, version, actualURL)
 }
 
 func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
@@ -648,4 +628,62 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 		t.Fatalf("SMN endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("SMN endpoint:\t %s", actualURL)
+}
+
+func TestAccServiceEndpoints_Others(t *testing.T) {
+	testAccPreCheckServiceEndpoints(t)
+
+	testProvider := Provider().(*schema.Provider)
+	raw := make(map[string]interface{})
+	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
+	if err != nil {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	}
+
+	var expectedURL, actualURL string
+	var serviceClient *golangsdk.ServiceClient
+	config := testProvider.Meta().(*Config)
+
+	// test the endpoint of bss v1 service
+	serviceClient, err = config.BssV1Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud BSS v1 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://bss.%s.%s/v1.0/", OS_REGION_NAME, config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("BSS v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("BSS v1 endpoint:\t %s", actualURL)
+
+	// test the endpoint of MAAS service
+	serviceClient, err = config.maasV1Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud MAAS client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://oms.%s/v1/%s/", config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("MAAS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("MAAS endpoint:\t %s", actualURL)
+
+	// test the endpoint of RTS service
+	serviceClient, err = config.orchestrationV1Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud RTS client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://rts.%s.%s/v1/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("RTS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("RTS endpoint:\t %s", actualURL)
+}
+
+func compareURL(expectedURL, actualURL, client, version string, t *testing.T) {
+	if actualURL != expectedURL {
+		t.Fatalf("%s %s endpoint: expected %s but got %s", client, version, green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("%s %s endpoint:\t %s", client, version, actualURL)
 }

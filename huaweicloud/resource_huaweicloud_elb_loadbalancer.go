@@ -163,7 +163,7 @@ func resourceELBLoadBalancer() *schema.Resource {
 
 func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -192,7 +192,7 @@ func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("tenantid is mandatory when type is set to Internal")
 	}
 
-	j, err := loadbalancers.Create(networkingClient, opts).Extract()
+	j, err := loadbalancers.Create(elbClient, opts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creating %s: %s", nameELBLB, err)
 	}
@@ -200,7 +200,7 @@ func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) err
 
 	// Wait for LoadBalancer to become active before continuing
 	timeout := d.Timeout(schema.TimeoutCreate)
-	jobInfo, err := waitForELBJobSuccess(networkingClient, j, timeout)
+	jobInfo, err := waitForELBJobSuccess(elbClient, j, timeout)
 	if err != nil {
 		return err
 	}
@@ -227,12 +227,12 @@ func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourceELBLoadBalancerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	lb, err := loadbalancers.Get(networkingClient, d.Id()).Extract()
+	lb, err := loadbalancers.Get(elbClient, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "loadbalancer")
 	}
@@ -243,7 +243,7 @@ func resourceELBLoadBalancerRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -258,7 +258,7 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 
 	// Wait for LoadBalancer to become active before continuing
 	timeout := d.Timeout(schema.TimeoutUpdate)
-	err = waitForELBLoadBalancerActive(networkingClient, lbId, timeout)
+	err = waitForELBLoadBalancerActive(elbClient, lbId, timeout)
 	if err != nil {
 		return err
 	}
@@ -267,7 +267,7 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 	var job *elb.Job
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
-		j, err := loadbalancers.Update(networkingClient, lbId, updateOpts, not_pass_param).Extract()
+		j, err := loadbalancers.Update(elbClient, lbId, updateOpts, not_pass_param).Extract()
 		if err != nil {
 			return checkForRetryableError(err)
 		}
@@ -279,7 +279,7 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Wait for LoadBalancer to become active before continuing
-	_, err = waitForELBJobSuccess(networkingClient, job, timeout)
+	_, err = waitForELBJobSuccess(elbClient, job, timeout)
 	if err != nil {
 		return err
 	}
@@ -289,7 +289,7 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceELBLoadBalancerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -301,7 +301,7 @@ func resourceELBLoadBalancerDelete(d *schema.ResourceData, meta interface{}) err
 	timeout := d.Timeout(schema.TimeoutDelete)
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
-		j, err := loadbalancers.Delete(networkingClient, lbId).Extract()
+		j, err := loadbalancers.Delete(elbClient, lbId).Extract()
 		if err != nil {
 			return checkForRetryableError(err)
 		}
@@ -317,7 +317,7 @@ func resourceELBLoadBalancerDelete(d *schema.ResourceData, meta interface{}) err
 	}
 	log.Printf("[DEBUG] Delete %s, the job is: %#v", nameELBLB, *job)
 
-	_, err = waitForELBJobSuccess(networkingClient, job, timeout)
+	_, err = waitForELBJobSuccess(elbClient, job, timeout)
 	if err != nil {
 		return err
 	}

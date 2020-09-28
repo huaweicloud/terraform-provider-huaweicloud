@@ -94,7 +94,7 @@ func resourceELBBackendECS() *schema.Resource {
 
 func resourceELBBackendECSCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -107,7 +107,7 @@ func resourceELBBackendECSCreate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Create %s Options: %#v", nameELBBackend, createOpts)
 
 	lId := d.Get("listener_id").(string)
-	j, err := backendecs.Create(networkingClient, createOpts, lId).Extract()
+	j, err := backendecs.Create(elbClient, createOpts, lId).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creating %s: %s", nameELBBackend, err)
 	}
@@ -115,7 +115,7 @@ func resourceELBBackendECSCreate(d *schema.ResourceData, meta interface{}) error
 
 	// Wait for BackendECS to become active before continuing
 	timeout := d.Timeout(schema.TimeoutCreate)
-	jobInfo, err := waitForELBJobSuccess(networkingClient, j, timeout)
+	jobInfo, err := waitForELBJobSuccess(elbClient, j, timeout)
 	if err != nil {
 		return err
 	}
@@ -149,13 +149,13 @@ func resourceELBBackendECSCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceELBBackendECSRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	lId := d.Get("listener_id").(string)
-	b, err := backendecs.Get(networkingClient, lId, d.Id()).Extract()
+	b, err := backendecs.Get(elbClient, lId, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "backendecs")
 	}
@@ -166,7 +166,7 @@ func resourceELBBackendECSRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceELBBackendECSDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -182,7 +182,7 @@ func resourceELBBackendECSDelete(d *schema.ResourceData, meta interface{}) error
 	lId := d.Get("listener_id").(string)
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
-		j, err := backendecs.Delete(networkingClient, lId, deleteOpts).Extract()
+		j, err := backendecs.Delete(elbClient, lId, deleteOpts).Extract()
 		if err != nil {
 			return checkForRetryableError(err)
 		}
@@ -198,7 +198,7 @@ func resourceELBBackendECSDelete(d *schema.ResourceData, meta interface{}) error
 	}
 	log.Printf("[DEBUG] Delete %s, the job is: %#v", nameELBBackend, *job)
 
-	_, err = waitForELBJobSuccess(networkingClient, job, timeout)
+	_, err = waitForELBJobSuccess(elbClient, job, timeout)
 	if err != nil {
 		return err
 	}
