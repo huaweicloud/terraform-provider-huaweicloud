@@ -42,7 +42,8 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Scope:            "global",
 		WithOutProjectID: true,
 	},
-	// ******* client for Compute start *******
+
+	// ******* catalog for Compute *******
 	"ecs": ServiceCatalog{
 		Name:    "ecs",
 		Version: "v1",
@@ -82,20 +83,23 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "functiongraph",
 		Version: "v2",
 	},
-	// ******* client for Compute end  *******//
 
-	// ******* client for storage start ******//
-	"blockstoragev2": ServiceCatalog{
+	// ******* catalog for storage ******
+	"volumev2": ServiceCatalog{
 		Name:    "evs",
 		Version: "v2",
 	},
-	"blockstoragev3": ServiceCatalog{
+	"volumev3": ServiceCatalog{
 		Name:    "evs",
 		Version: "v3",
 	},
 	"sfsv2": ServiceCatalog{
 		Name:    "sfs",
 		Version: "v2",
+	},
+	"sfs-turbo": ServiceCatalog{
+		Name:    "sfs-turbo",
+		Version: "v1",
 	},
 	"csbsv1": ServiceCatalog{
 		Name:    "csbs",
@@ -105,10 +109,9 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "vbs",
 		Version: "v2",
 	},
-	// ******* client for storage end   ******//
 
-	// ******* client for network start ******//
-	"network": ServiceCatalog{
+	// ******* catalog for network ******
+	"vpc": ServiceCatalog{
 		Name:             "vpc",
 		Version:          "v1",
 		WithOutProjectID: true,
@@ -123,7 +126,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v2.0",
 		WithOutProjectID: true,
 	},
-	"loadelasticloadbalancer": ServiceCatalog{
+	"elb": ServiceCatalog{
 		Name:             "elb",
 		Version:          "v1.0",
 		WithOutProjectID: true,
@@ -132,29 +135,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:             "vpc",
 		Version:          "v2.0",
 		WithOutProjectID: true,
-	},
-	// ******* client for network end   ******//
-
-	"vpc": ServiceCatalog{
-		Name:             "vpc",
-		Version:          "v1",
-		WithOutProjectID: true,
-	},
-	"volumev2": ServiceCatalog{
-		Name:    "evs",
-		Version: "v2",
-	},
-	"volumev3": ServiceCatalog{
-		Name:    "evs",
-		Version: "v3",
-	},
-	"sfs-turbo": ServiceCatalog{
-		Name:    "sfs-turbo",
-		Version: "v1",
-	},
-	"dcsv2": ServiceCatalog{
-		Name:    "dcs",
-		Version: "v2",
 	},
 
 	// catalog for database
@@ -182,11 +162,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "gaussdb",
 		Version: "opengauss/v3",
 	},
-	"bss": ServiceCatalog{
-		Name:             "bss",
-		Version:          "v1.0",
-		WithOutProjectID: true,
-	},
+
 	// catalog for management service
 	"ces": ServiceCatalog{
 		Name:    "ces",
@@ -234,8 +210,28 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "dcs",
 		Version: "v1.0",
 	},
+	"dcsv2": ServiceCatalog{
+		Name:    "dcs",
+		Version: "v2",
+	},
 	"dms": ServiceCatalog{
 		Name:    "dms",
 		Version: "v1.0",
+	},
+
+	// catalog for Others
+	"bss": ServiceCatalog{
+		Name:             "bss",
+		Version:          "v1.0",
+		WithOutProjectID: true,
+	},
+	"rts": ServiceCatalog{
+		Name:    "rts",
+		Version: "v1",
+	},
+	"oms": ServiceCatalog{
+		Name:    "oms",
+		Version: "v1",
+		Scope:   "global",
 	},
 }

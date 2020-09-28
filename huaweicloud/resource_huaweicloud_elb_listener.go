@@ -283,7 +283,7 @@ func resourceELBListener() *schema.Resource {
 
 func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -299,7 +299,7 @@ func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
 	case (opts.Protocol == "HTTPS" || opts.Protocol == "SSL") && !hasFilledOpt(d, "certificate_id"):
 		return fmt.Errorf("certificate_id is mandatory when protocol is set to HTTPS or SSL")
 	}
-	l, err := listeners.Create(networkingClient, opts, not_pass_params).Extract()
+	l, err := listeners.Create(elbClient, opts, not_pass_params).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creating %s: %s", nameELBListener, err)
 	}
@@ -307,7 +307,7 @@ func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
 
 	// Wait for Listener to become active before continuing
 	timeout := d.Timeout(schema.TimeoutCreate)
-	err = waitForELBListenerActive(networkingClient, l.ID, timeout)
+	err = waitForELBListenerActive(elbClient, l.ID, timeout)
 	if err != nil {
 		return err
 	}
@@ -320,12 +320,12 @@ func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceELBListenerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	l, err := listeners.Get(networkingClient, d.Id()).Extract()
+	l, err := listeners.Get(elbClient, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "listener")
 	}
@@ -340,7 +340,7 @@ func resourceELBListenerRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -360,7 +360,7 @@ func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 	// Wait for Listener to become active before continuing
 	timeout := d.Timeout(schema.TimeoutUpdate)
-	err = waitForELBListenerActive(networkingClient, lId, timeout)
+	err = waitForELBListenerActive(elbClient, lId, timeout)
 	if err != nil {
 		return err
 	}
@@ -368,7 +368,7 @@ func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating %s %s with options: %#v", nameELBListener, lId, opts)
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
-		_, err := listeners.Update(networkingClient, lId, opts, not_pass_params).Extract()
+		_, err := listeners.Update(elbClient, lId, opts, not_pass_params).Extract()
 		if err != nil {
 			return checkForRetryableError(err)
 		}
@@ -383,7 +383,7 @@ func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceELBListenerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -394,7 +394,7 @@ func resourceELBListenerDelete(d *schema.ResourceData, meta interface{}) error {
 	timeout := d.Timeout(schema.TimeoutDelete)
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
-		err := listeners.Delete(networkingClient, lId).ExtractErr()
+		err := listeners.Delete(elbClient, lId).ExtractErr()
 		if err != nil {
 			return checkForRetryableError(err)
 		}

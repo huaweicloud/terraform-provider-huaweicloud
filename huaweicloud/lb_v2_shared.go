@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/l7policies"
@@ -251,10 +250,6 @@ func waitForLBV2viaPool(networkingClient *golangsdk.ServiceClient, id string, ta
 
 	// got a pool but no LB - this is wrong
 	return fmt.Errorf("No Load Balancer on pool %s", id)
-}
-
-func chooseLBV2Client(d *schema.ResourceData, config *Config) (*golangsdk.ServiceClient, error) {
-	return config.NetworkingV2Client(GetRegion(d, config))
 }
 
 func resourceLBV2LoadBalancerStatusRefreshFuncNeutron(lbClient *golangsdk.ServiceClient, lbID, resourceType, resourceID string) resource.StateRefreshFunc {

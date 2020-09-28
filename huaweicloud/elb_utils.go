@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/listeners"
@@ -98,14 +97,6 @@ func waitForELBResource(networkingClient *golangsdk.ServiceClient, name string, 
 	}
 
 	return o, nil
-}
-
-func chooseELBClient(d *schema.ResourceData, config *Config) (*golangsdk.ServiceClient, error) {
-	return config.loadElasticLoadBalancerClient(GetRegion(d, config))
-}
-
-func chooseCESClient(d *schema.ResourceData, config *Config) (*golangsdk.ServiceClient, error) {
-	return config.loadCESClient(GetRegion(d, config))
 }
 
 func isResourceNotFound(err error) bool {

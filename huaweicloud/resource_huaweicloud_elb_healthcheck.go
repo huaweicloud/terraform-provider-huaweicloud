@@ -112,7 +112,7 @@ func resourceELBHealthCheck() *schema.Resource {
 
 func resourceELBHealthCheckCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -124,7 +124,7 @@ func resourceELBHealthCheckCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	log.Printf("[DEBUG] Create %s Options: %#v", nameELBHC, createOpts)
 
-	hc, err := healthcheck.Create(networkingClient, createOpts).Extract()
+	hc, err := healthcheck.Create(elbClient, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creating %s: %s", nameELBHC, err)
 	}
@@ -138,12 +138,12 @@ func resourceELBHealthCheckCreate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceELBHealthCheckRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	hc, err := healthcheck.Get(networkingClient, d.Id()).Extract()
+	hc, err := healthcheck.Get(elbClient, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "healthcheck")
 	}
@@ -154,7 +154,7 @@ func resourceELBHealthCheckRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceELBHealthCheckUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -179,7 +179,7 @@ func resourceELBHealthCheckUpdate(d *schema.ResourceData, meta interface{}) erro
 	timeout := d.Timeout(schema.TimeoutUpdate)
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
-		_, err := healthcheck.Update(networkingClient, hcId, updateOpts).Extract()
+		_, err := healthcheck.Update(elbClient, hcId, updateOpts).Extract()
 		if err != nil {
 			return checkForRetryableError(err)
 		}
@@ -194,7 +194,7 @@ func resourceELBHealthCheckUpdate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceELBHealthCheckDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := chooseELBClient(d, config)
+	elbClient, err := config.elasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -205,7 +205,7 @@ func resourceELBHealthCheckDelete(d *schema.ResourceData, meta interface{}) erro
 	timeout := d.Timeout(schema.TimeoutDelete)
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
-		err := healthcheck.Delete(networkingClient, hcId).ExtractErr()
+		err := healthcheck.Delete(elbClient, hcId).ExtractErr()
 		if err != nil {
 			return checkForRetryableError(err)
 		}

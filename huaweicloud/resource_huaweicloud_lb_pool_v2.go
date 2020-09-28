@@ -130,7 +130,7 @@ func resourcePoolV2() *schema.Resource {
 
 func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := chooseLBV2Client(d, config)
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -227,7 +227,7 @@ func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := chooseLBV2Client(d, config)
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -253,7 +253,7 @@ func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourcePoolV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := chooseLBV2Client(d, config)
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -314,7 +314,7 @@ func resourcePoolV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourcePoolV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := chooseLBV2Client(d, config)
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

@@ -100,7 +100,7 @@ func resourceMonitorV2() *schema.Resource {
 
 func resourceMonitorV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := chooseLBV2Client(d, config)
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -155,7 +155,7 @@ func resourceMonitorV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMonitorV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := chooseLBV2Client(d, config)
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -184,7 +184,7 @@ func resourceMonitorV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMonitorV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := chooseLBV2Client(d, config)
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -247,7 +247,7 @@ func resourceMonitorV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMonitorV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := chooseLBV2Client(d, config)
+	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

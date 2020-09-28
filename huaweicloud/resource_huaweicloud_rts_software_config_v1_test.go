@@ -12,6 +12,7 @@ import (
 
 func TestAccRtsSoftwareConfigV1_basic(t *testing.T) {
 	var config softwareconfig.SoftwareConfig
+	resourceName := "huaweicloud_rts_software_config_v1.config_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -21,15 +22,15 @@ func TestAccRtsSoftwareConfigV1_basic(t *testing.T) {
 			{
 				Config: testAccRtsSoftwareConfigV1_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRtsSoftwareConfigV1Exists("huaweicloud_rts_software_config_v1.config_1", &config),
+					testAccCheckRtsSoftwareConfigV1Exists(resourceName, &config),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_software_config_v1.config_1", "name", "huaweicloud-config"),
+						resourceName, "name", "huaweicloud-config"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_software_config_v1.config_1", "group", "script"),
+						resourceName, "group", "script"),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_rts_software_config_v1.config_1",
+				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -39,6 +40,7 @@ func TestAccRtsSoftwareConfigV1_basic(t *testing.T) {
 
 func TestAccRtsSoftwareConfigV1_timeout(t *testing.T) {
 	var config softwareconfig.SoftwareConfig
+	resourceName := "huaweicloud_rts_software_config_v1.config_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -48,7 +50,7 @@ func TestAccRtsSoftwareConfigV1_timeout(t *testing.T) {
 			{
 				Config: testAccRtsSoftwareConfigV1_timeout,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRtsSoftwareConfigV1Exists("huaweicloud_rts_software_config_v1.config_1", &config),
+					testAccCheckRtsSoftwareConfigV1Exists(resourceName, &config),
 				),
 			},
 		},
