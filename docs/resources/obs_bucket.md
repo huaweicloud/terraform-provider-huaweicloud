@@ -166,6 +166,9 @@ The following arguments are supported:
   You can, however, suspend versioning on that bucket.
 
 * `logging` - (Optional) A settings of bucket logging (documented below).
+
+* `quota` - (Optional) Specifies bucket storage quota. Must be a positive integer in the unit of byte. The maximum storage quota is 2<sup>63</sup> – 1 bytes. The default bucket storage quota is 0, indicating that the bucket storage quota is not limited.
+
 * `website` - (Optional) A website object (documented below).
 * `cors_rule` - (Optional) A rule of Cross-Origin Resource Sharing (documented below).
 * `lifecycle_rule` - (Optional) A configuration of object lifecycle management (documented below).
