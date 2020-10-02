@@ -61,8 +61,8 @@ func resourceNatGatewayV2() *schema.Resource {
 			},
 			"internal_network_id": {
 				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Required: false,
+				ForceNew: false,
 			},
 		},
 	}
