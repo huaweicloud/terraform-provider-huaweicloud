@@ -52,6 +52,31 @@ func TestAccVpcV1_basic(t *testing.T) {
 	})
 }
 
+func TestAccVpcV1_WithEpsId(t *testing.T) {
+	var vpc vpcs.Vpc
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_vpc.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVpcV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVpcV1_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcV1Exists(resourceName, &vpc),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "status", "OK"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckVpcV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	vpcClient, err := config.NetworkingV1Client(OS_REGION_NAME)
@@ -131,4 +156,14 @@ resource "huaweicloud_vpc" "test" {
   }
 }
 `, rName)
+}
+
+func testAccVpcV1_epsId(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name = "%s"
+  cidr = "192.168.0.0/16"
+  enterprise_project_id = "%s"
+}
+`, rName, OS_ENTERPRISE_PROJECT_ID)
 }

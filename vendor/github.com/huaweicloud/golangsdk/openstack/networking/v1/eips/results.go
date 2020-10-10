@@ -19,17 +19,18 @@ func (r ApplyResult) Extract() (PublicIp, error) {
 
 //PublicIp is a struct that represents a public ip
 type PublicIp struct {
-	ID                 string `json:"id"`
-	Status             string `json:"status"`
-	Type               string `json:"type"`
-	PublicAddress      string `json:"public_ip_address"`
-	PrivateAddress     string `json:"private_ip_address"`
-	PortID             string `json:"port_id"`
-	TenantID           string `json:"tenant_id"`
-	CreateTime         string `json:"create_time"`
-	BandwidthID        string `json:"bandwidth_id"`
-	BandwidthSize      int    `json:"bandwidth_size"`
-	BandwidthShareType string `json:"bandwidth_share_type"`
+	ID                  string `json:"id"`
+	Status              string `json:"status"`
+	Type                string `json:"type"`
+	PublicAddress       string `json:"public_ip_address"`
+	PrivateAddress      string `json:"private_ip_address"`
+	PortID              string `json:"port_id"`
+	TenantID            string `json:"tenant_id"`
+	CreateTime          string `json:"create_time"`
+	BandwidthID         string `json:"bandwidth_id"`
+	BandwidthSize       int    `json:"bandwidth_size"`
+	BandwidthShareType  string `json:"bandwidth_share_type"`
+	EnterpriseProjectID string `json:"enterprise_project_id"`
 }
 
 //GetResult is a return struct of get method

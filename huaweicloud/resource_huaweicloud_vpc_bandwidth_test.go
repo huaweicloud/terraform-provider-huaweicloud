@@ -43,6 +43,29 @@ func TestAccVpcBandWidthV2_basic(t *testing.T) {
 	})
 }
 
+func TestAccVpcBandWidthV2_WithEpsId(t *testing.T) {
+	var bandwidth bandwidths.BandWidth
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_vpc_bandwidth.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVpcBandWidthV2Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVpcBandWidthV2_epsId(rName, 5),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcBandWidthV2Exists(resourceName, &bandwidth),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckVpcBandWidthV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	networkingClient, err := config.NetworkingV1Client(OS_REGION_NAME)
@@ -103,4 +126,14 @@ resource "huaweicloud_vpc_bandwidth" "test" {
 	size = "%d"
 }
 `, rName, size)
+}
+
+func testAccVpcBandWidthV2_epsId(rName string, size int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_bandwidth" "test" {
+	name = "%s"
+	size = "%d"
+	enterprise_project_id = "%s"
+}
+`, rName, size, OS_ENTERPRISE_PROJECT_ID)
 }

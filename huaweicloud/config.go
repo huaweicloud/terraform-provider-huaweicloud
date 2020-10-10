@@ -28,29 +28,30 @@ const (
 )
 
 type Config struct {
-	AccessKey        string
-	SecretKey        string
-	CACertFile       string
-	ClientCertFile   string
-	ClientKeyFile    string
-	DomainID         string
-	DomainName       string
-	IdentityEndpoint string
-	Insecure         bool
-	Password         string
-	Region           string
-	TenantID         string
-	TenantName       string
-	Token            string
-	Username         string
-	UserID           string
-	AgencyName       string
-	AgencyDomainName string
-	DelegatedProject string
-	Cloud            string
-	MaxRetries       int
-	TerraformVersion string
-	RegionClient     bool
+	AccessKey           string
+	SecretKey           string
+	CACertFile          string
+	ClientCertFile      string
+	ClientKeyFile       string
+	DomainID            string
+	DomainName          string
+	IdentityEndpoint    string
+	Insecure            bool
+	Password            string
+	Region              string
+	TenantID            string
+	TenantName          string
+	Token               string
+	Username            string
+	UserID              string
+	AgencyName          string
+	AgencyDomainName    string
+	DelegatedProject    string
+	Cloud               string
+	MaxRetries          int
+	TerraformVersion    string
+	RegionClient        bool
+	EnterpriseProjectID string
 
 	HwClient *golangsdk.ProviderClient
 	s3sess   *session.Session

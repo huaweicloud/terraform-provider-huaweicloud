@@ -32,6 +32,10 @@ func DataSourceVirtualPrivateCloudVpcV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -74,6 +78,12 @@ func dataSourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{
 		CIDR:   d.Get("cidr").(string),
 	}
 
+	epsID := GetEnterpriseProjectID(d, config)
+
+	if epsID != "" {
+		listOpts.EnterpriseProjectID = epsID
+	}
+
 	refinedVpcs, err := vpcs.List(vpcClient, listOpts)
 	if err != nil {
 		return fmt.Errorf("Unable to retrieve vpcs: %s", err)
@@ -105,6 +115,7 @@ func dataSourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{
 
 	d.Set("name", Vpc.Name)
 	d.Set("cidr", Vpc.CIDR)
+	d.Set("enterprise_project_id", Vpc.EnterpriseProjectID)
 	d.Set("status", Vpc.Status)
 	d.Set("id", Vpc.ID)
 	d.Set("shared", Vpc.EnableSharedSnat)

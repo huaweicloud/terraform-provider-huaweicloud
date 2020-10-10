@@ -181,6 +181,12 @@ func Provider() terraform.ResourceProvider {
 				Default:     25,
 				Description: descriptions["max_retries"],
 			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("OS_ENTERPRISE_PROJECT_ID", ""),
+				Description: descriptions["enterprise_project_id"],
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -538,6 +544,8 @@ func init() {
 		"cloud": "The endpoint of cloud provider, defaults to myhuaweicloud.com",
 
 		"max_retries": "How many times HTTP connection should be retried until giving up.",
+
+		"enterprise_project_id": "enterprise project id",
 	}
 }
 
@@ -559,28 +567,29 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 	}
 
 	config := Config{
-		AccessKey:        d.Get("access_key").(string),
-		SecretKey:        d.Get("secret_key").(string),
-		CACertFile:       d.Get("cacert_file").(string),
-		ClientCertFile:   d.Get("cert").(string),
-		ClientKeyFile:    d.Get("key").(string),
-		DomainID:         d.Get("domain_id").(string),
-		DomainName:       d.Get("domain_name").(string),
-		IdentityEndpoint: d.Get("auth_url").(string),
-		Insecure:         d.Get("insecure").(bool),
-		Password:         d.Get("password").(string),
-		Region:           d.Get("region").(string),
-		Token:            d.Get("token").(string),
-		TenantID:         d.Get("tenant_id").(string),
-		TenantName:       tenant_name,
-		Username:         d.Get("user_name").(string),
-		UserID:           d.Get("user_id").(string),
-		AgencyName:       d.Get("agency_name").(string),
-		AgencyDomainName: d.Get("agency_domain_name").(string),
-		DelegatedProject: delegated_project,
-		Cloud:            d.Get("cloud").(string),
-		MaxRetries:       d.Get("max_retries").(int),
-		TerraformVersion: terraformVersion,
+		AccessKey:           d.Get("access_key").(string),
+		SecretKey:           d.Get("secret_key").(string),
+		CACertFile:          d.Get("cacert_file").(string),
+		ClientCertFile:      d.Get("cert").(string),
+		ClientKeyFile:       d.Get("key").(string),
+		DomainID:            d.Get("domain_id").(string),
+		DomainName:          d.Get("domain_name").(string),
+		IdentityEndpoint:    d.Get("auth_url").(string),
+		Insecure:            d.Get("insecure").(bool),
+		Password:            d.Get("password").(string),
+		Region:              d.Get("region").(string),
+		Token:               d.Get("token").(string),
+		TenantID:            d.Get("tenant_id").(string),
+		TenantName:          tenant_name,
+		Username:            d.Get("user_name").(string),
+		UserID:              d.Get("user_id").(string),
+		AgencyName:          d.Get("agency_name").(string),
+		AgencyDomainName:    d.Get("agency_domain_name").(string),
+		DelegatedProject:    delegated_project,
+		Cloud:               d.Get("cloud").(string),
+		MaxRetries:          d.Get("max_retries").(int),
+		EnterpriseProjectID: d.Get("enterprise_project_id").(string),
+		TerraformVersion:    terraformVersion,
 	}
 
 	if err := config.LoadAndValidate(); err != nil {

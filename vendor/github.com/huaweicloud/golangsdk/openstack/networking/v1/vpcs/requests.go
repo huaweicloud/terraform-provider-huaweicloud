@@ -24,6 +24,9 @@ type ListOpts struct {
 	//Specifies the range of available subnets in the VPC.
 	CIDR string `json:"cidr"`
 
+	// Enterprise project ID.
+	EnterpriseProjectID string `json:"enterprise_project_id"`
+
 	// Status indicates whether or not a vpc is currently operational.
 	Status string `json:"status"`
 }
@@ -59,6 +62,9 @@ func FilterVPCs(vpcs []Vpc, opts ListOpts) ([]Vpc, error) {
 	}
 	if opts.Name != "" {
 		m["Name"] = opts.Name
+	}
+	if opts.EnterpriseProjectID != "" {
+		m["EnterpriseProjectID"] = opts.EnterpriseProjectID
 	}
 	if opts.Status != "" {
 		m["Status"] = opts.Status
@@ -104,8 +110,9 @@ type CreateOptsBuilder interface {
 // CreateOpts contains all the values needed to create a new vpc. There are
 // no required values.
 type CreateOpts struct {
-	Name string `json:"name,omitempty"`
-	CIDR string `json:"cidr,omitempty"`
+	Name                string `json:"name,omitempty"`
+	CIDR                string `json:"cidr,omitempty"`
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
 // ToVpcCreateMap builds a create request body from CreateOpts.
