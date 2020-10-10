@@ -97,6 +97,9 @@ The following arguments are supported:
 * `auth_url` - (Optional, Required before 1.14.0) The Identity authentication URL. If omitted, the
   `OS_AUTH_URL` environment variable is used. This is not required if you use Huawei Cloud.
 
+* `cloud` - (Optional) The endpoint of the cloud provider. If omitted, the
+  `OS_CLOUD` environment variable is used. Defaults to `myhuaweicloud.com`.
+
 * `insecure` - (Optional) Trust self-signed SSL certificates. If omitted, the
   `OS_INSECURE` environment variable is used.
 
