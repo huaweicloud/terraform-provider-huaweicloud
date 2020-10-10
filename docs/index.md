@@ -54,53 +54,11 @@ provider "huaweicloud" {
 ```
 -> **NOTE:** `domain_name`, [Account name](https://support.huaweicloud.com/en-us/usermanual-iam/iam_01_0552.html) need to be set if using IAM or prePaid resources.
 
-
-By adding `user_name` and `password`:
-
-```hcl
-provider "huaweicloud" {
-  region      = "cn-north-1"
-  domain_name = "my-account-name"
-  user_name   = "my-username"
-  password    = "my-password"
-}
-```
--> **NOTE:** `domain_name` is required here.
-
-By adding `token`:
-
-```hcl
-provider "huaweicloud" {
-  region      = "cn-north-1"
-  domain_name = "my-account-name"
-  token       = "my-token"
-}
-```
-
-
-Delegating Resource Access to Another Account by adding `agency_name`, `agency_domain_name` and `delegated_project`:
-
-Usage:
-
-```hcl
-provider "huaweicloud" {
-  agency_name        = "agency-name"
-  agency_domain_name = "agency-domain-name"
-
-  region      = "cn-north-1"
-  domain_name = "my-account-name"
-  user_name   = "my-username"
-  password    = "my-password"
-}
-```
-
 ### Environment variables
 
 You can provide your credentials via the `OS_ACCESS_KEY` and
 `OS_SECRET_KEY`, environment variables, representing your Huawei
 Cloud Access Key and Secret Key, respectively.
-The `OS_USERNAME` and `OS_PASSWORD` environment variables
-are also used, if applicable:
 
 ```hcl
 provider "huaweicloud" {}
@@ -115,7 +73,6 @@ $ export OS_REGION_NAME="cn-north-1"
 $ export OS_DOMAIN_NAME="account-name"
 $ terraform plan
 ```
-
 
 ## Configuration Reference
 
@@ -134,43 +91,14 @@ The following arguments are supported:
 * `secret_key` - (Optional) The secret key of the HuaweiCloud to use.
   If omitted, the `OS_SECRET_KEY` environment variable is used.
 
-* `user_name` - (Optional) The Username to login with. If omitted, the
-  `OS_USERNAME` environment variable is used.
-
-* `password` - (Optional) The Password to login with. If omitted, the
-  `OS_PASSWORD` environment variable is used.
-
 * `tenant_name` - (Optional) The Name of the Tenant/Project to login with.
   If omitted, the `OS_TENANT_NAME` or `OS_PROJECT_NAME` environment variable are used.
-
-* `token` - (Optional) A token is an expiring, temporary means of access issued via
-  the IAM service. If omitted, the `OS_AUTH_TOKEN` environment variable is used.
 
 * `auth_url` - (Optional, Required before 1.14.0) The Identity authentication URL. If omitted, the
   `OS_AUTH_URL` environment variable is used. This is not required if you use Huawei Cloud.
 
 * `insecure` - (Optional) Trust self-signed SSL certificates. If omitted, the
   `OS_INSECURE` environment variable is used.
-
-* `cacert_file` - (Optional) Specify a custom CA certificate when communicating
-  over SSL. You can specify either a path to the file or the contents of the
-  certificate. If omitted, the `OS_CACERT` environment variable is used.
-
-* `cert` - (Optional) Specify client certificate file for SSL client
-  authentication. You can specify either a path to the file or the contents of
-  the certificate. If omitted the `OS_CERT` environment variable is used.
-
-* `key` - (Optional) Specify client private key file for SSL client
-  authentication. You can specify either a path to the file or the contents of
-  the key. If omitted the `OS_KEY` environment variable is used.
-
-* `agency_name` - (Optional) if authorized by Agencies, it must be set. The
-  name of agency.
-
-* `agency_domain_name` - (Optional) if authorized by Agencies, it must be set.
-  The name of the account who created the agency.
-
-* `delegated_project` - (Optional) The name of the delegated project.
 
 * `max_retries` - (Optional) This is the maximum number of times an API
   call is retried, in the case where requests are being throttled or
@@ -183,18 +111,12 @@ The following arguments are supported:
 In order to run the Acceptance Tests for development, the following environment
 variables must also be set:
 
-* `OS_REGION_NAME` - The region in which to create the server instance.
+* `OS_REGION_NAME` - The region in which to create the resources.
 
-* `OS_IMAGE_ID` or `OS_IMAGE_NAME` - a UUID or name of an existing image in
-    Glance.
+* `OS_ACCESS_KEY` - The access key of the HuaweiCloud to use.
 
-* `OS_FLAVOR_ID` or `OS_FLAVOR_NAME` - an ID or name of an existing flavor.
+* `OS_SECRET_KEY` - The secret key of the HuaweiCloud to use.
 
-* `OS_POOL_NAME` - The name of a Floating IP pool.
-
-* `OS_NETWORK_ID` - The UUID of a network in your test environment.
-
-* `OS_EXTGW_ID` - The UUID of the external gateway.
 
 You should be able to use any HuaweiCloud environment to develop on as long as the
 above environment variables are set.
