@@ -85,6 +85,13 @@ func resourceObsBucket() *schema.Resource {
 				},
 			},
 
+			"quota": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      0,
+				ValidateFunc: validation.IntAtLeast(0),
+			},
+
 			"lifecycle_rule": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -348,6 +355,12 @@ func resourceObsBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	if d.HasChange("quota") {
+		if err := resourceObsBucketQuotaUpdate(obsClient, d); err != nil {
+			return err
+		}
+	}
+
 	if d.HasChange("lifecycle_rule") {
 		if err := resourceObsBucketLifecycleUpdate(obsClient, d); err != nil {
 			return err
@@ -406,8 +419,14 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 	if err := setObsBucketVersioning(obsClient, d); err != nil {
 		return err
 	}
+
 	// Read the logging configuration
 	if err := setObsBucketLogging(obsClient, d); err != nil {
+		return err
+	}
+
+	// Read the quota
+	if err := setObsBucketQuota(obsClient, d); err != nil {
 		return err
 	}
 
@@ -576,7 +595,7 @@ func resourceObsBucketVersioningUpdate(obsClient *obs.ObsClient, d *schema.Resou
 
 	_, err := obsClient.SetBucketVersioning(input)
 	if err != nil {
-		return getObsError("Error setting versining status of OBS bucket", bucket, err)
+		return getObsError("Error setting versioning status of OBS bucket", bucket, err)
 	}
 
 	return nil
@@ -606,6 +625,22 @@ func resourceObsBucketLoggingUpdate(obsClient *obs.ObsClient, d *schema.Resource
 	}
 
 	return nil
+}
+
+func resourceObsBucketQuotaUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Get("bucket").(string)
+	quota := d.Get("quota").(int)
+	quotaInput := &obs.SetBucketQuotaInput{}
+	quotaInput.Bucket = bucket
+	quotaInput.BucketQuota.Quota = int64(quota)
+
+	_, err := obsClient.SetBucketQuota(quotaInput)
+	if err != nil {
+		return getObsError("Error setting quota of OBS bucket", bucket, err)
+	}
+
+	return nil
+
 }
 
 func resourceObsBucketLifecycleUpdate(obsClient *obs.ObsClient, d *schema.ResourceData) error {
@@ -936,6 +971,20 @@ func setObsBucketLogging(obsClient *obs.ObsClient, d *schema.ResourceData) error
 	if err := d.Set("logging", lcList); err != nil {
 		return fmt.Errorf("Error saving logging configuration of OBS bucket %s: %s", bucket, err)
 	}
+
+	return nil
+}
+
+func setObsBucketQuota(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Id()
+	output, err := obsClient.GetBucketQuota(bucket)
+	if err != nil {
+		return getObsError("Error getting quota of OBS bucket", bucket, err)
+	}
+
+	log.Printf("[DEBUG] getting quota of OBS bucket %s: %d", bucket, output.Quota)
+
+	d.Set("quota", output.Quota)
 
 	return nil
 }

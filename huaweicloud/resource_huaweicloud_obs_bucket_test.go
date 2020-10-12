@@ -122,6 +122,27 @@ func TestAccObsBucket_logging(t *testing.T) {
 	})
 }
 
+func TestAccObsBucket_quota(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "huaweicloud_obs_bucket.bucket"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckS3(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckObsBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccObsBucketConfigWithQuota(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(
+						resourceName, "quota", "1000000000"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccObsBucket_lifecycle(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "huaweicloud_obs_bucket.bucket"
@@ -378,6 +399,16 @@ resource "huaweicloud_obs_bucket" "bucket" {
 	}
 }
 `, randInt, randInt)
+}
+
+func testAccObsBucketConfigWithQuota(randInt int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "bucket" {
+	bucket = "tf-test-bucket-%d"
+	acl = "private"
+	quota = 1000000000
+}
+`, randInt)
 }
 
 func testAccObsBucketConfigWithLifecycle(randInt int) string {
