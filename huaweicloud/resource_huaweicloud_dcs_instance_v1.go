@@ -73,9 +73,9 @@ func resourceDcsInstanceV1() *schema.Resource {
 				ForceNew: true,
 			},
 			"security_group_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ExactlyOneOf: []string{"security_group_id", "whitelists"},
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"whitelists"},
 			},
 			"available_zones": {
 				Type:     schema.TypeList,
@@ -195,6 +195,25 @@ func resourceDcsInstanceV1() *schema.Resource {
 	}
 }
 
+func resourceDcsInstancesCheck(d *schema.ResourceData) error {
+	engineVersion := d.Get("engine_version").(string)
+	secGroupID := d.Get("security_group_id").(string)
+
+	// check for Redis 4.0 and 5.0
+	if engineVersion == "4.0" || engineVersion == "5.0" {
+		if secGroupID != "" {
+			return fmt.Errorf("security_group_id is not supported for Redis 4.0 and 5.0. please configure the whitelists alternatively")
+		}
+	} else {
+		// check for Memcached and Redis 3.0
+		if secGroupID == "" {
+			return fmt.Errorf("security_group_id is mandatory for this DCS instance")
+		}
+	}
+
+	return nil
+}
+
 func getInstanceBackupPolicy(d *schema.ResourceData) *instances.InstanceBackupPolicy {
 	backupAts := d.Get("backup_at").([]interface{})
 	ats := make([]int, len(backupAts))
@@ -262,6 +281,10 @@ func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	dcsV1Client, err := config.dcsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dcs instance client: %s", err)
+	}
+
+	if err := resourceDcsInstancesCheck(d); err != nil {
+		return err
 	}
 
 	no_password_access := "true"
@@ -336,7 +359,7 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	}
 	v, err := instances.Get(dcsV1Client, d.Id()).Extract()
 	if err != nil {
-		return err
+		return CheckDeleted(d, err, "DCS instance")
 	}
 
 	log.Printf("[DEBUG] Dcs instance %s: %+v", d.Id(), v)
@@ -388,6 +411,10 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 
 func resourceDcsInstancesV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	if err := resourceDcsInstancesCheck(d); err != nil {
+		return err
+	}
 
 	if d.HasChanges("name", "description", "security_group_id", "maintain_begin", "maintain_end") {
 		dcsV1Client, err := config.dcsV1Client(GetRegion(d, config))
