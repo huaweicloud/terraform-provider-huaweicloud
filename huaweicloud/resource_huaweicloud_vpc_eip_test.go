@@ -53,6 +53,28 @@ func TestAccVpcV1EIP_share(t *testing.T) {
 	})
 }
 
+func TestAccVpcV1EIP_WithEpsId(t *testing.T) {
+	var eip eips.PublicIp
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_vpc_eip.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVpcV1EIPDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVpcV1EIP_epsId(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcV1EIPExists(resourceName, &eip),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckVpcV1EIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	networkingClient, err := config.NetworkingV1Client(OS_REGION_NAME)
@@ -120,6 +142,23 @@ resource "huaweicloud_vpc_eip" "test" {
   }
 }
 `, rName)
+}
+
+func testAccVpcV1EIP_epsId(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "%s"
+    size        = 8
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+  enterprise_project_id = "%s"
+}
+`, rName, OS_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccVpcV1EIP_share(rName string) string {

@@ -50,6 +50,14 @@ func GetRegion(d *schema.ResourceData, config *Config) string {
 	return config.Region
 }
 
+func GetEnterpriseProjectID(d *schema.ResourceData, config *Config) string {
+	if v, ok := d.GetOk("enterprise_project_id"); ok {
+		return v.(string)
+	}
+
+	return config.EnterpriseProjectID
+}
+
 // AddValueSpecs expands the 'value_specs' object and removes 'value_specs'
 // from the reqeust body.
 func AddValueSpecs(body map[string]interface{}) map[string]interface{} {

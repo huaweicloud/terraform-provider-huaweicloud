@@ -99,6 +99,12 @@ func ResourceVpcEIPV1() *schema.Resource {
 					},
 				},
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -126,6 +132,12 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 			Bandwidth: resourceBandWidth(d),
 		},
 		MapValueSpecs(d),
+	}
+
+	epsID := GetEnterpriseProjectID(d, config)
+
+	if epsID != "" {
+		createOpts.EnterpriseProjectID = epsID
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -193,6 +205,7 @@ func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("bandwidth", bW)
 	d.Set("address", eIP.PublicAddress)
 	d.Set("region", GetRegion(d, config))
+	d.Set("enterprise_project_id", eIP.EnterpriseProjectID)
 
 	return nil
 }

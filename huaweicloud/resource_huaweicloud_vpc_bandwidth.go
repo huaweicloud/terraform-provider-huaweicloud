@@ -60,10 +60,16 @@ func resourceVpcBandWidthV2Create(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	size := d.Get("size").(int)
+
 	createOpts := bandwidths.CreateOpts{
-		Name:                d.Get("name").(string),
-		Size:                &size,
-		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
+		Name: d.Get("name").(string),
+		Size: &size,
+	}
+
+	epsID := GetEnterpriseProjectID(d, config)
+
+	if epsID != "" {
+		createOpts.EnterpriseProjectId = epsID
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)

@@ -12,8 +12,9 @@ type ApplyOptsBuilder interface {
 
 //ApplyOpts is a struct which is used to create public ip
 type ApplyOpts struct {
-	IP        PublicIpOpts  `json:"publicip" required:"true"`
-	Bandwidth BandwidthOpts `json:"bandwidth" required:"true"`
+	IP                  PublicIpOpts  `json:"publicip" required:"true"`
+	Bandwidth           BandwidthOpts `json:"bandwidth" required:"true"`
+	EnterpriseProjectID string        `json:"enterprise_project_id,omitempty"`
 }
 
 type PublicIpOpts struct {

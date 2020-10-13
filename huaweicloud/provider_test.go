@@ -39,6 +39,7 @@ var (
 	OS_CCI_ENVIRONMENT        = os.Getenv("OS_CCI_ENVIRONMENT")
 	OS_CDN_DOMAIN_NAME        = os.Getenv("OS_CDN_DOMAIN_NAME")
 	OS_ADMIN                  = os.Getenv("OS_ADMIN")
+	OS_ENTERPRISE_PROJECT_ID  = os.Getenv("OS_ENTERPRISE_PROJECT_ID")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -145,6 +146,12 @@ func testAccPreCheckCDN(t *testing.T) {
 func testAccPreCheckCCI(t *testing.T) {
 	if OS_CCI_ENVIRONMENT == "" {
 		t.Skip("This environment does not support CCI tests")
+	}
+}
+
+func testAccPreCheckEpsID(t *testing.T) {
+	if OS_ENTERPRISE_PROJECT_ID == "" {
+		t.Skip("This environment does not support EPS_ID tests")
 	}
 }
 

@@ -30,6 +30,9 @@ type Vpc struct {
 	//Specifies the range of available subnets in the VPC.
 	CIDR string `json:"cidr"`
 
+	//Enterprise Project ID.
+	EnterpriseProjectID string `json:"enterprise_project_id"`
+
 	// Status indicates whether or not a vpc is currently operational.
 	Status string `json:"status"`
 
