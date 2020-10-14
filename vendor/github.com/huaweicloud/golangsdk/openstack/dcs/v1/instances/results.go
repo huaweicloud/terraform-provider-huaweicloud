@@ -37,6 +37,7 @@ type Instance struct {
 	Name                 string               `json:"name"`
 	Engine               string               `json:"engine"`
 	Capacity             int                  `json:"capacity"`
+	CapacityMinor        string               `json:"capacity_minor"`
 	IP                   string               `json:"ip"`
 	Port                 int                  `json:"port"`
 	Status               string               `json:"status"`
