@@ -14,6 +14,7 @@ import (
 func TestAccDcsInstancesV1_basic(t *testing.T) {
 	var instance instances.Instance
 	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
+	resourceName := "huaweicloud_dcs_instance.instance_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -23,17 +24,13 @@ func TestAccDcsInstancesV1_basic(t *testing.T) {
 			{
 				Config: testAccDcsV1Instance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDcsV1InstanceExists("huaweicloud_dcs_instance.instance_1", instance),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dcs_instance.instance_1", "name", instanceName),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dcs_instance.instance_1", "engine", "Redis"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dcs_instance.instance_1", "engine_version", "3.0"),
-					resource.TestCheckResourceAttrSet(
-						"huaweicloud_dcs_instance.instance_1", "ip"),
-					resource.TestCheckResourceAttrSet(
-						"huaweicloud_dcs_instance.instance_1", "port"),
+					testAccCheckDcsV1InstanceExists(resourceName, instance),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "3.0"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "2"),
+					resource.TestCheckResourceAttrSet(resourceName, "ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "port"),
 				),
 			},
 		},
@@ -43,6 +40,7 @@ func TestAccDcsInstancesV1_basic(t *testing.T) {
 func TestAccDcsInstancesV1_whitelists(t *testing.T) {
 	var instance instances.Instance
 	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
+	resourceName := "huaweicloud_dcs_instance.instance_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -52,15 +50,35 @@ func TestAccDcsInstancesV1_whitelists(t *testing.T) {
 			{
 				Config: testAccDcsV1Instance_whitelists(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDcsV1InstanceExists("huaweicloud_dcs_instance.instance_1", instance),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dcs_instance.instance_1", "name", instanceName),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dcs_instance.instance_1", "engine", "Redis"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dcs_instance.instance_1", "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dcs_instance.instance_1", "whitelist_enable", "true"),
+					testAccCheckDcsV1InstanceExists(resourceName, instance),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "whitelist_enable", "true"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDcsInstancesV1_tiny(t *testing.T) {
+	var instance instances.Instance
+	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDcsV1InstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_tiny(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDcsV1InstanceExists(resourceName, instance),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "0.125"),
 				),
 			},
 		},
@@ -144,6 +162,31 @@ func testAccDcsV1Instance_basic(instanceName string) string {
 	  period_type       = "weekly"
 	  backup_at         = [1]
 	  depends_on        = ["huaweicloud_networking_secgroup.secgroup_1"]
+	}
+	`, OS_AVAILABILITY_ZONE, instanceName, OS_VPC_ID, OS_NETWORK_ID)
+}
+
+func testAccDcsV1Instance_tiny(instanceName string) string {
+	return fmt.Sprintf(`
+	data "huaweicloud_dcs_az" "az_1" {
+	  code = "%s"
+	}
+
+	resource "huaweicloud_dcs_instance" "instance_1" {
+	  name              = "%s"
+	  engine_version    = "5.0"
+	  password          = "Huawei_test"
+	  engine            = "Redis"
+	  capacity          = 0.125
+	  vpc_id            = "%s"
+	  subnet_id         = "%s"
+	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
+	  product_id        = "redis.ha.au1.tiny.128-h"
+	  save_days         = 1
+	  backup_type       = "manual"
+	  begin_at          = "00:00-01:00"
+	  period_type       = "weekly"
+	  backup_at         = [1]
 	}
 	`, OS_AVAILABILITY_ZONE, instanceName, OS_VPC_ID, OS_NETWORK_ID)
 }

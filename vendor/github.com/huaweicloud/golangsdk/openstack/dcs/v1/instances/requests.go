@@ -23,21 +23,21 @@ type CreateOps struct {
 	// A brief description supports up to 1024 characters.
 	Description string `json:"description,omitempty"`
 
-	// Cache engine, which is Redis.
+	// Cache engine, which is Redis or Memcached.
 	Engine string `json:"engine" required:"true"`
 
-	// Cache engine version, which is 3.0.7.
+	// Cache engine version, When the cache engine is Redis, the value is 3.0, 4.0 or 5.0.
 	EngineVersion string `json:"engine_version"`
 
+	// Cache capacity. Unit: GB.
 	// Indicates the message storage space.
-	// Cache capacity.
-
-	// Unit: GB.
-	// For a DCS Redis instance in single-node or master/standby mode,
-	// the cache capacity can be 2 GB, 4 GB, 8 GB, 16 GB, 32 GB, or 64 GB.
-	// For a DCS Redis instance in cluster mode, the cache capacity can be
-	// 64, 128, 256, 512, or 1024 GB.
-	Capacity int `json:"capacity" required:"true"`
+	//
+	// Redis 3.0: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64.
+	//            Proxy cluster instance specifications support 64, 128, 256, 512, and 1024.
+	// Redis4.0 and 5.0: Stand-alone and active/standby type instance values: 0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64.
+	//                   Cluster instance specifications support 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024.
+	// Memcached: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64.
+	Capacity float64 `json:"capacity" required:"true"`
 
 	// Indicate if no password visit cache instance is allowed.
 	NoPasswordAccess string `json:"no_password_access,omitempty"`
