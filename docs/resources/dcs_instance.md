@@ -139,7 +139,7 @@ The following arguments are supported:
     This parameter is mandatory for Memcached and Redis 3.0 versions.
 
 * `whitelists` - (Optional) Specifies the IP addresses which can access the instance.
-    This parameter is mandatory for Redis 4.0 and 5.0 versions. The structure is described below.
+    This parameter is valid for Redis 4.0 and 5.0 versions. The structure is described below.
 
 * `whitelist_enable` - (Optional) Enable or disable the IP addresse whitelists. Default to true.
     If the whitelist is disabled, all IP addresses connected to the VPC can access the instance.
