@@ -1,5 +1,16 @@
 ## 1.20.0 (Unreleased)
 
+## 1.19.1 (October 15, 2020)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_node_pool: Add type parameter support ([#554](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/554))
+* Update max_retries default to 5 ([#577](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/577))
+* resource/huaweicloud_obs_bucket: Add obs bucket quota support ([#579](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/579))
+* Add enterprise_project_id to vpc, eip, and bandwidth resources ([#585](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/585))
+* resource/huaweicloud_dcs_instance: Make whitelists optional for Redis 4.0 and 5.0 ([#588](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/588))
+* resource/huaweicloud_dcs_instance: Update capacity from into to float ([#589](https://github.com/terraform-providers/terraform-provider-huaweicloud/issues/589))
+
 ## 1.19.0 (September 16, 2020)
 
 FEATURES:
