@@ -200,7 +200,6 @@ func resourceCssClusterV1UserInputParams(d *schema.ResourceData) map[string]inte
 		"engine_version":          d.Get("engine_version"),
 		"expect_node_num":         d.Get("expect_node_num"),
 		"node_config":             d.Get("node_config"),
-		"backup_strategy":         d.Get("backup_strategy"),
 		"tags":                    d.Get("tags"),
 	}
 }
@@ -213,12 +212,10 @@ func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	opts := resourceCssClusterV1UserInputParams(d)
-
 	arrayIndex := map[string]int{
 		"node_config.network_info": 0,
 		"node_config.volume":       0,
 		"node_config":              0,
-		"backup_strategy":          0,
 	}
 
 	params, err := buildCssClusterV1CreateParameters(opts, arrayIndex)
@@ -241,11 +238,24 @@ func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.SetId(id.(string))
 
-	// enable snapshot function when "backup_strategy" was not specified
-	if len(d.Get("backup_strategy").([]interface{})) == 0 {
+	// enable snapshot function and set policy when "backup_strategy" was specified
+	backupRaw := d.Get("backup_strategy").([]interface{})
+	if len(backupRaw) == 1 {
 		err = snapshots.Enable(client, d.Id()).ExtractErr()
 		if err != nil {
 			return fmt.Errorf("Error enable snapshot function: %s", err)
+		}
+
+		raw := backupRaw[0].(map[string]interface{})
+		policyOpts := snapshots.PolicyCreateOpts{
+			Prefix:  raw["prefix"].(string),
+			Period:  raw["start_time"].(string),
+			KeepDay: raw["keep_days"].(int),
+			Enable:  "true",
+		}
+		err := snapshots.PolicyCreate(client, &policyOpts, d.Id()).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error creating backup strategy: %s", err)
 		}
 	}
 
@@ -259,14 +269,13 @@ func resourceCssClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
 
-	res := make(map[string]interface{})
-
 	v, err := sendCssClusterV1ReadRequest(d, client)
 	if err != nil {
 		return err
 	}
-	res["read"] = fillCssClusterV1ReadRespBody(v)
 
+	res := make(map[string]interface{})
+	res["read"] = fillCssClusterV1ReadRespBody(v)
 	if err := setCssClusterV1Properties(d, res); err != nil {
 		return err
 	}
@@ -303,13 +312,11 @@ func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	opts := resourceCssClusterV1UserInputParams(d)
-
 	arrayIndex := map[string]int{
 		"node_config.network_info": 0,
 		"node_config.volume":       0,
 		"node_config":              0,
 	}
-	timeout := d.Timeout(schema.TimeoutUpdate)
 
 	params, err := buildCssClusterV1ExtendClusterParameters(opts, arrayIndex)
 	if err != nil {
@@ -320,6 +327,8 @@ func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error 
 		if err != nil {
 			return err
 		}
+
+		timeout := d.Timeout(schema.TimeoutUpdate)
 		_, err = asyncWaitCssClusterV1ExtendCluster(d, config, r, client, timeout)
 		if err != nil {
 			return err
@@ -337,6 +346,18 @@ func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error 
 
 		rawList := d.Get("backup_strategy").([]interface{})
 		if len(rawList) == 1 {
+			// check backup strategy, if the policy was disabled, we should enable it
+			policy, err := snapshots.PolicyGet(client, d.Id()).Extract()
+			if err != nil {
+				return fmt.Errorf("Error extracting Cluster backup_strategy, err: %s", err)
+			}
+			if policy.Enable == "false" {
+				err = snapshots.Enable(client, d.Id()).ExtractErr()
+				if err != nil {
+					return fmt.Errorf("Error enable snapshot function: %s", err)
+				}
+			}
+
 			raw := rawList[0].(map[string]interface{})
 			opts = snapshots.PolicyCreateOpts{
 				Prefix:  raw["prefix"].(string),
@@ -439,16 +460,6 @@ func buildCssClusterV1CreateParameters(opts map[string]interface{}, arrayIndex m
 		return nil, err
 	} else if !e {
 		params["name"] = v
-	}
-
-	v, err = expandCssClusterV1BackupStrategy(opts, arrayIndex)
-	if err != nil {
-		return nil, err
-	}
-	if e, err := isEmptyValue(reflect.ValueOf(v)); err != nil {
-		return nil, err
-	} else if !e {
-		params["backupStrategy"] = v
 	}
 
 	// build tags parameter
@@ -598,42 +609,6 @@ func expandCssClusterV1CreateInstanceVolume(d interface{}, arrayIndex map[string
 		return nil, err
 	} else if !e {
 		req["volume_type"] = v
-	}
-
-	return req, nil
-}
-
-func expandCssClusterV1BackupStrategy(d interface{}, arrayIndex map[string]int) (interface{}, error) {
-	req := make(map[string]interface{})
-
-	v, err := navigateValue(d, []string{"backup_strategy", "start_time"}, arrayIndex)
-	if err != nil {
-		return nil, err
-	}
-	if e, err := isEmptyValue(reflect.ValueOf(v)); err != nil {
-		return nil, err
-	} else if !e {
-		req["period"] = v
-	}
-
-	v, err = navigateValue(d, []string{"backup_strategy", "keep_days"}, arrayIndex)
-	if err != nil {
-		return nil, err
-	}
-	if e, err := isEmptyValue(reflect.ValueOf(v)); err != nil {
-		return nil, err
-	} else if !e {
-		req["keepday"] = v
-	}
-
-	v, err = navigateValue(d, []string{"backup_strategy", "prefix"}, arrayIndex)
-	if err != nil {
-		return nil, err
-	}
-	if e, err := isEmptyValue(reflect.ValueOf(v)); err != nil {
-		return nil, err
-	} else if !e {
-		req["prefix"] = v
 	}
 
 	return req, nil
