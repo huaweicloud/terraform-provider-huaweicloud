@@ -196,7 +196,7 @@ resource "huaweicloud_rds_instance_v3" "instance" {
 
 func testAccCheckRdsInstanceV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.sdkClient(OS_REGION_NAME, "rdsv3", serviceProjectLevel)
+	client, err := config.RdsV3Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -222,7 +222,7 @@ func testAccCheckRdsInstanceV3Destroy(s *terraform.State) error {
 func testAccCheckRdsInstanceV3Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.sdkClient(OS_REGION_NAME, "rdsv3", serviceProjectLevel)
+		client, err := config.RdsV3Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}

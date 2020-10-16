@@ -176,6 +176,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "lts",
 		Version: "v2",
 	},
+	"smn": ServiceCatalog{
+		Name:         "smn",
+		Version:      "v2",
+		ResourceBase: "notifications",
+	},
 
 	// catalog for Security service
 	"anti-ddos": ServiceCatalog{
@@ -193,10 +198,37 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "mrs",
 		Version: "v1.1",
 	},
-	"smn": ServiceCatalog{
-		Name:         "smn",
-		Version:      "v2",
-		ResourceBase: "notifications",
+	"dws": ServiceCatalog{
+		Name:    "dws",
+		Version: "v1.0",
+	},
+	"dli": ServiceCatalog{
+		Name:    "dli",
+		Version: "v1.0",
+	},
+	"disv2": ServiceCatalog{
+		Name:    "dis",
+		Version: "v2",
+	},
+	"css": ServiceCatalog{
+		Name:    "css",
+		Version: "v1.0",
+	},
+	"cs": ServiceCatalog{
+		Name:    "cs",
+		Version: "v1.0",
+	},
+	"ges": ServiceCatalog{
+		Name:    "ges",
+		Version: "v1.0",
+	},
+	"cloudtable": ServiceCatalog{
+		Name:    "cloudtable",
+		Version: "v2",
+	},
+	"cdmv11": ServiceCatalog{
+		Name:    "cdm",
+		Version: "v1.1",
 	},
 
 	// catalog for Application
@@ -233,5 +265,9 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "oms",
 		Version: "v1",
 		Scope:   "global",
+	},
+	"mls": ServiceCatalog{
+		Name:    "mls",
+		Version: "v1.0",
 	},
 }

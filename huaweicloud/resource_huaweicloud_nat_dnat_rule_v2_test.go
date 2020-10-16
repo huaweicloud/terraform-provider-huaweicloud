@@ -108,7 +108,7 @@ resource "huaweicloud_nat_dnat_rule_v2" "dnat" {
 
 func testAccCheckNatDnatDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.sdkClient(OS_REGION_NAME, "nat", serviceProjectLevel)
+	client, err := config.natV2Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -138,7 +138,7 @@ func testAccCheckNatDnatDestroy(s *terraform.State) error {
 func testAccCheckNatDnatExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.sdkClient(OS_REGION_NAME, "nat", serviceProjectLevel)
+		client, err := config.natV2Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}

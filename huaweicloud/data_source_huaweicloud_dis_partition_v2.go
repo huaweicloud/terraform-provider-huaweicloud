@@ -46,7 +46,7 @@ func dataSourceDisPartitionV2() *schema.Resource {
 
 func dataSourceDisPartitionV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "dis", serviceProjectLevel)
+	client, err := config.disV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}

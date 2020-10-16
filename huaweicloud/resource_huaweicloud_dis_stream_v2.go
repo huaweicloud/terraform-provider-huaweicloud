@@ -157,7 +157,7 @@ func resourceDisStreamV2UserInputParams(d *schema.ResourceData) map[string]inter
 
 func resourceDisStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "dis", serviceProjectLevel)
+	client, err := config.disV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -180,7 +180,7 @@ func resourceDisStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDisStreamV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "dis", serviceProjectLevel)
+	client, err := config.disV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -198,7 +198,7 @@ func resourceDisStreamV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDisStreamV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "dis", serviceProjectLevel)
+	client, err := config.disV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -221,7 +221,7 @@ func resourceDisStreamV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDisStreamV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "dis", serviceProjectLevel)
+	client, err := config.disV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}

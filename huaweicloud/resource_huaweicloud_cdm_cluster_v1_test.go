@@ -61,7 +61,7 @@ resource "huaweicloud_cdm_cluster_v1" "cluster" {
 
 func testAccCheckCdmClusterV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.sdkClient(OS_REGION_NAME, "cdm", serviceProjectLevel)
+	client, err := config.cdmV11Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -93,7 +93,7 @@ func testAccCheckCdmClusterV1Destroy(s *terraform.State) error {
 func testAccCheckCdmClusterV1Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.sdkClient(OS_REGION_NAME, "cdm", serviceProjectLevel)
+		client, err := config.cdmV11Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}
