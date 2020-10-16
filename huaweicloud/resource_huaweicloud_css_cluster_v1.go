@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/css/v1/snapshots"
 )
 
@@ -151,12 +152,7 @@ func resourceCssClusterV1() *schema.Resource {
 				},
 			},
 
-			"tags": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
+			"tags": tagsSchema(),
 
 			"created": {
 				Type:     schema.TypeString,
@@ -301,6 +297,17 @@ func resourceCssClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("backup_strategy", nil)
 	}
 
+	// set tags
+	resourceTags, err := tags.Get(client, "css-cluster", d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching CSS cluster tags: %s", err)
+	}
+
+	tagmap := tagsToMap(resourceTags.Tags)
+	if err := d.Set("tags", tagmap); err != nil {
+		return fmt.Errorf("[DEBUG] Error saving tag to state for CSS cluster (%s): %s", d.Id(), err)
+	}
+
 	return nil
 }
 
@@ -369,6 +376,13 @@ func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error 
 		err := snapshots.PolicyCreate(client, &opts, d.Id()).ExtractErr()
 		if err != nil {
 			return fmt.Errorf("Error updating backup strategy: %s", err)
+		}
+	}
+
+	if d.HasChange("tags") {
+		tagErr := UpdateResourceTags(client, d, "css-cluster")
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags of CSS cluster:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 

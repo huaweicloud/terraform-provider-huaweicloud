@@ -21,15 +21,16 @@ resource "huaweicloud_css_cluster" "cluster" {
   expect_node_num = 1
   name            = "terraform_test_cluster"
   engine_version  = "7.1.1"
+
   node_config {
-    flavor = "ess.spec-2u16g"
+    flavor = "ess.spec-4u16g"
     network_info {
       security_group_id = huaweicloud_networking_secgroup.secgroup.id
       subnet_id         = "{{ network_id }}"
       vpc_id            = "{{ vpc_id }}"
     }
     volume {
-      volume_type = "COMMON"
+      volume_type = "HIGH"
       size        = 40
     }
     availability_zone = "{{ availability_zone }}"
@@ -67,7 +68,6 @@ The following arguments are supported:
 * `backup_strategy` - (Optional) Specifies the advanced backup policy. Structure is documented below.
 
 * `tags` - (Optional) The key/value pairs to associate with the cluster.
-  Changing this parameter will create a new resource.
 
 The `node_config` block supports:
 
