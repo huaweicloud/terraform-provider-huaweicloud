@@ -181,7 +181,7 @@ func resourceGesGraphV1UserInputParams(d *schema.ResourceData) map[string]interf
 
 func resourceGesGraphV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "ges", serviceProjectLevel)
+	client, err := config.gesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -215,7 +215,7 @@ func resourceGesGraphV1Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceGesGraphV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "ges", serviceProjectLevel)
+	client, err := config.gesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -233,7 +233,7 @@ func resourceGesGraphV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceGesGraphV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "ges", serviceProjectLevel)
+	client, err := config.gesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}

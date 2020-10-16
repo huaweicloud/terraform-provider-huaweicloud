@@ -219,6 +219,42 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1.0",
 	},
 
+	// catalog for big data
+	"dws": ServiceCatalog{
+		Name:    "dws",
+		Version: "v1.0",
+	},
+	"dli": ServiceCatalog{
+		Name:    "dli",
+		Version: "v1.0",
+	},
+	"disv2": ServiceCatalog{
+		Name:    "dis",
+		Version: "v2",
+	},
+	"css": ServiceCatalog{
+		Name:    "css",
+		Version: "v1.0",
+	},
+	"cs": ServiceCatalog{
+		Name:    "cs",
+		Version: "v1.0",
+	},
+
+	// catalog for EI
+	"ges": ServiceCatalog{
+		Name:    "ges",
+		Version: "v1.0",
+	},
+	"cloudtable": ServiceCatalog{
+		Name:    "cloudtable",
+		Version: "v2",
+	},
+	"cdmv11": ServiceCatalog{
+		Name:    "cdm",
+		Version: "v1.1",
+	},
+
 	// catalog for Others
 	"bss": ServiceCatalog{
 		Name:             "bss",
@@ -233,5 +269,9 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "oms",
 		Version: "v1",
 		Scope:   "global",
+	},
+	"mls": ServiceCatalog{
+		Name:    "mls",
+		Version: "v1.0",
 	},
 }

@@ -257,7 +257,7 @@ func resourceRdsInstanceV3UserInputParams(d *schema.ResourceData) map[string]int
 
 func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "rdsv3", serviceProjectLevel)
+	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -459,7 +459,7 @@ func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 
 func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "rdsv3", serviceProjectLevel)
+	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -482,7 +482,7 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceRdsInstanceV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "rdsv3", serviceProjectLevel)
+	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}

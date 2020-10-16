@@ -631,6 +631,40 @@ func (c *Config) gaussdbV3Client(region string) (*golangsdk.ServiceClient, error
 	return c.NewServiceClient("gaussdb", region)
 }
 
+// ********** client for big data **********
+func (c *Config) dwsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dws", region)
+}
+
+func (c *Config) dliV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dli", region)
+}
+
+func (c *Config) disV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("disv2", region)
+}
+
+func (c *Config) cssV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("css", region)
+}
+
+func (c *Config) csV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("cs", region)
+}
+
+func (c *Config) cloudtableV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("cloudtable", region)
+}
+
+func (c *Config) cdmV11Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("cdmv11", region)
+}
+
+// ********** client for EI **********
+func (c *Config) gesV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("ges", region)
+}
+
 // ********** client for Others **********
 func (c *Config) BssV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("bss", region)
@@ -642,6 +676,10 @@ func (c *Config) maasV1Client(region string) (*golangsdk.ServiceClient, error) {
 
 func (c *Config) orchestrationV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("rts", region)
+}
+
+func (c *Config) mlsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("mls", region)
 }
 
 func (c *Config) sdkClient(region, serviceType string, level string) (*golangsdk.ServiceClient, error) {

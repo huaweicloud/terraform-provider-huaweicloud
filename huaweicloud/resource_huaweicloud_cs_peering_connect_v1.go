@@ -85,7 +85,7 @@ func resourceCsPeeringConnectV1UserInputParams(d *schema.ResourceData) map[strin
 
 func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
+	client, err := config.csV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -105,7 +105,7 @@ func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error creating CsPeeringConnectV1, err=%s", err)
 	}
 
-	client, err = config.sdkClient(GetRegion(d, config), "network", serviceProjectLevel)
+	client, err = config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -117,7 +117,7 @@ func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) 
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 
-	client, err = config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
+	client, err = config.csV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating async sdk client, err=%s", err)
 	}
@@ -137,7 +137,7 @@ func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) 
 
 func resourceCsPeeringConnectV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
+	client, err := config.csV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -160,7 +160,7 @@ func resourceCsPeeringConnectV1Read(d *schema.ResourceData, meta interface{}) er
 
 func resourceCsPeeringConnectV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
+	client, err := config.csV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}

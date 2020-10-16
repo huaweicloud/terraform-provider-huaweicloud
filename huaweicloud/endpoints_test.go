@@ -681,6 +681,78 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 	t.Logf("RTS endpoint:\t %s", actualURL)
 }
 
+func TestAccServiceOldEndpoints(t *testing.T) {
+	testAccPreCheckServiceEndpoints(t)
+	testProvider := Provider().(*schema.Provider)
+	raw := make(map[string]interface{})
+	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
+	if err != nil {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	}
+	var serviceClient *golangsdk.ServiceClient
+	config := testProvider.Meta().(*Config)
+	serviceClient, err = config.sdkClient(OS_REGION_NAME, "cdm", serviceProjectLevel)
+	t.Logf("cdm endpoint:\t %s", serviceClient.ResourceBaseURL())
+	serviceClient, err = config.cdmV11Client(OS_REGION_NAME)
+	t.Logf("cdm endpoint:\t %s", serviceClient.ResourceBaseURL())
+
+	serviceClient, err = config.sdkClient(OS_REGION_NAME, "dis", serviceProjectLevel)
+	t.Logf("dis endpoint:\t %s", serviceClient.ResourceBaseURL())
+	serviceClient, err = config.disV2Client(OS_REGION_NAME)
+	t.Logf("dis endpoint:\t %s", serviceClient.ResourceBaseURL())
+
+	serviceClient, err = config.sdkClient(OS_REGION_NAME, "cloudtable", serviceProjectLevel)
+	t.Logf("cloudtable client:\t %#v", serviceClient)
+	t.Logf("cloudtable endpoint:\t %s", serviceClient.ResourceBaseURL())
+	serviceClient, err = config.cloudtableV2Client(OS_REGION_NAME)
+	t.Logf("cloudtable endpoint:\t %s", serviceClient.ResourceBaseURL())
+
+	serviceClient, err = config.sdkClient(OS_REGION_NAME, "cs", serviceProjectLevel)
+	t.Logf("cs endpoint:\t %s", serviceClient.ResourceBaseURL())
+	serviceClient, err = config.csV1Client(OS_REGION_NAME)
+	t.Logf("cs endpoint:\t %s", serviceClient.ResourceBaseURL())
+
+	serviceClient, err = config.sdkClient(OS_REGION_NAME, "css", serviceProjectLevel)
+	t.Logf("css endpoint:\t %s", serviceClient.ResourceBaseURL())
+	serviceClient, err = config.cssV1Client(OS_REGION_NAME)
+	t.Logf("css endpoint:\t %s", serviceClient.ResourceBaseURL())
+
+	serviceClient, err = config.sdkClient(OS_REGION_NAME, "network", serviceProjectLevel)
+	t.Logf("network endpoint:\t %s", serviceClient.ResourceBaseURL())
+	serviceClient, err = config.NetworkingV2Client(OS_REGION_NAME)
+	t.Logf("network endpoint:\t %s", serviceClient.ResourceBaseURL())
+
+	serviceClient, err = config.sdkClient(OS_REGION_NAME, "dli", serviceProjectLevel)
+	t.Logf("dli endpoint:\t %s", serviceClient.ResourceBaseURL())
+	serviceClient, err = config.dliV1Client(OS_REGION_NAME)
+	t.Logf("dli endpoint:\t %s", serviceClient.ResourceBaseURL())
+
+	serviceClient, err = config.sdkClient(OS_REGION_NAME, "dws", serviceProjectLevel)
+	t.Logf("dws endpoint:\t %s", serviceClient.ResourceBaseURL())
+	serviceClient, err = config.dwsV1Client(OS_REGION_NAME)
+	t.Logf("dws endpoint:\t %s", serviceClient.ResourceBaseURL())
+
+	serviceClient, err = config.sdkClient(OS_REGION_NAME, "ges", serviceProjectLevel)
+	t.Logf("ges endpoint:\t %s", serviceClient.ResourceBaseURL())
+	serviceClient, err = config.gesV1Client(OS_REGION_NAME)
+	t.Logf("ges endpoint:\t %s", serviceClient.ResourceBaseURL())
+
+	serviceClient, err = config.sdkClient(OS_REGION_NAME, "mls", serviceProjectLevel)
+	t.Logf("mls endpoint:\t %s", serviceClient.ResourceBaseURL())
+	serviceClient, err = config.mlsV1Client(OS_REGION_NAME)
+	t.Logf("mls endpoint:\t %s", serviceClient.ResourceBaseURL())
+
+	serviceClient, err = config.sdkClient(OS_REGION_NAME, "nat", serviceProjectLevel)
+	t.Logf("nat endpoint:\t %s", serviceClient.ResourceBaseURL())
+	serviceClient, err = config.natV2Client(OS_REGION_NAME)
+	t.Logf("nat endpoint:\t %s", serviceClient.ResourceBaseURL())
+
+	serviceClient, err = config.sdkClient(OS_REGION_NAME, "rdsv3", serviceProjectLevel)
+	t.Logf("rdsv3 endpoint:\t %s", serviceClient.ResourceBaseURL())
+	serviceClient, err = config.RdsV3Client(OS_REGION_NAME)
+	t.Logf("rdsv3 endpoint:\t %s", serviceClient.ResourceBaseURL())
+}
+
 func compareURL(expectedURL, actualURL, client, version string, t *testing.T) {
 	if actualURL != expectedURL {
 		t.Fatalf("%s %s endpoint: expected %s but got %s", client, version, green(expectedURL), yellow(actualURL))

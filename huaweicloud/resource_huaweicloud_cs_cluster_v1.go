@@ -107,7 +107,7 @@ func resourceCsClusterV1UserInputParams(d *schema.ResourceData) map[string]inter
 
 func resourceCsClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
+	client, err := config.csV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -140,7 +140,7 @@ func resourceCsClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCsClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
+	client, err := config.csV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -164,7 +164,7 @@ func resourceCsClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 func resourceCsClusterV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
+	client, err := config.csV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -187,7 +187,7 @@ func resourceCsClusterV1Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCsClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
+	client, err := config.csV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}

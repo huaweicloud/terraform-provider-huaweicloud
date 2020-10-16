@@ -80,7 +80,7 @@ resource "huaweicloud_css_cluster_v1" "cluster" {
 
 func testAccCheckCssClusterV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.sdkClient(OS_REGION_NAME, "css", serviceProjectLevel)
+	client, err := config.cssV1Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -109,7 +109,7 @@ func testAccCheckCssClusterV1Destroy(s *terraform.State) error {
 func testAccCheckCssClusterV1Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.sdkClient(OS_REGION_NAME, "css", serviceProjectLevel)
+		client, err := config.cssV1Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}
