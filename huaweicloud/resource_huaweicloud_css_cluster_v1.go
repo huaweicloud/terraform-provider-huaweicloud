@@ -34,8 +34,8 @@ func resourceCssClusterV1() *schema.Resource {
 		Delete: resourceCssClusterV1Delete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(30 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -47,9 +47,9 @@ func resourceCssClusterV1() *schema.Resource {
 
 			"engine_type": {
 				Type:     schema.TypeString,
-				Computed: true,
 				Optional: true,
 				ForceNew: true,
+				Default:  "elasticsearch",
 			},
 			"engine_version": {
 				Type:     schema.TypeString,
@@ -61,6 +61,18 @@ func resourceCssClusterV1() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  1,
+			},
+
+			"security_mode": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+			"password": {
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Optional:  true,
+				ForceNew:  true,
 			},
 
 			"node_config": {
@@ -436,6 +448,11 @@ func resourceCssClusterV1Delete(d *schema.ResourceData, meta interface{}) error 
 func buildCssClusterV1CreateParameters(opts map[string]interface{}, arrayIndex map[string]int) (interface{}, error) {
 	params := make(map[string]interface{})
 
+	resourceData := opts["terraform_resource_data"].(*schema.ResourceData)
+	if resourceData == nil {
+		return nil, fmt.Errorf("failed to build parameters: Resource Data is null")
+	}
+
 	v, err := expandCssClusterV1CreateDatastore(opts, arrayIndex)
 	if err != nil {
 		return nil, err
@@ -456,24 +473,22 @@ func buildCssClusterV1CreateParameters(opts map[string]interface{}, arrayIndex m
 		params["instance"] = v
 	}
 
-	v, err = navigateValue(opts, []string{"expect_node_num"}, arrayIndex)
-	if err != nil {
-		return nil, err
+	if nodeNumber := resourceData.Get("expect_node_num").(int); nodeNumber != 0 {
+		params["instanceNum"] = nodeNumber
 	}
-	if e, err := isEmptyValue(reflect.ValueOf(v)); err != nil {
-		return nil, err
-	} else if !e {
-		params["instanceNum"] = v
+	if clusterName := resourceData.Get("name").(string); clusterName != "" {
+		params["name"] = clusterName
 	}
 
-	v, err = navigateValue(opts, []string{"name"}, arrayIndex)
-	if err != nil {
-		return nil, err
-	}
-	if e, err := isEmptyValue(reflect.ValueOf(v)); err != nil {
-		return nil, err
-	} else if !e {
-		params["name"] = v
+	securityMode := resourceData.Get("security_mode").(bool)
+	if securityMode == true {
+		adminPassword := resourceData.Get("password").(string)
+		if adminPassword == "" {
+			return nil, fmt.Errorf("Administrator password is required in security mode")
+		}
+		params["httpsEnable"] = true
+		params["authorityEnable"] = true
+		params["adminPwd"] = adminPassword
 	}
 
 	// build tags parameter
@@ -503,8 +518,6 @@ func expandCssClusterV1CreateDatastore(d interface{}, arrayIndex map[string]int)
 		return nil, err
 	} else if !e {
 		req["type"] = v
-	} else {
-		req["type"] = "elasticsearch"
 	}
 
 	v, err = navigateValue(d, []string{"engine_version"}, arrayIndex)
@@ -835,6 +848,10 @@ func fillCssClusterV1ReadRespBody(body interface{}) interface{} {
 		result["name"] = nil
 	}
 
+	if v, ok := val["httpsEnable"]; ok {
+		result["security_mode"] = v
+	}
+
 	if v, ok := val["status"]; ok {
 		result["status"] = v
 	} else {
@@ -963,6 +980,13 @@ func setCssClusterV1Properties(d *schema.ResourceData, response map[string]inter
 	}
 	if err = d.Set("name", v); err != nil {
 		return fmt.Errorf("Error setting Cluster:name, err: %s", err)
+	}
+
+	v, err = navigateValue(response, []string{"read", "security_mode"}, nil)
+	if err == nil {
+		if err = d.Set("security_mode", v); err != nil {
+			return fmt.Errorf("Error setting Cluster:security_mode, err: %s", err)
+		}
 	}
 
 	v, _ = opts["nodes"]

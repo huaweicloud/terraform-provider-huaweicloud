@@ -56,6 +56,29 @@ func TestAccCssClusterV1_basic(t *testing.T) {
 	})
 }
 
+func TestAccCssClusterV1_security(t *testing.T) {
+	randName := acctest.RandString(6)
+	resourceName := "huaweicloud_css_cluster_v1.cluster"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCssClusterV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCssClusterV1_security(randName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCssClusterV1Exists(),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_cluster%s", randName)),
+					resource.TestCheckResourceAttr(resourceName, "expect_node_num", "1"),
+					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
+					resource.TestCheckResourceAttr(resourceName, "security_mode", "true"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckCssClusterV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	client, err := config.sdkClient(OS_REGION_NAME, "css", serviceProjectLevel)
@@ -176,6 +199,37 @@ resource "huaweicloud_css_cluster_v1" "cluster" {
   tags = {
     foo = "bar_update"
     key_update = "value"
+  }
+}
+	`, val, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE)
+}
+
+func testAccCssClusterV1_security(val string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_networking_secgroup_v2" "secgroup" {
+  name = "terraform_test_security_group%s"
+  description = "terraform security group acceptance test"
+}
+
+resource "huaweicloud_css_cluster_v1" "cluster" {
+  name = "terraform_test_cluster%s"
+  engine_version  = "7.6.2"
+  expect_node_num = 1
+  security_mode   = true
+  password        = "Test@passw0rd"
+
+  node_config {
+    flavor = "ess.spec-4u16g"
+    network_info {
+      security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
+      subnet_id = "%s"
+      vpc_id = "%s"
+    }
+    volume {
+      volume_type = "HIGH"
+      size = 40
+    }
+    availability_zone = "%s"
   }
 }
 	`, val, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE)
