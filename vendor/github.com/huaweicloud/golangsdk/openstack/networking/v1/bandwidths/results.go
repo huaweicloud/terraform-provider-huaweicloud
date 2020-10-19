@@ -68,3 +68,14 @@ func (r UpdateResult) Extract() (BandWidth, error) {
 	err := r.Result.ExtractIntoStructPtr(&bw, "bandwidth")
 	return bw, err
 }
+
+//ListResult is a struct which contains the result of list method
+type ListResult struct {
+	golangsdk.Result
+}
+
+func (r ListResult) Extract() ([]BandWidth, error) {
+	var s []BandWidth
+	err := r.ExtractIntoSlicePtr(&s, "bandwidths")
+	return s, err
+}

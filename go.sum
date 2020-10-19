@@ -133,6 +133,8 @@ github.com/huaweicloud/golangsdk v0.0.0-20201010022156-88a65d817494 h1:3nOQxuXHU
 github.com/huaweicloud/golangsdk v0.0.0-20201010022156-88a65d817494/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
 github.com/huaweicloud/golangsdk v0.0.0-20201013113019-d00b298c3cdd h1:98+a/BpLn8AJBvFEKZIxAt4TnyWcgfOF02PQQoj9+Js=
 github.com/huaweicloud/golangsdk v0.0.0-20201013113019-d00b298c3cdd/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
+github.com/huaweicloud/golangsdk v0.0.0-20201019092827-0254ff170b2e h1:3/OcFZHyBNfPlLxv8BiCP3b6rkzhfIQWU2TmwBEmb7g=
+github.com/huaweicloud/golangsdk v0.0.0-20201019092827-0254ff170b2e/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
 github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a h1:FyS/ubzBR5xJlnJGRTwe7GUHpJOR4ukYK3y+LFNffuA=
 github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a/go.mod h1:uoIMjNxUfXi48Ci40IXkPRbghZ1vbti6v9LCbNqRgHY=
 github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
