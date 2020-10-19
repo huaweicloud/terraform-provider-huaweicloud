@@ -58,14 +58,14 @@ resource "huaweicloud_css_cluster_v1" "cluster" {
   name = "terraform_test_cluster%s"
   engine_version = "6.2.3"
   node_config {
-    flavor = "ess.spec-2u16g"
+    flavor = "ess.spec-4u8g"
     network_info {
       security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
       subnet_id = "%s"
       vpc_id = "%s"
     }
     volume {
-      volume_type = "COMMON"
+      volume_type = "HIGH"
       size = 40
     }
     availability_zone = "%s"
