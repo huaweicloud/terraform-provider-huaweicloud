@@ -709,7 +709,7 @@ func TestAccServiceOldEndpoints(t *testing.T) {
 
 	serviceClient, err = config.sdkClient(OS_REGION_NAME, "cs", serviceProjectLevel)
 	t.Logf("cs endpoint:\t %s", serviceClient.ResourceBaseURL())
-	serviceClient, err = config.csV1Client(OS_REGION_NAME)
+	serviceClient, err = config.cloudStreamV1Client(OS_REGION_NAME)
 	t.Logf("cs endpoint:\t %s", serviceClient.ResourceBaseURL())
 
 	serviceClient, err = config.sdkClient(OS_REGION_NAME, "css", serviceProjectLevel)

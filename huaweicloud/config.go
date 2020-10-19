@@ -648,7 +648,7 @@ func (c *Config) cssV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("css", region)
 }
 
-func (c *Config) csV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) cloudStreamV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cs", region)
 }
 
