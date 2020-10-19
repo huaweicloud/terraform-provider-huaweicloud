@@ -47,6 +47,8 @@ The following arguments are supported:
 * `access_type` - (Optional) Specifies the type of the share access rule. The default value is *cert*.
     Changing this will create a new access rule.
 
+* `enterprise_project_id` - (Optional) The enterprise project id of the SFS. Changing this creates a new SFS.
+
 * `access_to` - (Optional) Specifies the value that defines the access rule. The value contains 1 to 255 characters.
     Changing this will create a new access rule. The value varies according to the scenario:
     - Set the VPC ID in VPC authorization scenarios.

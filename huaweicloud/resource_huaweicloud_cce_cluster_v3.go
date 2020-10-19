@@ -139,6 +139,12 @@ func resourceCCEClusterV3() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -209,7 +215,7 @@ func resourceClusterAnnotationsV3(d *schema.ResourceData) map[string]string {
 	}
 	return m
 }
-func resourceClusterExtendParamV3(d *schema.ResourceData) map[string]string {
+func resourceClusterExtendParamV3(d *schema.ResourceData, config *Config) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("extend_param").(map[string]interface{}) {
 		m[key] = val.(string)
@@ -222,6 +228,12 @@ func resourceClusterExtendParamV3(d *schema.ResourceData) map[string]string {
 	}
 	if eip, ok := d.GetOk("eip"); ok {
 		m["clusterExternalIP"] = eip.(string)
+	}
+
+	epsID := GetEnterpriseProjectID(d, config)
+
+	if epsID != "" {
+		m["enterpriseProjectId"] = epsID
 	}
 	return m
 }
@@ -263,7 +275,7 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 				AuthenticatingProxy: authenticating_proxy,
 			},
 			BillingMode: d.Get("billing_mode").(int),
-			ExtendParam: resourceClusterExtendParamV3(d),
+			ExtendParam: resourceClusterExtendParamV3(d, config),
 		},
 	}
 
@@ -326,6 +338,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("authentication_mode", n.Spec.Authentication.Mode)
 	d.Set("security_group_id", n.Spec.HostNetwork.SecurityGroup)
 	d.Set("region", GetRegion(d, config))
+	d.Set("enterprise_project_id", n.Spec.ExtendParam["enterpriseProjectId"])
 
 	r := clusters.GetCert(cceClient, d.Id())
 

@@ -50,6 +50,8 @@ The following arguments are supported:
 
 * `bandwidth` - (Required) The bandwidth object.
 
+* `enterprise_project_id` - (Optional) The enterprise project id of the elastic IP. Changing this creates a new eip.
+
 
 The `publicip` block supports:
 

@@ -62,6 +62,28 @@ func TestAccSFSFileSystemV2_basic(t *testing.T) {
 	})
 }
 
+func TestAccSFSFileSystemV2_withEpsId(t *testing.T) {
+	var share shares.Share
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSFSFileSystemV2Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSFSFileSystemV2_epsId,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSFSFileSystemV2Exists("huaweicloud_sfs_file_system_v2.sfs_1", &share),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_sfs_file_system_v2.sfs_1", "name", "sfs-test1"),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_sfs_file_system_v2.sfs_1", "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+				),
+			},
+		},
+	})
+}
+
 func TestAccSFSFileSystemV2_without_rule(t *testing.T) {
 	var share shares.Share
 
@@ -171,6 +193,20 @@ resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
   availability_zone = "%s"
 }
 `, OS_VPC_ID, OS_AVAILABILITY_ZONE)
+
+var testAccSFSFileSystemV2_epsId = fmt.Sprintf(`
+resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
+  share_proto  = "NFS"
+  size         = 10
+  name         = "sfs-test1"
+  description  = "sfs_c2c_test-file"
+  access_to    = "%s"
+  access_type  = "cert"
+  access_level = "rw"
+  availability_zone = "%s"
+  enterprise_project_id = "%s"
+}
+`, OS_VPC_ID, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID)
 
 var testAccSFSFileSystemV2_update = fmt.Sprintf(`
 resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
