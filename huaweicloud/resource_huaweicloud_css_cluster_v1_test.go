@@ -25,57 +25,58 @@ import (
 )
 
 func TestAccCssClusterV1_basic(t *testing.T) {
+	randName := acctest.RandString(6)
+	resourceName := "huaweicloud_css_cluster_v1.cluster"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCssClusterV1Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCssClusterV1_basic(acctest.RandString(10)),
+				Config: testAccCssClusterV1_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCssClusterV1Exists(),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_css_cluster_v1.cluster", "expect_node_num", "1"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_css_cluster_v1.cluster", "engine_type", "elasticsearch"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_css_cluster_v1.cluster", "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_cluster%s", randName)),
+					resource.TestCheckResourceAttr(resourceName, "expect_node_num", "1"),
+					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+				),
+			},
+			{
+				Config: testAccCssClusterV1_update(randName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCssClusterV1Exists(),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key_update", "value"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCssClusterV1_basic(val string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_networking_secgroup_v2" "secgroup" {
-  name = "terraform_test_security_group%s"
-  description = "terraform security group acceptance test"
-}
+func TestAccCssClusterV1_security(t *testing.T) {
+	randName := acctest.RandString(6)
+	resourceName := "huaweicloud_css_cluster_v1.cluster"
 
-resource "huaweicloud_css_cluster_v1" "cluster" {
-  expect_node_num = 1
-  name = "terraform_test_cluster%s"
-  engine_version = "6.2.3"
-  node_config {
-    flavor = "ess.spec-2u16g"
-    network_info {
-      security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
-      subnet_id = "%s"
-      vpc_id = "%s"
-    }
-    volume {
-      volume_type = "COMMON"
-      size = 40
-    }
-    availability_zone = "%s"
-  }
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
-}
-	`, val, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCssClusterV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCssClusterV1_security(randName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCssClusterV1Exists(),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_cluster%s", randName)),
+					resource.TestCheckResourceAttr(resourceName, "expect_node_num", "1"),
+					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
+					resource.TestCheckResourceAttr(resourceName, "security_mode", "true"),
+				),
+			},
+		},
+	})
 }
 
 func testAccCheckCssClusterV1Destroy(s *terraform.State) error {
@@ -135,4 +136,101 @@ func testAccCheckCssClusterV1Exists() resource.TestCheckFunc {
 		}
 		return nil
 	}
+}
+
+func testAccCssClusterV1_basic(val string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_networking_secgroup_v2" "secgroup" {
+  name = "terraform_test_security_group%s"
+  description = "terraform security group acceptance test"
+}
+
+resource "huaweicloud_css_cluster_v1" "cluster" {
+  name = "terraform_test_cluster%s"
+  engine_version  = "7.1.1"
+  expect_node_num = 1
+
+  node_config {
+    flavor = "ess.spec-4u16g"
+    network_info {
+      security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
+      subnet_id = "%s"
+      vpc_id = "%s"
+    }
+    volume {
+      volume_type = "HIGH"
+      size = 40
+    }
+    availability_zone = "%s"
+  }
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+	`, val, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE)
+}
+
+func testAccCssClusterV1_update(val string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_networking_secgroup_v2" "secgroup" {
+  name = "terraform_test_security_group%s"
+  description = "terraform security group acceptance test"
+}
+
+resource "huaweicloud_css_cluster_v1" "cluster" {
+  name = "terraform_test_cluster%s"
+  engine_version  = "7.1.1"
+  expect_node_num = 1
+
+  node_config {
+    flavor = "ess.spec-4u16g"
+    network_info {
+      security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
+      subnet_id = "%s"
+      vpc_id = "%s"
+    }
+    volume {
+      volume_type = "HIGH"
+      size = 40
+    }
+    availability_zone = "%s"
+  }
+  tags = {
+    foo = "bar_update"
+    key_update = "value"
+  }
+}
+	`, val, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE)
+}
+
+func testAccCssClusterV1_security(val string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_networking_secgroup_v2" "secgroup" {
+  name = "terraform_test_security_group%s"
+  description = "terraform security group acceptance test"
+}
+
+resource "huaweicloud_css_cluster_v1" "cluster" {
+  name = "terraform_test_cluster%s"
+  engine_version  = "7.6.2"
+  expect_node_num = 1
+  security_mode   = true
+  password        = "Test@passw0rd"
+
+  node_config {
+    flavor = "ess.spec-4u16g"
+    network_info {
+      security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
+      subnet_id = "%s"
+      vpc_id = "%s"
+    }
+    volume {
+      volume_type = "HIGH"
+      size = 40
+    }
+    availability_zone = "%s"
+  }
+}
+	`, val, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE)
 }
