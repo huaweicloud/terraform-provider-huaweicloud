@@ -681,7 +681,7 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 	t.Logf("RTS endpoint:\t %s", actualURL)
 }
 
-func TestAccServiceOldEndpoints(t *testing.T) {
+func TestAccServiceEndpoints_BigData(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 	testProvider := Provider().(*schema.Provider)
 	raw := make(map[string]interface{})
