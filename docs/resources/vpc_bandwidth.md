@@ -40,6 +40,14 @@ The following attributes are exported:
 
 * `enterprise_project_id` - See Argument Reference above.
 
+* `share_type` - Indicates whether the bandwidth is shared or dedicated.
+
+* `bandwidth_type` - Indicates the bandwidth type.
+
+* `charge_mode` - Indicates whether the billing is based on traffic, bandwidth, or 95th percentile bandwidth (enhanced).
+
+* `status` - Indicates the bandwidth status.
+
 ## Import
 
 Shared Bandwidths can be imported using the `id`, e.g.
