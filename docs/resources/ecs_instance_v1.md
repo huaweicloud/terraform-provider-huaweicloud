@@ -1,3 +1,6 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud\_ecs\_instance\_v1
 

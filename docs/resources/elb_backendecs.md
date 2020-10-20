@@ -1,7 +1,10 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud\_elb\_backendecs
 
--> **NOTE:** It has been deprecated, use ELB(Enhanced) instead.
+!> **Warning:** It has been deprecated, use ELB(Enhanced) instead.
 
 Manages an elastic loadbalancer backendecs resource within huawei cloud.
 

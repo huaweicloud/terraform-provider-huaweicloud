@@ -1,7 +1,12 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud_rts_software_config_v1
 
 Provides an RTS software config resource.
+
+!> **Warning:** It has been deprecated.
 
 # Example Usage
 

@@ -1,3 +1,6 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud\_networking\_router\_interface\_v2
 

@@ -1,7 +1,10 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud\_compute\_floatingip\_v2
 
--> **NOTE:** It has been deprecated, use `huaweicloud_vpc_eip` instead.
+!> **Warning:** It has been deprecated, use `huaweicloud_vpc_eip` instead.
 
 Manages a V2 floating IP resource within HuaweiCloud Nova (compute)
 that can be used for compute instances.
