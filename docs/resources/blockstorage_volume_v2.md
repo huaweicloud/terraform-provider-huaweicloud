@@ -1,3 +1,6 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud\_blockstorage\_volume_v2
 

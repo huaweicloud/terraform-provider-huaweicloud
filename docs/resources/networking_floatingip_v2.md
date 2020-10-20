@@ -1,3 +1,6 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud\_networking\_floatingip\_v2
 

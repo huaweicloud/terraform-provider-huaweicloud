@@ -1,7 +1,10 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud\_elb\_loadbalancer
 
--> **NOTE:** It has been deprecated, use ELB(Enhanced) instead.
+!> **Warning:** It has been deprecated, use ELB(Enhanced) instead.
 
 Manages an elastic loadbalancer resource within huawei cloud.
 

@@ -1,5 +1,10 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud_rts_stack_v1
+
+!> **Warning:** It has been deprecated.
 
 The Huaweicloud `Resource Template Service` Stack data source allows access to stack outputs and other useful data including the template body.
 

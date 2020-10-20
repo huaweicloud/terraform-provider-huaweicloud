@@ -1,7 +1,12 @@
+---
+subcategory: "Deprecated"
+---
 
-# huaweicloud_rts_stack_v1_
+# huaweicloud_rts_stack_v1
 
 Provides an Huawei Cloud Stack resource.
+
+!> **Warning:** It has been deprecated.
 
 ## Example Usage
 

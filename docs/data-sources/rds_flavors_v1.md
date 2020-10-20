@@ -1,13 +1,18 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud\_rds\_flavors\_v1
 
 Use this data source to get the ID of an available HuaweiCloud rds flavor.
 
+!> **Warning:** It has been deprecated, use `huaweicloud_rds_flavors` instead.
+
 ## Example Usage
 
 ```hcl
 data "huaweicloud_rds_flavors_v1" "flavor" {
-  region            = "eu-de"
+  region            = "cn-north-1"
   datastore_name    = "PostgreSQL"
   datastore_version = "9.5.5"
   speccode          = "rds.pg.s1.medium"
