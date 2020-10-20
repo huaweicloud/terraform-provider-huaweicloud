@@ -29,6 +29,8 @@ func TestAccVpcBandWidthV2_basic(t *testing.T) {
 					testAccCheckVpcBandWidthV2Exists(resourceName, &bandwidth),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "size", "5"),
+					resource.TestCheckResourceAttr(resourceName, "share_type", "WHOLE"),
+					resource.TestCheckResourceAttr(resourceName, "status", "NORMAL"),
 				),
 			},
 			{
