@@ -265,7 +265,7 @@ func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
 
-		tagErr := UpdateResourceTags(vpcSubnetV2Client, d, "subnets")
+		tagErr := UpdateResourceTags(vpcSubnetV2Client, d, "subnets", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of VPC subnet %s: %s", d.Id(), tagErr)
 		}
