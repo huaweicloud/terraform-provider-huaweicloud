@@ -56,8 +56,45 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 	})
 }
 
+func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
+	name := acctest.RandString(10)
+	resourceName := "huaweicloud_rds_instance_v3.instance"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRdsInstanceV3Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstanceV3_epsId(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceV3Exists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+				),
+			},
+		},
+	})
+}
+
 func testAccRdsInstanceV3_basic(val string) string {
 	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name = "vps-rds-test"
+  cidr = "192.168.0.0/16"
+}
+	
+resource "huaweicloud_vpc_subnet" "test" {
+  name          = "subnet-rds-test"
+  cidr          = "192.168.0.0/16"
+  gateway_ip    = "192.168.0.1"
+  primary_dns   = "100.125.1.250"
+  secondary_dns = "100.125.21.250"
+  vpc_id        = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_networking_secgroup" "secgroup_1" {
+  name = "sg-rds-test"
+}
+
 resource "huaweicloud_rds_instance_v3" "instance" {
   availability_zone = ["%s"]
   db {
@@ -67,9 +104,9 @@ resource "huaweicloud_rds_instance_v3" "instance" {
     port = "8635"
   }
   name = "terraform_test_rds_instance%s"
-  security_group_id = "774972c0-aebe-45b4-bfcb-46fc7e91e9d9"
-  subnet_id = "%s"
-  vpc_id = "%s"
+  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
+  subnet_id = huaweicloud_vpc_subnet.test.id
+  vpc_id = huaweicloud_vpc.test.id
   volume {
     type = "ULTRAHIGH"
     size = 50
@@ -80,7 +117,7 @@ resource "huaweicloud_rds_instance_v3" "instance" {
     keep_days = 1
   }
 }
-	`, OS_AVAILABILITY_ZONE, val, OS_NETWORK_ID, OS_VPC_ID)
+	`, OS_AVAILABILITY_ZONE, val)
 }
 
 func testAccRdsInstanceV3_update(val string) string {
@@ -108,6 +145,53 @@ resource "huaweicloud_rds_instance_v3" "instance" {
   }
 }
 	`, OS_AVAILABILITY_ZONE, val, OS_NETWORK_ID, OS_VPC_ID)
+}
+
+func testAccRdsInstanceV3_epsId(val string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_v1" "test" {
+  name = "vps-rds-test"
+  cidr = "192.168.0.0/16"
+}
+	
+resource "huaweicloud_vpc_subnet_v1" "test" {
+  name          = "subnet-rds-test"
+  cidr          = "192.168.0.0/16"
+  gateway_ip    = "192.168.0.1"
+  primary_dns   = "100.125.1.250"
+  secondary_dns = "100.125.21.250"
+  vpc_id        = huaweicloud_vpc_v1.test.id
+}
+
+resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
+  name = "sg-rds-test"
+}
+
+resource "huaweicloud_rds_instance_v3" "instance" {
+  availability_zone = ["%s"]
+  db {
+    password = "Huangwei!120521"
+    type = "PostgreSQL"
+    version = "10"
+    port = "8635"
+  }
+  name = "terraform_test_rds_instance%s"
+  security_group_id = huaweicloud_networking_secgroup_v2.secgroup_1.id
+  subnet_id = huaweicloud_vpc_subnet_v1.test.id
+  vpc_id = huaweicloud_vpc_v1.test.id
+  volume {
+    type = "ULTRAHIGH"
+    size = 50
+  }
+  flavor = "rds.pg.c2.medium"
+  backup_strategy {
+    start_time = "08:00-09:00"
+    keep_days = 1
+  }
+  enterprise_project_id = "%s"
+  
+}
+	`, OS_AVAILABILITY_ZONE, val, OS_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccCheckRdsInstanceV3Destroy(s *terraform.State) error {

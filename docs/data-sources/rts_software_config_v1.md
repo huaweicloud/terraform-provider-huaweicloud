@@ -1,10 +1,14 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud_rts_software_config_v1
+
+!> **Warning:** It has been deprecated.
 
 The RTS Software Config data source provides details about a specific RTS Software Config.
 
 ## Example Usage
-
 
 ```hcl
 variable "config_name" {}

@@ -473,7 +473,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 	}
 	//update tags
 	if d.HasChange("tags") {
-		tagErr := UpdateResourceTags(client, d, "instances")
+		tagErr := UpdateResourceTags(client, d, "instances", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of GeminiDB %q: %s", d.Id(), tagErr)
 		}

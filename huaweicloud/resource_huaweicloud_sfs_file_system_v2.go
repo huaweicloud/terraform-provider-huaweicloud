@@ -83,6 +83,12 @@ func resourceSFSFileSystemV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"share_access_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -149,7 +155,7 @@ func resourceSFSFileSystemV2Create(d *schema.ResourceData, meta interface{}) err
 		Name:             d.Get("name").(string),
 		Description:      d.Get("description").(string),
 		IsPublic:         d.Get("is_public").(bool),
-		Metadata:         resourceSFSMetadataV2(d),
+		Metadata:         resourceSFSMetadataV2(d, config),
 		AvailabilityZone: d.Get("availability_zone").(string),
 	}
 
@@ -223,6 +229,7 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 	d.Set("region", GetRegion(d, config))
 	d.Set("export_location", n.ExportLocation)
 	d.Set("host", n.Host)
+	d.Set("enterprise_project_id", n.Metadata["enterprise_project_id"])
 
 	// NOTE: This tries to remove system metadata.
 	md := make(map[string]string)
@@ -427,10 +434,17 @@ func waitForSFSFileDelete(sfsClient *golangsdk.ServiceClient, shareId string) re
 	}
 }
 
-func resourceSFSMetadataV2(d *schema.ResourceData) map[string]string {
+func resourceSFSMetadataV2(d *schema.ResourceData, config *Config) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("metadata").(map[string]interface{}) {
 		m[key] = val.(string)
 	}
+
+	epsID := GetEnterpriseProjectID(d, config)
+
+	if epsID != "" {
+		m["enterprise_project_id"] = epsID
+	}
+
 	return m
 }

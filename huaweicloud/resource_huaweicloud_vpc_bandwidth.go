@@ -47,6 +47,23 @@ func resourceVpcBandWidthV2() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+
+			"share_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"bandwidth_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"charge_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -67,7 +84,6 @@ func resourceVpcBandWidthV2Create(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	epsID := GetEnterpriseProjectID(d, config)
-
 	if epsID != "" {
 		createOpts.EnterpriseProjectId = epsID
 	}
@@ -89,7 +105,6 @@ func resourceVpcBandWidthV2Create(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	_, err = stateConf.WaitForState()
-
 	if err != nil {
 		return fmt.Errorf(
 			"Error waiting for Bandwidth (%s) to become ACTIVE for creation: %s",
@@ -145,6 +160,10 @@ func resourceVpcBandWidthV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("size", b.Size)
 	d.Set("enterprise_project_id", b.EnterpriseProjectID)
 
+	d.Set("share_type", b.ShareType)
+	d.Set("bandwidth_type", b.BandwidthType)
+	d.Set("charge_mode", b.ChargeMode)
+	d.Set("status", b.Status)
 	return nil
 }
 
@@ -162,7 +181,7 @@ func resourceVpcBandWidthV2Delete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"ACTIVE"},
+		Pending:    []string{"NORMAL"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForBandwidth(NetworkingV1Client, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
@@ -176,7 +195,6 @@ func resourceVpcBandWidthV2Delete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.SetId("")
-
 	return nil
 }
 

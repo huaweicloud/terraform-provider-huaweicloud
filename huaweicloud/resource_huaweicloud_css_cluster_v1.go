@@ -392,7 +392,7 @@ func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if d.HasChange("tags") {
-		tagErr := UpdateResourceTags(client, d, "css-cluster")
+		tagErr := UpdateResourceTags(client, d, "css-cluster", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of CSS cluster:%s, err:%s", d.Id(), tagErr)
 		}

@@ -17,7 +17,7 @@ func tagsSchema() *schema.Schema {
 
 // UpdateResourceTags is a helper to update the tags for a resource.
 // It expects the tags field to be named "tags"
-func UpdateResourceTags(conn *golangsdk.ServiceClient, d *schema.ResourceData, resourceType string) error {
+func UpdateResourceTags(conn *golangsdk.ServiceClient, d *schema.ResourceData, resourceType, id string) error {
 	if d.HasChange("tags") {
 		oRaw, nRaw := d.GetChange("tags")
 		oMap := oRaw.(map[string]interface{})
@@ -26,7 +26,7 @@ func UpdateResourceTags(conn *golangsdk.ServiceClient, d *schema.ResourceData, r
 		// remove old tags
 		if len(oMap) > 0 {
 			taglist := expandResourceTags(oMap)
-			err := tags.Delete(conn, resourceType, d.Id(), taglist).ExtractErr()
+			err := tags.Delete(conn, resourceType, id, taglist).ExtractErr()
 			if err != nil {
 				return err
 			}
@@ -35,7 +35,7 @@ func UpdateResourceTags(conn *golangsdk.ServiceClient, d *schema.ResourceData, r
 		// set new tags
 		if len(nMap) > 0 {
 			taglist := expandResourceTags(nMap)
-			err := tags.Create(conn, resourceType, d.Id(), taglist).ExtractErr()
+			err := tags.Create(conn, resourceType, id, taglist).ExtractErr()
 			if err != nil {
 				return err
 			}

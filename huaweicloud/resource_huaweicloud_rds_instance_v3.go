@@ -172,6 +172,13 @@ func resourceRdsInstanceV3() *schema.Resource {
 				},
 			},
 
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+
 			"ha_replication_mode": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -264,6 +271,7 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 
 	opts := resourceRdsInstanceV3UserInputParams(d)
 	opts["region"] = GetRegion(d, config)
+	opts["enterprise_project_id"] = GetEnterpriseProjectID(d, config)
 
 	arrayIndex := map[string]int{
 		"backup_strategy": 0,
@@ -557,6 +565,16 @@ func buildRdsInstanceV3CreateParameters(opts map[string]interface{}, arrayIndex 
 		return nil, err
 	} else if !e {
 		params["configuration_id"] = v
+	}
+
+	v, err = navigateValue(opts, []string{"enterprise_project_id"}, arrayIndex)
+	if err != nil {
+		return nil, err
+	}
+	if e, err := isEmptyValue(reflect.ValueOf(v)); err != nil {
+		return nil, err
+	} else if !e {
+		params["enterprise_project_id"] = v
 	}
 
 	v, err = expandRdsInstanceV3CreateDatastore(opts, arrayIndex)
@@ -961,6 +979,14 @@ func setRdsInstanceV3Properties(d *schema.ResourceData, response map[string]inte
 	}
 	if err = d.Set("created", v); err != nil {
 		return fmt.Errorf("Error setting Instance:created, err: %s", err)
+	}
+
+	v, err = navigateValue(response, []string{"list", "enterprise_project_id"}, nil)
+	if err != nil {
+		return fmt.Errorf("Error reading Instance:enterprise_project_id, err: %s", err)
+	}
+	if err = d.Set("enterprise_project_id", v); err != nil {
+		return fmt.Errorf("Error setting Instance:enterprise_project_id, err: %s", err)
 	}
 
 	v, _ = opts["db"]

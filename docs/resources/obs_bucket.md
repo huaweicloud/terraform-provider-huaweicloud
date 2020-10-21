@@ -254,6 +254,8 @@ The `noncurrent_version_transition` object supports the following
 * `days` (Required) Specifies the number of days when noncurrent object versions are automatically transitioned to the specified storage class.
 * `storage_class` - (Required) The class of storage used to store the object. Only `WARM` and `COLD` are supported.
 
+* `enterprise_project_id` - (Optional) The enterprise project id of the OBS bucket. Changing this creates a OBS bucket.
+
 ## Attributes Reference
 
 The following attributes are exported:

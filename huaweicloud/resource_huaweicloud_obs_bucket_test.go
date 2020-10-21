@@ -48,6 +48,29 @@ func TestAccObsBucket_basic(t *testing.T) {
 	})
 }
 
+func TestAccObsBucket_withEpsId(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "huaweicloud_obs_bucket.bucket"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckObsBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccObsBucket_epsId(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(
+						resourceName, "bucket", testAccObsBucketName(rInt)),
+					resource.TestCheckResourceAttr(
+						resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+				),
+			},
+		},
+	})
+}
+
 func TestAccObsBucket_tags(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "huaweicloud_obs_bucket.bucket"
@@ -335,6 +358,17 @@ resource "huaweicloud_obs_bucket" "bucket" {
 	acl = "private"
 }
 `, randInt)
+}
+
+func testAccObsBucket_epsId(randInt int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket = "tf-test-bucket-%d"
+  storage_class = "STANDARD"
+  acl = "private"
+  enterprise_project_id = "%s"
+}
+`, randInt, OS_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccObsBucket_basic_update(randInt int) string {

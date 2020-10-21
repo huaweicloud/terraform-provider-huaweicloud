@@ -1,7 +1,12 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud_rts_stack_resource_v1
 
 The HuaweiCloud RTS Stack Resource data source allows access to stack resource metadata.
+
+!> **Warning:** It has been deprecated.
 
 ## Example Usage
 
@@ -12,7 +17,6 @@ variable "resource_name" {}
 data "huaweicloud_rts_stack_resource_v1" "stackresource" {
   stack_name    = var.stack_name
   resource_name = var.resource_name
-
 }
 ```
 

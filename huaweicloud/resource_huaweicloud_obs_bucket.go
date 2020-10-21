@@ -266,6 +266,13 @@ func resourceObsBucket() *schema.Resource {
 				Computed: true,
 			},
 
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+
 			"bucket_domain_name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -289,6 +296,7 @@ func resourceObsBucketCreate(d *schema.ResourceData, meta interface{}) error {
 		Bucket:       bucket,
 		ACL:          obs.AclType(acl),
 		StorageClass: obs.StorageClassType(class),
+		Epid:         GetEnterpriseProjectID(d, config),
 	}
 	opts.Location = region
 	log.Printf("[DEBUG] OBS bucket create opts: %#v", opts)
@@ -412,6 +420,11 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 
 	// Read storage class
 	if err := setObsBucketStorageClass(obsClient, d); err != nil {
+		return err
+	}
+
+	// Read  enterprise project id
+	if err := setObsBucketEnterpriseProjectID(obsClient, d); err != nil {
 		return err
 	}
 
@@ -906,6 +919,23 @@ func setObsBucketStorageClass(obsClient *obs.ObsClient, d *schema.ResourceData) 
 	class := string(output.StorageClass)
 	log.Printf("[DEBUG] getting storage class of OBS bucket %s: %s", bucket, class)
 	d.Set("storage_class", normalizeStorageClass(class))
+
+	return nil
+}
+
+func setObsBucketEnterpriseProjectID(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+	bucket := d.Id()
+	input := &obs.GetBucketMetadataInput{
+		Bucket: bucket,
+	}
+	output, err := obsClient.GetBucketMetadata(input)
+	if err != nil {
+		return getObsError("Error getting metadata of OBS bucket", bucket, err)
+	}
+
+	epsId := string(output.Epid)
+	log.Printf("[DEBUG] getting enterprise project id of OBS bucket %s: %s", bucket, epsId)
+	d.Set("enterprise_project_id", epsId)
 
 	return nil
 }

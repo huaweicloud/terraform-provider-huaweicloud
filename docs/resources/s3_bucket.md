@@ -1,3 +1,6 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud\_s3\_bucket
 

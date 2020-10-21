@@ -45,6 +45,8 @@ The following arguments are supported:
 
 * `tags` - (Optional) The key/value pairs to associate with the vpc.
 
+* `enterprise_project_id` - (Optional) The enterprise project id of the vpc. Changing this creates a new vpc.
+
 ## Attributes Reference
 
 The following attributes are exported:

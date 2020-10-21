@@ -1,7 +1,12 @@
+---
+subcategory: "Deprecated"
+---
 
 # huaweicloud\_rds\_instance\_v1
 
 Manages rds instance resource within HuaweiCloud
+
+!> **Warning:** It has been deprecated, use `huaweicloud_rds_instance` instead.
 
 ## Example Usage:  Creating a PostgreSQL RDS instance
 
