@@ -6,11 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/huaweicloud/golangsdk"
-	"github.com/huaweicloud/golangsdk/openstack/dns/v2/ptrrecords"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
+	"github.com/huaweicloud/golangsdk/openstack/dns/v2/ptrrecords"
 )
 
 func ResourceDNSPtrRecordV2() *schema.Resource {
@@ -51,13 +52,7 @@ func ResourceDNSPtrRecordV2() *schema.Resource {
 				ForceNew:     false,
 				ValidateFunc: resourceValidateTTL,
 			},
-			"tags": {
-				Type:         schema.TypeMap,
-				Optional:     true,
-				ForceNew:     false,
-				ValidateFunc: validateECSTagValue,
-				Elem:         &schema.Schema{Type: schema.TypeString},
-			},
+			"tags": tagsSchema(),
 			"address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -147,6 +142,16 @@ func resourceDNSPtrRecordV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("ttl", n.TTL)
 	d.Set("address", n.Address)
 
+	// save tags
+	resourceTags, err := tags.Get(dnsClient, "DNS-ptr_record", d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching HuaweiCloud DNS ptr record tags: %s", err)
+	}
+
+	tagmap := tagsToMap(resourceTags.Tags)
+	if err := d.Set("tags", tagmap); err != nil {
+		return fmt.Errorf("Error saving tags for HuaweiCloud DNS ptr record %s: %s", d.Id(), err)
+	}
 	return nil
 }
 
@@ -158,49 +163,46 @@ func resourceDNSPtrRecordV2Update(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
-	tagmap := d.Get("tags").(map[string]interface{})
-	taglist := []ptrrecords.Tag{}
-	for k, v := range tagmap {
-		tag := ptrrecords.Tag{
-			Key:   k,
-			Value: v.(string),
+	if d.HasChanges("name", "description", "ttl") {
+		updateOpts := ptrrecords.CreateOpts{
+			PtrName:     d.Get("name").(string),
+			Description: d.Get("description").(string),
+			TTL:         d.Get("ttl").(int),
 		}
-		taglist = append(taglist, tag)
+
+		log.Printf("[DEBUG] Update Options: %#v", updateOpts)
+		fip_id := d.Get("floatingip_id").(string)
+		n, err := ptrrecords.Create(dnsClient, region, fip_id, updateOpts).Extract()
+		if err != nil {
+			return fmt.Errorf("Error updating HuaweiCloud DNS PTR record: %s", err)
+		}
+
+		log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become available", n.ID)
+		stateConf := &resource.StateChangeConf{
+			Target:     []string{"ACTIVE"},
+			Pending:    []string{"PENDING_CREATE"},
+			Refresh:    waitForDNSPtrRecord(dnsClient, n.ID),
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			Delay:      5 * time.Second,
+			MinTimeout: 3 * time.Second,
+		}
+
+		_, err = stateConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf(
+				"Error waiting for PTR record (%s) to become ACTIVE for update: %s",
+				n.ID, err)
+		}
+
+		log.Printf("[DEBUG] Updated HuaweiCloud DNS PTR record %s: %#v", n.ID, n)
 	}
 
-	createOpts := ptrrecords.CreateOpts{
-		PtrName:     d.Get("name").(string),
-		Description: d.Get("description").(string),
-		TTL:         d.Get("ttl").(int),
-		Tags:        taglist,
+	// update tags
+	tagErr := UpdateResourceTags(dnsClient, d, "DNS-ptr_record", d.Id())
+	if tagErr != nil {
+		return fmt.Errorf("Error updating tags of DNS PTR record %s: %s", d.Id(), tagErr)
 	}
 
-	log.Printf("[DEBUG] Update Options: %#v", createOpts)
-	fip_id := d.Get("floatingip_id").(string)
-	n, err := ptrrecords.Create(dnsClient, region, fip_id, createOpts).Extract()
-	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud DNS PTR record: %s", err)
-	}
-
-	log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become available", n.ID)
-	stateConf := &resource.StateChangeConf{
-		Target:     []string{"ACTIVE"},
-		Pending:    []string{"PENDING_CREATE"},
-		Refresh:    waitForDNSPtrRecord(dnsClient, n.ID),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
-	}
-
-	_, err = stateConf.WaitForState()
-
-	if err != nil {
-		return fmt.Errorf(
-			"Error waiting for PTR record (%s) to become ACTIVE for update: %s",
-			n.ID, err)
-	}
-
-	log.Printf("[DEBUG] Updated HuaweiCloud DNS PTR record %s: %#v", n.ID, n)
 	return resourceDNSPtrRecordV2Read(d, meta)
 
 }
