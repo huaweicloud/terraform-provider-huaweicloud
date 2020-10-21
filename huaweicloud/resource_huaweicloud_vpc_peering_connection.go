@@ -36,11 +36,7 @@ func ResourceVpcPeeringConnectionV2() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     false,
-				ValidateFunc: validateName,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				ValidateFunc: validateString64WithChinese,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -56,6 +52,10 @@ func ResourceVpcPeeringConnectionV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
