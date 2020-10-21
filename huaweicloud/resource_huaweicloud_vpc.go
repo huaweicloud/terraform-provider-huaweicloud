@@ -39,7 +39,7 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     false,
-				ValidateFunc: validateName,
+				ValidateFunc: validateString64WithChinese,
 			},
 			"cidr": {
 				Type:         schema.TypeString,
