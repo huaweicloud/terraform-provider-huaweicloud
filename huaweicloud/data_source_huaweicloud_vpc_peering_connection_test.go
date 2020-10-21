@@ -63,12 +63,12 @@ func testAccCheckVpcPeeringConnectionV2DataSourceID(n string) resource.TestCheck
 func testAccDataSourceVpcPeeringConnectionV2Config(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "vpc_1" {
-  name = "%s"
+  name = "%s_1"
   cidr = "192.168.0.0/16"
 }
 
 resource "huaweicloud_vpc" "vpc_2" {
-  name = "%s"
+  name = "%s_2"
   cidr = "192.168.0.0/16"
 }
 
@@ -94,5 +94,5 @@ data "huaweicloud_vpc_peering_connection" "by_vpc_ids" {
   vpc_id      = huaweicloud_vpc_peering_connection.peering_1.vpc_id
   peer_vpc_id = huaweicloud_vpc_peering_connection.peering_1.peer_vpc_id
 }
-`, rName, rName+"2", rName)
+`, rName, rName, rName)
 }

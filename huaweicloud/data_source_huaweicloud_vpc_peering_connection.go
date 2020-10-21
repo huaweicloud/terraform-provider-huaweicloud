@@ -26,7 +26,7 @@ func dataSourceVpcPeeringConnectionV2() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateName,
+				ValidateFunc: validateString64WithChinese,
 			},
 			"status": {
 				Type:     schema.TypeString,
