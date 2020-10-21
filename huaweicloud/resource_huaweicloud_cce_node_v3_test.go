@@ -31,12 +31,15 @@ func TestAccCCENodeV3_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
 				Config: testAccCCENodeV3_update(rName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
 			},
 			{
@@ -164,6 +167,10 @@ resource "huaweicloud_cce_node_v3" "test" {
     size       = 100
     volumetype = "SSD"
   }
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, testAccCCENodeV3_Base(rName), rName)
 }
@@ -186,6 +193,10 @@ resource "huaweicloud_cce_node_v3" "test" {
   data_volumes {
     size       = 100
     volumetype = "SSD"
+  }
+  tags = {
+    foo = "bar"
+    key = "value_update"
   }
 }
 `, testAccCCENodeV3_Base(rName), updateName)

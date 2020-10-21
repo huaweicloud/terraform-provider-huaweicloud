@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 )
 
 func resourceCCENodeV3() *schema.Resource {
@@ -45,10 +46,11 @@ func resourceCCENodeV3() *schema.Resource {
 				Computed: true,
 			},
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:          schema.TypeMap,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"tags"},
+				Elem:          &schema.Schema{Type: schema.TypeString},
 			},
 			"annotations": {
 				Type:     schema.TypeMap,
@@ -262,6 +264,12 @@ func resourceCCENodeV3() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"tags": {
+				Type:          schema.TypeMap,
+				Optional:      true,
+				ConflictsWith: []string{"labels"},
+				Elem:          &schema.Schema{Type: schema.TypeString},
+			},
 			"private_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -289,6 +297,7 @@ func resourceCCENodeLabelsV2(d *schema.ResourceData) map[string]string {
 	}
 	return m
 }
+
 func resourceCCENodeAnnotationsV2(d *schema.ResourceData) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("annotations").(map[string]interface{}) {
@@ -296,6 +305,12 @@ func resourceCCENodeAnnotationsV2(d *schema.ResourceData) map[string]string {
 	}
 	return m
 }
+
+func resourceCCENodeTags(d *schema.ResourceData) []tags.ResourceTag {
+	tagRaw := d.Get("tags").(map[string]interface{})
+	return expandResourceTags(tagRaw)
+}
+
 func resourceCCEDataVolume(d *schema.ResourceData) []nodes.VolumeSpec {
 	volumeRaw := d.Get("data_volumes").([]interface{})
 	volumes := make([]nodes.VolumeSpec, len(volumeRaw))
@@ -309,6 +324,7 @@ func resourceCCEDataVolume(d *schema.ResourceData) []nodes.VolumeSpec {
 	}
 	return volumes
 }
+
 func resourceCCETaint(d *schema.ResourceData) []nodes.TaintSpec {
 	taintRaw := d.Get("taints").([]interface{})
 	taints := make([]nodes.TaintSpec, len(taintRaw))
@@ -322,6 +338,7 @@ func resourceCCETaint(d *schema.ResourceData) []nodes.TaintSpec {
 	}
 	return taints
 }
+
 func resourceCCERootVolume(d *schema.ResourceData) nodes.VolumeSpec {
 	var nics nodes.VolumeSpec
 	nicsRaw := d.Get("root_volume").([]interface{})
@@ -332,6 +349,7 @@ func resourceCCERootVolume(d *schema.ResourceData) nodes.VolumeSpec {
 	}
 	return nics
 }
+
 func resourceCCEEipIDs(d *schema.ResourceData) []string {
 	if v, ok := d.GetOk("eip_id"); ok {
 		return []string{v.(string)}
@@ -343,6 +361,7 @@ func resourceCCEEipIDs(d *schema.ResourceData) []string {
 	}
 	return id
 }
+
 func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	nodeClient, err := config.cceV3Client(GetRegion(d, config))
@@ -420,7 +439,8 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 				PreInstall:         base64PreInstall,
 				PostInstall:        base64PostInstall,
 			},
-			Taints: resourceCCETaint(d),
+			Taints:   resourceCCETaint(d),
+			UserTags: resourceCCENodeTags(d),
 		},
 	}
 
@@ -538,11 +558,29 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// set computed attributes
+	serverId := s.Status.ServerID
+	d.Set("server_id", serverId)
 	d.Set("private_ip", s.Status.PrivateIP)
 	d.Set("public_ip", s.Status.PublicIP)
-	d.Set("server_id", s.Status.ServerID)
 	d.Set("status", s.Status.Phase)
 
+	// fetch tags from ECS instance
+	computeClient, err := config.computeV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+	}
+
+	resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching HuaweiCloud instance tags: %s", err)
+	}
+
+	tagmap := tagsToMap(resourceTags.Tags)
+	// ignore "CCE-Dynamic-Provisioning-Node"
+	delete(tagmap, "CCE-Dynamic-Provisioning-Node")
+	if err := d.Set("tags", tagmap); err != nil {
+		return fmt.Errorf("Error saving tags of cce node: %s", err)
+	}
 	return nil
 }
 
@@ -553,16 +591,29 @@ func resourceCCENodeV3Update(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 
-	var updateOpts nodes.UpdateOpts
-
 	if d.HasChange("name") {
+		var updateOpts nodes.UpdateOpts
 		updateOpts.Metadata.Name = d.Get("name").(string)
+
+		clusterid := d.Get("cluster_id").(string)
+		_, err = nodes.Update(nodeClient, clusterid, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return fmt.Errorf("Error updating HuaweiCloud cce node: %s", err)
+		}
 	}
 
-	clusterid := d.Get("cluster_id").(string)
-	_, err = nodes.Update(nodeClient, clusterid, d.Id(), updateOpts).Extract()
-	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud  Node: %s", err)
+	//update tags
+	if d.HasChange("tags") {
+		computeClient, err := config.computeV1Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		}
+
+		serverId := d.Get("server_id").(string)
+		tagErr := UpdateResourceTags(computeClient, d, "cloudservers", serverId)
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags of cce node %s: %s", d.Id(), tagErr)
+		}
 	}
 
 	return resourceCCENodeV3Read(d, meta)

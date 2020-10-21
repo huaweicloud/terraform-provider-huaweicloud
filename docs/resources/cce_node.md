@@ -3,7 +3,7 @@ subcategory: "Cloud Container Engine (CCE)"
 ---
 
 # huaweicloud\_cce\_node
-Add a node to a container cluster. 
+Add a node to a container cluster.
 This is an alternative to `huaweicloud_cce_node_v3`
 
 ## Basic Usage
@@ -42,7 +42,7 @@ resource "huaweicloud_cce_node" "node" {
     volumetype = "SATA"
   }
 }
-``` 
+```
 
 ## Node with Eip
 
@@ -69,7 +69,7 @@ resource "huaweicloud_cce_node" "mynode" {
   sharetype             = "PER"
   bandwidth_size        = 100
 }
-``` 
+```
 
 ## Node with Existing Eip
 
@@ -105,7 +105,7 @@ resource "huaweicloud_cce_node" "mynode" {
   // Assign existing EIP
   eip_id = huaweicloud_vpc_eip.myeip.id
 }
-``` 
+```
 
 ## Argument Reference
 The following arguments are supported:
@@ -115,7 +115,7 @@ The following arguments are supported:
 * `name` - (Optional) Node Name.
 
 * `flavor_id` - (Required) Specifies the flavor id. Changing this parameter will create a new resource.
- 
+
 * `availability_zone` - (Required) specify the name of the available partition (AZ). Changing this parameter will create a new resource.
 
 * `os` - (Optional) Operating System of the node. Changing this parameter will create a new resource.
@@ -146,7 +146,6 @@ The following arguments are supported:
 
 * `bandwidth_size` - (Optional) Bandwidth size. Changing this parameter will create a new resource.
 
-
 * `max_pods` - (Optional) The maximum number of instances a node is allowed to create. Changing this parameter will create a new cluster resource.
 
 * `preinstall` - (Optional) Script required before installation. The input value can be a Base64 encoded string or not.
@@ -155,32 +154,28 @@ The following arguments are supported:
 * `postinstall` - (Optional) Script required after installation. The input value can be a Base64 encoded string or not.
    Changing this parameter will create a new resource.
 
-**root_volume** **- (Required)** It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
+* `tags` - (Optional) Tags of a VM node, key/value pair format.
 
-* `size` - (Required) Disk size in GB.
-    
-* `volumetype` - (Required) Disk type.
-    
-* `extend_param` - (Optional) Disk expansion parameters. 
+* `root_volume` - (Required) It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
 
-**data_volumes** **- (Required)** Represents the data disk to be created. Changing this parameter will create a new resource.
-    
-* `size` - (Required) Disk size in GB.
-    
-* `volumetype` - (Required) Disk type.
-    
-* `extend_param` - (Optional) Disk expansion parameters. 
+  * `size` - (Required) Disk size in GB.
+  * `volumetype` - (Required) Disk type.
+  * `extend_param` - (Optional) Disk expansion parameters.
 
-**taints** **- (Optional)** You can add taints to created nodes to configure anti-affinity. Each taint contains the following parameters:
-    
-* `key` - (Required) A key must contain 1 to 63 characters starting with a letter or digit. Only letters, digits, hyphens (-), 
-  underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the prefix of a key.
-    
-* `value` - (Required) A value must start with a letter or digit and can contain a maximum of 63 characters, including letters, 
-  digits, hyphens (-), underscores (_), and periods (.).
-    
-* `effect` - (Required) Available options are NoSchedule, PreferNoSchedule, and NoExecute. 
-    
+* `data_volumes` - (Required) Represents the data disk to be created. Changing this parameter will create a new resource.
+
+  * `size` - (Required) Disk size in GB.
+  * `volumetype` - (Required) Disk type.
+  * `extend_param` - (Optional) Disk expansion parameters.
+
+* `taints` - (Optional) You can add taints to created nodes to configure anti-affinity. Each taint contains the following parameters:
+
+  * `key` - (Required) A key must contain 1 to 63 characters starting with a letter or digit. Only letters, digits, hyphens (-),
+    underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the prefix of a key.
+  * `value` - (Required) A value must start with a letter or digit and can contain a maximum of 63 characters, including letters,
+    digits, hyphens (-), underscores (_), and periods (.).
+  * `effect` - (Required) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
+
 ## Attributes Reference
 
 All above argument parameters can be exported as attribute parameters along with attribute reference.
