@@ -12,6 +12,8 @@ import (
 
 func TestAccVpnSiteConnectionV2_basic(t *testing.T) {
 	var conn siteconnections.Connection
+	resourceName := "huaweicloud_vpnaas_site_connection_v2.conn_1"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -20,16 +22,18 @@ func TestAccVpnSiteConnectionV2_basic(t *testing.T) {
 			{
 				Config: testAccSiteConnectionV2_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSiteConnectionV2Exists(
-						"huaweicloud_vpnaas_site_connection_v2.conn_1", &conn),
-					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_site_connection_v2.conn_1", "ikepolicy_id", &conn.IKEPolicyID),
-					resource.TestCheckResourceAttr("huaweicloud_vpnaas_site_connection_v2.conn_1", "admin_state_up", "true"),
-					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_site_connection_v2.conn_1", "ipsecpolicy_id", &conn.IPSecPolicyID),
-					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_site_connection_v2.conn_1", "vpnservice_id", &conn.VPNServiceID),
-					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_site_connection_v2.conn_1", "local_ep_group_id", &conn.LocalEPGroupID),
-					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_site_connection_v2.conn_1", "local_id", &conn.LocalID),
-					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_site_connection_v2.conn_1", "peer_ep_group_id", &conn.PeerEPGroupID),
-					resource.TestCheckResourceAttrPtr("huaweicloud_vpnaas_site_connection_v2.conn_1", "name", &conn.Name),
+					testAccCheckSiteConnectionV2Exists(resourceName, &conn),
+					resource.TestCheckResourceAttrPtr(resourceName, "name", &conn.Name),
+					resource.TestCheckResourceAttrPtr(resourceName, "vpnservice_id", &conn.VPNServiceID),
+					resource.TestCheckResourceAttrPtr(resourceName, "ikepolicy_id", &conn.IKEPolicyID),
+					resource.TestCheckResourceAttrPtr(resourceName, "ipsecpolicy_id", &conn.IPSecPolicyID),
+					resource.TestCheckResourceAttrPtr(resourceName, "peer_ep_group_id", &conn.PeerEPGroupID),
+					resource.TestCheckResourceAttrPtr(resourceName, "local_ep_group_id", &conn.LocalEPGroupID),
+					resource.TestCheckResourceAttrPtr(resourceName, "local_id", &conn.LocalID),
+
+					resource.TestCheckResourceAttr(resourceName, "admin_state_up", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 		},
@@ -43,7 +47,7 @@ func testAccCheckSiteConnectionV2Destroy(s *terraform.State) error {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_vpnaas_site_connection" {
+		if rs.Type != "huaweicloud_vpnaas_site_connection_v2" {
 			continue
 		}
 		_, err = siteconnections.Get(networkingClient, rs.Primary.ID).Extract()
@@ -93,7 +97,7 @@ var testAccSiteConnectionV2_basic = fmt.Sprintf(`
 	}
 
 	resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  		network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+		network_id = huaweicloud_networking_network_v2.network_1.id
   		cidr       = "192.168.199.0/24"
   		ip_version = 4
 	}
@@ -104,13 +108,13 @@ var testAccSiteConnectionV2_basic = fmt.Sprintf(`
 	}
 
 	resource "huaweicloud_networking_router_interface_v2" "router_interface_1" {
-  		router_id = "${huaweicloud_networking_router_v2.router_1.id}"
-  		subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
+		router_id = huaweicloud_networking_router_v2.router_1.id
+		subnet_id = huaweicloud_networking_subnet_v2.subnet_1.id
 	}
 	
 	resource "huaweicloud_vpnaas_service_v2" "service_1" {
 		name = "vpngw-acctest"
-		router_id = "${huaweicloud_networking_router_v2.router_1.id}"
+		router_id = huaweicloud_networking_router_v2.router_1.id
 	}
 
 	resource "huaweicloud_vpnaas_ipsec_policy_v2" "policy_1" {
@@ -125,19 +129,25 @@ var testAccSiteConnectionV2_basic = fmt.Sprintf(`
 	}
 	resource "huaweicloud_vpnaas_endpoint_group_v2" "group_2" {
 		type = "subnet"
-		endpoints = [ "${huaweicloud_networking_subnet_v2.subnet_1.id}" ]
+		endpoints = [huaweicloud_networking_subnet_v2.subnet_1.id]
 	}
 
 	resource "huaweicloud_vpnaas_site_connection_v2" "conn_1" {
 		name = "connection_1"
-		ikepolicy_id = "${huaweicloud_vpnaas_ike_policy_v2.policy_2.id}"
-		ipsecpolicy_id = "${huaweicloud_vpnaas_ipsec_policy_v2.policy_1.id}"
-		vpnservice_id = "${huaweicloud_vpnaas_service_v2.service_1.id}"
+		ikepolicy_id = huaweicloud_vpnaas_ike_policy_v2.policy_2.id
+		ipsecpolicy_id = huaweicloud_vpnaas_ipsec_policy_v2.policy_1.id
+		vpnservice_id = huaweicloud_vpnaas_service_v2.service_1.id
 		psk = "secret"
 		peer_address = "192.168.10.1"
 		peer_id = "192.168.10.1"
-		local_ep_group_id = "${huaweicloud_vpnaas_endpoint_group_v2.group_2.id}"
-		peer_ep_group_id = "${huaweicloud_vpnaas_endpoint_group_v2.group_1.id}"
+		local_ep_group_id = huaweicloud_vpnaas_endpoint_group_v2.group_2.id
+		peer_ep_group_id = huaweicloud_vpnaas_endpoint_group_v2.group_1.id
+
+		tags = {
+			foo = "bar"
+			key = "value"
+		}
+
 		depends_on = ["huaweicloud_networking_router_interface_v2.router_interface_1"]
 	}
 	`, OS_EXTGW_ID)

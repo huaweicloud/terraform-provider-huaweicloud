@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/siteconnections"
 )
 
@@ -137,6 +138,7 @@ func resourceVpnSiteConnectionV2() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"tags": tagsSchema(),
 		},
 	}
 }
@@ -201,14 +203,21 @@ func resourceVpnSiteConnectionV2Create(d *schema.ResourceData, meta interface{})
 		MinTimeout: 2 * time.Second,
 	}
 	_, err = stateConf.WaitForState()
-
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] SiteConnection created: %#v", conn)
-
 	d.SetId(conn.ID)
+
+	// create tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		taglist := expandResourceTags(tagRaw)
+		if tagErr := tags.Create(networkingClient, "ipsec-site-connections", d.Id(), taglist).ExtractErr(); tagErr != nil {
+			return fmt.Errorf("Error setting tags of VPN site connection %s: %s", d.Id(), tagErr)
+		}
+	}
 
 	return resourceVpnSiteConnectionV2Read(d, meta)
 }
@@ -258,6 +267,17 @@ func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) e
 	dpd = append(dpd, dpdMap)
 	if err := d.Set("dpd", &dpd); err != nil {
 		log.Printf("[WARN] unable to set Site connection DPD")
+	}
+
+	// Set tags
+	resourceTags, err := tags.Get(networkingClient, "ipsec-site-connections", d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching VPN site connection tags: %s", err)
+	}
+
+	tagmap := tagsToMap(resourceTags.Tags)
+	if err := d.Set("tags", tagmap); err != nil {
+		return fmt.Errorf("Error saving tags for VPN site connection %s: %s", d.Id(), err)
 	}
 
 	return nil
@@ -370,6 +390,12 @@ func resourceVpnSiteConnectionV2Update(d *schema.ResourceData, meta interface{})
 		}
 
 		log.Printf("[DEBUG] Updated connection with id %s", d.Id())
+	}
+
+	// update tags
+	tagErr := UpdateResourceTags(networkingClient, d, "ipsec-site-connections", d.Id())
+	if tagErr != nil {
+		return fmt.Errorf("Error updating tags of VPN site connection %s: %s", d.Id(), tagErr)
 	}
 
 	return resourceVpnSiteConnectionV2Read(d, meta)
