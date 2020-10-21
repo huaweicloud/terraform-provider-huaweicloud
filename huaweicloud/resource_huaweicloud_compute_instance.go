@@ -955,7 +955,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 		}
 
-		tagErr := UpdateResourceTags(ecsClient, d, "cloudservers")
+		tagErr := UpdateResourceTags(ecsClient, d, "cloudservers", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of instance:%s, err:%s", d.Id(), err)
 		}
