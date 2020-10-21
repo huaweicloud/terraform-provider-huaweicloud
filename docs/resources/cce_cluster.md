@@ -141,6 +141,8 @@ versions are available, choose Dashboard > Buy Cluster on the CCE console. Chang
   - iptables: Traditional kube-proxy uses iptables rules to implement service load balancing. In this mode, too many iptables rules will be generated when many services are deployed. In addition, non-incremental updates will cause a latency and even obvious performance issues in the case of heavy service traffic.
   - ipvs: Optimized kube-proxy mode with higher throughput and faster speed. This mode supports incremental updates and can keep connections uninterrupted during service updates. It is suitable for large-sized clusters.
 
+* `enterprise_project_id` - (Optional) The enterprise project id of the cce cluster. Changing this creates a new cluster.
+
 ## Attributes Reference
 
 All above argument parameters can be exported as attribute parameters along with attribute reference.

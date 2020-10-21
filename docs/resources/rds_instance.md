@@ -171,6 +171,10 @@ The following arguments are supported:
   (Optional)
   Specifies the parameter group ID. Changing this parameter will create a new resource.
 
+* `enterprise_project_id` - 
+  (Optional) 
+  The enterprise project id of the RDS. Changing this creates a new RDS.
+
 The `db` block supports:
 
 * `password` -

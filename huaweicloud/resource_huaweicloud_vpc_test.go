@@ -64,7 +64,7 @@ func TestAccVpcV1_WithEpsId(t *testing.T) {
 		CheckDestroy: testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVpcV1_basic(rName),
+				Config: testAccVpcV1_epsId(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1Exists(resourceName, &vpc),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
