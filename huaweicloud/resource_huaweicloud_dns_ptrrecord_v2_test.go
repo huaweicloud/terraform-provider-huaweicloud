@@ -18,6 +18,7 @@ func randomPtrName() string {
 func TestAccDNSV2PtrRecord_basic(t *testing.T) {
 	var ptrrecord ptrrecords.Ptr
 	ptrName := randomPtrName()
+	resourceName := "huaweicloud_dns_ptrrecord.ptr_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDNS(t) },
@@ -27,17 +28,16 @@ func TestAccDNSV2PtrRecord_basic(t *testing.T) {
 			{
 				Config: testAccDNSV2PtrRecord_basic(ptrName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2PtrRecordExists("huaweicloud_dns_ptrrecord_v2.ptr_1", &ptrrecord),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dns_ptrrecord_v2.ptr_1", "description", "a ptr record"),
+					testAccCheckDNSV2PtrRecordExists(resourceName, &ptrrecord),
+					resource.TestCheckResourceAttr(resourceName, "description", "a ptr record"),
 				),
 			},
 			{
 				Config: testAccDNSV2PtrRecord_update(ptrName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2PtrRecordExists("huaweicloud_dns_ptrrecord_v2.ptr_1", &ptrrecord),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dns_ptrrecord_v2.ptr_1", "description", "ptr record updated"),
+					testAccCheckDNSV2PtrRecordExists(resourceName, &ptrrecord),
+					resource.TestCheckResourceAttr(resourceName, "description", "ptr record updated"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 				),
 			},
 		},
@@ -52,7 +52,7 @@ func testAccCheckDNSV2PtrRecordDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_dns_ptrrecord_v2" {
+		if rs.Type != "huaweicloud_dns_ptrrecord" {
 			continue
 		}
 
@@ -99,31 +99,32 @@ func testAccCheckDNSV2PtrRecordExists(n string, ptrrecord *ptrrecords.Ptr) resou
 
 func testAccDNSV2PtrRecord_basic(ptrName string) string {
 	return fmt.Sprintf(`
-		resource "huaweicloud_networking_floatingip_v2" "fip_1" {
-		}
+resource "huaweicloud_networking_floatingip_v2" "fip_1" {
+}
 
-		resource "huaweicloud_dns_ptrrecord_v2" "ptr_1" {
-			name = "%s"
-			description = "a ptr record"
-			floatingip_id = "${huaweicloud_networking_floatingip_v2.fip_1.id}"
-			ttl = 6000
-		}
-	`, ptrName)
+resource "huaweicloud_dns_ptrrecord" "ptr_1" {
+  name = "%s"
+  description = "a ptr record"
+  floatingip_id = huaweicloud_networking_floatingip_v2.fip_1.id
+  ttl = 6000
+}
+`, ptrName)
 }
 
 func testAccDNSV2PtrRecord_update(ptrName string) string {
 	return fmt.Sprintf(`
-		resource "huaweicloud_networking_floatingip_v2" "fip_1" {
-		}
+resource "huaweicloud_networking_floatingip_v2" "fip_1" {
+}
 
-		resource "huaweicloud_dns_ptrrecord_v2" "ptr_1" {
-			name = "%s"
-			description = "ptr record updated"
-			floatingip_id = "${huaweicloud_networking_floatingip_v2.fip_1.id}"
-			ttl = 6000
-			tags = {
-				foo = "bar"
-			}
-		}
-	`, ptrName)
+resource "huaweicloud_dns_ptrrecord" "ptr_1" {
+  name = "%s"
+  description = "ptr record updated"
+  floatingip_id = huaweicloud_networking_floatingip_v2.fip_1.id
+  ttl = 6000
+
+  tags = {
+    foo = "bar"
+  }
+}
+`, ptrName)
 }

@@ -34,7 +34,7 @@ resource "huaweicloud_dns_recordset" "rs_example_com" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 DNS client.
+* `region` - (Optional) The region in which to obtain the DNS client.
     If omitted, the `region` argument of the provider is used.
     Changing this creates a new DNS record set.
 
@@ -54,6 +54,8 @@ The following arguments are supported:
 
 * `records` - (Required) An array of DNS records.
 
+* `tags` - (Optional) The key/value pairs to associate with the zone.
+
 * `value_specs` - (Optional) Map of additional options. Changing this creates a
   new record set.
 
@@ -68,6 +70,7 @@ The following attributes are exported:
 * `description` - See Argument Reference above.
 * `records` - See Argument Reference above.
 * `zone_id` - See Argument Reference above.
+* `tags` - See Argument Reference above.
 * `value_specs` - See Argument Reference above.
 
 ## Import
@@ -76,5 +79,5 @@ This resource can be imported by specifying the zone ID and recordset ID,
 separated by a forward slash.
 
 ```
-$ terraform import huaweicloud_dns_recordset.recordset_1 <zone_id>/<recordset_id>
+$ terraform import huaweicloud_dns_recordset.recordset_1 < zone_id >/< recordset_id >
 ```

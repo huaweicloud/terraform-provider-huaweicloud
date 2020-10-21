@@ -92,6 +92,8 @@ The following arguments are supported:
 
 * `value_specs` - (Optional) Map of additional options.
 
+* `tags` - (Optional) The key/value pairs to associate with the connection.
+
 ## Attributes Reference
 
 The following attributes are exported:
@@ -114,6 +116,7 @@ The following attributes are exported:
 * `vpnservice_id` - See Argument Reference above.
 * `ikepolicy_id` - See Argument Reference above.
 * `value_specs` - See Argument Reference above.
+* `tags` - See Argument Reference above.
 
 ## Import
 

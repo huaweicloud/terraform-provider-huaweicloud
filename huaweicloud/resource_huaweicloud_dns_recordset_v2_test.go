@@ -13,13 +13,13 @@ import (
 )
 
 func randomZoneName() string {
-	// TODO: why does back-end convert name to lowercase?
 	return fmt.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
 }
 
 func TestAccDNSV2RecordSet_basic(t *testing.T) {
 	var recordset recordsets.RecordSet
 	zoneName := randomZoneName()
+	resourceName := "huaweicloud_dns_recordset.recordset_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDNS(t) },
@@ -29,28 +29,27 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 			{
 				Config: testAccDNSV2RecordSet_basic(zoneName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2RecordSetExists("huaweicloud_dns_recordset_v2.recordset_1", &recordset),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dns_recordset_v2.recordset_1", "description", "a record set"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dns_recordset_v2.recordset_1", "records.0", "10.1.0.0"),
+					testAccCheckDNSV2RecordSetExists(resourceName, &recordset),
+					resource.TestCheckResourceAttr(resourceName, "name", zoneName),
+					resource.TestCheckResourceAttr(resourceName, "description", "a record set"),
+					resource.TestCheckResourceAttr(resourceName, "type", "A"),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "3000"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "records.0", "10.1.0.0"),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_dns_recordset_v2.recordset_1",
+				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
 				Config: testAccDNSV2RecordSet_update(zoneName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("huaweicloud_dns_recordset_v2.recordset_1", "name", zoneName),
-					resource.TestCheckResourceAttr("huaweicloud_dns_recordset_v2.recordset_1", "ttl", "6000"),
-					resource.TestCheckResourceAttr("huaweicloud_dns_recordset_v2.recordset_1", "type", "A"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dns_recordset_v2.recordset_1", "description", "an updated record set"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dns_recordset_v2.recordset_1", "records.0", "10.1.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "description", "an updated record set"),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "6000"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_updated"),
+					resource.TestCheckResourceAttr(resourceName, "records.0", "10.1.0.1"),
 				),
 			},
 		},
@@ -60,6 +59,7 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 	var recordset recordsets.RecordSet
 	zoneName := randomZoneName()
+	resourceName := "huaweicloud_dns_recordset.recordset_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDNS(t) },
@@ -69,9 +69,8 @@ func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 			{
 				Config: testAccDNSV2RecordSet_readTTL(zoneName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2RecordSetExists("huaweicloud_dns_recordset_v2.recordset_1", &recordset),
-					resource.TestMatchResourceAttr(
-						"huaweicloud_dns_recordset_v2.recordset_1", "ttl", regexp.MustCompile("^[0-9]+$")),
+					testAccCheckDNSV2RecordSetExists(resourceName, &recordset),
+					resource.TestMatchResourceAttr(resourceName, "ttl", regexp.MustCompile("^[0-9]+$")),
 				),
 			},
 		},
@@ -81,6 +80,7 @@ func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 func TestAccDNSV2RecordSet_timeout(t *testing.T) {
 	var recordset recordsets.RecordSet
 	zoneName := randomZoneName()
+	resourceName := "huaweicloud_dns_recordset.recordset_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDNS(t) },
@@ -90,7 +90,7 @@ func TestAccDNSV2RecordSet_timeout(t *testing.T) {
 			{
 				Config: testAccDNSV2RecordSet_timeout(zoneName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2RecordSetExists("huaweicloud_dns_recordset_v2.recordset_1", &recordset),
+					testAccCheckDNSV2RecordSetExists(resourceName, &recordset),
 				),
 			},
 		},
@@ -105,7 +105,7 @@ func testAccCheckDNSV2RecordSetDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_dns_recordset_v2" {
+		if rs.Type != "huaweicloud_dns_recordset" {
 			continue
 		}
 
@@ -162,87 +162,93 @@ func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet)
 
 func testAccDNSV2RecordSet_basic(zoneName string) string {
 	return fmt.Sprintf(`
-		resource "huaweicloud_dns_zone_v2" "zone_1" {
-			name = "%s"
-			email = "email2@example.com"
-			description = "a zone"
-			ttl = 6000
-			#type = "PRIMARY"
-		}
+resource "huaweicloud_dns_zone" "zone_1" {
+  name = "%s"
+  email = "email2@example.com"
+  description = "a zone"
+  ttl = 6000
+}
 
-		resource "huaweicloud_dns_recordset_v2" "recordset_1" {
-			zone_id = "${huaweicloud_dns_zone_v2.zone_1.id}"
-			name = "%s"
-			type = "A"
-			description = "a record set"
-			ttl = 3000
-			records = ["10.1.0.0"]
-		}
-	`, zoneName, zoneName)
+resource "huaweicloud_dns_recordset" "recordset_1" {
+  zone_id = huaweicloud_dns_zone.zone_1.id
+  name = "%s"
+  type = "A"
+  description = "a record set"
+  ttl = 3000
+  records = ["10.1.0.0"]
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, zoneName, zoneName)
 }
 
 func testAccDNSV2RecordSet_update(zoneName string) string {
 	return fmt.Sprintf(`
-		resource "huaweicloud_dns_zone_v2" "zone_1" {
-			name = "%s"
-			email = "email2@example.com"
-			description = "an updated zone"
-			ttl = 6000
-			#type = "PRIMARY"
-		}
+resource "huaweicloud_dns_zone" "zone_1" {
+  name = "%s"
+  email = "email2@example.com"
+  description = "an updated zone"
+  ttl = 6000
+}
 
-		resource "huaweicloud_dns_recordset_v2" "recordset_1" {
-			zone_id = "${huaweicloud_dns_zone_v2.zone_1.id}"
-			name = "%s"
-			type = "A"
-			description = "an updated record set"
-			ttl = 6000
-			records = ["10.1.0.1"]
-		}
-	`, zoneName, zoneName)
+resource "huaweicloud_dns_recordset" "recordset_1" {
+  zone_id = huaweicloud_dns_zone.zone_1.id
+  name = "%s"
+  type = "A"
+  description = "an updated record set"
+  ttl = 6000
+  records = ["10.1.0.1"]
+
+  tags = {
+    foo = "bar"
+    key = "value_updated"
+  }
+}
+`, zoneName, zoneName)
 }
 
 func testAccDNSV2RecordSet_readTTL(zoneName string) string {
 	return fmt.Sprintf(`
-		resource "huaweicloud_dns_zone_v2" "zone_1" {
-			name = "%s"
-			email = "email2@example.com"
-			description = "an updated zone"
-			ttl = 6000
-			#type = "PRIMARY"
-		}
+resource "huaweicloud_dns_zone" "zone_1" {
+  name = "%s"
+  email = "email2@example.com"
+  description = "a zone"
+  ttl = 6000
+}
 
-		resource "huaweicloud_dns_recordset_v2" "recordset_1" {
-			zone_id = "${huaweicloud_dns_zone_v2.zone_1.id}"
-			name = "%s"
-			type = "A"
-			records = ["10.1.0.2"]
-		}
-	`, zoneName, zoneName)
+resource "huaweicloud_dns_recordset" "recordset_1" {
+  zone_id = huaweicloud_dns_zone.zone_1.id
+  name = "%s"
+  type = "A"
+  records = ["10.1.0.2"]
+}
+`, zoneName, zoneName)
 }
 
 func testAccDNSV2RecordSet_timeout(zoneName string) string {
 	return fmt.Sprintf(`
-		resource "huaweicloud_dns_zone_v2" "zone_1" {
-			name = "%s"
-			email = "email2@example.com"
-			description = "an updated zone"
-			ttl = 6000
-			#type = "PRIMARY"
-		}
+resource "huaweicloud_dns_zone" "zone_1" {
+  name = "%s"
+  email = "email2@example.com"
+  description = "a zone"
+  ttl = 6000
+}
 
-		resource "huaweicloud_dns_recordset_v2" "recordset_1" {
-			zone_id = "${huaweicloud_dns_zone_v2.zone_1.id}"
-			name = "%s"
-			type = "A"
-			ttl = 3000
-			records = ["10.1.0.3"]
+resource "huaweicloud_dns_recordset" "recordset_1" {
+  zone_id = huaweicloud_dns_zone.zone_1.id
+  name = "%s"
+  type = "A"
+  ttl = 3000
+  records = ["10.1.0.3"]
 
-			timeouts {
-				create = "5m"
-				update = "5m"
-				delete = "5m"
-			}
-		}
-	`, zoneName, zoneName)
+  timeouts {
+    create = "5m"
+    update = "5m"
+    delete = "5m"
+  }
+}
+`, zoneName, zoneName)
 }
