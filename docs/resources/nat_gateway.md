@@ -39,6 +39,9 @@ The following arguments are supported:
 * `internal_network_id` - (Optional) ID of the network this nat gateway connects to.
     Changing this creates a new nat gateway.
 
+* `enterprise_project_id` - (Optional) The enterprise project id of the nat gateway. 
+    Changing this creates a new nat gateway.
+
 ## Attributes Reference
 
 The following attributes are exported:

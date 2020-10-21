@@ -148,6 +148,18 @@ func resourceDcsInstanceV1() *schema.Resource {
 					},
 				},
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"enterprise_project_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"order_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -293,22 +305,24 @@ func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 		no_password_access = "false"
 	}
 	createOpts := &instances.CreateOps{
-		Name:                 d.Get("name").(string),
-		Description:          d.Get("description").(string),
-		Engine:               d.Get("engine").(string),
-		EngineVersion:        d.Get("engine_version").(string),
-		Capacity:             d.Get("capacity").(float64),
-		NoPasswordAccess:     no_password_access,
-		Password:             d.Get("password").(string),
-		AccessUser:           d.Get("access_user").(string),
-		VPCID:                d.Get("vpc_id").(string),
-		SecurityGroupID:      d.Get("security_group_id").(string),
-		SubnetID:             d.Get("subnet_id").(string),
-		AvailableZones:       getAllAvailableZones(d),
-		ProductID:            d.Get("product_id").(string),
-		InstanceBackupPolicy: getInstanceBackupPolicy(d),
-		MaintainBegin:        d.Get("maintain_begin").(string),
-		MaintainEnd:          d.Get("maintain_end").(string),
+		Name:                  d.Get("name").(string),
+		Description:           d.Get("description").(string),
+		Engine:                d.Get("engine").(string),
+		EngineVersion:         d.Get("engine_version").(string),
+		Capacity:              d.Get("capacity").(float64),
+		NoPasswordAccess:      no_password_access,
+		Password:              d.Get("password").(string),
+		AccessUser:            d.Get("access_user").(string),
+		VPCID:                 d.Get("vpc_id").(string),
+		SecurityGroupID:       d.Get("security_group_id").(string),
+		SubnetID:              d.Get("subnet_id").(string),
+		AvailableZones:        getAllAvailableZones(d),
+		ProductID:             d.Get("product_id").(string),
+		InstanceBackupPolicy:  getInstanceBackupPolicy(d),
+		MaintainBegin:         d.Get("maintain_begin").(string),
+		MaintainEnd:           d.Get("maintain_end").(string),
+		EnterpriseProjectID:   GetEnterpriseProjectID(d, config),
+		EnterpriseProjectName: d.Get("enterprise_project_name").(string),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -394,6 +408,8 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("maintain_begin", v.MaintainBegin)
 	d.Set("maintain_end", v.MaintainEnd)
 	d.Set("access_user", v.AccessUser)
+	d.Set("enterprise_project_id", v.EnterpriseProjectID)
+	d.Set("enterprise_project_name", v.EnterpriseProjectName)
 
 	// set capacity by Capacity and CapacityMinor
 	var capacity float64 = float64(v.Capacity)

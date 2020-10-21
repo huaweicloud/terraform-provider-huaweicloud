@@ -14,26 +14,28 @@ type CreateOptsBuilder interface {
 // CreateOpts contains all the values needed to create a new nat gateway
 // resource.
 type CreateOpts struct {
-	Name              string `json:"name" required:"true"`
-	Description       string `json:"description,omitempty"`
-	Spec              string `json:"spec" required:"true"`
-	RouterID          string `json:"router_id" required:"true"`
-	InternalNetworkID string `json:"internal_network_id" required:"true"`
-	TenantID          string `json:"tenant_id,omitempty"`
+	Name                string `json:"name" required:"true"`
+	Description         string `json:"description,omitempty"`
+	Spec                string `json:"spec" required:"true"`
+	RouterID            string `json:"router_id" required:"true"`
+	InternalNetworkID   string `json:"internal_network_id" required:"true"`
+	TenantID            string `json:"tenant_id,omitempty"`
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
 type ListOpts struct {
-	Limit             int    `q:"limit"`
-	ID                string `q:"id"`
-	Name              string `q:"name"`
-	TenantId          string `q:"tenant_id"`
-	Description       string `q:"description"`
-	Spec              string `q:"spec"`
-	RouterID          string `q:"router_id"`
-	InternalNetworkID string `q:"internal_network_id"`
-	Status            string `q:"status"`
-	AdminStateUp      *bool  `q:"admin_state_up"`
-	CreatedAt         string `q:"created_at"`
+	Limit               int    `q:"limit"`
+	ID                  string `q:"id"`
+	Name                string `q:"name"`
+	TenantId            string `q:"tenant_id"`
+	Description         string `q:"description"`
+	Spec                string `q:"spec"`
+	RouterID            string `q:"router_id"`
+	InternalNetworkID   string `q:"internal_network_id"`
+	Status              string `q:"status"`
+	AdminStateUp        *bool  `q:"admin_state_up"`
+	CreatedAt           string `q:"created_at"`
+	EnterpriseProjectID string `q:"enterprise_project_id"`
 }
 
 // ToNatGatewayCreateMap allows CreateOpts to satisfy the CreateOptsBuilder
