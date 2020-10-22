@@ -85,7 +85,7 @@ func resourceCsPeeringConnectV1UserInputParams(d *schema.ResourceData) map[strin
 
 func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
+	csClient, err := config.cloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -100,29 +100,24 @@ func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return fmt.Errorf("Error building the request body of api(create), err=%s", err)
 	}
-	r, err := sendCsPeeringConnectV1CreateRequest(d, params, client)
+	r, err := sendCsPeeringConnectV1CreateRequest(d, params, csClient)
 	if err != nil {
 		return fmt.Errorf("Error creating CsPeeringConnectV1, err=%s", err)
 	}
 
-	client, err = config.sdkClient(GetRegion(d, config), "network", serviceProjectLevel)
+	networkClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
 
-	err = actionCsPeeringConnectV1AcceptPeering(d, r, client)
+	err = actionCsPeeringConnectV1AcceptPeering(d, r, networkClient)
 	if err != nil {
 		return err
 	}
 
 	timeout := d.Timeout(schema.TimeoutCreate)
 
-	client, err = config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
-	if err != nil {
-		return fmt.Errorf("Error creating async sdk client, err=%s", err)
-	}
-
-	obj, err := asyncWaitCsPeeringConnectV1Create(d, config, r, client, timeout)
+	obj, err := asyncWaitCsPeeringConnectV1Create(d, config, r, csClient, timeout)
 	if err != nil {
 		return err
 	}
@@ -137,7 +132,7 @@ func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) 
 
 func resourceCsPeeringConnectV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
+	client, err := config.cloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -160,7 +155,7 @@ func resourceCsPeeringConnectV1Read(d *schema.ResourceData, meta interface{}) er
 
 func resourceCsPeeringConnectV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.sdkClient(GetRegion(d, config), "cs", serviceProjectLevel)
+	client, err := config.cloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -443,7 +438,7 @@ func actionCsPeeringConnectV1AcceptPeering(d *schema.ResourceData, result interf
 		}
 		data[key] = value
 	}
-	url, err := replaceVars(d, "v2.0/vpc/peerings/{peering_id}/accept", data)
+	url, err := replaceVars(d, "vpc/peerings/{peering_id}/accept", data)
 	if err != nil {
 		return err
 	}

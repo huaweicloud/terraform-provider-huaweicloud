@@ -628,6 +628,105 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 		t.Fatalf("SMN endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("SMN endpoint:\t %s", actualURL)
+
+	serviceClient, err = config.cdmV11Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud cdm client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://cdm.%s.%s/v1.1/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("cdm endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("cdm endpoint:\t %s", actualURL)
+
+	serviceClient, err = config.disV2Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud dis client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dis.%s.%s/v2/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("dis endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("dis endpoint:\t %s", actualURL)
+
+	serviceClient, err = config.cloudtableV2Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud cloudtable client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://cloudtable.%s.%s/v2/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("cloudtable endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("cloudtable endpoint:\t %s", actualURL)
+
+	serviceClient, err = config.cloudStreamV1Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud cloudStream client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://cs.%s.%s/v1.0/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("cloudStream endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("cloudStream endpoint:\t %s", actualURL)
+
+	serviceClient, err = config.cssV1Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud css client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://css.%s.%s/v1.0/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("css endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("css endpoint:\t %s", actualURL)
+
+	serviceClient, err = config.dliV1Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating dli css client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dli.%s.%s/v1.0/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("dli endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("dli endpoint:\t %s", actualURL)
+
+	serviceClient, err = config.dwsV1Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating dws css client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dws.%s.%s/v1.0/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("dws endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("dws endpoint:\t %s", actualURL)
+
+	serviceClient, err = config.gesV1Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating ges css client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://ges.%s.%s/v1.0/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("ges endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("ges endpoint:\t %s", actualURL)
+
+	serviceClient, err = config.mlsV1Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating mls css client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://mls.%s.%s/v1.0/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("mls endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("mls endpoint:\t %s", actualURL)
 }
 
 func TestAccServiceEndpoints_Others(t *testing.T) {

@@ -362,17 +362,6 @@ func (l sLogger) Log(args ...interface{}) {
 	log.Printf("[DEBUG] [aws-sdk-go] %s", strings.Join(tokens, " "))
 }
 
-func (c *Config) determineRegion(region string) string {
-	// If a resource-level region was not specified, and a provider-level region was set,
-	// use the provider-level region.
-	if region == "" && c.Region != "" {
-		region = c.Region
-	}
-
-	log.Printf("[DEBUG] HuaweiCloud Region is: %s", region)
-	return region
-}
-
 func getObsEndpoint(c *Config, region string) string {
 	return fmt.Sprintf("https://obs.%s.%s/", region, c.Cloud)
 }
@@ -455,10 +444,6 @@ func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalo
 	}
 
 	return sc, nil
-}
-
-func (c *Config) getHwEndpointType() golangsdk.Availability {
-	return golangsdk.AvailabilityPublic
 }
 
 // ********** client for Global Service **********
@@ -575,6 +560,10 @@ func (c *Config) ltsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("lts", region)
 }
 
+func (c *Config) SmnV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("smn", region)
+}
+
 // ********** client for Security **********
 func (c *Config) antiddosV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("anti-ddos", region)
@@ -589,8 +578,36 @@ func (c *Config) MrsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("mrs", region)
 }
 
-func (c *Config) SmnV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("smn", region)
+func (c *Config) dwsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dws", region)
+}
+
+func (c *Config) dliV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dli", region)
+}
+
+func (c *Config) disV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("disv2", region)
+}
+
+func (c *Config) cssV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("css", region)
+}
+
+func (c *Config) cloudStreamV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("cs", region)
+}
+
+func (c *Config) cloudtableV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("cloudtable", region)
+}
+
+func (c *Config) cdmV11Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("cdmv11", region)
+}
+
+func (c *Config) gesV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("ges", region)
 }
 
 // ********** client for Application **********
@@ -644,16 +661,6 @@ func (c *Config) orchestrationV1Client(region string) (*golangsdk.ServiceClient,
 	return c.NewServiceClient("rts", region)
 }
 
-func (c *Config) sdkClient(region, serviceType string, level string) (*golangsdk.ServiceClient, error) {
-	client := c.HwClient
-	if level == serviceDomainLevel {
-		client = c.DomainClient
-	}
-	return huaweisdk.NewSDKClient(
-		client,
-		golangsdk.EndpointOpts{
-			Region:       c.determineRegion(region),
-			Availability: c.getHwEndpointType(),
-		},
-		serviceType)
+func (c *Config) mlsV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("mls", region)
 }
