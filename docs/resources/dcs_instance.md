@@ -188,6 +188,8 @@ The following arguments are supported:
 * `backup_at` - (Optional) Day in a week on which backup starts. Range: 1–7. Where: 1
     indicates Monday; 7 indicates Sunday. Changing this creates a new instance.
 
+* `enterprise_project_id` - (Optional) The enterprise project id of the dcs instance. Changing this creates a new instance.
+
 The `whitelists` block supports:
 
 * `group_name` - (Required) Specifies the name of IP address group.

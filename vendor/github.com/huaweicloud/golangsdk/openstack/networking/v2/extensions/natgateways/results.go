@@ -7,15 +7,16 @@ import (
 
 // NatGateway is a struct that represents a nat gateway
 type NatGateway struct {
-	ID                string `json:"id"`
-	Name              string `json:"name"`
-	Description       string `json:"description"`
-	RouterID          string `json:"router_id"`
-	InternalNetworkID string `json:"internal_network_id"`
-	TenantID          string `json:"tenant_id"`
-	Spec              string `json:"spec"`
-	Status            string `json:"status"`
-	AdminStateUp      bool   `json:"admin_state_up"`
+	ID                  string `json:"id"`
+	Name                string `json:"name"`
+	Description         string `json:"description"`
+	RouterID            string `json:"router_id"`
+	InternalNetworkID   string `json:"internal_network_id"`
+	TenantID            string `json:"tenant_id"`
+	Spec                string `json:"spec"`
+	Status              string `json:"status"`
+	AdminStateUp        bool   `json:"admin_state_up"`
+	EnterpriseProjectID string `json:"enterprise_project_id"`
 }
 
 // GetResult is a return struct of get method

@@ -37,6 +37,28 @@ func TestAccDcsInstancesV1_basic(t *testing.T) {
 	})
 }
 
+func TestAccDcsInstancesV1_withEpsId(t *testing.T) {
+	var instance instances.Instance
+	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDcsV1InstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_epsId(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDcsV1InstanceExists(resourceName, instance),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDcsInstancesV1_whitelists(t *testing.T) {
 	var instance instances.Instance
 	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
@@ -164,6 +186,38 @@ func testAccDcsV1Instance_basic(instanceName string) string {
 	  depends_on        = ["huaweicloud_networking_secgroup.secgroup_1"]
 	}
 	`, OS_AVAILABILITY_ZONE, instanceName, OS_VPC_ID, OS_NETWORK_ID)
+}
+
+func testAccDcsV1Instance_epsId(instanceName string) string {
+	return fmt.Sprintf(`
+	resource "huaweicloud_networking_secgroup" "secgroup_1" {
+	  name        = "secgroup_1"
+	  description = "secgroup_1"
+	}
+	data "huaweicloud_dcs_az" "az_1" {
+	  code = "%s"
+	}
+
+	resource "huaweicloud_dcs_instance" "instance_1" {
+	  name              = "%s"
+	  engine_version    = "3.0"
+	  password          = "Huawei_test"
+	  engine            = "Redis"
+	  capacity          = 2
+	  vpc_id            = "%s"
+	  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
+	  subnet_id         = "%s"
+	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
+	  product_id        = "dcs.master_standby-h"
+	  save_days         = 1
+	  backup_type       = "manual"
+	  begin_at          = "00:00-01:00"
+	  period_type       = "weekly"
+	  backup_at         = [1]
+	  depends_on        = ["huaweicloud_networking_secgroup.secgroup_1"]
+	  enterprise_project_id = "%s"
+	}
+	`, OS_AVAILABILITY_ZONE, instanceName, OS_VPC_ID, OS_NETWORK_ID, OS_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccDcsV1Instance_tiny(instanceName string) string {

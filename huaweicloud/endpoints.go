@@ -126,6 +126,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v2.0",
 		WithOutProjectID: true,
 	},
+	"nat_gatewayv2": ServiceCatalog{
+		Name:    "nat",
+		Version: "v2",
+	},
 	"elb": ServiceCatalog{
 		Name:             "elb",
 		Version:          "v1.0",

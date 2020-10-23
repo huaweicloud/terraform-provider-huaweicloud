@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -45,9 +46,28 @@ func TestAccNatGateway_basic(t *testing.T) {
 	})
 }
 
+func TestAccNatGateway_withEpsId(t *testing.T) {
+	natgateway := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckNat(t); testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNatV2GatewayDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNatV2Gateway_epsId(natgateway),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNatV2GatewayExists("huaweicloud_nat_gateway.nat_1"),
+					resource.TestCheckResourceAttr("huaweicloud_nat_gateway.nat_1", "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckNatV2GatewayDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	natClient, err := config.natV2Client(OS_REGION_NAME)
+	natClient, err := config.natGatewayV2Client(OS_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
@@ -78,7 +98,7 @@ func testAccCheckNatV2GatewayExists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		natClient, err := config.natV2Client(OS_REGION_NAME)
+		natClient, err := config.natGatewayV2Client(OS_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 		}
@@ -127,6 +147,31 @@ resource "huaweicloud_nat_gateway_v2" "nat_1" {
   depends_on = ["huaweicloud_networking_router_interface_v2.int_1"]
 }
 `
+
+func testAccNatV2Gateway_epsId(name string) string {
+	return fmt.Sprintf(`
+	resource "huaweicloud_vpc" "vpc_1" {
+	  name = "%s"
+	  cidr = "192.168.0.0/16"
+	}
+	
+	resource "huaweicloud_vpc_subnet" "subnet_1" {
+	  name       = "%s"
+	  cidr       = "192.168.199.0/24"
+	  gateway_ip = "192.168.199.1"
+	  vpc_id     = huaweicloud_vpc.vpc_1.id
+	}
+	
+	resource "huaweicloud_nat_gateway" "nat_1" {
+	  name   = "%s"
+	  description = "test for terraform"
+	  spec = "1"
+	  internal_network_id = huaweicloud_vpc_subnet.subnet_1.id
+	  router_id = huaweicloud_vpc.vpc_1.id
+	  enterprise_project_id = "%s"
+	}
+	`, name, name, name, OS_ENTERPRISE_PROJECT_ID)
+}
 
 const testAccNatV2Gateway_update = `
 resource "huaweicloud_networking_router_v2" "router_1" {

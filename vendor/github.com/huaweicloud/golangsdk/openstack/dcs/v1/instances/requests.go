@@ -86,6 +86,12 @@ type CreateOps struct {
 	// Indicates the time at which a maintenance time window ends.
 	// Format: HH:mm:ss
 	MaintainEnd string `json:"maintain_end,omitempty"`
+
+	// Enterprise project id.
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
+
+	// Enterprise project name.
+	EnterpriseProjectName string `json:"enterprise_project_name,omitempty"`
 }
 
 // InstanceBackupPolicy for dcs
