@@ -301,6 +301,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_csbs_backup":                     resourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy":              resourceCSBSBackupPolicyV1(),
 			"huaweicloud_css_cluster":                     resourceCssClusterV1(),
+			"huaweicloud_css_snapshot":                    resourceCssSnapshot(),
 			"huaweicloud_cts_tracker":                     resourceCTSTrackerV1(),
 			"huaweicloud_dcs_instance":                    resourceDcsInstanceV1(),
 			"huaweicloud_dds_instance":                    resourceDdsInstanceV3(),

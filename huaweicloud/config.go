@@ -23,10 +23,8 @@ import (
 )
 
 const (
-	serviceProjectLevel string = "project"
-	serviceDomainLevel  string = "domain"
-	obsLogFile          string = "./.obs-sdk.log"
-	obsLogFileSize10MB  int64  = 1024 * 1024 * 10
+	obsLogFile         string = "./.obs-sdk.log"
+	obsLogFileSize10MB int64  = 1024 * 1024 * 10
 )
 
 type Config struct {
