@@ -2,15 +2,14 @@
 subcategory: "Object Storage Migration Service"
 ---
 
-# huaweicloud\_maas\_task
+# huaweicloud\_oms\_task
 
-Manages resource task within HuaweiCloud MAAS.
-This is an alternative to `huaweicloud_maas_task_v1`
+Manages Object Storage Migration task within HuaweiCloud.
 
-## Example Usage:  Creating a MAAS task
+## Example Usage:  Creating a OMS task
 
 ```hcl
-resource "huaweicloud_maas_task" "task_1" {
+resource "huaweicloud_oms_task" "task_1" {
   description = "migration task"
   enable_kms  = true
   thread_num  = 1
@@ -19,14 +18,14 @@ resource "huaweicloud_maas_task" "task_1" {
     ak         = "AK"
     sk         = "SK"
     object_key = "123.txt"
-    bucket     = "maas-bucket"
+    bucket     = "oms-bucket"
   }
   dst_node {
     region     = "eu-de"
     ak         = "AK"
     sk         = "SK"
-    object_key = "maas"
-    bucket     = "test-maas"
+    object_key = "oms"
+    bucket     = "test-oms"
   }
 }
 ```
