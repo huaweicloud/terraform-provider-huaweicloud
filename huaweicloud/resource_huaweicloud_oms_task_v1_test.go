@@ -20,8 +20,8 @@ func TestAccMaasTask_basic(t *testing.T) {
 			{
 				Config: testAccMaasTaskV1_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMaasTaskV1Exists("huaweicloud_maas_task_v1.task_1"),
-					resource.TestCheckResourceAttr("huaweicloud_maas_task_v1.task_1", "description", "migration task"),
+					testAccCheckMaasTaskV1Exists("huaweicloud_oms_task.task_1"),
+					resource.TestCheckResourceAttr("huaweicloud_oms_task.task_1", "description", "migration task"),
 				),
 			},
 		},
@@ -36,7 +36,7 @@ func testAccCheckMaasTaskV1Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_maas_task_v1" {
+		if rs.Type != "huaweicloud_oms_task" {
 			continue
 		}
 
@@ -80,7 +80,7 @@ func testAccCheckMaasTaskV1Exists(n string) resource.TestCheckFunc {
 }
 
 var testAccMaasTaskV1_basic = fmt.Sprintf(`
-resource "huaweicloud_maas_task_v1" "task_1" {
+resource "huaweicloud_oms_task" "task_1" {
   description = "migration task"
   enable_kms = false
   thread_num = 1
@@ -89,14 +89,14 @@ resource "huaweicloud_maas_task_v1" "task_1" {
 	ak = "%s"
 	sk = "%s"
     object_key = "123.txt"
-    bucket = "maas-bucket"
+    bucket = "oms-bucket"
   }
   dst_node {
     region = "%s"
 	ak = "%s"
 	sk = "%s"
-    object_key = "maas"
-    bucket = "maas-test"
+    object_key = "oms"
+    bucket = "oms-test"
   }
 }
 `, OS_SRC_ACCESS_KEY, OS_SRC_SECRET_KEY, OS_REGION_NAME, OS_ACCESS_KEY, OS_SECRET_KEY)
