@@ -32,6 +32,8 @@ The following arguments are supported:
     egress security rules. This is `false` by default. See the below note
     for more information.
 
+* `enterprise_project_id` - (Optional) The enterprise project id of the security group. Changing this creates a new security group.
+
 ## Attributes Reference
 
 The following attributes are exported:

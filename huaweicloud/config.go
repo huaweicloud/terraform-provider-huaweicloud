@@ -529,6 +529,10 @@ func (c *Config) NetworkingV1Client(region string) (*golangsdk.ServiceClient, er
 	return c.NewServiceClient("vpc", region)
 }
 
+func (c *Config) SecurityGroupV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("security_group", region)
+}
+
 func (c *Config) NetworkingV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("networkv2", region)
 }
