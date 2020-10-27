@@ -314,7 +314,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	t.Logf("DCS v1 endpoint:\t %s", actualURL)
 
 	// test the endpoint of DCS v2 service
-	serviceClient, err = config.NewServiceClient("dcsv2", OS_REGION_NAME)
+	serviceClient, err = config.dcsV2Client(OS_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud dcs v2 client: %s", err)
 	}
