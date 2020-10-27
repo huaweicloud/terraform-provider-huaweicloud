@@ -621,6 +621,10 @@ func (c *Config) dcsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dcsv1", region)
 }
 
+func (c *Config) dcsV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dcsv2", region)
+}
+
 func (c *Config) dmsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dms", region)
 }
