@@ -16,7 +16,6 @@ package huaweicloud
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -27,6 +26,8 @@ import (
 
 func TestAccRdsInstanceV3_basic(t *testing.T) {
 	name := acctest.RandString(10)
+	resourceName := "huaweicloud_rds_instance.instance"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -36,10 +37,15 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 				Config: testAccRdsInstanceV3_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceV3Exists(),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_rds_instance%s", name)),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "1"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_rds_instance_v3.instance",
+				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
@@ -50,6 +56,11 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 				Config: testAccRdsInstanceV3_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceV3Exists(),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_rds_instance%s", name)),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "2"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "100"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_updated"),
 				),
 			},
 		},
@@ -58,7 +69,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 
 func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
 	name := acctest.RandString(10)
-	resourceName := "huaweicloud_rds_instance_v3.instance"
+	resourceName := "huaweicloud_rds_instance.instance"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
@@ -78,12 +89,12 @@ func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
 func testAccRdsInstanceV3_basic(val string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
-  name = "vps-rds-test"
+  name = "vpc-rds-test-%s"
   cidr = "192.168.0.0/16"
 }
 	
 resource "huaweicloud_vpc_subnet" "test" {
-  name          = "subnet-rds-test"
+  name          = "subnet-rds-test-%s"
   cidr          = "192.168.0.0/16"
   gateway_ip    = "192.168.0.1"
   primary_dns   = "100.125.1.250"
@@ -92,70 +103,101 @@ resource "huaweicloud_vpc_subnet" "test" {
 }
 
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
-  name = "sg-rds-test"
+  name = "sg-rds-test-%s"
 }
 
-resource "huaweicloud_rds_instance_v3" "instance" {
+resource "huaweicloud_rds_instance" "instance" {
+  name = "terraform_test_rds_instance%s"
+  flavor = "rds.pg.c2.medium"
   availability_zone = ["%s"]
+  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
+  subnet_id = huaweicloud_vpc_subnet.test.id
+  vpc_id = huaweicloud_vpc.test.id
+
   db {
     password = "Huangwei!120521"
     type = "PostgreSQL"
     version = "10"
     port = "8635"
   }
-  name = "terraform_test_rds_instance%s"
-  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
-  subnet_id = huaweicloud_vpc_subnet.test.id
-  vpc_id = huaweicloud_vpc.test.id
   volume {
     type = "ULTRAHIGH"
     size = 50
   }
-  flavor = "rds.pg.c2.medium"
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days = 1
   }
+
+  tags = {
+    key = "value"
+    foo = "bar"
+  }
 }
-	`, OS_AVAILABILITY_ZONE, val)
+	`, val, val, val, val, OS_AVAILABILITY_ZONE)
 }
 
+// volume.size, backup_strategy and tags will be updated
 func testAccRdsInstanceV3_update(val string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_rds_instance_v3" "instance" {
+resource "huaweicloud_vpc" "test" {
+  name = "vpc-rds-test-%s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name          = "subnet-rds-test-%s"
+  cidr          = "192.168.0.0/16"
+  gateway_ip    = "192.168.0.1"
+  primary_dns   = "100.125.1.250"
+  secondary_dns = "100.125.21.250"
+  vpc_id        = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_networking_secgroup" "secgroup_1" {
+  name = "sg-rds-test-%s"
+}
+
+resource "huaweicloud_rds_instance" "instance" {
+  name = "terraform_test_rds_instance%s"
+  flavor = "rds.pg.c2.medium"
   availability_zone = ["%s"]
+  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
+  subnet_id = huaweicloud_vpc_subnet.test.id
+  vpc_id = huaweicloud_vpc.test.id
+
   db {
     password = "Huangwei!120521"
     type = "PostgreSQL"
     version = "10"
     port = "8635"
   }
-  name = "terraform_test_rds_instance%s"
-  security_group_id = "3b5ceb06-3b8d-43ee-866a-dc0443b85de8"
-  subnet_id = "%s"
-  vpc_id = "%s"
   volume {
     type = "ULTRAHIGH"
     size = 100
   }
-  flavor = "rds.pg.c2.medium"
   backup_strategy {
     start_time = "09:00-10:00"
     keep_days = 2
   }
+
+  tags = {
+    key1 = "value"
+    foo = "bar_updated"
+  }
 }
-	`, OS_AVAILABILITY_ZONE, val, OS_NETWORK_ID, OS_VPC_ID)
+	`, val, val, val, val, OS_AVAILABILITY_ZONE)
 }
 
 func testAccRdsInstanceV3_epsId(val string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_v1" "test" {
-  name = "vps-rds-test"
+  name = "vpc-rds-test-%s"
   cidr = "192.168.0.0/16"
 }
 	
 resource "huaweicloud_vpc_subnet_v1" "test" {
-  name          = "subnet-rds-test"
+  name          = "subnet-rds-test-%s"
   cidr          = "192.168.0.0/16"
   gateway_ip    = "192.168.0.1"
   primary_dns   = "100.125.1.250"
@@ -164,34 +206,34 @@ resource "huaweicloud_vpc_subnet_v1" "test" {
 }
 
 resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
-  name = "sg-rds-test"
+  name = "sg-rds-test-%s"
 }
 
-resource "huaweicloud_rds_instance_v3" "instance" {
+resource "huaweicloud_rds_instance" "instance" {
+  name = "terraform_test_rds_instance%s"
+  flavor = "rds.pg.c2.medium"
   availability_zone = ["%s"]
+  security_group_id = huaweicloud_networking_secgroup_v2.secgroup_1.id
+  subnet_id = huaweicloud_vpc_subnet_v1.test.id
+  vpc_id = huaweicloud_vpc_v1.test.id
+  enterprise_project_id = "%s"
+
   db {
     password = "Huangwei!120521"
     type = "PostgreSQL"
     version = "10"
     port = "8635"
   }
-  name = "terraform_test_rds_instance%s"
-  security_group_id = huaweicloud_networking_secgroup_v2.secgroup_1.id
-  subnet_id = huaweicloud_vpc_subnet_v1.test.id
-  vpc_id = huaweicloud_vpc_v1.test.id
   volume {
     type = "ULTRAHIGH"
     size = 50
   }
-  flavor = "rds.pg.c2.medium"
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days = 1
   }
-  enterprise_project_id = "%s"
-  
 }
-	`, OS_AVAILABILITY_ZONE, val, OS_ENTERPRISE_PROJECT_ID)
+	`, val, val, val, val, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccCheckRdsInstanceV3Destroy(s *terraform.State) error {
@@ -202,18 +244,17 @@ func testAccCheckRdsInstanceV3Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_rds_instance_v3" {
+		if rs.Type != "huaweicloud_rds_instance" {
 			continue
 		}
 
-		_, err = fetchRdsInstanceV3ByListOnTest(rs, client)
+		v, err := fetchRdsInstanceV3ByListOnTest(rs, client)
 		if err != nil {
-			if strings.Index(err.Error(), "Error finding the resource by list api") != -1 {
-				return nil
-			}
 			return err
 		}
-		return fmt.Errorf("huaweicloud_rds_instance_v3 still exists")
+		if v != nil {
+			return fmt.Errorf("huaweicloud rds instance still exists")
+		}
 	}
 
 	return nil
@@ -227,17 +268,17 @@ func testAccCheckRdsInstanceV3Exists() resource.TestCheckFunc {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}
 
-		rs, ok := s.RootModule().Resources["huaweicloud_rds_instance_v3.instance"]
+		rs, ok := s.RootModule().Resources["huaweicloud_rds_instance.instance"]
 		if !ok {
-			return fmt.Errorf("Error checking huaweicloud_rds_instance_v3.instance exist, err=not found this resource")
+			return fmt.Errorf("Error checking huaweicloud_rds_instance.instance exist, err=not found this resource")
 		}
 
-		_, err = fetchRdsInstanceV3ByListOnTest(rs, client)
+		v, err := fetchRdsInstanceV3ByListOnTest(rs, client)
 		if err != nil {
-			if strings.Index(err.Error(), "Error finding the resource by list api") != -1 {
-				return fmt.Errorf("huaweicloud_rds_instance_v3 is not exist")
-			}
-			return fmt.Errorf("Error checking huaweicloud_rds_instance_v3.instance exist, err=%s", err)
+			return fmt.Errorf("Error checking huaweicloud_rds_instance.instance exist, err=%s", err)
+		}
+		if v == nil {
+			return fmt.Errorf("huaweicloud rds instance is not exist")
 		}
 		return nil
 	}

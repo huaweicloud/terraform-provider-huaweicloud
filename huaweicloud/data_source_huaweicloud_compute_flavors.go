@@ -100,7 +100,7 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 			"Please change your search criteria and try again.")
 	}
 
-	d.SetId(rdsFlavor.ID)
+	d.SetId(dataResourceIdHash(ids))
 	d.Set("ids", ids)
 
 	return nil

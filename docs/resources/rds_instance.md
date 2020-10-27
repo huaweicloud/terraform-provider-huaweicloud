@@ -142,6 +142,10 @@ The following arguments are supported:
   Specifies the security group which the RDS DB instance belongs to.
   Changing this parameter will create a new resource.
 
+* `vpc_id` -
+  (Required)
+  Specifies the VPC ID. Changing this parameter will create a new resource.
+
 * `subnet_id` -
   (Required)
   Specifies the network id of a subnet. Changing this parameter will create a new resource.
@@ -149,10 +153,6 @@ The following arguments are supported:
 * `volume` -
   (Required)
   Specifies the volume information. Structure is documented below.
-
-* `vpc_id` -
-  (Required)
-  Specifies the VPC ID. Changing this parameter will create a new resource.
 
 * `backup_strategy` -
   (Optional)
@@ -173,7 +173,10 @@ The following arguments are supported:
 
 * `enterprise_project_id` - 
   (Optional) 
-  The enterprise project id of the RDS. Changing this creates a new RDS.
+  The enterprise project id of the RDS instance. Changing this creates a new RDS instance.
+
+* `tags` - (Optional) A mapping of tags to assign to the RDS instance.
+  Each tag is represented by one key-value pair.
 
 The `db` block supports:
 
@@ -254,18 +257,16 @@ The `backup_strategy` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `created` -
-  Indicates the creation time.
+* `status` - Indicates the DB instance status.
 
-* `nodes` -
-  Indicates the instance nodes information. Structure is documented below.
+* `created` - Indicates the creation time.
 
-* `private_ips` -
-  Indicates the private IP address list. It is a blank string until an
-  ECS is created.
+* `nodes` - Indicates the instance nodes information. Structure is documented below.
 
-* `public_ips` -
-  Indicates the public IP address list.
+* `private_ips` - Indicates the private IP address list.
+  It is a blank string until an ECS is created.
+
+* `public_ips` - Indicates the public IP address list.
 
 * `db` - See Argument Reference above. The db block also contains:
 
@@ -273,20 +274,16 @@ In addition to the arguments listed above, the following computed attributes are
 
 The `nodes` block contains:
 
-* `availability_zone` -
-  Indicates the AZ.
+* `availability_zone` - Indicates the AZ.
 
-* `id` -
-  Indicates the node ID.
+* `id` - Indicates the node ID.
 
-* `name` -
-  Indicates the node name.
+* `name` - Indicates the node name.
 
-* `role` -
-  Indicates the node type. The value can be master or slave, indicating the primary node or standby node respectively.
+* `role` - Indicates the node type. The value can be master or slave,
+  indicating the primary node or standby node respectively.
 
-* `status` -
-  Indicates the node status.
+* `status` - Indicates the node status.
 
 ## Timeouts
 
