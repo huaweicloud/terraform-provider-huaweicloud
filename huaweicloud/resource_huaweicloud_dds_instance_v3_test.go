@@ -11,6 +11,7 @@ import (
 
 func TestAccDDSV3Instance_basic(t *testing.T) {
 	var instance instances.Instance
+	resourceName := "huaweicloud_dds_instance.instance"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,11 +21,11 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 			{
 				Config: TestAccDDSInstanceV3Config_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDDSV3InstanceExists("huaweicloud_dds_instance_v3.instance", &instance),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dds_instance_v3.instance", "name", "dds-instance"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_dds_instance_v3.instance", "ssl", "true"),
+					testAccCheckDDSV3InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", "dds-instance"),
+					resource.TestCheckResourceAttr(resourceName, "ssl", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 				),
 			},
 		},
@@ -39,7 +40,7 @@ func testAccCheckDDSV3InstanceDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_dds_instance_v3" {
+		if rs.Type != "huaweicloud_dds_instance" {
 			continue
 		}
 
@@ -92,7 +93,7 @@ func testAccCheckDDSV3InstanceExists(n string, instance *instances.Instance) res
 			return err
 		}
 		if instances.TotalCount == 0 {
-			return fmt.Errorf("Instance not found. ")
+			return fmt.Errorf("dds instance not found.")
 		}
 
 		return nil
@@ -100,11 +101,11 @@ func testAccCheckDDSV3InstanceExists(n string, instance *instances.Instance) res
 }
 
 var TestAccDDSInstanceV3Config_basic = fmt.Sprintf(`
-resource "huaweicloud_networking_secgroup_v2" "secgroup_acc" {
+resource "huaweicloud_networking_secgroup" "secgroup_acc" {
   name = "secgroup_acc"
 }
 
-resource "huaweicloud_dds_instance_v3" "instance" {
+resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
   datastore {
     type = "DDS-Community"
@@ -115,9 +116,10 @@ resource "huaweicloud_dds_instance_v3" "instance" {
   availability_zone = "%s"
   vpc_id = "%s"
   subnet_id = "%s"
-  security_group_id = huaweicloud_networking_secgroup_v2.secgroup_acc.id
+  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
   password = "Test@123"
   mode = "Sharding"
+
   flavor {
     type = "mongos"
     num = 2
@@ -140,5 +142,9 @@ resource "huaweicloud_dds_instance_v3" "instance" {
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days = "8"
+  }
+  tags = {
+	foo = "bar"
+    owner = "terraform"
   }
 }`, OS_REGION_NAME, OS_AVAILABILITY_ZONE, OS_VPC_ID, OS_NETWORK_ID)

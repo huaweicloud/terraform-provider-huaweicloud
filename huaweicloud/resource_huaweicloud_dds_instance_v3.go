@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/dds/v3/instances"
 )
 
@@ -170,6 +171,7 @@ func resourceDdsInstanceV3() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
+			"tags": tagsSchema(),
 			"db_username": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -319,7 +321,9 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		Flavor:           resourceDdsFlavors(d),
 		BackupStrategy:   resourceDdsBackupStrategy(d),
 	}
-	if ssl := d.Get("ssl").(bool); !ssl {
+	if d.Get("ssl").(bool) {
+		createOpts.Ssl = "1"
+	} else {
 		createOpts.Ssl = "0"
 	}
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -332,7 +336,7 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 
 	d.SetId(instance.Id)
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"creating"},
+		Pending:    []string{"creating", "updating"},
 		Target:     []string{"normal"},
 		Refresh:    DdsInstanceStateRefreshFunc(client, instance.Id),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
@@ -345,6 +349,15 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf(
 			"Error waiting for instance (%s) to become ready: %s ",
 			instance.Id, err)
+	}
+
+	//set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		taglist := expandResourceTags(tagRaw)
+		if tagErr := tags.Create(client, "instances", instance.Id, taglist).ExtractErr(); tagErr != nil {
+			return fmt.Errorf("Error setting tags of DDS instance %s: %s", instance.Id, tagErr)
+		}
 	}
 
 	return resourceDdsInstanceV3Read(d, meta)
@@ -370,7 +383,9 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error extracting DDS instance: %s", err)
 	}
 	if instances.TotalCount == 0 {
-		return fmt.Errorf("Error fetching DDS instance: deleted")
+		log.Printf("[WARN] DDS instance (%s) was not found", instanceID)
+		d.SetId("")
+		return nil
 	}
 	insts := instances.Instances
 	instance := insts[0]
@@ -415,6 +430,16 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	err = d.Set("nodes", flattenDdsInstanceV3Nodes(instance))
 	if err != nil {
 		return fmt.Errorf("Error setting nodes of DDS instance, err: %s", err)
+	}
+
+	// save tags
+	resourceTags, err := tags.Get(client, "instances", d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching tags of DDS instance: %s", err)
+	}
+	tagmap := tagsToMap(resourceTags.Tags)
+	if err := d.Set("tags", tagmap); err != nil {
+		return fmt.Errorf("[DEBUG] Error saving tag to state for DDS instance (%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -491,6 +516,13 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf(
 			"Error waiting for instance (%s) to become ready: %s ",
 			d.Id(), err)
+	}
+
+	if d.HasChange("tags") {
+		tagErr := UpdateResourceTags(client, d, "instances", d.Id())
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags of DDS instance:%s, err:%s", d.Id(), tagErr)
+		}
 	}
 
 	return resourceDdsInstanceV3Read(d, meta)
