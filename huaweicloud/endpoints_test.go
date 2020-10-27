@@ -581,6 +581,16 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "nat", "v2", t)
 
+	// test endpoint of secgroup v1
+	serviceClient, err = nil, nil
+	serviceClient, err = config.SecurityGroupV1Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud security_group v1 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://vpc.%s.%s/v1/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	compareURL(expectedURL, actualURL, "vpc", "v1", t)
+
 	// test endpoint of loadElasticLoadBalancer v1.0
 	serviceClient, err = nil, nil
 	serviceClient, err = config.elasticLBClient(OS_REGION_NAME)

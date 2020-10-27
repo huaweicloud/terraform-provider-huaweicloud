@@ -88,7 +88,7 @@ type UpdateOpts struct {
 	Name string `json:"name,omitempty"`
 
 	// Describes the security group.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
 
 // ToSecGroupUpdateMap builds a request body from UpdateOpts.
