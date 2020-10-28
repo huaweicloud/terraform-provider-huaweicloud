@@ -258,6 +258,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "dms",
 		Version: "v1.0",
 	},
+	"dmsv2": ServiceCatalog{
+		Name:    "dms",
+		Version: "v2",
+	},
 
 	// catalog for Others
 	"bss": ServiceCatalog{
