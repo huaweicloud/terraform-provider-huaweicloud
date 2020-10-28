@@ -7,7 +7,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
 )
 
@@ -36,14 +38,9 @@ func resourceListenerV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					if value != "TCP" && value != "HTTP" && value != "HTTPS" && value != "TERMINATED_HTTPS" {
-						errors = append(errors, fmt.Errorf(
-							"Only 'TCP', 'HTTP', 'HTTPS' and 'TERMINATED_HTTPS' are supported values for 'protocol'"))
-					}
-					return
-				},
+				ValidateFunc: validation.StringInSlice([]string{
+					"TCP", "UDP", "HTTP", "HTTPS", "TERMINATED_HTTPS",
+				}, false),
 			},
 
 			"protocol_port": {
@@ -111,6 +108,7 @@ func resourceListenerV2() *schema.Resource {
 				Default:  true,
 				Optional: true,
 			},
+			"tags": tagsSchema(),
 		},
 	}
 }
@@ -181,6 +179,19 @@ func resourceListenerV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(listener.ID)
 
+	//set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		elbv2Client, err := config.elbV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud elb v2 client: %s", err)
+		}
+		taglist := expandResourceTags(tagRaw)
+		if tagErr := tags.Create(elbv2Client, "listeners", listener.ID, taglist).ExtractErr(); tagErr != nil {
+			return fmt.Errorf("Error setting tags of elb listener %s: %s", listener.ID, tagErr)
+		}
+	}
+
 	return resourceListenerV2Read(d, meta)
 }
 
@@ -211,74 +222,104 @@ func resourceListenerV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("default_tls_container_ref", listener.DefaultTlsContainerRef)
 	d.Set("region", GetRegion(d, config))
 
+	// set tags
+	elbv2Client, err := config.elbV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud elb v2 client: %s", err)
+	}
+
+	resourceTags, err := tags.Get(elbv2Client, "listeners", d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching tags of elb listener: %s", err)
+	}
+	tagmap := tagsToMap(resourceTags.Tags)
+	d.Set("tags", tagmap)
+
 	return nil
 }
 
 func resourceListenerV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
-	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
-	}
 
-	var updateOpts listeners.UpdateOpts
-	if d.HasChange("name") {
-		updateOpts.Name = d.Get("name").(string)
-	}
-	if d.HasChange("description") {
-		updateOpts.Description = d.Get("description").(string)
-	}
-	if d.HasChange("connection_limit") {
-		connLimit := d.Get("connection_limit").(int)
-		updateOpts.ConnLimit = &connLimit
-	}
-	if d.HasChange("default_tls_container_ref") {
-		updateOpts.DefaultTlsContainerRef = d.Get("default_tls_container_ref").(string)
-	}
-	if d.HasChange("sni_container_refs") {
-		var sniContainerRefs []string
-		if raw, ok := d.GetOk("sni_container_refs"); ok {
-			for _, v := range raw.([]interface{}) {
-				sniContainerRefs = append(sniContainerRefs, v.(string))
-			}
-		}
-		updateOpts.SniContainerRefs = sniContainerRefs
-	}
-	if d.HasChange("admin_state_up") {
-		asu := d.Get("admin_state_up").(bool)
-		updateOpts.AdminStateUp = &asu
-	}
-	if d.HasChange("http2_enable") {
-		http2 := d.Get("http2_enable").(bool)
-		updateOpts.Http2Enable = &http2
-	}
-
-	// Wait for LoadBalancer to become active before continuing
-	lbID := d.Get("loadbalancer_id").(string)
-	timeout := d.Timeout(schema.TimeoutUpdate)
-	err = waitForLBV2LoadBalancer(lbClient, lbID, "ACTIVE", nil, timeout)
-	if err != nil {
-		return err
-	}
-
-	log.Printf("[DEBUG] Updating listener %s with options: %#v", d.Id(), updateOpts)
-	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
-		_, err = listeners.Update(lbClient, d.Id(), updateOpts).Extract()
+	if d.HasChanges("name", "description", "admin_state_up", "connection_limit",
+		"default_tls_container_ref", "sni_container_refs", "http2_enable") {
+		lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
-			return checkForRetryableError(err)
+			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
-		return nil
-	})
 
-	if err != nil {
-		return fmt.Errorf("Error updating listener %s: %s", d.Id(), err)
+		var updateOpts listeners.UpdateOpts
+		if d.HasChange("name") {
+			updateOpts.Name = d.Get("name").(string)
+		}
+		if d.HasChange("description") {
+			updateOpts.Description = d.Get("description").(string)
+		}
+		if d.HasChange("connection_limit") {
+			connLimit := d.Get("connection_limit").(int)
+			updateOpts.ConnLimit = &connLimit
+		}
+		if d.HasChange("default_tls_container_ref") {
+			updateOpts.DefaultTlsContainerRef = d.Get("default_tls_container_ref").(string)
+		}
+		if d.HasChange("sni_container_refs") {
+			var sniContainerRefs []string
+			if raw, ok := d.GetOk("sni_container_refs"); ok {
+				for _, v := range raw.([]interface{}) {
+					sniContainerRefs = append(sniContainerRefs, v.(string))
+				}
+			}
+			updateOpts.SniContainerRefs = sniContainerRefs
+		}
+		if d.HasChange("admin_state_up") {
+			asu := d.Get("admin_state_up").(bool)
+			updateOpts.AdminStateUp = &asu
+		}
+		if d.HasChange("http2_enable") {
+			http2 := d.Get("http2_enable").(bool)
+			updateOpts.Http2Enable = &http2
+		}
+
+		// Wait for LoadBalancer to become active before continuing
+		lbID := d.Get("loadbalancer_id").(string)
+		timeout := d.Timeout(schema.TimeoutUpdate)
+		err = waitForLBV2LoadBalancer(lbClient, lbID, "ACTIVE", nil, timeout)
+		if err != nil {
+			return err
+		}
+
+		log.Printf("[DEBUG] Updating listener %s with options: %#v", d.Id(), updateOpts)
+		//lintignore:R006
+		err = resource.Retry(timeout, func() *resource.RetryError {
+			_, err = listeners.Update(lbClient, d.Id(), updateOpts).Extract()
+			if err != nil {
+				return checkForRetryableError(err)
+			}
+			return nil
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error updating listener %s: %s", d.Id(), err)
+		}
+
+		// Wait for LoadBalancer to become active again before continuing
+		err = waitForLBV2LoadBalancer(lbClient, lbID, "ACTIVE", nil, timeout)
+		if err != nil {
+			return err
+		}
 	}
 
-	// Wait for LoadBalancer to become active again before continuing
-	err = waitForLBV2LoadBalancer(lbClient, lbID, "ACTIVE", nil, timeout)
-	if err != nil {
-		return err
+	// update tags
+	if d.HasChange("tags") {
+		elbv2Client, err := config.elbV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud elb v2 client: %s", err)
+		}
+
+		tagErr := UpdateResourceTags(elbv2Client, d, "listeners", d.Id())
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags of elb listener:%s, err:%s", d.Id(), tagErr)
+		}
 	}
 
 	return resourceListenerV2Read(d, meta)

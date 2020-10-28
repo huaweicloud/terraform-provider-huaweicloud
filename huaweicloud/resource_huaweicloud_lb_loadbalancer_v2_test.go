@@ -15,6 +15,7 @@ import (
 
 func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
+	resourceName := "huaweicloud_lb_loadbalancer_v2.loadbalancer_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckULB(t) },
@@ -24,17 +25,20 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 			{
 				Config: testAccLBV2LoadBalancerConfig_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2LoadBalancerExists("huaweicloud_lb_loadbalancer_v2.loadbalancer_1", &lb),
+					testAccCheckLBV2LoadBalancerExists(resourceName, &lb),
+					resource.TestCheckResourceAttr(resourceName, "name", "loadbalancer_1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestMatchResourceAttr(resourceName, "vip_port_id",
+						regexp.MustCompile("^[a-f0-9-]+")),
 				),
 			},
 			{
 				Config: testAccLBV2LoadBalancerConfig_update,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", "name", "loadbalancer_1_updated"),
-					resource.TestMatchResourceAttr(
-						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", "vip_port_id",
-						regexp.MustCompile("^[a-f0-9-]+")),
+					resource.TestCheckResourceAttr(resourceName, "name", "loadbalancer_1_updated"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 				),
 			},
 		},
@@ -56,9 +60,9 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 					testAccCheckLBV2LoadBalancerExists(
 						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", &lb),
 					testAccCheckNetworkingV2SecGroupExists(
-						"huaweicloud_networking_secgroup_v2.secgroup_1", &sg_1),
+						"huaweicloud_networking_secgroup.secgroup_1", &sg_1),
 					testAccCheckNetworkingV2SecGroupExists(
-						"huaweicloud_networking_secgroup_v2.secgroup_1", &sg_2),
+						"huaweicloud_networking_secgroup.secgroup_1", &sg_2),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", "security_group_ids.#", "1"),
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_1),
@@ -70,9 +74,9 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 					testAccCheckLBV2LoadBalancerExists(
 						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", &lb),
 					testAccCheckNetworkingV2SecGroupExists(
-						"huaweicloud_networking_secgroup_v2.secgroup_2", &sg_1),
+						"huaweicloud_networking_secgroup.secgroup_2", &sg_1),
 					testAccCheckNetworkingV2SecGroupExists(
-						"huaweicloud_networking_secgroup_v2.secgroup_2", &sg_2),
+						"huaweicloud_networking_secgroup.secgroup_2", &sg_2),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", "security_group_ids.#", "2"),
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_1),
@@ -85,9 +89,9 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 					testAccCheckLBV2LoadBalancerExists(
 						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", &lb),
 					testAccCheckNetworkingV2SecGroupExists(
-						"huaweicloud_networking_secgroup_v2.secgroup_2", &sg_1),
+						"huaweicloud_networking_secgroup.secgroup_2", &sg_1),
 					testAccCheckNetworkingV2SecGroupExists(
-						"huaweicloud_networking_secgroup_v2.secgroup_2", &sg_2),
+						"huaweicloud_networking_secgroup.secgroup_2", &sg_2),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_lb_loadbalancer_v2.loadbalancer_1", "security_group_ids.#", "1"),
 					testAccCheckLBV2LoadBalancerHasSecGroup(&lb, &sg_2),
@@ -180,6 +184,11 @@ resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name = "loadbalancer_1"
   vip_subnet_id = "%s"
 
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+
   timeouts {
     create = "5m"
     update = "5m"
@@ -194,6 +203,11 @@ resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   admin_state_up = "true"
   vip_subnet_id = "%s"
 
+  tags = {
+    key1  = "value1"
+    owner = "terraform_update"
+  }
+
   timeouts {
     create = "5m"
     update = "5m"
@@ -203,12 +217,12 @@ resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
 `, OS_SUBNET_ID)
 
 var testAccLBV2LoadBalancer_secGroup = fmt.Sprintf(`
-resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name = "secgroup_1"
   description = "secgroup_1"
 }
 
-resource "huaweicloud_networking_secgroup_v2" "secgroup_2" {
+resource "huaweicloud_networking_secgroup" "secgroup_2" {
   name = "secgroup_2"
   description = "secgroup_2"
 }
@@ -217,18 +231,18 @@ resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
     name = "loadbalancer_1"
     vip_subnet_id = "%s"
     security_group_ids = [
-      "${huaweicloud_networking_secgroup_v2.secgroup_1.id}"
+      huaweicloud_networking_secgroup.secgroup_1.id
     ]
 }
 `, OS_SUBNET_ID)
 
 var testAccLBV2LoadBalancer_secGroup_update1 = fmt.Sprintf(`
-resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name = "secgroup_1"
   description = "secgroup_1"
 }
 
-resource "huaweicloud_networking_secgroup_v2" "secgroup_2" {
+resource "huaweicloud_networking_secgroup" "secgroup_2" {
   name = "secgroup_2"
   description = "secgroup_2"
 }
@@ -237,19 +251,19 @@ resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
     name = "loadbalancer_1"
     vip_subnet_id = "%s"
     security_group_ids = [
-      "${huaweicloud_networking_secgroup_v2.secgroup_1.id}",
-      "${huaweicloud_networking_secgroup_v2.secgroup_2.id}"
+      huaweicloud_networking_secgroup.secgroup_1.id,
+      huaweicloud_networking_secgroup.secgroup_2.id
     ]
 }
 `, OS_SUBNET_ID)
 
 var testAccLBV2LoadBalancer_secGroup_update2 = fmt.Sprintf(`
-resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
+resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name = "secgroup_1"
   description = "secgroup_1"
 }
 
-resource "huaweicloud_networking_secgroup_v2" "secgroup_2" {
+resource "huaweicloud_networking_secgroup" "secgroup_2" {
   name = "secgroup_2"
   description = "secgroup_2"
 }
@@ -258,8 +272,7 @@ resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
     name = "loadbalancer_1"
     vip_subnet_id = "%s"
     security_group_ids = [
-      "${huaweicloud_networking_secgroup_v2.secgroup_2.id}"
+      huaweicloud_networking_secgroup.secgroup_2.id
     ]
-    depends_on = ["huaweicloud_networking_secgroup_v2.secgroup_1"]
 }
 `, OS_SUBNET_ID)
