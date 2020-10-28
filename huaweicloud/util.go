@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
@@ -184,4 +185,15 @@ func jsonMarshal(t interface{}) ([]byte, error) {
 	enc.SetEscapeHTML(false)
 	err := enc.Encode(t)
 	return buffer.Bytes(), err
+}
+
+// Generates a hash for the set hash function used by the ID
+func dataResourceIdHash(ids []string) string {
+	var buf bytes.Buffer
+
+	for _, id := range ids {
+		buf.WriteString(fmt.Sprintf("%s-", id))
+	}
+
+	return fmt.Sprintf("%d", hashcode.String(buf.String()))
 }

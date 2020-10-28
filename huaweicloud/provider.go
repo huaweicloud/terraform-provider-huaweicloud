@@ -195,6 +195,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_cce_cluster":                 dataSourceCCEClusterV3(),
 			"huaweicloud_cce_node":                    dataSourceCCENodeV3(),
 			"huaweicloud_cdm_flavors":                 dataSourceCdmFlavorV1(),
+			"huaweicloud_compute_flavors":             DataSourceEcsFlavors(),
 			"huaweicloud_csbs_backup":                 dataSourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy":          dataSourceCSBSBackupPolicyV1(),
 			"huaweicloud_cts_tracker":                 dataSourceCTSTrackerV1(),
