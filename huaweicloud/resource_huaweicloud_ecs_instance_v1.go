@@ -603,7 +603,7 @@ func resourceInstanceNicsV1(d *schema.ResourceData) []cloudservers.Nic {
 func resourceInstanceRootVolumeV1(d *schema.ResourceData) cloudservers.RootVolume {
 	disk_type := d.Get("system_disk_type").(string)
 	if disk_type == "" {
-		disk_type = "SATA"
+		disk_type = "GPSSD"
 	}
 	volRequest := cloudservers.RootVolume{
 		VolumeType: disk_type,

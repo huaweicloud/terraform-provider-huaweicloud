@@ -249,7 +249,7 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Computed:      true,
 				ConflictsWith: []string{"block_device", "metadata"},
 				ValidateFunc: validation.StringInSlice([]string{
-					"SATA", "SAS", "SSD", "co-p1", "uh-l1",
+					"SATA", "SAS", "SSD", "GPSSD",
 				}, true),
 			},
 			"system_disk_size": {

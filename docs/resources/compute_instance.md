@@ -216,13 +216,13 @@ The following arguments are supported:
     pair must already be created and associated with the tenant's account.
     Changing this creates a new server.
 
-* `system_disk_type` - (Optional) The system disk type of the server. For HANA, HL1, and HL2 ECSs use co-p1 and uh-l1 disks.
+* `system_disk_type` - (Optional) The system disk type of the server. Defaults to `GPSSD`. For details about disk types,
+	see [Disk Types and Disk Performance](https://support.huaweicloud.com/en-us/productdesc-evs/en-us_topic_0014580744.html)
     Changing this creates a new server. Available options are:
-	* `SATA`: common I/O disk type.
-	* `SAS`: high I/O disk type.
 	* `SSD`: ultra-high I/O disk type.
-	* `co-p1`: high I/O(performance-optimized) disk type.
-	* `uh-l1`: ultra-high I/O(latency-optimized) disk type.
+	* `GPSSD`: general purpose SSD disk type.
+	* `SAS`: high I/O disk type.
+
 
 * `system_disk_size` - (Optional) The system disk size in GB, The value range is 1 to 1024. Changing this parameter will update the disk. 
     You can extend the disk by setting this parameter to a new value, which must be between current size and the max size(1024). 
