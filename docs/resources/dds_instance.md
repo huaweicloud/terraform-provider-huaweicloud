@@ -116,6 +116,8 @@ The following arguments are supported:
 
 **Note:** The instance will be restarted in the background when switching SSL. Please operate with caution.
 
+* `tags` - (Optional) The key/value pairs to associate with the DDS instance.
+
 The `datastore` block supports:
 
 * `type` - (Required) Specifies the DB engine. 'DDS-Community' and 'DDS-Enhanced' are supported.
@@ -184,6 +186,7 @@ The following attributes are exported:
 * `mode` - See Argument Reference above.
 * `flavor` - See Argument Reference above.
 * `backup_strategy` - See Argument Reference above.
+* `tags` - See Argument Reference above.
 * `db_username` - Indicates the DB Administator name.
 * `status` - Indicates the the DB instance status.
 * `port` - Indicates the database port number. The port range is 2100 to 9500.

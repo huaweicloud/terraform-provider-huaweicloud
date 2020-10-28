@@ -47,7 +47,6 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   begin_at          = "00:00-01:00"
   period_type       = "weekly"
   backup_at         = [1]
-  depends_on        = ["huaweicloud_networking_secgroup.secgroup_1"]
 }
 ```
 
@@ -190,6 +189,8 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional) The enterprise project id of the dcs instance. Changing this creates a new instance.
 
+* `tags` - (Optional) The key/value pairs to associate with the dcs instance.
+
 The `whitelists` block supports:
 
 * `group_name` - (Required) Specifies the name of IP address group.
@@ -224,6 +225,7 @@ The following attributes are exported:
 * `begin_at` - See Argument Reference above.
 * `period_type` - See Argument Reference above.
 * `backup_at` - See Argument Reference above.
+* `tags` - See Argument Reference above.
 * `order_id` - An order ID is generated only in the monthly or yearly billing mode.
     In other billing modes, no value is returned for this parameter.
 * `resource_spec_code` - Resource specifications.

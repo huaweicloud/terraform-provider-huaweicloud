@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v1/instances"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 )
 
 func TestAccDcsInstancesV1_basic(t *testing.T) {
@@ -29,6 +28,8 @@ func TestAccDcsInstancesV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "3.0"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttrSet(resourceName, "ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "port"),
 				),
@@ -77,6 +78,7 @@ func TestAccDcsInstancesV1_whitelists(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
 					resource.TestCheckResourceAttr(resourceName, "whitelist_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "whitelists.#", "2"),
 				),
 			},
 		},
@@ -174,8 +176,8 @@ func testAccDcsV1Instance_basic(instanceName string) string {
 	  engine            = "Redis"
 	  capacity          = 2
 	  vpc_id            = "%s"
-	  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
 	  subnet_id         = "%s"
+	  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
 	  product_id        = "dcs.master_standby-h"
 	  save_days         = 1
@@ -183,7 +185,11 @@ func testAccDcsV1Instance_basic(instanceName string) string {
 	  begin_at          = "00:00-01:00"
 	  period_type       = "weekly"
 	  backup_at         = [1]
-	  depends_on        = ["huaweicloud_networking_secgroup.secgroup_1"]
+
+	  tags = {
+	    key = "value"
+	    owner = "terraform"
+	  }
 	}
 	`, OS_AVAILABILITY_ZONE, instanceName, OS_VPC_ID, OS_NETWORK_ID)
 }
@@ -214,7 +220,6 @@ func testAccDcsV1Instance_epsId(instanceName string) string {
 	  begin_at          = "00:00-01:00"
 	  period_type       = "weekly"
 	  backup_at         = [1]
-	  depends_on        = ["huaweicloud_networking_secgroup.secgroup_1"]
 	  enterprise_project_id = "%s"
 	}
 	`, OS_AVAILABILITY_ZONE, instanceName, OS_VPC_ID, OS_NETWORK_ID, OS_ENTERPRISE_PROJECT_ID)
