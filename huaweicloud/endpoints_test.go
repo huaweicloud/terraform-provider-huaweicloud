@@ -328,14 +328,26 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	// test the endpoint of DMS service
 	serviceClient, err = config.dmsV1Client(OS_REGION_NAME)
 	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud DMS client: %s", err)
+		t.Fatalf("Error creating HuaweiCloud DMS v1 client: %s", err)
 	}
 	expectedURL = fmt.Sprintf("https://dms.%s.%s/v1.0/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
-		t.Fatalf("DMS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+		t.Fatalf("DMS v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
-	t.Logf("DMS endpoint:\t %s", actualURL)
+	t.Logf("DMS v1 endpoint:\t %s", actualURL)
+
+	// test the endpoint of DMS v2 service
+	serviceClient, err = config.dmsV2Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud DMS v2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dms.%s.%s/v2/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("DMS v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("DMS v2 endpoint:\t %s", actualURL)
 }
 
 // TestAccServiceEndpoints_Compute test for endpoints of the clients used in ecs

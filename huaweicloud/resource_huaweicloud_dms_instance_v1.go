@@ -7,7 +7,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/instances"
 )
 
@@ -34,23 +36,32 @@ func resourceDmsInstancesV1() *schema.Resource {
 			"engine": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"rabbitmq", "kafka",
+				}, false),
 			},
 			"engine_version": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 			"storage_space": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"password": {
-				Type:      schema.TypeString,
-				Sensitive: true,
-				Optional:  true,
+			"storage_spec_code": {
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"access_user": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"password": {
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Optional:  true,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -87,6 +98,12 @@ func resourceDmsInstancesV1() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"specification": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"tags": tagsSchema(),
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -134,15 +151,6 @@ func resourceDmsInstancesV1() *schema.Resource {
 			"used_storage_space": {
 				Type:     schema.TypeInt,
 				Computed: true,
-			},
-			"specification": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"storage_spec_code": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 		},
 	}
@@ -205,6 +213,21 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	// Store the instance ID now
 	d.SetId(v.InstanceID)
 
+	//set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		dmsV2Client, err := config.dmsV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud dms instance v2 client: %s", err)
+		}
+
+		taglist := expandResourceTags(tagRaw)
+		engine := d.Get("engine").(string)
+		if tagErr := tags.Create(dmsV2Client, engine, v.InstanceID, taglist).ExtractErr(); tagErr != nil {
+			return fmt.Errorf("Error setting tags of dms instance %s: %s", v.InstanceID, tagErr)
+		}
+	}
+
 	return resourceDmsInstancesV1Read(d, meta)
 }
 
@@ -217,7 +240,7 @@ func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	}
 	v, err := instances.Get(dmsV1Client, d.Id()).Extract()
 	if err != nil {
-		return err
+		return CheckDeleted(d, err, "DMS instance")
 	}
 
 	log.Printf("[DEBUG] Dms instance %s: %+v", d.Id(), v)
@@ -249,39 +272,72 @@ func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("maintain_begin", v.MaintainBegin)
 	d.Set("maintain_end", v.MaintainEnd)
 
+	// set tags
+	dmsV2Client, err := config.dmsV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud dms instance v2 client: %s", err)
+	}
+
+	engine := d.Get("engine").(string)
+	resourceTags, err := tags.Get(dmsV2Client, engine, d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching tags of dms instance: %s", err)
+	}
+	tagmap := tagsToMap(resourceTags.Tags)
+	if err := d.Set("tags", tagmap); err != nil {
+		return fmt.Errorf("[DEBUG] Error saving tag to state for dms instance (%s): %s", d.Id(), err)
+	}
+
 	return nil
 }
 
 func resourceDmsInstancesV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	dmsV1Client, err := config.dmsV1Client(GetRegion(d, config))
-	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud dms instance client: %s", err)
-	}
-	var updateOpts instances.UpdateOpts
-	if d.HasChange("name") {
-		updateOpts.Name = d.Get("name").(string)
-	}
-	if d.HasChange("description") {
-		description := d.Get("description").(string)
-		updateOpts.Description = &description
-	}
-	if d.HasChange("maintain_begin") {
-		maintain_begin := d.Get("maintain_begin").(string)
-		updateOpts.MaintainBegin = maintain_begin
-	}
-	if d.HasChange("maintain_end") {
-		maintain_end := d.Get("maintain_end").(string)
-		updateOpts.MaintainEnd = maintain_end
-	}
-	if d.HasChange("security_group_id") {
-		security_group_id := d.Get("security_group_id").(string)
-		updateOpts.SecurityGroupID = security_group_id
+
+	if d.HasChanges("name", "description", "maintain_begin", "maintain_end", "security_group_id") {
+		dmsV1Client, err := config.dmsV1Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error updating HuaweiCloud dms instance client: %s", err)
+		}
+
+		var updateOpts instances.UpdateOpts
+		if d.HasChange("name") {
+			updateOpts.Name = d.Get("name").(string)
+		}
+		if d.HasChange("description") {
+			description := d.Get("description").(string)
+			updateOpts.Description = &description
+		}
+		if d.HasChange("maintain_begin") {
+			maintain_begin := d.Get("maintain_begin").(string)
+			updateOpts.MaintainBegin = maintain_begin
+		}
+		if d.HasChange("maintain_end") {
+			maintain_end := d.Get("maintain_end").(string)
+			updateOpts.MaintainEnd = maintain_end
+		}
+		if d.HasChange("security_group_id") {
+			security_group_id := d.Get("security_group_id").(string)
+			updateOpts.SecurityGroupID = security_group_id
+		}
+
+		err = instances.Update(dmsV1Client, d.Id(), updateOpts).Err
+		if err != nil {
+			return fmt.Errorf("Error updating HuaweiCloud Dms Instance: %s", err)
+		}
 	}
 
-	err = instances.Update(dmsV1Client, d.Id(), updateOpts).Err
-	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud Dms Instance: %s", err)
+	if d.HasChange("tags") {
+		dmsV2Client, err := config.dmsV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error updating HuaweiCloud dms instance v2 client: %s", err)
+		}
+		// update tags
+		engine := d.Get("engine").(string)
+		tagErr := UpdateResourceTags(dmsV2Client, d, engine, d.Id())
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags of dms instance:%s, err:%s", d.Id(), tagErr)
+		}
 	}
 
 	return resourceDmsInstancesV1Read(d, meta)
