@@ -13,6 +13,10 @@ resource "huaweicloud_lb_listener_v2" "listener_1" {
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = "d9415786-5f1a-428b-b35f-2f1523e146d2"
+
+  tags = {
+    key = "value"
+  }
 }
 ```
 
@@ -63,6 +67,8 @@ The following arguments are supported:
 * `admin_state_up` - (Optional) The administrative state of the Listener.
     A valid value is true (UP) or false (DOWN).
 
+* `tags` - (Optional) The key/value pairs to associate with the listener.
+
 ## Attributes Reference
 
 The following attributes are exported:
@@ -79,3 +85,4 @@ The following attributes are exported:
 * `default_tls_container_ref` - See Argument Reference above.
 * `sni_container_refs` - See Argument Reference above.
 * `admin_state_up` - See Argument Reference above.
+* `tags` - See Argument Reference above.
