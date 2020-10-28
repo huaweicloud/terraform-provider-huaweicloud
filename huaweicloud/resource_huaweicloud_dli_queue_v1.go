@@ -30,6 +30,12 @@ func resourceDliQueueV1() *schema.Resource {
 		Delete: resourceDliQueueV1Delete,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"cu_count": {
 				Type:     schema.TypeInt,
 				Required: true,

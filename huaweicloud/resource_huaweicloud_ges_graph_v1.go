@@ -56,8 +56,9 @@ func resourceGesGraphV1() *schema.Resource {
 
 			"region": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 
 			"security_group_id": {

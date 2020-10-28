@@ -12,6 +12,11 @@ func dataSourceGaussdbMysqlFlavors() *schema.Resource {
 		Read: dataSourceGaussdbMysqlFlavorsRead,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"engine": {
 				Type:     schema.TypeString,
 				Optional: true,

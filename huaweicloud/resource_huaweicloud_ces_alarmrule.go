@@ -26,6 +26,12 @@ func resourceAlarmRule() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"alarm_name": {
 				Type:     schema.TypeString,
 				Required: true,

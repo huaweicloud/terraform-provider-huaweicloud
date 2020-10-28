@@ -17,7 +17,6 @@ func dataSourceCSBSBackupV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"status": {
 				Type:     schema.TypeString,

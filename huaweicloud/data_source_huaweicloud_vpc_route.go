@@ -18,7 +18,6 @@ func DataSourceVPCRouteV2() *schema.Resource {
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"type": {

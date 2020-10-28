@@ -18,6 +18,12 @@ func resourceLTSStreamV2() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"group_id": {
 				Type:     schema.TypeString,
 				Required: true,

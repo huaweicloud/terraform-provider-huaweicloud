@@ -24,6 +24,7 @@ var (
 	OS_SUBNET_ID              = os.Getenv("OS_SUBNET_ID")
 	OS_POOL_NAME              = os.Getenv("OS_POOL_NAME")
 	OS_REGION_NAME            = os.Getenv("OS_REGION_NAME")
+	OS_CUSTOM_REGION_NAME     = os.Getenv("OS_CUSTOM_REGION_NAME")
 	OS_ACCESS_KEY             = os.Getenv("OS_ACCESS_KEY")
 	OS_SECRET_KEY             = os.Getenv("OS_SECRET_KEY")
 	OS_SRC_ACCESS_KEY         = os.Getenv("OS_SRC_ACCESS_KEY")
@@ -56,6 +57,12 @@ func testAccPreCheck(t *testing.T) {
 	// Do not run the test if this is a deprecated testing environment.
 	if OS_DEPRECATED_ENVIRONMENT != "" {
 		t.Skip("This environment only runs deprecated tests")
+	}
+}
+
+func testAccPrecheckCustomRegion(t *testing.T) {
+	if OS_CUSTOM_REGION_NAME == "" {
+		t.Skip("This environment does not support custom region tests")
 	}
 }
 

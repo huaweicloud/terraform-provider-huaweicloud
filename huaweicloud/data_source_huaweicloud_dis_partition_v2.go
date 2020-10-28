@@ -12,6 +12,11 @@ func dataSourceDisPartitionV2() *schema.Resource {
 		Read: dataSourceDisPartitionV2Read,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"stream_name": {
 				Type:     schema.TypeString,
 				Required: true,

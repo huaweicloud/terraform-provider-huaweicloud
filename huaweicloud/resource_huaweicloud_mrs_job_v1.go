@@ -31,6 +31,7 @@ func resourceMRSJobV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 			"job_type": {
 				Type:     schema.TypeInt,

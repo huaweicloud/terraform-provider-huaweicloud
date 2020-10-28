@@ -17,7 +17,6 @@ func dataSourceVPCRouteIdsV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
