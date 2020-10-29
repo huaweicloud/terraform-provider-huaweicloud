@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/mrs/v1/cluster"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
@@ -19,14 +20,15 @@ func resourceMRSClusterV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceClusterV1Create,
 		Read:   resourceClusterV1Read,
+		Update: resourceClusterV1Update,
 		Delete: resourceClusterV1Delete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -234,6 +236,7 @@ func resourceMRSClusterV1() *schema.Resource {
 					},
 				},
 			},
+			"tags": tagsSchema(),
 			"order_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -478,6 +481,15 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 			clusterCreate.ClusterID, err)
 	}
 
+	// create tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		taglist := expandResourceTags(tagRaw)
+		if tagErr := tags.Create(client, "clusters", d.Id(), taglist).ExtractErr(); tagErr != nil {
+			return fmt.Errorf("Error setting tags of MRS cluster %s: %s", d.Id(), tagErr)
+		}
+	}
+
 	return resourceClusterV1Read(d, meta)
 }
 
@@ -490,8 +502,14 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	clusterGet, err := cluster.Get(client, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "Cluster")
+		return CheckDeleted(d, err, "MRS Cluster")
 	}
+	if clusterGet.Clusterstate == "terminated" {
+		log.Printf("[WARN] The Cluster %s has been terminated.", d.Id())
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] Retrieved Cluster %s: %#v", d.Id(), clusterGet)
 	d.SetId(clusterGet.Clusterid)
 	d.Set("region", GetRegion(d, config))
@@ -581,7 +599,32 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("component_list", components)
+
+	// set tags
+	resourceTags, err := tags.Get(client, "clusters", d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching tags of MRS cluster: %s", err)
+	}
+	tagmap := tagsToMap(resourceTags.Tags)
+	d.Set("tags", tagmap)
+
 	return nil
+}
+
+func resourceClusterV1Update(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	client, err := config.MrsV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud MRS client: %s", err)
+	}
+
+	// update tags
+	tagErr := UpdateResourceTags(client, d, "clusters", d.Id())
+	if tagErr != nil {
+		return fmt.Errorf("Error updating tags of MRS cluster:%s, err:%s", d.Id(), tagErr)
+	}
+
+	return resourceClusterV1Read(d, meta)
 }
 
 func resourceClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
