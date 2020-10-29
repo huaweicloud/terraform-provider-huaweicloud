@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares"
 )
 
@@ -83,6 +84,7 @@ func resourceSFSFileSystemV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"tags": tagsSchema(),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -198,6 +200,15 @@ func resourceSFSFileSystemV2Create(d *schema.ResourceData, meta interface{}) err
 		d.Set("share_access_id", grant.ID)
 	}
 
+	// create tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		taglist := expandResourceTags(tagRaw)
+		if tagErr := tags.Create(sfsClient, "sfs", d.Id(), taglist).ExtractErr(); tagErr != nil {
+			return fmt.Errorf("Error setting tags of sfs %s: %s", d.Id(), tagErr)
+		}
+	}
+
 	return resourceSFSFileSystemV2Read(d, meta)
 }
 
@@ -295,6 +306,14 @@ OUTER:
 		d.Set("status", "unavailable")
 	}
 
+	// set tags
+	resourceTags, err := tags.Get(sfsClient, "sfs", d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching tags of sfs: %s", err)
+	}
+	tagmap := tagsToMap(resourceTags.Tags)
+	d.Set("tags", tagmap)
+
 	return nil
 }
 
@@ -357,6 +376,14 @@ func resourceSFSFileSystemV2Update(d *schema.ResourceData, meta interface{}) err
 			if shrink.Err != nil {
 				return fmt.Errorf("Error Shrinking Huaweicloud Share File size: %s", shrink.Err)
 			}
+		}
+	}
+
+	// update tags
+	if d.HasChange("tags") {
+		tagErr := UpdateResourceTags(sfsClient, d, "sfs", d.Id())
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags of sfs:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
