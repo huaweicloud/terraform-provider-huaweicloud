@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/mrs/v1/cluster"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
@@ -35,49 +36,17 @@ func resourceMRSClusterV1() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-
-			"billing_type": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-			},
-			"master_node_num": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-			},
-			"master_node_size": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"core_node_num": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: resourceClusterValidateCoreNodeNum,
-				ForceNew:     true,
-			},
-			"core_node_size": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
 			"available_zone_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
+			"billing_type": {
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
+			},
 			"cluster_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"vpc_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"subnet_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -94,21 +63,49 @@ func resourceMRSClusterV1() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"volume_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					return ValidateStringList(v, k, []string{"SATA", "SSD"})
-				},
-			},
-			"volume_size": {
+			"master_node_num": {
 				Type:     schema.TypeInt,
 				Required: true,
 				ForceNew: true,
 			},
-			"node_public_cert_name": {
+			"master_node_size": {
 				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"core_node_num": {
+				Type:         schema.TypeInt,
+				Required:     true,
+				ValidateFunc: validation.IntBetween(1, 500),
+				ForceNew:     true,
+			},
+			"core_node_size": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+
+			"vpc_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"subnet_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+
+			"volume_type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"SATA", "SAS", "SSD",
+				}, false),
+			},
+			"volume_size": {
+				Type:     schema.TypeInt,
 				Required: true,
 				ForceNew: true,
 			},
@@ -121,6 +118,11 @@ func resourceMRSClusterV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
+			},
+			"node_public_cert_name": {
+				Type:     schema.TypeString,
+				Required: true,
 				ForceNew: true,
 			},
 			"log_collection": {
@@ -344,15 +346,6 @@ func resourceMRSClusterV1() *schema.Resource {
 	}
 }
 
-func resourceClusterValidateCoreNodeNum(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(int)
-	if 3 <= value && value <= 100 {
-		return
-	}
-	errors = append(errors, fmt.Errorf("%q must be [3, 100]", k))
-	return
-}
-
 func getAllClusterComponents(d *schema.ResourceData) []cluster.ComponentOpts {
 	var componentOpts []cluster.ComponentOpts
 
@@ -444,16 +437,17 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 		CoreNodeSize:       d.Get("core_node_size").(string),
 		AvailableZoneID:    d.Get("available_zone_id").(string),
 		ClusterName:        d.Get("cluster_name").(string),
-		Vpc:                vpc.Name,
-		VpcID:              d.Get("vpc_id").(string),
-		SubnetID:           d.Get("subnet_id").(string),
-		SubnetName:         subnet.Name,
 		ClusterVersion:     d.Get("cluster_version").(string),
 		ClusterType:        d.Get("cluster_type").(int),
+		VpcID:              d.Get("vpc_id").(string),
+		SubnetID:           d.Get("subnet_id").(string),
+		Vpc:                vpc.Name,
+		SubnetName:         subnet.Name,
 		VolumeType:         d.Get("volume_type").(string),
 		VolumeSize:         d.Get("volume_size").(int),
-		NodePublicCertName: d.Get("node_public_cert_name").(string),
 		SafeMode:           d.Get("safe_mode").(int),
+		LoginMode:          1,
+		NodePublicCertName: d.Get("node_public_cert_name").(string),
 		ClusterAdminSecret: d.Get("cluster_admin_secret").(string),
 		LogCollection:      d.Get("log_collection").(int),
 		ComponentList:      getAllClusterComponents(d),
@@ -505,24 +499,32 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("cluster_id", clusterGet.Clusterid)
 	d.Set("available_zone_name", clusterGet.Azname)
 	d.Set("available_zone_id", clusterGet.Azid)
+	d.Set("cluster_name", clusterGet.Clustername)
 	d.Set("cluster_version", clusterGet.Clusterversion)
 
-	masterNodeNum, err := strconv.Atoi(clusterGet.Masternodenum)
-	if err != nil {
-		return fmt.Errorf("Error converting Masternodenum: %s", err)
+	if clusterGet.Masternodenum != "" {
+		masterNodeNum, err := strconv.Atoi(clusterGet.Masternodenum)
+		if err != nil {
+			return fmt.Errorf("Error converting Masternodenum: %s", err)
+		}
+		d.Set("master_node_num", masterNodeNum)
 	}
-	coreNodeNum, err := strconv.Atoi(clusterGet.Corenodenum)
-	if err != nil {
-		return fmt.Errorf("Error converting Corenodenum: %s", err)
+
+	if clusterGet.Corenodenum != "" {
+		coreNodeNum, err := strconv.Atoi(clusterGet.Corenodenum)
+		if err != nil {
+			return fmt.Errorf("Error converting Corenodenum: %s", err)
+		}
+		d.Set("core_node_num", coreNodeNum)
 	}
-	d.Set("master_node_num", masterNodeNum)
-	d.Set("core_node_num", coreNodeNum)
-	d.Set("cluster_name", clusterGet.Clustername)
-	d.Set("core_node_size", clusterGet.Corenodesize)
-	d.Set("volume_size", clusterGet.Volumesize)
+
+	// the following attributes are empty during to the API backend
+	// d.Set("master_node_size", clusterGet.Masternodesize)
+	// d.Set("core_node_size", clusterGet.Corenodesize)
+	// d.Set("volume_size", clusterGet.Volumesize)
+
 	d.Set("node_public_cert_name", clusterGet.Nodepubliccertname)
 	d.Set("safe_mode", clusterGet.Safemode)
-	d.Set("master_node_size", clusterGet.Masternodesize)
 	d.Set("instance_id", clusterGet.Instanceid)
 	d.Set("hadoop_version", clusterGet.Hadoopversion)
 	d.Set("master_node_ip", clusterGet.Masternodeip)
