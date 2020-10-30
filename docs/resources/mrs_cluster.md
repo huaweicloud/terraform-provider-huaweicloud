@@ -12,22 +12,23 @@ This is an alternative to `huaweicloud_mrs_cluster_v1`
 ```hcl
 resource "huaweicloud_mrs_cluster" "cluster1" {
   cluster_name          = "mrs-cluster"
+  cluster_version       = "MRS 1.8.10"
+  cluster_type          = 0
   region                = "cn-north-1"
+  available_zone_id     = "ae04cf9d61544df3806a3feeb401b204"
   billing_type          = 12
   master_node_num       = 2
   core_node_num         = 3
   master_node_size      = "c3.4xlarge.2.linux.bigdata"
   core_node_size        = "c3.xlarge.4.linux.bigdata"
-  available_zone_id     = "ae04cf9d61544df3806a3feeb401b204"
-  vpc_id                = "51edfb75-f9f0-4bbc-b4dc-21466b93f60d"
-  subnet_id             = "1d7a8646-43ee-455a-a3ab-40da87a1304c"
-  cluster_version       = "MRS 1.6.3"
   volume_type           = "SATA"
   volume_size           = 100
   safe_mode             = 0
-  cluster_type          = 0
-  node_public_cert_name = "KeyPair-ci"
-  cluster_admin_secret  = ""
+  cluster_admin_secret  = var.admin_secret
+  node_public_cert_name = var.keypair
+  vpc_id                = "51edfb75-f9f0-4bbc-b4dc-21466b93f60d"
+  subnet_id             = "1d7a8646-43ee-455a-a3ab-40da87a1304c"
+
   component_list {
     component_name = "Hadoop"
   }
@@ -48,6 +49,15 @@ The following arguments are supported:
 
 * `region` - (Required) Cluster region information. Obtain the value from
     Regions and Endpoints.
+
+* `cluster_name` - (Required) Cluster name, which is globally unique and contains
+    only 1 to 64 letters, digits, hyphens (-), and underscores (_).
+
+* `cluster_version` - (Optional) Version of the clusters. Currently, MRS 1.8.10, MRS 1.9.2
+    and MRS 2.1.0 are supported.
+
+* `cluster_type` - (Optional) Type of clusters 0: analysis cluster 1: streaming
+    cluster The default value is 0.
 
 * `master_node_num` - (Required) Number of Master nodes The value is 2.
 
@@ -75,9 +85,6 @@ The following arguments are supported:
 	South China AZ2(cn-south-2b): 043c7e39ecb347a08dc8fcb6c35a274e,
 	South China AZ3(cn-south-1c): af1687643e8c4ec1b34b688e4e3b8901,
 
-* `cluster_name` - (Required) Cluster name, which is globally unique and contains
-    only 1 to 64 letters, digits, hyphens (-), and underscores (_).
-
 * `vpc_id` - (Required) ID of the VPC where the subnet locates Obtain the VPC
     ID from the management console as follows: Register an account and log in to
     the management console. Click Virtual Private Cloud and select Virtual Private
@@ -88,13 +95,6 @@ The following arguments are supported:
     console as follows: Register an account and log in to the management console.
     Click Virtual Private Cloud and select Virtual Private Cloud from the left list.
     On the Virtual Private Cloud page, obtain the subnet ID from the list.
-
-* `cluster_version` - (Optional) Version of the clusters Currently, MRS 1.6.3, MRS 1.7.2
-    and MRS 1.8.1 are supported. The latest version of MRS is used by default. Currently,
-    the latest version is MRS 1.8.1.
-
-* `cluster_type` - (Optional) Type of clusters 0: analysis cluster 1: streaming
-    cluster The default value is 0.
 
 * `volume_type` - (Required) Type of disks SATA and SSD are supported. SATA:
     common I/O SSD: super high-speed I/O
@@ -144,6 +144,7 @@ The following arguments are supported:
 * `add_jobs` - (Optional) You can submit a job when you create a cluster to
     save time and use MRS easily. Only one job can be added.
 
+* `tags` - (Optional) The key/value pairs to associate with the cluster.
 
 The `component_list` block supports:
 
@@ -228,6 +229,7 @@ The following attributes are exported:
 * `log_collection` - See Argument Reference above.
 * `component_list` - See Argument Reference below.
 * `add_jobs` - See Argument Reference above.
+* `tags` - See Argument Reference above.
 * `order_id` - Order ID for creating clusters.
 * `cluster_id` - Cluster ID.
 * `available_zone_name` - Name of an availability zone.
