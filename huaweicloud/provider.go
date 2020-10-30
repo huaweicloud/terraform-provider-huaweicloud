@@ -207,6 +207,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dms_az":                      dataSourceDmsAZV1(),
 			"huaweicloud_dms_product":                 dataSourceDmsProductV1(),
 			"huaweicloud_dms_maintainwindow":          dataSourceDmsMaintainWindowV1(),
+			"huaweicloud_enterprise_project":          DataSourceEnterpriseProject(),
 			"huaweicloud_gaussdb_mysql_configuration": dataSourceGaussdbMysqlConfigurations(),
 			"huaweicloud_gaussdb_mysql_flavors":       dataSourceGaussdbMysqlFlavors(),
 			"huaweicloud_iam_role":                    dataSourceIAMRoleV3(),
