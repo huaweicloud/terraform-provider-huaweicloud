@@ -39,6 +39,8 @@ resource "huaweicloud_ces_alarmrule" "alarm_rule" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the alarm rule resource. If omitted, the provider-level region will work as default. Changing this creates a new Cloud Eye alarm rule resource.
+
 * `alarm_name` - (Required) Specifies the name of an alarm rule. The value can
     be a string of 1 to 128 characters that can consist of numbers, lowercase letters,
     uppercase letters, underscores (_), or hyphens (-).

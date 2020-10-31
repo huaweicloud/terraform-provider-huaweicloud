@@ -27,6 +27,8 @@ resource "huaweicloud_lb_whitelist_v2" "whitelist_1" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the Load Balancer whitelist resource. If omitted, the provider-level region will work as default. Changing this creates a new whitelist resource.
+
 * `tenant_id` - (Optional) Required for admins. The UUID of the tenant who owns
     the whitelist. Only administrative users can specify a tenant UUID
     other than their own. Changing this creates a new whitelist.

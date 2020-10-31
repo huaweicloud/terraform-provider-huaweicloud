@@ -186,6 +186,8 @@ function, or the `template_cloudinit_config` resource.
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the instance. If omitted, the provider-level region will work as default. Changing this creates a new resource.
+
 * `name` - (Required) A unique name for the resource.
 
 * `image_id` - (Optional; Required if `image_name` is empty) The image ID of

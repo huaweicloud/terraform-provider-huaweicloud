@@ -17,6 +17,8 @@ data "huaweicloud_nat_gateway" "natgateway" {
 
 ## Argument Reference
 
+* `region` - (Optional) The region in which to obtain the gateways. If omitted, the provider-level region will work as default.
+
 * `id` - (Optional) The ID of the NAT gateway.
 
 * `name` - (Optional) The name of the NAT gateway.

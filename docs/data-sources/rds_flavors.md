@@ -19,6 +19,8 @@ data "huaweicloud_rds_flavors" "flavor" {
 
 ## Argument Reference
 
+* `region` - (Optional) The region in which to obtain the RDS flavors. If omitted, the provider-level region will work as default.
+
 * `db_type` - (Required) Specifies the DB engine. Value: MySQL, PostgreSQL, SQLServer.
 
 * `db_version` -

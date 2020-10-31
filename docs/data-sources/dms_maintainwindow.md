@@ -19,6 +19,8 @@ data "huaweicloud_dms_maintainwindow" "maintainwindow1" {
 
 ## Argument Reference
 
+* `region` - (Optional) The region in which to obtain the dms maintainwindows. If omitted, the provider-level region will work as default.
+
 * `seq` - (Required) Indicates the sequential number of a maintenance time window.
 
 * `begin` - (Optional) Indicates the time at which a maintenance time window starts.

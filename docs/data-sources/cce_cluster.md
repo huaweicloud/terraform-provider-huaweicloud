@@ -22,6 +22,8 @@ data "huaweicloud_cce_cluster" "cluster" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the cce clusters. If omitted, the provider-level region will work as default.
+
 * `name` -  (Optional)The Name of the cluster resource.
  
 * `id` - (Optional) The ID of container cluster.

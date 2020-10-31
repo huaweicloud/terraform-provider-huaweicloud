@@ -44,6 +44,8 @@ resource "huaweicloud_mrs_cluster" "cluster1" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the msr cluster resource. If omitted, the provider-level region will work as default. Changing this creates a new msr cluster resource.
+
 * `billing_type` - (Required) The value is 12, indicating on-demand payment.
 
 * `region` - (Required) Cluster region information. Obtain the value from

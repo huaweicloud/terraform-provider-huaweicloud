@@ -27,6 +27,8 @@ resource "huaweicloud_fgs_function" "f_1" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the Function resource. If omitted, the provider-level region will work as default. Changing this creates a new Function resource.
+
 * `name` - (Required) A unique name for the function. Changing this creates a new function.
 
 * `package` - (Required) Group to which the function belongs. Changing this creates a new function.

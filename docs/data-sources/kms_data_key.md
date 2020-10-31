@@ -27,6 +27,8 @@ data "huaweicloud_kms_data_key" "kms_datakey1" {
 
 ## Argument Reference
 
+* `region` - (Optional) The region in which to obtain the keys. If omitted, the provider-level region will work as default.
+
 * `key_id` - (Required) The globally unique identifier for the key.
     Changing this gets the new data encryption key.
 

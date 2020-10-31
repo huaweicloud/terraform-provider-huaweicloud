@@ -25,6 +25,8 @@ resource "huaweicloud_lts_stream" "test_stream" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the log stream resource. If omitted, the provider-level region will work as default. Changing this creates a new log stream resource.
+
 * `group_id` - (Required)
   Specifies the ID of a created log group.
   Changing this parameter will create a new resource.

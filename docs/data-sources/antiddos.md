@@ -21,6 +21,8 @@ data "huaweicloud_antiddos" "antiddos" {
 ## Argument Reference
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the Antiddos client. If omitted, the provider-level region will work as default.
+
 * `floating_ip_id` - (Optional) The Elastic IP ID.
 
 * `floating_ip_address` - (Optional) The Elastic IP address.

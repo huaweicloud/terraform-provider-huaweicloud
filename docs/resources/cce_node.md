@@ -110,6 +110,8 @@ resource "huaweicloud_cce_node" "mynode" {
 ## Argument Reference
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the cce node resource. If omitted, the provider-level region will work as default. Changing this creates a new cce node resource.
+
 * `cluster_id` - (Required) ID of the cluster. Changing this parameter will create a new resource.
 
 * `name` - (Optional) Node Name.

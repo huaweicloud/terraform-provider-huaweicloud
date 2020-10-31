@@ -21,6 +21,8 @@ resource "huaweicloud_nat_snat_rule" "snat_1" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the snat rule resource. If omitted, the provider-level region will work as default. Changing this creates a new snat rule resource.
+
 * `nat_gateway_id` - (Required) ID of the nat gateway this snat rule belongs to.
     Changing this creates a new snat rule.
 

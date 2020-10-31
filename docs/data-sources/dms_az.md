@@ -20,6 +20,8 @@ data "huaweicloud_dms_az" "az1" {
 
 ## Argument Reference
 
+* `region` - (Optional) The region in which to obtain the dms az. If omitted, the provider-level region will work as default.
+
 * `name` - (Required) Indicates the name of an AZ.
 
 * `code` - (Optional) Indicates the code of an AZ.

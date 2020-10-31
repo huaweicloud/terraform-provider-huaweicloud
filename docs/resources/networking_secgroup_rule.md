@@ -30,6 +30,8 @@ resource "huaweicloud_networking_secgroup_rule" "secgroup_rule" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the security group rule resource. If omitted, the provider-level region will work as default. Changing this creates a new security group rule resource.
+
 * `direction` - (Required) The direction of the rule, valid values are __ingress__
     or __egress__. Changing this creates a new security group rule.
 

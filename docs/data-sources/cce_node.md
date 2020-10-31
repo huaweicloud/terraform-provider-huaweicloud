@@ -21,6 +21,8 @@ data "huaweicloud_cce_node" "node" {
 ## Argument Reference
 
 The following arguments are supported:
+
+* `region` - (Optional) The region in which to obtain the cce nodes. If omitted, the provider-level region will work as default.
  
 * `Cluster_id` - (Required) The id of container cluster.
 

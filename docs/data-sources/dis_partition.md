@@ -20,6 +20,8 @@ data "huaweicloud_dis_partition" "partition" {
 
 ## Argument Reference
 
+* `region` - (Optional) The region in which to obtain the partitions. If omitted, the provider-level region will work as default.
+
 * `stream_name` -
   (Required)
   Name of the DIS stream.

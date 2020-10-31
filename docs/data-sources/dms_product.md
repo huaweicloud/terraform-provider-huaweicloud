@@ -23,6 +23,8 @@ data "huaweicloud_dms_product" "product1" {
 
 ## Argument Reference
 
+* `region` - (Optional) The region in which to obtain the dms products. If omitted, the provider-level region will work as default.
+
 * `engine` - (Required) Indicates the name of a message engine.
 
 * `version` - (Optional) Indicates the version of a message engine.

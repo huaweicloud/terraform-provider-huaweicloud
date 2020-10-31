@@ -20,6 +20,8 @@ resource "huaweicloud_compute_keypair" "test-keypair" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the keypair resource. If omitted, the provider-level region will work as default. Changing this creates a new keypair resource.
+
 * `name` - (Required) A unique name for the keypair. Changing this creates a new
     keypair.
 

@@ -18,6 +18,8 @@ data "huaweicloud_cdm_flavors" "flavor" {
 
 The following attributes are exported:
 
+* `region` - (Optional) The region in which to obtain the CDM flavors. If omitted, the provider-level region will work as default.
+
 * `version` -
   The version of the flavor.
 

@@ -84,6 +84,8 @@ resource "huaweicloud_dcs_instance" "instance_1" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the DCS instance resource. If omitted, the provider-level region will work as default. Changing this creates a new DCS instance resource.
+
 * `name` - (Required) Indicates the name of an instance. It starts with English characters 
     and can only be composed of English letters, numbers, underscores and underscores. 
     When creating a single instance, the name is a string of 4 to 64 bits in length. 
