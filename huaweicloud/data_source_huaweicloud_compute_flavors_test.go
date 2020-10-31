@@ -42,6 +42,6 @@ const testAccEcsFlavorsDataSource_basic = `
 data "huaweicloud_compute_flavors" "this" {
 	performance_type = "normal"
 	cpu_core_count   = 2
-	memory_size      = 4096
+	memory_size      = 4
 }
 `

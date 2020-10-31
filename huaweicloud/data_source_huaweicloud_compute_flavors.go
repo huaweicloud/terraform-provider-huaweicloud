@@ -70,7 +70,7 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	cpu := d.Get("cpu_core_count").(int)
-	mem := int64(d.Get("memory_size").(int))
+	mem := int64(d.Get("memory_size").(int)) * 1024
 	pType := d.Get("performance_type").(string)
 	gen := d.Get("generation").(string)
 	az := d.Get("availability_zone").(string)
