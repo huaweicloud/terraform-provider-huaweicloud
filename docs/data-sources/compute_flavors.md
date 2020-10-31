@@ -10,9 +10,10 @@ Use this data source to get the ID of the available Compute Flavors.
 
 ```hcl
 data "huaweicloud_compute_flavors" "flavors" {
-  performance_type = "normal"
-  cpu_core_count   = 2
-  memory_size      = 4096
+  availability_zone = "cn-north-4a"
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
 }
 
 # Create ECS instance with the first matched flavor
@@ -34,7 +35,7 @@ resource "huaweicloud_compute_instance" "instance" {
 
 * `cpu_core_count` - (Optional) Specifies the number of vCPUs in the ECS flavor.
 
-* `memory_size` - (Optional) Specifies the memory size(MB) in the ECS flavor.
+* `memory_size` - (Optional) Specifies the memory size(GB) in the ECS flavor.
 
 
 ## Attributes Reference
