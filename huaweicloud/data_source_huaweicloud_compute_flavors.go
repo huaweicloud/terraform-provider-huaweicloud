@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/flavors"
@@ -72,6 +73,7 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 	mem := int64(d.Get("memory_size").(int))
 	pType := d.Get("performance_type").(string)
 	gen := d.Get("generation").(string)
+	az := d.Get("availability_zone").(string)
 
 	var ids []string
 	for _, flavor := range allFlavors {
@@ -90,6 +92,22 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 
 		if gen != "" && flavor.OsExtraSpecs.Generation != gen {
 			continue
+		}
+
+		if az != "" {
+			status := flavor.OsExtraSpecs.OperationStatus
+			azStatusRaw := flavor.OsExtraSpecs.OperationAz
+			azStatusList := strings.Split(azStatusRaw, ",")
+			if strings.Contains(azStatusRaw, az) {
+				for i := 0; i < len(azStatusList); i++ {
+					azStatus := azStatusList[i]
+					if azStatus == (az+"(abandon)") || azStatus == (az+"(sellout)") || azStatus == (az+"obt_sellout") {
+						continue
+					}
+				}
+			} else if status == "abandon" || strings.Contains(status, "sellout") {
+				continue
+			}
 		}
 
 		ids = append(ids, flavor.ID)

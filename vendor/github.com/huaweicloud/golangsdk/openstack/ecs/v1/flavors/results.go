@@ -82,6 +82,12 @@ type OsExtraSpecs struct {
 
 	// Indicates the model and quantity of passthrough-enabled GPUs on P1 ECSs.
 	PciPassthroughAlias string `json:"pci_passthrough:alias"`
+
+	// Indicates the status of the flavor in region level.
+	OperationStatus string `json:"cond:operation:status"`
+
+	// Indicates the status of the flavor in az level.
+	OperationAz string `json:"cond:operation:az"`
 }
 
 // FlavorsPage is the page returned by a pager when traversing over a
