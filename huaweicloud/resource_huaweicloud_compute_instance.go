@@ -394,6 +394,11 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"user_id": { // required if in prePaid charging mode with key_pair.
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -473,6 +478,14 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		}
 		if extendParam != (cloudservers.ServerExtendParam{}) {
 			createOpts.ExtendParam = &extendParam
+		}
+
+		var metadata cloudservers.MetaData
+		if hasFilledOpt(d, "user_id") {
+			metadata.OpSvcUserId = d.Get("user_id").(string)
+		}
+		if metadata != (cloudservers.MetaData{}) {
+			createOpts.MetaData = &metadata
 		}
 
 		schedulerHintsRaw := d.Get("scheduler_hints").(*schema.Set).List()
