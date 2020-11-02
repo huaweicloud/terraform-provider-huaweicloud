@@ -108,6 +108,8 @@ The following arguments are supported:
   experiencing transient failures. The delay between the subsequent API
   calls increases exponentially. If omitted, default value is `5`.
 
+* `enterprise_project_id` - (Optional) Default Enterprise Project ID for supported resources. Please see the documentation at [EPS](/docs/data-sources/eps.md#resources-supported-currently).
+
 
 ## Testing and Development
 

@@ -15,19 +15,20 @@ data "huaweicloud_enterprise_project" "test" {
 ```
 
 ## Resources Supported Currently:
-Service Name | Resource Name
----- | ---
-VPC | huaweicloud_vpc<br>huaweicloud_vpc_eip<br>huaweicloud_vpc_bandwidth<br>huaweicloud_networking_secgroup
-ECS | huaweicloud_compute_instance
-CCE | huaweicloud_cce_cluster
-RDS | huaweicloud_rds_instance
-OBS | hauweicloud_obs_bucket
-SFS | hauweicloud_sfs_file_system
-DCS | huaweicloud_dcs_instance
-NAT | huaweicloud_nat_gateway
-CDM | huaweicloud_cdm_cluster
-CDN | huaweicloud_cdn_domain
-GaussDB | huaweicloud_gaussdb_cassandra_instance<br>huaweicloud_gaussdb_mysql_instance<br>huaweicloud_gaussdb_opengauss_instance
+Service Name | Resource Name | Sub Resource Name
+---- | --- | ---
+VPC | huaweicloud_vpc<br>huaweicloud_networking_secgroup | huaweicloud_vpc_subnet<br>huaweicloud_vpc_route<br>huaweicloud_networking_secgroup_rule
+EIP | huaweicloud_vpc_eip<br>huaweicloud_vpc_bandwidth |
+ECS | huaweicloud_compute_instance |
+CCE | huaweicloud_cce_cluster | huaweicloud_cce_node<br>huaweicloud_cce_node_pool<br>huaweicloud_cce_addon
+RDS | huaweicloud_rds_instance |
+OBS | huaweicloud_obs_bucket | huaweicloud_obs_bucket_object<br>huaweicloud_obs_bucket_policy
+SFS | huaweicloud_sfs_file_system | huaweicloud_sfs_access_rule
+DCS | huaweicloud_dcs_instance |
+NAT | huaweicloud_nat_gateway | huaweicloud_nat_snat_rule<br>huaweicloud_nat_dnat_rule
+CDM | huaweicloud_cdm_cluster |
+CDN | huaweicloud_cdn_domain |
+GaussDB | huaweicloud_gaussdb_cassandra_instance<br>huaweicloud_gaussdb_mysql_instance<br>huaweicloud_gaussdb_opengauss_instance |
 
 ## Argument Reference
 
