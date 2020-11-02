@@ -46,6 +46,8 @@ resource "huaweicloud_sfs_access_rule" "rule_1" {
 ## Argument Reference
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the sfs access rule resource. If omitted, the provider-level region will work as default. Changing this creates a new access rule resource.
+
 * `sfs_id` - (Required) Specifies the UUID of the shared file system. Changing this will create a new access rule.
 
 * `access_level` - (Optional) Specifies the access level of the shared file system. Possible values are *ro* (read-only)

@@ -16,6 +16,8 @@ data "huaweicloud_gaussdb_mysql_configuration" "this" {
 
 ## Argument Reference
 
+* `region` - (Optional) The region in which to obtain the configurations. If omitted, the provider-level region will work as default.
+
 * `name` - (Optional) Specifies the name of the parameter template.
 
 ## Attributes Reference

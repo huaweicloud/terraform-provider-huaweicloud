@@ -20,6 +20,8 @@ resource "huaweicloud_compute_servergroup" "test-sg" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the server group resource. If omitted, the provider-level region will work as default. Changing this creates a new server group resource.
+
 * `name` - (Required) A unique name for the server group. Changing this creates
     a new server group.
 

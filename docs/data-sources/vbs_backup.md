@@ -20,6 +20,8 @@ data "huaweicloud_vbs_backup" "mybackup" {
 ## Argument Reference
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the VBS Backup. If omitted, the provider-level region will work as default.
+
 * `id` - (Optional) The id of the vbs backup.
 
 * `name` - (Optional) The name of the vbs backup.

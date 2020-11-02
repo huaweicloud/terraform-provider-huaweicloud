@@ -40,6 +40,8 @@ resource "huaweicloud_vpc_subnet" "subnet_with_tags" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the vpc subnet. If omitted, the provider-level region will work as default. hanging this creates a new Subnet resource.
+
 * `name` (Required) - The subnet name. The value is a string of 1 to 64 characters that can contain letters, digits, underscores (_), and hyphens (-).
 
 * `cidr` (Required) - Specifies the network segment on which the subnet resides. The value must be in CIDR format. The value must be within the CIDR block of the VPC. The subnet mask cannot be greater than 28. Changing this creates a new Subnet.

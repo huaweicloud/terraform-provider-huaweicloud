@@ -25,6 +25,8 @@ data "huaweicloud_vbs_backup_policy" "policies" {
 The arguments of this data source act as filters for querying the available VBS backup policy.
 The given filters must match exactly one VBS backup policy whose data will be exported as attributes.
 
+* `region` - (Optional) The region in which to obtain the VBS backup policy. If omitted, the provider-level region will work as default.
+
 * `id` (Optional) - The ID of the specific VBS backup policy to retrieve.
 
 * `name` (Optional) - The name of the specific VBS backup policy to retrieve.

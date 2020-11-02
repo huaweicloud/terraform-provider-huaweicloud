@@ -10,6 +10,8 @@ data "huaweicloud_availability_zones" "zones" {}
 
 ## Argument Reference
 
+* `region` - (Optional) The region in which to obtain the available zones. If omitted, the provider-level region will work as default.
+
 * `state` - (Optional) The `state` of the availability zones to match, default ("available").
 
 

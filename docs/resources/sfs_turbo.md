@@ -28,6 +28,8 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo-1" {
 ## Argument Reference
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the SFS Turbo resource. If omitted, the provider-level region will work as default. Changing this creates a new SFS Turbo resource.
+
 * `name` - (Required) Specifies the name of an SFS Turbo file system. The value contains 4 to 64
   characters and must start with a letter. Changing this will create a new resource.
 

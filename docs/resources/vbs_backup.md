@@ -41,6 +41,8 @@ resource "huaweicloud_vbs_backup" "backup_1" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the VBS backup resource. If omitted, the provider-level region will work as default. Changing this creates a new VBS Backup resource.
+
 * `name` - (Required) The name of the vbs backup. Changing the parameter creates a new backup.
 
 * `volume_id` - (Required) The id of the disk to be backed up. Changing the parameter creates a new backup.

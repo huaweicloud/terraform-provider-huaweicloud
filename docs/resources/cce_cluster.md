@@ -82,6 +82,8 @@ resource "huaweicloud_cce_cluster" "cluster" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the cce cluster resource. If omitted, the provider-level region will work as default. Changing this creates a new cce cluster resource.
+
 * `name` - (Required) Cluster name. Changing this parameter will create a new cluster resource.
 
 * `flavor_id` - (Required) Cluster specifications. Changing this parameter will create a new cluster resource. Possible values:

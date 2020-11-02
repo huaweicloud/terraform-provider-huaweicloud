@@ -32,6 +32,8 @@ resource "huaweicloud_csbs_backup_policy" "backup_policy" {
 ## Argument Reference
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the Backup Policy resource. If omitted, the provider-level region will work as default. Changing this creates a new Backup Policy resource.
+
 * `name` - (Required) Specifies the name of backup policy. The value consists of 1 to 255 characters and can contain only letters, digits, underscores (_), and hyphens (-).
 
 * `description` - (Optional) Backup policy description. The value consists of 0 to 255 characters and must not contain a greater-than sign (>) or less-than sign (<).

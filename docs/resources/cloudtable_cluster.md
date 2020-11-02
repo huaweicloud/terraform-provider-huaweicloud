@@ -90,6 +90,8 @@ The `tags` block supports:
   (Optional)
   Tag key.  Changing this parameter will create a new resource.
 
+* `region` - (Optional) The region in which to obtain the cloud table cluster resource. If omitted, the provider-level region will work as default. Changing this creates a new cloud table cluster resource.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -30,6 +30,8 @@ output "route_nexthop" {
 
 ## Argument Reference
 
+* `region` - (Optional) The region in which to obtain the ids. If omitted, the provider-level region will work as default.
+
 * `vpc_id` (Required) - The VPC ID that you want to filter from.
 
 ## Attributes Reference

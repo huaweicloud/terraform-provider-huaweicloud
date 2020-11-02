@@ -24,6 +24,8 @@ resource "huaweicloud_networking_vip" "myvip" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the vip resource. If omitted, the provider-level region will work as default. Changing this creates a new vip resource.
+
 * `network_id` - (Required) The Network ID of the VPC subnet to attach the vip to.
     Changing this creates a new vip.
 

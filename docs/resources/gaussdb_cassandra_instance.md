@@ -52,6 +52,8 @@ resource "huaweicloud_gaussdb_cassandra_instance" "instance_1" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the Cassandra instance resource. If omitted, the provider-level region will work as default. Changing this creates a new Cassandra instance resource.
+
 * `availability_zone` - (Required) Specifies the AZ name.
   Changing this parameter will create a new resource.
 

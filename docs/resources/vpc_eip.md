@@ -46,6 +46,8 @@ resource "huaweicloud_vpc_eip" "eip_1" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the eip resource. If omitted, the provider-level region will work as default. Changing this creates a new eip resource.
+
 * `publicip` - (Required) The elastic IP address object.
 
 * `bandwidth` - (Required) The bandwidth object.

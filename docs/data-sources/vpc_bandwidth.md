@@ -21,6 +21,8 @@ data "huaweicloud_vpc_bandwidth" "bandwidth_1" {
 The arguments of this data source act as filters for querying the available
 bandwidth in the current tenant. The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the bandwidth. If omitted, the provider-level region will work as default.
+
 * `name` - (Required) The name of the Shared Bandwidth to retrieve.
 
 * `size` - (Optional) The size of the Shared Bandwidth to retrieve. The value ranges from 5 to 2000 G.

@@ -73,6 +73,8 @@ output "volume devices" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the volume resource. If omitted, the provider-level region will work as default. Changing this creates a new resource.
+
 * `instance_id` - (Required) The ID of the Instance to attach the Volume to.
 
 * `volume_id` - (Required) The ID of the Volume to attach to an Instance.

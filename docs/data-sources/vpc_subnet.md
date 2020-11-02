@@ -29,6 +29,8 @@ The arguments of this data source act as filters for querying the available
 subnets in the current tenant. The given filters must match exactly one
 subnet whose data will be exported as attributes.
 
+* `region` - (Optional) The region in which to obtain the subnet. If omitted, the provider-level region will work as default.
+
 * `id` - (Optional) - Specifies a resource ID in UUID format.
 
 * `name` (Optional) - The name of the specific subnet to retrieve.

@@ -39,6 +39,8 @@ resource "huaweicloud_vpc" "vpc_with_tags" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the vpc resource. If omitted, the provider-level region will work as default. Changing this creates a new resource. Changing this creates a new vpc resource.
+
 * `cidr` - (Required) The range of available subnets in the VPC. The value ranges from 10.0.0.0/8 to 10.255.255.0/24, 172.16.0.0/12 to 172.31.255.0/24, or 192.168.0.0/16 to 192.168.255.0/24.
 
 * `name` - (Required) The name of the VPC. The name must be unique for a tenant. The value is a string of no more than 64 characters and can contain digits, letters, underscores (_), and hyphens (-). Changing this updates the name of the existing VPC.

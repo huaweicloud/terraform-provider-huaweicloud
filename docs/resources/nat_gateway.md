@@ -23,6 +23,8 @@ resource "huaweicloud_nat_gateway" "nat_1" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the Nat gateway resource. If omitted, the provider-level region will work as default. Changing this creates a new Nat gateway resource.
+
 * `name` - (Required) The name of the nat gateway.
 
 * `description` - (Optional) The description of the nat gateway.

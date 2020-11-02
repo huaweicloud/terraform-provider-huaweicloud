@@ -46,6 +46,8 @@ The following arguments are supported:
 
 - - -
 
+* `region` - (Optional) The region in which to obtain the DIS stream resource. If omitted, the provider-level region will work as default. Changing this creates a new DIS Stream resource.
+
 * `auto_scale_max_partition_count` -
   (Optional)
   Maximum number of partition for automatic scaling.  Changing this parameter will create a new resource.

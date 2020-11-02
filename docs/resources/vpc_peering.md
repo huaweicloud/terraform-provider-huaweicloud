@@ -23,6 +23,8 @@ resource "huaweicloud_vpc_peering_connection" "peering" {
 
 The following arguments are supported:
 
+* `region` - (Optional) The region in which to obtain the VPC peering connection. If omitted, the provider-level region will work as default. Changing this creates a new VPC peering connection resource.
+
 * `name` (Required) - Specifies the name of the VPC peering connection. The value can contain 1 to 64 characters.
 
 * `vpc_id` (Required) - Specifies the ID of a VPC involved in a VPC peering connection. Changing this creates a new VPC peering connection.
