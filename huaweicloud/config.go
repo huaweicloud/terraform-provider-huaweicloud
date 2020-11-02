@@ -461,6 +461,10 @@ func (c *Config) CdnV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cdn", region)
 }
 
+func (c *Config) EnterpriseProjectClient(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("eps", region)
+}
+
 // ********** client for Compute **********
 func (c *Config) computeV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ecs", region)
