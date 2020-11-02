@@ -13,6 +13,11 @@ func dataSourceBandWidth() *schema.Resource {
 		Read: dataSourceBandWidthRead,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,

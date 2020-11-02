@@ -19,6 +19,12 @@ func resourceLTSGroupV2() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"group_name": {
 				Type:     schema.TypeString,
 				Required: true,

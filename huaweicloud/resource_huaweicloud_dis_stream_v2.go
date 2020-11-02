@@ -31,6 +31,12 @@ func resourceDisStreamV2() *schema.Resource {
 		Delete: resourceDisStreamV2Delete,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"partition_count": {
 				Type:     schema.TypeInt,
 				Required: true,

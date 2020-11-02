@@ -17,7 +17,6 @@ func dataSourceVBSBackupV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"id": {
 				Type:     schema.TypeString,

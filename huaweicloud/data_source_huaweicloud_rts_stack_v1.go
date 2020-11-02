@@ -20,7 +20,6 @@ func dataSourceRTSStackV1() *schema.Resource {
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"status": {

@@ -20,6 +20,12 @@ func resourceObsBucketObject() *schema.Resource {
 		Delete: resourceObsBucketObjectDelete,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"bucket": {
 				Type:     schema.TypeString,
 				Required: true,

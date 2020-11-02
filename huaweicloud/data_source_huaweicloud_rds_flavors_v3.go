@@ -12,6 +12,11 @@ func dataSourceRdsFlavorV3() *schema.Resource {
 		Read: dataSourceRdsFlavorV3Read,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"db_type": {
 				Type:     schema.TypeString,
 				Required: true,

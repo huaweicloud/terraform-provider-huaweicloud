@@ -13,6 +13,11 @@ func dataSourceVirtualPrivateCloudVpcIdsV1() *schema.Resource {
 		Read: dataSourceVirtualPrivateCloudIdsV1Read,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"ids": {
 				Type:     schema.TypeSet,
 				Computed: true,

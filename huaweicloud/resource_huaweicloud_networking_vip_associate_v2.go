@@ -16,6 +16,12 @@ func resourceNetworkingVIPAssociateV2() *schema.Resource {
 		Delete: resourceNetworkingVIPAssociateV2Delete,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"vip_id": {
 				Type:     schema.TypeString,
 				Required: true,

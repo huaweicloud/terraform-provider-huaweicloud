@@ -16,7 +16,6 @@ func dataSourceCdmFlavorV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"version": {
 				Type:     schema.TypeString,

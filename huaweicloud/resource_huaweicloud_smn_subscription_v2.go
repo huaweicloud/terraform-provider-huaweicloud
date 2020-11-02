@@ -16,6 +16,12 @@ func resourceSubscription() *schema.Resource {
 		Delete: resourceSubscriptionDelete,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"topic_urn": {
 				Type:     schema.TypeString,
 				Required: true,

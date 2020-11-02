@@ -1,6 +1,8 @@
 package huaweicloud
 
 import (
+	"sync"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -595,10 +597,16 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		MaxRetries:          d.Get("max_retries").(int),
 		EnterpriseProjectID: d.Get("enterprise_project_id").(string),
 		TerraformVersion:    terraformVersion,
+		RegionProjectIDMap:  make(map[string]string),
+		RPLock:              new(sync.Mutex),
 	}
 
 	if err := config.LoadAndValidate(); err != nil {
 		return nil, err
+	}
+
+	if config.HwClient != nil && config.HwClient.ProjectID != "" {
+		config.RegionProjectIDMap[config.Region] = config.HwClient.ProjectID
 	}
 
 	return &config, nil

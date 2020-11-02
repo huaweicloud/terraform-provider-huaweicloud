@@ -17,7 +17,6 @@ func dataSourceAntiDdosV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"floating_ip_id": {
 				Type:     schema.TypeString,

@@ -13,6 +13,11 @@ func dataSourceNatGatewayV2() *schema.Resource {
 		Read: dataSourceNatGatewayV2Read,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,

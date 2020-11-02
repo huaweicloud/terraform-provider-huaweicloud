@@ -77,6 +77,34 @@ func TestAccVpcV1_WithEpsId(t *testing.T) {
 	})
 }
 
+// TestAccVpcV1_WithCustomRegion this case will run a test for resource-level region. Before run this case,
+// you shoule set `OS_CUSTOM_REGION_NAME` in your system and it should be different from `OS_REGION_NAME`.
+func TestAccVpcV1_WithCustomRegion(t *testing.T) {
+
+	vpcName1 := fmt.Sprintf("test_vpc_region_%s", acctest.RandString(5))
+	vpcName2 := fmt.Sprintf("test_vpc_region_%s", acctest.RandString(5))
+
+	resName1 := "huaweicloud_vpc.test1"
+	resName2 := "huaweicloud_vpc.test2"
+
+	var vpc1, vpc2 vpcs.Vpc
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPrecheckCustomRegion(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVpcV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: tesstAccVpcV1_WithCustomRegion(vpcName1, vpcName2, OS_CUSTOM_REGION_NAME),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCustomRegionVpcV1Exists(resName1, &vpc1, OS_REGION_NAME),
+					testAccCheckCustomRegionVpcV1Exists(resName2, &vpc2, OS_CUSTOM_REGION_NAME),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckVpcV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	vpcClient, err := config.NetworkingV1Client(OS_REGION_NAME)
@@ -96,6 +124,37 @@ func testAccCheckVpcV1Destroy(s *terraform.State) error {
 	}
 
 	return nil
+}
+
+func testAccCheckCustomRegionVpcV1Exists(name string, vpc *vpcs.Vpc, region string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("Not found: %s", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+		vpcClient, err := config.NetworkingV1Client(region)
+		if err != nil {
+			return fmt.Errorf("Error creating huaweicloud vpc client: %s", err)
+		}
+
+		found, err := vpcs.Get(vpcClient, rs.Primary.ID).Extract()
+		if err != nil {
+			return err
+		}
+
+		if found.ID != rs.Primary.ID {
+			return fmt.Errorf("vpc not found")
+		}
+
+		*vpc = *found
+		return nil
+	}
 }
 
 func testAccCheckVpcV1Exists(n string, vpc *vpcs.Vpc) resource.TestCheckFunc {
@@ -166,4 +225,19 @@ resource "huaweicloud_vpc" "test" {
   enterprise_project_id = "%s"
 }
 `, rName, OS_ENTERPRISE_PROJECT_ID)
+}
+
+func tesstAccVpcV1_WithCustomRegion(name1 string, name2 string, region string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test1" {
+  name = "%s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc" "test2" {    
+  name = "%s"
+  region = "%s"
+  cidr = "192.168.0.0/16"
+}
+`, name1, name2, region)
 }

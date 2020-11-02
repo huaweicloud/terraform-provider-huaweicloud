@@ -13,6 +13,11 @@ func dataSourceDmsProductV1() *schema.Resource {
 		Read: dataSourceDmsProductV1Read,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"engine": {
 				Type:     schema.TypeString,
 				Required: true,

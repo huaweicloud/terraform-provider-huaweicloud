@@ -14,6 +14,11 @@ func dataSourceKmsKeyV1() *schema.Resource {
 		Read: dataSourceKmsKeyV1Read,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"key_alias": {
 				Type:     schema.TypeString,
 				Optional: true,

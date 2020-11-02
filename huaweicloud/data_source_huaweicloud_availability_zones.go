@@ -14,6 +14,11 @@ func dataSourceAvailabilityZones() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceAvailabilityZonesRead,
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"names": {
 				Type:     schema.TypeList,
 				Computed: true,

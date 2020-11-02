@@ -14,6 +14,11 @@ func dataSourceDcsMaintainWindowV1() *schema.Resource {
 		Read: dataSourceDcsMaintainWindowV1Read,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"seq": {
 				Type:     schema.TypeInt,
 				Optional: true,

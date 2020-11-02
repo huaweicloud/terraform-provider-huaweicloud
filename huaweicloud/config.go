@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -19,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/httpclient"
 	"github.com/huaweicloud/golangsdk"
 	huaweisdk "github.com/huaweicloud/golangsdk/openstack"
+	"github.com/huaweicloud/golangsdk/openstack/identity/v3/projects"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
 )
 
@@ -57,6 +59,14 @@ type Config struct {
 	s3sess   *session.Session
 
 	DomainClient *golangsdk.ProviderClient
+
+	// RegionProjectIDMap is a map which stores the region-projectId pairs,
+	// and region name will be the key and projectID will be the value in this map.
+	RegionProjectIDMap map[string]string
+
+	// RPLock is used to make the accessing of RegionProjectIDMap serial,
+	// prevent sending duplicate query requests
+	RPLock *sync.Mutex
 }
 
 func (c *Config) LoadAndValidate() error {
@@ -69,15 +79,15 @@ func (c *Config) LoadAndValidate() error {
 	if c.Token != "" {
 		err = buildClientByToken(c)
 
+	} else if c.AccessKey != "" && c.SecretKey != "" {
+		err = buildClientByAKSK(c)
+
 	} else if c.Password != "" {
 		if c.Username == "" && c.UserID == "" {
 			err = fmt.Errorf("\"password\": one of `user_name, user_id` must be specified")
 		} else {
 			err = buildClientByPassword(c)
 		}
-
-	} else if c.AccessKey != "" && c.SecretKey != "" {
-		err = buildClientByAKSK(c)
 
 	}
 	if err != nil {
@@ -416,7 +426,7 @@ func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient,
 	if allServiceCatalog[srv].Admin {
 		client = c.DomainClient
 	}
-	return c.newServiceClientByName(client, allServiceCatalog[srv], c.Region)
+	return c.newServiceClientByName(client, allServiceCatalog[srv], region)
 }
 
 func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalog ServiceCatalog, region string) (*golangsdk.ServiceClient, error) {
@@ -424,8 +434,32 @@ func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalo
 		return nil, fmt.Errorf("must specify the service name and api version")
 	}
 
+	// Custom Resource-level region only supports AK/SK authentication.
+	// If set it when using non AK/SK authentication, then it must be the same as Provider-level region.
+	if region != c.Region && (c.AccessKey == "" || c.SecretKey == "") {
+		return nil, fmt.Errorf("Resource-level region must be the same as Provider-level region when using non AK/SK authentication if Resource-level region set")
+	}
+
+	c.RPLock.Lock()
+	defer c.RPLock.Unlock()
+	projectID, ok := c.RegionProjectIDMap[region]
+	if !ok {
+		// Not find in the map, then try to query and store.
+		err := c.loadUserProjects(client, region)
+		if err != nil {
+			return nil, err
+		}
+		projectID, _ = c.RegionProjectIDMap[region]
+	}
+
 	sc := new(golangsdk.ServiceClient)
-	sc.ProviderClient = client
+
+	clone := new(golangsdk.ProviderClient)
+	*clone = *client
+	clone.ProjectID = projectID
+	clone.AKSKAuthOptions.ProjectId = projectID
+	clone.AKSKAuthOptions.Region = region
+	sc.ProviderClient = clone
 
 	if catalog.Scope == "global" && !c.RegionClient {
 		sc.Endpoint = fmt.Sprintf("https://%s.%s/", catalog.Name, c.Cloud)
@@ -435,13 +469,45 @@ func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalo
 
 	sc.ResourceBase = sc.Endpoint + catalog.Version + "/"
 	if !catalog.WithOutProjectID {
-		sc.ResourceBase = sc.ResourceBase + client.ProjectID + "/"
+		sc.ResourceBase = sc.ResourceBase + projectID + "/"
 	}
 	if catalog.ResourceBase != "" {
 		sc.ResourceBase = sc.ResourceBase + catalog.ResourceBase + "/"
 	}
 
 	return sc, nil
+}
+
+// loadUserProjects will query the region-projectId pair and store it into RegionProjectIDMap
+func (c *Config) loadUserProjects(client *golangsdk.ProviderClient, region string) error {
+
+	log.Printf("Load projectID for region: %s", region)
+	domainID := client.DomainID
+	opts := projects.ListOpts{
+		DomainID: domainID,
+		Name:     region,
+	}
+	sc := new(golangsdk.ServiceClient)
+	sc.Endpoint = c.IdentityEndpoint + "/"
+	sc.ProviderClient = client
+	allPages, err := projects.List(sc, &opts).AllPages()
+	if err != nil {
+		return fmt.Errorf("List projects failed, err=%s", err)
+	}
+
+	all, err := projects.ExtractProjects(allPages)
+	if err != nil {
+		return fmt.Errorf("Extract projects failed, err=%s", err)
+	}
+
+	if len(all) == 0 {
+		return fmt.Errorf("Wrong name or no access to the region: %s", region)
+	}
+
+	for _, item := range all {
+		c.RegionProjectIDMap[item.Name] = item.ID
+	}
+	return nil
 }
 
 // ********** client for Global Service **********

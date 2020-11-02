@@ -24,6 +24,12 @@ func resourceCCEAddonV3() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{ // request and response parameters
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"cluster_id": {
 				Type:     schema.TypeString,
 				Required: true,

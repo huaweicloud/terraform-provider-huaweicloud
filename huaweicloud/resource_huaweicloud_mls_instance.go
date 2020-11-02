@@ -44,6 +44,7 @@ func resourceMlsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 
 			"flavor": {

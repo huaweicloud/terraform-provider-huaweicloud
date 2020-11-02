@@ -16,7 +16,6 @@ func dataSourceRTSStackResourcesV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"stack_name": {
 				Type:     schema.TypeString,

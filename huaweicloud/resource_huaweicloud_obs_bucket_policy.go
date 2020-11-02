@@ -21,6 +21,12 @@ func resourceObsBucketPolicy() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"bucket": {
 				Type:     schema.TypeString,
 				Required: true,

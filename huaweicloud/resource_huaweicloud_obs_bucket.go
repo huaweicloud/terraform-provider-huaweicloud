@@ -264,6 +264,7 @@ func resourceObsBucket() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 
 			"enterprise_project_id": {

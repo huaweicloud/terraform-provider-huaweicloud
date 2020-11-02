@@ -23,6 +23,12 @@ func resourceWhitelistV2() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"tenant_id": {
 				Type:     schema.TypeString,
 				Optional: true,
