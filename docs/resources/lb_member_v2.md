@@ -22,7 +22,7 @@ resource "huaweicloud_lb_member_v2" "member_1" {
 The following arguments are supported:
 
 * `region` - (Optional) The region in which to obtain the V2 Networking client.
-    A Networking client is needed to create an . If omitted, the
+    A Networking client is needed to create a V2 member resource. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     member.
 
