@@ -27,6 +27,8 @@ resource "huaweicloud_compute_instance" "instance" {
 
 ## Argument Reference
 
+* `region` - (Optional) The region in which to obtain the flavors. If omitted, the provider-level region will be used.
+
 * `availability_zone` - (Optional) Specifies the AZ name.
 
 * `performance_type` - (Optional) Specifies the ECS flavor type.
