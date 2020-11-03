@@ -274,6 +274,8 @@ The following arguments are supported:
     Metadata key/value pairs to make available from
     within the instance. Changing this updates the existing server metadata.
 
+* `user_id` - (Optional) User ID, required when using key_pair in prePaid charging mode. Changing this creates a new server.
+
 
 The `network` block supports:
 
