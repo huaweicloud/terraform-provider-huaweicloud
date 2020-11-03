@@ -115,7 +115,6 @@ The `backup_strategy` block supports:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `status` - Indicates the DB instance status.
-* `region` - Indicates the region where the DB instance is deployed.
 * `port` - Indicates the database port.
 * `mode` - Indicates the instance mode.
 * `db_user_name` - Indicates the default username.
