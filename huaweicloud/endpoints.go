@@ -49,6 +49,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Admin:            true,
 		WithOutProjectID: true,
 	},
+	"bss": ServiceCatalog{
+		Name:             "bss",
+		Version:          "v1.0",
+		Scope:            "global",
+		WithOutProjectID: true,
+	},
 
 	// ******* catalog for Compute *******
 	"ecs": ServiceCatalog{
@@ -275,11 +281,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	},
 
 	// catalog for Others
-	"bss": ServiceCatalog{
-		Name:             "bss",
-		Version:          "v1.0",
-		WithOutProjectID: true,
-	},
 	"rts": ServiceCatalog{
 		Name:    "rts",
 		Version: "v1",
