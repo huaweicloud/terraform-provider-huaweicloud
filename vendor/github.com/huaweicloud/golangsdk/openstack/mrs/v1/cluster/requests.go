@@ -1,12 +1,8 @@
 package cluster
 
-import (
-	"log"
+import "github.com/huaweicloud/golangsdk"
 
-	"github.com/huaweicloud/golangsdk"
-)
-
-var RequestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
+var requestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
 	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 }
 
@@ -88,7 +84,7 @@ func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult)
 		r.Err = err
 		return
 	}
-	log.Printf("[DEBUG] create url:%q, body=%#v", createURL(c), b)
+
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
 	_, r.Err = c.Post(createURL(c), b, &r.Body, reqOpt)
 	return
@@ -97,14 +93,16 @@ func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult)
 func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
 	_, r.Err = c.Get(getURL(c, id), &r.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
-		MoreHeaders: RequestOpts.MoreHeaders, JSONBody: nil,
+		MoreHeaders: requestOpts.MoreHeaders, JSONBody: nil,
 	})
 	return
 }
 
 func Delete(c *golangsdk.ServiceClient, id string) (r DeleteResult) {
-	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{204},
-		MoreHeaders: RequestOpts.MoreHeaders}
+	reqOpt := &golangsdk.RequestOpts{
+		OkCodes:     []int{204},
+		MoreHeaders: requestOpts.MoreHeaders,
+	}
 	_, r.Err = c.Delete(deleteURL(c, id), reqOpt)
 	return
 }
