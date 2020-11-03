@@ -187,7 +187,8 @@ function, or the `template_cloudinit_config` resource.
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the instance. If omitted, the provider-level region will work as default. Changing this creates a new resource.
+* `region` - (Optional) The region in which to create the instance. If omitted,
+	the provider-level region will be used. Changing this creates a new server.
 
 * `name` - (Required) A unique name for the resource.
 
@@ -262,18 +263,6 @@ The following arguments are supported:
 
 * `auto_renew` - (Optional) Specifies whether auto renew is enabled. Changing this creates a new server.
 
-* `block_device` - (Optional, Deprecated) Use `system_disk_type`, `system_disk_size`, `data_disks` instead.
-    Configuration of block devices. The block_device
-    structure is documented below. Changing this creates a new server.
-    You can specify multiple block devices which will create an instance with
-    multiple disks. This configuration is very flexible, so please see the
-    following [reference](http://docs.openstack.org/developer/nova/block_device_mapping.html)
-    for more information.
-
-* `metadata` - (Optional, Deprecated) Use `tags` instead.
-    Metadata key/value pairs to make available from
-    within the instance. Changing this updates the existing server metadata.
-
 * `user_id` - (Optional) User ID, required when using key_pair in prePaid charging mode. Changing this creates a new server.
 
 
@@ -299,30 +288,6 @@ The `scheduler_hints` block supports:
 * `deh_id` - (Optional) The ID of DeH. This parameter takes effect only when the value
 	of tenancy is dedicated.
 
-The `block_device` block supports(Deprecated):
-
-* `uuid` - (Required unless `source_type` is set to `"blank"` ) The UUID of
-    the image, volume, or snapshot. Changing this creates a new server.
-
-* `source_type` - (Required) The source type of the device. Must be one of
-    "blank", "image", "volume", or "snapshot". Changing this creates a new
-    server.
-
-* `volume_size` - The size of the volume to create (in gigabytes). Required
-    in the following combinations: source=image and destination=volume,
-    source=blank and destination=local, and source=blank and destination=volume.
-    Changing this creates a new server.
-
-* `boot_index` - (Optional) The boot index of the volume. It defaults to 0.
-    Changing this creates a new server.
-
-* `destination_type` - (Optional) The type that gets created. Possible values
-    are "volume" and "local". Changing this creates a new server.
-
-* `delete_on_termination` - (Optional) Delete the volume / block device upon
-    termination of the instance. Defaults to false. Changing this creates a
-    new server.
-
 ## Attributes Reference
 
 The following attributes are exported:
@@ -337,10 +302,6 @@ The following attributes are exported:
 * `volume_attached/boot_index` - The volume boot index on that attachment.
 * `volume_attached/size` - The volume size on that attachment.
 * `system_disk_id` - The system disk voume ID.
-* `all_metadata` - Deprecated, use `tags` instead. Contains all instance metadata, even metadata not set
-    by Terraform.
-
-## Importing
 
 Instances can be imported by their `id`. For example,
 ```
