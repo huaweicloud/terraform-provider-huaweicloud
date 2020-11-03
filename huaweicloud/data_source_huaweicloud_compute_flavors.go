@@ -14,6 +14,11 @@ func DataSourceEcsFlavors() *schema.Resource {
 		Read: dataSourceEcsFlavorsRead,
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -120,6 +125,7 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(dataResourceIdHash(ids))
 	d.Set("ids", ids)
+	d.Set("region", GetRegion(d, config))
 
 	return nil
 }
