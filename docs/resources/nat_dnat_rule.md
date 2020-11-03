@@ -32,7 +32,7 @@ The following arguments are supported:
   Changing this creates a new resource.
 
 * `internal_service_port` - (Required) Specifies port used by ECSs or BMSs
-  to provide services for external systems. Changing this creates a new resource.
+  to provide services for internal systems. Changing this creates a new resource.
 
 * `nat_gateway_id` - (Required) ID of the nat gateway this dnat rule belongs to.
    Changing this creates a new dnat rule.
