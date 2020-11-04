@@ -40,3 +40,11 @@ The following attributes are exported:
 * `nat_gateway_id` - See Argument Reference above.
 * `network_id` - See Argument Reference above.
 * `floating_ip_id` - See Argument Reference above.
+
+## Import
+
+Snat can be imported using the following format:
+
+```
+$ terraform import huaweicloud_nat_snat_rule.snat_1 9e0713cb-0a2f-484e-8c7d-daecbb61dbe4
+```

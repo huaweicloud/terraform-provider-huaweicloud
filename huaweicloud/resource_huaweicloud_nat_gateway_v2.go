@@ -19,6 +19,10 @@ func resourceNatGatewayV2() *schema.Resource {
 		Update: resourceNatGatewayV2Update,
 		Delete: resourceNatGatewayV2Delete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),

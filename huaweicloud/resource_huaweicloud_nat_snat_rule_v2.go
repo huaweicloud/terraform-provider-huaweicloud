@@ -18,6 +18,10 @@ func resourceNatSnatRuleV2() *schema.Resource {
 		Read:   resourceNatSnatRuleV2Read,
 		Delete: resourceNatSnatRuleV2Delete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
