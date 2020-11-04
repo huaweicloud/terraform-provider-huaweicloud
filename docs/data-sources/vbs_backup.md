@@ -1,8 +1,10 @@
 ---
-subcategory: "Volume Backup Service (VBS)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_vbs\_backup
+
+!> **Warning:** It has been deprecated.
 
 The VBS Backup data source provides details about a specific VBS Backup.
 This is an alternative to `huaweicloud_vbs_backup`

@@ -1,8 +1,10 @@
 ---
-subcategory: "Volume Backup Service (VBS)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_vbs\_backup\_policy
+
+!> **Warning:** It has been deprecated.
 
 Provides an VBS Backup Policy resource.
 This is an alternative to `huaweicloud_vbs_backup_policy_v2`
