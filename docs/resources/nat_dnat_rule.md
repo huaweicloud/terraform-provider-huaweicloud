@@ -16,8 +16,8 @@ resource "huaweicloud_nat_dnat_rule" "dnat_1" {
   floating_ip_id        = "2bd659ab-bbf7-43d7-928b-9ee6a10de3ef"
   nat_gateway_id        = "bf99c679-9f41-4dac-8513-9c9228e713e1"
   private_ip            = "10.0.0.12"
-  internal_service_port = 993
   protocol              = "tcp"
+  internal_service_port = 993
   external_service_port = 242
 }
 ```

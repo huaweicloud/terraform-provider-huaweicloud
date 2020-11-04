@@ -20,21 +20,25 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/huaweicloud/golangsdk"
 )
 
 func TestAccNatDnat_basic(t *testing.T) {
-	resourceName := "huaweicloud_nat_dnat_rule_v2.dnat"
+	randSuffix := acctest.RandString(5)
+	resourceName := "huaweicloud_nat_dnat_rule.dnat"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNatDnatDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNatDnat_basic(),
+				Config: testAccNatV2DnatRule_basic(randSuffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNatDnatExists(),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "tcp"),
 				),
 			},
 			{
@@ -46,66 +50,6 @@ func TestAccNatDnat_basic(t *testing.T) {
 	})
 }
 
-func testAccNatDnat_basic() string {
-	return fmt.Sprintf(`
-resource "huaweicloud_networking_router_v2" "router_1" {
-  name = "router_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  cidr = "192.168.199.0/24"
-  ip_version = 4
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-}
-
-resource "huaweicloud_networking_router_interface_v2" "int_1" {
-  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
-  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
-}
-
-resource "huaweicloud_networking_floatingip_v2" "fip_1" {
-}
-
-resource "huaweicloud_nat_gateway_v2" "nat_gw" {
-  name   = "nat_gw"
-  description = "test for terraform"
-  spec = "1"
-  internal_network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
-  depends_on = [huaweicloud_networking_router_interface_v2.int_1]
-}
-
-resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default"]
-  availability_zone = "%s"
-  metadata = {
-    foo = "bar"
-  }
-  network {
-    uuid = "${huaweicloud_networking_network_v2.network_1.id}"
-  }
- depends_on = [huaweicloud_networking_router_interface_v2.int_1]
-}
-
-resource "huaweicloud_nat_dnat_rule_v2" "dnat" {
-  floating_ip_id = "${huaweicloud_networking_floatingip_v2.fip_1.id}"
-  nat_gateway_id = "${huaweicloud_nat_gateway_v2.nat_gw.id}"
-  private_ip = "${huaweicloud_compute_instance_v2.instance_1.network.0.fixed_ip_v4}"
-  internal_service_port = 993
-  protocol = "tcp"
-  external_service_port = 242
-  depends_on = [huaweicloud_compute_instance_v2.instance_1]
-}
-`, OS_AVAILABILITY_ZONE)
-}
-
 func testAccCheckNatDnatDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	client, err := config.natV2Client(OS_REGION_NAME)
@@ -114,7 +58,7 @@ func testAccCheckNatDnatDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_nat_dnat_rule_v2" {
+		if rs.Type != "huaweicloud_nat_dnat_rule" {
 			continue
 		}
 
@@ -128,7 +72,7 @@ func testAccCheckNatDnatDestroy(s *terraform.State) error {
 			url, nil,
 			&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Accept": "application/json"}})
 		if err == nil {
-			return fmt.Errorf("huaweicloud_nat_dnat_rule_v2 still exists at %s", url)
+			return fmt.Errorf("huaweicloud dnat rule still exists at %s", url)
 		}
 	}
 
@@ -143,14 +87,14 @@ func testAccCheckNatDnatExists() resource.TestCheckFunc {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}
 
-		rs, ok := s.RootModule().Resources["huaweicloud_nat_dnat_rule_v2.dnat"]
+		rs, ok := s.RootModule().Resources["huaweicloud_nat_dnat_rule.dnat"]
 		if !ok {
-			return fmt.Errorf("Error checking huaweicloud_nat_dnat_rule_v2.dnat exist, err=not found huaweicloud_nat_dnat_rule_v2.dnat")
+			return fmt.Errorf("Error checking huaweicloud_nat_dnat_rule.dnat exist, err=not found huaweicloud_nat_dnat_rule.dnat")
 		}
 
 		url, err := replaceVarsForTest(rs, "dnat_rules/{id}")
 		if err != nil {
-			return fmt.Errorf("Error checking huaweicloud_nat_dnat_rule_v2.dnat exist, err=building url failed: %s", err)
+			return fmt.Errorf("Error checking huaweicloud_nat_dnat_rule.dnat exist, err=building url failed: %s", err)
 		}
 		url = client.ServiceURL(url)
 
@@ -159,10 +103,58 @@ func testAccCheckNatDnatExists() resource.TestCheckFunc {
 			&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Accept": "application/json"}})
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return fmt.Errorf("huaweicloud_nat_dnat_rule_v2.dnat is not exist")
+				return fmt.Errorf("huaweicloud_nat_dnat_rule.dnat is not exist")
 			}
-			return fmt.Errorf("Error checking huaweicloud_nat_dnat_rule_v2.dnat exist, err=send request failed: %s", err)
+			return fmt.Errorf("Error checking huaweicloud_nat_dnat_rule.dnat exist, err=send request failed: %s", err)
 		}
 		return nil
 	}
+}
+
+func testAccNatV2DnatRule_basic(suffix string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_eip" "eip_1" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_nat_gateway" "nat_1" {
+  name                = "nat-gateway-basic-%s"
+  description         = "test for terraform"
+  spec                = "1"
+  internal_network_id = huaweicloud_vpc_subnet.subnet_1.id
+  router_id           = huaweicloud_vpc.vpc_1.id
+}
+
+resource "huaweicloud_compute_instance" "instance_1" {
+  name            = "instance-acc-test-%s"
+  security_groups = ["default"]
+  availability_zone = "%s"
+
+  network {
+    uuid = huaweicloud_vpc_subnet.subnet_1.id
+  }
+  metadata = {
+    foo = "bar"
+  }
+}
+
+resource "huaweicloud_nat_dnat_rule" "dnat" {
+  nat_gateway_id = huaweicloud_nat_gateway.nat_1.id
+  floating_ip_id = huaweicloud_vpc_eip.eip_1.id
+  private_ip     = huaweicloud_compute_instance.instance_1.network.0.fixed_ip_v4
+  protocol       = "tcp"
+  internal_service_port = 993
+  external_service_port = 242
+}
+	`, testAccNatPreCondition(suffix), suffix, suffix, OS_AVAILABILITY_ZONE)
 }

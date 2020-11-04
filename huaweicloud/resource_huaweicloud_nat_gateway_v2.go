@@ -19,6 +19,10 @@ func resourceNatGatewayV2() *schema.Resource {
 		Update: resourceNatGatewayV2Update,
 		Delete: resourceNatGatewayV2Delete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
@@ -68,6 +72,10 @@ func resourceNatGatewayV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -135,7 +143,7 @@ func resourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("router_id", natGateway.RouterID)
 	d.Set("internal_network_id", natGateway.InternalNetworkID)
 	d.Set("tenant_id", natGateway.TenantID)
-
+	d.Set("status", natGateway.Status)
 	d.Set("region", GetRegion(d, config))
 	d.Set("enterprise_project_id", natGateway.EnterpriseProjectID)
 

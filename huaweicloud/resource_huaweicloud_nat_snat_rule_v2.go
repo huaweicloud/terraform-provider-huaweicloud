@@ -18,6 +18,10 @@ func resourceNatSnatRuleV2() *schema.Resource {
 		Read:   resourceNatSnatRuleV2Read,
 		Delete: resourceNatSnatRuleV2Delete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
@@ -45,6 +49,14 @@ func resourceNatSnatRuleV2() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: suppressSnatFiplistDiffs,
+			},
+			"floating_ip_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -104,7 +116,8 @@ func resourceNatSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("nat_gateway_id", snatRule.NatGatewayID)
 	d.Set("network_id", snatRule.NetworkID)
 	d.Set("floating_ip_id", snatRule.FloatingIPID)
-
+	d.Set("floating_ip_address", snatRule.FloatingIPAddress)
+	d.Set("status", snatRule.Status)
 	d.Set("region", GetRegion(d, config))
 
 	return nil
