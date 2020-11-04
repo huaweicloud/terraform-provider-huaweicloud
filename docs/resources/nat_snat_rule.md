@@ -26,10 +26,17 @@ The following arguments are supported:
 * `nat_gateway_id` - (Required) ID of the nat gateway this snat rule belongs to.
     Changing this creates a new snat rule.
 
-* `network_id` - (Required) ID of the network this snat rule connects to.
+* `floating_ip_id` - (Required) ID of the floating ip this snat rule connets to.
     Changing this creates a new snat rule.
 
-* `floating_ip_id` - (Required) ID of the floating ip this snat rule connets to.
+* `network_id` - (Optional) ID of the network this snat rule connects to.
+    This parameter and `cidr` are alternative. Changing this creates a new snat rule.
+
+* `cidr` - (Optional) Specifies CIDR, which can be in the format of a network segment or a host IP address.
+    This parameter and `network_id` are alternative. Changing this creates a new snat rule.
+
+* `source_type` - (Optional) Specifies the scenario. The valid value is 0 (VPC scenario) and 1 (Direct Connect scenario).
+    Defaults to 0, only `cidr` can be specified over a Direct Connect connection.
     Changing this creates a new snat rule.
 
 ## Attributes Reference
@@ -38,7 +45,9 @@ The following attributes are exported:
 
 * `region` - See Argument Reference above.
 * `nat_gateway_id` - See Argument Reference above.
+* `source_type` - See Argument Reference above.
 * `network_id` - See Argument Reference above.
+* `cidr` - See Argument Reference above.
 * `floating_ip_id` - See Argument Reference above.
 * `floating_ip_address` - The actual floating IP address.
 * `status` - The status of the snat rule.
