@@ -74,6 +74,10 @@ func resourceNatGatewayV2() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -139,7 +143,7 @@ func resourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("router_id", natGateway.RouterID)
 	d.Set("internal_network_id", natGateway.InternalNetworkID)
 	d.Set("tenant_id", natGateway.TenantID)
-
+	d.Set("status", natGateway.Status)
 	d.Set("region", GetRegion(d, config))
 	d.Set("enterprise_project_id", natGateway.EnterpriseProjectID)
 

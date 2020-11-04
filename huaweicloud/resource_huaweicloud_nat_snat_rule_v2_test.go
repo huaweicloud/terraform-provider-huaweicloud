@@ -4,21 +4,16 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/hw_snatrules"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/routers"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
 )
 
 func TestAccNatSnatRule_basic(t *testing.T) {
-	var fip floatingips.FloatingIP
-	var network networks.Network
-	var router routers.Router
-	var subnet subnets.Subnet
+	randSuffix := acctest.RandString(5)
+	resourceName := "huaweicloud_nat_snat_rule.snat_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckNat(t) },
@@ -26,16 +21,17 @@ func TestAccNatSnatRule_basic(t *testing.T) {
 		CheckDestroy: testAccCheckNatV2SnatRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNatV2SnatRule_basic,
+				Config: testAccNatV2SnatRule_basic(randSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2NetworkExists("huaweicloud_networking_network_v2.network_1", &network),
-					testAccCheckNetworkingV2SubnetExists("huaweicloud_networking_subnet_v2.subnet_1", &subnet),
-					testAccCheckNetworkingV2RouterExists("huaweicloud_networking_router_v2.router_1", &router),
-					testAccCheckNetworkingV2FloatingIPExists("huaweicloud_networking_floatingip_v2.fip_1", &fip),
-					testAccCheckNetworkingV2RouterInterfaceExists("huaweicloud_networking_router_interface_v2.int_1"),
-					testAccCheckNatV2GatewayExists("huaweicloud_nat_gateway_v2.nat_1"),
-					testAccCheckNatV2SnatRuleExists("huaweicloud_nat_snat_rule_v2.snat_1"),
+					testAccCheckNatV2GatewayExists("huaweicloud_nat_gateway.nat_1"),
+					testAccCheckNatV2SnatRuleExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -49,7 +45,7 @@ func testAccCheckNatV2SnatRuleDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_nat_snat_rule_v2" {
+		if rs.Type != "huaweicloud_nat_snat_rule" {
 			continue
 		}
 
@@ -92,43 +88,34 @@ func testAccCheckNatV2SnatRuleExists(n string) resource.TestCheckFunc {
 	}
 }
 
-const testAccNatV2SnatRule_basic = `
-resource "huaweicloud_networking_router_v2" "router_1" {
-  name = "router_1"
-  admin_state_up = "true"
+func testAccNatV2SnatRule_basic(suffix string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_eip" "eip_1" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
 }
 
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
+resource "huaweicloud_nat_gateway" "nat_1" {
+  name                = "nat-gateway-basic-%s"
+  description         = "test for terraform"
+  spec                = "1"
+  internal_network_id = huaweicloud_vpc_subnet.subnet_1.id
+  router_id           = huaweicloud_vpc.vpc_1.id
 }
 
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  cidr = "192.168.199.0/24"
-  ip_version = 4
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+resource "huaweicloud_nat_snat_rule" "snat_1" {
+  nat_gateway_id = huaweicloud_nat_gateway.nat_1.id
+  network_id     = huaweicloud_vpc_subnet.subnet_1.id
+  floating_ip_id = huaweicloud_vpc_eip.eip_1.id
 }
-
-resource "huaweicloud_networking_router_interface_v2" "int_1" {
-  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
-  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
+	`, testAccNatPreCondition(suffix), suffix)
 }
-
-resource "huaweicloud_networking_floatingip_v2" "fip_1" {
-}
-
-resource "huaweicloud_nat_gateway_v2" "nat_1" {
-  name   = "nat_1"
-  description = "test for terraform"
-  spec = "1"
-  internal_network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
-  depends_on = ["huaweicloud_networking_router_interface_v2.int_1"]
-}
-
-resource "huaweicloud_nat_snat_rule_v2" "snat_1" {
-  nat_gateway_id = "${huaweicloud_nat_gateway_v2.nat_1.id}"
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  floating_ip_id = "${huaweicloud_networking_floatingip_v2.fip_1.id}"
-}
-`

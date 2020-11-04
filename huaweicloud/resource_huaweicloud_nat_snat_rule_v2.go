@@ -50,6 +50,14 @@ func resourceNatSnatRuleV2() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: suppressSnatFiplistDiffs,
 			},
+			"floating_ip_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -108,7 +116,8 @@ func resourceNatSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("nat_gateway_id", snatRule.NatGatewayID)
 	d.Set("network_id", snatRule.NetworkID)
 	d.Set("floating_ip_id", snatRule.FloatingIPID)
-
+	d.Set("floating_ip_address", snatRule.FloatingIPAddress)
+	d.Set("status", snatRule.Status)
 	d.Set("region", GetRegion(d, config))
 
 	return nil

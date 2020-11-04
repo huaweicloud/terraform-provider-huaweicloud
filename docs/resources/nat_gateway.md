@@ -55,6 +55,7 @@ The following attributes are exported:
 * `tenant_id` - See Argument Reference above.
 * `router_id` - See Argument Reference above.
 * `internal_network_id` - See Argument Reference above.
+* `status` - The status of the nat gateway.
 
 ## Import
 

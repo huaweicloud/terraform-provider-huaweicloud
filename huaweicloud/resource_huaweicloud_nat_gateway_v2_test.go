@@ -8,16 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/natgateways"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
 )
 
 func TestAccNatGateway_basic(t *testing.T) {
-	var network networks.Network
-	var router routers.Router
-	var subnet subnets.Subnet
+	randSuffix := acctest.RandString(5)
+	resourceName := "huaweicloud_nat_gateway.nat_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckNat(t) },
@@ -25,21 +21,26 @@ func TestAccNatGateway_basic(t *testing.T) {
 		CheckDestroy: testAccCheckNatV2GatewayDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNatV2Gateway_basic,
+				Config: testAccNatV2Gateway_basic(randSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2NetworkExists("huaweicloud_networking_network_v2.network_1", &network),
-					testAccCheckNetworkingV2SubnetExists("huaweicloud_networking_subnet_v2.subnet_1", &subnet),
-					testAccCheckNetworkingV2RouterExists("huaweicloud_networking_router_v2.router_1", &router),
-					testAccCheckNetworkingV2RouterInterfaceExists("huaweicloud_networking_router_interface_v2.int_1"),
-					testAccCheckNatV2GatewayExists("huaweicloud_nat_gateway_v2.nat_1"),
+					testAccCheckNatV2GatewayExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("nat-gateway-basic-%s", randSuffix)),
+					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform"),
+					resource.TestCheckResourceAttr(resourceName, "spec", "1"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
 			},
 			{
-				Config: testAccNatV2Gateway_update,
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccNatV2Gateway_update(randSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("huaweicloud_nat_gateway_v2.nat_1", "name", "nat_1_updated"),
-					resource.TestCheckResourceAttr("huaweicloud_nat_gateway_v2.nat_1", "description", "nat_1 updated"),
-					resource.TestCheckResourceAttr("huaweicloud_nat_gateway_v2.nat_1", "spec", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("nat-gateway-updated-%s", randSuffix)),
+					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform updated"),
+					resource.TestCheckResourceAttr(resourceName, "spec", "2"),
 				),
 			},
 		},
@@ -47,7 +48,8 @@ func TestAccNatGateway_basic(t *testing.T) {
 }
 
 func TestAccNatGateway_withEpsId(t *testing.T) {
-	natgateway := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	randSuffix := acctest.RandString(5)
+	resourceName := "huaweicloud_nat_gateway.nat_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckNat(t); testAccPreCheckEpsID(t) },
@@ -55,10 +57,10 @@ func TestAccNatGateway_withEpsId(t *testing.T) {
 		CheckDestroy: testAccCheckNatV2GatewayDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNatV2Gateway_epsId(natgateway),
+				Config: testAccNatV2Gateway_epsId(randSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNatV2GatewayExists("huaweicloud_nat_gateway.nat_1"),
-					resource.TestCheckResourceAttr("huaweicloud_nat_gateway.nat_1", "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					testAccCheckNatV2GatewayExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
 				),
 			},
 		},
@@ -73,7 +75,7 @@ func testAccCheckNatV2GatewayDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_nat_gateway_v2" {
+		if rs.Type != "huaweicloud_nat_gateway" {
 			continue
 		}
 
@@ -116,91 +118,63 @@ func testAccCheckNatV2GatewayExists(n string) resource.TestCheckFunc {
 	}
 }
 
-const testAccNatV2Gateway_basic = `
-resource "huaweicloud_networking_router_v2" "router_1" {
-  name = "router_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
-}
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  cidr = "192.168.199.0/24"
-  ip_version = 4
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-}
-
-resource "huaweicloud_networking_router_interface_v2" "int_1" {
-  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
-  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
-}
-
-resource "huaweicloud_nat_gateway_v2" "nat_1" {
-  name   = "nat_1"
-  description = "test for terraform"
-  spec = "1"
-  internal_network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
-  depends_on = ["huaweicloud_networking_router_interface_v2.int_1"]
-}
-`
-
-func testAccNatV2Gateway_epsId(name string) string {
+func testAccNatPreCondition(suffix string) string {
 	return fmt.Sprintf(`
-	resource "huaweicloud_vpc" "vpc_1" {
-	  name = "%s"
-	  cidr = "192.168.0.0/16"
-	}
-	
-	resource "huaweicloud_vpc_subnet" "subnet_1" {
-	  name       = "%s"
-	  cidr       = "192.168.199.0/24"
-	  gateway_ip = "192.168.199.1"
-	  vpc_id     = huaweicloud_vpc.vpc_1.id
-	}
-	
-	resource "huaweicloud_nat_gateway" "nat_1" {
-	  name   = "%s"
-	  description = "test for terraform"
-	  spec = "1"
-	  internal_network_id = huaweicloud_vpc_subnet.subnet_1.id
-	  router_id = huaweicloud_vpc.vpc_1.id
-	  enterprise_project_id = "%s"
-	}
-	`, name, name, name, OS_ENTERPRISE_PROJECT_ID)
+resource "huaweicloud_vpc" "vpc_1" {
+  name = "nat-vpc-%s"
+  cidr = "172.16.0.0/16"
 }
 
-const testAccNatV2Gateway_update = `
-resource "huaweicloud_networking_router_v2" "router_1" {
-  name = "router_1"
-  admin_state_up = "true"
+resource "huaweicloud_vpc_subnet" "subnet_1" {
+  name       = "nat-sunnet-%s"
+  cidr       = "172.16.10.0/24"
+  gateway_ip = "172.16.10.1"
+  vpc_id     = huaweicloud_vpc.vpc_1.id
+  dns_list   = ["100.125.1.250"]
+}
+	`, suffix, suffix)
 }
 
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
-  admin_state_up = "true"
+func testAccNatV2Gateway_basic(suffix string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_nat_gateway" "nat_1" {
+  name                = "nat-gateway-basic-%s"
+  description         = "test for terraform"
+  spec                = "1"
+  internal_network_id = huaweicloud_vpc_subnet.subnet_1.id
+  router_id           = huaweicloud_vpc.vpc_1.id
+}
+	`, testAccNatPreCondition(suffix), suffix)
 }
 
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  cidr = "192.168.199.0/24"
-  ip_version = 4
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
+func testAccNatV2Gateway_update(suffix string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_nat_gateway" "nat_1" {
+  name                = "nat-gateway-updated-%s"
+  description         = "test for terraform updated"
+  spec                = "2"
+  internal_network_id = huaweicloud_vpc_subnet.subnet_1.id
+  router_id           = huaweicloud_vpc.vpc_1.id
+
+}
+	`, testAccNatPreCondition(suffix), suffix)
 }
 
-resource "huaweicloud_networking_router_interface_v2" "int_1" {
-  subnet_id = "${huaweicloud_networking_subnet_v2.subnet_1.id}"
-  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
-}
+func testAccNatV2Gateway_epsId(suffix string) string {
+	return fmt.Sprintf(`
+%s
 
-resource "huaweicloud_nat_gateway_v2" "nat_1" {
-  name   = "nat_1_updated"
-  description = "nat_1 updated"
-  spec = "2"
-  internal_network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  router_id = "${huaweicloud_networking_router_v2.router_1.id}"
-  depends_on = ["huaweicloud_networking_router_interface_v2.int_1"]
+resource "huaweicloud_nat_gateway" "nat_1" {
+  name                  = "nat-gateway-eps-%s"
+  description           = "test for terraform"
+  spec                  = "1"
+  internal_network_id   = huaweicloud_vpc_subnet.subnet_1.id
+  router_id             = huaweicloud_vpc.vpc_1.id
+  enterprise_project_id = "%s"
 }
-`
+	`, testAccNatPreCondition(suffix), suffix, OS_ENTERPRISE_PROJECT_ID)
+}

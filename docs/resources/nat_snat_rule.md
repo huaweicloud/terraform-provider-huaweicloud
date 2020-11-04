@@ -40,6 +40,8 @@ The following attributes are exported:
 * `nat_gateway_id` - See Argument Reference above.
 * `network_id` - See Argument Reference above.
 * `floating_ip_id` - See Argument Reference above.
+* `floating_ip_address` - The actual floating IP address.
+* `status` - The status of the snat rule.
 
 ## Import
 
