@@ -1,8 +1,10 @@
 ---
-subcategory: "Cloud Server Backup Service (CSBS)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_csbs\_backup\_policy
+
+!> **Warning:** It has been deprecated.
 
 The HuaweiCloud CSBS Backup Policy data source allows access of backup Policy resources.
 This is an alternative to `huaweicloud_csbs_backup_policy_v1`

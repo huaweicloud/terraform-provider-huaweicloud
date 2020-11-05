@@ -1,8 +1,10 @@
 ---
-subcategory: "Cloud Server Backup Service (CSBS)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_csbs\_backup
+
+!> **Warning:** It has been deprecated.
 
 Provides an HuaweiCloud Backup of Resources.
 This is an alternative to `huaweicloud_csbs_backup_v1`
