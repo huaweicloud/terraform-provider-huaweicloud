@@ -77,11 +77,14 @@ func resourceASGroup() *schema.Resource {
 				Optional:     true,
 				ForceNew:     false,
 				ValidateFunc: resourceASGroupValidateListenerId,
-				Description:  "The system supports the binding of up to three ELB listeners, the IDs of which are separated using a comma.",
+				Description:  "The system supports the binding of up to six ELB listeners, the IDs of which are separated using a comma.",
+				Deprecated:   "use lbaas_listeners instead",
 			},
 			"lbaas_listeners": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:          schema.TypeList,
+				Optional:      true,
+				MaxItems:      6,
+				ConflictsWith: []string{"lb_listener_id"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"pool_id": {
@@ -99,7 +102,6 @@ func resourceASGroup() *schema.Resource {
 						},
 					},
 				},
-				ForceNew: false,
 			},
 			"available_zones": {
 				Type:     schema.TypeList,
@@ -739,10 +741,10 @@ func resourceASGroupValidateCoolDownTime(v interface{}, k string) (ws []string, 
 func resourceASGroupValidateListenerId(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	split := strings.Split(value, ",")
-	if len(split) <= 3 {
+	if len(split) <= 6 {
 		return
 	}
-	errors = append(errors, fmt.Errorf("%q supports binding up to 3 ELB listeners which are separated by a comma.", k))
+	errors = append(errors, fmt.Errorf("%q supports binding up to 6 ELB listeners which are separated by a comma.", k))
 	return
 }
 

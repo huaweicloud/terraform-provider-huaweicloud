@@ -79,66 +79,26 @@ resource "huaweicloud_as_group" "my_as_group_only_remove_members" {
 }
 ```
 
-### Autoscaling Group With ELB Listener
-
-```hcl
-resource "huaweicloud_as_group" "my_as_group_with_elb" {
-  scaling_group_name       = "my_as_group_with_elb"
-  scaling_configuration_id = "37e310f5-db9d-446e-9135-c625f9c2bbfc"
-  desire_instance_number   = 2
-  min_instance_number      = 0
-  max_instance_number      = 10
-  vpc_id                   = "1d8f7e7c-fe04-4cf5-85ac-08b478c290e9"
-  lb_listener_id           = huaweicloud_elb_listener.my_listener.id
-  delete_publicip          = true
-  delete_instances         = "yes"
-
-  networks {
-    id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  }
-  security_groups {
-    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
-  }
-}
-
-resource "huaweicloud_elb_listener" "my_listener" {
-  name             = "my_listener"
-  description      = "my test listener"
-  protocol         = "TCP"
-  backend_protocol = "TCP"
-  port             = 12345
-  backend_port     = 21345
-  lb_algorithm     = "roundrobin"
-  loadbalancer_id  = "cba48790-baf5-4446-adb3-02069a916e97"
-  timeouts {
-    create = "5m"
-    update = "5m"
-    delete = "5m"
-  }
-}
-
-```
-
 ### Autoscaling Group With Enhanced Load Balancer Listener
 
 ```hcl
-resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
+resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
   name          = "loadbalancer_1"
   vip_subnet_id = "d9415786-5f1a-428b-b35f-2f1523e146d2"
 }
 
-resource "huaweicloud_lb_listener" "listener_1" {
+resource "huaweicloud_lb_listener_v2" "listener_1" {
   name            = "listener_1"
   protocol        = "HTTP"
   protocol_port   = 8080
-  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
+  loadbalancer_id = huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id
 }
 
-resource "huaweicloud_lb_pool" "pool_1" {
+resource "huaweicloud_lb_pool_v2" "pool_1" {
   name        = "pool_1"
   protocol    = "HTTP"
   lb_method   = "ROUND_ROBIN"
-  listener_id = huaweicloud_lb_listener.listener_1.id
+  listener_id = huaweicloud_lb_listener_v2.listener_1.id
 }
 
 resource "huaweicloud_as_group" "my_as_group_with_enhanced_lb" {
@@ -156,8 +116,8 @@ resource "huaweicloud_as_group" "my_as_group_with_enhanced_lb" {
     id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
   }
   lbaas_listeners {
-    pool_id       = huaweicloud_lb_pool.pool_1.id
-    protocol_port = huaweicloud_lb_listener.listener_1.protocol_port
+    pool_id       = huaweicloud_lb_pool_v2.pool_1.id
+    protocol_port = huaweicloud_lb_listener_v2.listener_1.protocol_port
   }
 }
 ```
@@ -189,13 +149,9 @@ The following arguments are supported:
 * `cool_down_time` - (Optional) The cooling duration (in seconds). The value ranges
     from 0 to 86400, and is 300 by default.
 
-* `lb_listener_id` - (Optional) The ELB listener IDs. The system supports up to
-    three ELB listeners, the IDs of which are separated using a comma (,).
-
 * `lbaas_listeners` - (Optional) An array of one or more enhanced load balancer.
-    The system supports the binding of up to three load balancers. The field is
-    alternative to lb_listener_id.  The lbaas_listeners object structure is
-    documented below.
+    The system supports the binding of up to six load balancers.
+    The object structure is documented below.
 
 * `available_zones` - (Optional) The availability zones in which to create
     the instances in the autoscaling group.
