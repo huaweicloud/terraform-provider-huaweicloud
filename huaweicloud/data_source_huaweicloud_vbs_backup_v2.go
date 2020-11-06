@@ -10,8 +10,8 @@ import (
 
 func dataSourceVBSBackupV2() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceVBSBackupV2Read,
-
+		Read:               dataSourceVBSBackupV2Read,
+		DeprecationMessage: "It has been deprecated.",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

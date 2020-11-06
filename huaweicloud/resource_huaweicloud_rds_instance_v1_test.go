@@ -14,7 +14,7 @@ func TestAccRDSV1Instance_basic(t *testing.T) {
 	var instance instances.Instance
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRDSV1InstanceDestroy,
 		Steps: []resource.TestStep{

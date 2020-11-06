@@ -16,7 +16,7 @@ func TestAccCSBSBackupPolicyV1_basic(t *testing.T) {
 	updateName := fmt.Sprintf("tf-acc-test-update-%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCSBSBackupPolicyV1Destroy,
 		Steps: []resource.TestStep{
@@ -52,7 +52,7 @@ func TestAccCSBSBackupPolicyV1_timeout(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCSBSBackupPolicyV1Destroy,
 		Steps: []resource.TestStep{

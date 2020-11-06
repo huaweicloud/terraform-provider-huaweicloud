@@ -13,7 +13,7 @@ import (
 
 func TestAccFWPolicyV2_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWPolicyV2Destroy,
 		Steps: []resource.TestStep{
@@ -30,7 +30,7 @@ func TestAccFWPolicyV2_basic(t *testing.T) {
 
 func TestAccFWPolicyV2_addRules(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWPolicyV2Destroy,
 		Steps: []resource.TestStep{
@@ -52,7 +52,7 @@ func TestAccFWPolicyV2_addRules(t *testing.T) {
 
 func TestAccFWPolicyV2_deleteRules(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWPolicyV2Destroy,
 		Steps: []resource.TestStep{
@@ -69,7 +69,7 @@ func TestAccFWPolicyV2_deleteRules(t *testing.T) {
 
 func TestAccFWPolicyV2_timeout(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWPolicyV2Destroy,
 		Steps: []resource.TestStep{

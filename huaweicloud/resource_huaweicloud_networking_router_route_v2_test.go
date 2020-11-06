@@ -18,7 +18,7 @@ func TestAccNetworkingV2RouterRoute_basic(t *testing.T) {
 	var subnet [2]subnets.Subnet
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2RouterRouteDestroy,
 		Steps: []resource.TestStep{

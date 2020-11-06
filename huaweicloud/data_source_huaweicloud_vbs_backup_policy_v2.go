@@ -11,8 +11,8 @@ import (
 
 func dataSourceVBSBackupPolicyV2() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceVBSPolicyV2Read,
-
+		Read:               dataSourceVBSPolicyV2Read,
+		DeprecationMessage: "It has been deprecated.",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
