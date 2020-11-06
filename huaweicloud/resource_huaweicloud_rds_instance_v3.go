@@ -370,11 +370,18 @@ func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 
 	nodes := v.([]interface{})
 	if len(nodes) > 0 {
-		node_id = nodes[0].(map[string]interface{})["id"].(string)
+		for _, node := range nodes {
+			n := node.(map[string]interface{})
+			if n["role"] == "master" {
+				node_id = n["id"].(string)
+				break
+			}
+		}
 	} else {
 		log.Printf("[WARN] Error setting nodes of instance:%s", d.Id())
 		return nil
 	}
+	log.Printf("[DEBUG] get master node id: %s", node_id)
 
 	if d.HasChange("flavor") {
 		nflavor := d.Get("flavor")
