@@ -12,11 +12,12 @@ This is an alternative to `huaweicloud_as_policy_v1`
 ### AS Recurrence Policy
 
 ```hcl
-resource "huaweicloud_as_policy" "hth_aspolicy" {
-  scaling_policy_name = "hth_aspolicy"
+resource "huaweicloud_as_policy" "my_aspolicy" {
+  scaling_policy_name = "my_aspolicy"
+  scaling_policy_type = "RECURRENCE"
   scaling_group_id    = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
   cool_down_time      = 900
-  scaling_policy_type = "RECURRENCE"
+
   scaling_policy_action {
     operation       = "ADD"
     instance_number = 1
@@ -24,30 +25,29 @@ resource "huaweicloud_as_policy" "hth_aspolicy" {
   scheduled_policy {
     launch_time     = "07:00"
     recurrence_type = "Daily"
-    start_time      = "2017-11-30T12:00Z"
-    end_time        = "2017-12-30T12:00Z"
+    start_time      = "2020-11-30T12:00Z"
+    end_time        = "2020-12-30T12:00Z"
   }
 }
-
 ```
 
 ### AS Scheduled Policy
 
 ```hcl
-resource "huaweicloud_as_policy" "hth_aspolicy_1" {
-  scaling_policy_name = "hth_aspolicy_1"
+resource "huaweicloud_as_policy" "my_aspolicy_1" {
+  scaling_policy_name = "my_aspolicy_1"
+  scaling_policy_type = "SCHEDULED"
   scaling_group_id    = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
   cool_down_time      = 900
-  scaling_policy_type = "SCHEDULED"
+
   scaling_policy_action {
     operation       = "REMOVE"
     instance_number = 1
   }
   scheduled_policy {
-    launch_time = "2017-12-22T12:00Z"
+    launch_time = "2020-12-22T12:00Z"
   }
 }
-
 ```
 
 Please note that the `launch_time` of the `SCHEDULED` policy cannot be earlier than the current time.
@@ -55,18 +55,43 @@ Please note that the `launch_time` of the `SCHEDULED` policy cannot be earlier t
 ### AS Alarm Policy
 
 ```hcl
-resource "huaweicloud_as_policy" "hth_aspolicy_2" {
-  scaling_policy_name = "hth_aspolicy_2"
-  scaling_group_id    = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
-  cool_down_time      = 900
+resource "huaweicloud_ces_alarmrule" "alarm_rule" {
+  alarm_name = "as_alarm_rule"
+
+  metric {
+    namespace   = "SYS.AS"
+    metric_name = "cpu_util"
+    dimensions {
+      name  = "AutoScalingGroup"
+      value = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
+    }
+  }
+  condition {
+    period              = 300
+    filter              = "average"
+    comparison_operator = ">="
+    value               = 60
+    unit                = "%"
+    count               = 1
+  }
+  alarm_actions {
+    type              = "autoscaling"
+    notification_list = []
+  }
+}
+
+resource "huaweicloud_as_policy" "my_aspolicy_2" {
+  scaling_policy_name = "my_aspolicy_2"
   scaling_policy_type = "ALARM"
-  alarm_id            = "37e310f5-db9d-446e-9135-c625f9c2bbfc"
+  scaling_group_id    = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
+  alarm_id            = huaweicloud_ces_alarmrule.alarm_rule.id
+  cool_down_time      = 900
+
   scaling_policy_action {
     operation       = "ADD"
     instance_number = 1
   }
 }
-
 ```
 
 ## Argument Reference
@@ -78,15 +103,15 @@ The following arguments are supported:
     creates a new AS policy.
 
 * `scaling_policy_name` - (Required) The name of the AS policy. The name can contain letters,
-    digits, underscores(_), and hyphens(-),and cannot exceed 64 characters.
-
-* `scaling_group_id` - (Required) The AS group ID. Changing this creates a new AS policy.
+    digits, underscores(_), and hyphens(-), and cannot exceed 64 characters.
 
 * `scaling_policy_type` - (Required) The AS policy type. The values can be `ALARM`, `SCHEDULED`,
     and `RECURRENCE`.
 
-* `alarm_id` - (Optional) The alarm rule ID. This argument is mandatory
-    when `scaling_policy_type` is set to `ALARM`.
+* `scaling_group_id` - (Required) The AS group ID. Changing this creates a new AS policy.
+
+* `alarm_id` - (Optional) The alarm rule ID. This argument is mandatory when `scaling_policy_type`
+    is set to `ALARM`. You can create an alarm rule with `huaweicloud_ces_alarmrule`.
 
 * `scheduled_policy` - (Optional) The periodic or scheduled AS policy. This argument is mandatory
     when `scaling_policy_type` is set to `SCHEDULED` or `RECURRENCE`. The scheduled_policy structure
@@ -99,9 +124,9 @@ The following arguments are supported:
 
 The `scheduled_policy` block supports:
 
-* `launch_time` - (Required) The time when the scaling action is triggered. If `scaling_policy_type`
-    is set to `SCHEDULED`, the time format is YYYY-MM-DDThh:mmZ. If `scaling_policy_type` is set to
-    `RECURRENCE`, the time format is hh:mm.
+* `launch_time` - (Required) The time when the scaling action is triggered.
+    - If `scaling_policy_type` is set to `SCHEDULED`, the time format is YYYY-MM-DDThh:mmZ.
+    - If `scaling_policy_type` is set to `RECURRENCE`, the time format is hh:mm.
 
 * `recurrence_type` - (Optional) The periodic triggering type. This argument is mandatory when
     `scaling_policy_type` is set to `RECURRENCE`. The options include `Daily`, `Weekly`, and `Monthly`.
