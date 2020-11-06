@@ -16,7 +16,7 @@ func TestAccFWFirewallGroupV2_basic(t *testing.T) {
 	var ipolicyID *string
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
@@ -46,7 +46,7 @@ func TestAccFWFirewallGroupV2_port0(t *testing.T) {
 	var firewall_group FirewallGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
@@ -65,7 +65,7 @@ func TestAccFWFirewallGroupV2_no_ports(t *testing.T) {
 	var firewall_group FirewallGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
@@ -85,7 +85,7 @@ func TestAccFWFirewallGroupV2_port_update(t *testing.T) {
 	var firewall_group FirewallGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{
@@ -111,7 +111,7 @@ func TestAccFWFirewallGroupV2_port_remove(t *testing.T) {
 	var firewall_group FirewallGroup
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
 		Steps: []resource.TestStep{

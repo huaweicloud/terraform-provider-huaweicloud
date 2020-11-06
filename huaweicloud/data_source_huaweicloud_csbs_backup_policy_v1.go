@@ -10,8 +10,8 @@ import (
 
 func dataSourceCSBSBackupPolicyV1() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceCSBSBackupPolicyV1Read,
-
+		Read:               dataSourceCSBSBackupPolicyV1Read,
+		DeprecationMessage: "It has been deprecated.",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

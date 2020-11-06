@@ -10,7 +10,7 @@ import (
 
 func TestAccHuaweiCloudRdsFlavorV1DataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
+		PreCheck:  func() { testAccPreCheckDeprecated(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -31,7 +31,7 @@ func TestAccHuaweiCloudRdsFlavorV1DataSource_basic(t *testing.T) {
 
 func TestAccHuaweiCloudRdsFlavorV1DataSource_speccode(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
+		PreCheck:  func() { testAccPreCheckDeprecated(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{

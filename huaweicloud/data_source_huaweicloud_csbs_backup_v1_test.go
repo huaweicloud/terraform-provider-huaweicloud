@@ -10,7 +10,7 @@ import (
 
 func TestAccCSBSBackupV1DataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
+		PreCheck:  func() { testAccPreCheckDeprecated(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{

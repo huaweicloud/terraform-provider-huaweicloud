@@ -12,8 +12,8 @@ import (
 
 func dataSourceRdsFlavorV1() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourcedataSourceRdsFlavorV1Read,
-
+		Read:               dataSourcedataSourceRdsFlavorV1Read,
+		DeprecationMessage: "use huaweicloud_rds_flavors data source instead",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

@@ -48,7 +48,7 @@ func TestAccFWRuleV2_basic(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWRuleV2Destroy,
 		Steps: []resource.TestStep{
@@ -91,7 +91,7 @@ func TestAccFWRuleV2_anyProtocol(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWRuleV2Destroy,
 		Steps: []resource.TestStep{
