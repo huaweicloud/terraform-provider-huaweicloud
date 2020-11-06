@@ -246,16 +246,21 @@ func resourceASPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	policyActionList = append(policyActionList, policyAction)
 	d.Set("scaling_policy_action", policyActionList)
 
-	scheduledPolicyInfo := asPolicy.SchedulePolicy
-	scheduledPolicy := map[string]interface{}{}
-	scheduledPolicy["launch_time"] = scheduledPolicyInfo.LaunchTime
-	scheduledPolicy["recurrence_type"] = scheduledPolicyInfo.RecurrenceType
-	scheduledPolicy["recurrence_value"] = scheduledPolicyInfo.RecurrenceValue
-	scheduledPolicy["start_time"] = scheduledPolicyInfo.StartTime
-	scheduledPolicy["end_time"] = scheduledPolicyInfo.EndTime
-	scheduledPolicies := []map[string]interface{}{}
-	scheduledPolicies = append(scheduledPolicies, scheduledPolicy)
-	d.Set("scheduled_policy", scheduledPolicies)
+	scheduledInfo := asPolicy.SchedulePolicy
+	if scheduledInfo.LaunchTime != "" {
+		scheduledMap := map[string]interface{}{
+			"launch_time":      scheduledInfo.LaunchTime,
+			"recurrence_type":  scheduledInfo.RecurrenceType,
+			"recurrence_value": scheduledInfo.RecurrenceValue,
+			"start_time":       scheduledInfo.StartTime,
+			"end_time":         scheduledInfo.EndTime,
+		}
+		scheduledPolicies := []map[string]interface{}{}
+		scheduledPolicies = append(scheduledPolicies, scheduledMap)
+		d.Set("scheduled_policy", scheduledPolicies)
+	} else {
+		d.Set("scheduled_policy", nil)
+	}
 
 	d.Set("region", GetRegion(d, config))
 
