@@ -51,7 +51,6 @@ data "huaweicloud_networking_port" "port_1" {
 
 resource "huaweicloud_networking_vip" "vip_1" {
   network_id = huaweicloud_vpc_subnet.subnet_1.id
-  subnet_id  = huaweicloud_vpc_subnet.subnet_1.subnet_id
 }
 
 # associate ports to the vip

@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
@@ -15,6 +16,7 @@ func resourceNetworkingVIPV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkingVIPV2Create,
 		Read:   resourceNetworkingVIPV2Read,
+		Update: resourceNetworkingVIPV2Update,
 		Delete: resourceNetworkingVIPV2Delete,
 
 		Schema: map[string]*schema.Schema{
@@ -31,12 +33,14 @@ func resourceNetworkingVIPV2() *schema.Resource {
 			},
 			"subnet_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"ip_address": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Computed: true,
 			},
 			"name": {
@@ -56,28 +60,53 @@ func resourceNetworkingVIPV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"mac_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
 
 func resourceNetworkingVIPV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	region := GetRegion(d, config)
+	networkingClient, err := config.NetworkingV2Client(region)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	// Contruct CreateOpts
-	fixip := make([]ports.IP, 1)
-	fixip[0] = ports.IP{
-		SubnetID:  d.Get("subnet_id").(string),
-		IPAddress: d.Get("ip_address").(string),
-	}
+	networkID := d.Get("network_id").(string)
 	createOpts := ports.CreateOpts{
 		Name:        d.Get("name").(string),
-		NetworkID:   d.Get("network_id").(string),
-		FixedIPs:    fixip,
+		NetworkID:   networkID,
 		DeviceOwner: "neutron:VIP_PORT",
+	}
+
+	// Contruct fixed ip
+	subnetID := d.Get("subnet_id").(string)
+	fixedIP := d.Get("ip_address").(string)
+	if subnetID != "" || fixedIP != "" {
+		vpcClient, err := config.NetworkingV1Client(region)
+		if err != nil {
+			return fmt.Errorf("Error creating Huaweicloud VPC client: %s", err)
+		}
+
+		n, err := subnets.Get(vpcClient, networkID).Extract()
+		if err != nil {
+			return fmt.Errorf("Error retrieving Huaweicloud Subnet %s: %s", networkID, err)
+		}
+
+		if subnetID != "" && subnetID != n.SubnetId {
+			return fmt.Errorf("Error invalid value of subnet_id %s, expect to %s", subnetID, n.SubnetId)
+		}
+
+		fixip := make([]ports.IP, 1)
+		fixip[0] = ports.IP{
+			SubnetID:  n.SubnetId,
+			IPAddress: fixedIP,
+		}
+		createOpts.FixedIPs = fixip
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -116,6 +145,7 @@ func resourceNetworkingVIPV2Read(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[DEBUG] Retrieved VIP %s: %+v", d.Id(), vip)
 
+	d.SetId(vip.ID)
 	// Computed values
 	d.Set("network_id", vip.NetworkID)
 	if len(vip.FixedIPs) > 0 {
@@ -125,13 +155,36 @@ func resourceNetworkingVIPV2Read(d *schema.ResourceData, meta interface{}) error
 		d.Set("subnet_id", "")
 		d.Set("ip_address", "")
 	}
+
 	d.Set("name", vip.Name)
 	d.Set("status", vip.Status)
-	d.SetId(vip.ID)
 	d.Set("tenant_id", vip.TenantID)
 	d.Set("device_owner", vip.DeviceOwner)
+	d.Set("mac_address", vip.MACAddress)
 
 	return nil
+}
+
+func resourceNetworkingVIPV2Update(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+	}
+
+	if d.HasChange("name") {
+		updateOpts := ports.UpdateOpts{
+			Name: d.Get("name").(string),
+		}
+		log.Printf("[DEBUG] Updating networking vip %s with options: %#v", d.Id(), updateOpts)
+
+		_, err = ports.Update(networkingClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return fmt.Errorf("Error updating HuaweiCloud networking vip: %s", err)
+		}
+	}
+
+	return resourceNetworkingVIPV2Read(d, meta)
 }
 
 func resourceNetworkingVIPV2Delete(d *schema.ResourceData, meta interface{}) error {
