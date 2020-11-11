@@ -12,20 +12,22 @@ Manages Object Storage Migration task within HuaweiCloud.
 resource "huaweicloud_oms_task" "task_1" {
   description = "migration task"
   enable_kms  = true
-  thread_num  = 1
+  thread_num  = 5
+
   src_node {
-    region     = "cn-beijing"
-    ak         = "AK"
-    sk         = "SK"
-    object_key = "123.txt"
+    region     = "cn-north-1"
+    ak         = var.src_AK
+    sk         = var.src_SK
+    cloud_type = "HuaweiCloud"
     bucket     = "oms-bucket"
+    object_key = "123.txt"
   }
   dst_node {
-    region     = "eu-de"
-    ak         = "AK"
-    sk         = "SK"
-    object_key = "oms"
+    region     = "cn-east-3"
+    ak         = var.dst_AK
+    sk         = var.dst_SK
     bucket     = "test-oms"
+    object_key = "oms"
   }
 }
 ```
@@ -55,20 +57,21 @@ The `src_node` block supports:
 * `region` - (Required) Specifies the region where the source bucket locates.
 * `ak` - (Required) Specifies the source bucket Access Key.
 * `sk` - (Required) Specifies the source bucket Secret Key.
-* `object_key` - (Required) Specifies the name of the object to be selected in the
-    source bucket.
 * `bucket` - (Required) Specifies the name of the source bucket.
-* `cloud_type` - (Optional) Specifies the source cloud vendor. Currently only Aliyun
-	and AWS are supported. The default value is Aliyun.
+* `object_key` - (Required) Specifies the name of the object to be selected in the
+  source bucket.
+* `cloud_type` - (Optional) Specifies the source cloud service provider. The value can be
+  AWS, Aliyun, Tencent, HuaweiCloud, QingCloud, KingsoftCloud, Baidu, or Qiniu.
+  The default value is Aliyun.
 
 The `dst_node` block supports:
 
 * `region` - (Required) Specifies the region where the destination bucket locates.
 * `ak` - (Required) Specifies the destination bucket Access Key.
 * `sk` - (Required) Specifies the destination bucket Secret Key.
-* `object_key` - (Required) Specifies the name of the object to be selected in the
-    destination bucket.
 * `bucket` - (Required) Specifies the name of the destination bucket.
+* `object_key` - (Required) Specifies the name of the object to be selected in the
+  destination bucket.
 
 The `smn_info` block supports:
 
@@ -90,6 +93,6 @@ The following attributes are exported:
 * `thread_num` - See Argument Reference above.
 * `description` - See Argument Reference above.
 * `smn_info` - See Argument Reference above.
-* `name` - Specifies the name for a task.
-* `status` - Specifies the task status as follows: 0: Not started, 1: Waiting to migrate,
+* `name` - Indicates the name for a task.
+* `status` - Indicates the task status as follows: 0: Not started, 1: Waiting to migrate,
 	2: Migrating, 3: Migration paused, 4: Migration failed, 5: Migration succeeded.
