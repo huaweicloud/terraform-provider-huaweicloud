@@ -16,7 +16,6 @@ data "huaweicloud_vpc_subnet" "mynet" {
 
 resource "huaweicloud_networking_vip" "myvip" {
   network_id = data.huaweicloud_vpc_subnet.mynet.id
-  subnet_id  = data.huaweicloud_vpc_subnet.mynet.subnet_id
 }
 
 resource "huaweicloud_networking_vip_associate" "vip_associated" {
@@ -29,13 +28,12 @@ resource "huaweicloud_networking_vip_associate" "vip_associated" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the vip associate resource. If omitted, the provider-level region will work as default. Changing this creates a new vip associate resource.
+* `region` - (Optional, ForceNew) The region in which to obtain the vip associate resource.
+    If omitted, the provider-level region will work as default.
 
-* `vip_id` - (Required) The ID of vip to attach the port to.
-    Changing this creates a new vip associate.
+* `vip_id` - (Required, ForceNew) The ID of vip to attach the ports to.
 
 * `port_ids` - (Required) An array of one or more IDs of the ports to attach the vip to.
-    Changing this creates a new vip associate.
 
 ## Attributes Reference
 
@@ -45,3 +43,4 @@ The following attributes are exported:
 * `port_ids` - See Argument Reference above.
 * `vip_subnet_id` - The ID of the subnet this vip connects to.
 * `vip_ip_address` - The IP address in the subnet for this vip.
+* `ip_addresses` - The IP addresses of ports to attach the vip to.
