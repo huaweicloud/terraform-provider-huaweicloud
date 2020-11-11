@@ -1,5 +1,36 @@
 ## 1.20.0 (Unreleased)
 
+FEATURES:
+
+* **New Data Source:** `huaweicloud_vpc_bandwidth` ([#595](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/595))
+* **New Data Source:** `huaweicloud_compute_flavors` ([#609](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/609))
+* **New Data Source:** `huaweicloud_enterprise_project` ([#620](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/620))
+* **New Resource:** `huaweicloud_css_snapshot` ([#603](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/603))
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_css_cluster: Add security mode support ([#592](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/592))
+* Add enterprise_project_id support to cce_cluster, rds, obs, sfs ([#593](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/593))
+* resource/huaweicloud_cce_node: Add tags support ([#598](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/598))
+* Add tags support to dns and vpn resources ([#599](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/599))
+* Make name argument support Chinese character ([#600](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/600))
+* Add enterprise_project_id support to dcs, nat_gateway ([#601](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/601))
+* Add enterprise_project_id to secgroup ([#606](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/606))
+* Add tags support to rds instance resource ([#607](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/607))
+* Add tags support to dds and dcs instance resource ([#610](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/610))
+* Add tags support to dms instance resource ([#611](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/611))
+* Add tags support to elb resources ([#613](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/613))
+* resource/huaweicloud_mrs_cluster: Set login mode default to keypair ([#614](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/614))
+* Add resource-level region support ([#616](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/616))
+* resource/huaweicloud_mrs_cluster: Add tags support ([#617](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/617))
+* resource/huaweicloud_mrs_cluster: Add support to login cluster with password ([#628](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/628))
+* resource/huaweicloud_networking_vip: Make subnet_id parameter optional ([#648](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/648))
+* resource/huaweicloud_networking_vip_associate: Make port_ids updatable ([#650](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/650))
+
+BUG FIXES:
+
+* resource/huaweicloud_oms_task: Fix endpoint issue ([#651](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/651))
+
 ## 1.19.1 (October 15, 2020)
 
 ENHANCEMENTS:
