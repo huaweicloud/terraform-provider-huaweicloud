@@ -18,9 +18,6 @@ func resourceMaasTaskV1() *schema.Resource {
 		Create: resourceMaasTaskV1Create,
 		Read:   resourceMaasTaskV1Read,
 		Delete: resourceMaasTaskV1Delete,
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -33,18 +30,11 @@ func resourceMaasTaskV1() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"status": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
 			"src_node": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"region": {
@@ -58,9 +48,10 @@ func resourceMaasTaskV1() *schema.Resource {
 							ForceNew: true,
 						},
 						"sk": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:      schema.TypeString,
+							Sensitive: true,
+							Required:  true,
+							ForceNew:  true,
 						},
 						"object_key": {
 							Type:     schema.TypeString,
@@ -85,6 +76,7 @@ func resourceMaasTaskV1() *schema.Resource {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"region": {
@@ -98,9 +90,10 @@ func resourceMaasTaskV1() *schema.Resource {
 							ForceNew: true,
 						},
 						"sk": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Type:      schema.TypeString,
+							Sensitive: true,
+							Required:  true,
+							ForceNew:  true,
 						},
 						"object_key": {
 							Type:     schema.TypeString,
@@ -134,6 +127,7 @@ func resourceMaasTaskV1() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"topic_urn": {
@@ -155,6 +149,14 @@ func resourceMaasTaskV1() *schema.Resource {
 						},
 					},
 				},
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 		},
 	}
@@ -194,9 +196,9 @@ func getDstNode(d *schema.ResourceData) task.DstNodeOpts {
 }
 
 func getTriggerConditions(v []interface{}) []string {
-	var conds []string
-	for _, cond := range v {
-		conds = append(conds, cond.(string))
+	conds := make([]string, len(v))
+	for i, cond := range v {
+		conds[i] = cond.(string)
 	}
 
 	return conds
@@ -282,23 +284,26 @@ func resourceMaasTaskV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("thread_num", taskGet.ThreadNum)
 	d.Set("description", taskGet.Description)
 
-	srcNodeList := make([]map[string]interface{}, 0, 1)
-	srcNode := map[string]interface{}{
-		"region":     taskGet.SrcNode.Region,
-		"object_key": taskGet.SrcNode.ObjectKey[0],
-		"bucket":     taskGet.SrcNode.Bucket,
-	}
-	srcNodeList = append(srcNodeList, srcNode)
-	d.Set("src_node", srcNode)
+	// TODO: we can not get AK/SK from the Get method, skip to set src_node and dst_node
+	/*
+		srcNodeList := make([]map[string]interface{}, 0, 1)
+		srcNode := map[string]interface{}{
+			"region":     taskGet.SrcNode.Region,
+			"object_key": taskGet.SrcNode.ObjectKey[0],
+			"bucket":     taskGet.SrcNode.Bucket,
+		}
+		srcNodeList = append(srcNodeList, srcNode)
+		d.Set("src_node", srcNodeList)
 
-	dstNodeList := make([]map[string]interface{}, 0, 1)
-	dstNode := map[string]interface{}{
-		"region":     taskGet.DstNode.Region,
-		"object_key": taskGet.DstNode.ObjectKey,
-		"bucket":     taskGet.DstNode.Bucket,
-	}
-	dstNodeList = append(dstNodeList, dstNode)
-	d.Set("dst_node", dstNode)
+		dstNodeList := make([]map[string]interface{}, 0, 1)
+		dstNode := map[string]interface{}{
+			"region":     taskGet.DstNode.Region,
+			"object_key": taskGet.DstNode.ObjectKey,
+			"bucket":     taskGet.DstNode.Bucket,
+		}
+		dstNodeList = append(dstNodeList, dstNode)
+		d.Set("dst_node", dstNodeList)
+	*/
 
 	return nil
 }
