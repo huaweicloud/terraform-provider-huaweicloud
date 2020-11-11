@@ -288,7 +288,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"oms": ServiceCatalog{
 		Name:    "oms",
 		Version: "v1",
-		Scope:   "global",
 	},
 	"mls": ServiceCatalog{
 		Name:    "mls",
