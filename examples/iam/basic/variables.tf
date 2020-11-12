@@ -20,8 +20,3 @@ variable "domain_id" {
   default     = "your_domain_id"
   description = "This is the domain id."
 }
-
-data "huaweicloud_identity_role_v3" "auth_admin" {
-    name = "system_all_0"
-}
-

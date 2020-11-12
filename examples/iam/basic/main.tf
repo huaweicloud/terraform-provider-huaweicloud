@@ -30,6 +30,10 @@ resource "huaweicloud_identity_group_membership_v3" "membership_1" {
   users = [huaweicloud_identity_user_v3.user_A.id]
 }
 
+data "huaweicloud_identity_role_v3" "auth_admin" {
+    name = "system_all_0"
+}
+
 resource "huaweicloud_identity_role_assignment_v3" "role_assignment_1" {
   group_id  = length(huaweicloud_identity_group_v3.group)>=2? huaweicloud_identity_group_v3.group[1].id : huaweicloud_identity_group_v3.default_group.id
   domain_id = var.domain_id
