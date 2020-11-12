@@ -1,7 +1,14 @@
+#Automatic password generation
+resource "random_password" "password" {
+  length           = 16
+  special          = true
+  override_special = "_%@"
+}
+
 #Create a User
 resource "huaweicloud_identity_user_v3" "user_A" {
   name        = var.user_A_name
-  password    = var.user_A_password
+  password    = random_password.password.result
 }
 
 #Create two Group
