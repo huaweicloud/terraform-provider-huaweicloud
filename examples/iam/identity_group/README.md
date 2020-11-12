@@ -1,2 +1,2 @@
-## Example: Basic Identity Group Instance
-This example provisions a basic identity group instance.
+## Example: Identity Group Instance
+This example provisions a identity group instance.
