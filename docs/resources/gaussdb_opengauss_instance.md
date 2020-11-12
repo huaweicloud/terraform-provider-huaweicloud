@@ -87,6 +87,8 @@ The following arguments are supported:
 * `time_zone` - (Optional) Specifies the time zone. Defaults to "UTC+08:00".
   Changing this parameter will create a new resource.
 
+* `force_import` - (Optional) If specified, try to import the instance instead of creating if the name already existed.
+
 * `datastore` - (Optional) Specifies the datastore information. Structure is documented below.
   Changing this parameter will create a new resource.
 
