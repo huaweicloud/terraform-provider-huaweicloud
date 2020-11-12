@@ -145,6 +145,11 @@ func resourceGaussDBInstance() *schema.Resource {
 					},
 				},
 			},
+			"force_import": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -242,6 +247,29 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	client, err := config.gaussdbV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
+	}
+
+	// If force_import set, try to import it instead of creating
+	if hasFilledOpt(d, "force_import") {
+		log.Printf("[DEBUG] Gaussdb mysql instance force_import is set, try to import it instead of creating")
+		listOpts := instances.ListTaurusDBInstanceOpts{
+			Name: d.Get("name").(string),
+		}
+		pages, err := instances.List(client, listOpts).AllPages()
+		if err != nil {
+			return err
+		}
+
+		allInstances, err := instances.ExtractTaurusDBInstances(pages)
+		if err != nil {
+			return fmt.Errorf("Unable to retrieve instances: %s ", err)
+		}
+		if allInstances.TotalCount > 0 {
+			instance := allInstances.Instances[0]
+			log.Printf("[DEBUG] Found existing mysql instance %s with name %s", instance.Id, instance.Name)
+			d.SetId(instance.Id)
+			return resourceGaussDBInstanceRead(d, meta)
+		}
 	}
 
 	createOpts := instances.CreateTaurusDBOpts{
