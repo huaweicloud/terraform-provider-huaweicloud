@@ -1,16 +1,27 @@
-variable "iden_user_name_default" {
+variable "iden_user_name" {
   type    = string
-  default = "iden_user_default"
+  default = "user_A"
 }
 
-variable "iden_users" {
-    description = "List of identity users."
+variable "iden_group" {
+    description = "List of identity group."
     type = list(object({
         name        = string
         description = string
     }))
     default = [
-        {name = "iden_user_A", description = "This is a identity user."},
-        {name = "iden_user_B", description = "This is a identity user."}
+        {name = "group_A", description = "This is a identity group."},
+        {name = "group_B", description = "This is a identity group."}
     ]
 }
+
+variable "domain_id" {
+  type        = string
+  default     = "your_domain_id"
+  description = "This is the domain id."
+}
+
+data "huaweicloud_identity_role_v3" "auth_admin" {
+    name = "system_all_0"
+}
+
