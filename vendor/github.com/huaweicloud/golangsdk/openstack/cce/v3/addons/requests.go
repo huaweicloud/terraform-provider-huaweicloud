@@ -47,7 +47,7 @@ type RequestSpec struct {
 }
 
 type Values struct {
-	Basic map[string]string `json:"basic" required:"true"`
+	Basic map[string]interface{} `json:"basic" required:"true"`
 }
 
 // ToAddonCreateMap builds a create request body from CreateOpts.
