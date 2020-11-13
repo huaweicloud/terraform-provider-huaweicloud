@@ -50,6 +50,12 @@ The following attributes are exported:
 
 * `status` - Indicates the bandwidth status.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Shared Bandwidths can be imported using the `id`, e.g.

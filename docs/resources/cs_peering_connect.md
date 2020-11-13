@@ -66,6 +66,7 @@ The `target_vpc_info` block supports:
   The VPC ID. Changing this parameter will create a new resource.
 
 ## Timeouts
-
 This resource provides the following timeouts configuration options:
 - `create` - Default is 30 minute.
+- `delete` - Default is 30 minute.
+

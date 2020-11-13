@@ -72,6 +72,10 @@ behavior. Some HuaweiCloud clouds might provide additional rules and some might
 not provide any rules at all (in which case the `delete_default_rules` setting
 is moot).
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Security Groups can be imported using the `id`, e.g.

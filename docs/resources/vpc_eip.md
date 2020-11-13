@@ -96,6 +96,11 @@ The following attributes are exported:
 * `bandwidth/charge_mode` - See Argument Reference above.
 * `address` - The IP address of the eip.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 EIPs can be imported using the `id`, e.g.

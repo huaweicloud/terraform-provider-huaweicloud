@@ -158,6 +158,12 @@ The `nodes` block contains:
 - `status` - Indicates the node status.
 - `availability_zone` - Indicates the availability zone of the node.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 120 minute.
+- `update` - Default is 60 minute.
+- `delete` - Default is 30 minute.
+
 ## Import
 
 OpenGaussDB instance can be imported using the `id`, e.g.

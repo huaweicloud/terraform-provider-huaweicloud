@@ -64,3 +64,10 @@ The following attributes are exported:
 * `pool_id` - See Argument Reference above.
 * `address` - See Argument Reference above.
 * `protocol_port` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+

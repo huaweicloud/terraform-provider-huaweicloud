@@ -169,6 +169,11 @@ All above argument parameters can be exported as attribute parameters along with
 
   * `kube_config_raw` - Raw Kubernetes config to be used by kubectl and other compatible tools.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 30 minute.
+- `delete` - Default is 30 minute.
+
 ## Import
 
  Cluster can be imported using the cluster id, e.g.

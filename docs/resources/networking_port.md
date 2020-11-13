@@ -115,6 +115,11 @@ The following attributes are exported:
   which have been explicitly and implicitly added.
 * `extra_dhcp_option` - See Argument Reference above.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Ports can be imported using the `id`, e.g.

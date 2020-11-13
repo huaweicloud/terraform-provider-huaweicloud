@@ -243,6 +243,12 @@ The following attributes are exported:
 * `nics/mac_address` - The MAC address of the NIC on that network.
 * `nics/port_id` - The port ID of the NIC on that network.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 30 minute.
+- `update` - Default is 30 minute.
+- `delete` - Default is 30 minute.
+
 ## Import
 
 Instances can be imported using the `id`, e.g.

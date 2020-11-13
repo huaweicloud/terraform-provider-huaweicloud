@@ -57,6 +57,11 @@ The following attributes are exported:
 * `internal_network_id` - See Argument Reference above.
 * `status` - The status of the nat gateway.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Nat gateway can be imported using the following format:

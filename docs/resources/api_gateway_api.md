@@ -142,6 +142,11 @@ The following attributes are exported:
 * `id` - The ID of the API.
 * `group_name` - The name of the API group to which the API belongs.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 API can be imported using the `id`, e.g.

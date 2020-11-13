@@ -52,6 +52,11 @@ The following attributes are exported:
 * `tenant_id` - the ID of the tenant in which to create the floating IP.
 * `fixed_ip` - The fixed IP which the floating IP maps to.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Floating IPs can be imported using the `id`, e.g.

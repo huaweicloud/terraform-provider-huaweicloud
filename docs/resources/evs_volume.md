@@ -125,6 +125,12 @@ The following attributes are exported:
     sees it.
 * `wwn` - Specifies the unique identifier used for mounting the EVS disk.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 3 minute.
+- `delete` - Default is 3 minute.
+
 ## Import
 
 Volumes can be imported using the `id`, e.g.

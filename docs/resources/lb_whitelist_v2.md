@@ -49,3 +49,10 @@ The following attributes are exported:
 * `listener_id` - See Argument Reference above.
 * `enable_whitelist` - See Argument Reference above.
 * `whitelist` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+

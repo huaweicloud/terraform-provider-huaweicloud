@@ -74,6 +74,10 @@ The following attributes are exported:
 * `value_specs` - See Argument Reference above.
 
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+
 ## Import
 
 Services can be imported using the `id`, e.g.

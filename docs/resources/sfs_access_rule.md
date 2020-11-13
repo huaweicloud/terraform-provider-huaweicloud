@@ -75,6 +75,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The status of the share access rule.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 SFS access rule can be imported by specifying the SFS ID and access rule ID separated by a slash, e.g.:

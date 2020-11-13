@@ -54,6 +54,11 @@ In addition to the arguments listed above, the following computed attributes are
 * `backup_type` - Indicates the snapshot creation mode, the value should be "manual" or "automated".
 
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 This resource can be imported by specifying the CSS cluster ID and snapshot ID

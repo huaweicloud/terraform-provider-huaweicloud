@@ -100,6 +100,11 @@ The following attributes are exported:
 * `dns_nameservers` - See Argument Reference above.
 * `host_routes` - See Argument Reference above.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Subnets can be imported using the `id`, e.g.

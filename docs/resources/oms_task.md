@@ -96,3 +96,8 @@ The following attributes are exported:
 * `name` - Indicates the name for a task.
 * `status` - Indicates the task status as follows: 0: Not started, 1: Waiting to migrate,
 	2: Migrating, 3: Migration paused, 4: Migration failed, 5: Migration succeeded.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+

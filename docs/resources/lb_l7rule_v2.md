@@ -93,6 +93,12 @@ The following attributes are exported:
 * `admin_state_up` - See Argument Reference above.
 * `listener_id` - The ID of the Listener owning this resource.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Load Balancer L7 Rule can be imported using the L7 Policy ID and L7 Rule ID

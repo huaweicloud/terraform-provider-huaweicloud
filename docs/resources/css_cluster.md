@@ -172,8 +172,7 @@ The `nodes` block contains:
 * `type` - Supported type: ess (indicating the Elasticsearch node).
 
 ## Timeouts
-
 This resource provides the following timeouts configuration options:
+- `create` - Default is 60 minute.
+- `update` - Default is 60 minute.
 
-- `create` - Default is 30 minute.
-- `update` - Default is 30 minute.

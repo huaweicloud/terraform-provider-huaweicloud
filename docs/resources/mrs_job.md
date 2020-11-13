@@ -94,3 +94,10 @@ The following attributes are exported:
 * `hive_script_path` - See Argument Reference above.
 * `is_protected` - See Argument Reference above.
 * `is_public` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 5 minute.
+

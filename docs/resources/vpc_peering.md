@@ -46,6 +46,11 @@ result attributes:
 
 If you create a VPC peering connection with another VPC of your own, the connection is created without the need for you to accept the connection.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 VPC Peering resources can be imported using the `vpc peering id`, e.g.

@@ -27,3 +27,9 @@ All above argument parameters can be exported as attribute parameters along with
  * `id` -  ID of the addon instance.
  * `status` - Addon status information.
  * `description` - Description of addon instance.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 3 minute.
+

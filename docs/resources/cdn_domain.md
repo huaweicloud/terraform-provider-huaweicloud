@@ -76,6 +76,11 @@ The following attributes are exported:
 * `service_area` - The area covered by the acceleration service.
 
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 20 minute.
+- `delete` - Default is 20 minute.
+
 ## Import
 
 Domains can be imported using the `id`, e.g.

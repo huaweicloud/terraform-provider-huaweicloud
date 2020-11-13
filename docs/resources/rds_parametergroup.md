@@ -64,6 +64,11 @@ The following attributes are exported:
 	* `type` - Indicates the parameter type.
 	* `description` - Indicates the parameter description.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Parameter groups can be imported using the `id`, e.g.

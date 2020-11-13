@@ -132,6 +132,12 @@ The `nodes` block contains:
 - `private_read_ip` - Indicates the private IP address of a node.
 - `availability_zone` - Indicates the availability zone where the node resides.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 60 minute.
+- `update` - Default is 60 minute.
+- `delete` - Default is 30 minute.
+
 ## Import
 
 GaussDB instance can be imported using the `id`, e.g.

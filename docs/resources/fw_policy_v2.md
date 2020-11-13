@@ -86,6 +86,10 @@ The following attributes are exported:
 * `shared` - See Argument Reference above.
 * `tenant_id` - See Argument Reference above.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+
 ## Import
 
 Firewall Policies can be imported using the `id`, e.g.

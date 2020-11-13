@@ -261,3 +261,9 @@ The `component_list` attributes supports:
 * `component_name` - Indicates the component name.
 * `component_version` - Indicates the component version.
 * `component_desc` - Indicates the component description.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 60 minute.
+- `delete` - Default is 10 minute.
+
