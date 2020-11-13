@@ -2,14 +2,15 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_iam\_agency\_v3
+# huaweicloud\_identity\_agency
 
 Manages an agency resource within huawei cloud.
+This is an alternative to `huaweicloud_iam_agency_v3`
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_iam_agency_v3" "agency" {
+resource "huaweicloud_identity_agency" "agency" {
   name                  = "test_agency"
   description           = "test agency"
   delegated_domain_name = "***"

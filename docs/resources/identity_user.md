@@ -2,9 +2,10 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_identity\_user\_v3
+# huaweicloud\_identity\_user
 
 Manages a User resource within HuaweiCloud IAM service.
+This is an alternative to `huaweicloud_identity_user_v3`
 
 Note: You _must_ have admin privileges in your HuaweiCloud cloud to use
 this resource.
@@ -12,7 +13,7 @@ this resource.
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_identity_user_v3" "user_1" {
+resource "huaweicloud_identity_user" "user_1" {
   name        = "user_1"
   description = "A user"
   password    = "password123!"

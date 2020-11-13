@@ -2,7 +2,7 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_identity\_role\_v3
+# huaweicloud\_identity\_role
 
 Use this data source to get the ID of an HuaweiCloud role.
 
@@ -58,7 +58,7 @@ elb_adm | ELB Administrator
 
 
 ```hcl
-data "huaweicloud_identity_role_v3" "auth_admin" {
+data "huaweicloud_identity_role" "auth_admin" {
   name = "secu_admin"
 }
 ```

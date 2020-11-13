@@ -2,9 +2,10 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_identity\_group\_v3
+# huaweicloud\_identity\_group
 
 Manages a User Group resource within HuaweiCloud IAM service.
+This is an alternative to `huaweicloud_identity_group_v3`
 
 Note: You _must_ have admin privileges in your HuaweiCloud cloud to use
 this resource.
@@ -12,7 +13,7 @@ this resource.
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_identity_group_v3" "group_1" {
+resource "huaweicloud_identity_group" "group_1" {
   name        = "group_1"
   description = "This is a test group"
 }
