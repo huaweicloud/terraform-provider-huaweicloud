@@ -2,20 +2,19 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_identity\_project_v3
+# huaweicloud\_identity\_project
 
 Manages a Project resource within HuaweiCloud Identity And Access 
-Management service.
+Management service. This is an alternative to `huaweicloud_identity_project_v3`
 
 Note: You _must_ have security admin privileges in your HuaweiCloud 
-cloud to use this resource. please refer to [User Management Model](
-https://docs.otc.t-systems.com/en-us/usermanual/iam/iam_01_0034.html)
+cloud to use this resource.
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_identity_project_v3" "project_1" {
-  name        = "eu-de_project1"
+resource "huaweicloud_identity_project" "project_1" {
+  name        = "cn-north1_project1"
   description = "This is a test project"
 }
 ```
