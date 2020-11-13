@@ -89,6 +89,8 @@ The following arguments are supported:
 
 * `backup_strategy` - (Optional) Specifies the advanced backup policy. Structure is documented below.
 
+* `force_import` - (Optional) If specified, try to import the instance instead of creating if the name already existed.
+
 The `datastore` block supports:
 
 * `engine` - (Optional) Specifies the database engine. Only "gauss-mysql" is supported now.

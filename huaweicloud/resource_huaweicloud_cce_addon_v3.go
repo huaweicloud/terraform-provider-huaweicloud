@@ -80,7 +80,7 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 			ClusterID:         cluster_id,
 			AddonTemplateName: d.Get("template_name").(string),
 			Values: addons.Values{
-				Basic: map[string]string{},
+				Basic: map[string]interface{}{},
 			},
 		},
 	}

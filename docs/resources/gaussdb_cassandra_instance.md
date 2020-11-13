@@ -94,6 +94,8 @@ The following arguments are supported:
 * `ssl` - (Optional) Specifies whether to enable or disable SSL. Defaults to false.
   Changing this parameter will create a new resource.
 
+* `force_import` - (Optional) If specified, try to import the instance instead of creating if the name already existed.
+
 * `datastore` - (Optional) Specifies the database information. Structure is documented below.
   Changing this parameter will create a new resource.
 
