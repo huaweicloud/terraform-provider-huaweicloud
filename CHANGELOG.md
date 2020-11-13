@@ -1,4 +1,4 @@
-## 1.20.0 (Unreleased)
+## 1.20.0 (November 13, 2020)
 
 FEATURES:
 
@@ -26,10 +26,14 @@ ENHANCEMENTS:
 * resource/huaweicloud_mrs_cluster: Add support to login cluster with password ([#628](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/628))
 * resource/huaweicloud_networking_vip: Make subnet_id parameter optional ([#648](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/648))
 * resource/huaweicloud_networking_vip_associate: Make port_ids updatable ([#650](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/650))
+* resource/huaweicloud_gaussdb_mysql_instance: Add force_import support ([#654](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/654))
+* resource/huaweicloud_gaussdb_cassandra_instance: Add force_import support ([#656](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/656))
+* resource/huaweicloud_gaussdb_opengauss_instance: Add force_import support ([#658](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/658))
 
 BUG FIXES:
 
 * resource/huaweicloud_oms_task: Fix endpoint issue ([#651](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/651))
+* resource/huaweicloud_cce_addon: Fix value type issue ([#657](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/657))
 
 ## 1.19.1 (October 15, 2020)
 
