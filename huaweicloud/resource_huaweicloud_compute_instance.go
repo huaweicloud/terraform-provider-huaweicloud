@@ -352,12 +352,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 				ValidateFunc: validateECSTagValue,
 				Elem:         &schema.Schema{Type: schema.TypeString},
 			},
-			"all_metadata": {
-				Type:       schema.TypeMap,
-				Computed:   true,
-				Deprecated: "use tags instead",
-				Elem:       &schema.Schema{Type: schema.TypeString},
-			},
 			"volume_attached": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -660,7 +654,6 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	d.Set("region", GetRegion(d, config))
 	d.Set("availability_zone", server.AvailabilityZone)
 	d.Set("name", server.Name)
-	d.Set("all_metadata", server.Metadata)
 
 	// Get the instance network and address information
 	networks, err := flattenInstanceNetworks(d, meta, server)
@@ -1068,82 +1061,38 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeInstanceV2ImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-
-	var serverWithAttachments struct {
-		VolumesAttached []map[string]interface{} `json:"os-extended-volumes:volumes_attached"`
-	}
-
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	ecsClient, err := config.computeV1Client(GetRegion(d, config))
 	if err != nil {
 		return nil, fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
-	results := make([]*schema.ResourceData, 1)
-	err = resourceComputeInstanceV2Read(d, meta)
+	server, err := cloudservers.Get(ecsClient, d.Id()).Extract()
 	if err != nil {
-		return nil, fmt.Errorf("Error reading huaweicloud_compute_instance_v2 %s: %s", d.Id(), err)
+		return nil, CheckDeleted(d, err, "compute instance")
 	}
 
-	raw := servers.Get(computeClient, d.Id())
-	if raw.Err != nil {
-		return nil, CheckDeleted(d, raw.Err, "huaweicloud_compute_instance_v2")
-	}
-
-	err = raw.ExtractInto(&serverWithAttachments)
-
+	allInstanceNics, err := getInstanceAddresses(d, meta, server)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading attached volumes: %s", err)
+		return nil, fmt.Errorf("Error fetching networks of compute instance %s: %s", d.Id(), err)
 	}
 
-	log.Printf("[DEBUG] Retrieved huaweicloud_compute_instance_v2 %s volume attachments: %#v",
-		d.Id(), serverWithAttachments)
-
-	bds := []map[string]interface{}{}
-	if len(serverWithAttachments.VolumesAttached) > 0 {
-		blockStorageClient, err := config.blockStorageV2Client(GetRegion(d, config))
-		if err != nil {
-			return nil, fmt.Errorf("Error creating HuaweiCloud volume client: %s", err)
+	networks := []map[string]interface{}{}
+	for _, nic := range allInstanceNics {
+		v := map[string]interface{}{
+			"uuid":        nic.NetworkID,
+			"port":        nic.PortID,
+			"fixed_ip_v4": nic.FixedIPv4,
+			"fixed_ip_v6": nic.FixedIPv6,
+			"mac":         nic.MAC,
 		}
-
-		var volMetaData = struct {
-			VolumeImageMetadata map[string]interface{} `json:"volume_image_metadata"`
-			Id                  string                 `json:"id"`
-			Size                int                    `json:"size"`
-			Bootable            string                 `json:"bootable"`
-		}{}
-		for i, b := range serverWithAttachments.VolumesAttached {
-			rawVolume := volumes.Get(blockStorageClient, b["id"].(string))
-			err = rawVolume.ExtractInto(&volMetaData)
-			if err != nil {
-				return nil, fmt.Errorf("Error reading metadata from volume %s: %s", b["id"], err)
-			}
-
-			log.Printf("[DEBUG] retrieved volume%+v", volMetaData)
-			v := map[string]interface{}{
-				"delete_on_termination": true,
-				"uuid":                  volMetaData.VolumeImageMetadata["image_id"],
-				"boot_index":            i,
-				"destination_type":      "volume",
-				"source_type":           "image",
-				"volume_size":           volMetaData.Size,
-				"disk_bus":              "",
-				"volume_type":           "",
-				"device_type":           "",
-			}
-
-			if volMetaData.Bootable == "true" {
-				bds = append(bds, v)
-			}
-		}
-
-		d.Set("block_device", bds)
+		networks = append(networks, v)
 	}
-	metadata, err := servers.Metadata(computeClient, d.Id()).Extract()
-	d.Set("metadata", metadata)
-	results[0] = d
 
-	return results, nil
+	log.Printf("[DEBUG] flatten Instance Networks: %#v", networks)
+	d.Set("network", networks)
+
+	return []*schema.ResourceData{d}, nil
 }
 
 // ServerV2StateRefreshFunc returns a resource.StateRefreshFunc that is used to watch
