@@ -10,9 +10,9 @@ import (
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
-	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/huaweicloud/golangsdk/pagination"
 )
 
@@ -111,8 +111,9 @@ func TestAccComputeV2Instance_tags(t *testing.T) {
 }
 
 func TestAccComputeV2Instance_secgroupMulti(t *testing.T) {
+	rName := acctest.RandString(5)
 	var instance_1 servers.Server
-	var secgroup_1 secgroups.SecurityGroup
+	var secgroup_1, secgroup_2 groups.SecGroup
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -120,45 +121,21 @@ func TestAccComputeV2Instance_secgroupMulti(t *testing.T) {
 		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2Instance_secgroupMulti,
+				Config: testAccComputeV2Instance_secgroupMulti(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists(
-						"huaweicloud_compute_secgroup_v2.secgroup_1", &secgroup_1),
-					testAccCheckComputeV2InstanceExists(
-						"huaweicloud_compute_instance.instance_1", &instance_1),
-				),
-			},
-		},
-	})
-}
-
-func TestAccComputeV2Instance_secgroupMultiUpdate(t *testing.T) {
-	var instance_1 servers.Server
-	var secgroup_1, secgroup_2 secgroups.SecurityGroup
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeV2Instance_secgroupMultiUpdate_1,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists(
-						"huaweicloud_compute_secgroup_v2.secgroup_1", &secgroup_1),
-					testAccCheckComputeV2SecGroupExists(
-						"huaweicloud_compute_secgroup_v2.secgroup_2", &secgroup_2),
+					testAccCheckNetworkingV2SecGroupExists(
+						"huaweicloud_networking_secgroup.secgroup_1", &secgroup_1),
 					testAccCheckComputeV2InstanceExists(
 						"huaweicloud_compute_instance.instance_1", &instance_1),
 				),
 			},
 			{
-				Config: testAccComputeV2Instance_secgroupMultiUpdate_2,
+				Config: testAccComputeV2Instance_secgroupMultiUpdate(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2SecGroupExists(
-						"huaweicloud_compute_secgroup_v2.secgroup_1", &secgroup_1),
-					testAccCheckComputeV2SecGroupExists(
-						"huaweicloud_compute_secgroup_v2.secgroup_2", &secgroup_2),
+					testAccCheckNetworkingV2SecGroupExists(
+						"huaweicloud_networking_secgroup.secgroup_1", &secgroup_1),
+					testAccCheckNetworkingV2SecGroupExists(
+						"huaweicloud_networking_secgroup.secgroup_2", &secgroup_2),
 					testAccCheckComputeV2InstanceExists(
 						"huaweicloud_compute_instance.instance_1", &instance_1),
 				),
@@ -509,93 +486,79 @@ resource "huaweicloud_compute_instance" "instance_1" {
 }
 `, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
-var testAccComputeV2Instance_secgroupMulti = fmt.Sprintf(`
-resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
-  name = "secgroup_1"
-  description = "a security group"
-  rule {
-    from_port = 22
-    to_port = 22
-    ip_protocol = "tcp"
-    cidr = "0.0.0.0/0"
-  }
+func testAccComputeV2Instance_secgroupMulti(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_networking_secgroup" "secgroup_1" {
+  name                 = "secgroup1-%s"
+  description          = "a security group by acceptance test"
+  delete_default_rules = true
+}
+
+resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_1" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  port_range_max    = 22
+  port_range_min    = 22
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
 }
 
 resource "huaweicloud_compute_instance" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}"]
+  name              = "ecs-%s"
+  security_groups   = ["default", huaweicloud_networking_secgroup.secgroup_1.name]
   availability_zone = "%s"
   network {
     uuid = "%s"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
-
-var testAccComputeV2Instance_secgroupMultiUpdate_1 = fmt.Sprintf(`
-resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
-  name = "secgroup_1"
-  description = "a security group"
-  rule {
-    from_port = 22
-    to_port = 22
-    ip_protocol = "tcp"
-    cidr = "0.0.0.0/0"
-  }
+`, rName, rName, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 }
 
-resource "huaweicloud_compute_secgroup_v2" "secgroup_2" {
-  name = "secgroup_2"
-  description = "another security group"
-  rule {
-    from_port = 80
-    to_port = 80
-    ip_protocol = "tcp"
-    cidr = "0.0.0.0/0"
-  }
+func testAccComputeV2Instance_secgroupMultiUpdate(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_networking_secgroup" "secgroup_1" {
+  name                 = "secgroup1-%s"
+  description          = "a security group by acceptance test"
+  delete_default_rules = true
+}
+
+resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_1" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  port_range_max    = 22
+  port_range_min    = 22
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
+}
+
+resource "huaweicloud_networking_secgroup" "secgroup_2" {
+  name                 = "secgroup2-%s"
+  description          = "another security group by acceptance test"
+  delete_default_rules = true
+}
+
+resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_2" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  port_range_max    = 80
+  port_range_min    = 80
+  protocol          = "tcp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = huaweicloud_networking_secgroup.secgroup_2.id
 }
 
 resource "huaweicloud_compute_instance" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default"]
+  name              = "ecs-%s"
+  security_groups   = ["default", huaweicloud_networking_secgroup.secgroup_1.name, huaweicloud_networking_secgroup.secgroup_2.name]
   availability_zone = "%s"
   network {
     uuid = "%s"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
-
-var testAccComputeV2Instance_secgroupMultiUpdate_2 = fmt.Sprintf(`
-resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
-  name = "secgroup_1"
-  description = "a security group"
-  rule {
-    from_port = 22
-    to_port = 22
-    ip_protocol = "tcp"
-    cidr = "0.0.0.0/0"
-  }
+`, rName, rName, rName, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 }
-
-resource "huaweicloud_compute_secgroup_v2" "secgroup_2" {
-  name = "secgroup_2"
-  description = "another security group"
-  rule {
-    from_port = 80
-    to_port = 80
-    ip_protocol = "tcp"
-    cidr = "0.0.0.0/0"
-  }
-}
-
-resource "huaweicloud_compute_instance" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default", "${huaweicloud_compute_secgroup_v2.secgroup_1.name}", "${huaweicloud_compute_secgroup_v2.secgroup_2.name}"]
-  availability_zone = "%s"
-  network {
-    uuid = "%s"
-  }
-}
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
 
 var testAccComputeV2Instance_bootFromVolumeImage = fmt.Sprintf(`
 resource "huaweicloud_compute_instance" "instance_1" {
@@ -629,7 +592,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
   security_groups = ["default"]
   availability_zone = "%s"
   block_device {
-    uuid = "${huaweicloud_blockstorage_volume_v2.vol_1.id}"
+    uuid = huaweicloud_blockstorage_volume_v2.vol_1.id
     source_type = "volume"
     boot_index = 0
     destination_type = "volume"
