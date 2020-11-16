@@ -122,6 +122,11 @@ The following attributes are exported:
 * `network_id` - See Argument Reference above.
 * `fixed_ip`  - See Argument Reference above.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Interface Attachments can be imported using the Instance ID and Port ID

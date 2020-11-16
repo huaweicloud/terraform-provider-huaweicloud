@@ -40,3 +40,9 @@ All of the argument attributes are also exported as
 result attributes:
 
 * `id` - The route ID.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+

@@ -52,6 +52,11 @@ The following attributes are exported:
 * `floating_ip_address` - The actual floating IP address.
 * `status` - The status of the snat rule.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Snat can be imported using the following format:

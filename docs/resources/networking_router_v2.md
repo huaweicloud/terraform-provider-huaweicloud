@@ -77,6 +77,11 @@ The following attributes are exported:
 * `tenant_id` - See Argument Reference above.
 * `value_specs` - See Argument Reference above.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Routers can be imported using the `id`, e.g.

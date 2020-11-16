@@ -86,3 +86,9 @@ VBS Backup can be imported using the `backup id`, e.g.
 ```
  $ terraform import huaweicloud_vbs_backup.backup_1 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
 ```
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 3 minute.
+

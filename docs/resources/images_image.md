@@ -96,6 +96,10 @@ The following attributes are exported:
 * `update_at` - The date the image was last updated.
 * `visibility` - See Argument Reference above.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 30 minute.
+
 ## Import
 
 Images can be imported using the `id`, e.g.

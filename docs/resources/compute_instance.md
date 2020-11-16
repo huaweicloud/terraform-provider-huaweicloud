@@ -315,3 +315,10 @@ disk configuration, or some other reason. It is generally recommended running
 `terraform plan` after importing an instance. You can then decide if changes should
 be applied to the instance, or the resource definition should be updated to align
 with the instance. 
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 30 minute.
+- `update` - Default is 30 minute.
+- `delete` - Default is 30 minute.
+

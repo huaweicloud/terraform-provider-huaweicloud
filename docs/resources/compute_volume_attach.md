@@ -97,6 +97,11 @@ The following attributes are exported:
   should not be used as an authoritative piece of information.
 * `pci_address` - PCI address of the block device.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Volume Attachments can be imported using the Instance ID and Volume ID

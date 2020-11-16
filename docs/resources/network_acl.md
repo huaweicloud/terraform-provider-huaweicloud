@@ -66,3 +66,10 @@ All of the argument attributes are also exported as result attributes:
 * `outbound_policy_id` - The ID of the egress firewall policy for the network ACL.
 * `ports` - A list of the port IDs of the subnet gateway.
 * `status` - The status of the network ACL. 
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+

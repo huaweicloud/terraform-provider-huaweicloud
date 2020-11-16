@@ -75,6 +75,11 @@ The `routes` block contains:
 
 * `nexthop` - Specifies the next hop of a route.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 3 minute.
+
 ## Import
 
 VPCs can be imported using the `id`, e.g.

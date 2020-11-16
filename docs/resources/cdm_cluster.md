@@ -122,6 +122,6 @@ The `instances` block contains:
   Instance type.
 
 ## Timeouts
-
 This resource provides the following timeouts configuration options:
 - `create` - Default is 30 minute.
+

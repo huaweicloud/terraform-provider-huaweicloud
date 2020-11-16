@@ -35,3 +35,9 @@ The following attributes are exported:
 * `status` - Status of the API group.
 * `name` - See Argument Reference above.
 * `description` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+

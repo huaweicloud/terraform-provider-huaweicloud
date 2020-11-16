@@ -288,9 +288,9 @@ The `nodes` block contains:
 * `status` - Indicates the node status.
 
 ## Timeouts
-
 This resource provides the following timeouts configuration options:
 - `create` - Default is 30 minute.
+- `update` - Default is 30 minute.
 
 ## Import
 

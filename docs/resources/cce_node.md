@@ -189,3 +189,9 @@ All above argument parameters can be exported as attribute parameters along with
  * `private_ip` - Private IP of the CCE node.
 
  * `public_ip` - Public IP of the CCE node.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 20 minute.
+- `delete` - Default is 20 minute.
+

@@ -121,6 +121,6 @@ In addition to the arguments listed above, the following computed attributes are
   ZooKeeper link of the intranet.
 
 ## Timeouts
-
 This resource provides the following timeouts configuration options:
 - `create` - Default is 30 minute.
+

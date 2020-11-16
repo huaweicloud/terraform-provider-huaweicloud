@@ -92,6 +92,11 @@ All of the argument attributes are also exported as result attributes:
  
 * `policy_resource_count` - Specifies the number of volumes associated with the backup policy.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 5 minute.
+- `delete` - Default is 5 minute.
+
 ## Import
 
 Backup Policy can be imported using the `id`, e.g.

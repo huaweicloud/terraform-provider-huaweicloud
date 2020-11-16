@@ -53,6 +53,11 @@ In addition to all arguments above, the following attributes are exported:
 * `tracker_name` - The tracker name. Currently, only tracker **system** is available.
 
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 CTS tracker can be imported using  `tracker_name`, e.g.

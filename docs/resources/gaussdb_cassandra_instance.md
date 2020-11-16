@@ -145,6 +145,12 @@ The `nodes` block contains:
 - `support_reduce` - Indicates whether the node support reduce or not.
 - `private_ip` - Indicates the private IP address of a node.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 60 minute.
+- `update` - Default is 120 minute.
+- `delete` - Default is 30 minute.
+
 ## Import
 
 GaussDB Cassandra instance can be imported using the `id`, e.g.

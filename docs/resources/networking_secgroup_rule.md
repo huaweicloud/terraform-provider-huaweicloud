@@ -98,6 +98,10 @@ The following attributes are exported:
 * `security_group_id` - See Argument Reference above.
 * `tenant_id` - See Argument Reference above.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Security Group Rules can be imported using the `id`, e.g.

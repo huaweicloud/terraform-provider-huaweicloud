@@ -117,3 +117,9 @@ All above argument parameters can be exported as attribute parameters along with
  * `status` -  Node status information.
 
  * `billing_mode` -  Billing mode of a node.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 20 minute.
+- `delete` - Default is 20 minute.
+

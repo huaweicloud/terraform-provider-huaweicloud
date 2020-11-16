@@ -116,3 +116,10 @@ The following attributes are exported:
 * `certificate` - See Argument Reference above.
 * `update_time` - Indicates the update time.
 * `create_time` - Indicates the creation time.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 5 minute.
+

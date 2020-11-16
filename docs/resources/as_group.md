@@ -227,3 +227,9 @@ The following attributes are exported:
 * `notifications` - See Argument Reference above.
 * `tags` - See Argument Reference above.
 * `instances` - The instances IDs of the AS group.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
