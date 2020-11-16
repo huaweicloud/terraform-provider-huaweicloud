@@ -15,25 +15,19 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
+	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
 // InstanceNIC is a structured representation of a servers.Server virtual NIC
 type InstanceNIC struct {
+	NetworkID string
+	PortID    string
 	FixedIPv4 string
 	FixedIPv6 string
 	MAC       string
-}
-
-// InstanceAddresses is a collection of InstanceNICs, grouped by the
-// network name. An instance/server could have multiple NICs on the same
-// network.
-type InstanceAddresses struct {
-	NetworkName  string
-	InstanceNICs []InstanceNIC
+	Fetched   bool
 }
 
 // InstanceNetwork represents a collection of network information that a
@@ -46,347 +40,137 @@ type InstanceNetwork struct {
 	AccessNetwork bool
 }
 
-// getAllInstanceNetworks loops through the networks defined in the Terraform
-// configuration and structures that information into something standard that
-// can be consumed by both HuaweiCloud and Terraform.
-//
-// This would be simple, except we have ensure both the network name and
-// network ID have been determined. This isn't just for the convenience of a
-// user specifying a human-readable network name, but the network information
-// returned by an HuaweiCloud instance only has the network name set! So if a
-// user specified a network ID, there's no way to correlate it to the instance
-// unless we know both the name and ID.
-//
-// In addition, if a port was specified, not all of the port information
-// will be displayed, such as multiple fixed and floating IPs. This resource
-// isn't currently configured for that type of flexibility. It's better to
-// reference the actual port resource itself.
-//
-// So, let's begin the journey.
-func getAllInstanceNetworks(d *schema.ResourceData, meta interface{}) ([]InstanceNetwork, error) {
-	var instanceNetworks []InstanceNetwork
+// expandInstanceNetworks builds a []servers.Network for use in creating an Instance.
+func expandInstanceNetworks(d *schema.ResourceData) ([]servers.Network, error) {
+	var instanceNetworks []servers.Network
 
 	networks := d.Get("network").([]interface{})
 	for _, v := range networks {
-		network := v.(map[string]interface{})
-		networkID := network["uuid"].(string)
-		networkName := network["name"].(string)
-		portID := network["port"].(string)
-
-		if networkID == "" && networkName == "" && portID == "" {
+		nic := v.(map[string]interface{})
+		network := servers.Network{
+			UUID:    nic["uuid"].(string),
+			Port:    nic["port"].(string),
+			FixedIP: nic["fixed_ip_v4"].(string),
+		}
+		if network.UUID == "" && network.Port == "" {
 			return nil, fmt.Errorf(
-				"At least one of network.uuid, network.name, or network.port must be set.")
+				"At least one of network.uuid or network.port must be set.")
 		}
-
-		// If a user specified both an ID and name, that makes things easy
-		// since both name and ID are already satisfied. No need to query
-		// further.
-		if networkID != "" && networkName != "" {
-			v := InstanceNetwork{
-				UUID:          networkID,
-				Name:          networkName,
-				Port:          portID,
-				FixedIP:       network["fixed_ip_v4"].(string),
-				AccessNetwork: network["access_network"].(bool),
-			}
-			instanceNetworks = append(instanceNetworks, v)
-			continue
-		}
-
-		// But if at least one of name or ID was missing, we have to query
-		// for that other piece.
-		//
-		// Priority is given to a port since a network ID or name usually isn't
-		// specified when using a port.
-		//
-		// Next priority is given to the network ID since it's guaranteed to be
-		// an exact match.
-		queryType := "name"
-		queryTerm := networkName
-		if networkID != "" {
-			queryType = "id"
-			queryTerm = networkID
-		}
-		if portID != "" {
-			queryType = "port"
-			queryTerm = portID
-		}
-
-		networkInfo, err := getInstanceNetworkInfo(d, meta, queryType, queryTerm)
-		if err != nil {
-			return nil, err
-		}
-
-		v := InstanceNetwork{
-			Port:          portID,
-			FixedIP:       network["fixed_ip_v4"].(string),
-			AccessNetwork: network["access_network"].(bool),
-		}
-		if networkInfo["uuid"] != nil {
-			v.UUID = networkInfo["uuid"].(string)
-		}
-		if networkInfo["name"] != nil {
-			v.Name = networkInfo["name"].(string)
-		}
-
-		instanceNetworks = append(instanceNetworks, v)
+		instanceNetworks = append(instanceNetworks, network)
 	}
 
-	log.Printf("[DEBUG] getAllInstanceNetworks: %#v", instanceNetworks)
+	log.Printf("[DEBUG] expand Instance Networks opts: %#v", instanceNetworks)
 	return instanceNetworks, nil
 }
 
-// getInstanceNetworkInfo will query for network information in order to make
-// an accurate determination of a network's name and a network's ID.
-func getInstanceNetworkInfo(
-	d *schema.ResourceData, meta interface{}, queryType, queryTerm string) (map[string]interface{}, error) {
+// getInstanceAddresses parses a server.Server's Address field into a structured
+// InstanceNIC list struct.
+func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *cloudservers.CloudServer) ([]InstanceNIC, error) {
 	config := meta.(*Config)
-	networkClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return nil, fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	networkInfo, err := getInstanceNetworkInfoNeutron(networkClient, queryType, queryTerm)
-	if err != nil {
-		return nil, fmt.Errorf("Error trying to get network information from the Network API: %s", err)
+	allInstanceNics := make([]InstanceNIC, 0)
+	var networkID string
+	for _, addresses := range server.Addresses {
+		for _, addr := range addresses {
+			// Skip if not fixed ip
+			if addr.Type != "fixed" {
+				continue
+			}
+
+			p, err := ports.Get(networkingClient, addr.PortID).Extract()
+			if err != nil {
+				networkID = ""
+				log.Printf("[DEBUG] getInstanceAddresses: failed to fetch port %s", addr.PortID)
+			} else {
+				networkID = p.NetworkID
+			}
+
+			instanceNIC := InstanceNIC{
+				NetworkID: networkID,
+				PortID:    addr.PortID,
+				MAC:       addr.MacAddr,
+			}
+			if addr.Version == "6" {
+				instanceNIC.FixedIPv6 = addr.Addr
+			} else {
+				instanceNIC.FixedIPv4 = addr.Addr
+			}
+
+			allInstanceNics = append(allInstanceNics, instanceNIC)
+		}
 	}
 
-	return networkInfo, nil
+	log.Printf("[DEBUG] get all of the Instance Addresses: %#v", allInstanceNics)
+
+	return allInstanceNics, nil
 }
 
-// getInstanceNetworkInfoNeutron will query the neutron API for the network information
-func getInstanceNetworkInfoNeutron(
-	client *golangsdk.ServiceClient, queryType, queryTerm string) (map[string]interface{}, error) {
+// getAllInstanceNetworks loops through the networks defined in the Terraform
+// configuration
+func getAllInstanceNetworks(d *schema.ResourceData) []InstanceNetwork {
+	var instanceNetworks []InstanceNetwork
 
-	// If a port was specified, use it to look up the network ID
-	// and then query the network as if a network ID was originally used.
-	if queryType == "port" {
-		listOpts := ports.ListOpts{
-			ID: queryTerm,
+	networks := d.Get("network").([]interface{})
+	for _, v := range networks {
+		nic := v.(map[string]interface{})
+		network := InstanceNetwork{
+			UUID:          nic["uuid"].(string),
+			Port:          nic["port"].(string),
+			FixedIP:       nic["fixed_ip_v4"].(string),
+			AccessNetwork: nic["access_network"].(bool),
 		}
-		allPages, err := ports.List(client, listOpts).AllPages()
-		if err != nil {
-			return nil, fmt.Errorf("Unable to retrieve networks from the Network API: %s", err)
-		}
-
-		allPorts, err := ports.ExtractPorts(allPages)
-		if err != nil {
-			return nil, fmt.Errorf("Unable to retrieve networks from the Network API: %s", err)
-		}
-
-		var port ports.Port
-		switch len(allPorts) {
-		case 0:
-			return nil, fmt.Errorf("Could not find any matching port for %s %s", queryType, queryTerm)
-		case 1:
-			port = allPorts[0]
-		default:
-			return nil, fmt.Errorf("More than one port found for %s %s", queryType, queryTerm)
-		}
-
-		queryType = "id"
-		queryTerm = port.NetworkID
+		instanceNetworks = append(instanceNetworks, network)
 	}
 
-	listOpts := networks.ListOpts{
-		Status: "ACTIVE",
-	}
-
-	switch queryType {
-	case "name":
-		listOpts.Name = queryTerm
-	default:
-		listOpts.ID = queryTerm
-	}
-
-	allPages, err := networks.List(client, listOpts).AllPages()
-	if err != nil {
-		return nil, fmt.Errorf("Unable to retrieve networks from the Network API: %s", err)
-	}
-
-	allNetworks, err := networks.ExtractNetworks(allPages)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to retrieve networks from the Network API: %s", err)
-	}
-
-	var network networks.Network
-	switch len(allNetworks) {
-	case 0:
-		return nil, fmt.Errorf("Could not find any matching network for %s %s", queryType, queryTerm)
-	case 1:
-		network = allNetworks[0]
-	default:
-		return nil, fmt.Errorf("More than one network found for %s %s", queryType, queryTerm)
-	}
-
-	v := map[string]interface{}{
-		"uuid": network.ID,
-		"name": network.Name,
-	}
-
-	log.Printf("[DEBUG] getInstanceNetworkInfoNeutron: %#v", v)
-	return v, nil
-}
-
-// getInstanceAddresses parses a server.Server's Address field into a structured
-// InstanceAddresses struct.
-func getInstanceAddresses(addresses map[string]interface{}) []InstanceAddresses {
-	var allInstanceAddresses []InstanceAddresses
-
-	for networkName, v := range addresses {
-		instanceAddresses := InstanceAddresses{
-			NetworkName: networkName,
-		}
-
-		for _, v := range v.([]interface{}) {
-			instanceNIC := InstanceNIC{}
-			var exists bool
-
-			v := v.(map[string]interface{})
-			if v, ok := v["OS-EXT-IPS-MAC:mac_addr"].(string); ok {
-				instanceNIC.MAC = v
-			}
-
-			if v["OS-EXT-IPS:type"] == "fixed" || v["OS-EXT-IPS:type"] == nil {
-				switch v["version"].(float64) {
-				case 6:
-					instanceNIC.FixedIPv6 = fmt.Sprintf("[%s]", v["addr"].(string))
-				default:
-					instanceNIC.FixedIPv4 = v["addr"].(string)
-				}
-			}
-
-			// To associate IPv4 and IPv6 on the right NIC,
-			// key on the mac address and fill in the blanks.
-			for i, v := range instanceAddresses.InstanceNICs {
-				if v.MAC == instanceNIC.MAC {
-					exists = true
-					if instanceNIC.FixedIPv6 != "" {
-						instanceAddresses.InstanceNICs[i].FixedIPv6 = instanceNIC.FixedIPv6
-					}
-					if instanceNIC.FixedIPv4 != "" {
-						instanceAddresses.InstanceNICs[i].FixedIPv4 = instanceNIC.FixedIPv4
-					}
-				}
-			}
-
-			if !exists {
-				instanceAddresses.InstanceNICs = append(instanceAddresses.InstanceNICs, instanceNIC)
-			}
-		}
-
-		allInstanceAddresses = append(allInstanceAddresses, instanceAddresses)
-	}
-
-	log.Printf("[DEBUG] Addresses: %#v", addresses)
-	log.Printf("[DEBUG] allInstanceAddresses: %#v", allInstanceAddresses)
-
-	return allInstanceAddresses
-}
-
-// expandInstanceNetworks takes network information found in []InstanceNetwork
-// and builds a []servers.Network for use in creating an Instance.
-func expandInstanceNetworks(allInstanceNetworks []InstanceNetwork) []servers.Network {
-	var networks []servers.Network
-	for _, v := range allInstanceNetworks {
-		n := servers.Network{
-			UUID:    v.UUID,
-			Port:    v.Port,
-			FixedIP: v.FixedIP,
-		}
-		networks = append(networks, n)
-	}
-
-	return networks
+	log.Printf("[DEBUG] get all of the Instance Networks: %#v", instanceNetworks)
+	return instanceNetworks
 }
 
 // flattenInstanceNetworks collects instance network information from different
 // sources and aggregates it all together into a map array.
 func flattenInstanceNetworks(
-	d *schema.ResourceData, meta interface{}) ([]map[string]interface{}, error) {
+	d *schema.ResourceData, meta interface{}, server *cloudservers.CloudServer) ([]map[string]interface{}, error) {
 
-	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
-	if err != nil {
-		return nil, fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
-	}
-
-	server, err := servers.Get(computeClient, d.Id()).Extract()
-	if err != nil {
-		return nil, CheckDeleted(d, err, "server")
-	}
-
-	allInstanceAddresses := getInstanceAddresses(server.Addresses)
-	allInstanceNetworks, err := getAllInstanceNetworks(d, meta)
-	if err != nil {
-		return nil, err
-	}
+	allInstanceNetworks := getAllInstanceNetworks(d)
+	allInstanceNics, _ := getInstanceAddresses(d, meta, server)
 
 	networks := []map[string]interface{}{}
-
-	// If there were no instance networks returned, this means that there
-	// was not a network specified in the Terraform configuration. When this
-	// happens, the instance will be launched on a "default" network, if one
-	// is available. If there isn't, the instance will fail to launch, so
-	// this is a safe assumption at this point.
-	if len(allInstanceNetworks) == 0 {
-		for _, instanceAddresses := range allInstanceAddresses {
-			for _, instanceNIC := range instanceAddresses.InstanceNICs {
-				v := map[string]interface{}{
-					"name":        instanceAddresses.NetworkName,
-					"fixed_ip_v4": instanceNIC.FixedIPv4,
-					"fixed_ip_v6": instanceNIC.FixedIPv6,
-					"mac":         instanceNIC.MAC,
-				}
-
-				// Use the same method as getAllInstanceNetworks to get the network uuid
-				networkInfo, err := getInstanceNetworkInfo(d, meta, "name", instanceAddresses.NetworkName)
-				if err != nil {
-					log.Printf("[WARN] Error getting default network uuid: %s", err)
-				} else {
-					if v["uuid"] != nil {
-						v["uuid"] = networkInfo["uuid"].(string)
-					} else {
-						log.Printf("[WARN] Could not get default network uuid")
-					}
-				}
-
-				networks = append(networks, v)
-			}
-		}
-
-		log.Printf("[DEBUG] flattenInstanceNetworks: %#v", networks)
-		return networks, nil
-	}
-
 	// Loop through all networks and addresses, merge relevant address details.
 	for _, instanceNetwork := range allInstanceNetworks {
-		for _, instanceAddresses := range allInstanceAddresses {
-			// Skip if instanceAddresses has no NICs
-			if len(instanceAddresses.InstanceNICs) == 0 {
-				continue
-			}
-
-			if instanceNetwork.Name == instanceAddresses.NetworkName {
+		for i := range allInstanceNics {
+			isExist := false
+			nic := &allInstanceNics[i]
+			// seem port as the unique key
+			if instanceNetwork.Port != "" && instanceNetwork.Port == nic.PortID {
+				nic.Fetched = true
+				isExist = true
+			} else if instanceNetwork.UUID == nic.NetworkID && nic.Fetched == false {
 				// Only use one NIC since it's possible the user defined another NIC
 				// on this same network in another Terraform network block.
-				instanceNIC := instanceAddresses.InstanceNICs[0]
-				copy(instanceAddresses.InstanceNICs, instanceAddresses.InstanceNICs[1:])
+				nic.Fetched = true
+				isExist = true
+			}
+
+			if isExist {
 				v := map[string]interface{}{
-					"name":           instanceAddresses.NetworkName,
-					"fixed_ip_v4":    instanceNIC.FixedIPv4,
-					"fixed_ip_v6":    instanceNIC.FixedIPv6,
-					"mac":            instanceNIC.MAC,
-					"uuid":           instanceNetwork.UUID,
-					"port":           instanceNetwork.Port,
+					"uuid":           nic.NetworkID,
+					"port":           nic.PortID,
+					"fixed_ip_v4":    nic.FixedIPv4,
+					"fixed_ip_v6":    nic.FixedIPv6,
+					"mac":            nic.MAC,
 					"access_network": instanceNetwork.AccessNetwork,
 				}
 				networks = append(networks, v)
+				break
 			}
 		}
 	}
 
-	log.Printf("[DEBUG] flattenInstanceNetworks: %#v", networks)
+	log.Printf("[DEBUG] flatten Instance Networks: %#v", networks)
 	return networks, nil
 }
 
@@ -423,7 +207,7 @@ func getInstanceAccessAddresses(
 		}
 	}
 
-	log.Printf("[DEBUG] HuaweiCloud Instance Network Access Addresses: %s, %s", hostv4, hostv6)
+	log.Printf("[DEBUG] compute instance Network Access Addresses: %s, %s", hostv4, hostv6)
 
 	return hostv4, hostv6
 }

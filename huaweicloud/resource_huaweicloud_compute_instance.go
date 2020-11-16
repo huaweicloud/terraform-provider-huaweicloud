@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
@@ -17,7 +16,6 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions"
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
-	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/bootfromvolume"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/schedulerhints"
@@ -63,16 +61,18 @@ func resourceComputeInstanceV2() *schema.Resource {
 				ForceNew: false,
 			},
 			"image_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				DefaultFunc: schema.EnvDefaultFunc("OS_IMAGE_ID", nil),
 			},
 			"image_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				DefaultFunc: schema.EnvDefaultFunc("OS_IMAGE_NAME", nil),
 			},
 			"flavor_id": {
 				Type:        schema.TypeString,
@@ -87,21 +87,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 				ForceNew:    false,
 				Computed:    true,
 				DefaultFunc: schema.EnvDefaultFunc("OS_FLAVOR_NAME", nil),
-			},
-			"user_data": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				// just stash the hash for state & diff comparisons
-				StateFunc: func(v interface{}) string {
-					switch v.(type) {
-					case string:
-						hash := sha1.Sum([]byte(v.(string)))
-						return hex.EncodeToString(hash[:])
-					default:
-						return ""
-					}
-				},
 			},
 			"security_groups": {
 				Type:     schema.TypeSet,
@@ -118,9 +103,9 @@ func resourceComputeInstanceV2() *schema.Resource {
 			},
 			"network": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Required: true,
 				ForceNew: true,
-				Computed: true,
+				MaxItems: 12,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"uuid": {
@@ -132,8 +117,7 @@ func resourceComputeInstanceV2() *schema.Resource {
 						"name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
-							Computed: true,
+							Removed:  "use uuid instead",
 						},
 						"port": {
 							Type:     schema.TypeString,
@@ -165,6 +149,21 @@ func resourceComputeInstanceV2() *schema.Resource {
 					},
 				},
 			},
+			"user_data": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				// just stash the hash for state & diff comparisons
+				StateFunc: func(v interface{}) string {
+					switch v.(type) {
+					case string:
+						hash := sha1.Sum([]byte(v.(string)))
+						return hex.EncodeToString(hash[:])
+					default:
+						return ""
+					}
+				},
+			},
 			"metadata": {
 				Type:          schema.TypeMap,
 				Optional:      true,
@@ -178,18 +177,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Sensitive: true,
 				Optional:  true,
 				ForceNew:  false,
-			},
-			"access_ip_v4": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: false,
-			},
-			"access_ip_v6": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: false,
 			},
 			"key_pair": {
 				Type:     schema.TypeString,
@@ -354,6 +341,11 @@ func resourceComputeInstanceV2() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"block_device", "metadata"},
 			},
+			"user_id": { // required if in prePaid charging mode with key_pair.
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"tags": {
 				Type:         schema.TypeMap,
 				Optional:     true,
@@ -394,10 +386,13 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"user_id": { // required if in prePaid charging mode with key_pair.
+			"access_ip_v4": {
 				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Computed: true,
+			},
+			"access_ip_v6": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -406,9 +401,12 @@ func resourceComputeInstanceV2() *schema.Resource {
 func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
-	computeV1Client, err := config.computeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+	}
+	ecsClient, err := config.computeV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud ecs client: %s", err)
 	}
 
 	// Determines the Image ID using the following rules:
@@ -433,7 +431,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 
 	// Try to call API of Huawei ECS instead of OpenStack
 	if !hasFilledOpt(d, "block_device") && !hasFilledOpt(d, "metadata") {
-		computeV11Client, err := config.computeV11Client(GetRegion(d, config))
+		ecsV11Client, err := config.computeV11Client(GetRegion(d, config))
 		vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 		sgClient, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
@@ -495,7 +493,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 			createOpts.SchedulerHints = &schedulerHints
 		}
 
-		log.Printf("[DEBUG] Create Options: %#v", createOpts)
+		log.Printf("[DEBUG] ECS Create Options: %#v", createOpts)
 
 		var server_id string
 		if d.Get("charging_mode") == "prePaid" {
@@ -504,7 +502,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 			if err != nil {
 				return fmt.Errorf("Error creating HuaweiCloud bss V1 client: %s", err)
 			}
-			n, err := cloudservers.CreatePrePaid(computeV11Client, createOpts).ExtractOrderResponse()
+			n, err := cloudservers.CreatePrePaid(ecsV11Client, createOpts).ExtractOrderResponse()
 			if err != nil {
 				return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
 			}
@@ -520,16 +518,16 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 			server_id = resource.(string)
 		} else {
 			// postPaid.
-			n, err := cloudservers.Create(computeV11Client, createOpts).ExtractJobResponse()
+			n, err := cloudservers.Create(ecsV11Client, createOpts).ExtractJobResponse()
 			if err != nil {
 				return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
 			}
 
-			if err := cloudservers.WaitForJobSuccess(computeV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+			if err := cloudservers.WaitForJobSuccess(ecsClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
 				return err
 			}
 
-			entity, err := cloudservers.GetJobEntity(computeV1Client, n.JobID, "server_id")
+			entity, err := cloudservers.GetJobEntity(ecsClient, n.JobID, "server_id")
 			if err != nil {
 				return err
 			}
@@ -542,15 +540,11 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 	} else {
 		// OpenStack API implementation. Clean up this after removing block_device.
 
-		// Build a list of networks with the information given upon creation.
-		// Error out if an invalid network configuration was used.
-		allInstanceNetworks, err := getAllInstanceNetworks(d, meta)
+		// Build a []servers.Network to pass into the create options.
+		networks, err := expandInstanceNetworks(d)
 		if err != nil {
 			return err
 		}
-
-		// Build a []servers.Network to pass into the create options.
-		networks := expandInstanceNetworks(allInstanceNetworks)
 
 		var createOpts servers.CreateOptsBuilder
 		createOpts = &servers.CreateOpts{
@@ -594,7 +588,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 			}
 		}
 
-		log.Printf("[DEBUG] Create Options: %#v", createOpts)
+		log.Printf("[DEBUG] compute Create Options: %#v", createOpts)
 
 		// If a block_device is used, use the bootfromvolume.Create function as it allows an empty ImageRef.
 		// Otherwise, use the normal servers.Create function.
@@ -616,10 +610,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 
 		// Wait for the instance to become running so we can get some attributes
 		// that aren't available until later.
-		log.Printf(
-			"[DEBUG] Waiting for instance (%s) to become running",
-			server.ID)
-
+		log.Printf("[DEBUG] Waiting for instance (%s) to become running", server.ID)
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"BUILD"},
 			Target:     []string{"ACTIVE"},
@@ -641,7 +632,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 	if hasFilledOpt(d, "tags") {
 		tagRaw := d.Get("tags").(map[string]interface{})
 		taglist := expandResourceTags(tagRaw)
-		tagErr := tags.Create(computeV1Client, "cloudservers", d.Id(), taglist).ExtractErr()
+		tagErr := tags.Create(ecsClient, "cloudservers", d.Id(), taglist).ExtractErr()
 		if tagErr != nil {
 			log.Printf("[WARN] Error setting tags of instance:%s, err=%s", d.Id(), err)
 		}
@@ -653,23 +644,26 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
-	computeV1Client, err := config.computeV1Client(GetRegion(d, config))
+	ecsClient, err := config.computeV1Client(GetRegion(d, config))
 	blockStorageClient, err := config.blockStorageV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud client: %s", err)
 	}
 
-	server, err := servers.Get(computeClient, d.Id()).Extract()
+	server, err := cloudservers.Get(ecsClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "server")
+		return CheckDeleted(d, err, "compute instance")
 	}
 
-	log.Printf("[DEBUG] Retrieved Server %s: %+v", d.Id(), server)
-
+	log.Printf("[DEBUG] Retrieved compute instance %s: %+v", d.Id(), server)
+	// Set some attributes
+	d.Set("region", GetRegion(d, config))
+	d.Set("availability_zone", server.AvailabilityZone)
 	d.Set("name", server.Name)
+	d.Set("all_metadata", server.Metadata)
 
 	// Get the instance network and address information
-	networks, err := flattenInstanceNetworks(d, meta)
+	networks, err := flattenInstanceNetworks(d, meta, server)
 	if err != nil {
 		return err
 	}
@@ -677,13 +671,12 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	// Determine the best IPv4 and IPv6 addresses to access the instance with
 	hostv4, hostv6 := getInstanceAccessAddresses(d, networks)
 
-	// AccessIPv4/v6 isn't standard in HuaweiCloud, but there have been reports
-	// of them being used in some environments.
-	if server.AccessIPv4 != "" && hostv4 == "" {
+	// update hostv4/6 by AccessIPv4/v6
+	// currently, AccessIPv4/v6 are Reserved in HuaweiCloud
+	if server.AccessIPv4 != "" {
 		hostv4 = server.AccessIPv4
 	}
-
-	if server.AccessIPv6 != "" && hostv6 == "" {
+	if server.AccessIPv6 != "" {
 		hostv6 = server.AccessIPv6
 	}
 
@@ -708,45 +701,35 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 		})
 	}
 
-	d.Set("all_metadata", server.Metadata)
-
 	secGrpNames := []string{}
 	for _, sg := range server.SecurityGroups {
-		secGrpNames = append(secGrpNames, sg["name"].(string))
+		secGrpNames = append(secGrpNames, sg.Name)
 	}
 	d.Set("security_groups", secGrpNames)
 
-	flavorId, ok := server.Flavor["id"].(string)
-	if !ok {
-		return fmt.Errorf("Error setting HuaweiCloud server's flavor: %v", server.Flavor)
-	}
-	d.Set("flavor_id", flavorId)
-
-	flavor, err := flavors.Get(computeClient, flavorId).Extract()
-	if err != nil {
-		return err
-	}
-	d.Set("flavor_name", flavor.Name)
+	flavorInfo := server.Flavor
+	d.Set("flavor_id", flavorInfo.ID)
+	d.Set("flavor_name", flavorInfo.Name)
 
 	root_volume := ""
 	// Set volume attached
 	bds := []map[string]interface{}{}
-	if len(server.VolumesAttached) > 0 {
-		for _, b := range server.VolumesAttached {
-			va, err := block_devices.Get(computeV1Client, d.Id(), b["id"]).Extract()
+	if len(server.VolumeAttached) > 0 {
+		for _, b := range server.VolumeAttached {
+			va, err := block_devices.Get(ecsClient, d.Id(), b.ID).Extract()
 			if err != nil {
 				return err
 			}
 			log.Printf("[DEBUG] Retrieved volume attachment %s: %#v", d.Id(), va)
 			v := map[string]interface{}{
 				"pci_address": va.PciAddress,
-				"volume_id":   b["id"],
+				"volume_id":   b.ID,
 				"boot_index":  va.BootIndex,
 				"size":        va.Size,
 			}
 			bds = append(bds, v)
 			if va.BootIndex == 0 {
-				root_volume = b["id"]
+				root_volume = b.ID
 			}
 		}
 		d.Set("volume_attached", bds)
@@ -766,30 +749,12 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Set the instance's image information appropriately
-	if err := setImageInformation(computeClient, server, d); err != nil {
+	if err := setImageInformation(d, computeClient, server.Image.ID); err != nil {
 		return err
 	}
 
-	// Build a custom struct for the availability zone extension
-	var serverWithAZ struct {
-		servers.Server
-		availabilityzones.ServerAvailabilityZoneExt
-	}
-
-	// Do another Get so the above work is not disturbed.
-	err = servers.Get(computeClient, d.Id()).ExtractInto(&serverWithAZ)
-	if err != nil {
-		return CheckDeleted(d, err, "server")
-	}
-
-	// Set the availability zone
-	d.Set("availability_zone", serverWithAZ.AvailabilityZone)
-
-	// Set the region
-	d.Set("region", GetRegion(d, config))
-
 	// Set instance tags
-	resourceTags, err := tags.Get(computeV1Client, "cloudservers", d.Id()).Extract()
+	resourceTags, err := tags.Get(ecsClient, "cloudservers", d.Id()).Extract()
 	if err != nil {
 		return fmt.Errorf("Error fetching HuaweiCloud instance tags: %s", err)
 	}
@@ -1013,7 +978,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeV1Client, err := config.computeV1Client(GetRegion(d, config))
+	ecsClient, err := config.computeV1Client(GetRegion(d, config))
 	computeClient, err := config.computeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
@@ -1071,12 +1036,12 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 			DeleteVolume: d.Get("delete_disks_on_termination").(bool),
 		}
 
-		n, err := cloudservers.Delete(computeV1Client, deleteOpts).ExtractJobResponse()
+		n, err := cloudservers.Delete(ecsClient, deleteOpts).ExtractJobResponse()
 		if err != nil {
 			return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
 		}
 
-		if err := cloudservers.WaitForJobSuccess(computeV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
+		if err := cloudservers.WaitForJobSuccess(ecsClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
 			return err
 		}
 	}
@@ -1328,35 +1293,22 @@ func getImageIDFromConfig(computeClient *golangsdk.ServiceClient, d *schema.Reso
 		}
 	}
 
-	if imageId := d.Get("image_id").(string); imageId != "" {
-		return imageId, nil
-	} else {
-		// try the OS_IMAGE_ID environment variable
-		if v := os.Getenv("OS_IMAGE_ID"); v != "" {
-			return v, nil
-		}
+	if imageID := d.Get("image_id").(string); imageID != "" {
+		return imageID, nil
 	}
 
-	imageName := d.Get("image_name").(string)
-	if imageName == "" {
-		// try the OS_IMAGE_NAME environment variable
-		if v := os.Getenv("OS_IMAGE_NAME"); v != "" {
-			imageName = v
-		}
-	}
-
-	if imageName != "" {
-		imageId, err := images.IDFromName(computeClient, imageName)
+	if imageName := d.Get("image_name").(string); imageName != "" {
+		imageID, err := images.IDFromName(computeClient, imageName)
 		if err != nil {
 			return "", err
 		}
-		return imageId, nil
+		return imageID, nil
 	}
 
 	return "", fmt.Errorf("Neither a boot device, image ID, or image name were able to be determined.")
 }
 
-func setImageInformation(computeClient *golangsdk.ServiceClient, server *servers.Server, d *schema.ResourceData) error {
+func setImageInformation(d *schema.ResourceData, computeClient *golangsdk.ServiceClient, imageID string) error {
 	// If block_device was used, an Image does not need to be specified, unless an image/local
 	// combination was used. This emulates normal boot behavior. Otherwise, ignore the image altogether.
 	if vL, ok := d.GetOk("block_device"); ok {
@@ -1373,10 +1325,9 @@ func setImageInformation(computeClient *golangsdk.ServiceClient, server *servers
 		}
 	}
 
-	imageId := server.Image["id"].(string)
-	if imageId != "" {
-		d.Set("image_id", imageId)
-		if image, err := images.Get(computeClient, imageId).Extract(); err != nil {
+	if imageID != "" {
+		d.Set("image_id", imageID)
+		if image, err := images.Get(computeClient, imageID).Extract(); err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				// If the image name can't be found, set the value to "Image not found".
 				// The most likely scenario is that the image no longer exists in the Image Service
@@ -1394,22 +1345,24 @@ func setImageInformation(computeClient *golangsdk.ServiceClient, server *servers
 }
 
 func getFlavorID(client *golangsdk.ServiceClient, d *schema.ResourceData) (string, error) {
-	flavorId := d.Get("flavor_id").(string)
-
-	if flavorId != "" {
-		return flavorId, nil
+	if flavorID := d.Get("flavor_id").(string); flavorID != "" {
+		return flavorID, nil
 	}
 
-	flavorName := d.Get("flavor_name").(string)
-	return flavors.IDFromName(client, flavorName)
+	if flavorName := d.Get("flavor_name").(string); flavorName != "" {
+		return flavors.IDFromName(client, flavorName)
+	}
+
+	return "", fmt.Errorf("one of `flavor_id, flavor_name` must be specified")
 }
 
 func getVpcID(client *golangsdk.ServiceClient, d *schema.ResourceData) (string, error) {
 	var networkID string
 
 	networks := d.Get("network").([]interface{})
-	for _, v := range networks {
-		network := v.(map[string]interface{})
+	if len(networks) > 0 {
+		// all networks belongs to one VPC
+		network := networks[0].(map[string]interface{})
 		networkID = network["uuid"].(string)
 	}
 
