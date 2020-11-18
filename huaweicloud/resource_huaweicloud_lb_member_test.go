@@ -22,16 +22,16 @@ func TestAccLBV2Member_basic(t *testing.T) {
 				Config:             TestAccLBV2MemberConfig_basic,
 				ExpectNonEmptyPlan: true, // Because admin_state_up remains false.
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2MemberExists("huaweicloud_lb_member_v2.member_1", &member_1),
-					testAccCheckLBV2MemberExists("huaweicloud_lb_member_v2.member_2", &member_2),
+					testAccCheckLBV2MemberExists("huaweicloud_lb_member.member_1", &member_1),
+					testAccCheckLBV2MemberExists("huaweicloud_lb_member.member_2", &member_2),
 				),
 			},
 			{
 				Config:             TestAccLBV2MemberConfig_update,
 				ExpectNonEmptyPlan: true, // Because admin_state_up remains false.
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("huaweicloud_lb_member_v2.member_1", "weight", "10"),
-					resource.TestCheckResourceAttr("huaweicloud_lb_member_v2.member_2", "weight", "15"),
+					resource.TestCheckResourceAttr("huaweicloud_lb_member.member_1", "weight", "10"),
+					resource.TestCheckResourceAttr("huaweicloud_lb_member.member_2", "weight", "15"),
 				),
 			},
 		},
@@ -46,7 +46,7 @@ func testAccCheckLBV2MemberDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_lb_member_v2" {
+		if rs.Type != "huaweicloud_lb_member" {
 			continue
 		}
 
@@ -94,30 +94,30 @@ func testAccCheckLBV2MemberExists(n string, member *pools.Member) resource.TestC
 }
 
 var TestAccLBV2MemberConfig_basic = fmt.Sprintf(`
-resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
-  name = "loadbalancer_1"
+resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
+  name          = "loadbalancer_1"
   vip_subnet_id = "%s"
 }
 
-resource "huaweicloud_lb_listener_v2" "listener_1" {
-  name = "listener_1"
-  protocol = "HTTP"
-  protocol_port = 8080
-  loadbalancer_id = "${huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id}"
+resource "huaweicloud_lb_listener" "listener_1" {
+  name            = "listener_1"
+  protocol        = "HTTP"
+  protocol_port   = 8080
+  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
-resource "huaweicloud_lb_pool_v2" "pool_1" {
-  name = "pool_1"
-  protocol = "HTTP"
-  lb_method = "ROUND_ROBIN"
-  listener_id = "${huaweicloud_lb_listener_v2.listener_1.id}"
+resource "huaweicloud_lb_pool" "pool_1" {
+  name        = "pool_1"
+  protocol    = "HTTP"
+  lb_method   = "ROUND_ROBIN"
+  listener_id = huaweicloud_lb_listener.listener_1.id
 }
 
-resource "huaweicloud_lb_member_v2" "member_1" {
-  address = "192.168.1.10"
+resource "huaweicloud_lb_member" "member_1" {
+  address       = "192.168.0.10"
   protocol_port = 8080
-  pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
-  subnet_id = "%s"
+  pool_id       = huaweicloud_lb_pool.pool_1.id
+  subnet_id     = "%s"
 
   timeouts {
     create = "5m"
@@ -126,11 +126,11 @@ resource "huaweicloud_lb_member_v2" "member_1" {
   }
 }
 
-resource "huaweicloud_lb_member_v2" "member_2" {
-  address = "192.168.1.11"
+resource "huaweicloud_lb_member" "member_2" {
+  address       = "192.168.0.11"
   protocol_port = 8080
-  pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
-  subnet_id = "%s"
+  pool_id       = huaweicloud_lb_pool.pool_1.id
+  subnet_id     = "%s"
 
   timeouts {
     create = "5m"
@@ -141,32 +141,32 @@ resource "huaweicloud_lb_member_v2" "member_2" {
 `, OS_SUBNET_ID, OS_SUBNET_ID, OS_SUBNET_ID)
 
 var TestAccLBV2MemberConfig_update = fmt.Sprintf(`
-resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
-  name = "loadbalancer_1"
+resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
+  name          = "loadbalancer_1"
   vip_subnet_id = "%s"
 }
 
-resource "huaweicloud_lb_listener_v2" "listener_1" {
-  name = "listener_1"
-  protocol = "HTTP"
-  protocol_port = 8080
-  loadbalancer_id = "${huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id}"
+resource "huaweicloud_lb_listener" "listener_1" {
+  name            = "listener_1"
+  protocol        = "HTTP"
+  protocol_port   = 8080
+  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
-resource "huaweicloud_lb_pool_v2" "pool_1" {
-  name = "pool_1"
-  protocol = "HTTP"
-  lb_method = "ROUND_ROBIN"
-  listener_id = "${huaweicloud_lb_listener_v2.listener_1.id}"
+resource "huaweicloud_lb_pool" "pool_1" {
+  name        = "pool_1"
+  protocol    = "HTTP"
+  lb_method   = "ROUND_ROBIN"
+  listener_id = huaweicloud_lb_listener.listener_1.id
 }
 
-resource "huaweicloud_lb_member_v2" "member_1" {
-  address = "192.168.1.10"
-  protocol_port = 8080
-  weight = 10
+resource "huaweicloud_lb_member" "member_1" {
+  address        = "192.168.0.10"
+  protocol_port  = 8080
+  weight         = 10
   admin_state_up = "true"
-  pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
-  subnet_id = "%s"
+  pool_id        = huaweicloud_lb_pool.pool_1.id
+  subnet_id      = "%s"
 
   timeouts {
     create = "5m"
@@ -175,13 +175,13 @@ resource "huaweicloud_lb_member_v2" "member_1" {
   }
 }
 
-resource "huaweicloud_lb_member_v2" "member_2" {
-  address = "192.168.1.11"
-  protocol_port = 8080
-  weight = 15
+resource "huaweicloud_lb_member" "member_2" {
+  address        = "192.168.0.11"
+  protocol_port  = 8080
+  weight         = 15
   admin_state_up = "true"
-  pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
-  subnet_id = "%s"
+  pool_id        = huaweicloud_lb_pool.pool_1.id
+  subnet_id      = "%s"
 
   timeouts {
     create = "5m"

@@ -2,14 +2,15 @@
 subcategory: "Elastic Load Balance (ELB)"
 ---
 
-# huaweicloud\_lb\_pool\_v2
+# huaweicloud\_lb\_pool
 
-Manages a V2 pool resource within HuaweiCloud.
+Manages an ELB pool resource within HuaweiCloud.
+This is an alternative to `huaweicloud_lb_pool_v2`
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_lb_pool_v2" "pool_1" {
+resource "huaweicloud_lb_pool" "pool_1" {
   protocol    = "HTTP"
   lb_method   = "ROUND_ROBIN"
   listener_id = "d9415786-5f1a-428b-b35f-2f1523e146d2"
@@ -25,10 +26,9 @@ resource "huaweicloud_lb_pool_v2" "pool_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 Networking client.
-    A Networking client is needed to create a V2 pool resource. If omitted, the
-    `region` argument of the provider is used. Changing this creates a new
-    pool.
+* `region` - (Optional) The region in which to create the ELB pool resource.
+    If omitted, the the provider-level region will be used as default.
+    Changing this creates a new pool.
 
 * `tenant_id` - (Optional) Required for admins. The UUID of the tenant who owns
     the pool.  Only administrative users can specify a tenant UUID

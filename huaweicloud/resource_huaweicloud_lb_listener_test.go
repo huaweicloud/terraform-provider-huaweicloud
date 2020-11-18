@@ -11,7 +11,7 @@ import (
 
 func TestAccLBV2Listener_basic(t *testing.T) {
 	var listener listeners.Listener
-	resourceName := "huaweicloud_lb_listener_v2.listener_1"
+	resourceName := "huaweicloud_lb_listener.listener_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckULB(t) },
@@ -48,7 +48,7 @@ func testAccCheckLBV2ListenerDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_lb_listener_v2" {
+		if rs.Type != "huaweicloud_lb_listener" {
 			continue
 		}
 
@@ -94,16 +94,16 @@ func testAccCheckLBV2ListenerExists(n string, listener *listeners.Listener) reso
 }
 
 var TestAccLBV2ListenerConfig_basic = fmt.Sprintf(`
-resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
-  name = "loadbalancer_1"
+resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
+  name          = "loadbalancer_1"
   vip_subnet_id = "%s"
 }
 
-resource "huaweicloud_lb_listener_v2" "listener_1" {
-  name = "listener_1"
-  protocol = "HTTP"
-  protocol_port = 8080
-  loadbalancer_id = huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id
+resource "huaweicloud_lb_listener" "listener_1" {
+  name            = "listener_1"
+  protocol        = "HTTP"
+  protocol_port   = 8080
+  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 
   tags = {
     key   = "value"
@@ -113,17 +113,17 @@ resource "huaweicloud_lb_listener_v2" "listener_1" {
 `, OS_SUBNET_ID)
 
 var TestAccLBV2ListenerConfig_update = fmt.Sprintf(`
-resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
-  name = "loadbalancer_1"
+resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
+  name          = "loadbalancer_1"
   vip_subnet_id = "%s"
 }
 
-resource "huaweicloud_lb_listener_v2" "listener_1" {
-  name = "listener_1_updated"
-  protocol = "HTTP"
-  protocol_port = 8080
-  admin_state_up = "true"
-  loadbalancer_id = huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id
+resource "huaweicloud_lb_listener" "listener_1" {
+  name            = "listener_1_updated"
+  protocol        = "HTTP"
+  protocol_port   = 8080
+  admin_state_up  = "true"
+  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 
   tags = {
     foo   = "bar"

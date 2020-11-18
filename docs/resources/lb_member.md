@@ -2,14 +2,15 @@
 subcategory: "Elastic Load Balance (ELB)"
 ---
 
-# huaweicloud\_lb\_member\_v2
+# huaweicloud\_lb\_member
 
-Manages a V2 member resource within HuaweiCloud.
+Manages an ELB member resource within HuaweiCloud.
+This is an alternative to `huaweicloud_lb_member_v2`
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_lb_member_v2" "member_1" {
+resource "huaweicloud_lb_member" "member_1" {
   address       = "192.168.199.23"
   protocol_port = 8080
   pool_id       = var.pool_id
@@ -21,10 +22,9 @@ resource "huaweicloud_lb_member_v2" "member_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 Networking client.
-    A Networking client is needed to create a V2 member resource. If omitted, the
-    `region` argument of the provider is used. Changing this creates a new
-    member.
+* `region` - (Optional) The region in which to create the ELB member resource.
+    If omitted, the the provider-level region will be used as default.
+    Changing this creates a new member.
 
 * `pool_id` - (Required) The id of the pool that this member will be
     assigned to.
@@ -70,4 +70,3 @@ This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.
 - `update` - Default is 10 minute.
 - `delete` - Default is 10 minute.
-

@@ -2,24 +2,25 @@
 subcategory: "Elastic Load Balance (ELB)"
 ---
 
-# huaweicloud\_lb\_whitelist\_v2
+# huaweicloud\_lb\_whitelist
 
-Manages a Load Balancer whitelist resource within HuaweiCloud.
+Manages an ELB whitelist resource within HuaweiCloud.
+This is an alternative to `huaweicloud_lb_whitelist_v2`
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_lb_listener_v2" "listener_1" {
+resource "huaweicloud_lb_listener" "listener_1" {
   name            = "listener_1"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = var.loadbalancer_id
 }
 
-resource "huaweicloud_lb_whitelist_v2" "whitelist_1" {
+resource "huaweicloud_lb_whitelist" "whitelist_1" {
   enable_whitelist = true
   whitelist        = "192.168.11.1,192.168.0.1/24,192.168.201.18/8"
-  listener_id      = huaweicloud_lb_listener_v2.listener_1.id
+  listener_id      = huaweicloud_lb_listener.listener_1.id
 }
 ```
 
@@ -27,7 +28,9 @@ resource "huaweicloud_lb_whitelist_v2" "whitelist_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the Load Balancer whitelist resource. If omitted, the provider-level region will work as default. Changing this creates a new whitelist resource.
+* `region` - (Optional) The region in which to create the ELB whitelist resource.
+    If omitted, the provider-level region will be used as default.
+    Changing this creates a new whitelist.
 
 * `tenant_id` - (Optional) Required for admins. The UUID of the tenant who owns
     the whitelist. Only administrative users can specify a tenant UUID
@@ -55,4 +58,3 @@ This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.
 - `update` - Default is 10 minute.
 - `delete` - Default is 10 minute.
-

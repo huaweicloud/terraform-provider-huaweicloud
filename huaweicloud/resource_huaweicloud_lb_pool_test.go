@@ -11,6 +11,7 @@ import (
 
 func TestAccLBV2Pool_basic(t *testing.T) {
 	var pool pools.Pool
+	resourceName := "huaweicloud_lb_pool.pool_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckULB(t) },
@@ -20,13 +21,16 @@ func TestAccLBV2Pool_basic(t *testing.T) {
 			{
 				Config: TestAccLBV2PoolConfig_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2PoolExists("huaweicloud_lb_pool_v2.pool_1", &pool),
+					testAccCheckLBV2PoolExists(resourceName, &pool),
+					resource.TestCheckResourceAttr(resourceName, "name", "pool_1"),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "ROUND_ROBIN"),
 				),
 			},
 			{
 				Config: TestAccLBV2PoolConfig_update,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("huaweicloud_lb_pool_v2.pool_1", "name", "pool_1_updated"),
+					resource.TestCheckResourceAttr(resourceName, "name", "pool_1_updated"),
+					resource.TestCheckResourceAttr(resourceName, "lb_method", "LEAST_CONNECTIONS"),
 				),
 			},
 		},
@@ -41,7 +45,7 @@ func testAccCheckLBV2PoolDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_lb_pool_v2" {
+		if rs.Type != "huaweicloud_lb_pool" {
 			continue
 		}
 
@@ -87,23 +91,23 @@ func testAccCheckLBV2PoolExists(n string, pool *pools.Pool) resource.TestCheckFu
 }
 
 var TestAccLBV2PoolConfig_basic = fmt.Sprintf(`
-resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
-  name = "loadbalancer_1"
+resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
+  name          = "loadbalancer_1"
   vip_subnet_id = "%s"
 }
 
-resource "huaweicloud_lb_listener_v2" "listener_1" {
-  name = "listener_1"
-  protocol = "HTTP"
-  protocol_port = 8080
-  loadbalancer_id = "${huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id}"
+resource "huaweicloud_lb_listener" "listener_1" {
+  name            = "listener_1"
+  protocol        = "HTTP"
+  protocol_port   = 8080
+  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
-resource "huaweicloud_lb_pool_v2" "pool_1" {
-  name = "pool_1"
-  protocol = "HTTP"
-  lb_method = "ROUND_ROBIN"
-  listener_id = "${huaweicloud_lb_listener_v2.listener_1.id}"
+resource "huaweicloud_lb_pool" "pool_1" {
+  name        = "pool_1"
+  protocol    = "HTTP"
+  lb_method   = "ROUND_ROBIN"
+  listener_id = huaweicloud_lb_listener.listener_1.id
 
   timeouts {
     create = "5m"
@@ -114,24 +118,24 @@ resource "huaweicloud_lb_pool_v2" "pool_1" {
 `, OS_SUBNET_ID)
 
 var TestAccLBV2PoolConfig_update = fmt.Sprintf(`
-resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
-  name = "loadbalancer_1"
+resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
+  name          = "loadbalancer_1"
   vip_subnet_id = "%s"
 }
 
-resource "huaweicloud_lb_listener_v2" "listener_1" {
-  name = "listener_1"
-  protocol = "HTTP"
-  protocol_port = 8080
-  loadbalancer_id = "${huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id}"
+resource "huaweicloud_lb_listener" "listener_1" {
+  name            = "listener_1"
+  protocol        = "HTTP"
+  protocol_port   = 8080
+  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
-resource "huaweicloud_lb_pool_v2" "pool_1" {
-  name = "pool_1_updated"
-  protocol = "HTTP"
-  lb_method = "LEAST_CONNECTIONS"
+resource "huaweicloud_lb_pool" "pool_1" {
+  name           = "pool_1_updated"
+  protocol       = "HTTP"
+  lb_method      = "LEAST_CONNECTIONS"
   admin_state_up = "true"
-  listener_id = "${huaweicloud_lb_listener_v2.listener_1.id}"
+  listener_id    = huaweicloud_lb_listener.listener_1.id
 
   timeouts {
     create = "5m"

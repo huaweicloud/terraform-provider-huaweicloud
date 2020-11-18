@@ -2,14 +2,15 @@
 subcategory: "Elastic Load Balance (ELB)"
 ---
 
-# huaweicloud\_lb\_certificate\_v2
+# huaweicloud\_lb\_certificate
 
-Manages a V2 certificate resource within HuaweiCloud.
+Manages an ELB certificate resource within HuaweiCloud.
+This is an alternative to `huaweicloud_lb_certificate_v2`
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_lb_certificate_v2" "certificate_1" {
+resource "huaweicloud_lb_certificate" "certificate_1" {
   name        = "certificate_1"
   description = "terraform test certificate"
   domain      = "www.elb.com"
@@ -80,10 +81,9 @@ EOT
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 Networking client.
-    A Networking client is needed to create an LB certificate. If omitted, the
-    `region` argument of the provider is used. Changing this creates a new
-    LB certificate.
+* `region` - (Optional) The region in which to create the ELB certificate resource.
+    If omitted, the provider-level region will be used as default.
+    Changing this creates a new certificate.
 
 * `name` - (Optional) Human-readable name for the Certificate. Does not have
     to be unique.
@@ -122,4 +122,3 @@ This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.
 - `update` - Default is 10 minute.
 - `delete` - Default is 5 minute.
-

@@ -2,14 +2,15 @@
 subcategory: "Elastic Load Balance (ELB)"
 ---
 
-# huaweicloud\_lb\_monitor\_v2
+# huaweicloud\_lb\_monitor
 
-Manages a V2 monitor resource within HuaweiCloud.
+Manages an ELB monitor resource within HuaweiCloud.
+This is an alternative to `huaweicloud_lb_monitor_v2`
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_lb_monitor_v2" "monitor_1" {
+resource "huaweicloud_lb_monitor" "monitor_1" {
   pool_id     = huaweicloud_lb_pool_v2.pool_1.id
   type        = "PING"
   delay       = 20
@@ -22,10 +23,9 @@ resource "huaweicloud_lb_monitor_v2" "monitor_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 Networking client.
-    A Networking client is needed to create a V2 monitor resource. If omitted, the
-    `region` argument of the provider is used. Changing this creates a new
-    monitor.
+* `region` - (Optional) The region in which to create the ELB monitor resource.
+    If omitted, the provider-level region will be used as default.
+    Changing this creates a new monitor.
 
 * `pool_id` - (Required) The id of the pool that this monitor will be assigned to.
 
@@ -83,4 +83,3 @@ This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.
 - `update` - Default is 10 minute.
 - `delete` - Default is 10 minute.
-
