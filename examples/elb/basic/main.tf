@@ -66,7 +66,7 @@ resource "huaweicloud_vpc_eip" "eip_1" {
   }
 }
 
-resource "huaweicloud_lb_loadbalancer_v2" "elb_1" {
+resource "huaweicloud_lb_loadbalancer" "elb_1" {
   name          = var.loadbalancer_name
   vip_subnet_id = huaweicloud_vpc_subnet.subnet_1.subnet_id
 }
@@ -74,24 +74,24 @@ resource "huaweicloud_lb_loadbalancer_v2" "elb_1" {
 # associate eip with loadbalancer
 resource "huaweicloud_networking_eip_associate" "associate_1" {
   public_ip = huaweicloud_vpc_eip.eip_1.address
-  port_id   = huaweicloud_lb_loadbalancer_v2.elb_1.vip_port_id
+  port_id   = huaweicloud_lb_loadbalancer.elb_1.vip_port_id
 }
 
-resource "huaweicloud_lb_listener_v2" "listener_1" {
+resource "huaweicloud_lb_listener" "listener_1" {
   name            = "listener_http"
   protocol        = "HTTP"
   protocol_port   = 80
-  loadbalancer_id = huaweicloud_lb_loadbalancer_v2.elb_1.id
+  loadbalancer_id = huaweicloud_lb_loadbalancer.elb_1.id
 }
 
-resource "huaweicloud_lb_pool_v2" "group_1" {
+resource "huaweicloud_lb_pool" "group_1" {
   name        = "group_1"
   protocol    = "HTTP"
   lb_method   = "ROUND_ROBIN"
-  listener_id = huaweicloud_lb_listener_v2.listener_1.id
+  listener_id = huaweicloud_lb_listener.listener_1.id
 }
 
-resource "huaweicloud_lb_monitor_v2" "health_check" {
+resource "huaweicloud_lb_monitor" "health_check" {
   name           = "health_check"
   type           = "HTTP"
   url_path       = "/"
@@ -99,21 +99,21 @@ resource "huaweicloud_lb_monitor_v2" "health_check" {
   delay          = 10
   timeout        = 5
   max_retries    = 3
-  pool_id        = huaweicloud_lb_pool_v2.group_1.id
+  pool_id        = huaweicloud_lb_pool.group_1.id
 }
 
-resource "huaweicloud_lb_member_v2" "member_1" {
+resource "huaweicloud_lb_member" "member_1" {
   address       = huaweicloud_compute_instance.instance[0].access_ip_v4
   protocol_port = 80
   weight        = 1
-  pool_id       = huaweicloud_lb_pool_v2.group_1.id
+  pool_id       = huaweicloud_lb_pool.group_1.id
   subnet_id     = huaweicloud_vpc_subnet.subnet_1.subnet_id
 }
 
-resource "huaweicloud_lb_member_v2" "member_2" {
+resource "huaweicloud_lb_member" "member_2" {
   address       = huaweicloud_compute_instance.instance[1].access_ip_v4
   protocol_port = 80
   weight        = 1
-  pool_id       = huaweicloud_lb_pool_v2.group_1.id
+  pool_id       = huaweicloud_lb_pool.group_1.id
   subnet_id     = huaweicloud_vpc_subnet.subnet_1.subnet_id
 }
