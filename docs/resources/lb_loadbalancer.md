@@ -2,16 +2,17 @@
 subcategory: "Elastic Load Balance (ELB)"
 ---
 
-# huaweicloud\_lb\_loadbalancer\_v2
+# huaweicloud\_lb\_loadbalancer
 
-Manages a V2 loadbalancer resource within HuaweiCloud.
+Manages an ELB loadbalancer resource within HuaweiCloud.
+This is an alternative to `huaweicloud_lb_loadbalancer_v2`
 
 ## Example Usage
 
 ### Basic Loadbalancer
 
 ```hcl
-resource "huaweicloud_lb_loadbalancer_v2" "lb_1" {
+resource "huaweicloud_lb_loadbalancer" "lb_1" {
   vip_subnet_id = "d9415786-5f1a-428b-b35f-2f1523e146d2"
 
   tags = {
@@ -23,13 +24,13 @@ resource "huaweicloud_lb_loadbalancer_v2" "lb_1" {
 ### Loadbalancer With EIP
 
 ```hcl
-resource "huaweicloud_lb_loadbalancer_v2" "lb_1" {
+resource "huaweicloud_lb_loadbalancer" "lb_1" {
   vip_subnet_id = "d9415786-5f1a-428b-b35f-2f1523e146d2"
 }
 
 resource "huaweicloud_networking_eip_associate" "eip_1" {
   public_ip = "1.2.3.4"
-  port_id   = huaweicloud_lb_loadbalancer_v2.lb_1.vip_port_id
+  port_id   = huaweicloud_lb_loadbalancer.lb_1.vip_port_id
 }
 ```
 
@@ -37,7 +38,9 @@ resource "huaweicloud_networking_eip_associate" "eip_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the loadbalancer resource. If omitted, the provider-level region will work as default. Changing this creates a new loadbalancer resource.
+* `region` - (Optional) The region in which to create the loadbalancer resource.
+    If omitted, the provider-level region will be used as default.
+    Changing this creates a new loadbalancer.
 
 * `name` - (Optional) Human-readable name for the loadbalancer. Does not have
     to be unique.
@@ -75,4 +78,3 @@ This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.
 - `update` - Default is 10 minute.
 - `delete` - Default is 5 minute.
-

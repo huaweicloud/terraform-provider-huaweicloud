@@ -13,6 +13,7 @@ import (
 
 func TestAccLBV2L7Rule_basic(t *testing.T) {
 	var l7rule l7rules.Rule
+	resourceName := "huaweicloud_lb_l7rule.l7rule_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -22,33 +23,24 @@ func TestAccLBV2L7Rule_basic(t *testing.T) {
 			{
 				Config: testAccCheckLBV2L7RuleConfig_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2L7RuleExists("huaweicloud_lb_l7rule_v2.l7rule_1", &l7rule),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_l7rule_v2.l7rule_1", "type", "PATH"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_l7rule_v2.l7rule_1", "compare_type", "EQUAL_TO"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_l7rule_v2.l7rule_1", "value", "/api"),
-					resource.TestMatchResourceAttr(
-						"huaweicloud_lb_l7rule_v2.l7rule_1", "listener_id",
+					testAccCheckLBV2L7RuleExists(resourceName, &l7rule),
+					resource.TestCheckResourceAttr(resourceName, "type", "PATH"),
+					resource.TestCheckResourceAttr(resourceName, "compare_type", "EQUAL_TO"),
+					resource.TestCheckResourceAttr(resourceName, "value", "/api"),
+					resource.TestMatchResourceAttr(resourceName, "listener_id",
 						regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")),
-					resource.TestMatchResourceAttr(
-						"huaweicloud_lb_l7rule_v2.l7rule_1", "l7policy_id",
+					resource.TestMatchResourceAttr(resourceName, "l7policy_id",
 						regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")),
 				),
 			},
 			{
 				Config: testAccCheckLBV2L7RuleConfig_update2,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2L7RuleExists("huaweicloud_lb_l7rule_v2.l7rule_1", &l7rule),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_l7rule_v2.l7rule_1", "type", "PATH"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_l7rule_v2.l7rule_1", "compare_type", "STARTS_WITH"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_l7rule_v2.l7rule_1", "key", ""),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_l7rule_v2.l7rule_1", "value", "/images"),
+					testAccCheckLBV2L7RuleExists(resourceName, &l7rule),
+					resource.TestCheckResourceAttr(resourceName, "type", "PATH"),
+					resource.TestCheckResourceAttr(resourceName, "compare_type", "STARTS_WITH"),
+					resource.TestCheckResourceAttr(resourceName, "key", ""),
+					resource.TestCheckResourceAttr(resourceName, "value", "/images"),
 				),
 			},
 		},
@@ -63,7 +55,7 @@ func testAccCheckLBV2L7RuleDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_lb_l7rule_v2" {
+		if rs.Type != "huaweicloud_lb_l7rule" {
 			continue
 		}
 
@@ -133,40 +125,40 @@ func testAccCheckLBV2L7RuleExists(n string, l7rule *l7rules.Rule) resource.TestC
 }
 
 var testAccCheckLBV2L7RuleConfig = fmt.Sprintf(`
-resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
-  name = "loadbalancer_1"
+resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
+  name          = "loadbalancer_1"
   vip_subnet_id = "%s"
 }
 
-resource "huaweicloud_lb_listener_v2" "listener_1" {
-  name = "listener_1"
-  protocol = "HTTP"
-  protocol_port = 8080
-  loadbalancer_id = "${huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id}"
+resource "huaweicloud_lb_listener" "listener_1" {
+  name            = "listener_1"
+  protocol        = "HTTP"
+  protocol_port   = 8080
+  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
-resource "huaweicloud_lb_pool_v2" "pool_1" {
+resource "huaweicloud_lb_pool" "pool_1" {
   name            = "pool_1"
   protocol        = "HTTP"
   lb_method       = "ROUND_ROBIN"
-  loadbalancer_id = "${huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id}"
+  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
-resource "huaweicloud_lb_l7policy_v2" "l7policy_1" {
+resource "huaweicloud_lb_l7policy" "l7policy_1" {
   name         = "test"
   action       = "REDIRECT_TO_POOL"
   description  = "test description"
   position     = 1
-  listener_id  = "${huaweicloud_lb_listener_v2.listener_1.id}"
-  redirect_pool_id = "${huaweicloud_lb_pool_v2.pool_1.id}"
+  listener_id  = huaweicloud_lb_listener.listener_1.id
+  redirect_pool_id = huaweicloud_lb_pool.pool_1.id
 }
 `, OS_SUBNET_ID)
 
 var testAccCheckLBV2L7RuleConfig_basic = fmt.Sprintf(`
 %s
 
-resource "huaweicloud_lb_l7rule_v2" "l7rule_1" {
-  l7policy_id  = "${huaweicloud_lb_l7policy_v2.l7policy_1.id}"
+resource "huaweicloud_lb_l7rule" "l7rule_1" {
+  l7policy_id  = huaweicloud_lb_l7policy.l7policy_1.id
   type         = "PATH"
   compare_type = "EQUAL_TO"
   value        = "/api"
@@ -176,8 +168,8 @@ resource "huaweicloud_lb_l7rule_v2" "l7rule_1" {
 var testAccCheckLBV2L7RuleConfig_update2 = fmt.Sprintf(`
 %s
 
-resource "huaweicloud_lb_l7rule_v2" "l7rule_1" {
-  l7policy_id  = "${huaweicloud_lb_l7policy_v2.l7policy_1.id}"
+resource "huaweicloud_lb_l7rule" "l7rule_1" {
+  l7policy_id  = huaweicloud_lb_l7policy.l7policy_1.id
   type         = "PATH"
   compare_type = "STARTS_WITH"
   value        = "/images"

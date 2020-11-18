@@ -2,43 +2,44 @@
 subcategory: "Elastic Load Balance (ELB)"
 ---
 
-# huaweicloud\_lb\_l7rule\_v2
+# huaweicloud\_lb\_l7rule
 
-Manages a V2 L7 Rule resource within HuaweiCloud.
+Manages an ELB L7 Rule resource within HuaweiCloud.
+This is an alternative to `huaweicloud_lb_l7rule_v2`
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
+resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   name          = "loadbalancer_1"
-  vip_subnet_id = "SUBNET_ID"
+  vip_subnet_id = var.subnet_id
 }
 
-resource "huaweicloud_lb_listener_v2" "listener_1" {
+resource "huaweicloud_lb_listener" "listener_1" {
   name            = "listener_1"
   protocol        = "HTTP"
   protocol_port   = 8080
-  loadbalancer_id = huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id
+  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
-resource "huaweicloud_lb_pool_v2" "pool_1" {
+resource "huaweicloud_lb_pool" "pool_1" {
   name            = "pool_1"
   protocol        = "HTTP"
   lb_method       = "ROUND_ROBIN"
-  loadbalancer_id = huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id
+  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
-resource "huaweicloud_lb_l7policy_v2" "l7policy_1" {
+resource "huaweicloud_lb_l7policy" "l7policy_1" {
   name         = "test"
   action       = "REDIRECT_TO_URL"
   description  = "test description"
   position     = 1
-  listener_id  = huaweicloud_lb_listener_v2.listener_1.id
+  listener_id  = huaweicloud_lb_listener.listener_1.id
   redirect_url = "http://www.example.com"
 }
 
-resource "huaweicloud_lb_l7rule_v2" "l7rule_1" {
-  l7policy_id  = huaweicloud_lb_l7policy_v2.l7policy_1.id
+resource "huaweicloud_lb_l7rule" "l7rule_1" {
+  l7policy_id  = huaweicloud_lb_l7policy.l7policy_1.id
   type         = "PATH"
   compare_type = "EQUAL_TO"
   value        = "/api"
@@ -49,10 +50,9 @@ resource "huaweicloud_lb_l7rule_v2" "l7rule_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 Networking client.
-    A Networking client is needed to create a L7 Rule resource. If omitted, the
-    `region` argument of the provider is used. Changing this creates a new
-    L7 Rule.
+* `region` - (Optional) The region in which to create the L7 Rule resource.
+    If omitted, the provider-level region will be used as default.
+    Changing this creates a new L7 Rule.
 
 * `tenant_id` - (Optional) Required for admins. The UUID of the tenant who owns
     the L7 Rule.  Only administrative users can specify a tenant UUID
@@ -105,5 +105,5 @@ Load Balancer L7 Rule can be imported using the L7 Policy ID and L7 Rule ID
 separated by a slash, e.g.:
 
 ```
-$ terraform import huaweicloud_lb_l7rule_v2.l7rule_1 e0bd694a-abbe-450e-b329-0931fd1cc5eb/4086b0c9-b18c-4d1c-b6b8-4c56c3ad2a9e
+$ terraform import huaweicloud_lb_l7rule.l7rule_1 e0bd694a-abbe-450e-b329-0931fd1cc5eb/4086b0c9-b18c-4d1c-b6b8-4c56c3ad2a9e
 ```

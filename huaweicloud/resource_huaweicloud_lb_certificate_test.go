@@ -14,6 +14,7 @@ import (
 func TestAccLBV2Certificate_basic(t *testing.T) {
 	var c certificates.Certificate
 	name := fmt.Sprintf("tf-cert-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_lb_certificate.certificate_1"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -23,18 +24,15 @@ func TestAccLBV2Certificate_basic(t *testing.T) {
 			{
 				Config: testAccLBV2CertificateConfig_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2CertificateExists("huaweicloud_lb_certificate_v2.certificate_1", &c),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_certificate_v2.certificate_1", "name", name),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_certificate_v2.certificate_1", "type", "server"),
+					testAccCheckLBV2CertificateExists(resourceName, &c),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "type", "server"),
 				),
 			},
 			{
 				Config: testAccLBV2CertificateConfig_update(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_certificate_v2.certificate_1", "name", fmt.Sprintf("%s_updated", name)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s_updated", name)),
 				),
 			},
 		},
@@ -44,6 +42,7 @@ func TestAccLBV2Certificate_basic(t *testing.T) {
 func TestAccLBV2Certificate_client(t *testing.T) {
 	var c certificates.Certificate
 	name := fmt.Sprintf("tf-cert-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_lb_certificate.certificate_client"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -53,11 +52,9 @@ func TestAccLBV2Certificate_client(t *testing.T) {
 			{
 				Config: testAccLBV2CertificateConfig_client(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLBV2CertificateExists("huaweicloud_lb_certificate_v2.certificate_client", &c),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_certificate_v2.certificate_client", "name", name),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_lb_certificate_v2.certificate_client", "type", "client"),
+					testAccCheckLBV2CertificateExists(resourceName, &c),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "type", "client"),
 				),
 			},
 		},
@@ -72,7 +69,7 @@ func testAccCheckLBV2CertificateDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_lb_certificate_v2" {
+		if rs.Type != "huaweicloud_lb_certificate" {
 			continue
 		}
 
@@ -120,10 +117,10 @@ func testAccCheckLBV2CertificateExists(
 
 func testAccLBV2CertificateConfig_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_lb_certificate_v2" "certificate_1" {
-  name = "%s"
+resource "huaweicloud_lb_certificate" "certificate_1" {
+  name        = "%s"
   description = "terraform test certificate"
-  domain = "www.elb.com"
+  domain      = "www.elb.com"
   private_key = <<EOT
 -----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAwZ5UJULAjWr7p6FVwGRQRjFN2s8tZ/6LC3X82fajpVsYqF1x
@@ -190,10 +187,10 @@ EOT
 
 func testAccLBV2CertificateConfig_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_lb_certificate_v2" "certificate_1" {
-  name = "%s_updated"
+resource "huaweicloud_lb_certificate" "certificate_1" {
+  name        = "%s_updated"
   description = "terraform test certificate"
-  domain = "www.elb.com"
+  domain      = "www.elb.com"
   private_key = <<EOT
 -----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAwZ5UJULAjWr7p6FVwGRQRjFN2s8tZ/6LC3X82fajpVsYqF1x
@@ -260,10 +257,10 @@ EOT
 
 func testAccLBV2CertificateConfig_client(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_lb_certificate_v2" "certificate_client" {
-  name = "%s"
+resource "huaweicloud_lb_certificate" "certificate_client" {
+  name        = "%s"
   description = "terraform CA certificate"
-  type = "client"
+  type        = "client"
 
   certificate = <<EOT
 -----BEGIN CERTIFICATE-----
