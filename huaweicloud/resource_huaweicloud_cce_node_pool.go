@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -51,6 +52,11 @@ func resourceCCENodePool() *schema.Resource {
 			},
 			"type": {
 				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"labels": { //(k8s_tags)
+				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,
 			},
@@ -244,6 +250,7 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 				Login:       loginSpec,
 				RootVolume:  resourceCCERootVolume(d),
 				DataVolumes: resourceCCEDataVolume(d),
+				K8sTags:     resourceCCENodeK8sTags(d),
 				BillingMode: 0,
 				Count:       1,
 				NodeNicSpec: nodes.NodeNicSpec{
@@ -345,6 +352,15 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("max_node_count", s.Spec.Autoscaling.MaxNodeCount)
 	d.Set("scale_down_cooldown_time", s.Spec.Autoscaling.ScaleDownCooldownTime)
 	d.Set("priority", s.Spec.Autoscaling.Priority)
+
+	labels := map[string]string{}
+	for key, val := range s.Spec.NodeTemplate.K8sTags {
+		if strings.Contains(key, "cce.cloud.com") {
+			continue
+		}
+		labels[key] = val
+	}
+	d.Set("labels", labels)
 
 	var volumes []map[string]interface{}
 	for _, pairObject := range s.Spec.NodeTemplate.DataVolumes {
