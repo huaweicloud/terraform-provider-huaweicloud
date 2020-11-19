@@ -44,7 +44,7 @@ resource "huaweicloud_networking_router_route_v2" "router_route_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 networking client.
+* `region` - (Optional) The region in which to create the V2 networking client.
     A networking client is needed to configure a routing entry on a router. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     routing entry.

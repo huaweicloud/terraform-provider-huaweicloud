@@ -44,7 +44,7 @@ resource "huaweicloud_dms_instance" "instance_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the DMS instance resource. If omitted, the provider-level region will work as default. Changing this creates a new DMS instance resource.
+* `region` - (Optional) The region in which to create the DMS instance resource. If omitted, the provider-level region will be used. Changing this creates a new DMS instance resource.
 
 * `name` - (Required) Indicates the name of an instance. An instance name starts with a letter,
 	consists of 4 to 64 characters, and supports only letters, digits, and hyphens (-).

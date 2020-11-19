@@ -43,7 +43,7 @@ resource "huaweicloud_network_acl" "fw_acl" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the network acl resource. If omitted, the provider-level region will work as default. Changing this creates a new network acl resource.
+* `region` - (Optional) The region in which to create the network acl resource. If omitted, the provider-level region will be used. Changing this creates a new network acl resource.
 
 * `name` - (Required) Specifies the network ACL name. This parameter can contain a maximum of 64 characters,
     which may consist of letters, digits, underscores (_), and hyphens (-).

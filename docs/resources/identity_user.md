@@ -41,10 +41,6 @@ The following arguments are supported:
      two of the following character types: uppercase letters, lowercase letters, 
      digits, and special characters.
 
-* `region` - (Optional) The region in which to obtain the V3 Keystone client.
-    If omitted, the `region` argument of the provider is used. Changing this
-    creates a new User.
-
 ## Attributes Reference
 
 The following attributes are exported:

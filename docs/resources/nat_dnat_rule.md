@@ -26,7 +26,7 @@ resource "huaweicloud_nat_dnat_rule" "dnat_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the dnat rule resource. If omitted, the provider-level region will work as default. Changing this creates a new Dnat rule resource.
+* `region` - (Optional) The region in which to create the dnat rule resource. If omitted, the provider-level region will be used. Changing this creates a new Dnat rule resource.
 
 * `floating_ip_id` - (Required) Specifies the ID of the floating IP address.
   Changing this creates a new resource.

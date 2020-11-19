@@ -39,7 +39,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "instance_acc" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the instance. If omitted, the provider-level region will work as default. Changing this creates a new resource.
+* `region` - (Optional) The region in which to create the instance. If omitted, the provider-level region will be used. Changing this creates a new resource.
 
 * `name` - (Required) Specifies the instance name, which can be the same
   as an existing instance name. The value must be 4 to 64 characters in

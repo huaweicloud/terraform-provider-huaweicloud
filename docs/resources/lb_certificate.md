@@ -82,7 +82,7 @@ EOT
 The following arguments are supported:
 
 * `region` - (Optional) The region in which to create the ELB certificate resource.
-    If omitted, the provider-level region will be used as default.
+    If omitted, the provider-level region will be used.
     Changing this creates a new certificate.
 
 * `name` - (Optional) Human-readable name for the Certificate. Does not have

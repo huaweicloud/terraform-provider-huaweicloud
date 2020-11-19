@@ -39,7 +39,7 @@ resource "huaweicloud_networking_eip_associate" "eip_1" {
 The following arguments are supported:
 
 * `region` - (Optional) The region in which to create the loadbalancer resource.
-    If omitted, the provider-level region will be used as default.
+    If omitted, the provider-level region will be used.
     Changing this creates a new loadbalancer.
 
 * `name` - (Optional) Human-readable name for the loadbalancer. Does not have

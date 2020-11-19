@@ -25,7 +25,7 @@ resource "huaweicloud_networking_port" "myport" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the networking port resource. If omitted, the provider-level region will work as default. Changing this creates a new port resource.
+* `region` - (Optional) The region in which to create the networking port resource. If omitted, the provider-level region will be used. Changing this creates a new port resource.
 
 * `name` - (Optional) A unique name for the port. Changing this
     updates the `name` of an existing port.

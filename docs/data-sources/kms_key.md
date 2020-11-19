@@ -24,7 +24,7 @@ data "huaweicloud_kms_key" "key_1" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the keys. If omitted, the provider-level region will work as default.
+* `region` - (Optional) The region in which to obtain the keys. If omitted, the provider-level region will be used.
 
 * `key_alias` - (Optional) The alias in which to create the key. It is required when
     we create a new key. Changing this gets the new key.

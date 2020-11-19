@@ -26,7 +26,7 @@ resource "huaweicloud_lb_listener" "listener_1" {
 The following arguments are supported:
 
 * `region` - (Optional) The region in which to create the listener resource.
-    If omitted, the provider-level region will be used as default.
+    If omitted, the provider-level region will be used.
     Changing this creates a new listener.
 
 * `protocol` - (Required) The protocol can either be TCP, HTTP, HTTPS or TERMINATED_HTTPS.

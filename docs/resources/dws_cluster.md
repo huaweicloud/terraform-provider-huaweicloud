@@ -38,7 +38,7 @@ resource "huaweicloud_dws_cluster" "cluster" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the cluster resource. If omitted, the provider-level region will work as default. Changing this creates a new cluster resource.
+* `region` - (Optional) The region in which to create the cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cluster resource.
 
 * `name` -
   (Required)

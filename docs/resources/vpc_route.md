@@ -22,7 +22,7 @@ resource "huaweicloud_vpc_route" "vpc_route" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the vpc route. If omitted, the provider-level region will work as default. Changing this creates a new Route resource.
+* `region` - (Optional) The region in which to create the vpc route. If omitted, the provider-level region will be used. Changing this creates a new Route resource.
 
 * `destination` (Required) - Specifies the destination IP address or CIDR block. Changing this creates a new Route.
 
