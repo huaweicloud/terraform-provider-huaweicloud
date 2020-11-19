@@ -41,7 +41,7 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the cce pool resource. If omitted, the provider-level region will work as default. Changing this creates a new cce node pool resource.
+* `region` - (Optional) The region in which to create the cce pool resource. If omitted, the provider-level region will be used. Changing this creates a new cce node pool resource.
 
 * `cluster_id` - (Required) ID of the cluster. Changing this parameter will create a new resource.
 

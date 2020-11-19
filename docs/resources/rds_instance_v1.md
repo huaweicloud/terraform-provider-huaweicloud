@@ -168,12 +168,12 @@ The following arguments are supported:
 
 * `availabilityzone` - (Required) Specifies the ID of the AZ.
 
-* `vpc` - (Required) Specifies the VPC ID. For details about how to obtain this
+* `vpc` - (Required) Specifies the VPC ID. For details about how to create this
     parameter value, see section "Virtual Private Cloud" in the Virtual Private
     Cloud API Reference.
 
 * `nics` - (Required) Specifies the nics information. For details about how
-    to obtain this parameter value, see section "Subnet" in the Virtual Private
+    to create this parameter value, see section "Subnet" in the Virtual Private
     Cloud API Reference. The structure is described below.
 
 * `securitygroup` - (Required) Specifies the security group which the RDS DB

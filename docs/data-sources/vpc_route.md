@@ -21,7 +21,7 @@ The arguments of this data source act as filters for querying the available
 routes in the current tenant. The given filters must match exactly one
 route whose data will be exported as attributes.
 
-* `region` - (Optional) The region in which to obtain the vpc route. If omitted, the provider-level region will work as default.
+* `region` - (Optional) The region in which to obtain the vpc route. If omitted, the provider-level region will be used.
 
 * `id` (Optional) - The id of the specific route to retrieve.
 

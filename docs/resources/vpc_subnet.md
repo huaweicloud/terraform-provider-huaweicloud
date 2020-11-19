@@ -40,7 +40,7 @@ resource "huaweicloud_vpc_subnet" "subnet_with_tags" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the vpc subnet. If omitted, the provider-level region will work as default. hanging this creates a new Subnet resource.
+* `region` - (Optional) The region in which to create the vpc subnet. If omitted, the provider-level region will be used. hanging this creates a new Subnet resource.
 
 * `name` (Required) - The subnet name. The value is a string of 1 to 64 characters that can contain letters, digits, underscores (_), and hyphens (-).
 

@@ -25,7 +25,7 @@ resource "huaweicloud_dms_queue" "queue_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the DMS queue resource. If omitted, the provider-level region will work as default. Changing this creates a new DMS queue resource.
+* `region` - (Optional) The region in which to create the DMS queue resource. If omitted, the provider-level region will be used. Changing this creates a new DMS queue resource.
 
 * `name` - (Required) Indicates the unique name of a queue. A string of 1 to 64
     characters that contain a-z, A-Z, 0-9, hyphens (-), and underscores (_).

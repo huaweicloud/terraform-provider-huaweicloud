@@ -24,7 +24,7 @@ resource "huaweicloud_lb_monitor" "monitor_1" {
 The following arguments are supported:
 
 * `region` - (Optional) The region in which to create the ELB monitor resource.
-    If omitted, the provider-level region will be used as default.
+    If omitted, the provider-level region will be used.
     Changing this creates a new monitor.
 
 * `pool_id` - (Required) The id of the pool that this monitor will be assigned to.

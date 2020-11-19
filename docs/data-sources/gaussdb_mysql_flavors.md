@@ -15,7 +15,7 @@ data "huaweicloud_gaussdb_mysql_flavors" "flavors" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the flavors. If omitted, the provider-level region will work as default.
+* `region` - (Optional) The region in which to obtain the flavors. If omitted, the provider-level region will be used.
 
 * `engine` - (Optional) Specifies the database engine. Only "gaussdb-mysql" is supported now.
 

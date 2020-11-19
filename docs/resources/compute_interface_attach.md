@@ -100,7 +100,7 @@ resource "huaweicloud_compute_interface_attach" "attached" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the network interface attache resource. If omitted, the provider-level region will work as default. Changing this creates a new network interface attache resource.
+* `region` - (Optional) The region in which to create the network interface attache resource. If omitted, the provider-level region will be used. Changing this creates a new network interface attache resource.
 
 * `instance_id` - (Required) The ID of the Instance to attach the Port or Network to.
 

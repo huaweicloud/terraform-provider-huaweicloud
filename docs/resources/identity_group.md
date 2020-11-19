@@ -30,10 +30,6 @@ The following arguments are supported:
 
 * `domain_id` - (Optional) The domain this group belongs to.
 
-* `region` - (Optional) The region in which to obtain the V3 Keystone client.
-    If omitted, the `region` argument of the provider is used. Changing this
-    creates a new User Group.
-
 ## Attributes Reference
 
 The following attributes are exported:

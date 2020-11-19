@@ -35,10 +35,6 @@ The following arguments are supported:
 * `parent_id` - (Optional) The parent of this project. Changing this creates
     a new Project.
 
-* `region` - (Optional) The region in which to obtain the IAM client.
-    If omitted, the `region` argument of the provider is used. Changing this
-    creates a new Project.
-
 ## Attributes Reference
 
 The following attributes are exported:

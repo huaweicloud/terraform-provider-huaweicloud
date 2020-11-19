@@ -34,7 +34,7 @@ resource "huaweicloud_evs_snapshot" "snapshot_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the evs snapshot resource. If omitted, the provider-level region will work as default. Changing this creates a new EVS snapshot resource.
+* `region` - (Optional) The region in which to create the evs snapshot resource. If omitted, the provider-level region will be used. Changing this creates a new EVS snapshot resource.
 
 * `volume_id` - (Required) The id of the snapshot's source disk. Changing the parameter creates a new snapshot.
 

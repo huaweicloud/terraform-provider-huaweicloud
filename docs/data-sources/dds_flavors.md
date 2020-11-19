@@ -18,7 +18,7 @@ data "huaweicloud_dds_flavors" "flavor" {
 
 ## Argument Reference
 
-* `region` - (Optional) Specifies the region in which to obtain the V3 dds client. If omitted, the provider-level region will work as default.
+* `region` - (Optional) Specifies the region in which to obtain the V3 dds client. If omitted, the provider-level region will be used.
 
 * `engine_name` - (Required) Specifies the engine name of the dds, "DDS-Community" and "DDS-Enhanced" are supported.
 

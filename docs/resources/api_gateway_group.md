@@ -19,7 +19,7 @@ resource "huaweicloud_api_gateway_group" "apigw_group" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the API gateway group resource. If omitted, the provider-level region will work as default. Changing this creates a new gateway group resource.
+* `region` - (Optional) The region in which to create the API gateway group resource. If omitted, the provider-level region will be used. Changing this creates a new gateway group resource.
 
 * `name` - (Required) Specifies the name of the API group. An API group name consists of 3–64 characters,
     starting with a letter. Only letters, digits, and underscores (_) are allowed.

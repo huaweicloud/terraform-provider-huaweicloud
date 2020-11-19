@@ -25,7 +25,7 @@ resource "huaweicloud_fw_rule_v2" "rule_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the v2 Networking client.
+* `region` - (Optional) The region in which to create the v2 Networking client.
     A Compute client is needed to create a firewall rule. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     firewall rule.

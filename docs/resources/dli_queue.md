@@ -22,7 +22,7 @@ resource "huaweicloud_dli_queue" "queue" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the DLI queue resource. If omitted, the provider-level region will work as default. Changing this creates a new DLI Queue resource.
+* `region` - (Optional) The region in which to create the DLI queue resource. If omitted, the provider-level region will be used. Changing this creates a new DLI Queue resource.
 
 * `cu_count` -
   (Required)

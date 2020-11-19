@@ -45,7 +45,7 @@ resource "huaweicloud_evs_volume" "volume" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the EVS volume resource. If omitted, the provider-level region will work as default. Changing this creates a new EVS resource.
+* `region` - (Optional) The region in which to create the EVS volume resource. If omitted, the provider-level region will be used. Changing this creates a new EVS resource.
 
 * `availability_zone` - (Required) The availability zone for the volume.
     Changing this creates a new volume.

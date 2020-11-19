@@ -31,7 +31,7 @@ resource "huaweicloud_sfs_file_system" "share-file" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the sfs resource. If omitted, the provider-level region will work as default. Changing this creates a new sfs resource.
+* `region` - (Optional) The region in which to create the sfs resource. If omitted, the provider-level region will be used. Changing this creates a new sfs resource.
 
 * `size` - (Required) The size (GB) of the shared file system.
 

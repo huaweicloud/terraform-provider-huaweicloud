@@ -15,7 +15,7 @@ resource "huaweicloud_cce_addon" "addon_test" {
 
 ## Argument Reference
 The following arguments are supported:
-* `region` - (Optional) The region in which to obtain the cce addon resource. If omitted, the provider-level region will work as default. Changing this creates a new cce addon resource.
+* `region` - (Optional) The region in which to create the cce addon resource. If omitted, the provider-level region will be used. Changing this creates a new cce addon resource.
 * `cluster_id` - (Required) ID of the cluster. Changing this parameter will create a new resource.
 * `template_name` - (Required) Name of the addon template. Changing this parameter will create a new resource.
 * `version` - (Required) Version of the addon. Changing this parameter will create a new resource.

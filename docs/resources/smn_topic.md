@@ -20,7 +20,7 @@ resource "huaweicloud_smn_topic" "topic_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the SMN topic resource. If omitted, the provider-level region will work as default. Changing this creates a new SMN Topic resource.
+* `region` - (Optional) The region in which to create the SMN topic resource. If omitted, the provider-level region will be used. Changing this creates a new SMN Topic resource.
 
 * `name` - (Required) The name of the topic to be created.
 

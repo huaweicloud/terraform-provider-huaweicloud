@@ -35,7 +35,7 @@ The following arguments are supported:
 
 * `queue_id` - (Required) Indicates the ID of a specified queue.
 
-* `region` - (Optional) The region in which to obtain the DMS group resource. If omitted, the provider-level region will work as default. Changing this creates a new DMS group resource.
+* `region` - (Optional) The region in which to create the DMS group resource. If omitted, the provider-level region will be used. Changing this creates a new DMS group resource.
 
 
 ## Attributes Reference

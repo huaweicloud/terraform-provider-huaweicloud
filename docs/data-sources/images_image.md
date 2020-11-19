@@ -19,7 +19,7 @@ data "huaweicloud_images_image" "ubuntu" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the images. If omitted, the provider-level region will work as default.
+* `region` - (Optional) The region in which to obtain the images. If omitted, the provider-level region will be used.
 
 * `most_recent` - (Optional) If more than one result is returned, use the most
   recent image.

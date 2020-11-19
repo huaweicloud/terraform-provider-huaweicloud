@@ -22,7 +22,7 @@ data "huaweicloud_cts_tracker" "tracker_v1" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the Cloud Trackers. If omitted, the provider-level region will work as default.
+* `region` - (Optional) The region in which to obtain the Cloud Trackers. If omitted, the provider-level region will be used.
 
 * `tracker_name` - (Optional) The tracker name. 
 

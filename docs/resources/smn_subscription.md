@@ -34,7 +34,7 @@ resource "huaweicloud_smn_subscription" "subscription_2" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the SMN subscription resource. If omitted, the provider-level region will work as default. Changing this creates a new SMN subscription resource.
+* `region` - (Optional) The region in which to create the SMN subscription resource. If omitted, the provider-level region will be used. Changing this creates a new SMN subscription resource.
 
 * `topic_urn` - (Required) Resource identifier of a topic, which is unique.
 

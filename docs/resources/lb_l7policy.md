@@ -44,7 +44,7 @@ resource "huaweicloud_lb_l7policy" "l7policy_1" {
 The following arguments are supported:
 
 * `region` - (Optional) The region in which to create the L7 Policy resource.
-    If omitted, the provider-level region will be used as default.
+    If omitted, the provider-level region will be used.
     Changing this creates a new L7 Policy.
 
 * `tenant_id` - (Optional) Required for admins. The UUID of the tenant who owns

@@ -49,7 +49,7 @@ resource "huaweicloud_obs_bucket_object" "examplebucket_object" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the OBS bucket object resource. If omitted, the provider-level region will work as default. Changing this creates a new OBS bucket object resource.
+* `region` - (Optional) The region in which to create the OBS bucket object resource. If omitted, the provider-level region will be used. Changing this creates a new OBS bucket object resource.
 
 * `bucket` - (Required) The name of the bucket to put the file in.
 

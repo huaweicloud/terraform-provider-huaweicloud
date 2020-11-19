@@ -21,7 +21,7 @@ resource "huaweicloud_vpc_bandwidth" "bandwidth_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the Shared Bandwidth. If omitted, the provider-level region will work as default. Changing this creates a new Shared Bandwidth resource.
+* `region` - (Optional) The region in which to create the Shared Bandwidth. If omitted, the provider-level region will be used. Changing this creates a new Shared Bandwidth resource.
 
 * `name` - (Required) The name of the Shared Bandwidth.
 

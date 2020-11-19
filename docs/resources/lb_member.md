@@ -23,7 +23,7 @@ resource "huaweicloud_lb_member" "member_1" {
 The following arguments are supported:
 
 * `region` - (Optional) The region in which to create the ELB member resource.
-    If omitted, the the provider-level region will be used as default.
+    If omitted, the the provider-level region will be used.
     Changing this creates a new member.
 
 * `pool_id` - (Required) The id of the pool that this member will be
