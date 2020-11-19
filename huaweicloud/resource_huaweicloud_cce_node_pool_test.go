@@ -162,11 +162,11 @@ resource "huaweicloud_cce_node_pool" "test" {
 
   root_volume {
     size       = 40
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
   data_volumes {
     size       = 100
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
 }
 `, testAccCCENodePool_Base(rName), rName)
@@ -193,11 +193,11 @@ resource "huaweicloud_cce_node_pool" "test" {
 
   root_volume {
     size       = 40
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
   data_volumes {
     size       = 100
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
 }
 `, testAccCCENodePool_Base(rName), updateName)
