@@ -1,4 +1,4 @@
-## 1.20.0 (November 13, 2020)
+## 1.19.2 (November 19, 2020)
 
 FEATURES:
 
