@@ -84,6 +84,8 @@ The following arguments are supported:
 
 * `priority` - (Optional) Weight of a node pool. A node pool with a higher weight has a higher priority during scaling.
 
+* `labels` - (Optional) Tags of a Kubernetes node, key/value pair format. Changing this parameter will create a new resource.
+
 **root_volume** **- (Required)** It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
 
 * `size` - (Required) Disk size in GB.

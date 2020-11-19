@@ -156,6 +156,8 @@ The following arguments are supported:
 * `postinstall` - (Optional) Script required after installation. The input value can be a Base64 encoded string or not.
    Changing this parameter will create a new resource.
 
+* `labels` - (Optional) Tags of a Kubernetes node, key/value pair format. Changing this parameter will create a new resource.
+
 * `tags` - (Optional) Tags of a VM node, key/value pair format.
 
 * `root_volume` - (Required) It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
