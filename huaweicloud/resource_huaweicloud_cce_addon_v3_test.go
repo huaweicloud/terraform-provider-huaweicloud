@@ -114,11 +114,11 @@ resource "huaweicloud_cce_node_v3" "test" {
 
 	root_volume {
 	size       = 40
-	volumetype = "SATA"
+	volumetype = "SSD"
 	}
 	data_volumes {
 	size       = 100
-	volumetype = "SATA"
+	volumetype = "SSD"
 	}
 }
 `, testAccCCENodeV3_Base(rName), rName)
