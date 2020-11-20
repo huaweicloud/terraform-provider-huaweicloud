@@ -12,7 +12,7 @@ import (
 func TestAccApiGatewayGroup_basic(t *testing.T) {
 	var resName = "huaweicloud_api_gateway_group.acc_apigw_group"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckApiGatewayGroupDestroy,

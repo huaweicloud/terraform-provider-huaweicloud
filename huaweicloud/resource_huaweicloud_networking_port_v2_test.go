@@ -17,7 +17,7 @@ func TestAccNetworkingV2Port_basic(t *testing.T) {
 	var port ports.Port
 	var subnet subnets.Subnet
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2PortDestroy,
@@ -47,7 +47,7 @@ func TestAccNetworkingV2Port_noip(t *testing.T) {
 	var port ports.Port
 	var subnet subnets.Subnet
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2PortDestroy,
@@ -70,7 +70,7 @@ func TestAccNetworkingV2Port_timeout(t *testing.T) {
 	var port ports.Port
 	var subnet subnets.Subnet
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2PortDestroy,
@@ -92,7 +92,7 @@ func TestAccNetworkingV2Port_createExtraDHCPOpts(t *testing.T) {
 	var subnet subnets.Subnet
 	var port ports.Port
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2PortDestroy,
@@ -124,7 +124,7 @@ func TestAccNetworkingV2Port_updateExtraDHCPOpts(t *testing.T) {
 	var subnet subnets.Subnet
 	var port ports.Port
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2PortDestroy,

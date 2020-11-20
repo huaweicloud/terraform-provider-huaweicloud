@@ -18,7 +18,7 @@ func TestAccEvsStorageV3Volume_basic(t *testing.T) {
 	resourceName := "huaweicloud_evs_volume.test"
 	rNameUpdate := rName + "-updated"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckEvsStorageV3VolumeDestroy,
@@ -45,7 +45,7 @@ func TestAccEvsStorageV3Volume_tags(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_volume.test"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckEvsStorageV3VolumeDestroy,
@@ -74,7 +74,7 @@ func TestAccEvsStorageV3Volume_image(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_volume.test"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckEvsStorageV3VolumeDestroy,

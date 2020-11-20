@@ -47,7 +47,7 @@ func TestAccFWRuleV2_basic(t *testing.T) {
 		Enabled:              false,
 	}
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWRuleV2Destroy,
@@ -90,7 +90,7 @@ func TestAccFWRuleV2_anyProtocol(t *testing.T) {
 		Enabled:         true,
 	}
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWRuleV2Destroy,

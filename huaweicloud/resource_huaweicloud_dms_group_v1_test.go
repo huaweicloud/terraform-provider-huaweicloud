@@ -16,7 +16,7 @@ func TestAccDmsGroupsV1_basic(t *testing.T) {
 	var groupName = fmt.Sprintf("dms_group_%s", acctest.RandString(5))
 	var queueName = fmt.Sprintf("dms_queue_%s", acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDms(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDmsV1GroupDestroy,

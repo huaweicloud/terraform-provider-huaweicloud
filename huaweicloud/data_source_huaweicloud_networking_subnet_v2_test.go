@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccNetworkingV2SubnetDataSource_basic(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheckDeprecated(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -30,7 +30,7 @@ func TestAccNetworkingV2SubnetDataSource_basic(t *testing.T) {
 }
 
 func TestAccNetworkingV2SubnetDataSource_testQueries(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheckDeprecated(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -66,7 +66,7 @@ func TestAccNetworkingV2SubnetDataSource_testQueries(t *testing.T) {
 }
 
 func TestAccNetworkingV2SubnetDataSource_networkIdAttribute(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheckDeprecated(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

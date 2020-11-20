@@ -16,7 +16,7 @@ func TestAccLBV2Certificate_basic(t *testing.T) {
 	name := fmt.Sprintf("tf-cert-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_certificate.certificate_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2CertificateDestroy,
@@ -44,7 +44,7 @@ func TestAccLBV2Certificate_client(t *testing.T) {
 	name := fmt.Sprintf("tf-cert-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_certificate.certificate_client"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2CertificateDestroy,

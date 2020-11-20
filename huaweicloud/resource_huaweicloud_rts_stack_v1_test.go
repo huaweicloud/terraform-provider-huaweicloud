@@ -14,7 +14,7 @@ func TestAccRTSStackV1_basic(t *testing.T) {
 	var stacks stacks.RetrievedStack
 	resourceName := "huaweicloud_rts_stack_v1.stack_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRTSStackV1Destroy,
@@ -58,7 +58,7 @@ func TestAccRTSStackV1_timeout(t *testing.T) {
 	var stacks stacks.RetrievedStack
 	resourceName := "huaweicloud_rts_stack_v1.stack_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRTSStackV1Destroy,

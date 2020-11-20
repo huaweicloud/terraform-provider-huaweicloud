@@ -19,7 +19,7 @@ func TestAccDataSourceS3BucketObject_basic(t *testing.T) {
 	var rObj s3.GetObjectOutput
 	var dsObj s3.GetObjectOutput
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                  func() { testAccPreCheckDeprecated(t) },
 		Providers:                 testAccProviders,
 		PreventPostDestroyRefresh: true,
@@ -53,7 +53,7 @@ func TestAccDataSourceS3BucketObject_readableBody(t *testing.T) {
 	var rObj s3.GetObjectOutput
 	var dsObj s3.GetObjectOutput
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                  func() { testAccPreCheckDeprecated(t) },
 		Providers:                 testAccProviders,
 		PreventPostDestroyRefresh: true,
@@ -87,7 +87,7 @@ func TestAccDataSourceAWSS3BucketObject_allParams(t *testing.T) {
 	var rObj s3.GetObjectOutput
 	var dsObj s3.GetObjectOutput
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                  func() { testAccPreCheckDeprecated(t) },
 		Providers:                 testAccProviders,
 		PreventPostDestroyRefresh: true,

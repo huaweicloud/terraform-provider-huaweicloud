@@ -13,7 +13,7 @@ import (
 func TestAccComputeV2VolumeAttach_basic(t *testing.T) {
 	var va volumeattach.VolumeAttachment
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2VolumeAttachDestroy,
@@ -36,7 +36,7 @@ func TestAccComputeV2VolumeAttach_basic(t *testing.T) {
 func TestAccComputeV2VolumeAttach_device(t *testing.T) {
 	var va volumeattach.VolumeAttachment
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2VolumeAttachDestroy,
@@ -54,7 +54,7 @@ func TestAccComputeV2VolumeAttach_device(t *testing.T) {
 func TestAccComputeV2VolumeAttach_timeout(t *testing.T) {
 	var va volumeattach.VolumeAttachment
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2VolumeAttachDestroy,

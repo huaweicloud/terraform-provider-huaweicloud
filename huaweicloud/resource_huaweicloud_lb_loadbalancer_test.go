@@ -17,7 +17,7 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
 	resourceName := "huaweicloud_lb_loadbalancer.loadbalancer_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckULB(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2LoadBalancerDestroy,
@@ -50,7 +50,7 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 	var sg_1, sg_2 groups.SecGroup
 	resourceName := "huaweicloud_lb_loadbalancer.loadbalancer_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckULB(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2LoadBalancerDestroy,

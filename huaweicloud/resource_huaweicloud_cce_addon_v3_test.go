@@ -18,7 +18,7 @@ func TestAccCCEAddonV3_basic(t *testing.T) {
 	resourceName := "huaweicloud_cce_addon.test"
 	clusterName := "huaweicloud_cce_cluster_v3.test"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCCEAddonV3Destroy,

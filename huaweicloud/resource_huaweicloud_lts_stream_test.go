@@ -11,7 +11,7 @@ import (
 
 func TestAccLogTankStreamV2_basic(t *testing.T) {
 	var stream logstreams.LogStream
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLogTankStreamV2Destroy,

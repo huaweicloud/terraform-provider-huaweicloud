@@ -16,7 +16,7 @@ func TestAccNetworkingV2VIP_basic(t *testing.T) {
 	resourceName := "huaweicloud_networking_vip.vip_1"
 	var vip ports.Port
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2VIPDestroy,

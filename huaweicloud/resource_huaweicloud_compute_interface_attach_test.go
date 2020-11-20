@@ -13,7 +13,7 @@ import (
 func TestAccComputeV2InterfaceAttach_basic(t *testing.T) {
 	var ai attachinterfaces.Interface
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2InterfaceAttachDestroy,
@@ -31,7 +31,7 @@ func TestAccComputeV2InterfaceAttach_basic(t *testing.T) {
 func TestAccComputeV2InterfaceAttach_IP(t *testing.T) {
 	var ai attachinterfaces.Interface
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2InterfaceAttachDestroy,

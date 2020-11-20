@@ -13,7 +13,7 @@ func TestAccLBV2Pool_basic(t *testing.T) {
 	var pool pools.Pool
 	resourceName := "huaweicloud_lb_pool.pool_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckULB(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2PoolDestroy,

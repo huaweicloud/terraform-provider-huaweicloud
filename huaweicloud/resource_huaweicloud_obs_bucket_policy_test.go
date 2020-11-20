@@ -19,7 +19,7 @@ func TestAccObsBucketPolicy_basic(t *testing.T) {
 		`{"Statement":[{"Sid":"test1","Effect":"Allow","Principal":{"ID":["*"]},"Action":["GetObject"],"Resource":["%s/*"]}]}`,
 		name)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckS3(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
@@ -54,7 +54,7 @@ func TestAccObsBucketPolicy_update(t *testing.T) {
 		`{"Statement":[{"Sid":"test2","Effect":"Allow","Principal":{"ID":["*"]},"Action":["GetObject","PutObject","DeleteObject"],"Resource":["%s/*"]}]}`,
 		name)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckS3(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
@@ -88,7 +88,7 @@ func TestAccObsBucketPolicy_s3(t *testing.T) {
 		`{"Version":"2008-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:*"],"Resource":["arn:aws:s3:::%s","arn:aws:s3:::%s/*"]}]}`,
 		name, name)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckS3(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,

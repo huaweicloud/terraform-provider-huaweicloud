@@ -15,7 +15,7 @@ import (
 func TestAccNetworkingV2Network_basic(t *testing.T) {
 	var network networks.Network
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2NetworkDestroy,
@@ -47,7 +47,7 @@ func TestAccNetworkingV2Network_netstack(t *testing.T) {
 	var subnet subnets.Subnet
 	var router routers.Router
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2NetworkDestroy,
@@ -69,7 +69,7 @@ func TestAccNetworkingV2Network_netstack(t *testing.T) {
 func TestAccNetworkingV2Network_timeout(t *testing.T) {
 	var network networks.Network
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2NetworkDestroy,
@@ -87,7 +87,7 @@ func TestAccNetworkingV2Network_timeout(t *testing.T) {
 func TestAccNetworkingV2Network_multipleSegmentMappings(t *testing.T) {
 	var network networks.Network
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheckDeprecated(t)
 			testAccPreCheckAdminOnly(t)

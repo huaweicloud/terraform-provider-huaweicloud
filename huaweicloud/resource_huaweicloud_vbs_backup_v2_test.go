@@ -15,7 +15,7 @@ func TestAccVBSBackupV2_basic(t *testing.T) {
 	var config backups.Backup
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVBSBackupV2Destroy,
@@ -43,7 +43,7 @@ func TestAccVBSBackupV2_timeout(t *testing.T) {
 	var config backups.Backup
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVBSBackupV2Destroy,

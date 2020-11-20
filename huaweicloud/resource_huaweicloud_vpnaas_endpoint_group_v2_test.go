@@ -12,7 +12,7 @@ import (
 
 func TestAccVpnGroupV2_basic(t *testing.T) {
 	var group endpointgroups.EndpointGroup
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckEndpointGroupV2Destroy,

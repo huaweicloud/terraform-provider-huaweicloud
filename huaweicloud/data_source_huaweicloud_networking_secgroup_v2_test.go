@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccHuaweiCloudNetworkingSecGroupV2DataSource_basic(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -29,7 +29,7 @@ func TestAccHuaweiCloudNetworkingSecGroupV2DataSource_basic(t *testing.T) {
 }
 
 func TestAccHuaweiCloudNetworkingSecGroupV2DataSource_secGroupID(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

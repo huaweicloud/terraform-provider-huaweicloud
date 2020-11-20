@@ -22,7 +22,7 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_instance.test"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
@@ -50,7 +50,7 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 func TestAccComputeV2Instance_disks(t *testing.T) {
 	var instance servers.Server
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
@@ -70,7 +70,7 @@ func TestAccComputeV2Instance_disks(t *testing.T) {
 func TestAccComputeV2Instance_tags(t *testing.T) {
 	var instance servers.Server
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
@@ -115,7 +115,7 @@ func TestAccComputeV2Instance_secgroupMulti(t *testing.T) {
 	var instance_1 servers.Server
 	var secgroup_1, secgroup_2 groups.SecGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
@@ -147,7 +147,7 @@ func TestAccComputeV2Instance_secgroupMulti(t *testing.T) {
 func TestAccComputeV2Instance_bootFromVolumeImage(t *testing.T) {
 	var instance servers.Server
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
@@ -175,7 +175,7 @@ func TestAccComputeV2Instance_bootFromVolumeImage(t *testing.T) {
 func TestAccComputeV2Instance_bootFromVolumeVolume(t *testing.T) {
 	var instance servers.Server
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
@@ -195,7 +195,7 @@ func TestAccComputeV2Instance_bootFromVolumeForceNew(t *testing.T) {
 	var instance1_1 servers.Server
 	var instance1_2 servers.Server
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
@@ -232,7 +232,7 @@ func TestAccComputeV2Instance_changeFixedIP(t *testing.T) {
 	var instance1_1 servers.Server
 	var instance1_2 servers.Server
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
@@ -258,7 +258,7 @@ func TestAccComputeV2Instance_changeFixedIP(t *testing.T) {
 
 func TestAccComputeV2Instance_stopBeforeDestroy(t *testing.T) {
 	var instance servers.Server
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2InstanceDestroy,

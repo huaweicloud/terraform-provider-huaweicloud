@@ -15,7 +15,7 @@ func TestAccDcsInstancesV1_basic(t *testing.T) {
 	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dcs_instance.instance_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDcsV1InstanceDestroy,
@@ -43,7 +43,7 @@ func TestAccDcsInstancesV1_withEpsId(t *testing.T) {
 	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dcs_instance.instance_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDcsV1InstanceDestroy,
@@ -65,7 +65,7 @@ func TestAccDcsInstancesV1_whitelists(t *testing.T) {
 	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dcs_instance.instance_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDcsV1InstanceDestroy,
@@ -90,7 +90,7 @@ func TestAccDcsInstancesV1_tiny(t *testing.T) {
 	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dcs_instance.instance_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDcsV1InstanceDestroy,

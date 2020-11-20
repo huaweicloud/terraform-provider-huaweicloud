@@ -14,7 +14,7 @@ import (
 func TestAccASV1Policy_basic(t *testing.T) {
 	var asPolicy policies.Policy
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccAsConfigPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckASV1PolicyDestroy,

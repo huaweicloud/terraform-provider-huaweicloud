@@ -13,7 +13,7 @@ func TestAccSFSFileSystemV2_basic(t *testing.T) {
 	var share shares.Share
 	resourceName := "huaweicloud_sfs_file_system.sfs_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSFSFileSystemV2Destroy,
@@ -54,7 +54,7 @@ func TestAccSFSFileSystemV2_withEpsId(t *testing.T) {
 	var share shares.Share
 	resourceName := "huaweicloud_sfs_file_system.sfs_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSFSFileSystemV2Destroy,
@@ -75,7 +75,7 @@ func TestAccSFSFileSystemV2_withoutRule(t *testing.T) {
 	var share shares.Share
 	resourceName := "huaweicloud_sfs_file_system.sfs_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSFSFileSystemV2Destroy,

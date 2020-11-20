@@ -20,7 +20,7 @@ func TestAccCCENodePool_basic(t *testing.T) {
 	//clusterName here is used to provide the cluster id to fetch cce node pool.
 	clusterName := "huaweicloud_cce_cluster.test"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCCENodePoolDestroy,

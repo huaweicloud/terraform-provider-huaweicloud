@@ -13,7 +13,7 @@ import (
 func TestAccNetworkingV2Router_basic(t *testing.T) {
 	var router routers.Router
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2RouterDestroy,
@@ -43,7 +43,7 @@ func TestAccNetworkingV2Router_basic(t *testing.T) {
 func TestAccNetworkingV2Router_updateExternalGateway(t *testing.T) {
 	var router routers.Router
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2RouterDestroy,
@@ -68,7 +68,7 @@ func TestAccNetworkingV2Router_updateExternalGateway(t *testing.T) {
 func TestAccNetworkingV2Router_timeout(t *testing.T) {
 	var router routers.Router
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2RouterDestroy,

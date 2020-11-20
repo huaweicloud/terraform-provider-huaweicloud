@@ -14,7 +14,7 @@ func TestAccRtsSoftwareConfigV1_basic(t *testing.T) {
 	var config softwareconfig.SoftwareConfig
 	resourceName := "huaweicloud_rts_software_config_v1.config_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRtsSoftwareConfigV1Destroy,
@@ -42,7 +42,7 @@ func TestAccRtsSoftwareConfigV1_timeout(t *testing.T) {
 	var config softwareconfig.SoftwareConfig
 	resourceName := "huaweicloud_rts_software_config_v1.config_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRtsSoftwareConfigV1Destroy,

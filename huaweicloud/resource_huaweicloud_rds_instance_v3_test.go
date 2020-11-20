@@ -28,7 +28,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 	name := acctest.RandString(10)
 	resourceName := "huaweicloud_rds_instance.instance"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRdsInstanceV3Destroy,
@@ -70,7 +70,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
 	name := acctest.RandString(10)
 	resourceName := "huaweicloud_rds_instance.instance"
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRdsInstanceV3Destroy,

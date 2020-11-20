@@ -17,7 +17,7 @@ func TestAccNetworkingV2SecGroupRule_basic(t *testing.T) {
 	var secgroup_rule_1 rules.SecGroupRule
 	var secgroup_rule_2 rules.SecGroupRule
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2SecGroupRuleDestroy,
@@ -48,7 +48,7 @@ func TestAccNetworkingV2SecGroupRule_lowerCaseCIDR(t *testing.T) {
 	var secgroup_1 groups.SecGroup
 	var secgroup_rule_1 rules.SecGroupRule
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2SecGroupRuleDestroy,
@@ -72,7 +72,7 @@ func TestAccNetworkingV2SecGroupRule_timeout(t *testing.T) {
 	var secgroup_1 groups.SecGroup
 	var secgroup_2 groups.SecGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2SecGroupRuleDestroy,
@@ -94,7 +94,7 @@ func TestAccNetworkingV2SecGroupRule_numericProtocol(t *testing.T) {
 	var secgroup_1 groups.SecGroup
 	var secgroup_rule_1 rules.SecGroupRule
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2SecGroupRuleDestroy,

@@ -13,7 +13,7 @@ import (
 func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 	var security_group groups.SecGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2SecGroupDestroy,
@@ -47,7 +47,7 @@ func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
 	var security_group groups.SecGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2SecGroupDestroy,
@@ -68,7 +68,7 @@ func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
 func TestAccNetworkingV2SecGroup_noDefaultRules(t *testing.T) {
 	var security_group groups.SecGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2SecGroupDestroy,
@@ -88,7 +88,7 @@ func TestAccNetworkingV2SecGroup_noDefaultRules(t *testing.T) {
 func TestAccNetworkingV2SecGroup_timeout(t *testing.T) {
 	var security_group groups.SecGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2SecGroupDestroy,

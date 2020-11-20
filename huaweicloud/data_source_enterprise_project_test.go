@@ -11,7 +11,7 @@ import (
 func TestAccEnterpriseProjectDataSource_basic(t *testing.T) {
 	resourceName := "data.huaweicloud_enterprise_project.test"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
