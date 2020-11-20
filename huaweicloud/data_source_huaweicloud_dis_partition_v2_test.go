@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccHuaweiCloudDisPartionV2DataSource_basic(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDisStreamV2Destroy,

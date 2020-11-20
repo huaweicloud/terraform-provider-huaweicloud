@@ -18,7 +18,7 @@ func TestAccVpcBandWidthV2_basic(t *testing.T) {
 	resourceName := "huaweicloud_vpc_bandwidth.test"
 	rNameUpdate := rName + "-updated"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcBandWidthV2Destroy,
@@ -51,7 +51,7 @@ func TestAccVpcBandWidthV2_WithEpsId(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_bandwidth.test"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcBandWidthV2Destroy,

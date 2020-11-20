@@ -15,7 +15,7 @@ func TestAccNetworkingNetworkV2DataSource_basic(t *testing.T) {
 	network := fmt.Sprintf("acc_test_network-%06x", rand.Int31n(1000000))
 	cidr := fmt.Sprintf("192.168.%d.0/24", rand.Intn(200))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheckDeprecated(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

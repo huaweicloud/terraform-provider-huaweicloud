@@ -20,7 +20,7 @@ func TestAccDNSV2PtrRecord_basic(t *testing.T) {
 	ptrName := randomPtrName()
 	resourceName := "huaweicloud_dns_ptrrecord.ptr_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDNS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSV2PtrRecordDestroy,

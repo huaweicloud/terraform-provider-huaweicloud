@@ -13,7 +13,7 @@ import (
 func TestAccFgsV2Function_basic(t *testing.T) {
 	var f function.Function
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFgsV2FunctionDestroy,

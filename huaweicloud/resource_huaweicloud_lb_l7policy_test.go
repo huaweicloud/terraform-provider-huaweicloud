@@ -15,7 +15,7 @@ func TestAccLBV2L7Policy_basic(t *testing.T) {
 	var l7Policy l7policies.L7Policy
 	resourceName := "huaweicloud_lb_l7policy.l7policy_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2L7PolicyDestroy,

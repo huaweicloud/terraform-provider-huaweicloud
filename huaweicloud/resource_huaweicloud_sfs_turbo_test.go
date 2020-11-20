@@ -16,7 +16,7 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 	resourceName := "huaweicloud_sfs_turbo.sfs-turbo1"
 	var turbo shares.Turbo
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSFSTurboDestroy,

@@ -13,7 +13,7 @@ func TestAccLBV2Member_basic(t *testing.T) {
 	var member_1 pools.Member
 	var member_2 pools.Member
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckULB(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2MemberDestroy,

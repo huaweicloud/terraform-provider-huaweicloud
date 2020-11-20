@@ -13,7 +13,7 @@ import (
 func TestAccComputeV2SecGroup_basic(t *testing.T) {
 	var secgroup secgroups.SecurityGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2SecGroupDestroy,
@@ -36,7 +36,7 @@ func TestAccComputeV2SecGroup_basic(t *testing.T) {
 func TestAccComputeV2SecGroup_update(t *testing.T) {
 	var secgroup secgroups.SecurityGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2SecGroupDestroy,
@@ -61,7 +61,7 @@ func TestAccComputeV2SecGroup_update(t *testing.T) {
 func TestAccComputeV2SecGroup_groupID(t *testing.T) {
 	var secgroup1, secgroup2, secgroup3 secgroups.SecurityGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2SecGroupDestroy,
@@ -91,7 +91,7 @@ func TestAccComputeV2SecGroup_groupID(t *testing.T) {
 func TestAccComputeV2SecGroup_self(t *testing.T) {
 	var secgroup secgroups.SecurityGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2SecGroupDestroy,
@@ -114,7 +114,7 @@ func TestAccComputeV2SecGroup_self(t *testing.T) {
 func TestAccComputeV2SecGroup_icmpZero(t *testing.T) {
 	var secgroup secgroups.SecurityGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2SecGroupDestroy,
@@ -132,7 +132,7 @@ func TestAccComputeV2SecGroup_icmpZero(t *testing.T) {
 func TestAccComputeV2SecGroup_timeout(t *testing.T) {
 	var secgroup secgroups.SecurityGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2SecGroupDestroy,

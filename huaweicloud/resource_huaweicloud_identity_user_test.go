@@ -15,7 +15,7 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 	var user users.User
 	var userName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
 			testAccPreCheckAdminOnly(t)

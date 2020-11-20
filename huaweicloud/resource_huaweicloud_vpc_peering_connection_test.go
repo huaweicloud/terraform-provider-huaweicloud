@@ -18,7 +18,7 @@ func TestAccVpcPeeringConnectionV2_basic(t *testing.T) {
 	resourceName := "huaweicloud_vpc_peering_connection.test"
 	rNameUpdate := rName + "updated"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcPeeringConnectionV2Destroy,

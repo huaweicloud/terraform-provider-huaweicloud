@@ -15,7 +15,7 @@ func TestAccIdentityV3Project_basic(t *testing.T) {
 	var project projects.Project
 	var projectName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
 			testAccPreCheckAdminOnly(t)

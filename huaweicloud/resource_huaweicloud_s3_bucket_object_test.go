@@ -31,7 +31,7 @@ func TestAccS3BucketObject_source(t *testing.T) {
 	}
 	var obj s3.GetObjectOutput
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
@@ -48,7 +48,7 @@ func TestAccS3BucketObject_content(t *testing.T) {
 	rInt := acctest.RandInt()
 	var obj s3.GetObjectOutput
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
@@ -78,7 +78,7 @@ func TestAccS3BucketObject_withContentCharacteristics(t *testing.T) {
 
 	var obj s3.GetObjectOutput
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
@@ -111,7 +111,7 @@ func TestAccS3BucketObject_updates(t *testing.T) {
 	}
 	var obj s3.GetObjectOutput
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
@@ -155,7 +155,7 @@ func TestAccS3BucketObject_updatesWithVersioning(t *testing.T) {
 
 	var originalObj, modifiedObj s3.GetObjectOutput
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
@@ -275,7 +275,7 @@ func TestAccS3BucketObject_sse(t *testing.T) {
 	rInt := acctest.RandInt()
 	var obj s3.GetObjectOutput
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,
@@ -300,7 +300,7 @@ func TestAccS3BucketObject_acl(t *testing.T) {
 	rInt := acctest.RandInt()
 	var obj s3.GetObjectOutput
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketObjectDestroy,

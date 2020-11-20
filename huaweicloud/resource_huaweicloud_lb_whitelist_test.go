@@ -13,7 +13,7 @@ func TestAccLBV2Whitelist_basic(t *testing.T) {
 	var whitelist whitelists.Whitelist
 	resourceName := "huaweicloud_lb_whitelist.whitelist_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2WhitelistDestroy,

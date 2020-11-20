@@ -13,7 +13,7 @@ import (
 func TestAccCESAlarmRule_basic(t *testing.T) {
 	var ar alarmrule.AlarmRule
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testCESAlarmRuleDestroy,

@@ -14,7 +14,7 @@ import (
 func TestAccASV1Configuration_basic(t *testing.T) {
 	var asConfig configurations.Configuration
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccAsConfigPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckASV1ConfigurationDestroy,

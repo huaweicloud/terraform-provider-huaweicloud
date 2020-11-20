@@ -13,7 +13,7 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 	var listener listeners.Listener
 	resourceName := "huaweicloud_lb_listener.listener_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckULB(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2ListenerDestroy,

@@ -15,7 +15,7 @@ func TestAccNatSnatRule_basic(t *testing.T) {
 	randSuffix := acctest.RandString(5)
 	resourceName := "huaweicloud_nat_snat_rule.snat_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckNat(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNatV2SnatRuleDestroy,

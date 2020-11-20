@@ -15,7 +15,7 @@ func TestAccASV1Group_basic(t *testing.T) {
 	var asGroup groups.Group
 	resourceName := "huaweicloud_as_group.hth_as_group"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccAsConfigPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckASV1GroupDestroy,

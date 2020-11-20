@@ -18,7 +18,7 @@ func TestAccNetworkingV2RouterInterface_basic_subnet(t *testing.T) {
 	var router routers.Router
 	var subnet subnets.Subnet
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2RouterInterfaceDestroy,
@@ -47,7 +47,7 @@ func TestAccNetworkingV2RouterInterface_basic_port(t *testing.T) {
 	var router routers.Router
 	var subnet subnets.Subnet
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2RouterInterfaceDestroy,
@@ -76,7 +76,7 @@ func TestAccNetworkingV2RouterInterface_timeout(t *testing.T) {
 	var router routers.Router
 	var subnet subnets.Subnet
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2RouterInterfaceDestroy,

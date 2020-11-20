@@ -13,7 +13,7 @@ import (
 func TestAccEcsV1Instance_basic(t *testing.T) {
 	var instance cloudservers.CloudServer
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckEcsV1InstanceDestroy,

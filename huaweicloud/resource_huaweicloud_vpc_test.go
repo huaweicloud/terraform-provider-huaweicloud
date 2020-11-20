@@ -18,7 +18,7 @@ func TestAccVpcV1_basic(t *testing.T) {
 	resourceName := "huaweicloud_vpc.test"
 	rNameUpdate := rName + "-updated"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcV1Destroy,
@@ -58,7 +58,7 @@ func TestAccVpcV1_WithEpsId(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc.test"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcV1Destroy,
@@ -89,7 +89,7 @@ func TestAccVpcV1_WithCustomRegion(t *testing.T) {
 
 	var vpc1, vpc2 vpcs.Vpc
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPrecheckCustomRegion(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcV1Destroy,

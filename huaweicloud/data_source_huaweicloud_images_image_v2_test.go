@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccHuaweiCloudImagesV2ImageDataSource_basic(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheckImage(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -41,7 +41,7 @@ func TestAccHuaweiCloudImagesV2ImageDataSource_basic(t *testing.T) {
 }
 
 func TestAccHuaweiCloudImagesV2ImageDataSource_testQueries(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheckImage(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

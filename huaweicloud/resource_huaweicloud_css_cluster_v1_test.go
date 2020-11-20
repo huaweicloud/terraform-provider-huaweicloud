@@ -28,7 +28,7 @@ func TestAccCssClusterV1_basic(t *testing.T) {
 	randName := acctest.RandString(6)
 	resourceName := "huaweicloud_css_cluster_v1.cluster"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCssClusterV1Destroy,
@@ -60,7 +60,7 @@ func TestAccCssClusterV1_security(t *testing.T) {
 	randName := acctest.RandString(6)
 	resourceName := "huaweicloud_css_cluster_v1.cluster"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCssClusterV1Destroy,

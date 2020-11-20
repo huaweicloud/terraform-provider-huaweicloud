@@ -24,7 +24,7 @@ import (
 func TestAccS3Bucket_basic(t *testing.T) {
 	rInt := acctest.RandInt()
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -49,7 +49,7 @@ func TestAccS3Bucket_basic(t *testing.T) {
 
 func TestAccS3MultiBucket_withTags(t *testing.T) {
 	rInt := acctest.RandInt()
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -62,7 +62,7 @@ func TestAccS3MultiBucket_withTags(t *testing.T) {
 }
 
 func TestAccS3Bucket_namePrefix(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -80,7 +80,7 @@ func TestAccS3Bucket_namePrefix(t *testing.T) {
 }
 
 func TestAccS3Bucket_generatedName(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -98,7 +98,7 @@ func TestAccS3Bucket_generatedName(t *testing.T) {
 func TestAccS3Bucket_region(t *testing.T) {
 	rInt := acctest.RandInt()
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -117,7 +117,7 @@ func TestAccS3Bucket_region(t *testing.T) {
 func TestAccS3Bucket_Policy(t *testing.T) {
 	rInt := acctest.RandInt()
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -155,7 +155,7 @@ func TestAccS3Bucket_UpdateAcl(t *testing.T) {
 	preConfig := fmt.Sprintf(testAccS3BucketConfigWithAcl, ri)
 	postConfig := fmt.Sprintf(testAccS3BucketConfigWithAclUpdate, ri)
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -182,7 +182,7 @@ func TestAccS3Bucket_UpdateAcl(t *testing.T) {
 
 func TestAccS3Bucket_Website_Simple(t *testing.T) {
 	rInt := acctest.RandInt()
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -223,7 +223,7 @@ func TestAccS3Bucket_Website_Simple(t *testing.T) {
 
 func TestAccS3Bucket_WebsiteRedirect(t *testing.T) {
 	rInt := acctest.RandInt()
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -264,7 +264,7 @@ func TestAccS3Bucket_WebsiteRedirect(t *testing.T) {
 
 func TestAccS3Bucket_WebsiteRoutingRules(t *testing.T) {
 	rInt := acctest.RandInt()
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -312,7 +312,7 @@ func TestAccS3Bucket_WebsiteRoutingRules(t *testing.T) {
 // See https://github.com/hashicorp/terraform/pull/2925
 func TestAccS3Bucket_shouldFailNotFound(t *testing.T) {
 	rInt := acctest.RandInt()
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -331,7 +331,7 @@ func TestAccS3Bucket_shouldFailNotFound(t *testing.T) {
 
 func TestAccS3Bucket_Versioning(t *testing.T) {
 	rInt := acctest.RandInt()
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -400,7 +400,7 @@ func TestAccS3Bucket_Cors(t *testing.T) {
 		}
 	}
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,
@@ -449,7 +449,7 @@ func TestAccS3Bucket_Cors(t *testing.T) {
 
 func TestAccS3Bucket_Lifecycle(t *testing.T) {
 	rInt := acctest.RandInt()
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckS3BucketDestroy,

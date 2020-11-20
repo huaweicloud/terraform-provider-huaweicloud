@@ -16,7 +16,7 @@ func TestAccNetworkACL_basic(t *testing.T) {
 	resourceKey := "huaweicloud_network_acl.fw_1"
 	var fwGroup FirewallGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkACLDestroy,
@@ -51,7 +51,7 @@ func TestAccNetworkACL_no_subnets(t *testing.T) {
 	resourceKey := "huaweicloud_network_acl.fw_1"
 	var fwGroup FirewallGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkACLDestroy,
@@ -75,7 +75,7 @@ func TestAccNetworkACL_remove(t *testing.T) {
 	resourceKey := "huaweicloud_network_acl.fw_1"
 	var fwGroup FirewallGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkACLDestroy,

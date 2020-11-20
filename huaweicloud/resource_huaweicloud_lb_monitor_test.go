@@ -13,7 +13,7 @@ func TestAccLBV2Monitor_basic(t *testing.T) {
 	var monitor monitors.Monitor
 	resourceName := "huaweicloud_lb_monitor.monitor_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckULB(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2MonitorDestroy,

@@ -12,7 +12,7 @@ import (
 func TestAccCdnDomain_basic(t *testing.T) {
 	var domain domains.CdnDomain
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckCDN(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCdnDomainV1Destroy,

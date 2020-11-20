@@ -15,7 +15,7 @@ func TestAccCssSnapshot_basic(t *testing.T) {
 	rand := acctest.RandString(5)
 	resourceName := "huaweicloud_css_snapshot.snapshot"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCssSnapshotDestroy,

@@ -16,7 +16,7 @@ func TestAccDmsInstancesV1_Rabbitmq(t *testing.T) {
 	var instanceUpdate = fmt.Sprintf("dms_instance_update_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dms_instance.instance_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDms(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDmsV1InstanceDestroy,
@@ -50,7 +50,7 @@ func TestAccDmsInstancesV1_Kafka(t *testing.T) {
 	var instanceName = fmt.Sprintf("dms_instance_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dms_instance.instance_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDms(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDmsV1InstanceDestroy,
