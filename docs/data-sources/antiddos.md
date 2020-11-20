@@ -1,5 +1,5 @@
 ---
-subcategory: "Anti-DDoS"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_antiddos
