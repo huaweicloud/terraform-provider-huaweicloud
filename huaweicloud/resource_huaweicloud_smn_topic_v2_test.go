@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/smn/v2/topics"
@@ -12,6 +13,9 @@ import (
 
 func TestAccSMNV2Topic_basic(t *testing.T) {
 	var topic topics.TopicGet
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	displayName := fmt.Sprintf("The display name of %s", rName)
+	update_displayName := fmt.Sprintf("The update display name of %s", rName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -19,24 +23,24 @@ func TestAccSMNV2Topic_basic(t *testing.T) {
 		CheckDestroy: testAccCheckSMNTopicV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: TestAccSMNV2TopicConfig_basic,
+				Config: testAccSMNV2TopicConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSMNV2TopicExists("huaweicloud_smn_topic_v2.topic_1", &topic),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_smn_topic_v2.topic_1", "name", "topic_1"),
+						"huaweicloud_smn_topic_v2.topic_1", "name", rName),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_smn_topic_v2.topic_1", "display_name",
-						"The display name of topic_1"),
+						displayName),
 				),
 			},
 			{
-				Config: TestAccSMNV2TopicConfig_update,
+				Config: testAccSMNV2TopicConfig_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"huaweicloud_smn_topic_v2.topic_1", "display_name",
-						"The update display name of topic_1"),
+						"huaweicloud_smn_topic_v2.topic_1", "name", rName),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_smn_topic_v2.topic_1", "name", "topic_1"),
+						"huaweicloud_smn_topic_v2.topic_1", "display_name",
+						update_displayName),
 				),
 			},
 		},
@@ -97,16 +101,20 @@ func testAccCheckSMNV2TopicExists(n string, topic *topics.TopicGet) resource.Tes
 	}
 }
 
-var TestAccSMNV2TopicConfig_basic = `
+func testAccSMNV2TopicConfig_basic(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_smn_topic_v2" "topic_1" {
-  name		  = "topic_1"
-  display_name    = "The display name of topic_1"
+  name		  = "%s"
+  display_name    = "The display name of %s"
 }
-`
+`, rName, rName)
+}
 
-var TestAccSMNV2TopicConfig_update = `
+func testAccSMNV2TopicConfig_update(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_smn_topic_v2" "topic_1" {
-  name		  = "topic_1"
-  display_name    = "The update display name of topic_1"
+  name		  = "%s"
+  display_name    = "The update display name of %s"
 }
-`
+`, rName, rName)
+}

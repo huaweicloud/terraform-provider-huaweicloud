@@ -2,7 +2,6 @@ package huaweicloud
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -26,8 +25,6 @@ func TestAccSFSAccessRuleV2_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSAccessRuleV2Exists("huaweicloud_sfs_access_rule_v2.rule_1", &rule),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_sfs_access_rule_v2.rule_1", "access_to", OS_VPC_ID),
-					resource.TestCheckResourceAttr(
 						"huaweicloud_sfs_access_rule_v2.rule_1", "access_level", "rw"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_sfs_access_rule_v2.rule_1", "status", "active"),
@@ -37,9 +34,6 @@ func TestAccSFSAccessRuleV2_basic(t *testing.T) {
 				Config: configAccSFSAccessRuleV2_ipAuth(shareName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSAccessRuleV2Exists("huaweicloud_sfs_access_rule_v2.rule_1", &rule),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_sfs_access_rule_v2.rule_1", "access_to",
-						strings.Join([]string{OS_VPC_ID, "192.168.10.0/24", "0", "no_all_squash,no_root_squash"}, "#")),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_sfs_access_rule_v2.rule_1", "status", "active"),
 				),
@@ -123,6 +117,10 @@ func testAccCheckSFSAccessRuleV2Exists(n string, rule *shares.AccessRight) resou
 
 func configAccSFSAccessRuleV2_basic(sfsName string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_vpc" "vpc_default" {
+  name = "vpc-default"
+}
+
 resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
   share_proto = "NFS"
   size        = 10
@@ -132,12 +130,16 @@ resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
 
 resource "huaweicloud_sfs_access_rule_v2" "rule_1" {
   sfs_id = huaweicloud_sfs_file_system_v2.sfs_1.id
-  access_to = "%s"
-}`, sfsName, OS_VPC_ID)
+  access_to = data.huaweicloud_vpc.vpc_default.id
+}`, sfsName)
 }
 
 func configAccSFSAccessRuleV2_ipAuth(sfsName string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_vpc" "vpc_default" {
+  name = "vpc-default"
+}
+
 resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
   share_proto = "NFS"
   size        = 10
@@ -147,6 +149,6 @@ resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
 
 resource "huaweicloud_sfs_access_rule_v2" "rule_1" {
   sfs_id = huaweicloud_sfs_file_system_v2.sfs_1.id
-  access_to = join("#", ["%s", "192.168.10.0/24", "0", "no_all_squash,no_root_squash"])
-}`, sfsName, OS_VPC_ID)
+  access_to = join("#", [data.huaweicloud_vpc.vpc_default.id, "192.168.10.0/24", "0", "no_all_squash,no_root_squash"])
+}`, sfsName)
 }
