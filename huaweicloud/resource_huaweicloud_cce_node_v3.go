@@ -499,12 +499,12 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Waiting for CCE Node (%s) to become available", s.Metadata.Name)
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"Build", "Installing"},
-		Target:     []string{"Active"},
-		Refresh:    waitForCceNodeActive(nodeClient, clusterid, nodeid),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      15 * time.Second,
-		MinTimeout: 5 * time.Second,
+		Pending:      []string{"Build", "Installing"},
+		Target:       []string{"Active"},
+		Refresh:      waitForCceNodeActive(nodeClient, clusterid, nodeid),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        120 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
@@ -648,12 +648,12 @@ func resourceCCENodeV3Delete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error deleting HuaweiCloud CCE Cluster: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"Deleting"},
-		Target:     []string{"Deleted"},
-		Refresh:    waitForCceNodeDelete(nodeClient, clusterid, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"Deleting"},
+		Target:       []string{"Deleted"},
+		Refresh:      waitForCceNodeDelete(nodeClient, clusterid, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        60 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()
