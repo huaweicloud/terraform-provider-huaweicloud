@@ -78,6 +78,11 @@ The following attributes are exported:
     display the Attachment ID, Instance ID, and the Device as the Instance
     sees it.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 Volumes can be imported using the `id`, e.g.

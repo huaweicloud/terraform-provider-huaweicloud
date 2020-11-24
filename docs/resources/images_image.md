@@ -51,7 +51,7 @@ The following arguments are supported:
 * `protected` - (Optional) If true, image will not be deletable.
    Defaults to false.
 
-* `region` - (Optional) The region in which to obtain the V2 Glance client.
+* `region` - (Optional) The region in which to create the V2 Glance client.
     A Glance client is needed to create an Image that can be used with
     a compute instance. If omitted, the `region` argument of the provider
     is used. Changing this creates a new Image.
@@ -95,6 +95,10 @@ The following attributes are exported:
 * `tags` - See Argument Reference above.
 * `update_at` - The date the image was last updated.
 * `visibility` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 30 minute.
 
 ## Import
 

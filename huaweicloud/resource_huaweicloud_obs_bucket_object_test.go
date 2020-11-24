@@ -26,7 +26,7 @@ func TestAccObsBucketObject_source(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckS3(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketObjectDestroy,
@@ -58,7 +58,7 @@ func TestAccObsBucketObject_source(t *testing.T) {
 func TestAccObsBucketObject_content(t *testing.T) {
 	rInt := acctest.RandInt()
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckS3(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketObjectDestroy,

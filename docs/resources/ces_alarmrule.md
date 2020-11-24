@@ -39,7 +39,7 @@ resource "huaweicloud_ces_alarmrule" "alarm_rule" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the alarm rule resource. If omitted, the provider-level region will work as default. Changing this creates a new Cloud Eye alarm rule resource.
+* `region` - (Optional) The region in which to create the alarm rule resource. If omitted, the provider-level region will be used. Changing this creates a new Cloud Eye alarm rule resource.
 
 * `alarm_name` - (Required) Specifies the name of an alarm rule. The value can
     be a string of 1 to 128 characters that can consist of numbers, lowercase letters,
@@ -173,4 +173,11 @@ The following attributes are exported:
     - ok: The alarm status is normal;
     - alarm: An alarm is generated;
     - insufficient_data: The required data is insufficient.
+
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 5 minute.
 

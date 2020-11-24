@@ -23,7 +23,7 @@ resource "huaweicloud_kms_key" "key_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the KMS key resource. If omitted, the provider-level region will work as default. Changing this creates a new KMS key resource.
+* `region` - (Optional) The region in which to create the KMS key resource. If omitted, the provider-level region will be used. Changing this creates a new KMS key resource.
 
 * `key_alias` - (Required) The alias in which to create the key. It is required when
     we create a new key. Changing this updates the alias of key.

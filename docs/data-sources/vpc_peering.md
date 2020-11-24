@@ -36,7 +36,7 @@ resource "huaweicloud_vpc_route" "vpc_route" {
 The arguments of this data source act as filters for querying the available VPC peering connection.
 The given filters must match exactly one VPC peering connection whose data will be exported as attributes.
 
-* `region` - (Optional) The region in which to obtain the VPC Peering Connection. If omitted, the provider-level region will work as default.
+* `region` - (Optional) The region in which to obtain the VPC Peering Connection. If omitted, the provider-level region will be used.
 
 * `id` (Optional) - The ID of the specific VPC Peering Connection to retrieve.
 

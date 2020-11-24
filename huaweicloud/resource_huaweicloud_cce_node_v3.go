@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -45,12 +46,10 @@ func resourceCCENodeV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"labels": {
-				Type:          schema.TypeMap,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"tags"},
-				Elem:          &schema.Schema{Type: schema.TypeString},
+			"labels": { //(k8s_tags)
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
 			},
 			"annotations": {
 				Type:     schema.TypeMap,
@@ -265,10 +264,9 @@ func resourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"tags": {
-				Type:          schema.TypeMap,
-				Optional:      true,
-				ConflictsWith: []string{"labels"},
-				Elem:          &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"private_ip": {
 				Type:     schema.TypeString,
@@ -301,6 +299,14 @@ func resourceCCENodeLabelsV2(d *schema.ResourceData) map[string]string {
 func resourceCCENodeAnnotationsV2(d *schema.ResourceData) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("annotations").(map[string]interface{}) {
+		m[key] = val.(string)
+	}
+	return m
+}
+
+func resourceCCENodeK8sTags(d *schema.ResourceData) map[string]string {
+	m := make(map[string]string)
+	for key, val := range d.Get("labels").(map[string]interface{}) {
 		m[key] = val.(string)
 	}
 	return m
@@ -440,6 +446,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 				PostInstall:        base64PostInstall,
 			},
 			Taints:   resourceCCETaint(d),
+			K8sTags:  resourceCCENodeK8sTags(d),
 			UserTags: resourceCCENodeTags(d),
 		},
 	}
@@ -581,6 +588,16 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("tags", tagmap); err != nil {
 		return fmt.Errorf("Error saving tags of cce node: %s", err)
 	}
+
+	labels := map[string]string{}
+	for key, val := range s.Spec.K8sTags {
+		if strings.Contains(key, "cce.cloud.com") {
+			continue
+		}
+		labels[key] = val
+	}
+	d.Set("labels", labels)
+
 	return nil
 }
 

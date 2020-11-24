@@ -15,7 +15,7 @@ func TestAccFWFirewallGroupV2_basic(t *testing.T) {
 	var epolicyID *string
 	var ipolicyID *string
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
@@ -45,7 +45,7 @@ func TestAccFWFirewallGroupV2_basic(t *testing.T) {
 func TestAccFWFirewallGroupV2_port0(t *testing.T) {
 	var firewall_group FirewallGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
@@ -64,7 +64,7 @@ func TestAccFWFirewallGroupV2_port0(t *testing.T) {
 func TestAccFWFirewallGroupV2_no_ports(t *testing.T) {
 	var firewall_group FirewallGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
@@ -84,7 +84,7 @@ func TestAccFWFirewallGroupV2_no_ports(t *testing.T) {
 func TestAccFWFirewallGroupV2_port_update(t *testing.T) {
 	var firewall_group FirewallGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,
@@ -110,7 +110,7 @@ func TestAccFWFirewallGroupV2_port_update(t *testing.T) {
 func TestAccFWFirewallGroupV2_port_remove(t *testing.T) {
 	var firewall_group FirewallGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckFWFirewallGroupV2Destroy,

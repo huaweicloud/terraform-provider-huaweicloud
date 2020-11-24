@@ -13,7 +13,7 @@ import (
 func TestAccComputeV2FloatingIP_basic(t *testing.T) {
 	var fip floatingips.FloatingIP
 	resourceName := "huaweicloud_compute_floatingip_v2.fip_1"
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2FloatingIPDestroy,

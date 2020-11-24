@@ -17,7 +17,7 @@ data "huaweicloud_obs_bucket_object" "object" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the OBS object. If omitted, the provider-level region will work as default.
+* `region` - (Optional) The region in which to obtain the OBS object. If omitted, the provider-level region will be used.
 
 * `bucket` - (Required) The name of the bucket to put the file in.
 

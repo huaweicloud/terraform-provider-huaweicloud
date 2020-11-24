@@ -17,7 +17,7 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 	// TODO: why does back-end convert name to lowercase?
 	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDNS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSV2ZoneDestroy,
@@ -43,7 +43,7 @@ func TestAccDNSV2Zone_readTTL(t *testing.T) {
 	var zone zones.Zone
 	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDNS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSV2ZoneDestroy,
@@ -64,7 +64,7 @@ func TestAccDNSV2Zone_timeout(t *testing.T) {
 	var zone zones.Zone
 	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDNS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSV2ZoneDestroy,

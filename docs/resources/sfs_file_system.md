@@ -31,7 +31,7 @@ resource "huaweicloud_sfs_file_system" "share-file" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the sfs resource. If omitted, the provider-level region will work as default. Changing this creates a new sfs resource.
+* `region` - (Optional) The region in which to create the sfs resource. If omitted, the provider-level region will be used. Changing this creates a new sfs resource.
 
 * `size` - (Required) The size (GB) of the shared file system.
 
@@ -95,6 +95,11 @@ In addition to all arguments above, the following attributes are exported:
     - `access_type` - The type of the share access rule.
     - `access_to` - The value that defines the access rule.
     - `status` - The status of the share access rule.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

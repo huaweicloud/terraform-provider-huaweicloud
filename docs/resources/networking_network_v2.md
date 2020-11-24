@@ -64,7 +64,7 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 Networking client.
+* `region` - (Optional) The region in which to create the V2 Networking client.
     A Networking client is needed to create a Neutron network. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     network.
@@ -102,6 +102,11 @@ The following attributes are exported:
 * `shared` - See Argument Reference above.
 * `tenant_id` - See Argument Reference above.
 * `admin_state_up` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

@@ -19,7 +19,7 @@ data "huaweicloud_dcs_maintainwindow" "maintainwindow1" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the dcs maintainwindows. If omitted, the provider-level region will work as default.
+* `region` - (Optional) The region in which to obtain the dcs maintainwindows. If omitted, the provider-level region will be used.
 
 * `seq` - (Required) Indicates the sequential number of a maintenance time window.
 

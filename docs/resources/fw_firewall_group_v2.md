@@ -47,7 +47,7 @@ resource "huaweicloud_fw_firewall_group_v2" "firewall_group_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the v2 networking client.
+* `region` - (Optional) The region in which to create the v2 networking client.
     A networking client is needed to create a firewall group. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     firewall group.
@@ -89,6 +89,12 @@ The following attributes are exported:
 * `admin_state_up` - See Argument Reference above.
 * `tenant_id` - See Argument Reference above.
 * `ports` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

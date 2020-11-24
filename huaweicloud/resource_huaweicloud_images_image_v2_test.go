@@ -13,7 +13,7 @@ import (
 func TestAccImagesImageV2_basic(t *testing.T) {
 	var image images.Image
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckImage(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
@@ -50,7 +50,7 @@ func TestAccImagesImageV2_basic(t *testing.T) {
 func TestAccImagesImageV2_name(t *testing.T) {
 	var image images.Image
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckImage(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
@@ -78,7 +78,7 @@ func TestAccImagesImageV2_name(t *testing.T) {
 func TestAccImagesImageV2_tags(t *testing.T) {
 	var image images.Image
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckImage(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
@@ -118,7 +118,7 @@ func TestAccImagesImageV2_tags(t *testing.T) {
 func TestAccImagesImageV2_visibility(t *testing.T) {
 	var image images.Image
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheckImage(t)
 			testAccPreCheckAdminOnly(t)
@@ -141,7 +141,7 @@ func TestAccImagesImageV2_visibility(t *testing.T) {
 func TestAccImagesImageV2_timeout(t *testing.T) {
 	var image images.Image
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckImage(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,

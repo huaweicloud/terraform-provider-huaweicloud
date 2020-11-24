@@ -21,7 +21,7 @@ func TestAccDNSV2RecordSet_basic(t *testing.T) {
 	zoneName := randomZoneName()
 	resourceName := "huaweicloud_dns_recordset.recordset_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDNS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSV2RecordSetDestroy,
@@ -61,7 +61,7 @@ func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 	zoneName := randomZoneName()
 	resourceName := "huaweicloud_dns_recordset.recordset_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDNS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSV2RecordSetDestroy,
@@ -82,7 +82,7 @@ func TestAccDNSV2RecordSet_timeout(t *testing.T) {
 	zoneName := randomZoneName()
 	resourceName := "huaweicloud_dns_recordset.recordset_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDNS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSV2RecordSetDestroy,

@@ -38,17 +38,6 @@ resource "huaweicloud_compute_instance" "mycompute" {
   count = 2
 }
 
-# get port from primary nic of compute instance
-data "huaweicloud_networking_port" "port_0" {
-  network_id = huaweicloud_vpc_subnet.subnet_1.id
-  fixed_ip   = huaweicloud_compute_instance.mycompute[0].network.0.fixed_ip_v4
-}
-
-data "huaweicloud_networking_port" "port_1" {
-  network_id = huaweicloud_vpc_subnet.subnet_1.id
-  fixed_ip   = huaweicloud_compute_instance.mycompute[1].network.0.fixed_ip_v4
-}
-
 resource "huaweicloud_networking_vip" "vip_1" {
   network_id = huaweicloud_vpc_subnet.subnet_1.id
 }
@@ -56,5 +45,8 @@ resource "huaweicloud_networking_vip" "vip_1" {
 # associate ports to the vip
 resource "huaweicloud_networking_vip_associate" "vip_associated" {
   vip_id   = huaweicloud_networking_vip.vip_1.id
-  port_ids = [data.huaweicloud_networking_port.port_0.id, data.huaweicloud_networking_port.port_1.id]
+  port_ids = [
+    huaweicloud_compute_instance.mycompute[0].network.0.port,
+    huaweicloud_compute_instance.mycompute[1].network.0.port
+  ]
 }

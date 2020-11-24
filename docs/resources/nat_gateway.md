@@ -23,7 +23,7 @@ resource "huaweicloud_nat_gateway" "nat_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the Nat gateway resource. If omitted, the provider-level region will work as default. Changing this creates a new Nat gateway resource.
+* `region` - (Optional) The region in which to create the Nat gateway resource. If omitted, the provider-level region will be used. Changing this creates a new Nat gateway resource.
 
 * `name` - (Required) The name of the nat gateway.
 
@@ -56,6 +56,11 @@ The following attributes are exported:
 * `router_id` - See Argument Reference above.
 * `internal_network_id` - See Argument Reference above.
 * `status` - The status of the nat gateway.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

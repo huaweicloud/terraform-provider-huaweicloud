@@ -24,7 +24,7 @@ resource "huaweicloud_network_acl_rule" "rule_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the network ACL rule resource. If omitted, the provider-level region will work as default. Changing this creates a new network ACL rule resource.
+* `region` - (Optional) The region in which to create the network ACL rule resource. If omitted, the provider-level region will be used. Changing this creates a new network ACL rule resource.
 
 * `name` - (Optional) Specifies a unique name for the network ACL rule.
 

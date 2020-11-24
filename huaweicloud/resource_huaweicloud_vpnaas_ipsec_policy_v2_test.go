@@ -12,7 +12,7 @@ import (
 
 func TestAccVpnIPSecPolicyV2_basic(t *testing.T) {
 	var policy ipsecpolicies.Policy
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckIPSecPolicyV2Destroy,
@@ -46,7 +46,7 @@ func TestAccVpnIPSecPolicyV2_basic(t *testing.T) {
 
 func TestAccVpnIPSecPolicyV2_withLifetime(t *testing.T) {
 	var policy ipsecpolicies.Policy
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckIPSecPolicyV2Destroy,

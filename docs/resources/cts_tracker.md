@@ -27,7 +27,7 @@ resource "huaweicloud_cts_tracker" "tracker_v1" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the CTS tracker resource. If omitted, the provider-level region will work as default. Changing this creates a new CTS tracker resource.
+* `region` - (Optional) The region in which to create the CTS tracker resource. If omitted, the provider-level region will be used. Changing this creates a new CTS tracker resource.
 
 * `bucket_name` - (Required) The OBS bucket name for a tracker.
 
@@ -52,6 +52,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `tracker_name` - The tracker name. Currently, only tracker **system** is available.
 
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

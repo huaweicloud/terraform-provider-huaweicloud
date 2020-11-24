@@ -14,7 +14,7 @@ import (
 func TestAccComputeV2ServerGroup_basic(t *testing.T) {
 	var sg servergroups.ServerGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2ServerGroupDestroy,
@@ -38,7 +38,7 @@ func TestAccComputeV2ServerGroup_affinity(t *testing.T) {
 	var instance servers.Server
 	var sg servergroups.ServerGroup
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2ServerGroupDestroy,

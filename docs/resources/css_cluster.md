@@ -42,7 +42,7 @@ resource "huaweicloud_css_cluster" "cluster" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the cluster resource. If omitted, the provider-level region will work as default. Changing this creates a new cluster resource.
+* `region` - (Optional) The region in which to create the cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cluster resource.
 
 * `name` -
   (Required)
@@ -172,8 +172,7 @@ The `nodes` block contains:
 * `type` - Supported type: ess (indicating the Elasticsearch node).
 
 ## Timeouts
-
 This resource provides the following timeouts configuration options:
+- `create` - Default is 60 minute.
+- `update` - Default is 60 minute.
 
-- `create` - Default is 30 minute.
-- `update` - Default is 30 minute.

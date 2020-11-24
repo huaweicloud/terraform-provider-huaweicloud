@@ -25,7 +25,7 @@ resource "huaweicloud_networking_port" "myport" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the networking port resource. If omitted, the provider-level region will work as default. Changing this creates a new port resource.
+* `region` - (Optional) The region in which to create the networking port resource. If omitted, the provider-level region will be used. Changing this creates a new port resource.
 
 * `name` - (Optional) A unique name for the port. Changing this
     updates the `name` of an existing port.
@@ -114,6 +114,11 @@ The following attributes are exported:
 * `all_security_group_ids` - The collection of Security Group IDs on the port
   which have been explicitly and implicitly added.
 * `extra_dhcp_option` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

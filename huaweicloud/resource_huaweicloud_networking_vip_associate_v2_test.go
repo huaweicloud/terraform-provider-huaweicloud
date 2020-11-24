@@ -18,7 +18,7 @@ func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 	var port1 ports.Port
 	var port2 ports.Port
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkingV2VIPAssociateDestroy,

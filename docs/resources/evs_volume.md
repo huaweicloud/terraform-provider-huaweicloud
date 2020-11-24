@@ -45,7 +45,7 @@ resource "huaweicloud_evs_volume" "volume" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the EVS volume resource. If omitted, the provider-level region will work as default. Changing this creates a new EVS resource.
+* `region` - (Optional) The region in which to create the EVS volume resource. If omitted, the provider-level region will be used. Changing this creates a new EVS resource.
 
 * `availability_zone` - (Required) The availability zone for the volume.
     Changing this creates a new volume.
@@ -124,6 +124,12 @@ The following attributes are exported:
     display the Attachment ID, Instance ID, and the Device as the Instance
     sees it.
 * `wwn` - Specifies the unique identifier used for mounting the EVS disk.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 3 minute.
+- `delete` - Default is 3 minute.
 
 ## Import
 

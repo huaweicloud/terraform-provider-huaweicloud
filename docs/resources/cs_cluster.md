@@ -21,7 +21,7 @@ resource "huaweicloud_cs_cluster" "cluster" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the cloud stream service cluster resource. If omitted, the provider-level region will work as default. Changing this creates a new cloud stream service cluster resource.
+* `region` - (Optional) The region in which to create the cloud stream service cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cloud stream service cluster resource.
 
 * `name` -
   (Required)
@@ -61,7 +61,7 @@ In addition to the arguments listed above, the following computed attributes are
   The used SPU number of Cluster.
 
 ## Timeouts
-
 This resource provides the following timeouts configuration options:
 - `create` - Default is 30 minute.
 - `delete` - Default is 30 minute.
+

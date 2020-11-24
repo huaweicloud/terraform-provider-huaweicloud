@@ -18,7 +18,7 @@ data "huaweicloud_dcs_product" "product1" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the dcs products. If omitted, the provider-level region will work as default.
+* `region` - (Optional) The region in which to obtain the dcs products. If omitted, the provider-level region will be used.
 
 * `spec_code` - (Optional) DCS instance specification code. For details, see
 [Querying Service Specifications](https://support.huaweicloud.com/en-us/api-dcs/dcs-api-0312040.html).

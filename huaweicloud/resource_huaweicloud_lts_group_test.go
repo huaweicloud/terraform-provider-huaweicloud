@@ -13,7 +13,7 @@ func TestAccLogTankGroupV2_basic(t *testing.T) {
 	var group loggroups.LogGroup
 
 	resourceName := "huaweicloud_lts_group.testacc_group"
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLogTankGroupV2Destroy,

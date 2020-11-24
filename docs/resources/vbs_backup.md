@@ -43,7 +43,7 @@ resource "huaweicloud_vbs_backup" "backup_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the VBS backup resource. If omitted, the provider-level region will work as default. Changing this creates a new VBS Backup resource.
+* `region` - (Optional) The region in which to create the VBS backup resource. If omitted, the provider-level region will be used. Changing this creates a new VBS Backup resource.
 
 * `name` - (Required) The name of the vbs backup. Changing the parameter creates a new backup.
 
@@ -86,3 +86,9 @@ VBS Backup can be imported using the `backup id`, e.g.
 ```
  $ terraform import huaweicloud_vbs_backup.backup_1 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
 ```
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 3 minute.
+

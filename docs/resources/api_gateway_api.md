@@ -41,7 +41,7 @@ resource "huaweicloud_api_gateway_api" "tf_apigw_api" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the API resource. If omitted, the provider-level region will work as default. Changing this creates a new API resource.
+* `region` - (Optional) The region in which to create the API resource. If omitted, the provider-level region will be used. Changing this creates a new API resource.
 
 * `name` - (Required) Specifies the name of the API. An API name consists of 3–64 characters,
     starting with a letter. Only letters, digits, and underscores (_) are allowed.
@@ -141,6 +141,11 @@ The following attributes are exported:
 
 * `id` - The ID of the API.
 * `group_name` - The name of the API group to which the API belongs.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

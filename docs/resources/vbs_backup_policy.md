@@ -47,7 +47,7 @@ resource "huaweicloud_vbs_backup_policy" "vbs_policy2" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the VBS backup policy resource. If omitted, the provider-level region will work as default. Changing this creates a new VBS Backup Policy resource.
+* `region` - (Optional) The region in which to create the VBS backup policy resource. If omitted, the provider-level region will be used. Changing this creates a new VBS Backup Policy resource.
 
 * `name` - (Required) Specifies the policy name. The value is a string of 1 to 64 characters that
     can contain letters, digits, underscores (_), and hyphens (-). It cannot start with **default**.
@@ -91,6 +91,11 @@ All of the argument attributes are also exported as result attributes:
 * `id` - Specifies a backup policy ID.
  
 * `policy_resource_count` - Specifies the number of volumes associated with the backup policy.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 5 minute.
+- `delete` - Default is 5 minute.
 
 ## Import
 

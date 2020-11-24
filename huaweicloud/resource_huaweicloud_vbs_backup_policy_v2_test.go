@@ -17,7 +17,7 @@ func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	updateName := fmt.Sprintf("tf-acc-test-update-%s", acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccVBSBackupPolicyV2Destroy,
@@ -57,7 +57,7 @@ func TestAccVBSBackupPolicyV2_rentention_day(t *testing.T) {
 	var policy policies.Policy
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccVBSBackupPolicyV2Destroy,

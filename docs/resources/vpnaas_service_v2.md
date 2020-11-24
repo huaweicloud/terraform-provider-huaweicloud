@@ -20,7 +20,7 @@ resource "huaweicloud_vpnaas_service_v2" "service_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 Networking client.
+* `region` - (Optional) The region in which to create the V2 Networking client.
     A Networking client is needed to create a VPN service. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     service.
@@ -59,6 +59,12 @@ The following attributes are exported:
 * `external_v4_ip` - The read-only external (public) IPv4 address that is used for the VPN service.
 * `description` - See Argument Reference above.
 * `value_specs` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

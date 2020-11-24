@@ -15,7 +15,7 @@ func TestAccNatGateway_basic(t *testing.T) {
 	randSuffix := acctest.RandString(5)
 	resourceName := "huaweicloud_nat_gateway.nat_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckNat(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNatV2GatewayDestroy,
@@ -51,7 +51,7 @@ func TestAccNatGateway_withEpsId(t *testing.T) {
 	randSuffix := acctest.RandString(5)
 	resourceName := "huaweicloud_nat_gateway.nat_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckNat(t); testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNatV2GatewayDestroy,

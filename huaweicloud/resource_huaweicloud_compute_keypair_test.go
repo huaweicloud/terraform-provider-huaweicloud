@@ -13,7 +13,7 @@ import (
 func TestAccComputeV2Keypair_basic(t *testing.T) {
 	var keypair keypairs.KeyPair
 	resourceName := "huaweicloud_compute_keypair.kp_1"
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeV2KeypairDestroy,

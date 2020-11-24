@@ -46,7 +46,7 @@ resource "huaweicloud_sfs_access_rule" "rule_1" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the sfs access rule resource. If omitted, the provider-level region will work as default. Changing this creates a new access rule resource.
+* `region` - (Optional) The region in which to create the sfs access rule resource. If omitted, the provider-level region will be used. Changing this creates a new access rule resource.
 
 * `sfs_id` - (Required) Specifies the UUID of the shared file system. Changing this will create a new access rule.
 
@@ -74,6 +74,11 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The UUID of the share access rule.
 
 * `status` - The status of the share access rule.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

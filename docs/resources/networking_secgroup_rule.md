@@ -30,7 +30,7 @@ resource "huaweicloud_networking_secgroup_rule" "secgroup_rule" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the security group rule resource. If omitted, the provider-level region will work as default. Changing this creates a new security group rule resource.
+* `region` - (Optional) The region in which to create the security group rule resource. If omitted, the provider-level region will be used. Changing this creates a new security group rule resource.
 
 * `direction` - (Required) The direction of the rule, valid values are __ingress__
     or __egress__. Changing this creates a new security group rule.
@@ -97,6 +97,10 @@ The following attributes are exported:
 * `remote_group_id` - See Argument Reference above.
 * `security_group_id` - See Argument Reference above.
 * `tenant_id` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `delete` - Default is 10 minute.
 
 ## Import
 

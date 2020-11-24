@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/smn/v2/subscriptions"
@@ -12,14 +13,15 @@ import (
 func TestAccSMNV2Subscription_basic(t *testing.T) {
 	var subscription1 subscriptions.SubscriptionGet
 	var subscription2 subscriptions.SubscriptionGet
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSMNSubscriptionV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: TestAccSMNV2SubscriptionConfig_basic,
+				Config: testAccSMNV2SubscriptionConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSMNV2SubscriptionExists("huaweicloud_smn_subscription_v2.subscription_1", &subscription1),
 					testAccCheckSMNV2SubscriptionExists("huaweicloud_smn_subscription_v2.subscription_2", &subscription2),
@@ -97,9 +99,10 @@ func testAccCheckSMNV2SubscriptionExists(n string, subscription *subscriptions.S
 	}
 }
 
-var TestAccSMNV2SubscriptionConfig_basic = `
+func testAccSMNV2SubscriptionConfig_basic(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_smn_topic_v2" "topic_1" {
-  name		  = "topic_1"
+  name		  = "%s"
   display_name    = "The display name of topic_1"
 }
 
@@ -116,4 +119,5 @@ resource "huaweicloud_smn_subscription_v2" "subscription_2" {
   protocol        = "sms"
   remark          = "O&M"
 }
-`
+`, rName)
+}

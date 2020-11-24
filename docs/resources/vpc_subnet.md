@@ -40,7 +40,7 @@ resource "huaweicloud_vpc_subnet" "subnet_with_tags" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the vpc subnet. If omitted, the provider-level region will work as default. hanging this creates a new Subnet resource.
+* `region` - (Optional) The region in which to create the vpc subnet. If omitted, the provider-level region will be used. hanging this creates a new Subnet resource.
 
 * `name` (Required) - The subnet name. The value is a string of 1 to 64 characters that can contain letters, digits, underscores (_), and hyphens (-).
 
@@ -80,3 +80,9 @@ Subnets can be imported using the `subnet id`, e.g.
 ```
 $ terraform import huaweicloud_vpc_subnet 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
 ```
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+

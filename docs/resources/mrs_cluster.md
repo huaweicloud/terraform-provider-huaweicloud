@@ -45,8 +45,8 @@ resource "huaweicloud_mrs_cluster" "cluster1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the msr cluster resource.
-    If omitted, the provider-level region will work as default.
+* `region` - (Optional) The region in which to create the msr cluster resource.
+    If omitted, the provider-level region will be used.
     Changing this creates a new msr cluster resource.
 
 * `billing_type` - (Required) The value is 12, indicating on-demand payment.
@@ -261,3 +261,9 @@ The `component_list` attributes supports:
 * `component_name` - Indicates the component name.
 * `component_version` - Indicates the component version.
 * `component_desc` - Indicates the component description.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 60 minute.
+- `delete` - Default is 10 minute.
+

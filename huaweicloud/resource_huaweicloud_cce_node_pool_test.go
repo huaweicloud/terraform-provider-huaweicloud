@@ -20,7 +20,7 @@ func TestAccCCENodePool_basic(t *testing.T) {
 	//clusterName here is used to provide the cluster id to fetch cce node pool.
 	clusterName := "huaweicloud_cce_cluster.test"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCCENodePoolDestroy,
@@ -162,11 +162,11 @@ resource "huaweicloud_cce_node_pool" "test" {
 
   root_volume {
     size       = 40
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
   data_volumes {
     size       = 100
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
 }
 `, testAccCCENodePool_Base(rName), rName)
@@ -193,11 +193,11 @@ resource "huaweicloud_cce_node_pool" "test" {
 
   root_volume {
     size       = 40
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
   data_volumes {
     size       = 100
-    volumetype = "SATA"
+    volumetype = "SSD"
   }
 }
 `, testAccCCENodePool_Base(rName), updateName)

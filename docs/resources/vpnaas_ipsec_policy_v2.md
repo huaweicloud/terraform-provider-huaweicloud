@@ -18,7 +18,7 @@ resource "huaweicloud_vpnaas_ipsec_policy_v2" "policy_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 Networking client.
+* `region` - (Optional) The region in which to create the V2 Networking client.
     A Networking client is needed to create an IPSec policy. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     policy.
@@ -73,6 +73,10 @@ The following attributes are exported:
     - `value` - See Argument Reference above.
 * `value_specs` - See Argument Reference above.
 
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
 
 ## Import
 

@@ -204,3 +204,9 @@ The `nodes` block contains:
      mongos nodes of cluster instances, primary nodes and secondary nodes of replica set instances,
      and single node instances.
   - `status` - Indicates the node status.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 30 minute.
+- `delete` - Default is 30 minute.
+

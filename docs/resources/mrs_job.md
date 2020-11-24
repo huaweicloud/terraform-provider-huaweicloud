@@ -28,7 +28,7 @@ resource "huaweicloud_mrs_job" "job1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the mrs job resource. If omitted, the provider-level region will work as default. Changing this creates a new mrs job resource.
+* `region` - (Optional) The region in which to create the mrs job resource. If omitted, the provider-level region will be used. Changing this creates a new mrs job resource.
 
 * `job_type` - (Required) Job type 1: MapReduce 2: Spark 3: Hive Script 4: HiveQL
     (not supported currently) 5: DistCp, importing and exporting data.  6: Spark
@@ -94,3 +94,10 @@ The following attributes are exported:
 * `hive_script_path` - See Argument Reference above.
 * `is_protected` - See Argument Reference above.
 * `is_public` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 5 minute.
+

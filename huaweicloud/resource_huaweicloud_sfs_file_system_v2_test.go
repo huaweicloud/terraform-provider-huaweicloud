@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares"
@@ -11,18 +12,20 @@ import (
 
 func TestAccSFSFileSystemV2_basic(t *testing.T) {
 	var share shares.Share
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	updateName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_sfs_file_system.sfs_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSFSFileSystemV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSFSFileSystemV2_basic,
+				Config: testAccSFSFileSystemV2_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSFileSystemV2Exists(resourceName, &share),
-					resource.TestCheckResourceAttr(resourceName, "name", "sfs-test1"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "share_proto", "NFS"),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 					resource.TestCheckResourceAttr(resourceName, "size", "10"),
@@ -34,10 +37,10 @@ func TestAccSFSFileSystemV2_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccSFSFileSystemV2_update,
+				Config: testAccSFSFileSystemV2_update(rName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSFileSystemV2Exists(resourceName, &share),
-					resource.TestCheckResourceAttr(resourceName, "name", "sfs-test2"),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "share_proto", "NFS"),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 					resource.TestCheckResourceAttr(resourceName, "size", "20"),
@@ -52,18 +55,19 @@ func TestAccSFSFileSystemV2_basic(t *testing.T) {
 
 func TestAccSFSFileSystemV2_withEpsId(t *testing.T) {
 	var share shares.Share
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_sfs_file_system.sfs_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSFSFileSystemV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSFSFileSystemV2_epsId,
+				Config: testAccSFSFileSystemV2_epsId(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSFileSystemV2Exists(resourceName, &share),
-					resource.TestCheckResourceAttr(resourceName, "name", "sfs-test1"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
 				),
 			},
@@ -73,18 +77,19 @@ func TestAccSFSFileSystemV2_withEpsId(t *testing.T) {
 
 func TestAccSFSFileSystemV2_withoutRule(t *testing.T) {
 	var share shares.Share
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_sfs_file_system.sfs_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSFSFileSystemV2Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSFSFileSystemV2_withoutRule,
+				Config: testAccSFSFileSystemV2_withoutRule(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSFileSystemV2Exists(resourceName, &share),
-					resource.TestCheckResourceAttr(resourceName, "name", "sfs-test-no-rules"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "share_proto", "NFS"),
 					resource.TestCheckResourceAttr(resourceName, "status", "unavailable"),
 					resource.TestCheckResourceAttr(resourceName, "size", "10"),
@@ -152,61 +157,90 @@ func testAccCheckSFSFileSystemV2Exists(n string, share *shares.Share) resource.T
 	}
 }
 
-var testAccSFSFileSystemV2_basic = fmt.Sprintf(`
+func testAccSFSFileSystemV2_basic(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name = "%s"
+  cidr = "192.168.0.0/16"
+}
+
+data "huaweicloud_availability_zones" "myaz" {}
+
 resource "huaweicloud_sfs_file_system" "sfs_1" {
   share_proto  = "NFS"
   size         = 10
-  name         = "sfs-test1"
+  name         = "%s"
   description  = "sfs_c2c_test-file"
-  access_to    = "%s"
+  access_to    = huaweicloud_vpc.test.id
   access_type  = "cert"
   access_level = "rw"
-  availability_zone = "%s"
+  availability_zone = huaweicloud_availability_zones.myaz.names[0]
 
   tags = {
     key   = "value"
     owner = "terraform"
   }
 }
-`, OS_VPC_ID, OS_AVAILABILITY_ZONE)
+`, rName, rName)
+}
 
-var testAccSFSFileSystemV2_epsId = fmt.Sprintf(`
+func testAccSFSFileSystemV2_epsId(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name = "%s"
+  cidr = "192.168.0.0/16"
+}
+
+data "huaweicloud_availability_zones" "myaz" {}
+
 resource "huaweicloud_sfs_file_system" "sfs_1" {
   share_proto  = "NFS"
   size         = 10
-  name         = "sfs-test1"
+  name         = "%s"
   description  = "sfs_c2c_test-file"
-  access_to    = "%s"
+  access_to    = huaweicloud_vpc.test.id
   access_type  = "cert"
   access_level = "rw"
-  availability_zone = "%s"
+  availability_zone = huaweicloud_availability_zones.myaz.names[0]
   enterprise_project_id = "%s"
 }
-`, OS_VPC_ID, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID)
+`, rName, rName, OS_ENTERPRISE_PROJECT_ID)
+}
 
-var testAccSFSFileSystemV2_update = fmt.Sprintf(`
+func testAccSFSFileSystemV2_update(rName, updateName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name = "%s"
+  cidr = "192.168.0.0/16"
+}
+
+data "huaweicloud_availability_zones" "myaz" {}
+
 resource "huaweicloud_sfs_file_system" "sfs_1" {
   share_proto  = "NFS"
   size         = 20
-  name         = "sfs-test2"
+  name         = "%s"
   description  = "sfs_c2c_test-file"
-  access_to    = "%s"
+  access_to    = huaweicloud_vpc.test.id
   access_type  = "cert"
   access_level = "rw"
-  availability_zone = "%s"
+  availability_zone = huaweicloud_availability_zones.myaz.names[0]
 
   tags = {
-    foo   = "bar"
-    owner = "terraform_update"
+    key   = "value"
+    owner = "terraform"
   }
 }
-`, OS_VPC_ID, OS_AVAILABILITY_ZONE)
+`, rName, updateName)
+}
 
-const testAccSFSFileSystemV2_withoutRule = `
+func testAccSFSFileSystemV2_withoutRule(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_sfs_file_system" "sfs_1" {
   share_proto = "NFS"
   size        = 10
-  name        = "sfs-test-no-rules"
+  name        = "%s"
   description = "sfs_c2c_test-file"
 }
-`
+`, rName)
+}

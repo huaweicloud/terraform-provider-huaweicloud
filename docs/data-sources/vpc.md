@@ -25,7 +25,7 @@ data "huaweicloud_vpc" "vpc" {
 
 The arguments of this data source act as filters for querying the available VPCs in the current region. The given filters must match exactly one VPC whose data will be exported as attributes.
 
-* `region` - (Optional) The region in which to obtain the vpc. If omitted, the provider-level region will work as default.
+* `region` - (Optional) The region in which to obtain the vpc. If omitted, the provider-level region will be used.
 
 * `id` - (Optional) The id of the specific VPC to retrieve.
 

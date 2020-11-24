@@ -28,8 +28,8 @@ resource "huaweicloud_networking_vip_associate" "vip_associated" {
 
 The following arguments are supported:
 
-* `region` - (Optional, ForceNew) The region in which to obtain the vip associate resource.
-    If omitted, the provider-level region will work as default.
+* `region` - (Optional, ForceNew) The region in which to create the vip associate resource.
+    If omitted, the provider-level region will be used.
 
 * `vip_id` - (Required, ForceNew) The ID of vip to attach the ports to.
 

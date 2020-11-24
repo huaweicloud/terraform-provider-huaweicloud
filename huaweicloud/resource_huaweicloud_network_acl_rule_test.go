@@ -14,7 +14,7 @@ import (
 func TestAccNetworkACLRule_basic(t *testing.T) {
 	resourceKey := "huaweicloud_network_acl_rule.rule_1"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkACLRuleDestroy,
@@ -69,7 +69,7 @@ func TestAccNetworkACLRule_basic(t *testing.T) {
 func TestAccNetworkACLRule_anyProtocol(t *testing.T) {
 	resourceKey := "huaweicloud_network_acl_rule.rule_any"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkACLRuleDestroy,

@@ -46,7 +46,7 @@ resource "huaweicloud_vpc_eip" "eip_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the eip resource. If omitted, the provider-level region will work as default. Changing this creates a new eip resource.
+* `region` - (Optional) The region in which to create the eip resource. If omitted, the provider-level region will be used. Changing this creates a new eip resource.
 
 * `publicip` - (Required) The elastic IP address object.
 
@@ -95,6 +95,11 @@ The following attributes are exported:
 * `bandwidth/share_type` - See Argument Reference above.
 * `bandwidth/charge_mode` - See Argument Reference above.
 * `address` - The IP address of the eip.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

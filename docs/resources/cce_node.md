@@ -110,7 +110,7 @@ resource "huaweicloud_cce_node" "mynode" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the cce node resource. If omitted, the provider-level region will work as default. Changing this creates a new cce node resource.
+* `region` - (Optional) The region in which to create the cce node resource. If omitted, the provider-level region will be used. Changing this creates a new cce node resource.
 
 * `cluster_id` - (Required) ID of the cluster. Changing this parameter will create a new resource.
 
@@ -156,6 +156,8 @@ The following arguments are supported:
 * `postinstall` - (Optional) Script required after installation. The input value can be a Base64 encoded string or not.
    Changing this parameter will create a new resource.
 
+* `labels` - (Optional) Tags of a Kubernetes node, key/value pair format. Changing this parameter will create a new resource.
+
 * `tags` - (Optional) Tags of a VM node, key/value pair format.
 
 * `root_volume` - (Required) It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
@@ -189,3 +191,9 @@ All above argument parameters can be exported as attribute parameters along with
  * `private_ip` - Private IP of the CCE node.
 
  * `public_ip` - Public IP of the CCE node.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 20 minute.
+- `delete` - Default is 20 minute.
+

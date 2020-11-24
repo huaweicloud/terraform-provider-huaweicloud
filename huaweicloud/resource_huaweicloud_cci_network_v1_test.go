@@ -13,7 +13,7 @@ import (
 func TestAccCCINetworkV1_basic(t *testing.T) {
 	var network networks.Network
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckCCI(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCCINetworkV1Destroy,

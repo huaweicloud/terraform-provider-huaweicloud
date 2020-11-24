@@ -26,7 +26,7 @@ resource "huaweicloud_csbs_backup" "backup" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the CSBS backup resource. If omitted, the provider-level region will work as default. Changing this creates a new CSBS backup resource.
+* `region` - (Optional) The region in which to create the CSBS backup resource. If omitted, the provider-level region will be used. Changing this creates a new CSBS backup resource.
 
 * `backup_name` - (Optional) Name for the backup. The value consists of 1 to 255 characters and can contain only letters, digits, underscores (_), and hyphens (-). Changing backup_name creates a new backup.
 

@@ -21,7 +21,7 @@ resource "huaweicloud_nat_snat_rule" "snat_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the snat rule resource. If omitted, the provider-level region will work as default. Changing this creates a new snat rule resource.
+* `region` - (Optional) The region in which to create the snat rule resource. If omitted, the provider-level region will be used. Changing this creates a new snat rule resource.
 
 * `nat_gateway_id` - (Required) ID of the nat gateway this snat rule belongs to.
     Changing this creates a new snat rule.
@@ -51,6 +51,11 @@ The following attributes are exported:
 * `floating_ip_id` - See Argument Reference above.
 * `floating_ip_address` - The actual floating IP address.
 * `status` - The status of the snat rule.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

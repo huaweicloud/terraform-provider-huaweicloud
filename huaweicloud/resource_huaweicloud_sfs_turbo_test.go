@@ -16,7 +16,7 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 	resourceName := "huaweicloud_sfs_turbo.sfs-turbo1"
 	var turbo shares.Turbo
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSFSTurboDestroy,
@@ -125,6 +125,7 @@ resource "huaweicloud_networking_secgroup_v2" "secgroup" {
 func testAccSFSTurbo_basic(suffix string) string {
 	return fmt.Sprintf(`
 %s
+data "huaweicloud_availability_zones" "myaz" {}
 
 resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
   name        = "sfs-turbo-acc-%s"
@@ -133,14 +134,15 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
   vpc_id      = huaweicloud_vpc_v1.test.id
   subnet_id   = huaweicloud_vpc_subnet_v1.test.id
   security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
-  availability_zone = "%s"
+  availability_zone = huaweicloud_availability_zones.myaz.names[0]
 }
-`, testAccNetworkPreConditions(suffix), suffix, OS_AVAILABILITY_ZONE)
+`, testAccNetworkPreConditions(suffix), suffix)
 }
 
 func testAccSFSTurbo_update(suffix string) string {
 	return fmt.Sprintf(`
 %s
+data "huaweicloud_availability_zones" "myaz" {}
 
 resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
   name        = "sfs-turbo-acc-%s"
@@ -149,7 +151,7 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
   vpc_id      = huaweicloud_vpc_v1.test.id
   subnet_id   = huaweicloud_vpc_subnet_v1.test.id
   security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
-  availability_zone = "%s"
+  availability_zone = huaweicloud_availability_zones.myaz.names[0]
 }
-`, testAccNetworkPreConditions(suffix), suffix, OS_AVAILABILITY_ZONE)
+`, testAccNetworkPreConditions(suffix), suffix)
 }

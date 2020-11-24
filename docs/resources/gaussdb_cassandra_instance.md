@@ -52,7 +52,7 @@ resource "huaweicloud_gaussdb_cassandra_instance" "instance_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the Cassandra instance resource. If omitted, the provider-level region will work as default. Changing this creates a new Cassandra instance resource.
+* `region` - (Optional) The region in which to create the Cassandra instance resource. If omitted, the provider-level region will be used. Changing this creates a new Cassandra instance resource.
 
 * `availability_zone` - (Required) Specifies the AZ name.
   Changing this parameter will create a new resource.
@@ -144,6 +144,12 @@ The `nodes` block contains:
 - `status` - Indicates the node status.
 - `support_reduce` - Indicates whether the node support reduce or not.
 - `private_ip` - Indicates the private IP address of a node.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 60 minute.
+- `update` - Default is 120 minute.
+- `delete` - Default is 30 minute.
 
 ## Import
 

@@ -34,7 +34,7 @@ resource "huaweicloud_dns_recordset" "rs_example_com" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the DNS client.
+* `region` - (Optional) The region in which to create the DNS client.
     If omitted, the `region` argument of the provider is used.
     Changing this creates a new DNS record set.
 
@@ -72,6 +72,12 @@ The following attributes are exported:
 * `zone_id` - See Argument Reference above.
 * `tags` - See Argument Reference above.
 * `value_specs` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

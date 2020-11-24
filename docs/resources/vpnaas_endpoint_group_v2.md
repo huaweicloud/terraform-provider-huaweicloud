@@ -21,7 +21,7 @@ resource "huaweicloud_vpnaas_endpoint_group_v2" "group_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 Networking client.
+* `region` - (Optional) The region in which to create the V2 Networking client.
     A Networking client is needed to create an endpoint group. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     group.
@@ -55,6 +55,12 @@ The following attributes are exported:
 * `endpoints` - See Argument Reference above.
 * `value_specs` - See Argument Reference above.
 
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

@@ -20,7 +20,7 @@ resource "huaweicloud_networking_secgroup" "secgroup" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the security group resource. If omitted, the provider-level region will work as default. Changing this creates a new security group resource.
+* `region` - (Optional) The region in which to create the security group resource. If omitted, the provider-level region will be used. Changing this creates a new security group resource.
 
 * `name` - (Required) A unique name for the security group.
 
@@ -71,6 +71,10 @@ the HuaweiCloud cloud. The above illustrates the current default Neutron
 behavior. Some HuaweiCloud clouds might provide additional rules and some might
 not provide any rules at all (in which case the `delete_default_rules` setting
 is moot).
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `delete` - Default is 10 minute.
 
 ## Import
 

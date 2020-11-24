@@ -215,7 +215,7 @@ The following arguments are supported:
     the server. Please following [reference](https://developer.huaweicloud.com/endpoint)
     for the values. Changing this creates a new server.
 
-* `network` - (Optional) An array of one or more networks to attach to the
+* `network` - (Required) An array of one or more networks to attach to the
     instance. The network object structure is documented below. Changing this
     creates a new server.
 
@@ -232,7 +232,6 @@ The following arguments are supported:
 	* `SSD`: ultra-high I/O disk type.
 	* `GPSSD`: general purpose SSD disk type.
 	* `SAS`: high I/O disk type.
-
 
 * `system_disk_size` - (Optional) The system disk size in GB, The value range is 1 to 1024. Changing this parameter will update the disk. 
     You can extend the disk by setting this parameter to a new value, which must be between current size and the max size(1024). 
@@ -294,14 +293,17 @@ The following attributes are exported:
 
 * `access_ip_v4` - The first detected Fixed IPv4 address _or_ the
     Floating IP.
-* `network/fixed_ip_v4` - The Fixed IPv4 address of the Instance on that
-    network.
+* `network/fixed_ip_v4` - The Fixed IPv4 address of the Instance on that network.
 * `network/mac` - The MAC address of the NIC on that network.
+* `network/port` - The port ID corresponding to the IP address on that network.
 * `volume_attached/volume_id` - The volume id on that attachment.
 * `volume_attached/pci_address` - The volume pci address on that attachment.
 * `volume_attached/boot_index` - The volume boot index on that attachment.
 * `volume_attached/size` - The volume size on that attachment.
 * `system_disk_id` - The system disk voume ID.
+
+
+## Import
 
 Instances can be imported by their `id`. For example,
 ```
@@ -313,3 +315,10 @@ disk configuration, or some other reason. It is generally recommended running
 `terraform plan` after importing an instance. You can then decide if changes should
 be applied to the instance, or the resource definition should be updated to align
 with the instance. 
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 30 minute.
+- `update` - Default is 30 minute.
+- `delete` - Default is 30 minute.
+

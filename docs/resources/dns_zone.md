@@ -77,6 +77,12 @@ The following attributes are exported:
 * `masters` - An array of master DNS servers.
 * `value_specs` - See Argument Reference above.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 This resource can be imported by specifying the zone ID:

@@ -44,9 +44,9 @@ func resourceObsBucketObject() *schema.Resource {
 			},
 
 			"content": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"source"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{"source", "content"},
 			},
 
 			"storage_class": {
@@ -112,12 +112,18 @@ func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
 
-	source := d.Get("source").(string)
-	content := d.Get("content").(string)
-	if source == "" && content == "" {
-		return fmt.Errorf("Must specify \"source\" or \"content\" field")
+	bucket := d.Get("bucket").(string)
+	key := d.Get("key").(string)
+	_, err = obsClient.HeadBucket(bucket)
+	if err != nil {
+		if obsError, ok := err.(obs.ObsError); ok && obsError.StatusCode == 404 {
+			return fmt.Errorf("OBS bucket(%s) not found", bucket)
+		}
+		return fmt.Errorf("error reading OBS bucket %s: %s", bucket, err)
 	}
 
+	source := d.Get("source").(string)
+	content := d.Get("content").(string)
 	if source != "" {
 		// check source file whether exist
 		_, err := os.Stat(source)
@@ -137,10 +143,11 @@ func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error 
 		resp, err = putContentToObject(obsClient, d)
 	}
 
-	bucket := d.Get("bucket").(string)
-	key := d.Get("key").(string)
 	if err != nil {
 		return getObsError("Error putting object to OBS bucket", bucket, err)
+	}
+	if resp == nil {
+		return fmt.Errorf("putting object to OBS bucket %s without null response", bucket)
 	}
 
 	log.Printf("[DEBUG] Response of putting %s to OBS Bucket %s: %#v", key, bucket, resp)

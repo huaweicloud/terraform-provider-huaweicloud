@@ -58,7 +58,7 @@ resource "huaweicloud_vpc_peering_connection_accepter" "peer" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the vpc peering connection accepter. If omitted, the provider-level region will work as default. Changing this creates a new VPC peering connection accepter resource.
+* `region` - (Optional) The region in which to create the vpc peering connection accepter. If omitted, the provider-level region will be used. Changing this creates a new VPC peering connection accepter resource.
 
 * `vpc_peering_connection_id` (Required) - The VPC Peering Connection ID to manage. Changing this creates a new VPC peering connection accepter.
 
@@ -85,4 +85,10 @@ All of the argument attributes except accept are also exported as result attribu
 
 * `peer_tenant_id` - The Tenant Id of the accepter tenant.
 
+
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 

@@ -52,6 +52,12 @@ The following attributes are exported:
 * `tags` - See Argument Reference above.
 * `address` - The address of the FloatingIP/EIP.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+
 ## Import
 
 PTR records can be imported using region and floatingip/eip ID, separated by a colon(:), e.g.

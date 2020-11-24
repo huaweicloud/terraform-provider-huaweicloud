@@ -14,7 +14,7 @@ import (
 func TestAccMRSV1Cluster_basic(t *testing.T) {
 	var clusterGet cluster.Cluster
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckMrs(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMRSV1ClusterDestroy,

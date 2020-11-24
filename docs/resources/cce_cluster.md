@@ -82,7 +82,7 @@ resource "huaweicloud_cce_cluster" "cluster" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the cce cluster resource. If omitted, the provider-level region will work as default. Changing this creates a new cce cluster resource.
+* `region` - (Optional) The region in which to create the cce cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cce cluster resource.
 
 * `name` - (Required) Cluster name. Changing this parameter will create a new cluster resource.
 
@@ -168,6 +168,11 @@ All above argument parameters can be exported as attribute parameters along with
   * `security_group_id` - Security group ID of the cluster.
 
   * `kube_config_raw` - Raw Kubernetes config to be used by kubectl and other compatible tools.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 30 minute.
+- `delete` - Default is 30 minute.
 
 ## Import
 

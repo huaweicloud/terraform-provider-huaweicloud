@@ -22,7 +22,7 @@ resource "huaweicloud_networking_router_v2" "router_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 networking client.
+* `region` - (Optional) The region in which to create the V2 networking client.
     A networking client is needed to create a router. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     router.
@@ -76,6 +76,11 @@ The following attributes are exported:
 * `external_fixed_ip` - See Argument Reference above.
 * `tenant_id` - See Argument Reference above.
 * `value_specs` - See Argument Reference above.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 

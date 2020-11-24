@@ -219,7 +219,6 @@ github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/schedulerhints
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/servergroups
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/startstop
-github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/tenantnetworks
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach
 github.com/huaweicloud/golangsdk/openstack/compute/v2/flavors
 github.com/huaweicloud/golangsdk/openstack/compute/v2/images

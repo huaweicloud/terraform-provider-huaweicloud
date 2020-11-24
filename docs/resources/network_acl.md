@@ -43,7 +43,7 @@ resource "huaweicloud_network_acl" "fw_acl" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the network acl resource. If omitted, the provider-level region will work as default. Changing this creates a new network acl resource.
+* `region` - (Optional) The region in which to create the network acl resource. If omitted, the provider-level region will be used. Changing this creates a new network acl resource.
 
 * `name` - (Required) Specifies the network ACL name. This parameter can contain a maximum of 64 characters,
     which may consist of letters, digits, underscores (_), and hyphens (-).
@@ -66,3 +66,10 @@ All of the argument attributes are also exported as result attributes:
 * `outbound_policy_id` - The ID of the egress firewall policy for the network ACL.
 * `ports` - A list of the port IDs of the subnet gateway.
 * `status` - The status of the network ACL. 
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `update` - Default is 10 minute.
+- `delete` - Default is 10 minute.
+

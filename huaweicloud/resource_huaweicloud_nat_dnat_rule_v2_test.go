@@ -29,7 +29,7 @@ func TestAccNatDnat_basic(t *testing.T) {
 	randSuffix := acctest.RandString(5)
 	resourceName := "huaweicloud_nat_dnat_rule.dnat"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNatDnatDestroy,

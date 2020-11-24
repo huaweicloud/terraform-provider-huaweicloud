@@ -41,7 +41,7 @@ resource "huaweicloud_cs_peering_connect" "peering" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the cs peering connection resource. If omitted, the provider-level region will work as default. Changing this creates a new cs peering connection resource.
+* `region` - (Optional) The region in which to create the cs peering connection resource. If omitted, the provider-level region will be used. Changing this creates a new cs peering connection resource.
 
 * `cluster_id` -
   (Required)
@@ -66,6 +66,7 @@ The `target_vpc_info` block supports:
   The VPC ID. Changing this parameter will create a new resource.
 
 ## Timeouts
-
 This resource provides the following timeouts configuration options:
 - `create` - Default is 30 minute.
+- `delete` - Default is 30 minute.
+

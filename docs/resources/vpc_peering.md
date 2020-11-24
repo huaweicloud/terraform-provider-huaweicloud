@@ -23,7 +23,7 @@ resource "huaweicloud_vpc_peering_connection" "peering" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the VPC peering connection. If omitted, the provider-level region will work as default. Changing this creates a new VPC peering connection resource.
+* `region` - (Optional) The region in which to create the VPC peering connection. If omitted, the provider-level region will be used. Changing this creates a new VPC peering connection resource.
 
 * `name` (Required) - Specifies the name of the VPC peering connection. The value can contain 1 to 64 characters.
 
@@ -45,6 +45,11 @@ result attributes:
 ## Notes
 
 If you create a VPC peering connection with another VPC of your own, the connection is created without the need for you to accept the connection.
+
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `create` - Default is 10 minute.
+- `delete` - Default is 10 minute.
 
 ## Import
 
