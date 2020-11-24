@@ -1,3 +1,11 @@
+data "huaweicloud_availability_zones" "newAZ_Example" {}
+
+data "huaweicloud_images_image" "newIMS_Example" {
+  name        = var.ims_name
+  visibility  = "public"
+  most_recent = true
+}
+
 resource "random_password" "password" {
   length           = 16
   special          = true
@@ -7,33 +15,20 @@ resource "random_password" "password" {
   min_special      = 1
 }
 
-locals {
-  password = random_password.password.result
-}
-
 resource "huaweicloud_compute_instance" "newCompute_Example" {
   name              = var.ecs_name
   image_id          = data.huaweicloud_images_image.newIMS_Example.id
   flavor_id         = "s6.small.1"
   security_groups   = [huaweicloud_networking_secgroup.newSecgroup_Example.name]
-  admin_pass        = local.password
+  admin_pass        = random_password.password.result
   availability_zone = data.huaweicloud_availability_zones.newAZ_Example.names[0]
 
   system_disk_type  = "SSD"
   system_disk_size  = 40
 
   network {
-    fixed_ip_v4 = var.ecs_ipaddress
-    uuid        = huaweicloud_vpc_subnet.newSubnet_Example.id
+    uuid  = huaweicloud_vpc_subnet.newSubnet_Example.id
   }
-}
-
-data "huaweicloud_availability_zones" "newAZ_Example" {}
-
-data "huaweicloud_images_image" "newIMS_Example" {
-  name        = var.ims_name
-  visibility  = "public" # "private"、"share"、"community"
-  most_recent = true
 }
 
 resource "huaweicloud_vpc_eip" "newEIP_Example" {
@@ -67,15 +62,15 @@ resource "huaweicloud_networking_secgroup" "newSecgroup_Example" {
   description = "This is a security group"
 }
 
-resource "huaweicloud_networking_secgroup_rule" "newSecgroup_GressRule_Example" {
-  count             = length(var.example_security_group)
+resource "huaweicloud_networking_secgroup_rule" "newSecgroupRule_Example" {
+  count             = length(var.security_group_rule)
 
-  direction         = lookup(var.example_security_group[count.index], "direction", null)
-  ethertype         = lookup(var.example_security_group[count.index], "ethertype", null)
-  protocol          = lookup(var.example_security_group[count.index], "protocol", null)
-  port_range_min    = lookup(var.example_security_group[count.index], "port_range_min", null)
-  port_range_max    = lookup(var.example_security_group[count.index], "port_range_max", null)
-  remote_ip_prefix  = lookup(var.example_security_group[count.index], "remote_ip_prefix", null)
+  direction         = lookup(var.security_group_rule[count.index], "direction", null)
+  ethertype         = lookup(var.security_group_rule[count.index], "ethertype", null)
+  protocol          = lookup(var.security_group_rule[count.index], "protocol", null)
+  port_range_min    = lookup(var.security_group_rule[count.index], "port_range_min", null)
+  port_range_max    = lookup(var.security_group_rule[count.index], "port_range_max", null)
+  remote_ip_prefix  = lookup(var.security_group_rule[count.index], "remote_ip_prefix", null)
   security_group_id = huaweicloud_networking_secgroup.newSecgroup_Example.id
 }
 
@@ -93,24 +88,6 @@ resource "huaweicloud_nat_snat_rule" "newSNATRule_Example" {
   floating_ip_id = huaweicloud_vpc_eip.newEIP_Example.id
 }
 
-resource "null_resource" "provision" {
-  depends_on = [huaweicloud_nat_snat_rule.newSNATRule_Example]
-
-  provisioner "remote-exec" {
-    connection {
-      user     = "root"
-      password = local.password
-      host     = huaweicloud_vpc_eip.newEIP_Example.address
-    }
-    inline = [
-      "yum -y install nginx",
-      "systemctl enable nginx",
-      "systemctl start nginx",
-      "systemctl status nginx",
-    ]
-  }
-}
-
 resource "huaweicloud_nat_dnat_rule" "newDNATRule_Example" {
   count = length(var.example_dnat_rule)
 
@@ -121,4 +98,23 @@ resource "huaweicloud_nat_dnat_rule" "newDNATRule_Example" {
   internal_service_port = lookup(var.example_dnat_rule[count.index], "internal_service_port", null)
   protocol              = lookup(var.example_dnat_rule[count.index], "protocol", null)
   external_service_port = lookup(var.example_dnat_rule[count.index], "external_service_port", null)
+}
+
+resource "null_resource" "provision" {
+  depends_on = [huaweicloud_nat_snat_rule.newSNATRule_Example, huaweicloud_nat_dnat_rule.newDNATRule_Example]
+
+  provisioner "remote-exec" {
+    connection {
+      user     = "root"
+      password = random_password.password.result
+      host     = huaweicloud_vpc_eip.newEIP_Example.address
+      port     = var.ecs_ssh_port
+    }
+    inline = [
+      "yum -y install nginx",
+      "systemctl enable nginx",
+      "systemctl start nginx",
+      "systemctl status nginx",
+    ]
+  }
 }
