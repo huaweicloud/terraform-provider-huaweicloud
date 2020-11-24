@@ -30,7 +30,6 @@ func TestAccSFSFileSystemV2_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 					resource.TestCheckResourceAttr(resourceName, "size", "10"),
 					resource.TestCheckResourceAttr(resourceName, "access_level", "rw"),
-					resource.TestCheckResourceAttr(resourceName, "access_to", OS_VPC_ID),
 					resource.TestCheckResourceAttr(resourceName, "access_type", "cert"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
@@ -174,7 +173,7 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
   access_to    = huaweicloud_vpc.test.id
   access_type  = "cert"
   access_level = "rw"
-  availability_zone = huaweicloud_availability_zones.myaz.names[0]
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
 
   tags = {
     key   = "value"
@@ -201,7 +200,7 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
   access_to    = huaweicloud_vpc.test.id
   access_type  = "cert"
   access_level = "rw"
-  availability_zone = huaweicloud_availability_zones.myaz.names[0]
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
   enterprise_project_id = "%s"
 }
 `, rName, rName, OS_ENTERPRISE_PROJECT_ID)
@@ -224,11 +223,11 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
   access_to    = huaweicloud_vpc.test.id
   access_type  = "cert"
   access_level = "rw"
-  availability_zone = huaweicloud_availability_zones.myaz.names[0]
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
 
   tags = {
-    key   = "value"
-    owner = "terraform"
+    foo   = "bar"
+    owner = "terraform_update"
   }
 }
 `, rName, updateName)

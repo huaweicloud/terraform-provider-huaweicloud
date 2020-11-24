@@ -119,6 +119,7 @@ func configAccSFSAccessRuleV2_basic(sfsName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc" "vpc_default" {
   name = "vpc-default"
+  enterprise_project_id = "0"
 }
 
 resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
@@ -138,6 +139,7 @@ func configAccSFSAccessRuleV2_ipAuth(sfsName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc" "vpc_default" {
   name = "vpc-default"
+  enterprise_project_id = "0"
 }
 
 resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
