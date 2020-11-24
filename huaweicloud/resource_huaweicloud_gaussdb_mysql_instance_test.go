@@ -89,7 +89,7 @@ func testAccGaussDBInstanceConfig_basic(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_networking_secgroup_v2" "test" {
+data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
 
@@ -100,7 +100,7 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   vpc_id      = huaweicloud_vpc_v1.test.id
   subnet_id   = huaweicloud_vpc_subnet_v1.test.id
 
-  security_group_id = data.huaweicloud_networking_secgroup_v2.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
 
   enterprise_project_id = "0"
 }
