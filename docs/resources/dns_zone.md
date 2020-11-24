@@ -30,9 +30,9 @@ resource "huaweicloud_dns_zone" "my_private_zone" {
   description = "An example zone"
   ttl         = 3000
   zone_type   = "private"
+
   router {
-    router_region = "cn-north-1"
-    router_id     = "2c1fe4bd-ebad-44ca-ae9d-e94e63847b75"
+    router_id = "2c1fe4bd-ebad-44ca-ae9d-e94e63847b75"
   }
 }
 ```
@@ -40,11 +40,14 @@ resource "huaweicloud_dns_zone" "my_private_zone" {
 ## Argument Reference
 
 The following arguments are supported:
+* `region` - (Optional) The region in which to create the DNS zone.
+    If omitted, the `region` argument of the provider will be used.
+    Changing this creates a new DNS zone.
 
 * `name` - (Required) The name of the zone. Note the `.` at the end of the name.
   Changing this creates a new DNS zone.
 
-* `email` - (Optional) The email contact for the zone record.
+* `email` - (Optional) The email address of the administrator managing the zone.
 
 * `zone_type` - (Optional) The type of zone. Can either be `public` or `private`.
   Changing this creates a new DNS zone.
@@ -61,9 +64,9 @@ The following arguments are supported:
 
 The `router` block supports:
 
-* `router_id` - (Required) The router UUID.
+* `router_id` - (Required) ID of the associated VPC.
 
-* `router_region` - (Required) The region of the router.
+* `router_region` - (Optional) The region of the VPC.
 
 ## Attributes Reference
 

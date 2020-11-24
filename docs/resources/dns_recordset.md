@@ -34,8 +34,8 @@ resource "huaweicloud_dns_recordset" "rs_example_com" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the DNS client.
-    If omitted, the `region` argument of the provider is used.
+* `region` - (Optional) The region in which to create the DNS record set.
+    If omitted, the `region` argument of the provider will be used.
     Changing this creates a new DNS record set.
 
 * `zone_id` - (Required) The ID of the zone in which to create the record set.
