@@ -10,14 +10,24 @@ This is an alternative to `huaweicloud_dns_ptrrecord_v2`
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_networking_floatingip_v2" "fip_1" {
+resource "huaweicloud_vpc_eip" "eip_1" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
 }
 
 resource "huaweicloud_dns_ptrrecord" "ptr_1" {
   name          = "ptr.example.com."
   description   = "An example PTR record"
-  floatingip_id = huaweicloud_networking_floatingip_v2.fip_1.id
+  floatingip_id = huaweicloud_vpc_eip.eip_1.id
   ttl           = 3000
+
   tags = {
     foo = "bar"
   }
@@ -27,6 +37,10 @@ resource "huaweicloud_dns_ptrrecord" "ptr_1" {
 ## Argument Reference
 
 The following arguments are supported:
+
+* `region` - (Optional) The region in which to create the PTR record.
+    If omitted, the `region` argument of the provider will be used.
+    Changing this creates a new PTR record.
 
 * `name` - (Required) Domain name of the PTR record. A domain name is case insensitive.
   Uppercase letters will also be converted into lowercase letters.

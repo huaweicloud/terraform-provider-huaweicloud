@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
@@ -69,10 +70,12 @@ func ResourceDNSRecordSetV2() *schema.Resource {
 				ValidateFunc: resourceValidateTTL,
 			},
 			"type": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: resourceRecordsetValidateType,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"A", "AAAA", "MX", "CNAME", "TXT", "NS", "SRV", "PTR",
+				}, false),
 			},
 			"value_specs": {
 				Type:     schema.TypeMap,
@@ -352,20 +355,6 @@ func resourceValidateDescription(v interface{}, k string) (ws []string, errors [
 	if len(value) > 255 {
 		errors = append(errors, fmt.Errorf("%q must less than 255 characters", k))
 	}
-
-	return
-}
-
-var recordSetTypes = [8]string{"A", "AAAA", "MX", "CNAME", "TXT", "NS", "SRV", "PTR"}
-
-func resourceRecordsetValidateType(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range recordSetTypes {
-		if value == recordSetTypes[i] {
-			return
-		}
-	}
-	errors = append(errors, fmt.Errorf("%q must be one of %v", k, recordSetTypes))
 
 	return
 }

@@ -99,28 +99,46 @@ func testAccCheckDNSV2PtrRecordExists(n string, ptrrecord *ptrrecords.Ptr) resou
 
 func testAccDNSV2PtrRecord_basic(ptrName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_networking_floatingip_v2" "fip_1" {
+resource "huaweicloud_vpc_eip" "eip_1" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
 }
 
 resource "huaweicloud_dns_ptrrecord" "ptr_1" {
-  name = "%s"
-  description = "a ptr record"
-  floatingip_id = huaweicloud_networking_floatingip_v2.fip_1.id
-  ttl = 6000
+  name          = "%s"
+  description   = "a ptr record"
+  floatingip_id = huaweicloud_vpc_eip.eip_1.id
+  ttl           = 6000
 }
 `, ptrName)
 }
 
 func testAccDNSV2PtrRecord_update(ptrName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_networking_floatingip_v2" "fip_1" {
+resource "huaweicloud_vpc_eip" "eip_1" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
 }
 
 resource "huaweicloud_dns_ptrrecord" "ptr_1" {
-  name = "%s"
-  description = "ptr record updated"
-  floatingip_id = huaweicloud_networking_floatingip_v2.fip_1.id
-  ttl = 6000
+  name          = "%s"
+  description   = "ptr record updated"
+  floatingip_id = huaweicloud_vpc_eip.eip_1.id
+  ttl           = 6000
 
   tags = {
     foo = "bar"
