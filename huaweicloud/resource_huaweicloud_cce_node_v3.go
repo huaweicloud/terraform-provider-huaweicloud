@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -288,14 +287,6 @@ func resourceCCENodeV3() *schema.Resource {
 	}
 }
 
-func resourceCCENodeLabelsV2(d *schema.ResourceData) map[string]string {
-	m := make(map[string]string)
-	for key, val := range d.Get("labels").(map[string]interface{}) {
-		m[key] = val.(string)
-	}
-	return m
-}
-
 func resourceCCENodeAnnotationsV2(d *schema.ResourceData) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("annotations").(map[string]interface{}) {
@@ -406,7 +397,6 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		ApiVersion: "v3",
 		Metadata: nodes.CreateMetaData{
 			Name:        d.Get("name").(string),
-			Labels:      resourceCCENodeLabelsV2(d),
 			Annotations: resourceCCENodeAnnotationsV2(d),
 		},
 		Spec: nodes.Spec{
@@ -588,15 +578,6 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("tags", tagmap); err != nil {
 		return fmt.Errorf("Error saving tags of cce node: %s", err)
 	}
-
-	labels := map[string]string{}
-	for key, val := range s.Spec.K8sTags {
-		if strings.Contains(key, "cce.cloud.com") {
-			continue
-		}
-		labels[key] = val
-	}
-	d.Set("labels", labels)
 
 	return nil
 }
