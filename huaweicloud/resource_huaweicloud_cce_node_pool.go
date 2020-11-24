@@ -304,12 +304,12 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"Synchronizing"},
-		Target:     []string{""},
-		Refresh:    waitForCceNodePoolActive(nodePoolClient, clusterid, s.Metadata.Id),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      15 * time.Second,
-		MinTimeout: 5 * time.Second,
+		Pending:      []string{"Synchronizing"},
+		Target:       []string{""},
+		Refresh:      waitForCceNodePoolActive(nodePoolClient, clusterid, s.Metadata.Id),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        120 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
@@ -449,12 +449,12 @@ func resourceCCENodePoolDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error deleting HuaweiCloud CCE Node Pool: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"Deleting"},
-		Target:     []string{"Deleted"},
-		Refresh:    waitForCceNodePoolDelete(nodePoolClient, clusterid, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"Deleting"},
+		Target:       []string{"Deleted"},
+		Refresh:      waitForCceNodePoolDelete(nodePoolClient, clusterid, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        60 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()
