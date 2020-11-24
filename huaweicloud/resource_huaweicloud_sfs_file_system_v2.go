@@ -73,12 +73,10 @@ func resourceSFSFileSystemV2() *schema.Resource {
 			"access_level": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "rw",
 			},
 			"access_type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "cert",
 			},
 			"access_to": {
 				Type:     schema.TypeString,
@@ -186,9 +184,19 @@ func resourceSFSFileSystemV2Create(d *schema.ResourceData, meta interface{}) err
 	// specified the "access_to" field, apply first access rule to share file
 	if _, ok := d.GetOk("access_to"); ok {
 		grantAccessOpts := shares.GrantAccessOpts{
-			AccessLevel: d.Get("access_level").(string),
-			AccessType:  d.Get("access_type").(string),
-			AccessTo:    d.Get("access_to").(string),
+			AccessTo: d.Get("access_to").(string),
+		}
+
+		if _, ok := d.GetOk("access_level"); ok {
+			grantAccessOpts.AccessLevel = d.Get("access_level").(string)
+		} else {
+			grantAccessOpts.AccessLevel = "rw"
+		}
+
+		if _, ok := d.GetOk("access_type"); ok {
+			grantAccessOpts.AccessType = d.Get("access_type").(string)
+		} else {
+			grantAccessOpts.AccessType = "cert"
 		}
 
 		grant, accessErr := shares.GrantAccess(sfsClient, d.Id(), grantAccessOpts).ExtractAccess()

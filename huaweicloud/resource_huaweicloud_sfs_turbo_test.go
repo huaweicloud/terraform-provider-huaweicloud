@@ -134,7 +134,7 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
   vpc_id      = huaweicloud_vpc_v1.test.id
   subnet_id   = huaweicloud_vpc_subnet_v1.test.id
   security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
-  availability_zone = huaweicloud_availability_zones.myaz.names[0]
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
 }
 `, testAccNetworkPreConditions(suffix), suffix)
 }
@@ -151,7 +151,7 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
   vpc_id      = huaweicloud_vpc_v1.test.id
   subnet_id   = huaweicloud_vpc_subnet_v1.test.id
   security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
-  availability_zone = huaweicloud_availability_zones.myaz.names[0]
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
 }
 `, testAccNetworkPreConditions(suffix), suffix)
 }
