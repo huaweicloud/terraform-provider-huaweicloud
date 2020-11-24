@@ -77,26 +77,6 @@ func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 	})
 }
 
-func TestAccDNSV2RecordSet_timeout(t *testing.T) {
-	var recordset recordsets.RecordSet
-	zoneName := randomZoneName()
-	resourceName := "huaweicloud_dns_recordset.recordset_1"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDNS(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDNSV2RecordSetDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDNSV2RecordSet_timeout(zoneName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSV2RecordSetExists(resourceName, &recordset),
-				),
-			},
-		},
-	})
-}
-
 func testAccCheckDNSV2RecordSetDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	dnsClient, err := config.DnsV2Client(OS_REGION_NAME)
@@ -163,19 +143,19 @@ func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet)
 func testAccDNSV2RecordSet_basic(zoneName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
-  name = "%s"
-  email = "email2@example.com"
+  name        = "%s"
+  email       = "email2@example.com"
   description = "a zone"
-  ttl = 6000
+  ttl         = 6000
 }
 
 resource "huaweicloud_dns_recordset" "recordset_1" {
-  zone_id = huaweicloud_dns_zone.zone_1.id
-  name = "%s"
-  type = "A"
+  zone_id     = huaweicloud_dns_zone.zone_1.id
+  name        = "%s"
+  type        = "A"
   description = "a record set"
-  ttl = 3000
-  records = ["10.1.0.0"]
+  ttl         = 3000
+  records     = ["10.1.0.0"]
 
   tags = {
     foo = "bar"
@@ -188,19 +168,19 @@ resource "huaweicloud_dns_recordset" "recordset_1" {
 func testAccDNSV2RecordSet_update(zoneName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
-  name = "%s"
-  email = "email2@example.com"
+  name        = "%s"
+  email       = "email2@example.com"
   description = "an updated zone"
-  ttl = 6000
+  ttl         = 6000
 }
 
 resource "huaweicloud_dns_recordset" "recordset_1" {
-  zone_id = huaweicloud_dns_zone.zone_1.id
-  name = "%s"
-  type = "A"
+  zone_id     = huaweicloud_dns_zone.zone_1.id
+  name        = "%s"
+  type        = "A"
   description = "an updated record set"
-  ttl = 6000
-  records = ["10.1.0.1"]
+  ttl         = 6000
+  records     = ["10.1.0.1"]
 
   tags = {
     foo = "bar"
@@ -213,42 +193,17 @@ resource "huaweicloud_dns_recordset" "recordset_1" {
 func testAccDNSV2RecordSet_readTTL(zoneName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
-  name = "%s"
-  email = "email2@example.com"
+  name        = "%s"
+  email       = "email2@example.com"
   description = "a zone"
-  ttl = 6000
+  ttl         = 6000
 }
 
 resource "huaweicloud_dns_recordset" "recordset_1" {
   zone_id = huaweicloud_dns_zone.zone_1.id
-  name = "%s"
-  type = "A"
+  name    = "%s"
+  type    = "A"
   records = ["10.1.0.2"]
-}
-`, zoneName, zoneName)
-}
-
-func testAccDNSV2RecordSet_timeout(zoneName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_dns_zone" "zone_1" {
-  name = "%s"
-  email = "email2@example.com"
-  description = "a zone"
-  ttl = 6000
-}
-
-resource "huaweicloud_dns_recordset" "recordset_1" {
-  zone_id = huaweicloud_dns_zone.zone_1.id
-  name = "%s"
-  type = "A"
-  ttl = 3000
-  records = ["10.1.0.3"]
-
-  timeouts {
-    create = "5m"
-    update = "5m"
-    delete = "5m"
-  }
 }
 `, zoneName, zoneName)
 }
