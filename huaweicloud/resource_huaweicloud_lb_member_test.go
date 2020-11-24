@@ -40,9 +40,9 @@ func TestAccLBV2Member_basic(t *testing.T) {
 
 func testAccCheckLBV2MemberDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+	elbClient, err := config.elbV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -51,7 +51,7 @@ func testAccCheckLBV2MemberDestroy(s *terraform.State) error {
 		}
 
 		poolId := rs.Primary.Attributes["pool_id"]
-		_, err := pools.GetMember(networkingClient, poolId, rs.Primary.ID).Extract()
+		_, err := pools.GetMember(elbClient, poolId, rs.Primary.ID).Extract()
 		if err == nil {
 			return fmt.Errorf("Member still exists: %s", rs.Primary.ID)
 		}
@@ -72,13 +72,13 @@ func testAccCheckLBV2MemberExists(n string, member *pools.Member) resource.TestC
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+		elbClient, err := config.elbV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
 
 		poolId := rs.Primary.Attributes["pool_id"]
-		found, err := pools.GetMember(networkingClient, poolId, rs.Primary.ID).Extract()
+		found, err := pools.GetMember(elbClient, poolId, rs.Primary.ID).Extract()
 		if err != nil {
 			return err
 		}

@@ -130,9 +130,9 @@ func resourcePoolV2() *schema.Resource {
 
 func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	adminStateUp := d.Get("admin_state_up").(bool)
@@ -227,9 +227,9 @@ func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	pool, err := pools.Get(lbClient, d.Id()).Extract()
@@ -253,9 +253,9 @@ func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourcePoolV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var updateOpts pools.UpdateOpts
@@ -314,9 +314,9 @@ func resourcePoolV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourcePoolV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing

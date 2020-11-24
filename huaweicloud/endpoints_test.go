@@ -613,7 +613,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	}
 	expectedURL = fmt.Sprintf("https://vpc.%s.%s/v1/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
-	compareURL(expectedURL, actualURL, "vpc", "v1", t)
+	compareURL(expectedURL, actualURL, "security group", "v1", t)
 
 	// test endpoint of elb v1.0
 	serviceClient, err = nil, nil
@@ -631,7 +631,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ELB v2.0 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://elb.%s.%s/v2.0/%s/", OS_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmt.Sprintf("https://elb.%s.%s/v2.0/", OS_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "elb", "v2.0", t)
 

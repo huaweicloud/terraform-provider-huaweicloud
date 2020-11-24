@@ -85,9 +85,9 @@ func resourceCertificateV2() *schema.Resource {
 
 func resourceCertificateV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	elbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	createOpts := certificates.CreateOpts{
@@ -100,7 +100,7 @@ func resourceCertificateV2Create(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	c, err := certificates.Create(networkingClient, createOpts).Extract()
+	c, err := certificates.Create(elbClient, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creating Certificate: %s", err)
 	}
@@ -113,12 +113,12 @@ func resourceCertificateV2Create(d *schema.ResourceData, meta interface{}) error
 
 func resourceCertificateV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	elbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
-	c, err := certificates.Get(networkingClient, d.Id()).Extract()
+	c, err := certificates.Get(elbClient, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "certificate")
 	}
@@ -140,9 +140,9 @@ func resourceCertificateV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCertificateV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	elbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var updateOpts certificates.UpdateOpts
@@ -167,7 +167,7 @@ func resourceCertificateV2Update(d *schema.ResourceData, meta interface{}) error
 	timeout := d.Timeout(schema.TimeoutUpdate)
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
-		_, err := certificates.Update(networkingClient, d.Id(), updateOpts).Extract()
+		_, err := certificates.Update(elbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
 			return checkForRetryableError(err)
 		}
@@ -182,16 +182,16 @@ func resourceCertificateV2Update(d *schema.ResourceData, meta interface{}) error
 
 func resourceCertificateV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	elbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Deleting certificate %s", d.Id())
 	timeout := d.Timeout(schema.TimeoutDelete)
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
-		err := certificates.Delete(networkingClient, d.Id()).ExtractErr()
+		err := certificates.Delete(elbClient, d.Id()).ExtractErr()
 		if err != nil {
 			return checkForRetryableError(err)
 		}
