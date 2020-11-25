@@ -52,6 +52,29 @@ func TestAccKmsKeyV1_basic(t *testing.T) {
 	})
 }
 
+func TestAccKmsKeyV1_WithEpsId(t *testing.T) {
+	var key keys.Key
+	var keyAlias = fmt.Sprintf("kms_%s", acctest.RandString(5))
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckKms(t); testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKmsV1KeyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKmsV1Key_epsId(keyAlias),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_v1.key_2", &key),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_kms_key_v1.key_2", "key_alias", keyAlias),
+					resource.TestCheckResourceAttr(
+						"huaweicloud_kms_key_v1.key_2", "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckKmsV1KeyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	kmsClient, err := config.kmsKeyV1Client(OS_REGION_NAME)
@@ -158,6 +181,16 @@ func testAccKmsV1Key_basic(keyAlias string) string {
 			pending_days = "7"
 		}
 	`, keyAlias)
+}
+
+func testAccKmsV1Key_epsId(keyAlias string) string {
+	return fmt.Sprintf(`
+		resource "huaweicloud_kms_key_v1" "key_2" {
+			key_alias = "%s"
+			pending_days = "7"
+			enterprise_project_id = "%s"
+		}
+	`, keyAlias, OS_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccKmsV1Key_update(keyAliasUpdate string) string {

@@ -14,6 +14,8 @@ type CreateOpts struct {
 	Realm string `json:"realm,omitempty"`
 	// Purpose of a CMK (The default value is Encrypt_Decrypt)
 	KeyUsage string `json:"key_usage,omitempty"`
+	// Enterprise project id
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
 type DeleteOpts struct {
@@ -63,9 +65,10 @@ type EncryptDEKOpts struct {
 // function.
 type ListOpts struct {
 	// State of a CMK
-	KeyState string `json:"key_state,omitempty"`
-	Limit    string `json:"limit,omitempty"`
-	Marker   string `json:"marker,omitempty"`
+	KeyState            string `json:"key_state,omitempty"`
+	Limit               string `json:"limit,omitempty"`
+	Marker              string `json:"marker,omitempty"`
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
 // ToKeyCreateMap assembles a request body based on the contents of a

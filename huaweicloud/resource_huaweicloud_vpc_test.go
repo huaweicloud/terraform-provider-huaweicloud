@@ -70,7 +70,7 @@ func TestAccVpcV1_WithEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "status", "OK"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -224,7 +224,7 @@ resource "huaweicloud_vpc" "test" {
   cidr = "192.168.0.0/16"
   enterprise_project_id = "%s"
 }
-`, rName, OS_ENTERPRISE_PROJECT_ID)
+`, rName, OS_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func tesstAccVpcV1_WithCustomRegion(name1 string, name2 string, region string) string {

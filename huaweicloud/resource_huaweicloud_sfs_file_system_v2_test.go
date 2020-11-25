@@ -64,7 +64,7 @@ func TestAccSFSFileSystemV2_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSFileSystemV2Exists(resourceName, &share),
 					resource.TestCheckResourceAttr(resourceName, "name", "sfs-test1"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -182,7 +182,7 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
   availability_zone = "%s"
   enterprise_project_id = "%s"
 }
-`, OS_VPC_ID, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID)
+`, OS_VPC_ID, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID_TEST)
 
 var testAccSFSFileSystemV2_update = fmt.Sprintf(`
 resource "huaweicloud_sfs_file_system" "sfs_1" {
