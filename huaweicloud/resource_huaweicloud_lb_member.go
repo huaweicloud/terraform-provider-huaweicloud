@@ -93,9 +93,9 @@ func resourceMemberV2() *schema.Resource {
 
 func resourceMemberV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	adminStateUp := d.Get("admin_state_up").(bool)
@@ -151,9 +151,9 @@ func resourceMemberV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMemberV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	member, err := pools.GetMember(lbClient, d.Get("pool_id").(string), d.Id()).Extract()
@@ -177,9 +177,9 @@ func resourceMemberV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMemberV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var updateOpts pools.UpdateMemberOpts
@@ -226,9 +226,9 @@ func resourceMemberV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMemberV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// Wait for Pool to become active before continuing

@@ -102,9 +102,9 @@ func resourceL7RuleV2() *schema.Resource {
 
 func resourceL7RuleV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// Assign some required variables for use in creation.
@@ -191,9 +191,9 @@ func resourceL7RuleV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceL7RuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	l7policyID := d.Get("l7policy_id").(string)
@@ -218,9 +218,9 @@ func resourceL7RuleV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceL7RuleV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// Assign some required variables for use in updating.
@@ -308,9 +308,9 @@ func resourceL7RuleV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceL7RuleV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutDelete)
@@ -372,9 +372,9 @@ func resourceL7RuleV2Import(d *schema.ResourceData, meta interface{}) ([]*schema
 	}
 
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return nil, fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return nil, fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	listenerID := ""

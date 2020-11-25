@@ -63,9 +63,9 @@ func TestAccLBV2Certificate_client(t *testing.T) {
 
 func testAccCheckLBV2CertificateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+	elbClient, err := config.elbV2Client(OS_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -73,7 +73,7 @@ func testAccCheckLBV2CertificateDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := certificates.Get(networkingClient, rs.Primary.ID).Extract()
+		_, err := certificates.Get(elbClient, rs.Primary.ID).Extract()
 		if err == nil {
 			return fmt.Errorf("Certificate still exists: %s", rs.Primary.ID)
 		}
@@ -95,12 +95,12 @@ func testAccCheckLBV2CertificateExists(
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+		elbClient, err := config.elbV2Client(OS_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
 
-		found, err := certificates.Get(networkingClient, rs.Primary.ID).Extract()
+		found, err := certificates.Get(elbClient, rs.Primary.ID).Extract()
 		if err != nil {
 			return err
 		}
