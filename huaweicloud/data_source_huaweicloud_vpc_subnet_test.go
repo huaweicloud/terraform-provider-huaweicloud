@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -11,18 +12,21 @@ import (
 
 func TestAccVpcSubnetV1DataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	tmp := strconv.Itoa(acctest.RandIntRange(1, 254))
+	cidr := fmt.Sprintf("172.16.%s.0/24", string(tmp))
+	gateway := fmt.Sprintf("172.16.%s.1", string(tmp))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceVpcSubnetV1Config(rName),
+				Config: testAccDataSourceVpcSubnetV1Config(rName, cidr, gateway),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceVpcSubnetV1Check("data.huaweicloud_vpc_subnet.by_id", rName, "172.16.8.0/24", "172.16.8.1"),
-					testAccDataSourceVpcSubnetV1Check("data.huaweicloud_vpc_subnet.by_cidr", rName, "172.16.8.0/24", "172.16.8.1"),
-					testAccDataSourceVpcSubnetV1Check("data.huaweicloud_vpc_subnet.by_name", rName, "172.16.8.0/24", "172.16.8.1"),
-					testAccDataSourceVpcSubnetV1Check("data.huaweicloud_vpc_subnet.by_vpc_id", rName, "172.16.8.0/24", "172.16.8.1"),
+					testAccDataSourceVpcSubnetV1Check("data.huaweicloud_vpc_subnet.by_id", rName, cidr, gateway),
+					testAccDataSourceVpcSubnetV1Check("data.huaweicloud_vpc_subnet.by_cidr", rName, cidr, gateway),
+					testAccDataSourceVpcSubnetV1Check("data.huaweicloud_vpc_subnet.by_name", rName, cidr, gateway),
+					testAccDataSourceVpcSubnetV1Check("data.huaweicloud_vpc_subnet.by_vpc_id", rName, cidr, gateway),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_vpc_subnet.by_id", "status", "ACTIVE"),
 					resource.TestCheckResourceAttr(
@@ -69,19 +73,19 @@ func testAccDataSourceVpcSubnetV1Check(n, name, cidr, gateway_ip string) resourc
 	}
 }
 
-func testAccDataSourceVpcSubnetV1Config(rName string) string {
+func testAccDataSourceVpcSubnetV1Config(rName, cidr, gateway string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_vpc" "test" {
   name = "%s"
-  cidr = "172.16.8.0/24"
+  cidr = "%s"
 }
 
 resource "huaweicloud_vpc_subnet" "test" {
   name              = "%s"
-  cidr              = "172.16.8.0/24"
-  gateway_ip        = "172.16.8.1"
+  cidr              = "%s"
+  gateway_ip        = "%s"
   vpc_id            = huaweicloud_vpc.test.id
 
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
@@ -102,5 +106,5 @@ data "huaweicloud_vpc_subnet" "by_name" {
 data "huaweicloud_vpc_subnet" "by_vpc_id" {
   vpc_id = huaweicloud_vpc_subnet.test.vpc_id
 }
-`, rName, rName)
+`, rName, cidr, rName, cidr, gateway)
 }
