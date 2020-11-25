@@ -87,7 +87,7 @@ func testAccOpenGaussInstanceConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_networking_secgroup_v2" "test" {
+data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
 
@@ -95,11 +95,11 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   name        = "%s"
   password    = "Test@123"
   flavor      = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
-  vpc_id      = huaweicloud_vpc_v1.test.id
-  subnet_id   = huaweicloud_vpc_subnet_v1.test.id
+  vpc_id      = huaweicloud_vpc.test.id
+  subnet_id   = huaweicloud_vpc_subnet.test.id
 
   availability_zone = "cn-north-4a,cn-north-4a,cn-north-4a"
-  security_group_id = data.huaweicloud_networking_secgroup_v2.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
 
   ha {
     mode             = "enterprise"
