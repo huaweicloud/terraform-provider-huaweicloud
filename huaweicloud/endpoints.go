@@ -36,12 +36,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Scope:            "global",
 		WithOutProjectID: true,
 	},
-	"dns": ServiceCatalog{
-		Name:             "dns",
-		Version:          "v2",
-		Scope:            "global",
-		WithOutProjectID: true,
-	},
 	"eps": ServiceCatalog{
 		Name:             "eps",
 		Version:          "v1.0",
@@ -159,6 +153,17 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"fwv2": ServiceCatalog{
 		Name:             "vpc",
 		Version:          "v2.0",
+		WithOutProjectID: true,
+	},
+	"dns": ServiceCatalog{
+		Name:             "dns",
+		Version:          "v2",
+		Scope:            "global",
+		WithOutProjectID: true,
+	},
+	"dns_region": ServiceCatalog{
+		Name:             "dns",
+		Version:          "v2",
 		WithOutProjectID: true,
 	},
 

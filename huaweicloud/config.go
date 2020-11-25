@@ -519,10 +519,6 @@ func (c *Config) IdentityV3Client(region string) (*golangsdk.ServiceClient, erro
 	return c.NewServiceClient("identity", region)
 }
 
-func (c *Config) DnsV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("dns", region)
-}
-
 func (c *Config) CdnV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cdn", region)
 }
@@ -625,6 +621,14 @@ func (c *Config) elbV2Client(region string) (*golangsdk.ServiceClient, error) {
 
 func (c *Config) fwV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("networkv2", region)
+}
+
+func (c *Config) DnsV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dns", region)
+}
+
+func (c *Config) DnsWithRegionClient(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dns_region", region)
 }
 
 // ********** client for Management **********

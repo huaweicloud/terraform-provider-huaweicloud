@@ -85,18 +85,6 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 	}
 	t.Logf("CDN endpoint:\t %s", actualURL)
 
-	// test the endpoint of DNS service
-	serviceClient, err = config.DnsV2Client(OS_REGION_NAME)
-	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud DNS client: %s", err)
-	}
-	expectedURL = fmt.Sprintf("https://dns.%s/v2/", config.Cloud)
-	actualURL = serviceClient.ResourceBaseURL()
-	if actualURL != expectedURL {
-		t.Fatalf("DNS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
-	}
-	t.Logf("DNS endpoint:\t %s", actualURL)
-
 	// test the endpoint of bss v1 service
 	serviceClient, err = config.BssV1Client(OS_REGION_NAME)
 	if err != nil {
@@ -643,6 +631,30 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	expectedURL = fmt.Sprintf("https://vpc.%s.%s/v2.0/", OS_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "fw", "v2.0", t)
+
+	// test the endpoint of DNS service
+	serviceClient, err = config.DnsV2Client(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud DNS client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dns.%s/v2/", config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("DNS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("DNS endpoint:\t %s", actualURL)
+
+	// test the endpoint of DNS service (with region)
+	serviceClient, err = config.DnsWithRegionClient(OS_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud DNS region client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dns.%s.%s/v2/", OS_REGION_NAME, config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("DNS region endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("DNS region endpoint:\t %s", actualURL)
 }
 
 func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
