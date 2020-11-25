@@ -37,10 +37,6 @@ func resourceKmsKeyV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"key_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"key_description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -50,6 +46,26 @@ func resourceKmsKeyV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"is_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+			"pending_days": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "7",
+			},
+			"key_id": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"domain_id": {
 				Type:     schema.TypeString,
@@ -63,11 +79,6 @@ func resourceKmsKeyV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"is_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
 			"default_key_flag": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -75,11 +86,6 @@ func resourceKmsKeyV1() *schema.Resource {
 			"expiration_time": {
 				Type:     schema.TypeString,
 				Computed: true,
-			},
-			"pending_days": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "7",
 			},
 		},
 	}
@@ -93,9 +99,10 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	createOpts := &keys.CreateOpts{
-		KeyAlias:       d.Get("key_alias").(string),
-		KeyDescription: d.Get("key_description").(string),
-		Realm:          d.Get("realm").(string),
+		KeyAlias:            d.Get("key_alias").(string),
+		KeyDescription:      d.Get("key_description").(string),
+		Realm:               d.Get("realm").(string),
+		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -172,6 +179,7 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("is_enabled", v.KeyState == EnabledState)
 	d.Set("default_key_flag", v.DefaultKeyFlag)
 	d.Set("expiration_time", v.ExpirationTime)
+	d.Set("enterprise_project_id", v.EnterpriseProjectID)
 
 	return nil
 }

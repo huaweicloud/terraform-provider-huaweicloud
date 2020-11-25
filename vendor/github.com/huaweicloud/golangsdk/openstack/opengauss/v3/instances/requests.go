@@ -223,3 +223,27 @@ func GetInstanceByID(client *golangsdk.ServiceClient, instanceId string) (GaussD
 	instance = all.Instances[0]
 	return instance, nil
 }
+
+func GetInstanceByName(client *golangsdk.ServiceClient, name string) (GaussDBInstance, error) {
+	var instance GaussDBInstance
+
+	opts := ListGaussDBInstanceOpts{
+		Name: name,
+	}
+
+	pages, err := List(client, &opts).AllPages()
+	if err != nil {
+		return instance, err
+	}
+
+	all, err := ExtractGaussDBInstances(pages)
+	if err != nil {
+		return instance, err
+	}
+	if all.TotalCount == 0 {
+		return instance, nil
+	}
+
+	instance = all.Instances[0]
+	return instance, nil
+}

@@ -163,7 +163,7 @@ resource "huaweicloud_rds_read_replica_instance" "replica_instance" {
     foo = "bar"
   }
 }
-`, val, OS_AVAILABILITY_ZONE, OS_VPC_ID, OS_NETWORK_ID, OS_ENTERPRISE_PROJECT_ID, val, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID)
+`, val, OS_AVAILABILITY_ZONE, OS_VPC_ID, OS_NETWORK_ID, OS_ENTERPRISE_PROJECT_ID_TEST, val, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccReadRdsReplicaInstanceUpdate(val string) string {
@@ -218,5 +218,5 @@ resource "huaweicloud_rds_read_replica_instance" "replica_instance" {
     foo = "bar2"
   }
 }
-`, val, OS_AVAILABILITY_ZONE, OS_VPC_ID, OS_NETWORK_ID, OS_ENTERPRISE_PROJECT_ID, val, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID)
+`, val, OS_AVAILABILITY_ZONE, OS_VPC_ID, OS_NETWORK_ID, OS_ENTERPRISE_PROJECT_ID_TEST, val, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID_TEST)
 }

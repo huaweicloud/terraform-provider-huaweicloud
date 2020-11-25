@@ -31,8 +31,6 @@ The following arguments are supported:
 * `key_description` - (Optional) The description of the key as viewed in Huawei console.
     Changing this updates the description of key.
 
-* `realm` - (Optional) Region where a key resides. Changing this creates a new key.
-
 * `pending_days` - (Optional) Duration in days after which the key is deleted
     after destruction of the resource, must be between 7 and 1096 days. It doesn't
     have default value. It only be used when delete a key.
@@ -40,14 +38,13 @@ The following arguments are supported:
 * `is_enabled` - (Optional) Specifies whether the key is enabled. Defaults to true.
     Changing this updates the state of existing key.
 
+* `enterprise_project_id` - (Optional) The enterprise project id of the kms key. Changing this creates a new key.
+
 
 ## Attributes Reference
 
 The following attributes are exported:
 
-* `key_alias` - See Argument Reference above.
-* `key_description` - See Argument Reference above.
-* `realm` - See Argument Reference above.
 * `key_id` - The globally unique identifier for the key.
 * `default_key_flag` - Identification of a Master Key. The value 1 indicates a Default
     Master Key, and the value 0 indicates a key.
@@ -55,7 +52,6 @@ The following attributes are exported:
 * `domain_id` - ID of a user domain for the key.
 * `expiration_time` - Expiration time.
 * `creation_date` - Creation time (time stamp) of a key.
-* `is_enabled` - See Argument Reference above.
 
 
 ## Import

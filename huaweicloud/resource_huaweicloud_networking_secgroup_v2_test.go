@@ -58,7 +58,7 @@ func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
 					testAccCheckNetworkingV2SecGroupExists(
 						"huaweicloud_networking_secgroup.secgroup_1", &security_group),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_networking_secgroup.secgroup_1", "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+						"huaweicloud_networking_secgroup.secgroup_1", "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -183,7 +183,7 @@ func testAccNetworkingV2SecGroup_epsId() string {
 	  description = "terraform security group acceptance test"
 	  enterprise_project_id = "%s"
 	}
-	`, OS_ENTERPRISE_PROJECT_ID)
+	`, OS_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 const testAccNetworkingV2SecGroup_update = `
