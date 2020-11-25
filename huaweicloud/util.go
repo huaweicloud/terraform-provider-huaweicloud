@@ -197,3 +197,17 @@ func dataResourceIdHash(ids []string) string {
 
 	return fmt.Sprintf("%d", hashcode.String(buf.String()))
 }
+
+// Remove duplicate elements from slice
+func removeDuplicateElem(s []string) []string {
+	result := []string{}
+	tmpMap := map[string]byte{}
+	for _, e := range s {
+		l := len(tmpMap)
+		tmpMap[e] = 0
+		if len(tmpMap) != l {
+			result = append(result, e)
+		}
+	}
+	return result
+}

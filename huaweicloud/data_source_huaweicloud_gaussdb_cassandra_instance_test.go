@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccGaussdbMysqlInstanceDataSource_basic(t *testing.T) {
+func TestAccGeminiDBInstanceDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -17,31 +17,31 @@ func TestAccGaussdbMysqlInstanceDataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGaussdbMysqlInstanceDataSource_basic(rName),
+				Config: testAccGeminiDBInstanceDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGaussdbMysqlInstanceDataSourceID("data.huaweicloud_gaussdb_mysql_instance.test"),
+					testAccCheckGeminiDBInstanceDataSourceID("data.huaweicloud_gaussdb_cassandra_instance.test"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckGaussdbMysqlInstanceDataSourceID(n string) resource.TestCheckFunc {
+func testAccCheckGeminiDBInstanceDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find GaussDB mysql instance data source: %s ", n)
+			return fmt.Errorf("Can't find GaussDB cassandra instance data source: %s ", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("GaussDB mysql instance data source ID not set ")
+			return fmt.Errorf("GaussDB cassandra instance data source ID not set ")
 		}
 
 		return nil
 	}
 }
 
-func testAccGaussdbMysqlInstanceDataSource_basic(rName string) string {
+func testAccGeminiDBInstanceDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -51,18 +51,31 @@ data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
 
-resource "huaweicloud_gaussdb_mysql_instance" "test" {
+resource "huaweicloud_gaussdb_cassandra_instance" "test" {
   name        = "%s"
   password    = "Test@123"
-  flavor      = "gaussdb.mysql.4xlarge.x86.4"
+  flavor      = "geminidb.cassandra.xlarge.4"
+  volume_size = 100
   vpc_id      = huaweicloud_vpc.test.id
   subnet_id   = huaweicloud_vpc_subnet.test.id
+  node_num    = 4
 
   security_group_id = data.huaweicloud_networking_secgroup.test.id
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+
+  backup_strategy {
+    start_time = "03:00-04:00"
+    keep_days  = 14
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 
-data "huaweicloud_gaussdb_mysql_instance" "test" {
-  name = huaweicloud_gaussdb_mysql_instance.test.name
+data "huaweicloud_gaussdb_cassandra_instance" "test" {
+  name = huaweicloud_gaussdb_cassandra_instance.test.name
 }
 `, testAccVpcConfig_Base(rName), rName)
 }
