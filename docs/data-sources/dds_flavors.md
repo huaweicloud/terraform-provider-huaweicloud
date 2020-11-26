@@ -31,8 +31,6 @@ data "huaweicloud_dds_flavors" "flavor" {
 
 ## Attributes Reference
 
-* `region` - See Argument Reference above.
-
 * `flavors` - Indicates the flavors information. Structure is documented below.
 
 The `flavors` block contains:

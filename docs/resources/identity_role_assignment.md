@@ -68,7 +68,3 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `domain_id` - See Argument Reference above.
-* `project_id` - See Argument Reference above.
-* `group_id` - See Argument Reference above.
-* `role_id` - See Argument Reference above.

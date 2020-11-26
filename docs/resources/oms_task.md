@@ -87,12 +87,6 @@ The `smn_info` block supports:
 
 The following attributes are exported:
 
-* `src_node` - See Argument Reference above.
-* `dst_node` - See Argument Reference above.
-* `enable_kms` - See Argument Reference above.
-* `thread_num` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `smn_info` - See Argument Reference above.
 * `name` - Indicates the name for a task.
 * `status` - Indicates the task status as follows: 0: Not started, 1: Waiting to migrate,
 	2: Migrating, 3: Migration paused, 4: Migration failed, 5: Migration succeeded.

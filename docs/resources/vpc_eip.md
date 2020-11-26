@@ -87,13 +87,6 @@ The `bandwidth` block supports:
 
 The following attributes are exported:
 
-* `publicip/type` - See Argument Reference above.
-* `publicip/ip_address` - See Argument Reference above.
-* `publicip/port_id` - See Argument Reference above.
-* `bandwidth/name` - See Argument Reference above.
-* `bandwidth/size` - See Argument Reference above.
-* `bandwidth/share_type` - See Argument Reference above.
-* `bandwidth/charge_mode` - See Argument Reference above.
 * `address` - The IP address of the eip.
 
 ## Timeouts

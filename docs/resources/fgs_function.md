@@ -66,20 +66,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `name` - See Argument Reference above.
-* `package` - See Argument Reference above.
-* `code_type` - See Argument Reference above.
-* `code_url` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `code_filename` - See Argument Reference above.
-* `handler` - See Argument Reference above.
-* `memory_size` - See Argument Reference above.
-* `runtime` - See Argument Reference above.
-* `timeout` - See Argument Reference above.
-* `user_data` - See Argument Reference above.
-* `xrole` - See Argument Reference above.
-* `func_code` - See Argument Reference above.
-
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.

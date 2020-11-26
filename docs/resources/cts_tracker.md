@@ -43,8 +43,6 @@ The following arguments are supported:
 
 * `need_notify_user_list` - (Optional) The users using the login function. When these users log in, notifications will be sent.
 
-
-
 ## Attributes Reference
 In addition to all arguments above, the following attributes are exported:
 
@@ -65,7 +63,4 @@ CTS tracker can be imported using  `tracker_name`, e.g.
 ```
 $ terraform import huaweicloud_cts_tracker_v1.tracker system
 ```
-
-
-
 

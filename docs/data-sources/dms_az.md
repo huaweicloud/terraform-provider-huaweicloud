@@ -34,6 +34,3 @@ data "huaweicloud_dms_az" "az1" {
 `id` is set to the ID of the found az. In addition, the following attributes
 are exported:
 
-* `name` - See Argument Reference above.
-* `code` - See Argument Reference above.
-* `port` - See Argument Reference above.

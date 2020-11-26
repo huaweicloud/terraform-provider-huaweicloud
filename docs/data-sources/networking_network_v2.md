@@ -39,7 +39,6 @@ data "huaweicloud_networking_network_v2" "network" {
 are exported:
 
 * `admin_state_up` - (Optional) The administrative state of the network.
-* `name` - See Argument Reference above.
-* `region` - See Argument Reference above.
+
 * `shared` - (Optional)  Specifies whether the network resource can be accessed
     by any tenant or not.

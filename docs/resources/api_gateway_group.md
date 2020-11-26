@@ -33,8 +33,6 @@ The following attributes are exported:
 
 * `id` - ID of the API group.
 * `status` - Status of the API group.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

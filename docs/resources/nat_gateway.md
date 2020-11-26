@@ -48,13 +48,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `spec` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `router_id` - See Argument Reference above.
-* `internal_network_id` - See Argument Reference above.
 * `status` - The status of the nat gateway.
 
 ## Timeouts

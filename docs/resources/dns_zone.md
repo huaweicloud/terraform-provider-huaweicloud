@@ -72,13 +72,8 @@ The `router` block supports:
 
 The following attributes are exported:
 
-* `name` - See Argument Reference above.
-* `email` - See Argument Reference above.
-* `zone_type` - See Argument Reference above.
-* `ttl` - See Argument Reference above.
-* `description` - See Argument Reference above.
 * `masters` - An array of master DNS servers.
-* `value_specs` - See Argument Reference above.
+
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

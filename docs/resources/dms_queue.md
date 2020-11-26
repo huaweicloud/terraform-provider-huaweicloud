@@ -57,12 +57,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-
-* `name` - See Argument Reference above.
-* `queue_mode` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `redrive_policy` - See Argument Reference above.
-* `max_consume_count` - See Argument Reference above.
 * `created` - Indicates the time when a queue is created.
 * `reservation` - Indicates the retention period (unit: min) of a message in a queue.
 * `max_msg_size_byte` - Indicates the maximum message size (unit: byte) that is allowed in queue.

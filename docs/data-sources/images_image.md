@@ -64,5 +64,4 @@ are exported:
 * `schema` - The path to the JSON-schema that represent
    the image or image
 * `size_bytes` - The size of the image (in bytes).
-* `tags` - See Argument Reference above.
 * `update_at` - The date the image was last updated.

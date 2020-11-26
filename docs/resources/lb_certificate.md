@@ -107,13 +107,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `type` - See Argument Reference above.
-* `domain` - See Argument Reference above.
-* `private_key` - See Argument Reference above.
-* `certificate` - See Argument Reference above.
 * `update_time` - Indicates the update time.
 * `create_time` - Indicates the creation time.
 

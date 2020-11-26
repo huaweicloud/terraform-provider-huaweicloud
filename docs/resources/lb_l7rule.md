@@ -82,15 +82,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The unique ID for the L7 Rule.
-* `region` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `type` - See Argument Reference above.
-* `compare_type` - See Argument Reference above.
-* `l7policy_id` - See Argument Reference above.
-* `value` - See Argument Reference above.
-* `key` - See Argument Reference above.
-* `invert` - See Argument Reference above.
-* `admin_state_up` - See Argument Reference above.
+
 * `listener_id` - The ID of the Listener owning this resource.
 
 ## Timeouts

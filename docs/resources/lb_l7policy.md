@@ -77,16 +77,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The unique ID for the L7 {olicy.
-* `region` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `action` - See Argument Reference above.
-* `listener_id` - See Argument Reference above.
-* `position` - See Argument Reference above.
-* `redirect_pool_id` - See Argument Reference above.
-* `redirect_listener_id` - See Argument Reference above.
-* `admin_state_up` - See Argument Reference above.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

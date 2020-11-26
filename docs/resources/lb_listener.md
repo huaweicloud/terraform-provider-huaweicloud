@@ -74,18 +74,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The unique ID for the listener.
-* `protocol` - See Argument Reference above.
-* `protocol_port` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `default_port_id` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `connection_limit` - See Argument Reference above.
-* `http2_enable` - See Argument Reference above.
-* `default_tls_container_ref` - See Argument Reference above.
-* `sni_container_refs` - See Argument Reference above.
-* `admin_state_up` - See Argument Reference above.
-* `tags` - See Argument Reference above.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

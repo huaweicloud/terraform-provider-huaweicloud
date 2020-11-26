@@ -64,13 +64,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `vip_subnet_id` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `vip_address` - See Argument Reference above.
-* `admin_state_up` - See Argument Reference above.
-* `tags` - See Argument Reference above.
 * `vip_port_id` - The Port ID of the Load Balancer IP.
 
 ## Timeouts

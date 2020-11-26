@@ -55,19 +55,11 @@ The following attributes are exported:
 
 * `id` -  ID of the VPC.
 
-* `name` -  See Argument Reference above.
-
-* `cidr` - See Argument Reference above.
-
 * `status` - The current status of the desired VPC. Can be either CREATING, OK, DOWN, PENDING_UPDATE, PENDING_DELETE, or ERROR.
 
 * `shared` - Specifies whether the cross-tenant sharing is supported.
 
 * `routes` - Specifies the route information. Structure is documented below.
-
-* `region` - See Argument Reference above.
-
-* `tags` - See Argument Reference above.
 
 The `routes` block contains:
 

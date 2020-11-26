@@ -33,8 +33,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `pool` - See Argument Reference above.
 * `address` - The actual floating IP address itself.
 * `fixed_ip` - The fixed IP address corresponding to the floating IP.
 * `instance_id` - UUID of the compute instance associated with the floating IP.

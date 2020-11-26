@@ -85,8 +85,6 @@ All of the argument attributes except accept are also exported as result attribu
 
 * `peer_tenant_id` - The Tenant Id of the accepter tenant.
 
-
-
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.

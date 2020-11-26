@@ -51,12 +51,3 @@ data "huaweicloud_dms_product" "product1" {
 `id` is set to the ID of the found product. In addition, the following attributes
 are exported:
 
-* `engine` - See Argument Reference above.
-* `version` - See Argument Reference above.
-* `instance_type` - See Argument Reference above.
-* `vm_specification` - See Argument Reference above.
-* `bandwidth` - See Argument Reference above.
-* `partition_num` - See Argument Reference above.
-* `storage_spec_code` - See Argument Reference above.
-* `io_type` - See Argument Reference above.
-* `node_num` - See Argument Reference above.

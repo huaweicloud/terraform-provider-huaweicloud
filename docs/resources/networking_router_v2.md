@@ -68,14 +68,6 @@ The `external_fixed_ip` block supports:
 The following attributes are exported:
 
 * `id` - ID of the router.
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `admin_state_up` - See Argument Reference above.
-* `external_network_id` - See Argument Reference above.
-* `enable_snat` - See Argument Reference above.
-* `external_fixed_ip` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `value_specs` - See Argument Reference above.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

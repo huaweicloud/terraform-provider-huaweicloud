@@ -102,18 +102,11 @@ The `extra_dhcp_option` block supports:
 
 The following attributes are exported:
 
-* `admin_state_up` - See Argument Reference above.
-* `mac_address` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `device_owner` - See Argument Reference above.
-* `security_group_ids` - See Argument Reference above.
-* `device_id` - See Argument Reference above.
-* `fixed_ip` - See Argument Reference above.
 * `all_fixed_ips` - The collection of Fixed IP addresses on the port in the
   order returned by the Network v2 API.
 * `all_security_group_ids` - The collection of Security Group IDs on the port
   which have been explicitly and implicitly added.
-* `extra_dhcp_option` - See Argument Reference above.
+
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

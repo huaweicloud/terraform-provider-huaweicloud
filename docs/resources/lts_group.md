@@ -36,8 +36,6 @@ The following attributes are exported:
 
 * `id` - The log group ID.
 
-* `group_name` - See Argument Reference above.
-
 * `ttl_in_days` -
   Specifies the log expiration time(days).
 

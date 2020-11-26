@@ -57,17 +57,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `protocol` - See Argument Reference above.
-* `action` - See Argument Reference above.
-* `ip_version` - See Argument Reference above.
-* `source_ip_address` - See Argument Reference above.
-* `destination_ip_address` - See Argument Reference above.
-* `source_port` - See Argument Reference above.
-* `destination_port` - See Argument Reference above.
-* `enabled` - See Argument Reference above.
-
 ## Import
 
 network ACL rules can be imported using the `id`, e.g.

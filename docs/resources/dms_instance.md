@@ -141,29 +141,10 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `engine` - See Argument Reference above.
-* `engine_version` - See Argument Reference above.
-* `specification` - See Argument Reference above.
 * `storage_space` - Indicates the time when a instance is created.
-* `partition_num` - See Argument Reference above.
-* `access_user` - See Argument Reference above.
-* `password` - See Argument Reference above.
-* `vpc_id` - See Argument Reference above.
-* `security_group_id` - See Argument Reference above.
 * `security_group_name` - Indicates the name of a security group.
-* `subnet_id` - See Argument Reference above.
 * `subnet_name` - Indicates the name of a subnet.
 * `subnet_cidr` - Indicates a subnet segment.
-* `available_zones` - See Argument Reference above.
-* `product_id` - See Argument Reference above.
-* `maintain_begin` - See Argument Reference above.
-* `maintain_end` - See Argument Reference above.
-* `enable_publicip` - See Argument Reference above.
-* `publicip_id` - See Argument Reference above.
-* `storage_spec_code` - See Argument Reference above.
-* `tags` - See Argument Reference above.
 * `used_storage_space` - Indicates the used message storage space. Unit: GB
 * `connect_address` - Indicates the IP address of an instance.
 * `port` - Indicates the port number of an instance.

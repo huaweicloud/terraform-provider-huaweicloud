@@ -45,8 +45,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `domain_id` - See Argument Reference above.
-
 ## Import
 
 Users can be imported using the `id`, e.g.

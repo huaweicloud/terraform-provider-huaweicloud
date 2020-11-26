@@ -49,7 +49,3 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `group` - See Argument Reference above.
-
-* `users` - See Argument Reference above.
-

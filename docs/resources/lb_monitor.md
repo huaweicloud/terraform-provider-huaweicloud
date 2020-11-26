@@ -68,15 +68,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The unique ID for the monitor.
-* `tenant_id` - See Argument Reference above.
-* `type` - See Argument Reference above.
-* `delay` - See Argument Reference above.
-* `timeout` - See Argument Reference above.
-* `max_retries` - See Argument Reference above.
-* `url_path` - See Argument Reference above.
-* `http_method` - See Argument Reference above.
-* `expected_codes` - See Argument Reference above.
-* `admin_state_up` - See Argument Reference above.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

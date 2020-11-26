@@ -29,4 +29,4 @@ data "huaweicloud_dcs_product" "product1" {
 `id` is set to the ID of the found product. In addition, the following attributes
 are exported:
 
-* `spec_code` - See Argument Reference above.
+

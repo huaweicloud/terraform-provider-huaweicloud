@@ -63,16 +63,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `type` - See Argument Reference above.
-* `ttl` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `records` - See Argument Reference above.
-* `zone_id` - See Argument Reference above.
-* `tags` - See Argument Reference above.
-* `value_specs` - See Argument Reference above.
-
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.

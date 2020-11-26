@@ -48,10 +48,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The unique ID for the whitelist.
-* `tenant_id` - See Argument Reference above.
-* `listener_id` - See Argument Reference above.
-* `enable_whitelist` - See Argument Reference above.
-* `whitelist` - See Argument Reference above.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

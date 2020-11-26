@@ -48,24 +48,6 @@ data "huaweicloud_networking_port" "port_1" {
 `id` is set to the ID of the found port. In addition, the following attributes
 are exported:
 
-* `region` - See Argument Reference above.
-
-* `project_id` - See Argument Reference above.
-
-* `port_id` - See Argument Reference above.
-
-* `name` - See Argument Reference above.
-
-* `admin_state_up` - See Argument Reference above.
-
-* `network_id` - See Argument Reference above.
-
-* `device_owner` - See Argument Reference above.
-
-* `mac_address` - See Argument Reference above.
-
-* `device_id` - See Argument Reference above.
-
 * `all_fixed_ips` - The collection of Fixed IP addresses on the port in the
   order returned by the Network v2 API.
 

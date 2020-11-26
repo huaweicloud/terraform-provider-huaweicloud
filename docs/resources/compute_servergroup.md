@@ -37,8 +37,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `name` - See Argument Reference above.
-* `policies` - See Argument Reference above.
 * `members` - The instances that are part of this server group.
 
 ## Import

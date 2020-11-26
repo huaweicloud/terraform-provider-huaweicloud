@@ -98,10 +98,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `floating_ip` - Deprecated. See Argument Reference above.
-* `public_ip` - See Argument Reference above.
-* `instance_id` - See Argument Reference above.
-* `fixed_ip` - See Argument Reference above.
 
 ## Import
 

@@ -59,21 +59,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `auth_algorithm` - See Argument Reference above.
-* `encapsulation_mode` - See Argument Reference above.
-* `encryption_algorithm` - See Argument Reference above.
-* `pfs` - See Argument Reference above.
-* `transform_protocol` - See Argument Reference above.
-* `lifetime` - See Argument Reference above.
-    - `unit` - See Argument Reference above.
-    - `value` - See Argument Reference above.
-* `value_specs` - See Argument Reference above.
-
-
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.

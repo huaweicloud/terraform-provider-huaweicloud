@@ -71,9 +71,7 @@ and needs to be fixed before being implemented in this resource.
 The following attributes are exported:
 
 * `checksum` - The checksum of the data associated with the image.
-* `container_format` - See Argument Reference above.
 * `created_at` - The date the image was created.
-* `disk_format` - See Argument Reference above.
 * `file` - the trailing path after the glance
    endpoint that represent the location of the image
    or the path to retrieve it.
@@ -81,20 +79,14 @@ The following attributes are exported:
 * `metadata` - The metadata associated with the image.
    Image metadata allow for meaningfully define the image properties
    and tags. See http://docs.openstack.org/developer/glance/metadefs-concepts.html.
-* `min_disk_gb` - See Argument Reference above.
-* `min_ram_mb` - See Argument Reference above.
-* `name` - See Argument Reference above.
 * `owner` - The id of the huaweicloud user who owns the image.
-* `protected` - See Argument Reference above.
-* `region` - See Argument Reference above.
 * `schema` - The path to the JSON-schema that represent
    the image or image
 * `size_bytes` - The size in bytes of the data associated with the image.
 * `status` - The status of the image. It can be "queued", "active"
    or "saving".
-* `tags` - See Argument Reference above.
 * `update_at` - The date the image was last updated.
-* `visibility` - See Argument Reference above.
+
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

@@ -43,9 +43,5 @@ SQLServer| 2014 SP2 SE | <br> ha = True: <br>  rds.mssql.m1.2xlarge.ha rds.mssql
 `id` is set to the ID of the found rds flavor. In addition, the following attributes
 are exported:
 
-* `region` - See Argument Reference above.
-* `datastore_name` - See Argument Reference above.
-* `datastore_version` - See Argument Reference above.
-* `speccode` - See Argument Reference above.
 * `name` - The name of the rds flavor.
 * `ram` - The name of the rds flavor.

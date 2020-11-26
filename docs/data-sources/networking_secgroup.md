@@ -32,6 +32,4 @@ data "huaweicloud_networking_secgroup" "secgroup" {
 `id` is set to the ID of the found security group. In addition, the following
 attributes are exported:
 
-* `name` - See Argument Reference above.
 * `description`- The description of the security group.
-* `region` - See Argument Reference above.

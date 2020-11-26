@@ -173,20 +173,6 @@ The `backup_strategy ` block supports:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `datastore` - See Argument Reference above.
-* `availability_zone` - See Argument Reference above.
-* `vpc_id` - See Argument Reference above.
-* `subnet_id` - See Argument Reference above.
-* `security_group_id` - See Argument Reference above.
-* `password` - See Argument Reference above.
-* `disk_encryption_id` - See Argument Reference above.
-* `ssl` - See Argument Reference above.
-* `mode` - See Argument Reference above.
-* `flavor` - See Argument Reference above.
-* `backup_strategy` - See Argument Reference above.
-* `tags` - See Argument Reference above.
 * `db_username` - Indicates the DB Administator name.
 * `status` - Indicates the the DB instance status.
 * `port` - Indicates the database port number. The port range is 2100 to 9500.

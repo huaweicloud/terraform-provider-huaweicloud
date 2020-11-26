@@ -79,10 +79,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `bucket` - See Argument Reference above.
-* `policy` - See Argument Reference above.
-* `policy_format` - See Argument Reference above.
-
 ## Import
 
 OBS format bucket policy can be imported using the `<bucket>`, e.g.

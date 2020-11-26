@@ -59,11 +59,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` -  The PTR record ID, which is in {region}:{floatingip_id} format.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `floatingip_id` - See Argument Reference above.
-* `ttl` - See Argument Reference above.
-* `tags` - See Argument Reference above.
+
 * `address` - The address of the FloatingIP/EIP.
 
 ## Timeouts

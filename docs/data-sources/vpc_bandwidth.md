@@ -36,12 +36,6 @@ The following attributes are exported:
 
 * `id` -  ID of the Shared Bandwidth.
 
-* `name` -  See Argument Reference above.
-
-* `size` - See Argument Reference above.
-
-* `enterprise_project_id` - See Argument Reference above.
-
 * `share_type` - Indicates whether the bandwidth is shared or dedicated.
 
 * `bandwidth_type` - Indicates the bandwidth type.

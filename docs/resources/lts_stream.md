@@ -41,10 +41,6 @@ The following attributes are exported:
 
 * `id` - The log stream ID.
 
-* `group_id` - See Argument Reference above.
-
-* `stream_name` - See Argument Reference above.
-
 * `filter_count` - Number of log stream filters.
 
 ## Import

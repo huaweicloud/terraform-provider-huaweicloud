@@ -88,16 +88,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `direction` - See Argument Reference above.
-* `ethertype` - See Argument Reference above.
-* `protocol` - See Argument Reference above.
-* `port_range_min` - See Argument Reference above.
-* `port_range_max` - See Argument Reference above.
-* `remote_ip_prefix` - See Argument Reference above.
-* `remote_group_id` - See Argument Reference above.
-* `security_group_id` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `delete` - Default is 10 minute.

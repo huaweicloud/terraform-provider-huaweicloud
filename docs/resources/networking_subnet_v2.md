@@ -88,18 +88,6 @@ The `host_routes` block supports:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `network_id` - See Argument Reference above.
-* `cidr` - See Argument Reference above.
-* `ip_version` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `allocation_pools` - See Argument Reference above.
-* `gateway_ip` - See Argument Reference above.
-* `enable_dhcp` - See Argument Reference above.
-* `dns_nameservers` - See Argument Reference above.
-* `host_routes` - See Argument Reference above.
-
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.

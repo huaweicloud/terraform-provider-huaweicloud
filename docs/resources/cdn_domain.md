@@ -54,18 +54,6 @@ The `sources` block supports:
 
 The following attributes are exported:
 
-* `name` - See Argument Reference above.
-
-* `type` - See Argument Reference above.
-
-* `enterprise_project_id` - See Argument Reference above.
-
-* `sources/origin` - See Argument Reference above.
-
-* `sources/origin_type` - See Argument Reference above.
-
-* `sources/active` - See Argument Reference above.
-
 * `id` - The acceleration domain name ID.
 
 * `cname` - The CNAME of the acceleration domain name.
