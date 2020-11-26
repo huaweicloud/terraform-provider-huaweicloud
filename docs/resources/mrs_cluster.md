@@ -207,29 +207,8 @@ The `add_jobs` block supports:
 The following attributes are exported:
 
 * `id` - Indicates the MRS cluster ID.
-* `region` - See Argument Reference above.
-* `available_zone_id` - See Argument Reference above.
 * `available_zone_name` - Indicates the name of an availability zone.
-* `billing_type` - See Argument Reference above.
-* `cluster_name` - See Argument Reference above.
-* `cluster_version` - See Argument Reference above.
-* `cluster_type` - See Argument Reference above.
-* `master_node_num` - See Argument Reference above.
-* `master_node_size` - See Argument Reference above.
-* `core_node_num` - See Argument Reference above.
-* `core_node_size` - See Argument Reference above.
-* `volume_type` - See Argument Reference above.
-* `volume_size` - See Argument Reference above.
-* `safe_mode` - See Argument Reference above.
-* `cluster_admin_secret` - See Argument Reference above.
-* `node_password` - See Argument Reference above.
-* `node_public_cert_name` - See Argument Reference above.
-* `log_collection` - See Argument Reference above.
-* `vpc_id` - See Argument Reference above.
-* `subnet_id` - See Argument Reference above.
 * `component_list` - See Argument Reference below.
-* `add_jobs` - See Argument Reference above.
-* `tags` - See Argument Reference above.
 * `order_id` - Order ID for creating clusters.
 * `instance_id` - Instance ID.
 * `hadoop_version` - Hadoop version.

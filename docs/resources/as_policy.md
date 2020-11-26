@@ -152,15 +152,3 @@ The `scaling_policy_action` block supports:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `scaling_policy_name` - See Argument Reference above.
-* `scaling_policy_type` - See Argument Reference above.
-* `alarm_id` - See Argument Reference above.
-* `cool_down_time` - See Argument Reference above.
-* `scaling_policy_action/operation` - See Argument Reference above.
-* `scaling_policy_action/instance_number` - See Argument Reference above.
-* `scheduled_policy/launch_time` - See Argument Reference above.
-* `scheduled_policy/recurrence_type` - See Argument Reference above.
-* `scheduled_policy/recurrence_value` - See Argument Reference above.
-* `scheduled_policy/start_time` - See Argument Reference above.
-* `scheduled_policy/end_time` - See Argument Reference above.

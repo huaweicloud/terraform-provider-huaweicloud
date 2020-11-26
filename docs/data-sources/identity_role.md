@@ -74,6 +74,3 @@ data "huaweicloud_identity_role" "auth_admin" {
 `id` is set to the ID of the found role. In addition, the following attributes
 are exported:
 
-* `name` - See Argument Reference above.
-* `domain_id` - See Argument Reference above.
-* `region` - See Argument Reference above.

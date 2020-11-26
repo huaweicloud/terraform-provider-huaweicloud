@@ -41,10 +41,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The ID of the vip.
-* `name` - See Argument Reference above.
-* `network_id` - See Argument Reference above.
-* `subnet_id` - See Argument Reference above.
-* `ip_address` - See Argument Reference above.
 * `mac_address` - The MAC address of the vip.
 * `status` - The status of vip.
 * `tenant_id` - The tenant ID of the vip.

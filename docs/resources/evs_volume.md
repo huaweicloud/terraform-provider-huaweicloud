@@ -108,18 +108,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `availability_zone` - See Argument Reference above.
-* `volume_type` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `size` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `image_id` - See Argument Reference above.
-* `backup_id` - See Argument Reference above.
-* `snapshot_id` - See Argument Reference above.
-* `tags` - See Argument Reference above.
-* `multiattach` - See Argument Reference above.
-* `kms_id` - See Argument Reference above.
-* `device_type` - See Argument Reference above.
 * `attachment` - If a volume is attached to an instance, this attribute will
     display the Attachment ID, Instance ID, and the Device as the Instance
     sees it.

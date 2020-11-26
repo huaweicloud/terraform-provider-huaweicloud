@@ -34,6 +34,3 @@ data "huaweicloud_dms_maintainwindow" "maintainwindow1" {
 `id` is set to the ID of the found maintainwindow. In addition, the following attributes
 are exported:
 
-* `begin` - See Argument Reference above.
-* `end` - See Argument Reference above.
-* `default` - See Argument Reference above.

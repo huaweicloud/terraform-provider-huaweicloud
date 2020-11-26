@@ -34,9 +34,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `name` - See Argument Reference above.
-* `public_key` - See Argument Reference above.
-
 ## Import
 
 Keypairs can be imported using the `name`, e.g.

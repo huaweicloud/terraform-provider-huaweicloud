@@ -43,12 +43,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `nat_gateway_id` - See Argument Reference above.
-* `source_type` - See Argument Reference above.
-* `network_id` - See Argument Reference above.
-* `cidr` - See Argument Reference above.
-* `floating_ip_id` - See Argument Reference above.
 * `floating_ip_address` - The actual floating IP address.
 * `status` - The status of the snat rule.
 

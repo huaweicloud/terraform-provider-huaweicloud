@@ -45,8 +45,6 @@ the port has multiple fixed IPs.
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `pool` - See Argument Reference above.
 * `address` - The actual floating IP address itself.
 * `port_id` - ID of associated port.
 * `tenant_id` - the ID of the tenant in which to create the floating IP.

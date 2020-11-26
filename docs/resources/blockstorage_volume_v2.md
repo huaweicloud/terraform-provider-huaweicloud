@@ -64,16 +64,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `size` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `availability_zone` - See Argument Reference above.
-* `image_id` - See Argument Reference above.
-* `source_vol_id` - See Argument Reference above.
-* `snapshot_id` - See Argument Reference above.
-* `metadata` - See Argument Reference above.
-* `volume_type` - See Argument Reference above.
 * `attachment` - If a volume is attached to an instance, this attribute will
     display the Attachment ID, Instance ID, and the Device as the Instance
     sees it.

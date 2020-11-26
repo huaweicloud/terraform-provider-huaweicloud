@@ -250,18 +250,6 @@ The `ha` block supports:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `flavorref` - See Argument Reference above.
-* `volume` - See Argument Reference above.
-* `availabilityzone` - See Argument Reference above.
-* `vpc` - See Argument Reference above.
-* `nics` - See Argument Reference above.
-* `securitygroup` - See Argument Reference above.
-* `dbport` - See Argument Reference above.
-* `backupstrategy` - See Argument Reference above.
-* `dbrtpd` - See Argument Reference above.
-* `ha` - See Argument Reference above.
 * `status` - Indicates the DB instance status.
 * `hostname` - Indicates the instance connection address. It is a blank string.
 * `type` - Indicates the DB instance type, which can be master or readreplica.
@@ -272,8 +260,3 @@ The following attributes are exported:
 
 The following attributes can be updated:
 
-* `volume.size` - See Argument Reference above.
-
-* `flavorref` - See Argument Reference above.
-
-* `backupstrategy` - See Argument Reference above.

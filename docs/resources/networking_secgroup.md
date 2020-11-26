@@ -40,10 +40,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-
 ## Default Security Group Rules
 
 In most cases, HuaweiCloud will create some egress security group rules for each

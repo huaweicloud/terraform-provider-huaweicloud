@@ -63,11 +63,6 @@ creating an agency.
 The following attributes are exported:
 
 * `id` - The agency ID.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `delegated_domain_name` - See Argument Reference above.
-* `project_role` - See Argument Reference above.
-* `domain_roles` - See Argument Reference above.
 * `duration` - Validity period of an agency. The default value is null,
     indicating that the agency is permanently valid.
 * `expire_time` - The expiration time of agency.

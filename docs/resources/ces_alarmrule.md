@@ -157,15 +157,6 @@ the `ok_actions` block supports:
 
 The following attributes are exported:
 
-* `alarm_name` - See Argument Reference above.
-* `alarm_description` - See Argument Reference above.
-* `metric` - See Argument Reference above.
-* `condition` - See Argument Reference above.
-* `alarm_actions` - See Argument Reference above.
-* `insufficientdata_actions` - See Argument Reference above.
-* `ok_actions` - See Argument Reference above.
-* `alarm_enabled` - See Argument Reference above.
-* `alarm_action_enabled` - See Argument Reference above.
 * `id` - Specifies the alarm rule ID.
 * `update_time` - Specifies the time when the alarm status changed. The value
     is a UNIX timestamp and the unit is ms.

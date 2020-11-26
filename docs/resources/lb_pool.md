@@ -73,13 +73,6 @@ The `persistence` argument supports:
 The following attributes are exported:
 
 * `id` - The unique ID for the pool.
-* `tenant_id` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `protocol` - See Argument Reference above.
-* `lb_method` - See Argument Reference above.
-* `persistence` - See Argument Reference above.
-* `admin_state_up` - See Argument Reference above.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

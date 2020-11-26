@@ -79,13 +79,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `audited` - See Argument Reference above.
-* `shared` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.

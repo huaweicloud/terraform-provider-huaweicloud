@@ -49,4 +49,4 @@ are exported:
 * `enable_dhcp` - Whether the subnet has DHCP enabled or not.
 * `dns_nameservers` - DNS Nameservers of the subnet.
 * `host_routes` - Host Routes of the subnet.
-* `region` - See Argument Reference above.
+

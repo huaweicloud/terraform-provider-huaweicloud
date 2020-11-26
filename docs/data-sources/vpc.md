@@ -43,12 +43,6 @@ The following attributes are exported:
 
 * `id` - ID of the VPC.
 
-* `name` -  See Argument Reference above.
-
-* `status` - See Argument Reference above.
-
-* `cidr` - See Argument Reference above.
-
 * `routes` - The list of route information with destination and nexthop fields.
 
 * `shared` - Specifies whether the cross-tenant sharing is supported.

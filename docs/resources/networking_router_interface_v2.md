@@ -55,11 +55,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `router_id` - See Argument Reference above.
-* `subnet_id` - See Argument Reference above.
-* `port_id` - See Argument Reference above.
-
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.

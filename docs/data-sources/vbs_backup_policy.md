@@ -41,17 +41,9 @@ The given filters must match exactly one VBS backup policy whose data will be ex
 
 * `values` - (Required) Specifies the List of tag values. This list can have a maximum of 10 values and all be unique.
 
-
-
 ## Attributes Reference
 
 The following attributes are exported:
-
-* `id` - See Argument Reference above.
-
-* `name` - See Argument Reference above.
-
-* `status` - See Argument Reference above.
 
 * `start_time` - Specifies the start time of the backup job.The value is in the HH:mm format.                                                         
 

@@ -62,11 +62,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `router_id` - See Argument Reference above.
-* `destination_cidr` - See Argument Reference above.
-* `next_hop` - See Argument Reference above.
-
 ## Notes
 
 The `next_hop` IP address must be directly reachable from the router at the ``huaweicloud_networking_router_route_v2``

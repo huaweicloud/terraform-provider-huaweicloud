@@ -83,18 +83,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `job_type` - See Argument Reference above.
-* `job_name` - See Argument Reference above.
-* `cluster_id` - See Argument Reference above.
-* `jar_path` - See Argument Reference above.
-* `arguments` - See Argument Reference above.
-* `input` - See Argument Reference above.
-* `output` - See Argument Reference above.
-* `job_log` - See Argument Reference above.
-* `hive_script_path` - See Argument Reference above.
-* `is_protected` - See Argument Reference above.
-* `is_public` - See Argument Reference above.
-
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.

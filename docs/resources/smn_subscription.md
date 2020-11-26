@@ -65,10 +65,3 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `topic_urn` - See Argument Reference above.
-* `endpoint` - See Argument Reference above.
-* `protocol` - See Argument Reference above.
-* `remark` - See Argument Reference above.
-* `subscription_urn` - See Argument Reference above.
-* `owner` - See Argument Reference above.
-* `status` - See Argument Reference above.

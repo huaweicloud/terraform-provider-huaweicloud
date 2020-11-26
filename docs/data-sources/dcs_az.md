@@ -35,7 +35,3 @@ For details, See [Querying AZ Information](https://support.huaweicloud.com/en-us
 
 `id` is set to the ID of the found az. In addition, the following attributes
 are exported:
-
-* `name` - See Argument Reference above.
-* `code` - See Argument Reference above.
-* `port` - See Argument Reference above.

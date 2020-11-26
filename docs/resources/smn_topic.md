@@ -41,9 +41,3 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `name` - See Argument Reference above.
-* `display_name` - See Argument Reference above.
-* `topic_urn` - See Argument Reference above.
-* `push_policy` - See Argument Reference above.
-* `create_time` - See Argument Reference above.
-* `update_time` - See Argument Reference above.

@@ -39,8 +39,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `vip_id` - See Argument Reference above.
-* `port_ids` - See Argument Reference above.
 * `vip_subnet_id` - The ID of the subnet this vip connects to.
 * `vip_ip_address` - The IP address in the subnet for this vip.
 * `ip_addresses` - The IP addresses of ports to attach the vip to.

@@ -42,8 +42,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-
-* `name` - See Argument Reference above.
 * `queue_id` - Indicates the ID of a queue.
 * `redrive_policy` - Indicates whether to enable dead letter messages.
 * `produced_messages` - Indicates the total number of messages (not including the messages that have expired and been deleted) in a queue.

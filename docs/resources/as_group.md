@@ -210,22 +210,9 @@ The `lbaas_listeners` block supports:
 
 The following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `scaling_group_name` - See Argument Reference above.
 * `status` - Indicates the status of the AS group.
 * `current_instance_number` - Indicates the number of current instances in the AS group.
-* `desire_instance_number` - See Argument Reference above.
-* `min_instance_number` - See Argument Reference above.
-* `max_instance_number` - See Argument Reference above.
-* `cool_down_time` - See Argument Reference above.
-* `lb_listener_id` - See Argument Reference above.
-* `health_periodic_audit_method` - See Argument Reference above.
-* `health_periodic_audit_time` - See Argument Reference above.
-* `instance_terminate_policy` - See Argument Reference above.
-* `scaling_configuration_id` - See Argument Reference above.
-* `delete_publicip` - See Argument Reference above.
-* `notifications` - See Argument Reference above.
-* `tags` - See Argument Reference above.
+
 * `instances` - The instances IDs of the AS group.
 
 ## Timeouts
