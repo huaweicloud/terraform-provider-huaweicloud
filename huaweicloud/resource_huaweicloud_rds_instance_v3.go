@@ -102,7 +102,7 @@ func resourceRdsInstanceV3() *schema.Resource {
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				
 			},
 
 			"name": {
@@ -126,14 +126,14 @@ func resourceRdsInstanceV3() *schema.Resource {
 			"volume": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: false,
+				
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"size": {
 							Type:     schema.TypeInt,
 							Required: true,
-							ForceNew: false,
+							
 						},
 						"type": {
 							Type:     schema.TypeString,
@@ -160,20 +160,20 @@ func resourceRdsInstanceV3() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Optional: true,
-				ForceNew: false,
+				
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"start_time": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: false,
+							
 						},
 						"keep_days": {
 							Type:     schema.TypeInt,
 							Computed: true,
 							Optional: true,
-							ForceNew: false,
+							
 						},
 					},
 				},

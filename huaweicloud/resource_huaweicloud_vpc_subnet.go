@@ -75,7 +75,6 @@ func ResourceVpcSubnetV1() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
-				ForceNew: false,
 			},
 			"primary_dns": {
 				Type:         schema.TypeString,

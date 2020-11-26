@@ -44,7 +44,7 @@ func ResourceDNSZoneV2() *schema.Resource {
 			"email": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				
 			},
 			"zone_type": {
 				Type:         schema.TypeString,
@@ -69,7 +69,7 @@ func ResourceDNSZoneV2() *schema.Resource {
 			"router": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: false,
+				
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"router_id": {

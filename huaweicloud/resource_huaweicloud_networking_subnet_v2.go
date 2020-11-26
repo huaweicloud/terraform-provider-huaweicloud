@@ -48,7 +48,7 @@ func resourceNetworkingSubnetV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				
 			},
 			"tenant_id": {
 				Type:     schema.TypeString,
@@ -103,14 +103,14 @@ func resourceNetworkingSubnetV2() *schema.Resource {
 			"dns_nameservers": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: false,
+				
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
 			"host_routes": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
+				
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"destination_cidr": {

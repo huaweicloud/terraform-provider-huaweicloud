@@ -40,7 +40,7 @@ func resourceNetworkingPortV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				
 			},
 			"network_id": {
 				Type:     schema.TypeString,
@@ -50,7 +50,7 @@ func resourceNetworkingPortV2() *schema.Resource {
 			"admin_state_up": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
+				
 				Computed: true,
 			},
 			"mac_address": {
@@ -74,14 +74,14 @@ func resourceNetworkingPortV2() *schema.Resource {
 			"security_group_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: false,
+				
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
 			"no_security_groups": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
+				
 			},
 			"device_id": {
 				Type:     schema.TypeString,
@@ -92,7 +92,7 @@ func resourceNetworkingPortV2() *schema.Resource {
 			"fixed_ip": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
+				
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"subnet_id": {
@@ -109,7 +109,7 @@ func resourceNetworkingPortV2() *schema.Resource {
 			"allowed_address_pairs": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: false,
+				
 				Computed: true,
 				Set:      allowedAddressPairsHash,
 				Elem: &schema.Resource{
@@ -129,7 +129,7 @@ func resourceNetworkingPortV2() *schema.Resource {
 			"extra_dhcp_option": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: false,
+				
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {

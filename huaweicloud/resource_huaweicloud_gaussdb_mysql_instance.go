@@ -35,12 +35,12 @@ func resourceGaussDBInstance() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				
 			},
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				
 			},
 			"password": {
 				Type:      schema.TypeString,
@@ -76,7 +76,7 @@ func resourceGaussDBInstance() *schema.Resource {
 			"read_replicas": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
+				
 				Default:  1,
 			},
 			"time_zone": {
@@ -127,7 +127,7 @@ func resourceGaussDBInstance() *schema.Resource {
 			"backup_strategy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
+				
 				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -135,12 +135,12 @@ func resourceGaussDBInstance() *schema.Resource {
 						"start_time": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: false,
+							
 						},
 						"keep_days": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: false,
+							
 						},
 					},
 				},

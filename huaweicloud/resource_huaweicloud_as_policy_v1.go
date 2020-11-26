@@ -45,19 +45,19 @@ func resourceASPolicy() *schema.Resource {
 			"alarm_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				
 			},
 			"scheduled_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
+				
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"launch_time": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: false,
+							
 						},
 						"recurrence_type": {
 							Type:         schema.TypeString,
@@ -68,7 +68,7 @@ func resourceASPolicy() *schema.Resource {
 						"recurrence_value": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
+							
 						},
 						"start_time": {
 							Type:             schema.TypeString,
@@ -80,7 +80,7 @@ func resourceASPolicy() *schema.Resource {
 						"end_time": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
+							
 						},
 					},
 				},
@@ -89,7 +89,7 @@ func resourceASPolicy() *schema.Resource {
 				Optional: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
-				ForceNew: false,
+				
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"operation": {
@@ -108,7 +108,7 @@ func resourceASPolicy() *schema.Resource {
 			"cool_down_time": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
+				
 				Default:  900,
 			},
 		},

@@ -40,18 +40,18 @@ func resourceNetworkingNetworkV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				
 			},
 			"admin_state_up": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				
 				Computed: true,
 			},
 			"shared": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				
 				Computed: true,
 			},
 			"tenant_id": {

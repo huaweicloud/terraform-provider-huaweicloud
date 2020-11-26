@@ -41,12 +41,12 @@ func resourceEvsSnapshotV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				
 			},
 			"force": {
 				Type:     schema.TypeBool,

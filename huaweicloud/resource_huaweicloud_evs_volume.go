@@ -52,7 +52,7 @@ func resourceEvsStorageVolumeV3() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				
 			},
 			"size": {
 				Type:     schema.TypeInt,
@@ -62,7 +62,7 @@ func resourceEvsStorageVolumeV3() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				
 			},
 			"snapshot_id": {
 				Type:     schema.TypeString,
@@ -92,7 +92,7 @@ func resourceEvsStorageVolumeV3() *schema.Resource {
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
+				
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"attachment": {

@@ -117,7 +117,7 @@ func resourceImagesImageV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				
 			},
 
 			"owner": {

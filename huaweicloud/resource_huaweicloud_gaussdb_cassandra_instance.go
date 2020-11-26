@@ -41,12 +41,12 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				
 			},
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				
 			},
 			"node_num": {
 				Type:         schema.TypeInt,
@@ -57,7 +57,7 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			"volume_size": {
 				Type:     schema.TypeInt,
 				Required: true,
-				ForceNew: false,
+				
 			},
 			"password": {
 				Type:      schema.TypeString,
@@ -78,7 +78,7 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
+				
 			},
 			"configuration_id": {
 				Type:     schema.TypeString,
@@ -128,7 +128,7 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			"backup_strategy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
+				
 				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -136,12 +136,12 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 						"start_time": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: false,
+							
 						},
 						"keep_days": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: false,
+							
 						},
 					},
 				},

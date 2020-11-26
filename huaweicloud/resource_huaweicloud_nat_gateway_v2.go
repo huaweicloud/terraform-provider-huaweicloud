@@ -38,13 +38,13 @@ func resourceNatGatewayV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: false,
+				
 			},
 			"spec": {
 				Type:         schema.TypeString,
