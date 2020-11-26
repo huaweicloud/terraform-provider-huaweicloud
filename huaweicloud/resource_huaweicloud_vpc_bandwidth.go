@@ -39,7 +39,6 @@ func resourceVpcBandWidthV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"size": {
 				Type:         schema.TypeInt,

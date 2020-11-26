@@ -124,7 +124,6 @@ func resourceCSBSBackupPolicyV1() *schema.Resource {
 			"resource": {
 				Type:     schema.TypeSet,
 				Required: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {

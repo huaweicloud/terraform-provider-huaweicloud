@@ -39,7 +39,6 @@ func resourceEcsInstanceV1() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"image_id": {
 				Type:     schema.TypeString,
@@ -49,7 +48,6 @@ func resourceEcsInstanceV1() *schema.Resource {
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"user_data": {
 				Type:     schema.TypeString,
@@ -154,7 +152,6 @@ func resourceEcsInstanceV1() *schema.Resource {
 			"security_groups": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,

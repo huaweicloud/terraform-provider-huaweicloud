@@ -38,7 +38,6 @@ func resourceRdsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: false,
 			},
 
 			"datastore": {
@@ -67,13 +66,11 @@ func resourceRdsInstance() *schema.Resource {
 			"flavorref": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 
 			"volume": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: false,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -85,7 +82,6 @@ func resourceRdsInstance() *schema.Resource {
 						"size": {
 							Type:     schema.TypeInt,
 							Required: true,
-							ForceNew: false,
 						},
 					}},
 			},
@@ -141,7 +137,6 @@ func resourceRdsInstance() *schema.Resource {
 			"backupstrategy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

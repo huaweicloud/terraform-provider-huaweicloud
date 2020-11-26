@@ -58,7 +58,6 @@ func ResourceDNSRecordSetV2() *schema.Resource {
 			"records": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				MinItems: 1,
 			},

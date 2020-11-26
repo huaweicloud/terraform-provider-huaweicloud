@@ -40,12 +40,10 @@ func resourceComputeSecGroupV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"rule": {
 				Type:     schema.TypeSet,
@@ -60,22 +58,18 @@ func resourceComputeSecGroupV2() *schema.Resource {
 						"from_port": {
 							Type:     schema.TypeInt,
 							Required: true,
-							ForceNew: false,
 						},
 						"to_port": {
 							Type:     schema.TypeInt,
 							Required: true,
-							ForceNew: false,
 						},
 						"ip_protocol": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: false,
 						},
 						"cidr": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 							StateFunc: func(v interface{}) string {
 								return strings.ToLower(v.(string))
 							},
@@ -83,13 +77,11 @@ func resourceComputeSecGroupV2() *schema.Resource {
 						"from_group_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 						},
 						"self": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
-							ForceNew: false,
 						},
 					},
 				},

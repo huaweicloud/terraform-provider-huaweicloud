@@ -38,8 +38,6 @@ The following arguments are supported:
 
 * `public_ip` - (Required) The EIP to associate.
 
-* `floating_ip` - (Deprecated) Use `public_ip` instead. The EIP to associate.
-
 * `port_id` - (Required) ID of an existing port with at least one IP address to
     associate with this EIP.
 
