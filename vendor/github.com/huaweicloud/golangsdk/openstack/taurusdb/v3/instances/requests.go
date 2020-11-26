@@ -175,6 +175,30 @@ func List(client *golangsdk.ServiceClient, opts ListTaurusDBBuilder) pagination.
 	return pageList
 }
 
+func GetInstanceByName(client *golangsdk.ServiceClient, name string) (TaurusDBInstance, error) {
+	var instance TaurusDBInstance
+
+	opts := ListTaurusDBInstanceOpts{
+		Name: name,
+	}
+
+	pages, err := List(client, &opts).AllPages()
+	if err != nil {
+		return instance, err
+	}
+
+	all, err := ExtractTaurusDBInstances(pages)
+	if err != nil {
+		return instance, err
+	}
+	if all.TotalCount == 0 {
+		return instance, nil
+	}
+
+	instance = all.Instances[0]
+	return instance, nil
+}
+
 type UpdateNameOpts struct {
 	Name string `json:"name" required:"true"`
 }

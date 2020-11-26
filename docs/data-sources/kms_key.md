@@ -45,19 +45,17 @@ data "huaweicloud_kms_key" "key_1" {
 
 * `domain_id` - (Optional)  - ID of a user domain for the key. Changing this gets a new key.
 
+* `enterprise_project_id` - (Optional) The enterprise project id of the kms key.
+
 
 ## Attributes Reference
+
+The following attributes
+are exported:
 
 `id` is set to the ID of the found key. In addition, the following attributes
 are exported:
 
-* `key_alias` - See Argument Reference above.
-* `key_description` - See Argument Reference above.
-* `realm` - See Argument Reference above.
-* `key_id` - See Argument Reference above.
-* `default_key_flag` - See Argument Reference above.
 * `scheduled_deletion_date` - Scheduled deletion time (time stamp) of a key.
-* `domain_id` - See Argument Reference above.
 * `expiration_time` - Expiration time.
 * `creation_date` - Creation time (time stamp) of a key.
-* `key_state` - See Argument Reference above.

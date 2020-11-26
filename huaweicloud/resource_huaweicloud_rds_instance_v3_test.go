@@ -79,7 +79,7 @@ func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
 				Config: testAccRdsInstanceV3_epsId(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceV3Exists(),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -233,7 +233,7 @@ resource "huaweicloud_rds_instance" "instance" {
     keep_days = 1
   }
 }
-	`, val, val, val, val, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID)
+	`, val, val, val, val, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccCheckRdsInstanceV3Destroy(s *terraform.State) error {

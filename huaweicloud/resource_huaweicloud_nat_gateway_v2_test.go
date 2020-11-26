@@ -60,7 +60,7 @@ func TestAccNatGateway_withEpsId(t *testing.T) {
 				Config: testAccNatV2Gateway_epsId(randSuffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNatV2GatewayExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -176,5 +176,5 @@ resource "huaweicloud_nat_gateway" "nat_1" {
   router_id             = huaweicloud_vpc.vpc_1.id
   enterprise_project_id = "%s"
 }
-	`, testAccNatPreCondition(suffix), suffix, OS_ENTERPRISE_PROJECT_ID)
+	`, testAccNatPreCondition(suffix), suffix, OS_ENTERPRISE_PROJECT_ID_TEST)
 }

@@ -228,6 +228,30 @@ func GetInstanceByID(client *golangsdk.ServiceClient, instanceId string) (Gemini
 	return instance, nil
 }
 
+func GetInstanceByName(client *golangsdk.ServiceClient, name string) (GeminiDBInstance, error) {
+	var instance GeminiDBInstance
+
+	opts := ListGeminiDBInstanceOpts{
+		Name: name,
+	}
+
+	pages, err := List(client, &opts).AllPages()
+	if err != nil {
+		return instance, err
+	}
+
+	all, err := ExtractGeminiDBInstances(pages)
+	if err != nil {
+		return instance, err
+	}
+	if all.TotalCount == 0 {
+		return instance, nil
+	}
+
+	instance = all.Instances[0]
+	return instance, nil
+}
+
 type UpdateNameOpts struct {
 	Name string `json:"name" required:"true"`
 }

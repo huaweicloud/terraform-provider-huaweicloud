@@ -53,7 +53,7 @@ func TestAccDcsInstancesV1_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDcsV1InstanceExists(resourceName, instance),
 					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -222,7 +222,7 @@ func testAccDcsV1Instance_epsId(instanceName string) string {
 	  backup_at         = [1]
 	  enterprise_project_id = "%s"
 	}
-	`, OS_AVAILABILITY_ZONE, instanceName, OS_VPC_ID, OS_NETWORK_ID, OS_ENTERPRISE_PROJECT_ID)
+	`, OS_AVAILABILITY_ZONE, instanceName, OS_VPC_ID, OS_NETWORK_ID, OS_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccDcsV1Instance_tiny(instanceName string) string {

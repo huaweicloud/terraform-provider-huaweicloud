@@ -61,7 +61,7 @@ func TestAccVpcBandWidthV2_WithEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcBandWidthV2Exists(resourceName, &bandwidth),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -137,5 +137,5 @@ resource "huaweicloud_vpc_bandwidth" "test" {
 	size = "%d"
 	enterprise_project_id = "%s"
 }
-`, rName, size, OS_ENTERPRISE_PROJECT_ID)
+`, rName, size, OS_ENTERPRISE_PROJECT_ID_TEST)
 }

@@ -68,7 +68,7 @@ func TestAccVpcV1EIP_WithEpsId(t *testing.T) {
 				Config: testAccVpcV1EIP_epsId(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1EIPExists(resourceName, &eip),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -158,7 +158,7 @@ resource "huaweicloud_vpc_eip" "test" {
   }
   enterprise_project_id = "%s"
 }
-`, rName, OS_ENTERPRISE_PROJECT_ID)
+`, rName, OS_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccVpcV1EIP_share(rName string) string {

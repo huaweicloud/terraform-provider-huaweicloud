@@ -67,7 +67,7 @@ func TestAccSFSFileSystemV2_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSFileSystemV2Exists(resourceName, &share),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -203,7 +203,7 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
   enterprise_project_id = "%s"
 }
-`, rName, rName, OS_ENTERPRISE_PROJECT_ID)
+`, rName, rName, OS_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccSFSFileSystemV2_update(rName, updateName string) string {

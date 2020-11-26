@@ -64,7 +64,7 @@ func TestAccObsBucket_withEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						resourceName, "bucket", testAccObsBucketName(rInt)),
 					resource.TestCheckResourceAttr(
-						resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+						resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -368,7 +368,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
   acl = "private"
   enterprise_project_id = "%s"
 }
-`, randInt, OS_ENTERPRISE_PROJECT_ID)
+`, randInt, OS_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccObsBucket_basic_update(randInt int) string {
