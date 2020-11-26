@@ -22,9 +22,7 @@ data "huaweicloud_dis_partition" "partition" {
 
 * `region` - (Optional) The region in which to obtain the partitions. If omitted, the provider-level region will be used.
 
-* `stream_name` -
-  (Required)
-  Name of the DIS stream.
+* `stream_name` - (Required) Name of the DIS stream.
 
 ## Attributes Reference
 

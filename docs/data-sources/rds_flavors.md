@@ -23,9 +23,7 @@ data "huaweicloud_rds_flavors" "flavor" {
 
 * `db_type` - (Required) Specifies the DB engine. Value: MySQL, PostgreSQL, SQLServer.
 
-* `db_version` -
-  (Required)
-  Specifies the database version. Available value:
+* `db_version` - (Required) Specifies the database version. Available value:
 
 type | version
 ---- | ---
