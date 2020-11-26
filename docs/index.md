@@ -91,8 +91,8 @@ The following arguments are supported:
 * `secret_key` - (Optional) The secret key of the HuaweiCloud to use.
   If omitted, the `OS_SECRET_KEY` environment variable is used.
 
-* `tenant_name` - (Optional) The Name of the Tenant/Project to login with.
-  If omitted, the `OS_TENANT_NAME` or `OS_PROJECT_NAME` environment variable are used.
+* `project_name` - (Optional) The Name of the project to login with.
+  If omitted, the `OS_PROJECT_NAME` environment variable or `region` is used.
 
 * `auth_url` - (Optional, Required before 1.14.0) The Identity authentication URL. If omitted, the
   `OS_AUTH_URL` environment variable is used. This is not required if you use Huawei Cloud.
@@ -108,7 +108,9 @@ The following arguments are supported:
   experiencing transient failures. The delay between the subsequent API
   calls increases exponentially. If omitted, default value is `5`.
 
-* `enterprise_project_id` - (Optional) Default Enterprise Project ID for supported resources. Please see the documentation at [EPS](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/eps).
+* `enterprise_project_id` - (Optional) Default Enterprise Project ID for supported resources.
+  Please see the documentation at [EPS](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/eps).
+  If omitted, the `OS_ENTERPRISE_PROJECT_ID` environment variable is used.
 
 
 ## Testing and Development
