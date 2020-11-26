@@ -31,7 +31,7 @@ data "huaweicloud_gaussdb_mysql_instance" "this" {
 
 * `flavor` - Indicates the instance specifications.
 
-* `security_group_id` - Indicates the security group ID. Required if the selected subnet doesn't enable network ACL.
+* `security_group_id` - Indicates the security group ID.
 
 * `configuration_id` - Indicates the configuration ID.
 

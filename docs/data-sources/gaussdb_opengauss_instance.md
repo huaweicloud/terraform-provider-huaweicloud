@@ -2,27 +2,27 @@
 subcategory: "GaussDB"
 ---
 
-# huaweicloud\_gaussdb\_cassandra\_instance
+# huaweicloud\_gaussdb\_opengauss\_instance
 
-Use this data source to get available HuaweiCloud gaussdb cassandra instance.
+Use this data source to get available HuaweiCloud gaussdb opengauss instance.
 
 ## Example Usage
 
 ```hcl
-data "huaweicloud_gaussdb_cassandra_instance" "this" {
+data "huaweicloud_gaussdb_opengauss_instance" "this" {
   name = "gaussdb-instance"
 }
 ```
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the instance. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the instance. If omitted, the provider-level region will be used.
 
-* `name` - (Optional) Specifies the name of the instance.
+* `name` - (Optional, String) Specifies the name of the instance.
 
-* `vpc_id` -  (Optional) Specifies the VPC ID.
+* `vpc_id` -  (Optional, String) Specifies the VPC ID.
 
-* `subnet_id` - (Optional) Specifies the network ID of a subnet.
+* `subnet_id` - (Optional, String) Specifies the network ID of a subnet.
 
 
 ## Attributes Reference
@@ -31,7 +31,7 @@ data "huaweicloud_gaussdb_cassandra_instance" "this" {
 
 * `status` - Indicates the DB instance status.
 
-* `mode` - Indicates the instance mode.
+* `type` - Indicates the instance type.
 
 * `flavor` - Indicates the instance specifications.
 
@@ -41,15 +41,23 @@ data "huaweicloud_gaussdb_cassandra_instance" "this" {
 
 * `db_user_name` - Indicates the default username.
 
+* `time_zone` - Indicates the default username.
+
 * `availability_zone` - Indicates the instance availability zone.
 
 * `port` - Indicates the database port.
 
-* `node_num` - Indicates the count of the nodes.
+* `switch_strategy` - Indicates the switch strategy.
 
-* `volume_size` - Indicates the size of the volume.
+* `maintenance_window` - Indicates the maintenance window.
+
+* `coordinator_num` - Indicates the count of coordinator node.
+
+* `sharding_num` - Indicates the sharding num.
 
 * `private_ips` - Indicates the list of private IP address of the nodes.
+
+* `volume` - Indicates the volume information. Structure is documented below.
 
 * `datastore` - Indicates the database information. Structure is documented below.
 
@@ -57,13 +65,17 @@ data "huaweicloud_gaussdb_cassandra_instance" "this" {
 
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
 
-* `tags` - Indicates the key/value tags of the instance.
+* `ha` - Indicates the instance ha information. Structure is documented below.
 
+
+The `volume` block supports:
+
+* `type` - Indicates the volume type.
+* `size` - Indicates the volume size.
 
 The `datastore` block supports:
 
 * `engine` - Indicates the database engine.
-* `storage_engine` - Indicates the database storage engine.
 * `version` - Indicates the database version.
 
 The `backup_strategy` block supports:
@@ -75,7 +87,10 @@ The `nodes` block contains:
 
 - `id` - Indicates the node ID.
 - `name` - Indicates the node name.
-- `private_ip` - Indicates the private IP address of a node.
 - `status` - Indicates the node status.
-- `support_reduce` - Indicates whether the node support reduce.
+- `role` - Indicates whether the node support reduce.
 - `availability_zone` - Indicates the availability zone where the node resides.
+
+The `ha` block supports:
+
+* `replication_mode` - Indicates the replication mode.
