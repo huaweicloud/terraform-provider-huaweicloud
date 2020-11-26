@@ -61,6 +61,20 @@ func Provider() terraform.ResourceProvider {
 				Description: descriptions["user_name"],
 			},
 
+			"project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("OS_PROJECT_ID", nil),
+				Description: descriptions["project_id"],
+			},
+
+			"project_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("OS_PROJECT_NAME", nil),
+				Description: descriptions["project_name"],
+			},
+
 			"tenant_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -524,6 +538,10 @@ func init() {
 
 		"user_id": "User ID to login with.",
 
+		"project_id": "The ID of the project to login with.",
+
+		"project_name": "The name of the project to login with.",
+
 		"tenant_id": "The ID of the Tenant (Identity v2) or Project (Identity v3)\n" +
 			"to login with.",
 
@@ -561,20 +579,31 @@ func init() {
 }
 
 func configureProvider(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
-	var tenant_name, delegated_project string
+	var tenantName, tenantID, delegated_project string
+	region := d.Get("region").(string)
 
-	// Use region as tenant_name if it's not set
-	if v, ok := d.GetOk("tenant_name"); ok && v.(string) != "" {
-		tenant_name = v.(string)
+	// project_name is prior to tenant_name
+	// if neither of them was set, use region as the default project
+	if v, ok := d.GetOk("project_name"); ok && v.(string) != "" {
+		tenantName = v.(string)
+	} else if v, ok := d.GetOk("tenant_name"); ok && v.(string) != "" {
+		tenantName = v.(string)
 	} else {
-		tenant_name = d.Get("region").(string)
+		tenantName = region
+	}
+
+	// project_id is prior to tenant_id
+	if v, ok := d.GetOk("project_id"); ok && v.(string) != "" {
+		tenantID = v.(string)
+	} else {
+		tenantID = d.Get("tenant_id").(string)
 	}
 
 	// Use region as delegated_project if it's not set
 	if v, ok := d.GetOk("delegated_project"); ok && v.(string) != "" {
 		delegated_project = v.(string)
 	} else {
-		delegated_project = d.Get("region").(string)
+		delegated_project = region
 	}
 
 	config := Config{
@@ -588,10 +617,10 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		IdentityEndpoint:    d.Get("auth_url").(string),
 		Insecure:            d.Get("insecure").(bool),
 		Password:            d.Get("password").(string),
-		Region:              d.Get("region").(string),
 		Token:               d.Get("token").(string),
-		TenantID:            d.Get("tenant_id").(string),
-		TenantName:          tenant_name,
+		Region:              region,
+		TenantID:            tenantID,
+		TenantName:          tenantName,
 		Username:            d.Get("user_name").(string),
 		UserID:              d.Get("user_id").(string),
 		AgencyName:          d.Get("agency_name").(string),
