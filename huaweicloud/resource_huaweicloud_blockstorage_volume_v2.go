@@ -46,12 +46,10 @@ func resourceBlockStorageVolumeV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"availability_zone": {
 				Type:     schema.TypeString,

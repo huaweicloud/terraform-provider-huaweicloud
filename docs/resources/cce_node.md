@@ -134,8 +134,6 @@ The following arguments are supported:
 
 * `eip_id` - (Optional) The ID of the EIP. Changing this parameter will create a new resource.
 
-* `eip_ids` - (Deprecated) This has been deprecated, use eip_id instead. List of existing elastic IP IDs.
-    Changing this parameter will create a new resource.
 
 -> **Note:** If the eip_id parameter is configured, you do not need to configure the bandwidth parameters:
   `iptype`, `bandwidth_charge_mode`, `bandwidth_size` and `share_type`.

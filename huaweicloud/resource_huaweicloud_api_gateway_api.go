@@ -245,17 +245,14 @@ func resourceAPIGatewayAPI() *schema.Resource {
 			"cors": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 			},
 			"example_success_response": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"example_failure_response": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"group_name": {
 				Type:     schema.TypeString,

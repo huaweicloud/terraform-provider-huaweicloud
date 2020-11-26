@@ -50,12 +50,10 @@ func resourceCdnDomainV1() *schema.Resource {
 						"origin": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: false,
 						},
 						"origin_type": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: false,
 							ValidateFunc: validation.StringInSlice([]string{
 								"ipaddr", "domain", "obs_bucket",
 							}, true),
@@ -63,7 +61,6 @@ func resourceCdnDomainV1() *schema.Resource {
 						"active": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: false,
 							Default:  1,
 						},
 					},
@@ -83,13 +80,11 @@ func resourceCdnDomainV1() *schema.Resource {
 			"domain_status": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 			"service_area": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 		},

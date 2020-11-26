@@ -34,7 +34,6 @@ func resourceTopic() *schema.Resource {
 			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"topic_urn": {
 				Type:     schema.TypeString,

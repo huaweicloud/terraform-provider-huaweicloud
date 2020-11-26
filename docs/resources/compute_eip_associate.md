@@ -88,8 +88,6 @@ The following arguments are supported:
 
 * `public_ip` - (Required) The EIP to associate.
 
-* `floating_ip` - (Deprecated) Use `public_ip` instead. The EIP to associate.
-
 * `instance_id` - (Required) The instance to associte the EIP with.
 
 * `fixed_ip` - (Optional) The specific IP address to direct traffic to.

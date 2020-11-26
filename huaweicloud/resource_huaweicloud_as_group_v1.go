@@ -44,25 +44,21 @@ func resourceASGroup() *schema.Resource {
 			"scaling_configuration_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 			"desire_instance_number": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
 			},
 			"min_instance_number": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  0,
-				ForceNew: false,
 			},
 			"max_instance_number": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  0,
-				ForceNew: false,
 			},
 			"cool_down_time": {
 				Type:         schema.TypeInt,
@@ -107,7 +103,6 @@ func resourceASGroup() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				ForceNew: false,
 			},
 			"networks": {
 				Type:     schema.TypeList,
@@ -121,7 +116,6 @@ func resourceASGroup() *schema.Resource {
 						},
 					},
 				},
-				ForceNew: false,
 			},
 			"security_groups": {
 				Type:     schema.TypeList,
@@ -134,7 +128,6 @@ func resourceASGroup() *schema.Resource {
 						},
 					},
 				},
-				ForceNew: false,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -167,13 +160,11 @@ func resourceASGroup() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				ForceNew: false,
 			},
 			"delete_publicip": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
-				ForceNew: false,
 			},
 			"delete_instances": {
 				Description: "Whether to delete instances when they are removed from the AS group.",
@@ -199,7 +190,6 @@ func resourceASGroup() *schema.Resource {
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},

@@ -177,6 +177,8 @@ The following arguments are supported:
 
 * `region` - (Optional) Specified the region where this bucket will be created. If not specified, used the region by the provider.
 
+* `enterprise_project_id` - (Optional) The enterprise project id of the OBS bucket. Changing this creates a OBS bucket.
+
 The `logging` object supports the following:
 
 * `target_bucket` - (Required) The name of the bucket that will receive the log objects.
@@ -254,7 +256,6 @@ The `noncurrent_version_transition` object supports the following
 * `days` (Required) Specifies the number of days when noncurrent object versions are automatically transitioned to the specified storage class.
 * `storage_class` - (Required) The class of storage used to store the object. Only `WARM` and `COLD` are supported.
 
-* `enterprise_project_id` - (Optional) The enterprise project id of the OBS bucket. Changing this creates a OBS bucket.
 
 ## Attributes Reference
 

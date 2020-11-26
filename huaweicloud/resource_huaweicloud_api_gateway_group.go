@@ -34,12 +34,10 @@ func resourceAPIGatewayGroup() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"status": {
 				Type:     schema.TypeInt,
