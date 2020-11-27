@@ -31,7 +31,7 @@ func TestAccObsBucket_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						resourceName, "storage_class", "STANDARD"),
 					resource.TestCheckResourceAttr(
-						resourceName, "region", OS_REGION_NAME),
+						resourceName, "region", HW_REGION_NAME),
 				),
 			},
 			{
@@ -64,7 +64,7 @@ func TestAccObsBucket_withEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						resourceName, "bucket", testAccObsBucketName(rInt)),
 					resource.TestCheckResourceAttr(
-						resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
+						resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -267,7 +267,7 @@ func TestAccObsBucket_cors(t *testing.T) {
 
 func testAccCheckObsBucketDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	obsClient, err := config.newObjectStorageClient(OS_REGION_NAME)
+	obsClient, err := config.newObjectStorageClient(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
@@ -297,7 +297,7 @@ func testAccCheckObsBucketExists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		obsClient, err := config.newObjectStorageClient(OS_REGION_NAME)
+		obsClient, err := config.newObjectStorageClient(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}
@@ -318,7 +318,7 @@ func testAccCheckObsBucketLogging(name, target, prefix string) resource.TestChec
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		obsClient, err := config.newObjectStorageClient(OS_REGION_NAME)
+		obsClient, err := config.newObjectStorageClient(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}
@@ -347,7 +347,7 @@ func testAccObsBucketName(randInt int) string {
 }
 
 func testAccObsBucketDomainName(randInt int) string {
-	return fmt.Sprintf("tf-test-bucket-%d.obs.%s.myhuaweicloud.com", randInt, OS_REGION_NAME)
+	return fmt.Sprintf("tf-test-bucket-%d.obs.%s.myhuaweicloud.com", randInt, HW_REGION_NAME)
 }
 
 func testAccObsBucket_basic(randInt int) string {
@@ -368,7 +368,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
   acl = "private"
   enterprise_project_id = "%s"
 }
-`, randInt, OS_ENTERPRISE_PROJECT_ID_TEST)
+`, randInt, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccObsBucket_basic_update(randInt int) string {

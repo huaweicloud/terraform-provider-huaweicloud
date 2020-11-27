@@ -50,7 +50,7 @@ func TestAccApiGatewayAPI_basic(t *testing.T) {
 
 func testAccCheckApiGatewayApiDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	apigwClient, err := config.apiGatewayV1Client(OS_REGION_NAME)
+	apigwClient, err := config.apiGatewayV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 	}
@@ -81,7 +81,7 @@ func testAccCheckApiGatewayApiExists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		apigwClient, err := config.apiGatewayV1Client(OS_REGION_NAME)
+		apigwClient, err := config.apiGatewayV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 		}

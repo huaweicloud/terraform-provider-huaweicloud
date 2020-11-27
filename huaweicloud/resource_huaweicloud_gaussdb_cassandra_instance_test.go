@@ -35,7 +35,7 @@ func TestAccGeminiDBInstance_basic(t *testing.T) {
 
 func testAccCheckGeminiDBInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.GeminiDBV3Client(OS_REGION_NAME)
+	client, err := config.GeminiDBV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
 	}
@@ -69,7 +69,7 @@ func testAccCheckGeminiDBInstanceExists(n string, instance *instances.GeminiDBIn
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.GeminiDBV3Client(OS_REGION_NAME)
+		client, err := config.GeminiDBV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
 		}

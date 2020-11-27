@@ -48,7 +48,7 @@ func TestAccVpcPeeringConnectionV2_basic(t *testing.T) {
 
 func testAccCheckVpcPeeringConnectionV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	peeringClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+	peeringClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud Peering client: %s", err)
 	}
@@ -79,7 +79,7 @@ func testAccCheckVpcPeeringConnectionV2Exists(n string, peering *peerings.Peerin
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		peeringClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+		peeringClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud Peering client: %s", err)
 		}

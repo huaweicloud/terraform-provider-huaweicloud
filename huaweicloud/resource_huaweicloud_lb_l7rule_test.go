@@ -49,7 +49,7 @@ func TestAccLBV2L7Rule_basic(t *testing.T) {
 
 func testAccCheckLBV2L7RuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	lbClient, err := config.elbV2Client(OS_REGION_NAME)
+	lbClient, err := config.elbV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
 	}
@@ -92,7 +92,7 @@ func testAccCheckLBV2L7RuleExists(n string, l7rule *l7rules.Rule) resource.TestC
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		lbClient, err := config.elbV2Client(OS_REGION_NAME)
+		lbClient, err := config.elbV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
 		}
@@ -152,7 +152,7 @@ resource "huaweicloud_lb_l7policy" "l7policy_1" {
   listener_id  = huaweicloud_lb_listener.listener_1.id
   redirect_pool_id = huaweicloud_lb_pool.pool_1.id
 }
-`, OS_SUBNET_ID)
+`, HW_SUBNET_ID)
 
 var testAccCheckLBV2L7RuleConfig_basic = fmt.Sprintf(`
 %s

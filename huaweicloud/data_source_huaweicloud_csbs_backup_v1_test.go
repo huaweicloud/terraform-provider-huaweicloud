@@ -63,4 +63,4 @@ resource "huaweicloud_csbs_backup_v1" "csbs" {
 data "huaweicloud_csbs_backup_v1" "csbs" {
   id = "${huaweicloud_csbs_backup_v1.csbs.id}"
 }
-`, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_FLAVOR_ID, OS_NETWORK_ID)
+`, HW_IMAGE_ID, HW_AVAILABILITY_ZONE, HW_FLAVOR_ID, HW_NETWORK_ID)

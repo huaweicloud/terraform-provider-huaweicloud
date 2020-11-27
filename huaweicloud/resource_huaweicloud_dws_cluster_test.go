@@ -63,12 +63,12 @@ resource "huaweicloud_dws_cluster" "cluster" {
     delete = "30m"
   }
 }
-	`, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE, val)
+	`, val, HW_NETWORK_ID, HW_VPC_ID, HW_AVAILABILITY_ZONE, val)
 }
 
 func testAccCheckDwsClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.dwsV1Client(OS_REGION_NAME)
+	client, err := config.dwsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -98,7 +98,7 @@ func testAccCheckDwsClusterDestroy(s *terraform.State) error {
 func testAccCheckDwsClusterExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.dwsV1Client(OS_REGION_NAME)
+		client, err := config.dwsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}

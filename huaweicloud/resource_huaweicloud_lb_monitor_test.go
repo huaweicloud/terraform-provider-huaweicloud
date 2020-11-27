@@ -41,7 +41,7 @@ func TestAccLBV2Monitor_basic(t *testing.T) {
 
 func testAccCheckLBV2MonitorDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	elbClient, err := config.elbV2Client(OS_REGION_NAME)
+	elbClient, err := config.elbV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -72,7 +72,7 @@ func testAccCheckLBV2MonitorExists(n string, monitor *monitors.Monitor) resource
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		elbClient, err := config.elbV2Client(OS_REGION_NAME)
+		elbClient, err := config.elbV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
@@ -126,7 +126,7 @@ resource "huaweicloud_lb_monitor" "monitor_1" {
     delete = "5m"
   }
 }
-`, OS_SUBNET_ID)
+`, HW_SUBNET_ID)
 
 var TestAccLBV2MonitorConfig_update = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
@@ -163,4 +163,4 @@ resource "huaweicloud_lb_monitor" "monitor_1" {
     delete = "5m"
   }
 }
-`, OS_SUBNET_ID)
+`, HW_SUBNET_ID)

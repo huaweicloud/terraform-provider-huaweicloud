@@ -75,7 +75,7 @@ func TestAccRTSStackV1_timeout(t *testing.T) {
 
 func testAccCheckRTSStackV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	orchestrationClient, err := config.orchestrationV1Client(OS_REGION_NAME)
+	orchestrationClient, err := config.orchestrationV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating RTS client: %s", err)
 	}
@@ -109,7 +109,7 @@ func testAccCheckRTSStackV1Exists(n string, stack *stacks.RetrievedStack) resour
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		orchestrationClient, err := config.orchestrationV1Client(OS_REGION_NAME)
+		orchestrationClient, err := config.orchestrationV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating RTS Client : %s", err)
 		}

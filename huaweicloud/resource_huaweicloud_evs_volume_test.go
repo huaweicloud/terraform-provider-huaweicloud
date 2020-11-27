@@ -92,7 +92,7 @@ func TestAccEvsStorageV3Volume_image(t *testing.T) {
 
 func testAccCheckEvsStorageV3VolumeDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	blockStorageClient, err := config.blockStorageV3Client(OS_REGION_NAME)
+	blockStorageClient, err := config.blockStorageV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud evs storage client: %s", err)
 	}
@@ -123,7 +123,7 @@ func testAccCheckEvsStorageV3VolumeExists(n string, volume *volumes.Volume) reso
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		blockStorageClient, err := config.blockStorageV3Client(OS_REGION_NAME)
+		blockStorageClient, err := config.blockStorageV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud evs storage client: %s", err)
 		}
@@ -155,7 +155,7 @@ func testAccCheckEvsStorageV3VolumeTags(n string, k string, v string) resource.T
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		blockStorageClient, err := config.blockStorageV3Client(OS_REGION_NAME)
+		blockStorageClient, err := config.blockStorageV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 		}

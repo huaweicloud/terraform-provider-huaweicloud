@@ -37,7 +37,7 @@ func TestAccEvsSnapshotV2_basic(t *testing.T) {
 
 func testAccCheckEvsSnapshotV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	evsClient, err := config.blockStorageV2Client(OS_REGION_NAME)
+	evsClient, err := config.blockStorageV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud EVS storage client: %s", err)
 	}
@@ -68,7 +68,7 @@ func testAccCheckEvsSnapshotV2Exists(n string, sp *snapshots.Snapshot) resource.
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		evsClient, err := config.blockStorageV2Client(OS_REGION_NAME)
+		evsClient, err := config.blockStorageV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud EVS storage client: %s", err)
 		}

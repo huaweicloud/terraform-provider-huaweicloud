@@ -30,7 +30,7 @@ func TestAccMaasTask_basic(t *testing.T) {
 
 func testAccCheckMaasTaskV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	maasClient, err := config.maasV1Client(OS_REGION_NAME)
+	maasClient, err := config.maasV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud maas client: %s", err)
 	}
@@ -61,7 +61,7 @@ func testAccCheckMaasTaskV1Exists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		maasClient, err := config.maasV1Client(OS_REGION_NAME)
+		maasClient, err := config.maasV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud maas client: %s", err)
 		}
@@ -99,4 +99,4 @@ resource "huaweicloud_oms_task" "task_1" {
     bucket = "oms-test"
   }
 }
-`, OS_SRC_ACCESS_KEY, OS_SRC_SECRET_KEY, OS_REGION_NAME, OS_ACCESS_KEY, OS_SECRET_KEY)
+`, HW_SRC_ACCESS_KEY, HW_SRC_SECRET_KEY, HW_REGION_NAME, HW_ACCESS_KEY, HW_SECRET_KEY)

@@ -70,7 +70,7 @@ func TestAccDmsInstancesV1_Kafka(t *testing.T) {
 
 func testAccCheckDmsV1InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	dmsClient, err := config.dmsV1Client(OS_REGION_NAME)
+	dmsClient, err := config.dmsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud instance client: %s", err)
 	}
@@ -100,7 +100,7 @@ func testAccCheckDmsV1InstanceExists(n string, instance instances.Instance) reso
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		dmsClient, err := config.dmsV1Client(OS_REGION_NAME)
+		dmsClient, err := config.dmsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud instance client: %s", err)
 		}
@@ -151,7 +151,7 @@ resource "huaweicloud_dms_instance" "instance_1" {
     owner = "terraform"
   }
 }
-	`, instanceName, OS_VPC_ID, OS_NETWORK_ID)
+	`, instanceName, HW_VPC_ID, HW_NETWORK_ID)
 }
 
 func testAccDmsV1Instance_update(instanceUpdate string) string {
@@ -188,7 +188,7 @@ resource "huaweicloud_dms_instance" "instance_1" {
     owner = "terraform_update"
   }
 }
-	`, instanceUpdate, OS_VPC_ID, OS_NETWORK_ID)
+	`, instanceUpdate, HW_VPC_ID, HW_NETWORK_ID)
 }
 
 func testAccDmsV1Instance_KafkaInstance(instanceName string) string {
@@ -224,5 +224,5 @@ resource "huaweicloud_dms_instance" "instance_1" {
     owner = "terraform"
   }
 }
-	`, instanceName, OS_VPC_ID, OS_NETWORK_ID)
+	`, instanceName, HW_VPC_ID, HW_NETWORK_ID)
 }

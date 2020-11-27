@@ -31,7 +31,7 @@ func TestAccLogTankStreamV2_basic(t *testing.T) {
 
 func testAccCheckLogTankStreamV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	ltsclient, err := config.ltsV2Client(OS_REGION_NAME)
+	ltsclient, err := config.ltsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -63,7 +63,7 @@ func testAccCheckLogTankStreamV2Exists(n string, stream *logstreams.LogStream) r
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		ltsclient, err := config.ltsV2Client(OS_REGION_NAME)
+		ltsclient, err := config.ltsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 		}

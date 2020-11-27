@@ -135,7 +135,7 @@ func TestAccFWFirewallGroupV2_port_remove(t *testing.T) {
 
 func testAccCheckFWFirewallGroupV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	fwClient, err := config.fwV2Client(OS_REGION_NAME)
+	fwClient, err := config.fwV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -167,7 +167,7 @@ func testAccCheckFWFirewallGroupV2Exists(n string, firewall_group *FirewallGroup
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		fwClient, err := config.fwV2Client(OS_REGION_NAME)
+		fwClient, err := config.fwV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Exists) Error creating HuaweiCloud fw client: %s", err)
 		}
@@ -210,7 +210,7 @@ func testAccCheckFWFirewallGroupV2(n, expectedName, expectedDescription string, 
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		fwClient, err := config.fwV2Client(OS_REGION_NAME)
+		fwClient, err := config.fwV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Exists) Error creating HuaweiCloud fw client: %s", err)
 		}
@@ -346,7 +346,7 @@ resource "huaweicloud_fw_firewall_group_v2" "fw_1" {
   ]
   depends_on = ["huaweicloud_networking_router_interface_v2.router_interface_1"]
 }
-`, OS_EXTGW_ID)
+`, HW_EXTGW_ID)
 
 var testAccFWFirewallV2_port_add = fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
@@ -420,7 +420,7 @@ resource "huaweicloud_fw_firewall_group_v2" "fw_1" {
   ]
   depends_on = ["huaweicloud_networking_router_interface_v2.router_interface_1", "huaweicloud_networking_router_interface_v2.router_interface_2"]
 }
-`, OS_EXTGW_ID, OS_EXTGW_ID)
+`, HW_EXTGW_ID, HW_EXTGW_ID)
 
 const testAccFWFirewallV2_port_remove = `
 resource "huaweicloud_fw_policy_v2" "policy_1" {

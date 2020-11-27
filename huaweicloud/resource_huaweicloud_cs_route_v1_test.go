@@ -77,7 +77,7 @@ resource "huaweicloud_cs_route_v1" "route" {
 
 func testAccCheckCsRouteV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.cloudStreamV1Client(OS_REGION_NAME)
+	client, err := config.cloudStreamV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -99,7 +99,7 @@ func testAccCheckCsRouteV1Destroy(s *terraform.State) error {
 func testAccCheckCsRouteV1Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.cloudStreamV1Client(OS_REGION_NAME)
+		client, err := config.cloudStreamV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}

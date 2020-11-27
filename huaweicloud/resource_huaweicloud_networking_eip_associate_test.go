@@ -36,7 +36,7 @@ func TestAccNetworkingV2EIPAssociate_basic(t *testing.T) {
 
 func testAccCheckNetworkingV2EIPAssociateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.NetworkingV1Client(OS_REGION_NAME)
+	networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating EIP Client: %s", err)
 	}

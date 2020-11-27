@@ -91,7 +91,7 @@ func TestAccNetworkACLRule_anyProtocol(t *testing.T) {
 
 func testAccCheckNetworkACLRuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	fwClient, err := config.fwV2Client(OS_REGION_NAME)
+	fwClient, err := config.fwV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -123,7 +123,7 @@ func testAccCheckNetworkACLRuleExists(key string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		fwClient, err := config.fwV2Client(OS_REGION_NAME)
+		fwClient, err := config.fwV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 		}

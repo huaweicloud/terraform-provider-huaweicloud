@@ -33,7 +33,7 @@ func TestAccMRSV1Job_basic(t *testing.T) {
 
 func testAccCheckMRSV1JobDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	mrsClient, err := config.MrsV1Client(OS_REGION_NAME)
+	mrsClient, err := config.MrsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud mrs: %s", err)
 	}
@@ -71,7 +71,7 @@ func testAccCheckMRSV1JobExists(n string, jobGet *job.Job) resource.TestCheckFun
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		mrsClient, err := config.MrsV1Client(OS_REGION_NAME)
+		mrsClient, err := config.MrsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud mrs client: %s ", err)
 		}
@@ -131,4 +131,4 @@ resource "huaweicloud_mrs_job_v1" "job1" {
   output = "s3a://tf-mrs/output/"
   job_log = "s3a://tf-mrs/joblog/"
   arguments = "wordcount"
-}`, OS_REGION_NAME, OS_VPC_ID, OS_NETWORK_ID)
+}`, HW_REGION_NAME, HW_VPC_ID, HW_NETWORK_ID)

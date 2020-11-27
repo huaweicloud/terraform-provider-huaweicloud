@@ -138,7 +138,7 @@ func testAccCheckAwsS3ObjectDataSourceExists(n string, obj *s3.GetObjectOutput) 
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		s3conn, err := config.computeS3conn(OS_REGION_NAME)
+		s3conn, err := config.computeS3conn(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 		}

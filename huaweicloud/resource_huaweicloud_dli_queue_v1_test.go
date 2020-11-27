@@ -52,7 +52,7 @@ resource "huaweicloud_dli_queue_v1" "queue" {
 
 func testAccCheckDliQueueV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.dliV1Client(OS_REGION_NAME)
+	client, err := config.dliV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -78,7 +78,7 @@ func testAccCheckDliQueueV1Destroy(s *terraform.State) error {
 func testAccCheckDliQueueV1Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.dliV1Client(OS_REGION_NAME)
+		client, err := config.dliV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}

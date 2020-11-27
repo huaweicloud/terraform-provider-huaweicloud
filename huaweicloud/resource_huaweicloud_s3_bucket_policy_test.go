@@ -82,7 +82,7 @@ func testAccCheckS3BucketHasPolicy(n string, expectedPolicyText string) resource
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		conn, err := config.computeS3conn(OS_REGION_NAME)
+		conn, err := config.computeS3conn(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 		}

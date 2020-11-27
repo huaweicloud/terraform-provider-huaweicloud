@@ -49,7 +49,7 @@ func TestAccComputeV2InterfaceAttach_IP(t *testing.T) {
 
 func testAccCheckComputeV2InterfaceAttachDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	computeClient, err := config.computeV2Client(OS_REGION_NAME)
+	computeClient, err := config.computeV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -85,7 +85,7 @@ func testAccCheckComputeV2InterfaceAttachExists(n string, ai *attachinterfaces.I
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		computeClient, err := config.computeV2Client(OS_REGION_NAME)
+		computeClient, err := config.computeV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
@@ -144,7 +144,7 @@ resource "huaweicloud_compute_interface_attach" "ai_1" {
   instance_id = "${huaweicloud_compute_instance.instance_1.id}"
   port_id = "${huaweicloud_networking_port.port_1.id}"
 }
-`, OS_NETWORK_ID, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_NETWORK_ID, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
 
 var testAccComputeV2InterfaceAttach_IP = fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
@@ -174,4 +174,4 @@ resource "huaweicloud_compute_interface_attach" "ai_1" {
   network_id = "${huaweicloud_networking_network_v2.network_1.id}"
   fixed_ip = "192.168.1.100"
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)

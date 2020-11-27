@@ -35,7 +35,7 @@ func TestAccCssSnapshot_basic(t *testing.T) {
 
 func testAccCheckCssSnapshotDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.cssV1Client(OS_REGION_NAME)
+	client, err := config.cssV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating css client, err=%s", err)
 	}
@@ -68,7 +68,7 @@ func testAccCheckCssSnapshotDestroy(s *terraform.State) error {
 func testAccCheckCssSnapshotExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.cssV1Client(OS_REGION_NAME)
+		client, err := config.cssV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating css client, err=%s", err)
 		}
@@ -132,5 +132,5 @@ resource "huaweicloud_css_snapshot" "snapshot" {
   description = "a snapshot created by terraform acctest"
   cluster_id  = huaweicloud_css_cluster.cluster.id
 }
-	`, val, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE, val)
+	`, val, val, HW_NETWORK_ID, HW_VPC_ID, HW_AVAILABILITY_ZONE, val)
 }

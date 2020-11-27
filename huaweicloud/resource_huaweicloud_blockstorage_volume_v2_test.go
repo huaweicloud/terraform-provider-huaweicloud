@@ -117,7 +117,7 @@ func TestAccBlockStorageV2Volume_timeout(t *testing.T) {
 
 func testAccCheckBlockStorageV2VolumeDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	blockStorageClient, err := config.blockStorageV2Client(OS_REGION_NAME)
+	blockStorageClient, err := config.blockStorageV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}
@@ -148,7 +148,7 @@ func testAccCheckBlockStorageV2VolumeExists(n string, volume *volumes.Volume) re
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		blockStorageClient, err := config.blockStorageV2Client(OS_REGION_NAME)
+		blockStorageClient, err := config.blockStorageV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 		}
@@ -171,7 +171,7 @@ func testAccCheckBlockStorageV2VolumeExists(n string, volume *volumes.Volume) re
 func testAccCheckBlockStorageV2VolumeDoesNotExist(t *testing.T, n string, volume *volumes.Volume) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		blockStorageClient, err := config.blockStorageV2Client(OS_REGION_NAME)
+		blockStorageClient, err := config.blockStorageV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 		}
@@ -240,7 +240,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   size = 40
   image_id = "%s"
 }
-`, OS_IMAGE_ID)
+`, HW_IMAGE_ID)
 
 const testAccBlockStorageV2Volume_timeout = `
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
@@ -276,7 +276,7 @@ resource "huaweicloud_compute_volume_attach_v2" "va_1" {
   instance_id = "${huaweicloud_compute_instance_v2.basic.id}"
   volume_id   = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
+`, HW_AVAILABILITY_ZONE, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)
 
 var testAccBlockStorageV2Volume_online_resize_update = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "basic" {
@@ -299,4 +299,4 @@ resource "huaweicloud_compute_volume_attach_v2" "va_1" {
   instance_id = "${huaweicloud_compute_instance_v2.basic.id}"
   volume_id   = "${huaweicloud_blockstorage_volume_v2.volume_1.id}"
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
+`, HW_AVAILABILITY_ZONE, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)

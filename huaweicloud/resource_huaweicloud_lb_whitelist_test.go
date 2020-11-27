@@ -36,7 +36,7 @@ func TestAccLBV2Whitelist_basic(t *testing.T) {
 
 func testAccCheckLBV2WhitelistDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	elbClient, err := config.elbV2Client(OS_REGION_NAME)
+	elbClient, err := config.elbV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -67,7 +67,7 @@ func testAccCheckLBV2WhitelistExists(n string, whitelist *whitelists.Whitelist) 
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		elbClient, err := config.elbV2Client(OS_REGION_NAME)
+		elbClient, err := config.elbV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
@@ -105,7 +105,7 @@ resource "huaweicloud_lb_whitelist" "whitelist_1" {
   whitelist        = "192.168.11.1,192.168.0.1/24"
   listener_id      = huaweicloud_lb_listener.listener_1.id
 }
-`, OS_SUBNET_ID)
+`, HW_SUBNET_ID)
 
 var TestAccLBV2WhitelistConfig_update = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
@@ -125,4 +125,4 @@ resource "huaweicloud_lb_whitelist" "whitelist_1" {
   whitelist        = "192.168.11.1,192.168.0.1/24,192.168.201.18/8"
   listener_id      = huaweicloud_lb_listener.listener_1.id
 }
-`, OS_SUBNET_ID)
+`, HW_SUBNET_ID)
