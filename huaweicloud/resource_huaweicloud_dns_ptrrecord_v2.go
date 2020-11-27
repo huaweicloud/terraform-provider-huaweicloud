@@ -52,7 +52,6 @@ func ResourceDNSPtrRecordV2() *schema.Resource {
 			"ttl": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     false,
 				ValidateFunc: resourceValidateTTL,
 			},
 			"tags": tagsSchema(),

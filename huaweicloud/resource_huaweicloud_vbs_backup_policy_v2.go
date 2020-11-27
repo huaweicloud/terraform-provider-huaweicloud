@@ -92,13 +92,11 @@ func resourceVBSBackupPolicyV2() *schema.Resource {
 						"key": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ForceNew:     false,
 							ValidateFunc: validateVBSTagKey,
 						},
 						"value": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ForceNew:     false,
 							ValidateFunc: validateVBSTagValue,
 						},
 					},

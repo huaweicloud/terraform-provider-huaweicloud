@@ -43,7 +43,6 @@ func resourceVpcBandWidthV2() *schema.Resource {
 			"size": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ForceNew:     false,
 				ValidateFunc: validateIntegerInRange(5, 2000),
 			},
 			"enterprise_project_id": {

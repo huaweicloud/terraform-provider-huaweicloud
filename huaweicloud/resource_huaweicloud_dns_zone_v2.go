@@ -55,14 +55,12 @@ func ResourceDNSZoneV2() *schema.Resource {
 			"ttl": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     false,
 				Default:      300,
 				ValidateFunc: resourceValidateTTL,
 			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     false,
 				ValidateFunc: resourceValidateDescription,
 			},
 			"router": {

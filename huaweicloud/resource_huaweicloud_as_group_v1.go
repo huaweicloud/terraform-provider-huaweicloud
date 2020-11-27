@@ -39,7 +39,6 @@ func resourceASGroup() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: resourceASGroupValidateGroupName,
-				ForceNew:     false,
 			},
 			"scaling_configuration_id": {
 				Type:     schema.TypeString,
@@ -65,13 +64,11 @@ func resourceASGroup() *schema.Resource {
 				Optional:     true,
 				Default:      300,
 				ValidateFunc: resourceASGroupValidateCoolDownTime,
-				ForceNew:     false,
 				Description:  "The cooling duration, in seconds.",
 			},
 			"lb_listener_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     false,
 				ValidateFunc: resourceASGroupValidateListenerId,
 				Description:  "The system supports the binding of up to six ELB listeners, the IDs of which are separated using a comma.",
 				Deprecated:   "use lbaas_listeners instead",
@@ -138,7 +135,6 @@ func resourceASGroup() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: resourceASGroupValidateHealthAuditMethod,
-				ForceNew:     false,
 				Default:      "NOVA_AUDIT",
 			},
 			"health_periodic_audit_time": {
@@ -146,7 +142,6 @@ func resourceASGroup() *schema.Resource {
 				Optional:     true,
 				Default:      5,
 				ValidateFunc: resourceASGroupValidateHealthAuditTime,
-				ForceNew:     false,
 				Description:  "The health check period for instances, in minutes.",
 			},
 			"instance_terminate_policy": {
@@ -154,7 +149,6 @@ func resourceASGroup() *schema.Resource {
 				Optional:     true,
 				Default:      "OLD_CONFIG_OLD_INSTANCE",
 				ValidateFunc: resourceASGroupValidateTerminatePolicy,
-				ForceNew:     false,
 			},
 			"notifications": {
 				Type:     schema.TypeList,
@@ -171,7 +165,6 @@ func resourceASGroup() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "no",
-				ForceNew:    false,
 			},
 			"instances": {
 				Type:        schema.TypeList,
