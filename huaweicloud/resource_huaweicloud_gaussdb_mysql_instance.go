@@ -44,7 +44,6 @@ func resourceGaussDBInstance() *schema.Resource {
 				Type:      schema.TypeString,
 				Sensitive: true,
 				Required:  true,
-				ForceNew:  false,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,

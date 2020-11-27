@@ -29,7 +29,6 @@ func resourceASPolicy() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: resourceASPolicyValidateName,
-				ForceNew:     false,
 			},
 			"scaling_group_id": {
 				Type:     schema.TypeString,
@@ -39,7 +38,6 @@ func resourceASPolicy() *schema.Resource {
 			"scaling_policy_type": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     false,
 				ValidateFunc: resourceASPolicyValidatePolicyType,
 			},
 			"alarm_id": {
@@ -59,7 +57,6 @@ func resourceASPolicy() *schema.Resource {
 						"recurrence_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ForceNew:     false,
 							ValidateFunc: resourceASPolicyValidateRecurrenceType,
 						},
 						"recurrence_value": {
@@ -69,7 +66,6 @@ func resourceASPolicy() *schema.Resource {
 						"start_time": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							ForceNew:         false,
 							Default:          getCurrentUTCwithoutSec(),
 							DiffSuppressFunc: suppressDiffAll,
 						},

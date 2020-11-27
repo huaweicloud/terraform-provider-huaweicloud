@@ -47,7 +47,6 @@ func ResourceVpcSubnetV1() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     false,
 				ValidateFunc: validateString64WithChinese,
 			},
 			"cidr": {
@@ -78,14 +77,12 @@ func ResourceVpcSubnetV1() *schema.Resource {
 			},
 			"primary_dns": {
 				Type:         schema.TypeString,
-				ForceNew:     false,
 				Optional:     true,
 				ValidateFunc: validateIP,
 				Computed:     true,
 			},
 			"secondary_dns": {
 				Type:         schema.TypeString,
-				ForceNew:     false,
 				Optional:     true,
 				ValidateFunc: validateIP,
 				Computed:     true,

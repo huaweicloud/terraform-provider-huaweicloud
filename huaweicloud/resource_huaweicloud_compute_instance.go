@@ -76,14 +76,12 @@ func resourceComputeInstanceV2() *schema.Resource {
 			"flavor_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    false,
 				Computed:    true,
 				DefaultFunc: schema.EnvDefaultFunc("OS_FLAVOR_ID", nil),
 			},
 			"flavor_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    false,
 				Computed:    true,
 				DefaultFunc: schema.EnvDefaultFunc("OS_FLAVOR_NAME", nil),
 			},
@@ -165,7 +163,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 			"metadata": {
 				Type:          schema.TypeMap,
 				Optional:      true,
-				ForceNew:      false,
 				ConflictsWith: []string{"system_disk_type", "system_disk_size", "data_disks"},
 				Deprecated:    "use tags instead",
 				Elem:          &schema.Schema{Type: schema.TypeString},
@@ -174,7 +171,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Type:      schema.TypeString,
 				Sensitive: true,
 				Optional:  true,
-				ForceNew:  false,
 			},
 			"key_pair": {
 				Type:     schema.TypeString,

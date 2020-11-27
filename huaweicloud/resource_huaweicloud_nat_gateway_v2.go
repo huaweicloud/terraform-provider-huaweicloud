@@ -47,7 +47,6 @@ func resourceNatGatewayV2() *schema.Resource {
 			"spec": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     false,
 				ValidateFunc: resourceNatGatewayV2ValidateSpec,
 			},
 			"tenant_id": {

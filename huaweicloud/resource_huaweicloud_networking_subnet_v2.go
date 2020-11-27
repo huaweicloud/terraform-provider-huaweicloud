@@ -76,7 +76,6 @@ func resourceNetworkingSubnetV2() *schema.Resource {
 				Type:          schema.TypeString,
 				ConflictsWith: []string{"no_gateway"},
 				Optional:      true,
-				ForceNew:      false,
 				Computed:      true,
 			},
 			"no_gateway": {
@@ -84,7 +83,6 @@ func resourceNetworkingSubnetV2() *schema.Resource {
 				ConflictsWith: []string{"gateway_ip"},
 				Optional:      true,
 				Default:       false,
-				ForceNew:      false,
 			},
 			"ip_version": {
 				Type:     schema.TypeInt,
@@ -95,7 +93,6 @@ func resourceNetworkingSubnetV2() *schema.Resource {
 			"enable_dhcp": {
 				Type:         schema.TypeBool,
 				Optional:     true,
-				ForceNew:     false,
 				Default:      true,
 				ValidateFunc: validateTrueOnly,
 			},
