@@ -22,15 +22,15 @@ data "huaweicloud_cts_tracker" "tracker_v1" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the Cloud Trackers. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the Cloud Trackers. If omitted, the provider-level region will be used.
 
-* `tracker_name` - (Optional) The tracker name. 
+* `tracker_name` - (Optional, String) The tracker name. 
 
-* `bucket_name` - (Optional) The OBS bucket name for a tracker.
+* `bucket_name` - (Optional, String) The OBS bucket name for a tracker.
 
-* `file_prefix_name` - (Optional) The prefix of a log that needs to be stored in an OBS bucket. 
+* `file_prefix_name` - (Optional, String) The prefix of a log that needs to be stored in an OBS bucket. 
 
-* `status` - (Optional) Status of a tracker. 
+* `status` - (Optional, String) Status of a tracker. 
 
 
 ## Attributes Reference

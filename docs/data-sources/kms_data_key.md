@@ -27,17 +27,17 @@ data "huaweicloud_kms_data_key" "kms_datakey1" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the keys. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the keys. If omitted, the provider-level region will be used.
 
-* `key_id` - (Required) The globally unique identifier for the key.
+* `key_id` - (Required, String) The globally unique identifier for the key.
     Changing this gets the new data encryption key.
 
-* `encryption_context` - (Optional) The value of this parameter must be a series of
+* `encryption_context` - (Optional, String) The value of this parameter must be a series of
     "key:value" pairs used to record resource context information. The value of this
     parameter must not contain sensitive information and must be within 8192 characters
     in length. Example: {"Key1":"Value1","Key2":"Value2"}
 
-* `datakey_length` - (Required) Number of bits in the length of a DEK (data encryption keys).
+* `datakey_length` - (Required, String) Number of bits in the length of a DEK (data encryption keys).
     The maximum number is 512. Changing this gets the new data encryption key.
 
 

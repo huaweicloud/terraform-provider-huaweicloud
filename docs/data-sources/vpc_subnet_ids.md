@@ -32,9 +32,9 @@ output "subnet_cidr_blocks" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the subnet ids. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the subnet ids. If omitted, the provider-level region will be used.
 
-* `vpc_id` (Required) - Specifies the VPC ID used as the query filter.
+* `vpc_id` - (Required, String) Specifies the VPC ID used as the query filter.
 
 ## Attributes Reference
 

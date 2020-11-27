@@ -20,13 +20,13 @@ data "huaweicloud_dms_az" "az1" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the dms az. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the dms az. If omitted, the provider-level region will be used.
 
-* `name` - (Required) Indicates the name of an AZ.
+* `name` - (Required, String) Indicates the name of an AZ.
 
-* `code` - (Optional) Indicates the code of an AZ.
+* `code` - (Optional, String) Indicates the code of an AZ.
 
-* `port` - (Required) Indicates the port number of an AZ.
+* `port` - (Required, String) Indicates the port number of an AZ.
 
 
 ## Attributes Reference

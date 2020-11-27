@@ -27,17 +27,17 @@ resource "huaweicloud_compute_instance" "instance" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the flavors. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the flavors. If omitted, the provider-level region will be used.
 
-* `availability_zone` - (Optional) Specifies the AZ name.
+* `availability_zone` - (Optional, String) Specifies the AZ name.
 
-* `performance_type` - (Optional) Specifies the ECS flavor type.
+* `performance_type` - (Optional, String) Specifies the ECS flavor type.
 
-* `generation` - (Optional) Specifies the generation of an ECS type.
+* `generation` - (Optional, String) Specifies the generation of an ECS type.
 
-* `cpu_core_count` - (Optional) Specifies the number of vCPUs in the ECS flavor.
+* `cpu_core_count` - (Optional, Int) Specifies the number of vCPUs in the ECS flavor.
 
-* `memory_size` - (Optional) Specifies the memory size(GB) in the ECS flavor.
+* `memory_size` - (Optional, Int) Specifies the memory size(GB) in the ECS flavor.
 
 
 ## Attributes Reference

@@ -23,27 +23,27 @@ data "huaweicloud_dms_product" "product1" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the dms products. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the dms products. If omitted, the provider-level region will be used.
 
-* `engine` - (Required) Indicates the name of a message engine.
+* `engine` - (Required, String) Indicates the name of a message engine.
 
-* `version` - (Optional) Indicates the version of a message engine.
+* `version` - (Optional, String) Indicates the version of a message engine.
 
-* `instance_type` - (Required) Indicates an instance type. Options: "single" and "cluster"
+* `instance_type` - (Required, String) Indicates an instance type. Options: "single" and "cluster"
 
-* `vm_specification` - (Optional) Indicates VM specifications.
+* `vm_specification` - (Optional, String) Indicates VM specifications.
 
-* `storage` - (Optional) Indicates the message storage space.
+* `storage` - (Optional, String) Indicates the message storage space.
 
-* `bandwidth` - (Optional) Indicates the baseline bandwidth of a Kafka instance.
+* `bandwidth` - (Optional, String) Indicates the baseline bandwidth of a Kafka instance.
 
-* `partition_num` - (Optional) Indicates the maximum number of topics that can be created for a Kafka instance.
+* `partition_num` - (Optional, String) Indicates the maximum number of topics that can be created for a Kafka instance.
 
-* `storage_spec_code` - (Optional) Indicates an I/O specification.
+* `storage_spec_code` - (Optional, String) Indicates an I/O specification.
 
-* `io_type` - (Optional) Indicates an I/O type.
+* `io_type` - (Optional, String) Indicates an I/O type.
 
-* `node_num` - (Optional) Indicates the number of nodes in a cluster.
+* `node_num` - (Optional, String) Indicates the number of nodes in a cluster.
 
 
 ## Attributes Reference

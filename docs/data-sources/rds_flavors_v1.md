@@ -21,13 +21,13 @@ data "huaweicloud_rds_flavors_v1" "flavor" {
 
 ## Argument Reference
 
-* `region` - (Required) The region in which to obtain the V1 rds client.
+* `region` - (Required, String) The region in which to obtain the V1 rds client.
 
-* `datastore_name` - (Required) The datastore name of the rds.
+* `datastore_name` - (Required, String) The datastore name of the rds.
 
-* `datastore_version` - (Required) The datastore version of the rds.
+* `datastore_version` - (Required, String) The datastore version of the rds.
 
-* `speccode` - (Optional) The spec code of a rds flavor.
+* `speccode` - (Optional, String) The spec code of a rds flavor.
 
 ## Available value for attributes
 

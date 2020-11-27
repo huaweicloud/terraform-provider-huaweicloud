@@ -16,13 +16,13 @@ data "huaweicloud_gaussdb_mysql_instance" "this" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the instance. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the instance. If omitted, the provider-level region will be used.
 
-* `name` - (Optional) Specifies the name of the instance.
+* `name` - (Optional, String) Specifies the name of the instance.
 
-* `vpc_id` -  (Optional) Specifies the VPC ID.
+* `vpc_id` -  (Optional, String) Specifies the VPC ID.
 
-* `subnet_id` - (Optional) Specifies the network ID of a subnet.
+* `subnet_id` - (Optional, String) Specifies the network ID of a subnet.
 
 
 ## Attributes Reference

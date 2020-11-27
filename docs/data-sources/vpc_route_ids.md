@@ -30,9 +30,9 @@ output "route_nexthop" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the ids. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the ids. If omitted, the provider-level region will be used.
 
-* `vpc_id` (Required) - The VPC ID that you want to filter from.
+* `vpc_id` - (Required, String) The VPC ID that you want to filter from.
 
 ## Attributes Reference
 

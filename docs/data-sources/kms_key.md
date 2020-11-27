@@ -24,28 +24,28 @@ data "huaweicloud_kms_key" "key_1" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the keys. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the keys. If omitted, the provider-level region will be used.
 
-* `key_alias` - (Optional) The alias in which to create the key. It is required when
+* `key_alias` - (Optional, String) The alias in which to create the key. It is required when
     we create a new key. Changing this gets the new key.
 
-* `key_description` - (Optional) The description of the key as viewed in Huawei console.
+* `key_description` - (Optional, String) The description of the key as viewed in Huawei console.
     Changing this gets a new key.
 
-* `realm` - (Optional) Region where a key resides. Changing this gets a new key.
+* `realm` - (Optional, String) Region where a key resides. Changing this gets a new key.
 
-* `key_id` - (Optional) The globally unique identifier for the key. Changing this gets the new key.
+* `key_id` - (Optional, String) The globally unique identifier for the key. Changing this gets the new key.
 
-* `default_key_flag` - (Optional) Identification of a Master Key. The value "1" indicates a Default
+* `default_key_flag` - (Optional, String) Identification of a Master Key. The value "1" indicates a Default
     Master Key, and the value "0" indicates a key. Changing this gets a new key.
 
-* `key_state` - (Optional) The state of a key. "1" indicates that the key is waiting to be activated.
+* `key_state` - (Optional, String) The state of a key. "1" indicates that the key is waiting to be activated.
     "2" indicates that the key is enabled. "3" indicates that the key is disabled. "4" indicates that
     the key is scheduled for deletion. Changing this gets a new key.
 
-* `domain_id` - (Optional)  - ID of a user domain for the key. Changing this gets a new key.
+* `domain_id` - (Optional, String)  - ID of a user domain for the key. Changing this gets a new key.
 
-* `enterprise_project_id` - (Optional) The enterprise project id of the kms key.
+* `enterprise_project_id` - (Optional, String) The enterprise project id of the kms key.
 
 
 ## Attributes Reference

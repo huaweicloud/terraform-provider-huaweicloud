@@ -17,15 +17,15 @@ data "huaweicloud_networking_secgroup" "secgroup" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the V2 Neutron client.
+* `region` - (Optional, String) The region in which to obtain the V2 Neutron client.
   A Neutron client is needed to retrieve security groups ids. If omitted, the
   `region` argument of the provider is used.
 
-* `secgroup_id` - (Optional) The ID of the security group.
+* `secgroup_id` - (Optional, String) The ID of the security group.
 
-* `name` - (Optional) The name of the security group.
+* `name` - (Optional, String) The name of the security group.
 
-* `tenant_id` - (Optional) The owner of the security group.
+* `tenant_id` - (Optional, String) The owner of the security group.
 
 ## Attributes Reference
 

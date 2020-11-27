@@ -19,28 +19,27 @@ data "huaweicloud_images_image" "ubuntu" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the images. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the images. If omitted, the provider-level region will be used.
 
-* `most_recent` - (Optional) If more than one result is returned, use the most
-  recent image.
+* `most_recent` - (Optional, Bool) If more than one result is returned, use the most recent image.
 
-* `name` - (Optional) The name of the image.
+* `name` - (Optional, String) The name of the image.
 
-* `owner` - (Optional) The owner (UUID) of the image.
+* `owner` - (Optional, String) The owner (UUID) of the image.
 
-* `size_min` - (Optional) The minimum size (in bytes) of the image to return.
+* `size_min` - (Optional, Int) The minimum size (in bytes) of the image to return.
 
-* `size_max` - (Optional) The maximum size (in bytes) of the image to return.
+* `size_max` - (Optional, Int) The maximum size (in bytes) of the image to return.
 
-* `sort_direction` - (Optional) Order the results in either `asc` or `desc`.
+* `sort_direction` - (Optional, String) Order the results in either `asc` or `desc`.
 
-* `sort_key` - (Optional) Sort images based on a certain key. Must be one of
+* `sort_key` - (Optional, String) Sort images based on a certain key. Must be one of
    "name", "container_format", "disk_format", "status", "id" or "size".
    Defaults to `name`.
 
-* `tag` - (Optional) Search for images with a specific tag.
+* `tag` - (Optional, String) Search for images with a specific tag.
 
-* `visibility` - (Optional) The visibility of the image. Must be one of
+* `visibility` - (Optional, String) The visibility of the image. Must be one of
    "public", "private", "community", or "shared". Defaults to `private`.
 
 
