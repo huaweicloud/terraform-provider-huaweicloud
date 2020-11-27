@@ -15,129 +15,146 @@ var osMutexKV = mutexkv.NewMutexKV()
 func Provider() terraform.ResourceProvider {
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  descriptions["region"],
+				InputDefault: "cn-north-1",
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_REGION_NAME",
+					"OS_REGION_NAME",
+				}, nil),
+			},
+
 			"access_key": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				DefaultFunc:  schema.EnvDefaultFunc("OS_ACCESS_KEY", nil),
 				Description:  descriptions["access_key"],
 				RequiredWith: []string{"secret_key"},
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_ACCESS_KEY",
+					"OS_ACCESS_KEY",
+				}, nil),
 			},
 
 			"secret_key": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				DefaultFunc:  schema.EnvDefaultFunc("OS_SECRET_KEY", nil),
 				Description:  descriptions["secret_key"],
 				RequiredWith: []string{"access_key"},
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_SECRET_KEY",
+					"OS_SECRET_KEY",
+				}, nil),
 			},
 
-			"auth_url": {
-				Type:     schema.TypeString,
-				Optional: true,
-				DefaultFunc: schema.EnvDefaultFunc(
-					"OS_AUTH_URL", "https://iam.myhuaweicloud.com:443/v3"),
-				Description: descriptions["auth_url"],
+			"domain_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["domain_id"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_DOMAIN_ID",
+					"OS_DOMAIN_ID",
+					"OS_USER_DOMAIN_ID",
+					"OS_PROJECT_DOMAIN_ID",
+				}, ""),
 			},
 
-			"region": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  descriptions["region"],
-				DefaultFunc:  schema.EnvDefaultFunc("OS_REGION_NAME", nil),
-				InputDefault: "cn-north-1",
+			"domain_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["domain_name"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_DOMAIN_NAME",
+					"OS_DOMAIN_NAME",
+					"OS_USER_DOMAIN_NAME",
+					"OS_PROJECT_DOMAIN_NAME",
+				}, ""),
 			},
 
 			"user_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_USERNAME", ""),
 				Description: descriptions["user_name"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_USER_NAME",
+					"OS_USERNAME",
+				}, ""),
 			},
 
 			"user_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_USER_ID", ""),
-				Description: descriptions["user_name"],
-			},
-
-			"project_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_PROJECT_ID", nil),
-				Description: descriptions["project_id"],
-			},
-
-			"project_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_PROJECT_NAME", nil),
-				Description: descriptions["project_name"],
-			},
-
-			"tenant_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: descriptions["user_id"],
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-					"OS_TENANT_ID",
-					"OS_PROJECT_ID",
+					"HW_USER_ID",
+					"OS_USER_ID",
 				}, ""),
-				Description: descriptions["tenant_id"],
-			},
-
-			"tenant_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-					"OS_TENANT_NAME",
-					"OS_PROJECT_NAME",
-				}, ""),
-				Description: descriptions["tenant_name"],
 			},
 
 			"password": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Sensitive:   true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_PASSWORD", ""),
 				Description: descriptions["password"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_USER_PASSWORD",
+					"OS_PASSWORD",
+				}, ""),
+			},
+
+			"project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["project_id"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_PROJECT_ID",
+					"OS_PROJECT_ID",
+				}, nil),
+			},
+
+			"project_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["project_name"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_PROJECT_NAME",
+					"OS_PROJECT_NAME",
+				}, nil),
+			},
+
+			"tenant_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["tenant_id"],
+				DefaultFunc: schema.EnvDefaultFunc("OS_TENANT_ID", ""),
+			},
+
+			"tenant_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["tenant_name"],
+				DefaultFunc: schema.EnvDefaultFunc("OS_TENANT_NAME", ""),
 			},
 
 			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_AUTH_TOKEN", ""),
 				Description: descriptions["token"],
-			},
-
-			"domain_id": {
-				Type:     schema.TypeString,
-				Optional: true,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-					"OS_USER_DOMAIN_ID",
-					"OS_PROJECT_DOMAIN_ID",
-					"OS_DOMAIN_ID",
+					"HW_AUTH_TOKEN",
+					"OS_AUTH_TOKEN",
 				}, ""),
-				Description: descriptions["domain_id"],
-			},
-
-			"domain_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-					"OS_USER_DOMAIN_NAME",
-					"OS_PROJECT_DOMAIN_NAME",
-					"OS_DOMAIN_NAME",
-					"OS_DEFAULT_DOMAIN",
-				}, ""),
-				Description: descriptions["domain_name"],
 			},
 
 			"insecure": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_INSECURE", false),
 				Description: descriptions["insecure"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_INSECURE",
+					"OS_INSECURE",
+				}, false),
 			},
 
 			"cacert_file": {
@@ -176,6 +193,7 @@ func Provider() terraform.ResourceProvider {
 				Description:  descriptions["agency_domain_name"],
 				RequiredWith: []string{"agency_name"},
 			},
+
 			"delegated_project": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -183,25 +201,36 @@ func Provider() terraform.ResourceProvider {
 				Description: descriptions["delegated_project"],
 			},
 
+			"auth_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["auth_url"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_AUTH_URL",
+					"OS_AUTH_URL",
+				}, "https://iam.myhuaweicloud.com:443/v3"),
+			},
+
 			"cloud": {
-				Type:     schema.TypeString,
-				Optional: true,
-				DefaultFunc: schema.EnvDefaultFunc(
-					"OS_CLOUD", "myhuaweicloud.com"),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: descriptions["cloud"],
+				DefaultFunc: schema.EnvDefaultFunc(
+					"HW_CLOUD", "myhuaweicloud.com"),
+			},
+
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["enterprise_project_id"],
+				DefaultFunc: schema.EnvDefaultFunc("HW_ENTERPRISE_PROJECT_ID", ""),
 			},
 
 			"max_retries": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     5,
 				Description: descriptions["max_retries"],
-			},
-			"enterprise_project_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_ENTERPRISE_PROJECT_ID", ""),
-				Description: descriptions["enterprise_project_id"],
+				DefaultFunc: schema.EnvDefaultFunc("HW_MAX_RETRIES", 5),
 			},
 		},
 
@@ -543,19 +572,17 @@ func init() {
 
 		"project_name": "The name of the project to login with.",
 
-		"tenant_id": "The ID of the Tenant (Identity v2) or Project (Identity v3)\n" +
-			"to login with.",
+		"tenant_id": "The ID of the Tenant (Identity v2) to login with.",
 
-		"tenant_name": "The name of the Tenant (Identity v2) or Project (Identity v3)\n" +
-			"to login with.",
+		"tenant_name": "The name of the Tenant (Identity v2) to login with.",
 
 		"password": "Password to login with.",
 
 		"token": "Authentication token to use as an alternative to username/password.",
 
-		"domain_id": "The ID of the Domain to scope to (Identity v3).",
+		"domain_id": "The ID of the Domain to scope to.",
 
-		"domain_name": "The name of the Domain to scope to (Identity v3).",
+		"domain_name": "The name of the Domain to scope to.",
 
 		"insecure": "Trust self-signed certificates.",
 
