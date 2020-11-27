@@ -43,27 +43,17 @@ The following arguments are supported:
 
 * `region` - (Optional) The region in which to create the cs peering connection resource. If omitted, the provider-level region will be used. Changing this creates a new cs peering connection resource.
 
-* `cluster_id` -
-  (Required)
-  The id of cloud stream cluster. Changing this parameter will create a new resource.
+* `cluster_id` - (Required) The id of cloud stream cluster. Changing this parameter will create a new resource.
 
-* `name` -
-  (Required)
-  The name of peering connection. Changing this parameter will create a new resource.
+* `name` - (Required) The name of peering connection. Changing this parameter will create a new resource.
 
-* `target_vpc_info` -
-  (Optional)
-  The information of target vpc. Structure is documented below. Changing this parameter will create a new resource.
+* `target_vpc_info` - (Optional) The information of target vpc. Structure is documented below. Changing this parameter will create a new resource.
 
 The `target_vpc_info` block supports:
 
-* `project_id` -
-  (Optional)
-  The project ID to which target vpc belongs. Changing this parameter will create a new resource.
+* `project_id` - (Optional) The project ID to which target vpc belongs. Changing this parameter will create a new resource.
 
-* `vpc_id` -
-  (Required)
-  The VPC ID. Changing this parameter will create a new resource.
+* `vpc_id` - (Required) The VPC ID. Changing this parameter will create a new resource.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

@@ -23,42 +23,27 @@ The following arguments are supported:
 
 * `region` - (Optional) The region in which to create the cloud stream service cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cloud stream service cluster resource.
 
-* `name` -
-  (Required)
-  Cluster name.
+* `name` - (Required) Cluster name.
 
-* `description` -
-  (Optional)
-  cluster description.
+* `description` - (Optional) cluster description.
 
-* `max_spu_num` -
-  (Optional)
-  Cluster maximum SPU number.
+* `max_spu_num` - (Optional) Cluster maximum SPU number.
 
-* `subnet_cidr` -
-  (Optional)
-  Cluster sub segment. Changing this parameter will create a new resource.
+* `subnet_cidr` - (Optional) Cluster sub segment. Changing this parameter will create a new resource.
 
-* `subnet_gateway` -
-  (Optional)
-  Cluster subnet gateway. Changing this parameter will create a new resource.
+* `subnet_gateway` - (Optional) Cluster subnet gateway. Changing this parameter will create a new resource.
 
-* `vpc_cidr` -
-  (Optional)
-  Cluster VPC network segment. Changing this parameter will create a new resource.
+* `vpc_cidr` - (Optional) Cluster VPC network segment. Changing this parameter will create a new resource.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `created_at` -
-  Cluster creation time.
+* `created_at` - Cluster creation time.
 
-* `manager_node_spu_num` -
-  Cluster management node SPU number.
+* `manager_node_spu_num` - Cluster management node SPU number.
 
-* `used_spu_num` -
-  The used SPU number of Cluster.
+* `used_spu_num` - The used SPU number of Cluster.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
