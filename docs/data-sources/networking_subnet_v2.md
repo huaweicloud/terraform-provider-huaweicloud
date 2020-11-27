@@ -18,27 +18,27 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the V2 Neutron client.
+* `region` - (Optional, String) The region in which to obtain the V2 Neutron client.
   A Neutron client is needed to retrieve subnet ids. If omitted, the
   `region` argument of the provider is used.
 
-* `name` - (Optional) The name of the subnet.
+* `name` - (Optional, String) The name of the subnet.
 
-* `dhcp_enabled` - (Optional) If the subnet has DHCP enabled.
+* `dhcp_enabled` - (Optional, Bool) If the subnet has DHCP enabled.
 
-* `dhcp_disabled` - (Optional) If the subnet has DHCP disabled.
+* `dhcp_disabled` - (Optional, Bool) If the subnet has DHCP disabled.
 
-* `ip_version` - (Optional) The IP version of the subnet (either 4 or 6).
+* `ip_version` - (Optional, Int) The IP version of the subnet (either 4 or 6).
 
-* `gateway_ip` - (Optional) The IP of the subnet's gateway.
+* `gateway_ip` - (Optional, String) The IP of the subnet's gateway.
 
-* `cidr` - (Optional) The CIDR of the subnet.
+* `cidr` - (Optional, String) The CIDR of the subnet.
 
-* `subnet_id` - (Optional) The ID of the subnet.
+* `subnet_id` - (Optional, String) The ID of the subnet.
 
-* `network_id` - (Optional) The ID of the network the subnet belongs to.
+* `network_id` - (Optional, String) The ID of the network the subnet belongs to.
 
-* `tenant_id` - (Optional) The owner of the subnet.
+* `tenant_id` - (Optional, String) The owner of the subnet.
 
 ## Attributes Reference
 

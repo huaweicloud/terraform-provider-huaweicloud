@@ -22,11 +22,11 @@ data "huaweicloud_sfs_file_sharing" "shared_file" {
 ## Argument Reference
 The following arguments are supported:
 
-* `name` - (Optional) The name of the shared file system.
+* `name` - (Optional, String) The name of the shared file system.
 
-* `id` - (Optional) The UUID of the shared file system.
+* `id` - (Optional, String) The UUID of the shared file system.
 
-* `status` - (Optional) The status of the shared file system.
+* `status` - (Optional, String) The status of the shared file system.
 
 
 ## Attributes Reference

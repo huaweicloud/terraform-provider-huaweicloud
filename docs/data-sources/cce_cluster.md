@@ -22,15 +22,15 @@ data "huaweicloud_cce_cluster" "cluster" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the cce clusters. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the cce clusters. If omitted, the provider-level region will be used.
 
-* `name` -  (Optional)The Name of the cluster resource.
+* `name` -  (Optional, String)The Name of the cluster resource.
  
-* `id` - (Optional) The ID of container cluster.
+* `id` - (Optional, String) The ID of container cluster.
 
-* `status` - (Optional) The state of the cluster.
+* `status` - (Optional, String) The state of the cluster.
 
-* `cluster_type` - (Optional) Type of the cluster. Possible values: VirtualMachine, BareMetal.
+* `cluster_type` - (Optional, String) Type of the cluster. Possible values: VirtualMachine, BareMetal.
 
 ## Attributes Reference
 

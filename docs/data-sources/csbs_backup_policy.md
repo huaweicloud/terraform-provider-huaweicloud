@@ -24,13 +24,13 @@ data "huaweicloud_csbs_backup_policy" "csbs_policy" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the CSBS backup policies. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the CSBS backup policies. If omitted, the provider-level region will be used.
 
-* `id` - (Optional) Specifies the ID of backup policy.
+* `id` - (Optional, String) Specifies the ID of backup policy.
 
-* `name` - (Optional) Specifies the backup policy name.
+* `name` - (Optional, String) Specifies the backup policy name.
 
-* `status` - (Optional) Specifies the backup policy status.
+* `status` - (Optional, String) Specifies the backup policy status.
 
 ## Attributes Reference
 

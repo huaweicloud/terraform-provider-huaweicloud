@@ -27,19 +27,21 @@ data "huaweicloud_vbs_backup_policy" "policies" {
 The arguments of this data source act as filters for querying the available VBS backup policy.
 The given filters must match exactly one VBS backup policy whose data will be exported as attributes.
 
-* `region` - (Optional) The region in which to obtain the VBS backup policy. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the VBS backup policy. If omitted, the provider-level region will be used.
 
-* `id` (Optional) - The ID of the specific VBS backup policy to retrieve.
+* `id` - (Optional, String) The ID of the specific VBS backup policy to retrieve.
 
-* `name` (Optional) - The name of the specific VBS backup policy to retrieve.
+* `name` - (Optional, String) The name of the specific VBS backup policy to retrieve.
 
-* `status` (Optional) - The status of the specific VBS backup policy to retrieve. The values can be ON or OFF
+* `status` - (Optional, String) The status of the specific VBS backup policy to retrieve. The values can be ON or OFF
 
-**filter_tags** **- (Optional)** Represents the list of tags. Backup policy with these tags will be filtered.
+* `filter_tags` - (Optional, List) Represents the list of tags. Backup policy with these tags will be filtered.
 
-* `key` - (Required) Specifies the tag key. Tag keys must be unique.
+The `filter_tags` block supports:
 
-* `values` - (Required) Specifies the List of tag values. This list can have a maximum of 10 values and all be unique.
+* `key` - (Required, String) Specifies the tag key. Tag keys must be unique.
+
+* `values` - (Required, List) Specifies the List of tag values. This list can have a maximum of 10 values and all be unique.
 
 ## Attributes Reference
 
@@ -53,7 +55,9 @@ The following attributes are exported:
 
 * `frequency` - Specifies the backup interval. The value is in the range of 1 to 14 days.
 
-**tags** - Represents the list of tag details associated with the backup policy.
+* `tags` - Represents the list of tag details associated with the backup policy.
+
+The `tags` block contains:
 
 * `key` - Specifies the tag key. 
 
