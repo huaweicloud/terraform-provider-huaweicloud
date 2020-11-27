@@ -44,7 +44,7 @@ func TestAccKmsKeyV1DataSource_WithEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_kms_key_v1.key1", "key_alias", keyAlias_epsId),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloud_kms_key_v1.key1", "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
+						"data.huaweicloud_kms_key_v1.key1", "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -100,4 +100,4 @@ data "huaweicloud_kms_key_v1" "key1" {
   key_state       = "2"
   enterprise_project_id = huaweicloud_kms_key_v1.key1.enterprise_project_id
 }
-`, keyAlias_epsId, OS_ENTERPRISE_PROJECT_ID_TEST)
+`, keyAlias_epsId, HW_ENTERPRISE_PROJECT_ID_TEST)

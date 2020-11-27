@@ -31,7 +31,7 @@ func TestAccASV1Configuration_basic(t *testing.T) {
 
 func testAccCheckASV1ConfigurationDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	asClient, err := config.autoscalingV1Client(OS_REGION_NAME)
+	asClient, err := config.autoscalingV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 	}
@@ -64,7 +64,7 @@ func testAccCheckASV1ConfigurationExists(n string, configuration *configurations
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		asClient, err := config.autoscalingV1Client(OS_REGION_NAME)
+		asClient, err := config.autoscalingV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 		}
@@ -102,4 +102,4 @@ resource "huaweicloud_as_configuration_v1" "hth_as_config"{
     key_name = "${huaweicloud_compute_keypair_v2.hth_key.id}"
   }
 }
-`, OS_IMAGE_ID)
+`, HW_IMAGE_ID)

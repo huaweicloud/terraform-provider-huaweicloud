@@ -32,7 +32,7 @@ func TestAccCCINetworkV1_basic(t *testing.T) {
 
 func testAccCheckCCINetworkV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	cciClient, err := config.cciV1Client(OS_REGION_NAME)
+	cciClient, err := config.cciV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
 	}
@@ -63,7 +63,7 @@ func testAccCheckCCINetworkV1Exists(n string, network *networks.Network) resourc
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		cciClient, err := config.cciV1Client(OS_REGION_NAME)
+		cciClient, err := config.cciV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
 		}
@@ -95,4 +95,4 @@ resource "huaweicloud_cci_network_v1" "net_1" {
   subnet_id = "%s"
   available_zone = "cn-north-1a"
   cidr = "192.168.0.0/24"
-}`, OS_TENANT_ID, OS_DOMAIN_ID, OS_VPC_ID, OS_NETWORK_ID, OS_SUBNET_ID)
+}`, HW_PROJECT_ID, HW_DOMAIN_ID, HW_VPC_ID, HW_NETWORK_ID, HW_SUBNET_ID)

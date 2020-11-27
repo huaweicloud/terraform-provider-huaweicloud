@@ -58,7 +58,7 @@ func TestAccNetworkingV2Router_updateExternalGateway(t *testing.T) {
 				Config: testAccNetworkingV2Router_updateExternalGateway2,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"huaweicloud_networking_router_v2.router_1", "external_network_id", OS_EXTGW_ID),
+						"huaweicloud_networking_router_v2.router_1", "external_network_id", HW_EXTGW_ID),
 				),
 			},
 		},
@@ -85,7 +85,7 @@ func TestAccNetworkingV2Router_timeout(t *testing.T) {
 
 func testAccCheckNetworkingV2RouterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -116,7 +116,7 @@ func testAccCheckNetworkingV2RouterExists(n string, router *routers.Router) reso
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -167,7 +167,7 @@ resource "huaweicloud_networking_router_v2" "router_1" {
 	distributed = "false"
 	external_network_id = "%s"
 }
-`, OS_EXTGW_ID)
+`, HW_EXTGW_ID)
 
 const testAccNetworkingV2Router_timeout = `
 resource "huaweicloud_networking_router_v2" "router_1" {

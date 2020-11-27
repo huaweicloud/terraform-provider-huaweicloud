@@ -45,4 +45,4 @@ data "huaweicloud_dcs_az_v1" "az1" {
   code = "%s"
   port = "8002"
 }
-`, OS_AVAILABILITY_ZONE)
+`, HW_AVAILABILITY_ZONE)

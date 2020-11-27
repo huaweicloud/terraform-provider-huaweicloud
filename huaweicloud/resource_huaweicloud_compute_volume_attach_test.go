@@ -71,7 +71,7 @@ func TestAccComputeV2VolumeAttach_timeout(t *testing.T) {
 
 func testAccCheckComputeV2VolumeAttachDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	computeClient, err := config.computeV2Client(OS_REGION_NAME)
+	computeClient, err := config.computeV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -107,7 +107,7 @@ func testAccCheckComputeV2VolumeAttachExists(n string, va *volumeattach.VolumeAt
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		computeClient, err := config.computeV2Client(OS_REGION_NAME)
+		computeClient, err := config.computeV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
@@ -165,7 +165,7 @@ resource "huaweicloud_compute_volume_attach" "va_1" {
   instance_id = "${huaweicloud_compute_instance.instance_1.id}"
   volume_id = "${huaweicloud_evs_volume.test.id}"
 }
-`, OS_AVAILABILITY_ZONE, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
 
 var testAccComputeV2VolumeAttach_device = fmt.Sprintf(`
 resource "huaweicloud_evs_volume" "test" {
@@ -189,7 +189,7 @@ resource "huaweicloud_compute_volume_attach" "va_1" {
   volume_id = "${huaweicloud_evs_volume.test.id}"
   device = "/dev/vdb"
 }
-`, OS_AVAILABILITY_ZONE, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
 
 var testAccComputeV2VolumeAttach_timeout = fmt.Sprintf(`
 resource "huaweicloud_evs_volume" "test" {
@@ -217,4 +217,4 @@ resource "huaweicloud_compute_volume_attach" "va_1" {
     delete = "5m"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)

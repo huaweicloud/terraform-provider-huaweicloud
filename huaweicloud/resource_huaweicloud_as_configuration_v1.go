@@ -47,7 +47,7 @@ func resourceASConfiguration() *schema.Resource {
 						"flavor": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							DefaultFunc: schema.EnvDefaultFunc("OS_FLAVOR_ID", nil),
+							DefaultFunc: schema.EnvDefaultFunc("HW_FLAVOR_ID", nil),
 						},
 						"image": {
 							Type:     schema.TypeString,

@@ -58,7 +58,7 @@ func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
 					testAccCheckNetworkingV2SecGroupExists(
 						"huaweicloud_networking_secgroup.secgroup_1", &security_group),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_networking_secgroup.secgroup_1", "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
+						"huaweicloud_networking_secgroup.secgroup_1", "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -106,7 +106,7 @@ func TestAccNetworkingV2SecGroup_timeout(t *testing.T) {
 
 func testAccCheckNetworkingV2SecGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -137,7 +137,7 @@ func testAccCheckNetworkingV2SecGroupExists(n string, security_group *groups.Sec
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -183,7 +183,7 @@ func testAccNetworkingV2SecGroup_epsId() string {
 	  description = "terraform security group acceptance test"
 	  enterprise_project_id = "%s"
 	}
-	`, OS_ENTERPRISE_PROJECT_ID_TEST)
+	`, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 const testAccNetworkingV2SecGroup_update = `

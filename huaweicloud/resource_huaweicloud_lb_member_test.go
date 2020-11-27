@@ -40,7 +40,7 @@ func TestAccLBV2Member_basic(t *testing.T) {
 
 func testAccCheckLBV2MemberDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	elbClient, err := config.elbV2Client(OS_REGION_NAME)
+	elbClient, err := config.elbV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -72,7 +72,7 @@ func testAccCheckLBV2MemberExists(n string, member *pools.Member) resource.TestC
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		elbClient, err := config.elbV2Client(OS_REGION_NAME)
+		elbClient, err := config.elbV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
@@ -138,7 +138,7 @@ resource "huaweicloud_lb_member" "member_2" {
     delete = "5m"
   }
 }
-`, OS_SUBNET_ID, OS_SUBNET_ID, OS_SUBNET_ID)
+`, HW_SUBNET_ID, HW_SUBNET_ID, HW_SUBNET_ID)
 
 var TestAccLBV2MemberConfig_update = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
@@ -189,4 +189,4 @@ resource "huaweicloud_lb_member" "member_2" {
     delete = "5m"
   }
 }
-`, OS_SUBNET_ID, OS_SUBNET_ID, OS_SUBNET_ID)
+`, HW_SUBNET_ID, HW_SUBNET_ID, HW_SUBNET_ID)

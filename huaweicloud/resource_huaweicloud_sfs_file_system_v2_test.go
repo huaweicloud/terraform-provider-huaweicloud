@@ -67,7 +67,7 @@ func TestAccSFSFileSystemV2_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSFileSystemV2Exists(resourceName, &share),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -105,7 +105,7 @@ func TestAccSFSFileSystemV2_withoutRule(t *testing.T) {
 
 func testAccCheckSFSFileSystemV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	sfsClient, err := config.sfsV2Client(OS_REGION_NAME)
+	sfsClient, err := config.sfsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud sfs client: %s", err)
 	}
@@ -136,7 +136,7 @@ func testAccCheckSFSFileSystemV2Exists(n string, share *shares.Share) resource.T
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		sfsClient, err := config.sfsV2Client(OS_REGION_NAME)
+		sfsClient, err := config.sfsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud sfs client: %s", err)
 		}
@@ -203,7 +203,7 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
   enterprise_project_id = "%s"
 }
-`, rName, rName, OS_ENTERPRISE_PROJECT_ID_TEST)
+`, rName, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccSFSFileSystemV2_update(rName, updateName string) string {

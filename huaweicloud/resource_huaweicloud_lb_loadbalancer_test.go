@@ -98,7 +98,7 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 
 func testAccCheckLBV2LoadBalancerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	elbClient, err := config.elbV2Client(OS_REGION_NAME)
+	elbClient, err := config.elbV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -130,7 +130,7 @@ func testAccCheckLBV2LoadBalancerExists(
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		elbClient, err := config.elbV2Client(OS_REGION_NAME)
+		elbClient, err := config.elbV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -154,7 +154,7 @@ func testAccCheckLBV2LoadBalancerHasSecGroup(
 	lb *loadbalancers.LoadBalancer, sg *groups.SecGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -190,7 +190,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
     delete = "5m"
   }
 }
-`, OS_SUBNET_ID)
+`, HW_SUBNET_ID)
 
 var testAccLBV2LoadBalancerConfig_update = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
@@ -209,7 +209,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
     delete = "5m"
   }
 }
-`, OS_SUBNET_ID)
+`, HW_SUBNET_ID)
 
 var testAccLBV2LoadBalancer_secGroup = fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
@@ -229,7 +229,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
     huaweicloud_networking_secgroup.secgroup_1.id
   ]
 }
-`, OS_SUBNET_ID)
+`, HW_SUBNET_ID)
 
 var testAccLBV2LoadBalancer_secGroup_update1 = fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
@@ -250,7 +250,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
     huaweicloud_networking_secgroup.secgroup_2.id
   ]
 }
-`, OS_SUBNET_ID)
+`, HW_SUBNET_ID)
 
 var testAccLBV2LoadBalancer_secGroup_update2 = fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
@@ -270,4 +270,4 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
     huaweicloud_networking_secgroup.secgroup_2.id
   ]
 }
-`, OS_SUBNET_ID)
+`, HW_SUBNET_ID)

@@ -158,7 +158,7 @@ func TestAccImagesImageV2_timeout(t *testing.T) {
 
 func testAccCheckImagesImageV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	imageClient, err := config.imageV2Client(OS_REGION_NAME)
+	imageClient, err := config.imageV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 	}
@@ -189,7 +189,7 @@ func testAccCheckImagesImageV2Exists(n string, image *images.Image) resource.Tes
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		imageClient, err := config.imageV2Client(OS_REGION_NAME)
+		imageClient, err := config.imageV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
@@ -221,7 +221,7 @@ func testAccCheckImagesImageV2HasTag(n, tag string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		imageClient, err := config.imageV2Client(OS_REGION_NAME)
+		imageClient, err := config.imageV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
@@ -257,7 +257,7 @@ func testAccCheckImagesImageV2TagCount(n string, expected int) resource.TestChec
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		imageClient, err := config.imageV2Client(OS_REGION_NAME)
+		imageClient, err := config.imageV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}

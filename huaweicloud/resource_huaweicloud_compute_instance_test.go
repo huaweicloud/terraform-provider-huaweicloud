@@ -60,7 +60,7 @@ func TestAccComputeV2Instance_disks(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_compute_instance.instance_1", "availability_zone", OS_AVAILABILITY_ZONE),
+						"huaweicloud_compute_instance.instance_1", "availability_zone", HW_AVAILABILITY_ZONE),
 				),
 			},
 		},
@@ -275,7 +275,7 @@ func TestAccComputeV2Instance_stopBeforeDestroy(t *testing.T) {
 
 func testAccCheckComputeV2InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	computeClient, err := config.computeV2Client(OS_REGION_NAME)
+	computeClient, err := config.computeV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -308,7 +308,7 @@ func testAccCheckComputeV2InstanceExists(n string, instance *servers.Server) res
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		computeClient, err := config.computeV2Client(OS_REGION_NAME)
+		computeClient, err := config.computeV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
@@ -331,7 +331,7 @@ func testAccCheckComputeV2InstanceExists(n string, instance *servers.Server) res
 func testAccCheckComputeV2InstanceDoesNotExist(n string, instance *servers.Server) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		computeClient, err := config.computeV2Client(OS_REGION_NAME)
+		computeClient, err := config.computeV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
@@ -352,7 +352,7 @@ func testAccCheckComputeV2InstanceTags(
 	instance *servers.Server, k, v string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.computeV1Client(OS_REGION_NAME)
+		client, err := config.computeV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 		}
@@ -378,7 +378,7 @@ func testAccCheckComputeV2InstanceNoTags(
 	instance *servers.Server) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.computeV1Client(OS_REGION_NAME)
+		client, err := config.computeV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 		}
@@ -402,7 +402,7 @@ func testAccCheckComputeV2InstanceBootVolumeAttachment(
 		var attachments []volumeattach.VolumeAttachment
 
 		config := testAccProvider.Meta().(*Config)
-		computeClient, err := config.computeV2Client(OS_REGION_NAME)
+		computeClient, err := config.computeV2Client(HW_REGION_NAME)
 		if err != nil {
 			return err
 		}
@@ -484,7 +484,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
   period_unit = "month"
   period = 1
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
 
 func testAccComputeV2Instance_secgroupMulti(rName string) string {
 	return fmt.Sprintf(`
@@ -512,7 +512,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
     uuid = "%s"
   }
 }
-`, rName, rName, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, rName, rName, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
 }
 
 func testAccComputeV2Instance_secgroupMultiUpdate(rName string) string {
@@ -557,7 +557,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
     uuid = "%s"
   }
 }
-`, rName, rName, rName, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, rName, rName, rName, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
 }
 
 var testAccComputeV2Instance_bootFromVolumeImage = fmt.Sprintf(`
@@ -577,7 +577,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_IMAGE_ID, HW_NETWORK_ID)
 
 var testAccComputeV2Instance_bootFromVolumeVolume = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "vol_1" {
@@ -602,7 +602,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_IMAGE_ID, HW_AVAILABILITY_ZONE, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
 
 var testAccComputeV2Instance_bootFromVolumeForceNew_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance" "instance_1" {
@@ -621,7 +621,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_IMAGE_ID, HW_NETWORK_ID)
 
 var testAccComputeV2Instance_bootFromVolumeForceNew_2 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance" "instance_1" {
@@ -640,7 +640,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_IMAGE_ID, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_IMAGE_ID, HW_NETWORK_ID)
 
 var testAccComputeV2Instance_changeFixedIP_1 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance" "instance_1" {
@@ -652,7 +652,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
     fixed_ip_v4 = "192.168.0.24"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
 
 var testAccComputeV2Instance_changeFixedIP_2 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance" "instance_1" {
@@ -664,7 +664,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
     fixed_ip_v4 = "192.168.0.25"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
 
 var testAccComputeV2Instance_stopBeforeDestroy = fmt.Sprintf(`
 resource "huaweicloud_compute_instance" "instance_1" {
@@ -676,7 +676,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
 
 var testAccComputeV2Instance_tags = fmt.Sprintf(`
 resource "huaweicloud_compute_instance" "instance_1" {
@@ -691,7 +691,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
     key = "value"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
 
 var testAccComputeV2Instance_tags2 = fmt.Sprintf(`
 resource "huaweicloud_compute_instance" "instance_1" {
@@ -706,7 +706,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
     key = "value2"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
 
 var testAccComputeV2Instance_notags = fmt.Sprintf(`
 resource "huaweicloud_compute_instance" "instance_1" {
@@ -717,4 +717,4 @@ resource "huaweicloud_compute_instance" "instance_1" {
     uuid = "%s"
   }
 }
-`, OS_AVAILABILITY_ZONE, OS_NETWORK_ID)
+`, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)

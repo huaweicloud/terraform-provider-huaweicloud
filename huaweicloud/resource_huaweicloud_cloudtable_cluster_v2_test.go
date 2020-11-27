@@ -59,12 +59,12 @@ resource "huaweicloud_cloudtable_cluster_v2" "cluster" {
   vpc_id = "%s"
   storage_type = "COMMON"
 }
-	`, val, OS_AVAILABILITY_ZONE, val, OS_NETWORK_ID, OS_VPC_ID)
+	`, val, HW_AVAILABILITY_ZONE, val, HW_NETWORK_ID, HW_VPC_ID)
 }
 
 func testAccCheckCloudtableClusterV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.cloudtableV2Client(OS_REGION_NAME)
+	client, err := config.cloudtableV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -96,7 +96,7 @@ func testAccCheckCloudtableClusterV2Destroy(s *terraform.State) error {
 func testAccCheckCloudtableClusterV2Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.cloudtableV2Client(OS_REGION_NAME)
+		client, err := config.cloudtableV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}

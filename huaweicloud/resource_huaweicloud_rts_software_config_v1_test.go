@@ -59,7 +59,7 @@ func TestAccRtsSoftwareConfigV1_timeout(t *testing.T) {
 
 func testAccCheckRtsSoftwareConfigV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	orchestrationClient, err := config.orchestrationV1Client(OS_REGION_NAME)
+	orchestrationClient, err := config.orchestrationV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud orchestration client: %s", err)
 	}
@@ -90,7 +90,7 @@ func testAccCheckRtsSoftwareConfigV1Exists(n string, configs *softwareconfig.Sof
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		orchestrationClient, err := config.orchestrationV1Client(OS_REGION_NAME)
+		orchestrationClient, err := config.orchestrationV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud orchestration client: %s", err)
 		}

@@ -60,7 +60,7 @@ func TestAccNatGateway_withEpsId(t *testing.T) {
 				Config: testAccNatV2Gateway_epsId(randSuffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNatV2GatewayExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -69,7 +69,7 @@ func TestAccNatGateway_withEpsId(t *testing.T) {
 
 func testAccCheckNatV2GatewayDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	natClient, err := config.natGatewayV2Client(OS_REGION_NAME)
+	natClient, err := config.natGatewayV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
@@ -100,7 +100,7 @@ func testAccCheckNatV2GatewayExists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		natClient, err := config.natGatewayV2Client(OS_REGION_NAME)
+		natClient, err := config.natGatewayV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 		}
@@ -176,5 +176,5 @@ resource "huaweicloud_nat_gateway" "nat_1" {
   router_id             = huaweicloud_vpc.vpc_1.id
   enterprise_project_id = "%s"
 }
-	`, testAccNatPreCondition(suffix), suffix, OS_ENTERPRISE_PROJECT_ID_TEST)
+	`, testAccNatPreCondition(suffix), suffix, HW_ENTERPRISE_PROJECT_ID_TEST)
 }

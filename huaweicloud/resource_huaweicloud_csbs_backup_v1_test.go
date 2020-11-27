@@ -61,7 +61,7 @@ func TestAccCSBSBackupV1_timeout(t *testing.T) {
 
 func testAccCSBSBackupV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	backupClient, err := config.csbsV1Client(OS_REGION_NAME)
+	backupClient, err := config.csbsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating csbs client: %s", err)
 	}
@@ -92,7 +92,7 @@ func testAccCSBSBackupV1Exists(n string, backups *backup.Backup) resource.TestCh
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		backupClient, err := config.csbsV1Client(OS_REGION_NAME)
+		backupClient, err := config.csbsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating csbs client: %s", err)
 		}
@@ -133,7 +133,7 @@ resource "huaweicloud_csbs_backup" "csbs" {
   resource_id      = huaweicloud_compute_instance_v2.instance_1.id
   resource_type    = "OS::Nova::Server"
 }
-`, rName, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_FLAVOR_ID, OS_NETWORK_ID, rName)
+`, rName, HW_IMAGE_ID, HW_AVAILABILITY_ZONE, HW_FLAVOR_ID, HW_NETWORK_ID, rName)
 }
 
 func testAccCSBSBackupV1_timeout(rName string) string {
@@ -157,5 +157,5 @@ resource "huaweicloud_csbs_backup" "csbs" {
   resource_id      = huaweicloud_compute_instance_v2.instance_1.id
   resource_type    = "OS::Nova::Server"
 }
-`, rName, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_FLAVOR_ID, OS_NETWORK_ID, rName)
+`, rName, HW_IMAGE_ID, HW_AVAILABILITY_ZONE, HW_FLAVOR_ID, HW_NETWORK_ID, rName)
 }

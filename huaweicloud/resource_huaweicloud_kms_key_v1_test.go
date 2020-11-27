@@ -68,7 +68,7 @@ func TestAccKmsKeyV1_WithEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"huaweicloud_kms_key_v1.key_2", "key_alias", keyAlias),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_kms_key_v1.key_2", "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
+						"huaweicloud_kms_key_v1.key_2", "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -77,7 +77,7 @@ func TestAccKmsKeyV1_WithEpsId(t *testing.T) {
 
 func testAccCheckKmsV1KeyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	kmsClient, err := config.kmsKeyV1Client(OS_REGION_NAME)
+	kmsClient, err := config.kmsKeyV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud kms client: %s", err)
 	}
@@ -109,7 +109,7 @@ func testAccCheckKmsV1KeyExists(n string, key *keys.Key) resource.TestCheckFunc 
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		kmsClient, err := config.kmsKeyV1Client(OS_REGION_NAME)
+		kmsClient, err := config.kmsKeyV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud kms client: %s", err)
 		}
@@ -190,7 +190,7 @@ func testAccKmsV1Key_epsId(keyAlias string) string {
 			pending_days = "7"
 			enterprise_project_id = "%s"
 		}
-	`, keyAlias, OS_ENTERPRISE_PROJECT_ID_TEST)
+	`, keyAlias, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccKmsV1Key_update(keyAliasUpdate string) string {

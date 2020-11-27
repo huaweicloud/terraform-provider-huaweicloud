@@ -53,7 +53,7 @@ func TestAccDcsInstancesV1_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDcsV1InstanceExists(resourceName, instance),
 					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -111,7 +111,7 @@ func TestAccDcsInstancesV1_tiny(t *testing.T) {
 
 func testAccCheckDcsV1InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	dcsClient, err := config.dcsV1Client(OS_REGION_NAME)
+	dcsClient, err := config.dcsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud instance client: %s", err)
 	}
@@ -141,7 +141,7 @@ func testAccCheckDcsV1InstanceExists(n string, instance instances.Instance) reso
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		dcsClient, err := config.dcsV1Client(OS_REGION_NAME)
+		dcsClient, err := config.dcsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud instance client: %s", err)
 		}
@@ -191,7 +191,7 @@ func testAccDcsV1Instance_basic(instanceName string) string {
 	    owner = "terraform"
 	  }
 	}
-	`, OS_AVAILABILITY_ZONE, instanceName, OS_VPC_ID, OS_NETWORK_ID)
+	`, HW_AVAILABILITY_ZONE, instanceName, HW_VPC_ID, HW_NETWORK_ID)
 }
 
 func testAccDcsV1Instance_epsId(instanceName string) string {
@@ -222,7 +222,7 @@ func testAccDcsV1Instance_epsId(instanceName string) string {
 	  backup_at         = [1]
 	  enterprise_project_id = "%s"
 	}
-	`, OS_AVAILABILITY_ZONE, instanceName, OS_VPC_ID, OS_NETWORK_ID, OS_ENTERPRISE_PROJECT_ID_TEST)
+	`, HW_AVAILABILITY_ZONE, instanceName, HW_VPC_ID, HW_NETWORK_ID, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccDcsV1Instance_tiny(instanceName string) string {
@@ -247,7 +247,7 @@ func testAccDcsV1Instance_tiny(instanceName string) string {
 	  period_type       = "weekly"
 	  backup_at         = [1]
 	}
-	`, OS_AVAILABILITY_ZONE, instanceName, OS_VPC_ID, OS_NETWORK_ID)
+	`, HW_AVAILABILITY_ZONE, instanceName, HW_VPC_ID, HW_NETWORK_ID)
 }
 
 func testAccDcsV1Instance_whitelists(instanceName string) string {
@@ -281,5 +281,5 @@ func testAccDcsV1Instance_whitelists(instanceName string) string {
 		ip_address = ["172.16.10.100", "172.16.0.0/24"]
 	  }
 	}
-	`, OS_AVAILABILITY_ZONE, instanceName, OS_VPC_ID, OS_NETWORK_ID)
+	`, HW_AVAILABILITY_ZONE, instanceName, HW_VPC_ID, HW_NETWORK_ID)
 }

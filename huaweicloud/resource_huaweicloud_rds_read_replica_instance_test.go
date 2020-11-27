@@ -58,7 +58,7 @@ func TestAccRdsReadReplicaInstance_basic(t *testing.T) {
 
 func testAccCheckRdsReplicaInstanceV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.RdsV3Client(OS_REGION_NAME)
+	client, err := config.RdsV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud rds client: %s", err)
 	}
@@ -94,7 +94,7 @@ func testAccCheckRdsReplicaInstanceV3Exists(n string, instance *instances.RdsIns
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.RdsV3Client(OS_REGION_NAME)
+		client, err := config.RdsV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud rds client: %s", err)
 		}
@@ -163,7 +163,7 @@ resource "huaweicloud_rds_read_replica_instance" "replica_instance" {
     foo = "bar"
   }
 }
-`, val, OS_AVAILABILITY_ZONE, OS_VPC_ID, OS_NETWORK_ID, OS_ENTERPRISE_PROJECT_ID_TEST, val, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID_TEST)
+`, val, HW_AVAILABILITY_ZONE, HW_VPC_ID, HW_NETWORK_ID, HW_ENTERPRISE_PROJECT_ID_TEST, val, HW_AVAILABILITY_ZONE, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccReadRdsReplicaInstanceUpdate(val string) string {
@@ -218,5 +218,5 @@ resource "huaweicloud_rds_read_replica_instance" "replica_instance" {
     foo = "bar2"
   }
 }
-`, val, OS_AVAILABILITY_ZONE, OS_VPC_ID, OS_NETWORK_ID, OS_ENTERPRISE_PROJECT_ID_TEST, val, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID_TEST)
+`, val, HW_AVAILABILITY_ZONE, HW_VPC_ID, HW_NETWORK_ID, HW_ENTERPRISE_PROJECT_ID_TEST, val, HW_AVAILABILITY_ZONE, HW_ENTERPRISE_PROJECT_ID_TEST)
 }

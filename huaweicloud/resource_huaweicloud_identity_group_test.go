@@ -53,7 +53,7 @@ func TestAccIdentityV3Group_basic(t *testing.T) {
 
 func testAccCheckIdentityV3GroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	identityClient, err := config.IdentityV3Client(OS_REGION_NAME)
+	identityClient, err := config.IdentityV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -84,7 +84,7 @@ func testAccCheckIdentityV3GroupExists(n string, group *groups.Group) resource.T
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		identityClient, err := config.IdentityV3Client(OS_REGION_NAME)
+		identityClient, err := config.IdentityV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}

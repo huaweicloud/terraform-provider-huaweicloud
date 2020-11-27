@@ -50,8 +50,8 @@ func dataSourceNetworkingSubnetV2() *schema.Resource {
 				Computed: true,
 				Optional: true,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_PROJECT_ID",
 					"OS_TENANT_ID",
-					"OS_PROJECT_ID",
 				}, ""),
 				Description: descriptions["tenant_id"],
 			},

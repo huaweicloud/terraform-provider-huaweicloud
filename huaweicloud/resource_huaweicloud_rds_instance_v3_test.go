@@ -79,7 +79,7 @@ func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
 				Config: testAccRdsInstanceV3_epsId(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceV3Exists(),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -134,7 +134,7 @@ resource "huaweicloud_rds_instance" "instance" {
     foo = "bar"
   }
 }
-	`, val, val, val, val, OS_AVAILABILITY_ZONE)
+	`, val, val, val, val, HW_AVAILABILITY_ZONE)
 }
 
 // volume.size, backup_strategy and tags will be updated
@@ -186,7 +186,7 @@ resource "huaweicloud_rds_instance" "instance" {
     foo = "bar_updated"
   }
 }
-	`, val, val, val, val, OS_AVAILABILITY_ZONE)
+	`, val, val, val, val, HW_AVAILABILITY_ZONE)
 }
 
 func testAccRdsInstanceV3_epsId(val string) string {
@@ -233,12 +233,12 @@ resource "huaweicloud_rds_instance" "instance" {
     keep_days = 1
   }
 }
-	`, val, val, val, val, OS_AVAILABILITY_ZONE, OS_ENTERPRISE_PROJECT_ID_TEST)
+	`, val, val, val, val, HW_AVAILABILITY_ZONE, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccCheckRdsInstanceV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.RdsV3Client(OS_REGION_NAME)
+	client, err := config.RdsV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -263,7 +263,7 @@ func testAccCheckRdsInstanceV3Destroy(s *terraform.State) error {
 func testAccCheckRdsInstanceV3Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.RdsV3Client(OS_REGION_NAME)
+		client, err := config.RdsV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}
