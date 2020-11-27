@@ -1,4 +1,5 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
+TEST_PARALLELISM?=4
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 PKG_NAME=huaweicloud
 
@@ -14,10 +15,10 @@ sweep:
 test: fmtcheck
 	go test -i $(TEST) || exit 1
 	echo $(TEST) | \
-		xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4
+		xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=$(TEST_PARALLELISM)
 
 testacc: fmtcheck
-	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 360m -parallel $(ACCTEST_PARALLELISM)
+	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 360m -parallel $(TEST_PARALLELISM)
 
 vet:
 	@echo "go vet ."
