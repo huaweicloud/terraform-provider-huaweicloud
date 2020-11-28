@@ -33,11 +33,11 @@ The following arguments are supported:
     sending fails and the message is cached in the queue. 1 indicates that the
     failed message is discarded.
 
-* `create_time` - (Optional) Time when the topic was created.
-
-* `update_time` - (Optional) Time when the topic was updated.
-
 ## Attributes Reference
 
 The following attributes are exported:
+
+* `create_time` - Time when the topic was created.
+
+* `update_time` - Time when the topic was updated.
 

@@ -14,7 +14,7 @@ This is an alternative to `huaweicloud_compute_volume_attach_v2`
 ```hcl
 resource "huaweicloud_evs_volume" "myvol" {
   name              = "volume"
-  availability_zone = "cn-norht-4a"
+  availability_zone = "cn-north-4a"
   volume_type       = "SAS"
   size              = 10
 }
@@ -44,7 +44,7 @@ resource "huaweicloud_compute_volume_attach" "attached" {
 resource "huaweicloud_evs_volume" "myvol" {
   count             = 2
   name              = "volume_1"
-  availability_zone = "cn-norht-4a"
+  availability_zone = "cn-north-4a"
   volume_type       = "SAS"
   size              = 10
 }
