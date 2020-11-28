@@ -22,15 +22,15 @@ resource "huaweicloud_css_snapshot" "snapshot" {
 
 The following arguments are supported:
 
-* `name` - (Required) Specifies the snapshot name. The snapshot name must
+* `name` - (Required, String, ForceNew) Specifies the snapshot name. The snapshot name must
   start with a letter and contains 4 to 64 characters consisting of only
   lowercase letters, digits, hyphens (-), and underscores (_).
   Changing this parameter will create a new resource.
 
-* `cluster_id` - (Required) Specifies ID of the CSS cluster where index data is to be backed up.
+* `cluster_id` - (Required, String, ForceNew) Specifies ID of the CSS cluster where index data is to be backed up.
   Changing this parameter will create a new resource.
 
-* `index` - (Optional) Specifies the name of the index to be backed up. Multiple index names
+* `index` - (Optional, String, ForceNew) Specifies the name of the index to be backed up. Multiple index names
   are separated by commas (,). By default, data of all indices is backed up. You can use the
   asterisk (*) to back up data of certain indices. For example, if you enter 2020-06*, then
   data of indices with the name prefix of 2020-06 will be backed up.
@@ -38,7 +38,7 @@ The following arguments are supported:
   characters (including "\<|>/?) are not allowed.
   Changing this parameter will create a new resource.
 
-* `description` - (Optional) Specifies the description of a snapshot.
+* `description` - (Optional, String, ForceNew) Specifies the description of a snapshot.
   The value contains 0 to 256 characters, and angle brackets (<) and (>) are not allowed.
   Changing this parameter will create a new resource.
 

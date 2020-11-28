@@ -27,38 +27,38 @@ resource "huaweicloud_fgs_function" "f_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the Function resource. If omitted, the provider-level region will be used. Changing this creates a new Function resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the Function resource. If omitted, the provider-level region will be used. Changing this creates a new Function resource.
 
-* `name` - (Required) A unique name for the function. Changing this creates a new function.
+* `name` - (Required, String, ForceNew) A unique name for the function. Changing this creates a new function.
 
-* `package` - (Required) Group to which the function belongs. Changing this creates a new function.
+* `package` - (Required, String) Group to which the function belongs. Changing this creates a new function.
 
-* `code_type` - (Required) Function code type, which can be inline: inline code, zip: ZIP file,
+* `code_type` - (Required, String, ForceNew) Function code type, which can be inline: inline code, zip: ZIP file,
 	jar: JAR file or java functions, obs: function code stored in an OBS bucket. Changing this
 	creates a new function.
 
-* `code_url` - (Optional) This parameter is mandatory when code_type is set to obs. Changing this
+* `code_url` - (Optional, String, ForceNew) This parameter is mandatory when code_type is set to obs. Changing this
 	creates a new function.
 
-* `description` - (Optional) Description of the function. Changing this creates a new function.
+* `description` - (Optional, String, ForceNew) Description of the function. Changing this creates a new function.
 
-* `code_filename` - (Optional) Name of a function file, This field is mandatory only when coe_type is
+* `code_filename` - (Optional, String, ForceNew) Name of a function file, This field is mandatory only when coe_type is
 	set to jar or zip. Changing this creates a new function.
 
-* `handler` - (Required) Entry point of the function. Changing this creates a new function.
+* `handler` - (Required, String, ForceNew) Entry point of the function. Changing this creates a new function.
 
-* `memory_size` - (Required) Memory size(MB) allocated to the function. Changing this creates a new function.
+* `memory_size` - (Required, Int, ForceNew) Memory size(MB) allocated to the function. Changing this creates a new function.
 
-* `runtime` - (Required) Environment for executing the function. Changing this creates a new function.
+* `runtime` - (Required, String, ForceNew) Environment for executing the function. Changing this creates a new function.
 
-* `timeout` - (Required) Timeout interval of the function, ranges from 3s to 900s. Changing this creates a new function.
+* `timeout` - (Required, Int, ForceNew) Timeout interval of the function, ranges from 3s to 900s. Changing this creates a new function.
 
-* `user_data` - (Optional) Key/Value information defined for the function. Changing this creates a new function.
+* `user_data` - (Optional, String, ForceNew) Key/Value information defined for the function. Changing this creates a new function.
 
-* `xrole` - (Optional) This parameter is mandatory if the function needs to access other cloud services.
+* `xrole` - (Optional, String, ForceNew) This parameter is mandatory if the function needs to access other cloud services.
 	Changing this creates a new function.
 
-* `func_code` - (Required) Function code. When code_type is set to inline, zip, or jar, this parameter is mandatory,
+* `func_code` - (Required, String, ForceNew) Function code. When code_type is set to inline, zip, or jar, this parameter is mandatory,
 	and the code must be encoded using Base64. Changing this creates a new function.
 
 

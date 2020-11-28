@@ -38,28 +38,28 @@ resource "huaweicloud_dws_cluster" "cluster" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cluster resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cluster resource.
 
-* `name` - (Required) Cluster name, which must be unique and contains 4 to 64    
+* `name` - (Required, String, ForceNew) Cluster name, which must be unique and contains 4 to 64    
   characters, which consist of letters, digits, hyphens(-), or
   underscores(_) only and must start with a letter.
 
-* `network_id` - (Required) Network ID, which is used for configuring cluster network
+* `network_id` - (Required, String, ForceNew) Network ID, which is used for configuring cluster network
 
-* `node_type` - (Required) Node type
+* `node_type` - (Required, String, ForceNew) Node type
 
-* `number_of_node` - (Required) Number of nodes in a cluster. The value ranges from 3 to 32
+* `number_of_node` - (Required, Int, ForceNew) Number of nodes in a cluster. The value ranges from 3 to 32
 
-* `security_group_id` - (Required) ID of a security group. The ID is used for configuring cluster network
+* `security_group_id` - (Required, String, ForceNew) ID of a security group. The ID is used for configuring cluster network
 
-* `user_name` - (Required) Administrator username for logging in to a data warehouse cluster The
+* `user_name` - (Required, String, ForceNew) Administrator username for logging in to a data warehouse cluster The
   administrator username must:  Consist of lowercase letters, digits,
   or underscores.  Start with a lowercase letter or an underscore. 
   Contain 1 to 63 characters.  Cannot be a keyword of the DWS database.
 
-* `vpc_id` - (Required) VPC ID, which is used for configuring cluster network
+* `vpc_id` - (Required, String, ForceNew) VPC ID, which is used for configuring cluster network
 
-* `user_pwd` - (Required) Administrator password for logging in to a data warehouse cluster  A
+* `user_pwd` - (Required, String, ForceNew) Administrator password for logging in to a data warehouse cluster  A
   password must conform to the following rules:  Contains 8 to 32
   characters.  Cannot be the same as the username or the username
   written in reverse order.  Contains three types of the following: 
@@ -68,18 +68,17 @@ The following arguments are supported:
 
 - - -
 
-* `availability_zone` - (Optional) AZ in a cluster
+* `availability_zone` - (Optional, String, ForceNew) AZ in a cluster
 
-* `port` - (Optional) Service port of a cluster (8000 to 10000). The default     value is
-  8000
+* `port` - (Optional, Int) Service port of a cluster (8000 to 10000). The default value is 8000.
 
-* `public_ip` - (Optional) A nested object resource Structure is documented below.
+* `public_ip` - (Optional, List, ForceNew) A nested object resource Structure is documented below.
 
 The `public_ip` block supports:
 
-* `eip_id` - (Optional) EIP ID
+* `eip_id` - (Optional, String, ForceNew) EIP ID
 
-* `public_bind_type` - (Optional) Binding type of an EIP. The value can be either of the following:
+* `public_bind_type` - (Optional, String, ForceNew) Binding type of an EIP. The value can be either of the following:
    auto_assign  not_use  bind_existing  The default value is
   not_use.
 
@@ -123,19 +122,19 @@ In addition to the arguments listed above, the following computed attributes are
 
 The `endpoints` block contains:
 
-* `connect_info` - (Optional) Private network connection information
+* `connect_info` - (Optional, String) Private network connection information
 
-* `jdbc_url` - (Optional)
+* `jdbc_url` - (Optional, String)
   JDBC URL. The following is the default format:             
   jdbc:postgresql://< connect_info>/<YOUR_DATABASE_NAME>
 
 The `public_endpoints` block contains:
 
-* `jdbc_url` - (Optional)
+* `jdbc_url` - (Optional, String)
   JDBC URL. The following is the default format:             
   jdbc:postgresql://< public_connect_info>/<YOUR_DATABASE_NAME>
 
-* `public_connect_info` - (Optional)
+* `public_connect_info` - (Optional, String)
   Public network connection information
 
 ## Timeouts

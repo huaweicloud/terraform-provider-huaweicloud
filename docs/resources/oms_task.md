@@ -36,50 +36,50 @@ resource "huaweicloud_oms_task" "task_1" {
 
 The following arguments are supported:
 
-* `src_node` - (Required) Specifies the source node information.
+* `src_node` - (Required, List, ForceNew) Specifies the source node information.
 
-* `dst_node` - (Required) Specifies the destination node information.
+* `dst_node` - (Required, List, ForceNew) Specifies the destination node information.
 
-* `enable_kms` - (Required) Specifies whether to use KMS encryption.
+* `enable_kms` - (Required, Bool, ForceNew) Specifies whether to use KMS encryption.
 
-* `thread_num` - (Required) Specifies the number of threads used by the migration
+* `thread_num` - (Required, Int, ForceNew) Specifies the number of threads used by the migration
 	task. The value cannot exceed 50.
 
-* `description` - (Optional) Specifies tasks description, which cannot exceed 255
+* `description` - (Optional, String, ForceNew) Specifies tasks description, which cannot exceed 255
 	characters. The following special characters are not allowed: <>()"&
 
-* `smn_info` - (Optional) Specifies the field used for sending messages using the
+* `smn_info` - (Optional, List, ForceNew) Specifies the field used for sending messages using the
 	Simple Message Notification (SMN) service.
 
 
 The `src_node` block supports:
 
-* `region` - (Required) Specifies the region where the source bucket locates.
-* `ak` - (Required) Specifies the source bucket Access Key.
-* `sk` - (Required) Specifies the source bucket Secret Key.
-* `bucket` - (Required) Specifies the name of the source bucket.
-* `object_key` - (Required) Specifies the name of the object to be selected in the
+* `region` - (Required, String, ForceNew) Specifies the region where the source bucket locates.
+* `ak` - (Required, String, ForceNew) Specifies the source bucket Access Key.
+* `sk` - (Required, String, ForceNew) Specifies the source bucket Secret Key.
+* `bucket` - (Required, String, ForceNew) Specifies the name of the source bucket.
+* `object_key` - (Required, String, ForceNew) Specifies the name of the object to be selected in the
   source bucket.
-* `cloud_type` - (Optional) Specifies the source cloud service provider. The value can be
+* `cloud_type` - (Optional, String, ForceNew) Specifies the source cloud service provider. The value can be
   AWS, Aliyun, Tencent, HuaweiCloud, QingCloud, KingsoftCloud, Baidu, or Qiniu.
   The default value is Aliyun.
 
 The `dst_node` block supports:
 
-* `region` - (Required) Specifies the region where the destination bucket locates.
-* `ak` - (Required) Specifies the destination bucket Access Key.
-* `sk` - (Required) Specifies the destination bucket Secret Key.
-* `bucket` - (Required) Specifies the name of the destination bucket.
-* `object_key` - (Required) Specifies the name of the object to be selected in the
+* `region` - (Required, String, ForceNew) Specifies the region where the destination bucket locates.
+* `ak` - (Required, String, ForceNew) Specifies the destination bucket Access Key.
+* `sk` - (Required, String, ForceNew) Specifies the destination bucket Secret Key.
+* `bucket` - (Required, String, ForceNew) Specifies the name of the destination bucket.
+* `object_key` - (Required, String, ForceNew) Specifies the name of the object to be selected in the
   destination bucket.
 
 The `smn_info` block supports:
 
-* `topic_urn` - (Required) Specifies the SMN message topic URN bound to a migration
+* `topic_urn` - (Required, String, ForceNew) Specifies the SMN message topic URN bound to a migration
 	task.
-* `language` - (Optional) Specifies the management console language used by the
+* `language` - (Optional, String, ForceNew) Specifies the management console language used by the
 	current users. Users can select en-us.
-* `trigger_conditions` - (Required) Specifies the trigger conditions of sending messages
+* `trigger_conditions` - (Required, ForceNew, String) Specifies the trigger conditions of sending messages
 	using SMN. The value depending on the state of a migration task. The migration task
 	status can be SUCCESS or FAIL.
 

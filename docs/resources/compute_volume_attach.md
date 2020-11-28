@@ -73,13 +73,13 @@ output "volume devices" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the volume resource. If omitted, the provider-level region will be used. Changing this creates a new resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the volume resource. If omitted, the provider-level region will be used. Changing this creates a new resource.
 
-* `instance_id` - (Required) The ID of the Instance to attach the Volume to.
+* `instance_id` - (Required, String, ForceNew) The ID of the Instance to attach the Volume to.
 
-* `volume_id` - (Required) The ID of the Volume to attach to an Instance.
+* `volume_id` - (Required, String, ForceNew) The ID of the Volume to attach to an Instance.
 
-* `device` - (Optional) The device of the volume attachment (ex: `/dev/vdc`).
+* `device` - (Optional, String) The device of the volume attachment (ex: `/dev/vdc`).
   _NOTE_: Being able to specify a device is dependent upon the hypervisor in
   use. There is a chance that the device specified in Terraform will not be
   the same device the hypervisor chose. If this happens, Terraform will wish

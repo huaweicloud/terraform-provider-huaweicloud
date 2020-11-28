@@ -187,104 +187,104 @@ function, or the `template_cloudinit_config` resource.
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the instance. If omitted,
+* `region` - (Optional, String, ForceNew) The region in which to create the instance. If omitted,
 	the provider-level region will be used. Changing this creates a new server.
 
-* `name` - (Required) A unique name for the resource.
+* `name` - (Required, String) A unique name for the resource.
 
-* `image_id` - (Optional; Required if `image_name` is empty) The image ID of
+* `image_id` - (Optional, String; Required if `image_name` is empty) The image ID of
     the desired image for the server. Changing this creates a new server.
 
-* `image_name` - (Optional; Required if `image_id` is empty) The name of the
+* `image_name` - (Optional, String; Required if `image_id` is empty) The name of the
     desired image for the server. Changing this creates a new server.
 
-* `flavor_id` - (Optional; Required if `flavor_name` is empty) The flavor ID of
+* `flavor_id` - (Optional, String; Required if `flavor_name` is empty) The flavor ID of
     the desired flavor for the server. Changing this resizes the existing server.
 
-* `flavor_name` - (Optional; Required if `flavor_id` is empty) The name of the
+* `flavor_name` - (Optional, String; Required if `flavor_id` is empty) The name of the
     desired flavor for the server. Changing this resizes the existing server.
 
-* `user_data` - (Optional) The user data to provide when launching the instance.
+* `user_data` - (Optional, String, ForceNew) The user data to provide when launching the instance.
     Changing this creates a new server.
 
-* `security_groups` - (Optional) An array of one or more security group names
+* `security_groups` - (Optional, String) An array of one or more security group names
     to associate with the server. Changing this results in adding/removing
     security groups from the existing server.
 
-* `availability_zone` - (Required) The availability zone in which to create
+* `availability_zone` - (Required, String, ForceNew) The availability zone in which to create
     the server. Please following [reference](https://developer.huaweicloud.com/endpoint)
     for the values. Changing this creates a new server.
 
-* `network` - (Required) An array of one or more networks to attach to the
+* `network` - (Required, List) An array of one or more networks to attach to the
     instance. The network object structure is documented below. Changing this
     creates a new server.
 
-* `admin_pass` - (Optional) The administrative password to assign to the server.
+* `admin_pass` - (Optional, String) The administrative password to assign to the server.
     Changing this changes the root password on the existing server.
 
-* `key_pair` - (Optional) The name of a key pair to put on the server. The key
+* `key_pair` - (Optional, String, ForceNew) The name of a key pair to put on the server. The key
     pair must already be created and associated with the tenant's account.
     Changing this creates a new server.
 
-* `system_disk_type` - (Optional) The system disk type of the server. Defaults to `GPSSD`. For details about disk types,
+* `system_disk_type` - (Optional, String) The system disk type of the server. Defaults to `GPSSD`. For details about disk types,
 	see [Disk Types and Disk Performance](https://support.huaweicloud.com/en-us/productdesc-evs/en-us_topic_0014580744.html)
     Changing this creates a new server. Available options are:
 	* `SSD`: ultra-high I/O disk type.
 	* `GPSSD`: general purpose SSD disk type.
 	* `SAS`: high I/O disk type.
 
-* `system_disk_size` - (Optional) The system disk size in GB, The value range is 1 to 1024. Changing this parameter will update the disk. 
+* `system_disk_size` - (Optional, String) The system disk size in GB, The value range is 1 to 1024. Changing this parameter will update the disk. 
     You can extend the disk by setting this parameter to a new value, which must be between current size and the max size(1024). 
     Shrinking the disk is not supported.
 
-* `data_disks` - (Optional) An array of one or more data disks to attach to the
+* `data_disks` - (Optional, String) An array of one or more data disks to attach to the
     instance. The data_disks object structure is documented below. Changing this
     creates a new server.
 
-* `tags` - (Optional) Tags key/value pairs to associate with the instance.
+* `tags` - (Optional, Map) Tags key/value pairs to associate with the instance.
 
-* `scheduler_hints` - (Optional) Provide the scheduler with hints on how
+* `scheduler_hints` - (Optional, List) Provide the scheduler with hints on how
     the instance should be launched. The available hints are described below.
 
-* `stop_before_destroy` - (Optional) Whether to try stop instance gracefully
+* `stop_before_destroy` - (Optional, Bool) Whether to try stop instance gracefully
     before destroying it, thus giving chance for guest OS daemons to stop correctly.
     If instance doesn't stop within timeout, it will be destroyed anyway.
 
-* `enterprise_project_id` - (Optional) The enterprise project id. Changing this creates a new server.
+* `enterprise_project_id` - (Optional, String) The enterprise project id. Changing this creates a new server.
 
-* `delete_disks_on_termination` - (Optional) Delete the data disks upon termination of the instance. Defaults to false. Changing this creates a new server.
+* `delete_disks_on_termination` - (Optional, Bool) Delete the data disks upon termination of the instance. Defaults to false. Changing this creates a new server.
 
-* `charging_mode` - (Optional) The charging mode of the instance. Valid options are: prePaid and postPaid, defaults to postPaid. Changing this creates a new server.
+* `charging_mode` - (Optional, String, ForceNew) The charging mode of the instance. Valid options are: prePaid and postPaid, defaults to postPaid. Changing this creates a new server.
 
-* `period_unit` - (Optional) The charging period unit of the instance. Valid options are: month and year, defaults to month. Changing this creates a new server.
+* `period_unit` - (Optional, String, ForceNew) The charging period unit of the instance. Valid options are: month and year, defaults to month. Changing this creates a new server.
 
-* `period` - (Optional) The charging period of the instance. Changing this creates a new server.
+* `period` - (Optional, Int, ForceNew) The charging period of the instance. Changing this creates a new server.
 
-* `auto_renew` - (Optional) Specifies whether auto renew is enabled. Changing this creates a new server.
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Changing this creates a new server.
 
-* `user_id` - (Optional) User ID, required when using key_pair in prePaid charging mode. Changing this creates a new server.
+* `user_id` - (Optional, String, ForceNew) User ID, required when using key_pair in prePaid charging mode. Changing this creates a new server.
 
 
 The `network` block supports:
 
-* `uuid` - (Required) The network UUID to
+* `uuid` - (Required, String, ForceNew) The network UUID to
     attach to the server. Changing this creates a new server.
 
-* `fixed_ip_v4` - (Optional) Specifies a fixed IPv4 address to be used on this
+* `fixed_ip_v4` - (Optional, String, ForceNew) Specifies a fixed IPv4 address to be used on this
     network. Changing this creates a new server.
 
-* `access_network` - (Optional) Specifies if this network should be used for
+* `access_network` - (Optional, Bool) Specifies if this network should be used for
     provisioning access. Accepts true or false. Defaults to false.
 
 The `scheduler_hints` block supports:
 
-* `group` - (Optional) A UUID of a Server Group. The instance will be placed
+* `group` - (Optional, String, ForceNew) A UUID of a Server Group. The instance will be placed
 	into that group.
 
-* `tenancy` - (Optional) The tenancy specifies whether the ECS is to be created on a Dedicated Host
+* `tenancy` - (Optional, String, ForceNew) The tenancy specifies whether the ECS is to be created on a Dedicated Host
 	(DeH) or in a shared pool.
 
-* `deh_id` - (Optional) The ID of DeH. This parameter takes effect only when the value
+* `deh_id` - (Optional, String, ForceNew) The ID of DeH. This parameter takes effect only when the value
 	of tenancy is dedicated.
 
 ## Attributes Reference

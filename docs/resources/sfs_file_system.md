@@ -31,33 +31,33 @@ resource "huaweicloud_sfs_file_system" "share-file" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the sfs resource. If omitted, the provider-level region will be used. Changing this creates a new sfs resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the sfs resource. If omitted, the provider-level region will be used. Changing this creates a new sfs resource.
 
-* `size` - (Required) The size (GB) of the shared file system.
+* `size` - (Required, Int) The size (GB) of the shared file system.
 
-* `share_proto` - (Optional) The protocol for sharing file systems. The default value is NFS.
+* `share_proto` - (Optional, String) The protocol for sharing file systems. The default value is NFS.
 
-* `name` - (Optional) The name of the shared file system.
+* `name` - (Optional, String) The name of the shared file system.
 
-* `description` - (Optional) Describes the shared file system.
+* `description` - (Optional, String) Describes the shared file system.
 
-* `is_public` - (Optional) The level of visibility for the shared file system.
+* `is_public` - (Optional, Bool, ForceNew) The level of visibility for the shared file system.
 
-* `metadata` - (Optional) Metadata key and value pairs as a dictionary of strings. Changing this will create a new resource.
+* `metadata` - (Optional, Map, ForceNew, String) Metadata key and value pairs as a dictionary of strings. Changing this will create a new resource.
 
-* `availability_zone` - (Optional) The availability zone name. Changing this parameter will create a new resource.
+* `availability_zone` - (Optional, String, ForceNew) The availability zone name. Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional) The enterprise project id of the shared file system. Changing this creates a new resource.
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the shared file system. Changing this creates a new resource.
 
-* `tags` - (Optional) The key/value pairs to associate with the shared file system.
+* `tags` - (Optional, Map) The key/value pairs to associate with the shared file system.
 
-* `access_level` - (Optional) Specifies the access level of the shared file system. Possible values are *ro* (read-only)
+* `access_level` - (Optional, String) Specifies the access level of the shared file system. Possible values are *ro* (read-only)
     and *rw* (read-write). The default value is *rw* (read/write). Changing this will create a new access rule.
 
-* `access_type` - (Optional) Specifies the type of the share access rule. The default value is *cert*.
+* `access_type` - (Optional, String) Specifies the type of the share access rule. The default value is *cert*.
     Changing this will create a new access rule.
 
-* `access_to` - (Optional) Specifies the value that defines the access rule. The value contains 1 to 255 characters.
+* `access_to` - (Optional, String) Specifies the value that defines the access rule. The value contains 1 to 255 characters.
     Changing this will create a new access rule. The value varies according to the scenario:
     - Set the VPC ID in VPC authorization scenarios.
     - Set this parameter in IP address authorization scenario.

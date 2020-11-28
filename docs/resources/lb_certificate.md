@@ -81,26 +81,26 @@ EOT
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the ELB certificate resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the ELB certificate resource.
     If omitted, the provider-level region will be used.
     Changing this creates a new certificate.
 
-* `name` - (Optional) Human-readable name for the Certificate. Does not have
+* `name` - (Optional, String) Human-readable name for the Certificate. Does not have
     to be unique.
 
-* `description` - (Optional) Human-readable description for the Certificate.
+* `description` - (Optional, String) Human-readable description for the Certificate.
 
-* `type` - (Optional) Specifies the certificate type. The default value is "server".
+* `type` - (Optional, String, ForceNew) Specifies the certificate type. The default value is "server".
     The value can be one of the following:
     - server: indicates the server certificate.
     - client: indicates the CA certificate.
 
-* `certificate` - (Required) The public encrypted key of the Certificate, PEM format.
+* `certificate` - (Required, String) The public encrypted key of the Certificate, PEM format.
 
-* `private_key` - (Optional) The private encrypted key of the Certificate, PEM format.
+* `private_key` - (Optional, String) The private encrypted key of the Certificate, PEM format.
     This parameter is valid and mandatory only when `type` is set to "server".
 
-* `domain` - (Optional) The domain of the Certificate. The value contains a maximum of 100 characters.
+* `domain` - (Optional, String) The domain of the Certificate. The value contains a maximum of 100 characters.
     This parameter is valid only when `type` is set to "server".
 
 ## Attributes Reference

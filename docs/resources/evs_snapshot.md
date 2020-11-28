@@ -34,15 +34,15 @@ resource "huaweicloud_evs_snapshot" "snapshot_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the evs snapshot resource. If omitted, the provider-level region will be used. Changing this creates a new EVS snapshot resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the evs snapshot resource. If omitted, the provider-level region will be used. Changing this creates a new EVS snapshot resource.
 
-* `volume_id` - (Required) The id of the snapshot's source disk. Changing the parameter creates a new snapshot.
+* `volume_id` - (Required, String, ForceNew) The id of the snapshot's source disk. Changing the parameter creates a new snapshot.
 
-* `name` - (Required) The name of the snapshot. The value can contain a maximum of 255 bytes.
+* `name` - (Required, String) The name of the snapshot. The value can contain a maximum of 255 bytes.
 
-* `description` - (Optional) The description of the snapshot. The value can contain a maximum of 255 bytes.
+* `description` - (Optional, String) The description of the snapshot. The value can contain a maximum of 255 bytes.
 
-* `force` - (Optional) Specifies the flag for forcibly creating a snapshot. Default to false.
+* `force` - (Optional, Bool) Specifies the flag for forcibly creating a snapshot. Default to false.
 
 # Attributes Reference
 

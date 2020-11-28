@@ -21,19 +21,19 @@ resource "huaweicloud_cs_cluster" "cluster" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the cloud stream service cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cloud stream service cluster resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the cloud stream service cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cloud stream service cluster resource.
 
-* `name` - (Required) Cluster name.
+* `name` - (Required, String) Cluster name.
 
-* `description` - (Optional) cluster description.
+* `description` - (Optional, String) cluster description.
 
-* `max_spu_num` - (Optional) Cluster maximum SPU number.
+* `max_spu_num` - (Optional, Int) Cluster maximum SPU number.
 
-* `subnet_cidr` - (Optional) Cluster sub segment. Changing this parameter will create a new resource.
+* `subnet_cidr` - (Optional, String, ForceNew) Cluster sub segment. Changing this parameter will create a new resource.
 
-* `subnet_gateway` - (Optional) Cluster subnet gateway. Changing this parameter will create a new resource.
+* `subnet_gateway` - (Optional, String, ForceNew) Cluster subnet gateway. Changing this parameter will create a new resource.
 
-* `vpc_cidr` - (Optional) Cluster VPC network segment. Changing this parameter will create a new resource.
+* `vpc_cidr` - (Optional, String, ForceNew) Cluster VPC network segment. Changing this parameter will create a new resource.
 
 ## Attributes Reference
 

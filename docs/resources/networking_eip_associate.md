@@ -36,9 +36,9 @@ resource "huaweicloud_networking_eip_associate" "associated" {
 
 The following arguments are supported:
 
-* `public_ip` - (Required) The EIP to associate.
+* `public_ip` - (Required, String, ForceNew) The EIP to associate.
 
-* `port_id` - (Required) ID of an existing port with at least one IP address to
+* `port_id` - (Required, String, ForceNew) ID of an existing port with at least one IP address to
     associate with this EIP.
 
 ## Attributes Reference

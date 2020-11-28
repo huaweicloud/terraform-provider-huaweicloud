@@ -43,21 +43,21 @@ resource "huaweicloud_vbs_backup" "backup_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the VBS backup resource. If omitted, the provider-level region will be used. Changing this creates a new VBS Backup resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the VBS backup resource. If omitted, the provider-level region will be used. Changing this creates a new VBS Backup resource.
 
-* `name` - (Required) The name of the vbs backup. Changing the parameter creates a new backup.
+* `name` - (Required, String, ForceNew) The name of the vbs backup. Changing the parameter creates a new backup.
 
-* `volume_id` - (Required) The id of the disk to be backed up. Changing the parameter creates a new backup.
+* `volume_id` - (Required, String, ForceNew) The id of the disk to be backed up. Changing the parameter creates a new backup.
 
-* `snapshot_id` - (Optional) The snapshot id of the disk to be backed up. Changing the parameter creates a new backup.
+* `snapshot_id` - (Optional, String, ForceNew) The snapshot id of the disk to be backed up. Changing the parameter creates a new backup.
 
-* `description` - (Optional) The description of the vbs backup. Changing the parameter creates a new backup.
+* `description` - (Optional, String, ForceNew) The description of the vbs backup. Changing the parameter creates a new backup.
 
-* `tags` - (Optional) List of tags to be configured for the backup resources. Changing the parameter creates a new backup.
+* `tags` - (Optional, List, ForceNew) List of tags to be configured for the backup resources. Changing the parameter creates a new backup.
 
-    * `key` - (Required) Specifies the tag key. Changing the parameter creates a new backup.
+    * `key` - (Required, String, ForceNew) Specifies the tag key. Changing the parameter creates a new backup.
 
-    * `value` - (Required) Specifies the tag value. Changing the parameter creates a new backup.
+    * `value` - (Required, String, ForceNew) Specifies the tag value. Changing the parameter creates a new backup.
 
 # Attributes Reference
 

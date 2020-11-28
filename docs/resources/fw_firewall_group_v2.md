@@ -47,36 +47,36 @@ resource "huaweicloud_fw_firewall_group_v2" "firewall_group_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the v2 networking client.
+* `region` - (Optional, String, ForceNew) The region in which to create the v2 networking client.
     A networking client is needed to create a firewall group. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     firewall group.
 
-* `ingress_policy_id` - (Optional) The ingress policy resource id for the firewall group. Changing
+* `ingress_policy_id` - (Optional, String) The ingress policy resource id for the firewall group. Changing
     this updates the `ingress_policy_id` of an existing firewall group.
 
-* `egress_policy_id` - (Optional) The egress policy resource id for the firewall group. Changing
+* `egress_policy_id` - (Optional, String) The egress policy resource id for the firewall group. Changing
     this updates the `egress_policy_id` of an existing firewall group.
 
-* `name` - (Optional) A name for the firewall group. Changing this
+* `name` - (Optional, String) A name for the firewall group. Changing this
     updates the `name` of an existing firewall group.
 
-* `description` - (Required) A description for the firewall group. Changing this
+* `description` - (Required, String) A description for the firewall group. Changing this
     updates the `description` of an existing firewall group.
 
-* `admin_state_up` - (Optional) Administrative up/down status for the firewall group
+* `admin_state_up` - (Optional, Bool) Administrative up/down status for the firewall group
     (must be "true" or "false" if provided - defaults to "true").
     Changing this updates the `admin_state_up` of an existing firewall group.
 
-* `tenant_id` - (Optional) The owner of the floating IP. Required if admin wants
+* `tenant_id` - (Optional, String, ForceNew) The owner of the floating IP. Required if admin wants
     to create a firewall group for another tenant. Changing this creates a new
     firewall group.
 
-* `ports` - (Optional) Port(s) to associate this firewall group instance
+* `ports` - (Optional, String) Port(s) to associate this firewall group instance
     with. Must be a list of strings. Changing this updates the associated routers
     of an existing firewall group.
 
-* `value_specs` - (Optional) Map of additional options.
+* `value_specs` - (Optional, Map, ForceNew, String) Map of additional options.
 
 ## Attributes Reference
 

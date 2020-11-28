@@ -44,23 +44,23 @@ resource "huaweicloud_dms_instance" "instance_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the DMS instance resource. If omitted, the provider-level region will be used. Changing this creates a new DMS instance resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the DMS instance resource. If omitted, the provider-level region will be used. Changing this creates a new DMS instance resource.
 
-* `name` - (Required) Indicates the name of an instance. An instance name starts with a letter,
+* `name` - (Required, String) Indicates the name of an instance. An instance name starts with a letter,
 	consists of 4 to 64 characters, and supports only letters, digits, and hyphens (-).
 
-* `description` - (Optional) Indicates the description of an instance. It is a character
+* `description` - (Optional, String) Indicates the description of an instance. It is a character
     string containing not more than 1024 characters.
 
-* `engine` - (Optional) Indicates a message engine. Options: rabbitmq and kafka.
+* `engine` - (Optional, String, ForceNew) Indicates a message engine. Options: rabbitmq and kafka.
 
-* `engine_version` - (Optional) Indicates the version of a message engine.
+* `engine_version` - (Optional, String, ForceNew) Indicates the version of a message engine.
 
-* `specification` - (Optional) This parameter is mandatory if the engine is kafka.
+* `specification` - (Optional, String) This parameter is mandatory if the engine is kafka.
     Indicates the baseline bandwidth of a Kafka instance, that is, the maximum amount
 	of data transferred per unit time. Unit: byte/s. Options: 300 MB, 600 MB, 1200 MB.
 
-* `storage_space` - (Required) Indicates the message storage space. Value range:
+* `storage_space` - (Required, Int) Indicates the message storage space. Value range:
     - Single-node RabbitMQ instance: 100–90000 GB
     - Cluster RabbitMQ instance: 100 GB x Number of nodes to 90000 GB, 200 GB x Number of
 	nodes to 90000 GB, 300 GB x Number of nodes to 90000 GB
@@ -68,7 +68,7 @@ The following arguments are supported:
     - Kafka instance with specification being 600 MB: 2400–90000 GB
     - Kafka instance with specification being 1200 MB: 4800–90000 GB
 
-* `storage_spec_code` - (Required) Indicates the storage I/O specification. Value range:
+* `storage_spec_code` - (Required, String) Indicates the storage I/O specification. Value range:
 
     Options for a RabbitMQ instance:
     - dms.physical.storage.normal
@@ -80,36 +80,36 @@ The following arguments are supported:
     - When specification is 600 MB: dms.physical.storage.ultra
     - When specification is 1200 MB: dms.physical.storage.ultra
 
-* `partition_num` - (Optional) This parameter is mandatory when a Kafka instance is created.
+* `partition_num` - (Optional, Int) This parameter is mandatory when a Kafka instance is created.
     Indicates the maximum number of topics in a Kafka instance.
     - When specification is 300 MB: 900
     - When specification is 600 MB: 1800
     - When specification is 1200 MB: 1800
 
-* `access_user` - (Optional) Indicates a username. If the engine is rabbitmq, this
+* `access_user` - (Optional, String) Indicates a username. If the engine is rabbitmq, this
     parameter is mandatory. If the engine is kafka, this parameter is optional.
     A username consists of 4 to 64 characters and supports only letters, digits, and
 	hyphens (-).
 
-* `password` - (Optional) If the engine is rabbitmq, this parameter is mandatory.
+* `password` - (Optional, String) If the engine is rabbitmq, this parameter is mandatory.
     If the engine is kafka, this parameter is mandatory when ssl_enable is true and is
 	invalid when ssl_enable is false. Indicates the password of an instance. An instance
 	password must meet the following complexity requirements: Must be 8 to 32 characters long.
     Must contain at least 2 of the following character types: lowercase letters, uppercase
 	letters, digits, and special characters (`~!@#$%^&*()-_=+\|[{}]:'",<.>/?).
 
-* `vpc_id` - (Required) Indicates the ID of a VPC.
+* `vpc_id` - (Required, String) Indicates the ID of a VPC.
 
-* `subnet_id` - (Required) Indicates the ID of a subnet.
+* `subnet_id` - (Required, String) Indicates the ID of a subnet.
 
-* `security_group_id` - (Required) Indicates the ID of a security group.
+* `security_group_id` - (Required, String) Indicates the ID of a security group.
 
-* `available_zones` - (Required) Indicates the ID of an AZ. The parameter value can not be
+* `available_zones` - (Required, List) Indicates the ID of an AZ. The parameter value can not be
     left blank or an empty array. For details, see section Querying AZ Information.
 
-* `product_id` - (Required) Indicates a product ID.
+* `product_id` - (Required, String) Indicates a product ID.
 
-* `maintain_begin` - (Optional) Indicates the time at which a maintenance time window starts.
+* `maintain_begin` - (Optional, String) Indicates the time at which a maintenance time window starts.
     Format: HH:mm:ss.
     The start time and end time of a maintenance time window must indicate the time segment of
 	a supported maintenance time window. For details, see section Querying Maintenance Time Windows.
@@ -118,7 +118,7 @@ The following arguments are supported:
 	is left blank, parameter maintain_end is also blank. In this case, the system automatically
 	allocates the default start time 02:00.
 
-* `maintain_end` - (Optional) Indicates the time at which a maintenance time window ends.
+* `maintain_end` - (Optional, String) Indicates the time at which a maintenance time window ends.
     Format: HH:mm:ss.
     The start time and end time of a maintenance time window must indicate the time segment of
 	a supported maintenance time window. For details, see section Querying Maintenance Time Windows.
@@ -128,13 +128,13 @@ The following arguments are supported:
 	blank, parameter maintain_begin is also blank. In this case, the system automatically allocates
 	the default end time 06:00.
 
-* `enable_publicip` - (Optional) Indicates whether to enable public access to a RabbitMQ instance.
+* `enable_publicip` - (Optional, Bool) Indicates whether to enable public access to a RabbitMQ instance.
     true: enable, false: disable
 
-* `publicip_id` - (Optional) Indicates the ID of the elastic IP address (EIP) bound to a RabbitMQ instance.
+* `publicip_id` - (Optional, String) Indicates the ID of the elastic IP address (EIP) bound to a RabbitMQ instance.
     This parameter is mandatory if public access is enabled (that is, enable_publicip is set to true).
 
-* `tags` - (Optional) The key/value pairs to associate with the instance.
+* `tags` - (Optional, Map) The key/value pairs to associate with the instance.
 
 
 ## Attributes Reference

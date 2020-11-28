@@ -43,19 +43,19 @@ resource "huaweicloud_network_acl" "fw_acl" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the network acl resource. If omitted, the provider-level region will be used. Changing this creates a new network acl resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the network acl resource. If omitted, the provider-level region will be used. Changing this creates a new network acl resource.
 
-* `name` - (Required) Specifies the network ACL name. This parameter can contain a maximum of 64 characters,
+* `name` - (Required, String) Specifies the network ACL name. This parameter can contain a maximum of 64 characters,
     which may consist of letters, digits, underscores (_), and hyphens (-).
 
-* `description` - (Optional) Specifies the supplementary information about the network ACL.
+* `description` - (Optional, String) Specifies the supplementary information about the network ACL.
     This parameter can contain a maximum of 255 characters and cannot contain angle brackets (< or >).
 
-* `inbound_rules` - (Optional)  A list of the IDs of ingress rules associated with the network ACL. 
+* `inbound_rules` - (Optional, List)  A list of the IDs of ingress rules associated with the network ACL. 
 
-* `outbound_rules` - (Optional) A list of the IDs of egress rules associated with the network ACL. 
+* `outbound_rules` - (Optional, List) A list of the IDs of egress rules associated with the network ACL. 
 
-* `subnets` - (Optional) A list of the IDs of networks associated with the network ACL. 
+* `subnets` - (Optional, List) A list of the IDs of networks associated with the network ACL. 
 
 ## Attributes Reference
 
