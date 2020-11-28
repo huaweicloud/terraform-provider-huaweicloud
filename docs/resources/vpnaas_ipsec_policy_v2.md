@@ -1,5 +1,5 @@
 ---
-subcategory: "Virtual Private Network (VPN)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_vpnaas\_ipsec\_policy\_v2
