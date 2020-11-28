@@ -26,63 +26,63 @@ resource "huaweicloud_networking_subnet_v2" "subnet_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the V2 Networking client.
+* `region` - (Optional, String, ForceNew) The region in which to create the V2 Networking client.
     A Networking client is needed to create a Neutron subnet. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     subnet.
 
-* `network_id` - (Required) The UUID of the parent network. Changing this
+* `network_id` - (Required, String, ForceNew) The UUID of the parent network. Changing this
     creates a new subnet.
 
-* `cidr` - (Required) CIDR representing IP range for this subnet, based on IP
+* `cidr` - (Required, String, ForceNew) CIDR representing IP range for this subnet, based on IP
     version. Changing this creates a new subnet.
 
-* `ip_version` - (Optional) IP version, either 4 (default) or 6. Changing this creates a
+* `ip_version` - (Optional, Int, ForceNew) IP version, either 4 (default) or 6. Changing this creates a
     new subnet.
 
-* `name` - (Optional) The name of the subnet. Changing this updates the name of
+* `name` - (Optional, String) The name of the subnet. Changing this updates the name of
     the existing subnet.
 
-* `tenant_id` - (Optional) The owner of the subnet. Required if admin wants to
+* `tenant_id` - (Optional, String, ForceNew) The owner of the subnet. Required if admin wants to
     create a subnet for another tenant. Changing this creates a new subnet.
 
-* `allocation_pools` - (Optional) An array of sub-ranges of CIDR available for
+* `allocation_pools` - (Optional, List) An array of sub-ranges of CIDR available for
     dynamic allocation to ports. The allocation_pool object structure is
     documented below. Changing this creates a new subnet.
 
-* `gateway_ip` - (Optional)  Default gateway used by devices in this subnet.
+* `gateway_ip` - (Optional, String)  Default gateway used by devices in this subnet.
     Leaving this blank and not setting `no_gateway` will cause a default
     gateway of `.1` to be used. Changing this updates the gateway IP of the
     existing subnet.
 
-* `no_gateway` - (Optional) Do not set a gateway IP on this subnet. Changing
+* `no_gateway` - (Optional, Bool) Do not set a gateway IP on this subnet. Changing
     this removes or adds a default gateway IP of the existing subnet.
 
-* `enable_dhcp` - (Optional) The administrative state of the network.
+* `enable_dhcp` - (Optional, Bool) The administrative state of the network.
     The value must be "true".
 
-* `dns_nameservers` - (Optional) An array of DNS name server names used by hosts
+* `dns_nameservers` - (Optional, String) An array of DNS name server names used by hosts
     in this subnet. Changing this updates the DNS name servers for the existing
     subnet.
 
-* `host_routes` - (Optional) An array of routes that should be used by devices
+* `host_routes` - (Optional, List) An array of routes that should be used by devices
     with IPs from this subnet (not including local subnet route). The host_route
     object structure is documented below. Changing this updates the host routes
     for the existing subnet.
 
-* `value_specs` - (Optional) Map of additional options.
+* `value_specs` - (Optional, Map, ForceNew) Map of additional options.
 
 The `allocation_pools` block supports:
 
-* `start` - (Required) The starting address.
+* `start` - (Required, String) The starting address.
 
-* `end` - (Required) The ending address.
+* `end` - (Required, String) The ending address.
 
 The `host_routes` block supports:
 
-* `destination_cidr` - (Required) The destination CIDR.
+* `destination_cidr` - (Required, String) The destination CIDR.
 
-* `next_hop` - (Required) The next hop in the route.
+* `next_hop` - (Required, String) The next hop in the route.
 
 ## Attributes Reference
 

@@ -50,31 +50,31 @@ resource "huaweicloud_lb_l7rule" "l7rule_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the L7 Rule resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the L7 Rule resource.
     If omitted, the provider-level region will be used.
     Changing this creates a new L7 Rule.
 
-* `tenant_id` - (Optional) Required for admins. The UUID of the tenant who owns
+* `tenant_id` - (Optional, String, ForceNew) Required for admins. The UUID of the tenant who owns
     the L7 Rule.  Only administrative users can specify a tenant UUID
     other than their own. Changing this creates a new L7 Rule.
 
-* `description` - (Optional) Human-readable description for the L7 Rule.
+* `description` - (Optional, String) Human-readable description for the L7 Rule.
 
-* `type` - (Required) The L7 Rule type - can either be HOST\_NAME or PATH. Changing this creates a new L7 Rule.
+* `type` - (Required, String, ForceNew) The L7 Rule type - can either be HOST\_NAME or PATH. Changing this creates a new L7 Rule.
 
-* `compare_type` - (Required) The comparison type for the L7 rule - can either be
+* `compare_type` - (Required, String) The comparison type for the L7 rule - can either be
     STARTS\_WITH, EQUAL_TO or REGEX
 
-* `l7policy_id` - (Required) The ID of the L7 Policy to query. Changing this creates a new
+* `l7policy_id` - (Required, String, ForceNew) The ID of the L7 Policy to query. Changing this creates a new
     L7 Rule.
 
-* `value` - (Required) The value to use for the comparison. For example, the file type to
+* `value` - (Required, String) The value to use for the comparison. For example, the file type to
     compare.
 
-* `key` - (Optional) The key to use for the comparison. For example, the name of the cookie to
+* `key` - (Optional, String, ForceNew) The key to use for the comparison. For example, the name of the cookie to
     evaluate. Valid when `type` is set to COOKIE or HEADER. Changing this creates a new L7 Rule.
 
-* `admin_state_up` - (Optional) The administrative state of the L7 Rule.
+* `admin_state_up` - (Optional, Bool) The administrative state of the L7 Rule.
     The value can only be true (UP).
 
 ## Attributes Reference

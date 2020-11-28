@@ -33,7 +33,7 @@ The following arguments are supported:
 
 * `vip_id` - (Required, ForceNew) The ID of vip to attach the ports to.
 
-* `port_ids` - (Required) An array of one or more IDs of the ports to attach the vip to.
+* `port_ids` - (Required, String) An array of one or more IDs of the ports to attach the vip to.
 
 ## Attributes Reference
 

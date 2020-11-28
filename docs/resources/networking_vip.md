@@ -34,7 +34,7 @@ The following arguments are supported:
     If you don't specify `ip_address`, an available IP address from
     the specified subnet will be allocated to this vip.
 
-* `name` - (Optional) Specifies a unique name for the vip.
+* `name` - (Optional, String) Specifies a unique name for the vip.
 
 ## Attributes Reference
 

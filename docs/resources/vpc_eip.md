@@ -46,40 +46,40 @@ resource "huaweicloud_vpc_eip" "eip_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the eip resource. If omitted, the provider-level region will be used. Changing this creates a new eip resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the eip resource. If omitted, the provider-level region will be used. Changing this creates a new eip resource.
 
-* `publicip` - (Required) The elastic IP address object.
+* `publicip` - (Required, List) The elastic IP address object.
 
-* `bandwidth` - (Required) The bandwidth object.
+* `bandwidth` - (Required, List) The bandwidth object.
 
-* `enterprise_project_id` - (Optional) The enterprise project id of the elastic IP. Changing this creates a new eip.
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the elastic IP. Changing this creates a new eip.
 
 
 The `publicip` block supports:
 
-* `type` - (Required) The value must be a type supported by the system. Only
+* `type` - (Required, String, ForceNew) The value must be a type supported by the system. Only
     `5_bgp` supported now. Changing this creates a new eip.
 
-* `ip_address` - (Optional) The value must be a valid IP address in the available
+* `ip_address` - (Optional, String, ForceNew) The value must be a valid IP address in the available
     IP address segment. Changing this creates a new eip.
 
-* `port_id` - (Optional) The port id which this eip will associate with. If the value
+* `port_id` - (Optional, String) The port id which this eip will associate with. If the value
     is "" or this not specified, the eip will be in unbind state.
 
 
 The `bandwidth` block supports:
 
-* `name` - (Optional) The bandwidth name, which is a string of 1 to 64 characters
+* `name` - (Optional, String) The bandwidth name, which is a string of 1 to 64 characters
     that contain letters, digits, underscores (_), and hyphens (-).
 
-* `size` - (Optional) The bandwidth size. The value ranges from 1 to 300 Mbit/s.
+* `size` - (Optional, Int) The bandwidth size. The value ranges from 1 to 300 Mbit/s.
 
-* `id` - (Optional) The share bandwidth id. Changing this creates a new eip.
+* `id` - (Optional, String, ForceNew) The share bandwidth id. Changing this creates a new eip.
 
-* `share_type` - (Required) Whether the bandwidth is shared or exclusive. Changing
+* `share_type` - (Required, String, ForceNew) Whether the bandwidth is shared or exclusive. Changing
     this creates a new eip.
 
-* `charge_mode` - (Optional) This is a reserved field. If the system supports charging
+* `charge_mode` - (Optional, String, ForceNew) This is a reserved field. If the system supports charging
     by traffic and this field is specified, then you are charged by traffic for elastic
     IP addresses. Changing this creates a new eip.
 

@@ -47,41 +47,41 @@ resource "huaweicloud_vbs_backup_policy" "vbs_policy2" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the VBS backup policy resource. If omitted, the provider-level region will be used. Changing this creates a new VBS Backup Policy resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the VBS backup policy resource. If omitted, the provider-level region will be used. Changing this creates a new VBS Backup Policy resource.
 
-* `name` - (Required) Specifies the policy name. The value is a string of 1 to 64 characters that
+* `name` - (Required, String) Specifies the policy name. The value is a string of 1 to 64 characters that
     can contain letters, digits, underscores (_), and hyphens (-). It cannot start with **default**.
 
-* `start_time` - (Required) Specifies the start time(UTC) of the backup job. The value is in the
+* `start_time` - (Required, String) Specifies the start time(UTC) of the backup job. The value is in the
     HH:mm format. You need to set the execution time on a full hour. You can set multiple execution
     times, and use commas (,) to separate one time from another.
 
-* `status` - (Optional) Specifies the backup policy status. Possible values are ON or OFF. Defaults to ON.
+* `status` - (Optional, String) Specifies the backup policy status. Possible values are ON or OFF. Defaults to ON.
 
-* `retain_first_backup` - (Required) Specifies whether to retain the first backup in the current month.
+* `retain_first_backup` - (Required, String) Specifies whether to retain the first backup in the current month.
     Possible values are Y or N.
 
-* `rentention_num` - (Optional) Specifies number of retained backups. Minimum value is 2.
+* `rentention_num` - (Optional, Int) Specifies number of retained backups. Minimum value is 2.
     Either this field or `rentention_day` must be specified.
 
-* `rentention_day` - (Optional) Specifies days of retained backups. Minimum value is 2.
+* `rentention_day` - (Optional, Int) Specifies days of retained backups. Minimum value is 2.
     Either this field or `rentention_num` must be specified.
 
-* `frequency` - (Optional) Specifies the backup interval. The value is in the range of 1 to 14 days.
+* `frequency` - (Optional, Int) Specifies the backup interval. The value is in the range of 1 to 14 days.
     Either this field or `week_frequency` must be specified.
 
-* `week_frequency` - (Optional) Specifies on which days of each week backup jobs are executed.
+* `week_frequency` - (Optional, List) Specifies on which days of each week backup jobs are executed.
     The value can be one or more of the following: SUN, MON, TUE, WED, THU, FRI, SAT.
     Either this field or `frequency` must be specified.
 
-* `resources` - (Optional) Specifies one or more volumes associated with the backup policy.
+* `resources` - (Optional, List) Specifies one or more volumes associated with the backup policy.
     Any previously associated backup policy will no longer apply.
 
-* `tags` - (Optional) Represents the list of tags to be configured for the backup policy.
+* `tags` - (Optional, Map) Represents the list of tags to be configured for the backup policy.
 
-    * `key` - (Required) Specifies the tag key. A tag key consists of up to 36 characters, chosen from letters, digits, hyphens (-), and underscores (_).
+    * `key` - (Required, String) Specifies the tag key. A tag key consists of up to 36 characters, chosen from letters, digits, hyphens (-), and underscores (_).
 
-    * `value` - (Required) Specifies the tag value. A tag value consists of 0 to 43 characters, chosen from letters, digits, hyphens (-), and underscores (_).
+    * `value` - (Required, String) Specifies the tag value. A tag value consists of 0 to 43 characters, chosen from letters, digits, hyphens (-), and underscores (_).
 
 
 ## Attributes Reference

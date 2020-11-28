@@ -152,51 +152,51 @@ resource "huaweicloud_rds_instance_v1" "instance" {
 
 The following arguments are supported:
 
-* `name` - (Required) Specifies the DB instance name. The DB instance name of
+* `name` - (Required, String) Specifies the DB instance name. The DB instance name of
     the same type is unique in the same tenant.
 
-* `datastore` - (Required) Specifies database information. The structure is
+* `datastore` - (Required, List, ForceNew) Specifies database information. The structure is
     described below.
 
-* `flavorref` - (Required) Specifies the specification ID (flavors.id in the
+* `flavorref` - (Required, String) Specifies the specification ID (flavors.id in the
     response message in Obtaining All DB Instance Specifications).
 
-* `volume` - (Required) Specifies the volume information. The structure is described
+* `volume` - (Required, List) Specifies the volume information. The structure is described
     below.
 
-* `region` - (Required) Specifies the region ID.
+* `region` - (Required, String, ForceNew) Specifies the region ID.
 
-* `availabilityzone` - (Required) Specifies the ID of the AZ.
+* `availabilityzone` - (Required, String, ForceNew) Specifies the ID of the AZ.
 
-* `vpc` - (Required) Specifies the VPC ID. For details about how to create this
+* `vpc` - (Required, String, ForceNew) Specifies the VPC ID. For details about how to create this
     parameter value, see section "Virtual Private Cloud" in the Virtual Private
     Cloud API Reference.
 
-* `nics` - (Required) Specifies the nics information. For details about how
+* `nics` - (Required, List, ForceNew) Specifies the nics information. For details about how
     to create this parameter value, see section "Subnet" in the Virtual Private
     Cloud API Reference. The structure is described below.
 
-* `securitygroup` - (Required) Specifies the security group which the RDS DB
+* `securitygroup` - (Required, List, ForceNew) Specifies the security group which the RDS DB
     instance belongs to. The structure is described below.
 
-* `dbport` - (Optional) Specifies the database port number.
+* `dbport` - (Optional, String, ForceNew) Specifies the database port number.
 
-* `backupstrategy` - (Optional) Specifies the advanced backup policy. The structure
+* `backupstrategy` - (Optional, List) Specifies the advanced backup policy. The structure
     is described below.
 
-* `dbrtpd` - (Required) Specifies the password for user root of the database.
+* `dbrtpd` - (Required, String, ForceNew) Specifies the password for user root of the database.
 
-* `ha` - (Optional) Specifies the parameters configured on HA and is used when
+* `ha` - (Optional, List) Specifies the parameters configured on HA and is used when
     creating HA DB instances. The structure is described below. NOTICE:
     RDS for Microsoft SQL Server does not support creating HA DB instances and
     this parameter is not involved.
 
 The `datastore` block supports:
 
-* `type` - (Required) Specifies the DB engine. Currently, MySQL, PostgreSQL, and
+* `type` - (Required, String, ForceNew) Specifies the DB engine. Currently, MySQL, PostgreSQL, and
     Microsoft SQL Server are supported. The value is MySQL, PostgreSQL, or SQLServer.
 
-* `version` - (Required) Specifies the DB instance version.
+* `version` - (Required, String, ForceNew) Specifies the DB instance version.
 
 
 Available value for attributes
@@ -210,10 +210,10 @@ SQLServer| 2014 SP2 SE
 
 The `volume` block supports:
 
-* `type` - (Required) Specifies the volume type. Valid value:
+* `type` - (Required, String, ForceNew) Specifies the volume type. Valid value:
     It must be COMMON (SATA) or ULTRAHIGH (SSD) and is case-sensitive.
 
-* `size` - (Required) Specifies the volume size.
+* `size` - (Required, Int) Specifies the volume size.
     Its value must be a multiple of 10 and the value range is 100 GB to 2000 GB.
 
 The `nics` block supports:
@@ -226,22 +226,22 @@ The `securitygroup ` block supports:
 
 The `backupstrategy ` block supports:
 
-* `starttime` - (Optional) Indicates the backup start time that has been set.
+* `starttime` - (Optional, String) Indicates the backup start time that has been set.
     The backup task will be triggered within one hour after the backup start time.
     Valid value: The value cannot be empty. It must use the hh:mm:ss format and
     must be valid. The current time is the UTC time.
 
-* `keepdays` - (Optional) Specifies the number of days to retain the generated backup files.
+* `keepdays` - (Optional, Int) Specifies the number of days to retain the generated backup files.
     Its value range is 0 to 35. If this parameter is not specified or set to 0, the
     automated backup policy is disabled.
 
 The `ha` block supports:
 
-* `enable` - (Optional) Specifies the configured parameters on the HA.
+* `enable` - (Optional, Bool) Specifies the configured parameters on the HA.
     Valid value: The value is true or false. The value true indicates creating
     HA DB instances. The value false indicates creating a single DB instance.
 
-* `replicationmode` - (Optional) Specifies the replication mode for the standby DB instance.
+* `replicationmode` - (Optional, String) Specifies the replication mode for the standby DB instance.
     The value cannot be empty.
     For MySQL, the value is async or semisync.
     For PostgreSQL, the value is async or sync.

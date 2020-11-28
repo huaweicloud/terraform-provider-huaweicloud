@@ -26,31 +26,31 @@ resource "huaweicloud_nat_dnat_rule" "dnat_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the dnat rule resource. If omitted, the provider-level region will be used. Changing this creates a new Dnat rule resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the dnat rule resource. If omitted, the provider-level region will be used. Changing this creates a new Dnat rule resource.
 
-* `floating_ip_id` - (Required) Specifies the ID of the floating IP address.
+* `floating_ip_id` - (Required, String, ForceNew) Specifies the ID of the floating IP address.
   Changing this creates a new resource.
 
-* `internal_service_port` - (Required) Specifies port used by ECSs or BMSs
+* `internal_service_port` - (Required, Int, ForceNew) Specifies port used by ECSs or BMSs
   to provide services for external systems. Changing this creates a new resource.
 
-* `nat_gateway_id` - (Required) ID of the nat gateway this dnat rule belongs to.
+* `nat_gateway_id` - (Required, String, ForceNew) ID of the nat gateway this dnat rule belongs to.
    Changing this creates a new dnat rule.
 
-* `port_id` - (Optional) Specifies the port ID of an ECS or a BMS.
+* `port_id` - (Optional, String, ForceNew) Specifies the port ID of an ECS or a BMS.
   This parameter and private_ip are alternative. Changing this creates a
   new dnat rule.
 
-* `private_ip` - (Optional) Specifies the private IP address of a
+* `private_ip` - (Optional, String, ForceNew) Specifies the private IP address of a
   user, for example, the IP address of a VPC for dedicated connection.
   This parameter and port_id are alternative.
   Changing this creates a new dnat rule.
 
-* `protocol` - (Required) Specifies the protocol type. Currently,
+* `protocol` - (Required, String, ForceNew) Specifies the protocol type. Currently,
   TCP, UDP, and ANY are supported.
   Changing this creates a new dnat rule.
 
-* `external_service_port` - (Required) Specifies port used by ECSs or
+* `external_service_port` - (Required, Int, ForceNew) Specifies port used by ECSs or
   BMSs to provide services for external systems.
   Changing this creates a new dnat rule.
 

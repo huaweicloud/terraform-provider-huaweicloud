@@ -86,11 +86,11 @@ resource "huaweicloud_compute_eip_associate" "associated" {
 
 The following arguments are supported:
 
-* `public_ip` - (Required) The EIP to associate.
+* `public_ip` - (Required, String, ForceNew) The EIP to associate.
 
-* `instance_id` - (Required) The instance to associte the EIP with.
+* `instance_id` - (Required, String, ForceNew) The instance to associte the EIP with.
 
-* `fixed_ip` - (Optional) The specific IP address to direct traffic to.
+* `fixed_ip` - (Optional, String, ForceNew) The specific IP address to direct traffic to.
 
 ## Attributes Reference
 
