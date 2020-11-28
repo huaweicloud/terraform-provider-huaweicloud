@@ -38,7 +38,7 @@ The following arguments are supported:
 * `router_id` - (Required, String, ForceNew) ID of the router this nat gateway belongs to. Changing
     this creates a new nat gateway.
 
-* `internal_network_id` - (Optional, String, ForceNew) ID of the network this nat gateway connects to.
+* `internal_network_id` - (Required, String, ForceNew) ID of the network this nat gateway connects to.
     Changing this creates a new nat gateway.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the nat gateway. 
