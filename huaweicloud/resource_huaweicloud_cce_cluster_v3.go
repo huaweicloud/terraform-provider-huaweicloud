@@ -353,7 +353,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	cert, err := r.Extract()
 
 	if err != nil {
-		log.Printf("Error retrieving opentelekomcloud CCE cluster cert: %s", err)
+		log.Printf("Error retrieving HuaweiCloud CCE cluster cert: %s", err)
 	}
 
 	//Set Certificate Clusters
