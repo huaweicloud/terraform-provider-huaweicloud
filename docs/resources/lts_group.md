@@ -23,7 +23,7 @@ The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) The region in which to create the log group resource. If omitted, the provider-level region will be used. Changing this creates a new log group resource.
 
-* `group_name` - (Required, String) Specifies the log group name. Changing this parameter will create a new resource.
+* `group_name` - (Required, String, ForceNew) Specifies the log group name. Changing this parameter will create a new resource.
 
 * `ttl_in_days` - (Required, Int) Specifies the log expiration time(days), value range: 1-30.
 
