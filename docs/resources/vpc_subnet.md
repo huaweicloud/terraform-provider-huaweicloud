@@ -40,27 +40,27 @@ resource "huaweicloud_vpc_subnet" "subnet_with_tags" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the vpc subnet. If omitted, the provider-level region will be used. hanging this creates a new Subnet resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the vpc subnet. If omitted, the provider-level region will be used. hanging this creates a new Subnet resource.
 
-* `name` (Required) - The subnet name. The value is a string of 1 to 64 characters that can contain letters, digits, underscores (_), and hyphens (-).
+* `name` (Required, String) - The subnet name. The value is a string of 1 to 64 characters that can contain letters, digits, underscores (_), and hyphens (-).
 
-* `cidr` (Required) - Specifies the network segment on which the subnet resides. The value must be in CIDR format. The value must be within the CIDR block of the VPC. The subnet mask cannot be greater than 28. Changing this creates a new Subnet.
+* `cidr` (Required, String, ForceNew) - Specifies the network segment on which the subnet resides. The value must be in CIDR format. The value must be within the CIDR block of the VPC. The subnet mask cannot be greater than 28. Changing this creates a new Subnet.
 
-* `gateway_ip` (Required) - Specifies the gateway of the subnet. The value must be a valid IP address. The value must be an IP address in the subnet segment. Changing this creates a new Subnet.
+* `gateway_ip` (Required, String, ForceNew) - Specifies the gateway of the subnet. The value must be a valid IP address. The value must be an IP address in the subnet segment. Changing this creates a new Subnet.
 
-* `vpc_id` (Required) - Specifies the ID of the VPC to which the subnet belongs. Changing this creates a new Subnet.
+* `vpc_id` (Required, String, ForceNew) - Specifies the ID of the VPC to which the subnet belongs. Changing this creates a new Subnet.
 
-* `dhcp_enable` (Optional) - Specifies whether the DHCP function is enabled for the subnet. The value can be true or false. If this parameter is left blank, it is set to true by default.
+* `dhcp_enable` (Optional, Bool) - Specifies whether the DHCP function is enabled for the subnet. The value can be true or false. If this parameter is left blank, it is set to true by default.
 
-* `primary_dns` (Optional) - Specifies the IP address of DNS server 1 on the subnet. The value must be a valid IP address.
+* `primary_dns` (Optional, String) - Specifies the IP address of DNS server 1 on the subnet. The value must be a valid IP address.
 
-* `secondary_dns` (Optional) - Specifies the IP address of DNS server 2 on the subnet. The value must be a valid IP address.
+* `secondary_dns` (Optional, String) - Specifies the IP address of DNS server 2 on the subnet. The value must be a valid IP address.
 
-* `dns_list` (Optional) - Specifies the DNS server address list of a subnet. This field is required if you need to use more than two DNS servers. This parameter value is the superset of both DNS server address 1 and DNS server address 2.
+* `dns_list` (Optional, List) - Specifies the DNS server address list of a subnet. This field is required if you need to use more than two DNS servers. This parameter value is the superset of both DNS server address 1 and DNS server address 2.
 
-* `availability_zone` (Optional) - Identifies the availability zone (AZ) to which the subnet belongs. The value must be an existing AZ in the system. Changing this creates a new Subnet.
+* `availability_zone` (Optional, String, ForceNew) - Identifies the availability zone (AZ) to which the subnet belongs. The value must be an existing AZ in the system. Changing this creates a new Subnet.
 
-* `tags` - (Optional) The key/value pairs to associate with the subnet.
+* `tags` - (Optional, Map) The key/value pairs to associate with the subnet.
 
 # Attributes Reference
 

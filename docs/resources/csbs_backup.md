@@ -26,15 +26,15 @@ resource "huaweicloud_csbs_backup" "backup" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the CSBS backup resource. If omitted, the provider-level region will be used. Changing this creates a new CSBS backup resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the CSBS backup resource. If omitted, the provider-level region will be used. Changing this creates a new CSBS backup resource.
 
-* `backup_name` - (Optional) Name for the backup. The value consists of 1 to 255 characters and can contain only letters, digits, underscores (_), and hyphens (-). Changing backup_name creates a new backup.
+* `backup_name` - (Optional, String, ForceNew) Name for the backup. The value consists of 1 to 255 characters and can contain only letters, digits, underscores (_), and hyphens (-). Changing backup_name creates a new backup.
 
-* `description` - (Optional) Backup description. The value consists of 0 to 255 characters and must not contain a greater-than sign (>) or less-than sign (<). Changing description creates a new backup.
+* `description` - (Optional, String) Backup description. The value consists of 0 to 255 characters and must not contain a greater-than sign (>) or less-than sign (<). Changing description creates a new backup.
 
-* `resource_id` - (Required) ID of the target to which the backup is restored. Changing this creates a new backup.
+* `resource_id` - (Required, String, ForceNew) ID of the target to which the backup is restored. Changing this creates a new backup.
 
-* `resource_type` - (Optional) Type of the target to which the backup is restored. The default value is **OS::Nova::Server** for an ECS. Changing this creates a new backup.
+* `resource_type` - (Optional, String, ForceNew) Type of the target to which the backup is restored. The default value is **OS::Nova::Server** for an ECS. Changing this creates a new backup.
 
 ## Attributes Reference
 In addition to all arguments above, the following attributes are exported:

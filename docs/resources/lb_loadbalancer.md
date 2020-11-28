@@ -38,27 +38,27 @@ resource "huaweicloud_networking_eip_associate" "eip_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the loadbalancer resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the loadbalancer resource.
     If omitted, the provider-level region will be used.
     Changing this creates a new loadbalancer.
 
-* `name` - (Optional) Human-readable name for the loadbalancer. Does not have
+* `name` - (Optional, String) Human-readable name for the loadbalancer. Does not have
     to be unique.
 
-* `description` - (Optional) Human-readable description for the loadbalancer.
+* `description` - (Optional, String) Human-readable description for the loadbalancer.
 
-* `vip_subnet_id` - (Required) The network on which to allocate the
+* `vip_subnet_id` - (Required, String, ForceNew) The network on which to allocate the
     loadbalancer's address. A tenant can only create Loadbalancers on networks
     authorized by policy (e.g. networks that belong to them or networks that
     are shared).  Changing this creates a new loadbalancer.
 
-* `vip_address` - (Optional) The ip address of the load balancer.
+* `vip_address` - (Optional, String, ForceNew) The ip address of the load balancer.
     Changing this creates a new loadbalancer.
 
-* `admin_state_up` - (Optional) The administrative state of the loadbalancer.
+* `admin_state_up` - (Optional, Bool) The administrative state of the loadbalancer.
     A valid value is true (UP) or false (DOWN).
 
-* `tags` - (Optional) The key/value pairs to associate with the loadbalancer.
+* `tags` - (Optional, Map) The key/value pairs to associate with the loadbalancer.
 
 ## Attributes Reference
 

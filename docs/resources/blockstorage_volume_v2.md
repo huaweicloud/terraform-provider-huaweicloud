@@ -23,42 +23,41 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the volume. If
+* `region` - (Optional, String, ForceNew) The region in which to create the volume. If
     omitted, the `region` argument of the provider is used. Changing this
     creates a new volume.
 
-* `size` - (Required) The size of the volume to create (in gigabytes).
+* `size` - (Required, Int) The size of the volume to create (in gigabytes).
 
-* `availability_zone` - (Optional) The availability zone for the volume.
+* `availability_zone` - (Optional, String, ForceNew) The availability zone for the volume.
     Changing this creates a new volume.
 
-* `consistency_group_id` - (Optional) The consistency group to place the volume
-    in.
+* `consistency_group_id` - (Optional, String, ForceNew) The consistency group to place the volume in.
 
-* `description` - (Optional) A description of the volume. Changing this updates
+* `description` - (Optional, String) A description of the volume. Changing this updates
     the volume's description.
 
-* `image_id` - (Optional) The image ID from which to create the volume.
+* `image_id` - (Optional, String, ForceNew) The image ID from which to create the volume.
     Changing this creates a new volume.
 
-* `metadata` - (Optional) Metadata key/value pairs to associate with the volume.
+* `metadata` - (Optional, Map) Metadata key/value pairs to associate with the volume.
     Changing this updates the existing volume metadata.
 
-* `name` - (Optional) A unique name for the volume. Changing this updates the
+* `name` - (Optional, String) A unique name for the volume. Changing this updates the
     volume's name.
 
-* `snapshot_id` - (Optional) The snapshot ID from which to create the volume.
+* `snapshot_id` - (Optional, String, ForceNew) The snapshot ID from which to create the volume.
     Changing this creates a new volume.
 
-* `source_replica` - (Optional) The volume ID to replicate with.
+* `source_replica` - (Optional, String, ForceNew) The volume ID to replicate with.
 
-* `source_vol_id` - (Optional) The volume ID from which to create the volume.
+* `source_vol_id` - (Optional, String, ForceNew) The volume ID from which to create the volume.
     Changing this creates a new volume.
 
-* `volume_type` - (Optional) The type of volume to create. Available types are
+* `volume_type` - (Optional, String, ForceNew) The type of volume to create. Available types are
     `SSD`, `SAS` and `SATA`. Changing this creates a new volume.
 
-* `cascade` - (Optional, Default:false) Specifies to delete all snapshots associated with the EVS disk.
+* `cascade` - (Optional, Bool) Default:false. Specifies to delete all snapshots associated with the EVS disk.
 
 ## Attributes Reference
 

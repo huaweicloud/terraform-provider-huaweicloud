@@ -80,63 +80,63 @@ resource "huaweicloud_dds_instance" "instance" {
 
 The following arguments are supported:
 
-* `region` - (Optional) Specifies the region of the DDS instance. Changing this creates
+* `region` - (Optional, String, ForceNew) Specifies the region of the DDS instance. Changing this creates
 	a new instance.
 
-* `name` - (Required) Specifies the DB instance name. The DB instance name of the same
+* `name` - (Required, String) Specifies the DB instance name. The DB instance name of the same
 	type is unique in the same tenant.
 
-* `datastore` - (Required) Specifies database information. The structure is described
+* `datastore` - (Required, List, ForceNew) Specifies database information. The structure is described
 	below. Changing this creates a new instance.
 
-* `availability_zone` - (Required) Specifies the ID of the availability zone. Changing
+* `availability_zone` - (Required, String, ForceNew) Specifies the ID of the availability zone. Changing
 	this creates a new instance.
 
-* `vpc_id` - (Required) Specifies the VPC ID. Changing this creates a new instance.
+* `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID. Changing this creates a new instance.
 
-* `subnet_id` - (Required) Specifies the subnet Network ID. Changing this creates a new instance.
+* `subnet_id` - (Required, String, ForceNew) Specifies the subnet Network ID. Changing this creates a new instance.
 
-* `security_group_id` - (Required) Specifies the security group ID of the DDS instance.
+* `security_group_id` - (Required, String) Specifies the security group ID of the DDS instance.
 
-* `password` - (Required) Specifies the Administrator password of the database instance.
+* `password` - (Required, String) Specifies the Administrator password of the database instance.
 
-* `disk_encryption_id` - (Required) Specifies the disk encryption ID of the instance.
+* `disk_encryption_id` - (Required, String, ForceNew) Specifies the disk encryption ID of the instance.
 	Changing this creates a new instance.
 
-* `mode` - (Required) Specifies the mode of the database instance. Changing this creates
+* `mode` - (Required, String, ForceNew) Specifies the mode of the database instance. Changing this creates
 	a new instance.
 
-* `flavor` - (Required) Specifies the flavors information. The structure is described below.
+* `flavor` - (Required, List, ForceNew) Specifies the flavors information. The structure is described below.
 	Changing this creates a new instance.
 
-* `backup_strategy` - (Optional) Specifies the advanced backup policy. The structure is
+* `backup_strategy` - (Optional, List, ForceNew) Specifies the advanced backup policy. The structure is
 	described below. Changing this creates a new instance.
 
-* `ssl` - (Optional) Specifies whether to enable or disable SSL. Defaults to true.
+* `ssl` - (Optional, Bool) Specifies whether to enable or disable SSL. Defaults to true.
 
 **Note:** The instance will be restarted in the background when switching SSL. Please operate with caution.
 
-* `tags` - (Optional) The key/value pairs to associate with the DDS instance.
+* `tags` - (Optional, Map) The key/value pairs to associate with the DDS instance.
 
 The `datastore` block supports:
 
-* `type` - (Required) Specifies the DB engine. 'DDS-Community' and 'DDS-Enhanced' are supported.
+* `type` - (Required, String, ForceNew) Specifies the DB engine. 'DDS-Community' and 'DDS-Enhanced' are supported.
 
-* `version` - (Required) Specifies the DB instance version. For the Community Edition,
+* `version` - (Required, String, ForceNew) Specifies the DB instance version. For the Community Edition,
   the valid values are 3.2, 3.4, or 4.0. For the Enhanced Edition, only 3.4 is supported now.
 
-* `storage_engine` - (Optional) Specifies the storage engine of the DB instance. 
+* `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine of the DB instance. 
   DDS Community Edition supports wiredTiger engine, and the Enhanced Edition supports rocksDB engine.
 
 The `flavor` block supports:
 
-* `type` - (Required) Specifies the node type. Valid value:
+* `type` - (Required, String, ForceNew) Specifies the node type. Valid value:
   * For a Community Edition cluster instance, the value can be mongos, shard, or config.
   * For an Enhanced Edition cluster instance, the value is shard.
   * For a Community Edition replica set instance, the value is replica.
   * For a Community Edition single node instance, the value is single.
 
-* `num` - (Required) Specifies the node quantity. Valid value:
+* `num` - (Required, Int, ForceNew) Specifies the node quantity. Valid value:
 	* In a Community Edition cluster instance,the number of mongos ranges from 2 to 16.
   * In a Community Edition cluster instance,the number of shards ranges from 2 to 16.
   * In an Enhanced Edition cluster instance, the number of shards ranges from 2 to 12.
@@ -144,12 +144,12 @@ The `flavor` block supports:
 	* replica: the value is 1.
   * single: The value is 1.
 
-* `storage` - (Optional) Specifies the disk type. Valid value: ULTRAHIGH which indicates the type SSD.
+* `storage` - (Optional, String, ForceNew) Specifies the disk type. Valid value: ULTRAHIGH which indicates the type SSD.
 
-* `size` - (Optional) Specifies the disk size. The value must be a multiple of 10. The unit is GB.
+* `size` - (Optional, Int, ForceNew) Specifies the disk size. The value must be a multiple of 10. The unit is GB.
   This parameter is mandatory for nodes except mongos and invalid for mongos.
 
-* `spec_code` - (Required) Specifies the resource specification code. In a cluster instance,
+* `spec_code` - (Required, String, ForceNew) Specifies the resource specification code. In a cluster instance,
   multiple specifications need to be specified. All specifications must be of the same series,
   that is, general-purpose (s6), enhanced (c3), or enhanced II (c6). For example:
   * dds.mongodb.s6.large.4.mongos and dds.mongodb.s6.large.4.config have the same specifications.
@@ -157,13 +157,13 @@ The `flavor` block supports:
 
 The `backup_strategy ` block supports:
 
-* `start_time` - (Required) Specifies the backup time window. Automated backups will be triggered
+* `start_time` - (Required, String) Specifies the backup time window. Automated backups will be triggered
 	during the backup time window. The value cannot be empty. It must be a valid value in the
 	"hh:mm-HH:MM" format. The current time is in the UTC format.
 	* The HH value must be 1 greater than the hh value.
 	* The values from mm and MM must be the same and must be set to any of the following 00, 15, 30, or 45.
 
-* `keep_days` - (Optional) Specifies the number of days to retain the generated backup files. The
+* `keep_days` - (Optional, Int) Specifies the number of days to retain the generated backup files. The
 	value range is from 0 to 732.
 	* If this parameter is set to 0, the automated backup policy is not set.
 	* If this parameter is not transferred, the automated backup policy is enabled by default.

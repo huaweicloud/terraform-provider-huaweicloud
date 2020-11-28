@@ -20,15 +20,15 @@ resource "huaweicloud_compute_keypair" "test-keypair" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the keypair resource. If omitted, the provider-level region will be used. Changing this creates a new keypair resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the keypair resource. If omitted, the provider-level region will be used. Changing this creates a new keypair resource.
 
-* `name` - (Required) A unique name for the keypair. Changing this creates a new
+* `name` - (Required, String, ForceNew) A unique name for the keypair. Changing this creates a new
     keypair.
 
-* `public_key` - (Required) A pregenerated OpenSSH-formatted public key.
+* `public_key` - (Required, String, ForceNew) A pregenerated OpenSSH-formatted public key.
     Changing this creates a new keypair.
 
-* `value_specs` - (Optional) Map of additional options.
+* `value_specs` - (Optional, Map, ForceNew) Map of additional options.
 
 ## Attributes Reference
 

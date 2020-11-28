@@ -23,22 +23,22 @@ resource "huaweicloud_kms_key" "key_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the KMS key resource. If omitted, the provider-level region will be used. Changing this creates a new KMS key resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the KMS key resource. If omitted, the provider-level region will be used. Changing this creates a new KMS key resource.
 
-* `key_alias` - (Required) The alias in which to create the key. It is required when
+* `key_alias` - (Required, String) The alias in which to create the key. It is required when
     we create a new key. Changing this updates the alias of key.
 
-* `key_description` - (Optional) The description of the key as viewed in Huawei console.
+* `key_description` - (Optional, String) The description of the key as viewed in Huawei console.
     Changing this updates the description of key.
 
-* `pending_days` - (Optional) Duration in days after which the key is deleted
+* `pending_days` - (Optional, String) Duration in days after which the key is deleted
     after destruction of the resource, must be between 7 and 1096 days. It doesn't
     have default value. It only be used when delete a key.
 
-* `is_enabled` - (Optional) Specifies whether the key is enabled. Defaults to true.
+* `is_enabled` - (Optional, Bool) Specifies whether the key is enabled. Defaults to true.
     Changing this updates the state of existing key.
 
-* `enterprise_project_id` - (Optional) The enterprise project id of the kms key. Changing this creates a new key.
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the kms key. Changing this creates a new key.
 
 
 ## Attributes Reference

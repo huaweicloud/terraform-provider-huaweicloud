@@ -28,27 +28,27 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo-1" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the SFS Turbo resource. If omitted, the provider-level region will be used. Changing this creates a new SFS Turbo resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the SFS Turbo resource. If omitted, the provider-level region will be used. Changing this creates a new SFS Turbo resource.
 
-* `name` - (Required) Specifies the name of an SFS Turbo file system. The value contains 4 to 64
+* `name` - (Required, String, ForceNew) Specifies the name of an SFS Turbo file system. The value contains 4 to 64
   characters and must start with a letter. Changing this will create a new resource.
 
-* `size` - (Required) Specifies the capacity of a common file system, in GB. The value ranges from 500 to 32768.
+* `size` - (Required, Int) Specifies the capacity of a common file system, in GB. The value ranges from 500 to 32768.
 
-* `share_proto` - (Optional) Specifies the protocol for sharing file systems. The valid value is NFS.
+* `share_proto` - (Optional, String) Specifies the protocol for sharing file systems. The valid value is NFS.
   Changing this will create a new resource.
 
-* `share_type` - (Optional) Specifies the file system type. The valid values are STANDARD and PERFORMANCE
+* `share_type` - (Optional, String, ForceNew) Specifies the file system type. The valid values are STANDARD and PERFORMANCE
   Changing this will create a new resource.
 
-* `availability_zone` - (Required) Specifies the availability zone where the file system is located.
+* `availability_zone` - (Required, String, ForceNew) Specifies the availability zone where the file system is located.
   Changing this parameter will create a new resource.
 
-* `vpc_id` - (Required) Specifies the VPC ID. Changing this parameter will create a new resource.
+* `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID. Changing this parameter will create a new resource.
 
-* `subnet_id` - (Required) Specifies the network ID of the subnet. Changing this parameter will create a new resource.
+* `subnet_id` - (Required, String, ForceNew) Specifies the network ID of the subnet. Changing this parameter will create a new resource.
 
-* `security_group_id` - (Required) Specifies the security group ID. Changing this will create a new resource.
+* `security_group_id` - (Required, String, ForceNew) Specifies the security group ID. Changing this will create a new resource.
 
 -> **NOTE:**
   SFS Turbo will create two private IP addresses and one virtual IP address under the subnet you specified.

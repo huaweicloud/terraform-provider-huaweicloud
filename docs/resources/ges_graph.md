@@ -32,26 +32,26 @@ resource "huaweicloud_ges_graph" "graph" {
 
 The following arguments are supported:
 
-* `availability_zone` - (Required) Indicates availability zone.  Changing this parameter will create a new resource.
+* `availability_zone` - (Required, String, ForceNew) Indicates availability zone.  Changing this parameter will create a new resource.
 
-* `graph_size_type` - (Required) Indicates the graph size type.   0: indicates 10 thousand edges.   1:
+* `graph_size_type` - (Required, String, ForceNew) Indicates the graph size type.   0: indicates 10 thousand edges.   1:
   indicates 1 million edges.   2: indicates 10 million edges.   3:
   indicates 100 million edges.   4: indicates 1 billion edges.   5:
   indicates 10 billion edges.   6: indicates 100 billion edges.  Changing this parameter will create a new resource.
 
-* `name` - (Required) Indicates the graph name.  Changing this parameter will create a new resource.
+* `name` - (Required, String, ForceNew) Indicates the graph name.  Changing this parameter will create a new resource.
 
-* `region` - (Required) Indicates the region code.  Changing this parameter will create a new resource.
+* `region` - (Required, String, ForceNew) Indicates the region code.  Changing this parameter will create a new resource.
 
-* `security_group_id` - (Required) Indicates the security group ID.  Changing this parameter will create a new resource.
+* `security_group_id` - (Required, String, ForceNew) Indicates the security group ID.  Changing this parameter will create a new resource.
 
-* `subnet_id` - (Required) Indicates the subnet ID in the specified VPC.  Changing this parameter will create a new resource.
+* `subnet_id` - (Required, String, ForceNew) Indicates the subnet ID in the specified VPC.  Changing this parameter will create a new resource.
 
-* `vpc_id` - (Required) Indicates the VPC ID.  Changing this parameter will create a new resource.
+* `vpc_id` - (Required, String, ForceNew) Indicates the VPC ID.  Changing this parameter will create a new resource.
 
-* `auto_assign` - (Optional) Indicates whether to assign a new eip to the graph automatically.  Changing this parameter will create a new resource.
+* `auto_assign` - (Optional, Bool, ForceNew) Indicates whether to assign a new eip to the graph automatically.  Changing this parameter will create a new resource.
 
-* `eip_id` - (Optional) Indicates the ID of an EIP.  Changing this parameter will create a new resource.
+* `eip_id` - (Optional, String, ForceNew) Indicates the ID of an EIP.  Changing this parameter will create a new resource.
 
 ## Attributes Reference
 

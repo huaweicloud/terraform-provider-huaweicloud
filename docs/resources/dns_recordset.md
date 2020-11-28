@@ -34,29 +34,29 @@ resource "huaweicloud_dns_recordset" "rs_example_com" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the DNS record set.
+* `region` - (Optional, String, ForceNew) The region in which to create the DNS record set.
     If omitted, the `region` argument of the provider will be used.
     Changing this creates a new DNS record set.
 
-* `zone_id` - (Required) The ID of the zone in which to create the record set.
+* `zone_id` - (Required, String, ForceNew) The ID of the zone in which to create the record set.
   Changing this creates a new DNS  record set.
 
-* `name` - (Required) The name of the record set. Note the `.` at the end of the name.
+* `name` - (Required, String, ForceNew) The name of the record set. Note the `.` at the end of the name.
   Changing this creates a new DNS record set.
 
-* `type` - (Optional) The type of record set. The options include `A`, `AAAA`, `MX`,
+* `type` - (Optional, String, ForceNew) The type of record set. The options include `A`, `AAAA`, `MX`,
   `CNAME`, `TXT`, `NS`, `SRV`, and `PTR`. Changing this creates a new DNS record set.
 
-* `ttl` - (Optional) The time to live (TTL) of the record set (in seconds). The value
+* `ttl` - (Optional, Int) The time to live (TTL) of the record set (in seconds). The value
   range is 300–2147483647. The default value is 300.
 
-* `description` - (Optional) A description of the record set.
+* `description` - (Optional, String) A description of the record set.
 
-* `records` - (Required) An array of DNS records.
+* `records` - (Required, List) An array of DNS records.
 
-* `tags` - (Optional) The key/value pairs to associate with the zone.
+* `tags` - (Optional, Map) The key/value pairs to associate with the zone.
 
-* `value_specs` - (Optional) Map of additional options. Changing this creates a
+* `value_specs` - (Optional, Map, ForceNew) Map of additional options. Changing this creates a
   new record set.
 
 ## Attributes Reference

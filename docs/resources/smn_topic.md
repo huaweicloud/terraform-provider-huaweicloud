@@ -20,16 +20,16 @@ resource "huaweicloud_smn_topic" "topic_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the SMN topic resource. If omitted, the provider-level region will be used. Changing this creates a new SMN Topic resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the SMN topic resource. If omitted, the provider-level region will be used. Changing this creates a new SMN Topic resource.
 
-* `name` - (Required) The name of the topic to be created.
+* `name` - (Required, String, ForceNew) The name of the topic to be created.
 
-* `display_name` - (Optional) Topic display name, which is presented as the
+* `display_name` - (Optional, String) Topic display name, which is presented as the
     name of the email sender in an email message.
 
-* `topic_urn` - (Optional) Resource identifier of a topic, which is unique.
+* `topic_urn` - (Optional, String, ForceNew) Resource identifier of a topic, which is unique.
 
-* `push_policy` - (Optional) Message pushing policy. 0 indicates that the message
+* `push_policy` - (Optional, Int, ForceNew) Message pushing policy. 0 indicates that the message
     sending fails and the message is cached in the queue. 1 indicates that the
     failed message is discarded.
 

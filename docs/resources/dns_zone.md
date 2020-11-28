@@ -40,33 +40,33 @@ resource "huaweicloud_dns_zone" "my_private_zone" {
 ## Argument Reference
 
 The following arguments are supported:
-* `region` - (Optional) The region in which to create the DNS zone.
+* `region` - (Optional, String, ForceNew) The region in which to create the DNS zone.
     If omitted, the `region` argument of the provider will be used.
     Changing this creates a new DNS zone.
 
-* `name` - (Required) The name of the zone. Note the `.` at the end of the name.
+* `name` - (Required, String, ForceNew) The name of the zone. Note the `.` at the end of the name.
   Changing this creates a new DNS zone.
 
-* `email` - (Optional) The email address of the administrator managing the zone.
+* `email` - (Optional, String) The email address of the administrator managing the zone.
 
-* `zone_type` - (Optional) The type of zone. Can either be `public` or `private`.
+* `zone_type` - (Optional, String, ForceNew) The type of zone. Can either be `public` or `private`.
   Changing this creates a new DNS zone.
 
-* `router` - (Optional) Router configuration block which is required if zone_type is private.
+* `router` - (Optional, String, String) Router configuration block which is required if zone_type is private.
   The router structure is documented below.
 
-* `ttl` - (Optional) The time to live (TTL) of the zone.
+* `ttl` - (Optional, Int) The time to live (TTL) of the zone.
 
-* `description` - (Optional) A description of the zone.
+* `description` - (Optional, String) A description of the zone.
 
-* `value_specs` - (Optional) Map of additional options. Changing this creates a
+* `value_specs` - (Optional, Map, ForceNew) Map of additional options. Changing this creates a
   new DNS zone.
 
 The `router` block supports:
 
-* `router_id` - (Required) ID of the associated VPC.
+* `router_id` - (Required, String) ID of the associated VPC.
 
-* `router_region` - (Optional) The region of the VPC.
+* `router_region` - (Optional, String) The region of the VPC.
 
 ## Attributes Reference
 
