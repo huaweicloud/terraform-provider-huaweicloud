@@ -192,12 +192,12 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 	}
 	resourceTags, err := tags.Get(dnsClient, resourceType, recordsetID).Extract()
 	if err != nil {
-		return fmt.Errorf("Error fetching OpenTelekomCloud DNS record set tags: %s", err)
+		return fmt.Errorf("Error fetching HuaweiCloud DNS record set tags: %s", err)
 	}
 
 	tagmap := tagsToMap(resourceTags.Tags)
 	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("Error saving tags for OpenTelekomCloud DNS record set %s: %s", recordsetID, err)
+		return fmt.Errorf("Error saving tags for HuaweiCloud DNS record set %s: %s", recordsetID, err)
 	}
 
 	return nil

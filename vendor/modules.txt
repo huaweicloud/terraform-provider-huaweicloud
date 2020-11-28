@@ -267,6 +267,8 @@ github.com/huaweicloud/golangsdk/openstack/identity/v3/tokens
 github.com/huaweicloud/golangsdk/openstack/identity/v3/users
 github.com/huaweicloud/golangsdk/openstack/imageservice/v2/imagedata
 github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images
+github.com/huaweicloud/golangsdk/openstack/ims/v2/cloudimages
+github.com/huaweicloud/golangsdk/openstack/ims/v2/tags
 github.com/huaweicloud/golangsdk/openstack/kms/v1/keys
 github.com/huaweicloud/golangsdk/openstack/lts/huawei/loggroups
 github.com/huaweicloud/golangsdk/openstack/lts/huawei/logstreams
