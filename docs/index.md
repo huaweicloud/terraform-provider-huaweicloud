@@ -125,6 +125,8 @@ variables must also be set:
 
 * `HW_SECRET_KEY` - The secret key of the HuaweiCloud to use.
 
+* `HW_DOMAIN_NAME` - The account name of the HuaweiCloud to use.
+
 
 You should be able to use any HuaweiCloud environment to develop on as long as the
 above environment variables are set.
