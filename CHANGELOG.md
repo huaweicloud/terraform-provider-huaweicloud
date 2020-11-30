@@ -1,3 +1,9 @@
+## 1.20.0 (November 30, 2020)
+
+ENHANCEMENTS:
+
+Update resource Attributes Reference in docs ([#715](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/715))
+
 ## 1.19.3 (November 28, 2020)
 
 FEATURES:
