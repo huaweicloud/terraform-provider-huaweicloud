@@ -248,8 +248,9 @@ The `ha` block supports:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
 * `status` - Indicates the DB instance status.
 * `hostname` - Indicates the instance connection address. It is a blank string.
 * `type` - Indicates the DB instance type, which can be master or readreplica.

@@ -41,8 +41,9 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
 * `floating_ip_address` - The actual floating IP address.
 * `status` - The status of the snat rule.
 

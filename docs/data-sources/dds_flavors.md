@@ -31,6 +31,10 @@ data "huaweicloud_dds_flavors" "flavor" {
 
 ## Attributes Reference
 
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
+
 * `flavors` - Indicates the flavors information. Structure is documented below.
 
 The `flavors` block contains:

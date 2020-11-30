@@ -95,7 +95,9 @@ The `segments` block supports:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a resource ID in UUID format.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

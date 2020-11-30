@@ -31,8 +31,9 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
 * `address` - The actual floating IP address itself.
 * `fixed_ip` - The fixed IP address corresponding to the floating IP.
 * `instance_id` - UUID of the compute instance associated with the floating IP.

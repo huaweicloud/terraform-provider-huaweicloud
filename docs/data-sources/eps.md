@@ -42,7 +42,7 @@ GaussDB | huaweicloud_gaussdb_cassandra_instance<br>huaweicloud_gaussdb_mysql_in
 
 ## Attributes Reference
 
-All above argument parameters can be exported as attribute parameters along with attribute reference:
+In addition to all arguments above, the following attributes are exported:
 
 * `description` - Provides supplementary information about the enterprise project.
 

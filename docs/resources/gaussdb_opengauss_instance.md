@@ -136,7 +136,7 @@ The `backup_strategy` block supports:
 
 ## Attributes Reference
 
-In addition to the arguments listed above, the following computed attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - Indicates the DB instance ID.
 * `status` - Indicates the DB instance status.

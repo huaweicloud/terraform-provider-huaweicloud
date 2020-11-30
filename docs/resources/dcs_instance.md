@@ -201,8 +201,9 @@ The `whitelists` block supports:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
 * `vpc_name` - Indicates the name of a vpc.
 * `subnet_name` - Indicates the name of a subnet.
 * `security_group_name` - Indicates the name of a security group.

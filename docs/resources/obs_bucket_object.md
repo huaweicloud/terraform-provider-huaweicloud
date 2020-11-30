@@ -78,7 +78,7 @@ These two arguments are mutually-exclusive.
 
 ## Attributes Reference
 
-The following attributes are exported
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - the `key` of the resource supplied above.
 * `etag` - the ETag generated for the object (an MD5 sum of the object content).

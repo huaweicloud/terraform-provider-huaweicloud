@@ -43,8 +43,9 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
 * `key_id` - The globally unique identifier for the key.
 * `default_key_flag` - Identification of a Master Key. The value 1 indicates a Default
     Master Key, and the value 0 indicates a key.

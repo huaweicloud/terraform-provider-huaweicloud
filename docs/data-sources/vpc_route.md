@@ -35,7 +35,6 @@ route whose data will be exported as attributes.
 
 ## Attribute Reference
 
-All of the argument attributes are also exported as
-result attributes.
+In addition to all arguments above, the following attributes are exported:
 
 * `nexthop` - The next hop of the route. If the route type is peering, it will provide VPC peering connection ID.

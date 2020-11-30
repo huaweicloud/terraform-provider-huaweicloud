@@ -65,7 +65,7 @@ The `external_fixed_ip` block supports:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - ID of the router.
 

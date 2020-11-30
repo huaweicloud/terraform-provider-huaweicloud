@@ -26,7 +26,7 @@ data "huaweicloud_dis_partition" "partition" {
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `partitions` - The information of stream partitions. Structure is documented below.
 

@@ -45,8 +45,9 @@ data "huaweicloud_networking_port" "port_1" {
 
 ## Attributes Reference
 
-`id` is set to the ID of the found port. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
 
 * `all_fixed_ips` - The collection of Fixed IP addresses on the port in the
   order returned by the Network v2 API.

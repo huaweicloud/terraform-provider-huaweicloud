@@ -27,6 +27,8 @@ resource "huaweicloud_compute_instance" "instance" {
 
 ## Argument Reference
 
+In addition to all arguments above, the following attributes are exported:
+
 * `region` - (Optional, String) The region in which to obtain the flavors. If omitted, the provider-level region will be used.
 
 * `availability_zone` - (Optional, String) Specifies the AZ name.
@@ -42,6 +44,8 @@ resource "huaweicloud_compute_instance" "instance" {
 
 ## Attributes Reference
 
-`id` is set to the ID of the found flavors. In addition, the following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
 
 * `ids` - A list of flavor IDs.

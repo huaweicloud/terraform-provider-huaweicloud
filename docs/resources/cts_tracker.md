@@ -46,6 +46,8 @@ The following arguments are supported:
 ## Attributes Reference
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
+
 * `status` - The status of a tracker. The value is **enabled**.
 
 * `tracker_name` - The tracker name. Currently, only tracker **system** is available.

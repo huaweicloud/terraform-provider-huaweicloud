@@ -34,15 +34,13 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-All above argument parameters can be exported as attribute parameters along with attribute reference:
+In addition to all arguments above, the following attributes are exported:
 
 * `billingMode` - Charging mode of the cluster.
 
 * `description` - Cluster description.
 
 * `name` - The name of the cluster in string format.
-
-* `id` - The ID of the cluster.
   
 * `flavor_id` - The cluster specification in string format.
 

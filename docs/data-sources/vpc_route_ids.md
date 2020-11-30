@@ -36,5 +36,9 @@ output "route_nexthop" {
 
 ## Attributes Reference
 
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
+
 * `ids` - A list of all the route ids found. This data source will fail if none are found.
 

@@ -35,7 +35,9 @@ SQLServer| 2008_R2_EE <br>2008_R2_WEB <br>2012_SE <br>2014_SE <br>2016_SE <br>20
 
 ## Attributes Reference
 
-In addition, the following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
 
 * `flavors` -
   Indicates the flavors information. Structure is documented below.

@@ -155,7 +155,7 @@ the `ok_actions` block supports:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies the alarm rule ID.
 * `update_time` - Specifies the time when the alarm status changed. The value

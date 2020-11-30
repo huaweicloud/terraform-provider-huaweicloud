@@ -37,6 +37,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a data source ID in UUID format.
+
 * `is_support_smn` -Specifies SMN support.
     
 * `topic_id` - The theme of the SMN service.

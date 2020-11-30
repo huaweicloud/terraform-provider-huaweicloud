@@ -84,7 +84,7 @@ The `public_ip` block supports:
 
 ## Attributes Reference
 
-In addition to the arguments listed above, the following computed attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `created` - Cluster creation time. The format is     ISO8601:YYYY-MM-DDThh:mm:ssZ
 

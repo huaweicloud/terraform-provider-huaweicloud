@@ -204,7 +204,7 @@ The `add_jobs` block supports:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - Indicates the MRS cluster ID.
 * `available_zone_name` - Indicates the name of an availability zone.

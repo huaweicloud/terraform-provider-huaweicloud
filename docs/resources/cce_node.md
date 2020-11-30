@@ -180,7 +180,9 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-All above argument parameters can be exported as attribute parameters along with attribute reference.
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a resource ID in UUID format.
 
  * `status` -  Node status information.
 

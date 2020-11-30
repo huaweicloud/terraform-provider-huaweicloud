@@ -289,8 +289,9 @@ The `scheduler_hints` block supports:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
 * `access_ip_v4` - The first detected Fixed IPv4 address _or_ the
     Floating IP.
 * `network/fixed_ip_v4` - The Fixed IPv4 address of the Instance on that network.

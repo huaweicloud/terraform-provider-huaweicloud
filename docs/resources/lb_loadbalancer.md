@@ -62,7 +62,7 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `vip_port_id` - The Port ID of the Load Balancer IP.
 

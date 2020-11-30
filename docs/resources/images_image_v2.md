@@ -67,7 +67,7 @@ and needs to be fixed before being implemented in this resource.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `checksum` - The checksum of the data associated with the image.
 * `created_at` - The date the image was created.

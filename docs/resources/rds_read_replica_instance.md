@@ -86,7 +86,7 @@ The `volume` block supports:
 
 ## Attributes Reference
 
-In addition to the arguments listed above, the following computed attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - Indicates the instance ID.
 

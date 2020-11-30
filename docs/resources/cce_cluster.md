@@ -147,7 +147,7 @@ versions are available, choose Dashboard > Buy Cluster on the CCE console. Chang
 
 ## Attributes Reference
 
-All above argument parameters can be exported as attribute parameters along with attribute reference.
+In addition to all arguments above, the following attributes are exported:
 
   * `id` -  Id of the cluster resource.
 

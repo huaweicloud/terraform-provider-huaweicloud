@@ -137,7 +137,7 @@ The `backend_parameter` object supports the following:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - The ID of the API.
 * `group_name` - The name of the API group to which the API belongs.

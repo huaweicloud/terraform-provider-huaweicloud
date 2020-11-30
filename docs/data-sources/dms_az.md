@@ -31,6 +31,7 @@ data "huaweicloud_dms_az" "az1" {
 
 ## Attributes Reference
 
-`id` is set to the ID of the found az. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
 

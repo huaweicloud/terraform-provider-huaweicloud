@@ -100,8 +100,10 @@ The `extra_dhcp_option` block supports:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
+
+* `id` - Specifies a resource ID in UUID format.
 * `all_fixed_ips` - The collection of Fixed IP addresses on the port in the
   order returned by the Network v2 API.
 * `all_security_group_ids` - The collection of Security Group IDs on the port

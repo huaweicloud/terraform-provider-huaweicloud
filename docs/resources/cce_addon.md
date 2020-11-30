@@ -22,7 +22,7 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-All above argument parameters can be exported as attribute parameters along with attribute reference.
+In addition to all arguments above, the following attributes are exported:
 
  * `id` -  ID of the addon instance.
  * `status` - Addon status information.

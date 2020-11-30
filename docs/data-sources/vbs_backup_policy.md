@@ -45,7 +45,7 @@ The `filter_tags` block supports:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `start_time` - Specifies the start time of the backup job.The value is in the HH:mm format.                                                         
 
