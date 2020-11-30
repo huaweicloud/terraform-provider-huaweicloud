@@ -476,7 +476,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
   system_disk_size = 50
 
   data_disks {
-    type = "SATA"
+    type = "SAS"
     size = "10"
   }
 

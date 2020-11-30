@@ -483,44 +483,32 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 
 		log.Printf("[DEBUG] ECS Create Options: %#v", createOpts)
 
-		var server_id string
+		var job_id string
 		if d.Get("charging_mode") == "prePaid" {
 			// prePaid.
-			bssV1Client, err := config.BssV1Client(GetRegion(d, config))
-			if err != nil {
-				return fmt.Errorf("Error creating HuaweiCloud bss V1 client: %s", err)
-			}
 			n, err := cloudservers.CreatePrePaid(ecsV11Client, createOpts).ExtractOrderResponse()
 			if err != nil {
 				return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
 			}
-
-			if err := cloudservers.WaitForOrderSuccess(bssV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.OrderID); err != nil {
-				return err
-			}
-
-			resource, err := cloudservers.GetOrderResource(bssV1Client, n.OrderID)
-			if err != nil {
-				return err
-			}
-			server_id = resource.(string)
+			job_id = n.JobID
 		} else {
 			// postPaid.
 			n, err := cloudservers.Create(ecsV11Client, createOpts).ExtractJobResponse()
 			if err != nil {
 				return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
 			}
-
-			if err := cloudservers.WaitForJobSuccess(ecsClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
-				return err
-			}
-
-			entity, err := cloudservers.GetJobEntity(ecsClient, n.JobID, "server_id")
-			if err != nil {
-				return err
-			}
-			server_id = entity.(string)
+			job_id = n.JobID
 		}
+
+		if err := cloudservers.WaitForJobSuccess(ecsClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), job_id); err != nil {
+			return err
+		}
+
+		entity, err := cloudservers.GetJobEntity(ecsClient, job_id, "server_id")
+		if err != nil {
+			return err
+		}
+		server_id := entity.(string)
 
 		// Store the ID now
 		d.SetId(server_id)
