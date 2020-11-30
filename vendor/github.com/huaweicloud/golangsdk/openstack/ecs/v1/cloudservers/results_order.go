@@ -9,6 +9,7 @@ import (
 
 type OrderResponse struct {
 	OrderID string `json:"order_id"`
+	JobID   string `json:"job_id"`
 }
 
 type OrderStatus struct {
