@@ -14,7 +14,6 @@ resource "huaweicloud_kms_key" "key_1" {
   key_alias       = "key_1"
   pending_days    = "7"
   key_description = "first test key"
-  realm           = "cn-north-1"
   is_enabled      = true
 }
 ```

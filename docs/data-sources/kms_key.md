@@ -16,7 +16,6 @@ data "huaweicloud_kms_key" "key_1" {
   key_description  = "test key description"
   key_state        = "2"
   key_id           = "af650527-a0ff-4527-aef3-c493df1f3012"
-  realm            = "cn-north-1"
   default_key_flag = "0"
   domain_id        = "b168fe00ff56492495a7d22974df2d0b"
 }
@@ -31,8 +30,6 @@ data "huaweicloud_kms_key" "key_1" {
 
 * `key_description` - (Optional, String) The description of the key as viewed in Huawei console.
     Changing this gets a new key.
-
-* `realm` - (Optional, String) Region where a key resides. Changing this gets a new key.
 
 * `key_id` - (Optional, String) The globally unique identifier for the key. Changing this gets the new key.
 
@@ -53,7 +50,6 @@ data "huaweicloud_kms_key" "key_1" {
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a data source ID in UUID format.
-
 * `scheduled_deletion_date` - Scheduled deletion time (time stamp) of a key.
 * `expiration_time` - Expiration time.
 * `creation_date` - Creation time (time stamp) of a key.
