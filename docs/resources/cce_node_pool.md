@@ -15,7 +15,7 @@ variable "availability_zone" { }
 resource "huaweicloud_cce_node_pool" "node_pool" {
   cluster_id               = var.cluster_id
   name                     = "testpool"
-  os                       = "EulerOS"
+  os                       = "EulerOS 2.5"
   initial_node_count       = 2
   flavor_id                = "s3.large.4"
   availability_zone        = var.availability_zone
@@ -86,7 +86,12 @@ The following arguments are supported:
 
 * `labels` - (Optional, Map, ForceNew) Tags of a Kubernetes node, key/value pair format. Changing this parameter will create a new resource.
 
-* `root_volume` - (Required, List) It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
+* `root_volume` - (Required, List, ForceNew) It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
+
+* `data_volumes` - (Required, List, ForceNew) Represents the data disk to be created. Changing this parameter will create a new resource.
+
+* `taints` - (Optional, List, ForceNew) You can add taints to created nodes to configure anti-affinity. Each taint contains the following parameters:
+
 
 The `root_volume` block supports:
 
@@ -96,8 +101,6 @@ The `root_volume` block supports:
     
 * `extend_param` - (Optional, String) Disk expansion parameters. 
 
-* `data_volumes` - (Required, List) Represents the data disk to be created. Changing this parameter will create a new resource.
-
 The `data_volumes` block supports:
     
 * `size` - (Required, Int) Disk size in GB.
@@ -105,8 +108,6 @@ The `data_volumes` block supports:
 * `volumetype` - (Required, String) Disk type.
     
 * `extend_param` - (Optional, String) Disk expansion parameters. 
-
-* `taints` - (Optional, List) You can add taints to created nodes to configure anti-affinity. Each taint contains the following parameters:
 
 The `taints` block supports:
     
