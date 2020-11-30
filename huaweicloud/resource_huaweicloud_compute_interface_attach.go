@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func resourceComputeInterfaceAttachV2() *schema.Resource {
+func ResourceComputeInterfaceAttachV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInterfaceAttachV2Create,
 		Read:   resourceComputeInterfaceAttachV2Read,

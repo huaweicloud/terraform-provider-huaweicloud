@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs"
 )
 
-func resourceComputeKeypairV2() *schema.Resource {
+func ResourceComputeKeypairV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeKeypairV2Create,
 		Read:   resourceComputeKeypairV2Read,

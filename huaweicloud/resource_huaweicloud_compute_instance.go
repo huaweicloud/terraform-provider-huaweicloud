@@ -30,7 +30,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
 )
 
-func resourceComputeInstanceV2() *schema.Resource {
+func ResourceComputeInstanceV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceV2Create,
 		Read:   resourceComputeInstanceV2Read,
