@@ -27,6 +27,8 @@ data "huaweicloud_gaussdb_opengauss_instance" "this" {
 
 ## Attributes Reference
 
+In addition to all arguments above, the following attributes are exported:
+
 * `id` - Indicates the ID of the instance.
 
 * `status` - Indicates the DB instance status.

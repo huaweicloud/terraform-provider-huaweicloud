@@ -71,7 +71,7 @@ huaweicloud allows a cross-tenant VPC Peering Connection to be deleted from eith
 
 ## Attributes Reference
 
-All of the argument attributes except accept are also exported as result attributes.
+In addition to all arguments above, the following attributes are exported:
 
 * `name` - 	The VPC peering connection name.
 

@@ -22,6 +22,7 @@ data "huaweicloud_gaussdb_mysql_configuration" "this" {
 
 ## Attributes Reference
 
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - Indicates the ID of the configuration.
 * `description` - Indicates the description of the configuration.

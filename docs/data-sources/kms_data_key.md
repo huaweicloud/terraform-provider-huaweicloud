@@ -43,9 +43,9 @@ data "huaweicloud_kms_data_key" "kms_datakey1" {
 
 ## Attributes Reference
 
-`id` is set to the date of the found data key. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a data source ID in UUID format.
 * `plain_text` - The plaintext of a DEK is expressed in hexadecimal format, and two
     characters indicate one byte.
 * `cipher_text` - The ciphertext of a DEK is expressed in hexadecimal format, and two

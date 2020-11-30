@@ -33,6 +33,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
+
 * `network_type` - The EIP type.
 
 * `period_start` - The Start time.

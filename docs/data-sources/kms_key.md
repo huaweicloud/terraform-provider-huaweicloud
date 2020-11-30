@@ -50,11 +50,9 @@ data "huaweicloud_kms_key" "key_1" {
 
 ## Attributes Reference
 
-The following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
 
-`id` is set to the ID of the found key. In addition, the following attributes
-are exported:
+* `id` - Specifies a data source ID in UUID format.
 
 * `scheduled_deletion_date` - Scheduled deletion time (time stamp) of a key.
 * `expiration_time` - Expiration time.

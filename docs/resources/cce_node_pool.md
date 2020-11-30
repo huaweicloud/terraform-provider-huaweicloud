@@ -120,11 +120,13 @@ The `taints` block supports:
     
 ## Attributes Reference
 
-All above argument parameters can be exported as attribute parameters along with attribute reference.
+In addition to all arguments above, the following attributes are exported:
 
- * `status` -  Node status information.
+* `id` - Specifies a resource ID in UUID format.
 
- * `billing_mode` -  Billing mode of a node.
+* `status` -  Node status information.
+
+* `billing_mode` -  Billing mode of a node.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

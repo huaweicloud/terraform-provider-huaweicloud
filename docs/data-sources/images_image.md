@@ -45,9 +45,9 @@ data "huaweicloud_images_image" "ubuntu" {
 
 ## Attributes Reference
 
-`id` is set to the ID of the found image. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
 * `checksum` - The checksum of the data associated with the image.
 * `created_at` - The date the image was created.
 * `container_format`: The format of the image's container.

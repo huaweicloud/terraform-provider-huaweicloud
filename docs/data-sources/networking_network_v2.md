@@ -35,8 +35,9 @@ data "huaweicloud_networking_network_v2" "network" {
 
 ## Attributes Reference
 
-`id` is set to the ID of the found network. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
 
 * `admin_state_up` - The administrative state of the network.
 

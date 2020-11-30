@@ -40,8 +40,9 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
 * `queue_id` - Indicates the ID of a queue.
 * `redrive_policy` - Indicates whether to enable dead letter messages.
 * `produced_messages` - Indicates the total number of messages (not including the messages that have expired and been deleted) in a queue.

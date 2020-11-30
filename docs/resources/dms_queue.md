@@ -55,8 +55,9 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
 * `created` - Indicates the time when a queue is created.
 * `reservation` - Indicates the retention period (unit: min) of a message in a queue.
 * `max_msg_size_byte` - Indicates the maximum message size (unit: byte) that is allowed in queue.

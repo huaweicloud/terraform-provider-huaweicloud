@@ -17,7 +17,8 @@ data "huaweicloud_availability_zones" "zones" {}
 
 ## Attributes Reference
 
-`id` is set to hash of the returned zone list. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
 
 * `names` - The names of the availability zones, ordered alphanumerically, that match the queried `state`

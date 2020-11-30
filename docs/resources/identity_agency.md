@@ -60,7 +60,7 @@ creating an agency.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - The agency ID.
 * `duration` - Validity period of an agency. The default value is null,

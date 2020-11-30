@@ -85,8 +85,9 @@ The `smn_info` block supports:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
 * `name` - Indicates the name for a task.
 * `status` - Indicates the task status as follows: 0: Not started, 1: Waiting to migrate,
 	2: Migrating, 3: Migration paused, 4: Migration failed, 5: Migration succeeded.

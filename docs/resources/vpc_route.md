@@ -36,8 +36,7 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-All of the argument attributes are also exported as
-result attributes:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - The route ID.
 

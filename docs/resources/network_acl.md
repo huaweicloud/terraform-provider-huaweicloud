@@ -59,7 +59,7 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-All of the argument attributes are also exported as result attributes:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - The ID of the network ACL.
 * `inbound_policy_id` - The ID of the ingress firewall policy for the network ACL.

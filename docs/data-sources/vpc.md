@@ -39,9 +39,7 @@ The arguments of this data source act as filters for querying the available VPCs
 
 ## Attributes Reference
 
-The following attributes are exported:
-
-* `id` - ID of the VPC.
+In addition to all arguments above, the following attributes are exported:
 
 * `routes` - The list of route information with destination and nexthop fields.
 

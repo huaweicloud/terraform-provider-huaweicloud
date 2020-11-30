@@ -42,9 +42,9 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 
 ## Attributes Reference
 
-`id` is set to the ID of the found subnet. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a data source ID in UUID format.
 * `allocation_pools` - Allocation pools of the subnet.
 * `enable_dhcp` - Whether the subnet has DHCP enabled or not.
 * `dns_nameservers` - DNS Nameservers of the subnet.

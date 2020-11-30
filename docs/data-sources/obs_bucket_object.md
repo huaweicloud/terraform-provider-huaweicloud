@@ -25,7 +25,7 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attributes are exported
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - the `key` of the resource supplied above.
 * `bucket` -  the name of the bucket to put the file in.

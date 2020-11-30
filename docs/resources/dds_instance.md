@@ -171,8 +171,9 @@ The `backup_strategy ` block supports:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a resource ID in UUID format.
 * `db_username` - Indicates the DB Administator name.
 * `status` - Indicates the the DB instance status.
 * `port` - Indicates the database port number. The port range is 2100 to 9500.

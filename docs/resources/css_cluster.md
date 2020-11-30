@@ -123,7 +123,9 @@ The `backup_strategy` block supports:
 
 ## Attributes Reference
 
-In addition to the arguments listed above, the following computed attributes are exported:
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a resource ID in UUID format.
 
 * `endpoint` - Indicates the IP address and port number.
 

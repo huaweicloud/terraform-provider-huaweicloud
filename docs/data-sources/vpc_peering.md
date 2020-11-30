@@ -49,8 +49,3 @@ The given filters must match exactly one VPC peering connection whose data will 
 * `peer_tenant_id` - (Optional, String) The Tenant ID of the accepter/peer VPC of the specific VPC Peering Connection to retrieve.
 
 * `name` - (Optional, String) The name of the specific VPC Peering Connection to retrieve.
-
-
-## Attributes Reference
-
-All of the argument attributes are exported as result attributes.

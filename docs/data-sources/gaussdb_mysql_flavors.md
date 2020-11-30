@@ -25,7 +25,9 @@ data "huaweicloud_gaussdb_mysql_flavors" "flavors" {
 
 ## Attributes Reference
 
-In addition, the following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
 
 * `flavors` -
   Indicates the flavors information. Structure is documented below.
