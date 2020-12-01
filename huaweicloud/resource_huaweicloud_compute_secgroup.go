@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups"
 )
 
-func resourceComputeSecGroupV2() *schema.Resource {
+func ResourceComputeSecGroupV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeSecGroupV2Create,
 		Read:   resourceComputeSecGroupV2Read,

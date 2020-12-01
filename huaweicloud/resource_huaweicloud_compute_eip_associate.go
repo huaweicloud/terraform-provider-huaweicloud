@@ -12,7 +12,7 @@ import (
 	nfloatingips "github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
 )
 
-func resourceComputeFloatingIPAssociateV2() *schema.Resource {
+func ResourceComputeFloatingIPAssociateV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeFloatingIPAssociateV2Create,
 		Read:   resourceComputeFloatingIPAssociateV2Read,

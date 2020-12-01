@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/servergroups"
 )
 
-func resourceComputeServerGroupV2() *schema.Resource {
+func ResourceComputeServerGroupV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeServerGroupV2Create,
 		Read:   resourceComputeServerGroupV2Read,

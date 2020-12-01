@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func resourceComputeVolumeAttachV2() *schema.Resource {
+func ResourceComputeVolumeAttachV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeVolumeAttachV2Create,
 		Read:   resourceComputeVolumeAttachV2Read,

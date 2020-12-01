@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/floatingips"
 )
 
-func resourceComputeFloatingIPV2() *schema.Resource {
+func ResourceComputeFloatingIPV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeFloatingIPV2Create,
 		Read:   resourceComputeFloatingIPV2Read,
