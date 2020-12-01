@@ -4,14 +4,16 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/attachinterfaces"
 )
 
-func TestAccComputeV2InterfaceAttach_basic(t *testing.T) {
+func TestAccComputeV2InterfaceAttach_Basic(t *testing.T) {
 	var ai attachinterfaces.Interface
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -19,28 +21,10 @@ func TestAccComputeV2InterfaceAttach_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeV2InterfaceAttachDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2InterfaceAttach_basic,
+				Config: testAccComputeV2InterfaceAttach_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InterfaceAttachExists("huaweicloud_compute_interface_attach.ai_1", &ai),
-				),
-			},
-		},
-	})
-}
-
-func TestAccComputeV2InterfaceAttach_IP(t *testing.T) {
-	var ai attachinterfaces.Interface
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InterfaceAttachDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeV2InterfaceAttach_IP,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InterfaceAttachExists("huaweicloud_compute_interface_attach.ai_1", &ai),
-					testAccCheckComputeV2InterfaceAttachIP(&ai, "192.168.1.100"),
+					testAccCheckComputeV2InterfaceAttachIP(&ai, "192.168.0.199"),
 				),
 			},
 		},
@@ -124,54 +108,25 @@ func testAccCheckComputeV2InterfaceAttachIP(
 	}
 }
 
-var testAccComputeV2InterfaceAttach_basic = fmt.Sprintf(`
-resource "huaweicloud_networking_port" "port_1" {
-  name = "port_1"
-  network_id = "%s"
-  admin_state_up = "true"
-}
+func testAccComputeV2InterfaceAttach_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_compute_instance" "instance_1" {
-  name = "instance_1"
+  name = "%s"
+  image_id          = data.huaweicloud_images_image.test.id
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   security_groups = ["default"]
-  availability_zone = "%s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   network {
-    uuid = "%s"
+    uuid = data.huaweicloud_vpc_subnet.test.id
   }
 }
 
 resource "huaweicloud_compute_interface_attach" "ai_1" {
-  instance_id = "${huaweicloud_compute_instance.instance_1.id}"
-  port_id = "${huaweicloud_networking_port.port_1.id}"
+  instance_id = huaweicloud_compute_instance.instance_1.id
+  network_id =  data.huaweicloud_vpc_subnet.test.id
+  fixed_ip = "192.168.0.199"
 }
-`, HW_NETWORK_ID, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
-
-var testAccComputeV2InterfaceAttach_IP = fmt.Sprintf(`
-resource "huaweicloud_networking_network_v2" "network_1" {
-  name = "network_1"
+`, testAccCompute_data, rName)
 }
-
-resource "huaweicloud_networking_subnet_v2" "subnet_1" {
-  name = "subnet_1"
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  cidr = "192.168.1.0/24"
-  ip_version = 4
-  enable_dhcp = true
-  no_gateway = true
-}
-
-resource "huaweicloud_compute_instance" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default"]
-  availability_zone = "%s"
-  network {
-    uuid = "%s"
-  }
-}
-
-resource "huaweicloud_compute_interface_attach" "ai_1" {
-  instance_id = "${huaweicloud_compute_instance.instance_1.id}"
-  network_id = "${huaweicloud_networking_network_v2.network_1.id}"
-  fixed_ip = "192.168.1.100"
-}
-`, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
