@@ -264,6 +264,8 @@ The following arguments are supported:
 
 * `user_id` - (Optional, String, ForceNew) User ID, required when using key_pair in prePaid charging mode. Changing this creates a new server.
 
+* `agency_name` - (Optional, String, ForceNew) Specifies the IAM agency name which is created on IAM to provide temporary credentials for ECS to access cloud services. Changing this creates a new server.
+
 
 The `network` block supports:
 
