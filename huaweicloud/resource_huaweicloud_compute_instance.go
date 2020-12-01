@@ -340,6 +340,11 @@ func resourceComputeInstanceV2() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"agency_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"tags": {
 				Type:         schema.TypeMap,
 				Optional:     true,
@@ -469,6 +474,9 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		var metadata cloudservers.MetaData
 		if hasFilledOpt(d, "user_id") {
 			metadata.OpSvcUserId = d.Get("user_id").(string)
+		}
+		if hasFilledOpt(d, "agency_name") {
+			metadata.AgencyName = d.Get("agency_name").(string)
 		}
 		if metadata != (cloudservers.MetaData{}) {
 			createOpts.MetaData = &metadata
@@ -636,6 +644,7 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	d.Set("region", GetRegion(d, config))
 	d.Set("availability_zone", server.AvailabilityZone)
 	d.Set("name", server.Name)
+	d.Set("agency_name", server.Metadata.AgencyName)
 
 	// Get the instance network and address information
 	networks, err := flattenInstanceNetworks(d, meta, server)
