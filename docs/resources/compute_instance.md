@@ -185,6 +185,8 @@ function, or the `template_cloudinit_config` resource.
 
 ## Argument Reference
 
+-> **NOTE:** If the `user_data` field is specified for a Linux ECS that is created using an image with Cloud-Init installed, the `admin_pass` field becomes invalid.
+
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) The region in which to create the instance. If omitted,
