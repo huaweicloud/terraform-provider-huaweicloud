@@ -378,7 +378,7 @@ func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	if len(tagRaw) > 0 {
 		taglist := expandResourceTags(tagRaw)
 		if tagErr := tags.Create(dcsV2Client, "dcs", v.InstanceID, taglist).ExtractErr(); tagErr != nil {
-			return fmt.Errorf("Error setting tags of DCS instance %s: %s", v.InstanceID, tagErr)
+			log.Printf("[WARN] fetching tags of DCS instance failed: %s", tagErr)
 		}
 	}
 
