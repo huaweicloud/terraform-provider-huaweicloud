@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,6 +14,7 @@ import (
 
 func TestAccComputeV2ServerGroup_basic(t *testing.T) {
 	var sg servergroups.ServerGroup
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,7 +22,7 @@ func TestAccComputeV2ServerGroup_basic(t *testing.T) {
 		CheckDestroy: testAccCheckComputeV2ServerGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2ServerGroup_basic,
+				Config: testAccComputeV2ServerGroup_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2ServerGroupExists("huaweicloud_compute_servergroup.sg_1", &sg),
 				),
@@ -37,6 +39,7 @@ func TestAccComputeV2ServerGroup_basic(t *testing.T) {
 func TestAccComputeV2ServerGroup_affinity(t *testing.T) {
 	var instance servers.Server
 	var sg servergroups.ServerGroup
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -44,7 +47,7 @@ func TestAccComputeV2ServerGroup_affinity(t *testing.T) {
 		CheckDestroy: testAccCheckComputeV2ServerGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2ServerGroup_affinity,
+				Config: testAccComputeV2ServerGroup_affinity(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2ServerGroupExists("huaweicloud_compute_servergroup.sg_1", &sg),
 					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
@@ -122,28 +125,36 @@ func testAccCheckComputeV2InstanceInServerGroup(instance *servers.Server, sg *se
 	}
 }
 
-const testAccComputeV2ServerGroup_basic = `
+func testAccComputeV2ServerGroup_basic(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_compute_servergroup" "sg_1" {
-  name = "sg_1"
+  name = "%s"
   policies = ["affinity"]
 }
-`
+`, rName)
+}
 
-var testAccComputeV2ServerGroup_affinity = fmt.Sprintf(`
+func testAccComputeV2ServerGroup_affinity(rName string) string {
+	return fmt.Sprintf(`
+%s
+
 resource "huaweicloud_compute_servergroup" "sg_1" {
-  name = "sg_1"
+  name = "%s"
   policies = ["affinity"]
 }
 
 resource "huaweicloud_compute_instance" "instance_1" {
-  name = "instance_1"
+  name = "%s"
+  image_id = data.huaweicloud_images_image.test.id
+  flavor_id = data.huaweicloud_compute_flavors.test.ids[0]
   security_groups = ["default"]
-  availability_zone = "%s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   scheduler_hints {
-    group = "${huaweicloud_compute_servergroup.sg_1.id}"
+    group = huaweicloud_compute_servergroup.sg_1.id
   }
   network {
-    uuid = "%s"
+    uuid = data.huaweicloud_vpc_subnet.test.id
   }
 }
-`, HW_AVAILABILITY_ZONE, HW_NETWORK_ID)
+`, testAccCompute_data, rName, rName)
+}
