@@ -14,7 +14,7 @@ func TestAccImagesImageV2_basic(t *testing.T) {
 	var image images.Image
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckImage(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
@@ -51,7 +51,7 @@ func TestAccImagesImageV2_name(t *testing.T) {
 	var image images.Image
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckImage(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
@@ -79,7 +79,7 @@ func TestAccImagesImageV2_tags(t *testing.T) {
 	var image images.Image
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckImage(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
@@ -120,7 +120,7 @@ func TestAccImagesImageV2_visibility(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheckImage(t)
+			testAccPreCheckDeprecated(t)
 			testAccPreCheckAdminOnly(t)
 		},
 		Providers:    testAccProviders,
@@ -142,7 +142,7 @@ func TestAccImagesImageV2_timeout(t *testing.T) {
 	var image images.Image
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckImage(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{

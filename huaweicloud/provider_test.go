@@ -102,12 +102,6 @@ func testAccPreCheckS3(t *testing.T) {
 	}
 }
 
-func testAccPreCheckImage(t *testing.T) {
-	if HW_ACCESS_KEY != "" && HW_SECRET_KEY != "" {
-		t.Skip("AK/SK authentication doesn't support images tests")
-	}
-}
-
 func testAccPreCheckDws(t *testing.T) {
 	if HW_DWS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support DWS tests")
