@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/evs/v3/volumes"
 )
 
-func resourceEvsStorageVolumeV3() *schema.Resource {
+func ResourceEvsStorageVolumeV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceEvsVolumeV3Create,
 		Read:   resourceEvsVolumeV3Read,

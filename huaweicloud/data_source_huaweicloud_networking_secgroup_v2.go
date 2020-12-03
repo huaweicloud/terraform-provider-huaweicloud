@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func dataSourceNetworkingSecGroupV2() *schema.Resource {
+func DataSourceNetworkingSecGroupV2() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceNetworkingSecGroupV2Read,
 

@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones"
 )
 
-func dataSourceAvailabilityZones() *schema.Resource {
+func DataSourceAvailabilityZones() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceAvailabilityZonesRead,
 		Schema: map[string]*schema.Schema{
