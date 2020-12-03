@@ -161,12 +161,23 @@ func testAccCheckDcsV1InstanceExists(n string, instance instances.Instance) reso
 
 func testAccDcsV1Instance_basic(instanceName string) string {
 	return fmt.Sprintf(`
+	data "huaweicloud_availability_zones" "test" {}
+
+	data "huaweicloud_vpc" "test" {
+	  name = "vpc-default"
+	}
+
+	data "huaweicloud_vpc_subnet" "test" {
+	  name = "subnet-default"
+	}
+
 	resource "huaweicloud_networking_secgroup" "secgroup_1" {
-	  name        = "secgroup_1"
+	  name        = "%s"
 	  description = "secgroup_1"
 	}
+
 	data "huaweicloud_dcs_az" "az_1" {
-	  code = "%s"
+	  code = data.huaweicloud_availability_zones.test.names[0]
 	}
 
 	resource "huaweicloud_dcs_instance" "instance_1" {
@@ -175,8 +186,8 @@ func testAccDcsV1Instance_basic(instanceName string) string {
 	  password          = "Huawei_test"
 	  engine            = "Redis"
 	  capacity          = 2
-	  vpc_id            = "%s"
-	  subnet_id         = "%s"
+	  vpc_id            = data.huaweicloud_vpc.test.id
+	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
 	  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
 	  product_id        = "dcs.master_standby-h"
@@ -191,17 +202,27 @@ func testAccDcsV1Instance_basic(instanceName string) string {
 	    owner = "terraform"
 	  }
 	}
-	`, HW_AVAILABILITY_ZONE, instanceName, HW_VPC_ID, HW_NETWORK_ID)
+	`, instanceName, instanceName)
 }
 
 func testAccDcsV1Instance_epsId(instanceName string) string {
 	return fmt.Sprintf(`
+	data "huaweicloud_availability_zones" "test" {}
+
+	data "huaweicloud_vpc" "test" {
+	  name = "vpc-default"
+	}
+
+	data "huaweicloud_vpc_subnet" "test" {
+	  name = "subnet-default"
+	}
+
 	resource "huaweicloud_networking_secgroup" "secgroup_1" {
-	  name        = "secgroup_1"
+	  name        = "%s"
 	  description = "secgroup_1"
 	}
 	data "huaweicloud_dcs_az" "az_1" {
-	  code = "%s"
+		code = data.huaweicloud_availability_zones.test.names[0]
 	}
 
 	resource "huaweicloud_dcs_instance" "instance_1" {
@@ -210,9 +231,9 @@ func testAccDcsV1Instance_epsId(instanceName string) string {
 	  password          = "Huawei_test"
 	  engine            = "Redis"
 	  capacity          = 2
-	  vpc_id            = "%s"
+	  vpc_id            = data.huaweicloud_vpc.test.id
+	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
 	  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
-	  subnet_id         = "%s"
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
 	  product_id        = "dcs.master_standby-h"
 	  save_days         = 1
@@ -222,13 +243,23 @@ func testAccDcsV1Instance_epsId(instanceName string) string {
 	  backup_at         = [1]
 	  enterprise_project_id = "%s"
 	}
-	`, HW_AVAILABILITY_ZONE, instanceName, HW_VPC_ID, HW_NETWORK_ID, HW_ENTERPRISE_PROJECT_ID_TEST)
+	`, instanceName, instanceName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccDcsV1Instance_tiny(instanceName string) string {
 	return fmt.Sprintf(`
+	data "huaweicloud_availability_zones" "test" {}
+
+	data "huaweicloud_vpc" "test" {
+	  name = "vpc-default"
+	}
+
+	data "huaweicloud_vpc_subnet" "test" {
+	  name = "subnet-default"
+	}
+
 	data "huaweicloud_dcs_az" "az_1" {
-	  code = "%s"
+	  code = data.huaweicloud_availability_zones.test.names[0]
 	}
 
 	resource "huaweicloud_dcs_instance" "instance_1" {
@@ -237,8 +268,8 @@ func testAccDcsV1Instance_tiny(instanceName string) string {
 	  password          = "Huawei_test"
 	  engine            = "Redis"
 	  capacity          = 0.125
-	  vpc_id            = "%s"
-	  subnet_id         = "%s"
+	  vpc_id            = data.huaweicloud_vpc.test.id
+	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
 	  product_id        = "redis.ha.au1.tiny.128-h"
 	  save_days         = 1
@@ -247,13 +278,23 @@ func testAccDcsV1Instance_tiny(instanceName string) string {
 	  period_type       = "weekly"
 	  backup_at         = [1]
 	}
-	`, HW_AVAILABILITY_ZONE, instanceName, HW_VPC_ID, HW_NETWORK_ID)
+	`, instanceName)
 }
 
 func testAccDcsV1Instance_whitelists(instanceName string) string {
 	return fmt.Sprintf(`
+	data "huaweicloud_availability_zones" "test" {}
+
+	data "huaweicloud_vpc" "test" {
+	  name = "vpc-default"
+	}
+
+	data "huaweicloud_vpc_subnet" "test" {
+	  name = "subnet-default"
+	}
+
 	data "huaweicloud_dcs_az" "az_1" {
-	  code = "%s"
+	  code = data.huaweicloud_availability_zones.test.names[0]
 	}
 
 	resource "huaweicloud_dcs_instance" "instance_1" {
@@ -262,8 +303,8 @@ func testAccDcsV1Instance_whitelists(instanceName string) string {
 	  password          = "Huawei_test"
 	  engine            = "Redis"
 	  capacity          = 2
-	  vpc_id            = "%s"
-	  subnet_id         = "%s"
+	  vpc_id            = data.huaweicloud_vpc.test.id
+	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
 	  product_id        = "redis.ha.au1.large.r2.2-h"
 	  save_days         = 1
@@ -281,5 +322,5 @@ func testAccDcsV1Instance_whitelists(instanceName string) string {
 		ip_address = ["172.16.10.100", "172.16.0.0/24"]
 	  }
 	}
-	`, HW_AVAILABILITY_ZONE, instanceName, HW_VPC_ID, HW_NETWORK_ID)
+	`, instanceName)
 }
