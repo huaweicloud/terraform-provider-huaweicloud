@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func dataSourceImagesImageV2() *schema.Resource {
+func DataSourceImagesImageV2() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceImagesImageV2Read,
 

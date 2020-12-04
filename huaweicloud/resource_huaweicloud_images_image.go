@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/ims/v2/tags"
 )
 
-func resourceImsImage() *schema.Resource {
+func ResourceImsImage() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceImsImageCreate,
 		Read:   resourceImsImageRead,

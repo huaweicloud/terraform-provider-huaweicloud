@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
-func resourceNetworkingPortV2() *schema.Resource {
+func ResourceNetworkingPortV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkingPortV2Create,
 		Read:   resourceNetworkingPortV2Read,

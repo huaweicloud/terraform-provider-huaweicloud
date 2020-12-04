@@ -11,7 +11,7 @@ import (
 )
 
 func TestExpandNetworkingPortDHCPOptsV2Create(t *testing.T) {
-	r := resourceNetworkingPortV2()
+	r := ResourceNetworkingPortV2()
 	d := r.TestResourceData()
 	d.SetId("1")
 	dhcpOpts1 := map[string]interface{}{
@@ -46,7 +46,7 @@ func TestExpandNetworkingPortDHCPOptsV2Create(t *testing.T) {
 }
 
 func TestExpandNetworkingPortDHCPOptsEmptyV2Create(t *testing.T) {
-	r := resourceNetworkingPortV2()
+	r := ResourceNetworkingPortV2()
 	d := r.TestResourceData()
 	d.SetId("1")
 
@@ -58,7 +58,7 @@ func TestExpandNetworkingPortDHCPOptsEmptyV2Create(t *testing.T) {
 }
 
 func TestExpandNetworkingPortDHCPOptsV2Update(t *testing.T) {
-	r := resourceNetworkingPortV2()
+	r := ResourceNetworkingPortV2()
 	d := r.TestResourceData()
 	d.SetId("1")
 	dhcpOpts1 := map[string]interface{}{
@@ -95,7 +95,7 @@ func TestExpandNetworkingPortDHCPOptsV2Update(t *testing.T) {
 }
 
 func TestExpandNetworkingPortDHCPOptsEmptyV2Update(t *testing.T) {
-	r := resourceNetworkingPortV2()
+	r := ResourceNetworkingPortV2()
 	d := r.TestResourceData()
 	d.SetId("1")
 
@@ -107,7 +107,7 @@ func TestExpandNetworkingPortDHCPOptsEmptyV2Update(t *testing.T) {
 }
 
 func TestExpandNetworkingPortDHCPOptsV2Delete(t *testing.T) {
-	r := resourceNetworkingPortV2()
+	r := ResourceNetworkingPortV2()
 	d := r.TestResourceData()
 	d.SetId("1")
 	dhcpOpts1 := map[string]interface{}{
@@ -172,7 +172,7 @@ func TestFlattenNetworkingPort2DHCPOptionsV2(t *testing.T) {
 }
 
 func TestExpandNetworkingPortAllowedAddressPairsV2(t *testing.T) {
-	r := resourceNetworkingPortV2()
+	r := ResourceNetworkingPortV2()
 	d := r.TestResourceData()
 	d.SetId("1")
 	addressPairs1 := map[string]interface{}{
@@ -232,7 +232,7 @@ func TestFlattenNetworkingPortAllowedAddressPairsV2(t *testing.T) {
 }
 
 func TestExpandNetworkingPortFixedIPV2NoFixedIPs(t *testing.T) {
-	r := resourceNetworkingPortV2()
+	r := ResourceNetworkingPortV2()
 	d := r.TestResourceData()
 	d.SetId("1")
 	d.Set("no_fixed_ip", true)
@@ -243,7 +243,7 @@ func TestExpandNetworkingPortFixedIPV2NoFixedIPs(t *testing.T) {
 }
 
 func TestExpandNetworkingPortFixedIPV2SomeFixedIPs(t *testing.T) {
-	r := resourceNetworkingPortV2()
+	r := ResourceNetworkingPortV2()
 	d := r.TestResourceData()
 	d.SetId("1")
 	fixedIP1 := map[string]interface{}{

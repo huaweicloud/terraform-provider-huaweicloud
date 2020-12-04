@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/evs/v2/snapshots"
 )
 
-func resourceEvsSnapshotV2() *schema.Resource {
+func ResourceEvsSnapshotV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceEvsSnapshotV2Create,
 		Read:   resourceEvsSnapshotV2Read,
