@@ -1,5 +1,5 @@
 ---
-subcategory: "Virtual Private Cloud (VPC)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_networking\_port
