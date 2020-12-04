@@ -96,6 +96,18 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 		t.Fatalf("BSS v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("BSS v1 endpoint:\t %s", actualURL)
+
+	// test the endpoint of bss v2 service
+	serviceClient, err = config.BssV2Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud BSS v2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://bss.%s/v2/", config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("BSS v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("BSS v2 endpoint:\t %s", actualURL)
 }
 
 func TestAccServiceEndpoints_Management(t *testing.T) {
