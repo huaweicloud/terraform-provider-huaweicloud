@@ -35,7 +35,7 @@ func TestAccASV1Group_basic(t *testing.T) {
 
 func testAccCheckASV1GroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	asClient, err := config.autoscalingV1Client(HW_REGION_NAME)
+	asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 	}
@@ -68,7 +68,7 @@ func testAccCheckASV1GroupExists(n string, group *groups.Group) resource.TestChe
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		asClient, err := config.autoscalingV1Client(HW_REGION_NAME)
+		asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 		}

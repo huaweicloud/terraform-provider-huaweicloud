@@ -285,7 +285,7 @@ func getInstanceConfig(configDataMap map[string]interface{}) (configurations.Ins
 
 func resourceASConfigurationCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	asClient, err := config.autoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -314,7 +314,7 @@ func resourceASConfigurationCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourceASConfigurationRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	asClient, err := config.autoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -331,7 +331,7 @@ func resourceASConfigurationRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceASConfigurationDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	asClient, err := config.autoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}

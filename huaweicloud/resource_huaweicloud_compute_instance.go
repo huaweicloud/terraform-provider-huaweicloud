@@ -394,11 +394,11 @@ func ResourceComputeInstanceV2() *schema.Resource {
 
 func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
-	ecsClient, err := config.computeV1Client(GetRegion(d, config))
+	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud ecs client: %s", err)
 	}
@@ -425,7 +425,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 
 	// Try to call API of Huawei ECS instead of OpenStack
 	if !hasFilledOpt(d, "block_device") && !hasFilledOpt(d, "metadata") {
-		ecsV11Client, err := config.computeV11Client(GetRegion(d, config))
+		ecsV11Client, err := config.ComputeV11Client(GetRegion(d, config))
 		vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 		sgClient, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
@@ -628,9 +628,9 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
-	ecsClient, err := config.computeV1Client(GetRegion(d, config))
-	blockStorageClient, err := config.blockStorageV3Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
+	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud client: %s", err)
 	}
@@ -754,7 +754,7 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 
 func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -913,7 +913,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if d.HasChange("tags") {
-		ecsClient, err := config.computeV1Client(GetRegion(d, config))
+		ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 		}
@@ -929,7 +929,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 			NewSize: d.Get("system_disk_size").(int),
 		}
 
-		blockStorageClient, err := config.blockStorageV2Client(GetRegion(d, config))
+		blockStorageClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
@@ -963,8 +963,8 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ecsClient, err := config.computeV1Client(GetRegion(d, config))
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -1050,7 +1050,7 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeInstanceV2ImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
-	ecsClient, err := config.computeV1Client(GetRegion(d, config))
+	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return nil, fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}

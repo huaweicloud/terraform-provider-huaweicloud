@@ -96,7 +96,7 @@ func resourceNetworkAnnotationsV1(d *schema.ResourceData) map[string]string {
 
 func resourceCCINetworkV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	cciClient, err := config.cciV1Client(GetRegion(d, config))
+	cciClient, err := config.CciV1Client(GetRegion(d, config))
 
 	if err != nil {
 		return fmt.Errorf("Unable to create HuaweiCloud CCI client : %s", err)
@@ -148,7 +148,7 @@ func resourceCCINetworkV1Create(d *schema.ResourceData, meta interface{}) error 
 
 func resourceCCINetworkV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	cciClient, err := config.cciV1Client(GetRegion(d, config))
+	cciClient, err := config.CciV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
 	}
@@ -176,7 +176,7 @@ func resourceCCINetworkV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCCINetworkV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	cciClient, err := config.cciV1Client(GetRegion(d, config))
+	cciClient, err := config.CciV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCI Client: %s", err)
 	}

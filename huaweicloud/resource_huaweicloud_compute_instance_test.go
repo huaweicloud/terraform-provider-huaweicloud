@@ -135,7 +135,7 @@ func TestAccComputeV2Instance_tags(t *testing.T) {
 
 func testAccCheckComputeV2InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	computeClient, err := config.computeV2Client(HW_REGION_NAME)
+	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -168,7 +168,7 @@ func testAccCheckComputeV2InstanceExists(n string, instance *servers.Server) res
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		computeClient, err := config.computeV2Client(HW_REGION_NAME)
+		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
@@ -192,7 +192,7 @@ func testAccCheckComputeV2InstanceTags(
 	instance *servers.Server, k, v string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.computeV1Client(HW_REGION_NAME)
+		client, err := config.ComputeV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 		}
@@ -218,7 +218,7 @@ func testAccCheckComputeV2InstanceNoTags(
 	instance *servers.Server) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.computeV1Client(HW_REGION_NAME)
+		client, err := config.ComputeV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 		}

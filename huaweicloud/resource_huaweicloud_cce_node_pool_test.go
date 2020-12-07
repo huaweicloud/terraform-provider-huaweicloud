@@ -50,7 +50,7 @@ func TestAccCCENodePool_basic(t *testing.T) {
 
 func testAccCheckCCENodePoolDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	cceClient, err := config.cceV3Client(HW_REGION_NAME)
+	cceClient, err := config.CceV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -99,7 +99,7 @@ func testAccCheckCCENodePoolExists(n string, cluster string, nodePool *nodepools
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		cceClient, err := config.cceV3Client(HW_REGION_NAME)
+		cceClient, err := config.CceV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 		}

@@ -50,7 +50,7 @@ func DataSourceEcsFlavors() *schema.Resource {
 
 func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ecsClient, err := config.computeV1Client(GetRegion(d, config))
+	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud ECS client: %s", err)
 	}

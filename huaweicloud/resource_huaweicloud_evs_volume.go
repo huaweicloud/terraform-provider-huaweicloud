@@ -148,7 +148,7 @@ func resourceVolumeAttachmentHash(v interface{}) int {
 
 func resourceEvsVolumeV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	blockStorageClient, err := config.blockStorageV3Client(GetRegion(d, config))
+	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
@@ -211,7 +211,7 @@ func resourceEvsVolumeV3Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	blockStorageClient, err := config.blockStorageV3Client(GetRegion(d, config))
+	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
@@ -260,7 +260,7 @@ func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
 // using OpenStack Cinder API v2 to update volume resource
 func resourceEvsVolumeV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	blockStorageClient, err := config.blockStorageV2Client(GetRegion(d, config))
+	blockStorageClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}

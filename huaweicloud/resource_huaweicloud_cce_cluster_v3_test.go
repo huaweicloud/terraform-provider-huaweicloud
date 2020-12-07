@@ -103,7 +103,7 @@ func TestAccCCEClusterV3_withEpsId(t *testing.T) {
 
 func testAccCheckCCEClusterV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	cceClient, err := config.cceV3Client(HW_REGION_NAME)
+	cceClient, err := config.CceV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -134,7 +134,7 @@ func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resour
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		cceClient, err := config.cceV3Client(HW_REGION_NAME)
+		cceClient, err := config.CceV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 		}

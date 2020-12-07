@@ -361,7 +361,7 @@ func resourceCCEEipIDs(d *schema.ResourceData) []string {
 
 func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	nodeClient, err := config.cceV3Client(GetRegion(d, config))
+	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node client: %s", err)
 	}
@@ -507,7 +507,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	nodeClient, err := config.cceV3Client(GetRegion(d, config))
+	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node client: %s", err)
 	}
@@ -562,7 +562,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("status", s.Status.Phase)
 
 	// fetch tags from ECS instance
-	computeClient, err := config.computeV1Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -584,7 +584,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCCENodeV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	nodeClient, err := config.cceV3Client(GetRegion(d, config))
+	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -602,7 +602,7 @@ func resourceCCENodeV3Update(d *schema.ResourceData, meta interface{}) error {
 
 	//update tags
 	if d.HasChange("tags") {
-		computeClient, err := config.computeV1Client(GetRegion(d, config))
+		computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
@@ -619,7 +619,7 @@ func resourceCCENodeV3Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCCENodeV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	nodeClient, err := config.cceV3Client(GetRegion(d, config))
+	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}

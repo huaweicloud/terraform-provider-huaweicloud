@@ -52,7 +52,7 @@ func TestAccEcsV1Instance_basic(t *testing.T) {
 
 func testAccCheckEcsV1InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	computeClient, err := config.computeV1Client(HW_REGION_NAME)
+	computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -85,7 +85,7 @@ func testAccCheckEcsV1InstanceExists(n string, instance *cloudservers.CloudServe
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		computeClient, err := config.computeV1Client(HW_REGION_NAME)
+		computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}

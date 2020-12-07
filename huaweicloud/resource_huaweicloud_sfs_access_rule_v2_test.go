@@ -44,7 +44,7 @@ func TestAccSFSAccessRuleV2_basic(t *testing.T) {
 
 func testAccCheckSFSAccessRuleV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	sfsClient, err := config.sfsV2Client(HW_REGION_NAME)
+	sfsClient, err := config.SfsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud sfs client: %s", err)
 	}
@@ -89,7 +89,7 @@ func testAccCheckSFSAccessRuleV2Exists(n string, rule *shares.AccessRight) resou
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		sfsClient, err := config.sfsV2Client(HW_REGION_NAME)
+		sfsClient, err := config.SfsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud sfs client: %s", err)
 		}

@@ -240,7 +240,7 @@ func resourceClusterExtendParamV3(d *schema.ResourceData, config *Config) map[st
 
 func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	cceClient, err := config.cceV3Client(GetRegion(d, config))
+	cceClient, err := config.CceV3Client(GetRegion(d, config))
 
 	if err != nil {
 		return fmt.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
@@ -308,7 +308,7 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 
 func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	cceClient, err := config.cceV3Client(GetRegion(d, config))
+	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -383,7 +383,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCCEClusterV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	cceClient, err := config.cceV3Client(GetRegion(d, config))
+	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Client: %s", err)
 	}
@@ -404,7 +404,7 @@ func resourceCCEClusterV3Update(d *schema.ResourceData, meta interface{}) error 
 
 func resourceCCEClusterV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	cceClient, err := config.cceV3Client(GetRegion(d, config))
+	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Client: %s", err)
 	}

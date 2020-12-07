@@ -65,7 +65,7 @@ func ResourceComputeVolumeAttachV2() *schema.Resource {
 
 func resourceComputeVolumeAttachV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -116,7 +116,7 @@ func resourceComputeVolumeAttachV2Create(d *schema.ResourceData, meta interface{
 
 func resourceComputeVolumeAttachV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -139,7 +139,7 @@ func resourceComputeVolumeAttachV2Read(d *schema.ResourceData, meta interface{})
 	d.Set("device", attachment.Device)
 	d.Set("region", GetRegion(d, config))
 
-	computeV1Client, err := config.computeV1Client(GetRegion(d, config))
+	computeV1Client, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		log.Printf("[WARN] Error creating HuaweiCloud compute V1 client: %s", err)
 	} else {
@@ -156,7 +156,7 @@ func resourceComputeVolumeAttachV2Read(d *schema.ResourceData, meta interface{})
 
 func resourceComputeVolumeAttachV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}

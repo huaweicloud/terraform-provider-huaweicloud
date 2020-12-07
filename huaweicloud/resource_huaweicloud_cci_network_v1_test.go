@@ -32,7 +32,7 @@ func TestAccCCINetworkV1_basic(t *testing.T) {
 
 func testAccCheckCCINetworkV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	cciClient, err := config.cciV1Client(HW_REGION_NAME)
+	cciClient, err := config.CciV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
 	}
@@ -63,7 +63,7 @@ func testAccCheckCCINetworkV1Exists(n string, network *networks.Network) resourc
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		cciClient, err := config.cciV1Client(HW_REGION_NAME)
+		cciClient, err := config.CciV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
 		}

@@ -61,7 +61,7 @@ func TestAccCSBSBackupV1_timeout(t *testing.T) {
 
 func testAccCSBSBackupV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	backupClient, err := config.csbsV1Client(HW_REGION_NAME)
+	backupClient, err := config.CsbsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating csbs client: %s", err)
 	}
@@ -92,7 +92,7 @@ func testAccCSBSBackupV1Exists(n string, backups *backup.Backup) resource.TestCh
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		backupClient, err := config.csbsV1Client(HW_REGION_NAME)
+		backupClient, err := config.CsbsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating csbs client: %s", err)
 		}
