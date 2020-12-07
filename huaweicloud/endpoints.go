@@ -49,6 +49,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Scope:            "global",
 		WithOutProjectID: true,
 	},
+	"bssv2": ServiceCatalog{
+		Name:             "bss",
+		Version:          "v2",
+		Scope:            "global",
+		WithOutProjectID: true,
+	},
 
 	// ******* catalog for Compute *******
 	"ecs": ServiceCatalog{
