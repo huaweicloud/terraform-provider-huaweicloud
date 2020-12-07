@@ -412,6 +412,7 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 				ScaleDownCooldownTime: d.Get("scale_down_cooldown_time").(int),
 				Priority:              d.Get("priority").(int),
 			},
+			Type: d.Get("type").(string),
 		},
 	}
 
