@@ -60,7 +60,7 @@ func TestAccVBSBackupV2_timeout(t *testing.T) {
 
 func testAccCheckVBSBackupV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	vbsClient, err := config.vbsV2Client(HW_REGION_NAME)
+	vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud vbs client: %s", err)
 	}
@@ -91,7 +91,7 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		vbsClient, err := config.vbsV2Client(HW_REGION_NAME)
+		vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud vbs client: %s", err)
 		}

@@ -136,7 +136,7 @@ func resourceContainerImageTags(d *schema.ResourceData) []cloudimages.ImageTag {
 
 func resourceImsImageCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ims_Client, err := config.imageV2Client(GetRegion(d, config))
+	ims_Client, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
@@ -236,7 +236,7 @@ func getCloudimage(client *golangsdk.ServiceClient, id string) (*cloudimages.Ima
 
 func resourceImsImageRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ims_Client, err := config.imageV2Client(GetRegion(d, config))
+	ims_Client, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
@@ -273,7 +273,7 @@ func resourceImsImageRead(d *schema.ResourceData, meta interface{}) error {
 
 func setTagForImage(d *schema.ResourceData, meta interface{}, imageID string, tagmap map[string]interface{}) error {
 	config := meta.(*Config)
-	client, err := config.imageV2Client(GetRegion(d, config))
+	client, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
@@ -299,7 +299,7 @@ func setTagForImage(d *schema.ResourceData, meta interface{}, imageID string, ta
 
 func resourceImsImageUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ims_Client, err := config.imageV2Client(GetRegion(d, config))
+	ims_Client, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
@@ -346,7 +346,7 @@ func resourceImsImageUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceImsImageDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	imageClient, err := config.imageV2Client(GetRegion(d, config))
+	imageClient, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}

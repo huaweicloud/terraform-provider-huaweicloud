@@ -49,7 +49,7 @@ func TestAccImsImage_basic(t *testing.T) {
 
 func testAccCheckImsImageDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	imageClient, err := config.imageV2Client(HW_REGION_NAME)
+	imageClient, err := config.ImageV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 	}
@@ -80,7 +80,7 @@ func testAccCheckImsImageExists(n string, image *cloudimages.Image) resource.Tes
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		imageClient, err := config.imageV2Client(HW_REGION_NAME)
+		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
@@ -107,7 +107,7 @@ func testAccCheckImsImageTags(n string, k string, v string) resource.TestCheckFu
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		imageClient, err := config.imageV2Client(HW_REGION_NAME)
+		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
 		}

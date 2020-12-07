@@ -100,7 +100,7 @@ func resourceSFSTurbo() *schema.Resource {
 
 func resourceSFSTurboCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sfsClient, err := config.sfsV1Client(GetRegion(d, config))
+	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SFS Turbo client: %s", err)
 	}
@@ -141,7 +141,7 @@ func resourceSFSTurboCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSFSTurboRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sfsClient, err := config.sfsV1Client(GetRegion(d, config))
+	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SFS Turbo client: %s", err)
 	}
@@ -176,7 +176,7 @@ func resourceSFSTurboRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSFSTurboUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sfsClient, err := config.sfsV1Client(GetRegion(d, config))
+	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error updating HuaweiCloud SFS Turbo client: %s", err)
 	}
@@ -215,7 +215,7 @@ func resourceSFSTurboUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceSFSTurboDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sfsClient, err := config.sfsV1Client(GetRegion(d, config))
+	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SFS Turbo client: %s", err)
 	}

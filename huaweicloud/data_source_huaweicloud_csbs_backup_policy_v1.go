@@ -128,7 +128,7 @@ func dataSourceCSBSBackupPolicyV1() *schema.Resource {
 
 func dataSourceCSBSBackupPolicyV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	policyClient, err := config.csbsV1Client(GetRegion(d, config))
+	policyClient, err := config.CsbsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating csbs client: %s", err)
 	}

@@ -527,35 +527,35 @@ func (c *Config) EnterpriseProjectClient(region string) (*golangsdk.ServiceClien
 }
 
 // ********** client for Compute **********
-func (c *Config) computeV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) ComputeV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ecs", region)
 }
 
-func (c *Config) computeV11Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) ComputeV11Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ecsv11", region)
 }
 
-func (c *Config) computeV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) ComputeV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ecsv21", region)
 }
 
-func (c *Config) autoscalingV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) AutoscalingV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("autoscalingv1", region)
 }
 
-func (c *Config) imageV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) ImageV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("imagev2", region)
 }
 
-func (c *Config) cceV3Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CceV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ccev3", region)
 }
 
-func (c *Config) cceAddonV3Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CceAddonV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cceaddonv3", region)
 }
 
-func (c *Config) cciV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CciV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cciv1", region)
 }
 
@@ -564,27 +564,27 @@ func (c *Config) FgsV2Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 // ********** client for Storage **********
-func (c *Config) blockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) BlockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("volumev2", region)
 }
 
-func (c *Config) blockStorageV3Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) BlockStorageV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("volumev3", region)
 }
 
-func (c *Config) sfsV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) SfsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("sfsv2", region)
 }
 
-func (c *Config) sfsV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) SfsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("sfs-turbo", region)
 }
 
-func (c *Config) csbsV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CsbsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("csbsv1", region)
 }
 
-func (c *Config) vbsV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) VbsV2Client(region string) (*golangsdk.ServiceClient, error) {
 
 	return c.NewServiceClient("vbsv2", region)
 }

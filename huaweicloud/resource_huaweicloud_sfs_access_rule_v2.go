@@ -66,7 +66,7 @@ func resourceSFSAccessRuleV2() *schema.Resource {
 
 func resourceSFSAccessRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sfsClient, err := config.sfsV2Client(GetRegion(d, config))
+	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SFS Client: %s", err)
 	}
@@ -104,7 +104,7 @@ func resourceSFSAccessRuleV2Create(d *schema.ResourceData, meta interface{}) err
 
 func resourceSFSAccessRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sfsClient, err := config.sfsV2Client(GetRegion(d, config))
+	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SFS Client: %s", err)
 	}
@@ -133,7 +133,7 @@ func resourceSFSAccessRuleV2Read(d *schema.ResourceData, meta interface{}) error
 
 func resourceSFSAccessRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sfsClient, err := config.sfsV2Client(GetRegion(d, config))
+	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SFS Client: %s", err)
 	}

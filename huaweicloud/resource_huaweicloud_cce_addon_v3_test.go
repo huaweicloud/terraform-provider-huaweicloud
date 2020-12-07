@@ -36,7 +36,7 @@ func TestAccCCEAddonV3_basic(t *testing.T) {
 
 func testAccCheckCCEAddonV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	cceClient, err := config.cceAddonV3Client(HW_REGION_NAME)
+	cceClient, err := config.CceAddonV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Addon client: %s", err)
 	}
@@ -81,7 +81,7 @@ func testAccCheckCCEAddonV3Exists(n string, cluster string, addon *addons.Addon)
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		cceClient, err := config.cceAddonV3Client(HW_REGION_NAME)
+		cceClient, err := config.CceAddonV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud CCE Addon client: %s", err)
 		}
