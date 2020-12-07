@@ -12,7 +12,6 @@ Use the navigation to the left to read about the available resources.
 # Configure the HuaweiCloud Provider
 provider "huaweicloud" {
   region      = "cn-north-1"
-  domain_name = "my-account-name"
   access_key  = "my-access-key"
   secret_key  = "my-secret-key"
 }
@@ -47,12 +46,10 @@ Usage:
 ```hcl
 provider "huaweicloud" {
   region      = "cn-north-1"
-  domain_name = "my-account-name"
   access_key  = "my-access-key"
   secret_key  = "my-secret-key"
 }
 ```
--> **NOTE:** `domain_name`, [Account name](https://support.huaweicloud.com/en-us/usermanual-iam/iam_01_0552.html) need to be set if using IAM or prePaid resources.
 
 ### Environment variables
 
@@ -70,7 +67,6 @@ Usage:
 $ export HW_ACCESS_KEY="anaccesskey"
 $ export HW_SECRET_KEY="asecretkey"
 $ export HW_REGION_NAME="cn-north-1"
-$ export HW_DOMAIN_NAME="account-name"
 $ terraform plan
 ```
 
@@ -81,7 +77,7 @@ The following arguments are supported:
 * `region` - (Required) This is the Huawei Cloud region. It must be provided,
   but it can also be sourced from the `HW_REGION_NAME` environment variables.
 
-* `domain_name` - (Optional, Required for IAM and prePaid resources) The
+* `domain_name` - (Optional, Required for IAM resources) The
   [Account name](https://support.huaweicloud.com/en-us/usermanual-iam/iam_01_0552.html)
   of IAM to scope to. If omitted, the `HW_DOMAIN_NAME` environment variable is used.
 
@@ -124,8 +120,6 @@ variables must also be set:
 * `HW_ACCESS_KEY` - The access key of the HuaweiCloud to use.
 
 * `HW_SECRET_KEY` - The secret key of the HuaweiCloud to use.
-
-* `HW_DOMAIN_NAME` - The account name of the HuaweiCloud to use.
 
 
 You should be able to use any HuaweiCloud environment to develop on as long as the
