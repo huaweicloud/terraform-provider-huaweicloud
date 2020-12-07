@@ -87,8 +87,6 @@ func testAccGaussDBInstanceConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
-
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }

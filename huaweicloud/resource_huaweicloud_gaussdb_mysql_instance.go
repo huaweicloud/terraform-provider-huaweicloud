@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/bss/v2/orders"
 	"github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/instances"
 )
@@ -140,6 +141,32 @@ func resourceGaussDBInstance() *schema.Resource {
 			},
 			"force_import": {
 				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, true),
+			},
+			"period_unit": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, true),
+			},
+			"period": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+			},
+			"auto_renew": {
+				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
@@ -290,6 +317,18 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		createOpts.MasterAZ = v.(string)
 	}
 
+	// PrePaid
+	if d.Get("charging_mode") == "prePaid" {
+		chargeInfo := &instances.ChargeInfoOpt{
+			ChargingMode: d.Get("charging_mode").(string),
+			PeriodType:   d.Get("period_unit").(string),
+			PeriodNum:    d.Get("period").(int),
+			IsAutoPay:    "true",
+			IsAutoRenew:  d.Get("auto_renew").(string),
+		}
+		createOpts.ChargeInfo = chargeInfo
+	}
+
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	instance, err := instances.Create(client, createOpts).Extract()
@@ -302,12 +341,12 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	// waiting for the instance to become ready
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"BUILD", "BACKING UP"},
-		Target:     []string{"ACTIVE"},
-		Refresh:    GaussDBInstanceStateRefreshFunc(client, id),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      180 * time.Second,
-		MinTimeout: 20 * time.Second,
+		Pending:      []string{"BUILD", "BACKING UP"},
+		Target:       []string{"ACTIVE"},
+		Refresh:      GaussDBInstanceStateRefreshFunc(client, id),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        180 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()
@@ -581,9 +620,26 @@ func resourceGaussDBInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	instanceId := d.Id()
-	result := instances.Delete(client, instanceId)
-	if result.Err != nil {
-		return CheckDeleted(d, result.Err, "GaussDB instance")
+	if d.Get("charging_mode") == "prePaid" {
+		bssV2Client, err := config.BssV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
+		}
+
+		resourceIds := []string{instanceId}
+		unsubscribeOpts := orders.UnsubscribeOpts{
+			ResourceIds:     resourceIds,
+			UnsubscribeType: 1,
+		}
+		_, err = orders.Unsubscribe(bssV2Client, unsubscribeOpts).Extract()
+		if err != nil {
+			return fmt.Errorf("Error unsubscribe HuaweiCloud GaussDB instance: %s", err)
+		}
+	} else {
+		result := instances.Delete(client, instanceId)
+		if result.Err != nil {
+			return CheckDeleted(d, result.Err, "GaussDB instance")
+		}
 	}
 
 	stateConf := &resource.StateChangeConf{
