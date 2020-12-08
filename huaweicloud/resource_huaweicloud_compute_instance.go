@@ -277,6 +277,11 @@ func ResourceComputeInstanceV2() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+						"fault_domain": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 						"tenancy": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -1197,6 +1202,7 @@ func resourceInstanceBlockDevicesV2(d *schema.ResourceData, bds []interface{}) (
 func resourceInstanceSchedulerHintsV1(d *schema.ResourceData, schedulerHintsRaw map[string]interface{}) cloudservers.SchedulerHints {
 	schedulerHints := cloudservers.SchedulerHints{
 		Group:           schedulerHintsRaw["group"].(string),
+		FaultDomain:     schedulerHintsRaw["fault_domain"].(string),
 		Tenancy:         schedulerHintsRaw["tenancy"].(string),
 		DedicatedHostID: schedulerHintsRaw["deh_id"].(string),
 	}
