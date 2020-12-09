@@ -39,6 +39,7 @@ func TestAccNatDnat_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNatDnatExists(),
 					resource.TestCheckResourceAttr(resourceName, "protocol", "tcp"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
 			},
 			{

@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
@@ -238,6 +239,9 @@ func resourceNatDnatRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id.(string))
 
+	// wait for a while to become ACTIVE
+	time.Sleep(3 * time.Second)
+
 	return resourceNatDnatRuleRead(d, meta)
 }
 
@@ -434,5 +438,7 @@ func resourceNatDnatRuleDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error deleting Dnat %q: %s", d.Id(), r.Err)
 	}
 
+	// wait for a while to become DELETED
+	time.Sleep(3 * time.Second)
 	return nil
 }
