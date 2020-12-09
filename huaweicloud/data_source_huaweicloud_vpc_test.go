@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -11,13 +12,15 @@ import (
 
 func TestAccVpcV1DataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	tmp := strconv.Itoa(acctest.RandIntRange(1, 254))
+	cidr := fmt.Sprintf("172.16.%s.0/24", tmp)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceVpcV1Config(rName),
+				Config: testAccDataSourceVpcV1Config(rName, cidr),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceVpcV1Check("data.huaweicloud_vpc.by_id", rName),
 					testAccDataSourceVpcV1Check("data.huaweicloud_vpc.by_cidr", rName),
@@ -62,11 +65,11 @@ func testAccDataSourceVpcV1Check(n, rName string) resource.TestCheckFunc {
 	}
 }
 
-func testAccDataSourceVpcV1Config(rName string) string {
+func testAccDataSourceVpcV1Config(rName, cidr string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
-  cidr = "172.16.8.0/24"
+  cidr = "%s"
 }
 
 data "huaweicloud_vpc" "by_id" {
@@ -80,5 +83,5 @@ data "huaweicloud_vpc" "by_cidr" {
 data "huaweicloud_vpc" "by_name" {
   name = huaweicloud_vpc.test.name
 }
-`, rName)
+`, rName, cidr)
 }

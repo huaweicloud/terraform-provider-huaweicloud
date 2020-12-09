@@ -87,12 +87,10 @@ func resourceOpenGaussInstance() *schema.Resource {
 			"sharding_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
 			},
 			"coordinator_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -179,7 +177,6 @@ func resourceOpenGaussInstance() *schema.Resource {
 			"volume": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: false,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -191,7 +188,6 @@ func resourceOpenGaussInstance() *schema.Resource {
 						"size": {
 							Type:     schema.TypeInt,
 							Required: true,
-							ForceNew: false,
 						},
 					},
 				},

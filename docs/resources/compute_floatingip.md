@@ -20,21 +20,20 @@ resource "huaweicloud_compute_floatingip_v2" "floatip_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the V2 Compute client.
+* `region` - (Optional, String, ForceNew) The region in which to create the V2 Compute client.
     A Compute client is needed to create a floating IP that can be used with
     a compute instance. If omitted, the `region` argument of the provider
     is used. Changing this creates a new floating IP (which may or may not
     have a different address).
 
-* `pool` - (Optional) The name of the pool from which to create the floating
+* `pool` - (Optional, String, ForceNew) The name of the pool from which to create the floating
     IP. Only admin_external_net is valid. Changing this creates a new floating IP.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `pool` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 * `address` - The actual floating IP address itself.
 * `fixed_ip` - The fixed IP address corresponding to the floating IP.
 * `instance_id` - UUID of the compute instance associated with the floating IP.

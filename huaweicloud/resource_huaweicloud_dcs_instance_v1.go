@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v2/whitelists"
 )
 
-func resourceDcsInstanceV1() *schema.Resource {
+func ResourceDcsInstanceV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDcsInstancesV1Create,
 		Read:   resourceDcsInstancesV1Read,
@@ -455,13 +455,13 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// set tags
-	resourceTags, err := tags.Get(dcsV2Client, "instances", d.Id()).Extract()
-	if err != nil {
-		return fmt.Errorf("Error fetching tags of DCS instance: %s", err)
-	}
-	tagmap := tagsToMap(resourceTags.Tags)
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving tag to state for DCS instance (%s): %s", d.Id(), err)
+	if resourceTags, err := tags.Get(dcsV2Client, "instances", d.Id()).Extract(); err == nil {
+		tagmap := tagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("[DEBUG] Error saving tag to state for DCS instance (%s): %s", d.Id(), err)
+		}
+	} else {
+		log.Printf("[WARN] fetching tags of DCS instance failed: %s", err)
 	}
 
 	return nil

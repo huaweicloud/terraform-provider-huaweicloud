@@ -38,7 +38,6 @@ func ResourceVpcEIPV1() *schema.Resource {
 			"publicip": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
@@ -55,7 +54,6 @@ func ResourceVpcEIPV1() *schema.Resource {
 						"port_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 							Computed: true,
 						},
 					},
@@ -64,7 +62,6 @@ func ResourceVpcEIPV1() *schema.Resource {
 			"bandwidth": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -76,13 +73,11 @@ func ResourceVpcEIPV1() *schema.Resource {
 						"name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 							Computed: true,
 						},
 						"size": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: false,
 							Computed: true,
 						},
 						"share_type": {
@@ -112,7 +107,6 @@ func ResourceVpcEIPV1() *schema.Resource {
 			"value_specs": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},

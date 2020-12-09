@@ -77,9 +77,35 @@ func TestAccDNSV2RecordSet_readTTL(t *testing.T) {
 	})
 }
 
+func TestAccDNSV2RecordSet_private(t *testing.T) {
+	var recordset recordsets.RecordSet
+	zoneName := randomZoneName()
+	resourceName := "huaweicloud_dns_recordset.recordset_1"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckDNS(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDNSV2RecordSetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSV2RecordSet_private(zoneName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSV2RecordSetExists(resourceName, &recordset),
+					resource.TestCheckResourceAttr(resourceName, "name", zoneName),
+					resource.TestCheckResourceAttr(resourceName, "description", "a private record set"),
+					resource.TestCheckResourceAttr(resourceName, "type", "A"),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "3000"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "records.0", "10.1.0.3"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDNSV2RecordSetDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	dnsClient, err := config.DnsV2Client(OS_REGION_NAME)
+	dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -115,7 +141,7 @@ func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet)
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		dnsClient, err := config.DnsV2Client(OS_REGION_NAME)
+		dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 		}
@@ -204,6 +230,39 @@ resource "huaweicloud_dns_recordset" "recordset_1" {
   name    = "%s"
   type    = "A"
   records = ["10.1.0.2"]
+}
+`, zoneName, zoneName)
+}
+
+func testAccDNSV2RecordSet_private(zoneName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc" "default" {
+  name = "vpc-default"
+}
+
+resource "huaweicloud_dns_zone" "zone_1" {
+  name        = "%s"
+  email       = "email@example.com"
+  description = "a private zone"
+  zone_type   = "private"
+
+  router {
+    router_id = data.huaweicloud_vpc.default.id
+  }
+}
+
+resource "huaweicloud_dns_recordset" "recordset_1" {
+  zone_id     = huaweicloud_dns_zone.zone_1.id
+  name        = "%s"
+  type        = "A"
+  description = "a private record set"
+  ttl         = 3000
+  records     = ["10.1.0.3"]
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, zoneName, zoneName)
 }

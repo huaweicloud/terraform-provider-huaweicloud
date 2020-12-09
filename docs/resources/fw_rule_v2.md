@@ -25,70 +25,59 @@ resource "huaweicloud_fw_rule_v2" "rule_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the v2 Networking client.
+* `region` - (Optional, String, ForceNew) The region in which to create the v2 Networking client.
     A Compute client is needed to create a firewall rule. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     firewall rule.
 
-* `name` - (Optional) A unique name for the firewall rule. Changing this
+* `name` - (Optional, String) A unique name for the firewall rule. Changing this
     updates the `name` of an existing firewall rule.
 
-* `description` - (Optional) A description for the firewall rule. Changing this
+* `description` - (Optional, String) A description for the firewall rule. Changing this
     updates the `description` of an existing firewall rule.
 
-* `protocol` - (Required) The protocol type on which the firewall rule operates.
+* `protocol` - (Required, String) The protocol type on which the firewall rule operates.
     Valid values are: `tcp`, `udp`, `icmp`, and `any`. Changing this updates the
     `protocol` of an existing firewall rule.
 
-* `action` - (Required) Action to be taken ( must be "allow" or "deny") when the
+* `action` - (Required, String) Action to be taken ( must be "allow" or "deny") when the
     firewall rule matches. Changing this updates the `action` of an existing
     firewall rule.
 
-* `ip_version` - (Optional) IP version, either 4 (default) or 6. Changing this
+* `ip_version` - (Optional, Int) IP version, either 4 (default) or 6. Changing this
     updates the `ip_version` of an existing firewall rule.
 
-* `source_ip_address` - (Optional) The source IP address on which the firewall
+* `source_ip_address` - (Optional, String) The source IP address on which the firewall
     rule operates. Changing this updates the `source_ip_address` of an existing
     firewall rule.
 
-* `destination_ip_address` - (Optional) The destination IP address on which the
+* `destination_ip_address` - (Optional, String) The destination IP address on which the
     firewall rule operates. Changing this updates the `destination_ip_address`
     of an existing firewall rule.
 
-* `source_port` - (Optional) The source port on which the firewall
+* `source_port` - (Optional, String) The source port on which the firewall
     rule operates. Changing this updates the `source_port` of an existing
     firewall rule.
 
-* `destination_port` - (Optional) The destination port on which the firewall
+* `destination_port` - (Optional, String) The destination port on which the firewall
     rule operates. Changing this updates the `destination_port` of an existing
     firewall rule.
 
-* `enabled` - (Optional) Enabled status for the firewall rule (must be "true"
+* `enabled` - (Optional, Bool) Enabled status for the firewall rule (must be "true"
     or "false" if provided - defaults to "true"). Changing this updates the
     `enabled` status of an existing firewall rule.
 
-* `tenant_id` - (Optional) The owner of the firewall rule. Required if admin
+* `tenant_id` - (Optional, String, ForceNew) The owner of the firewall rule. Required if admin
     wants to create a firewall rule for another tenant. Changing this creates a
     new firewall rule.
 
-* `value_specs` - (Optional) Map of additional options.
+* `value_specs` - (Optional, Map, ForceNew) Map of additional options.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `protocol` - See Argument Reference above.
-* `action` - See Argument Reference above.
-* `ip_version` - See Argument Reference above.
-* `source_ip_address` - See Argument Reference above.
-* `destination_ip_address` - See Argument Reference above.
-* `source_port` - See Argument Reference above.
-* `destination_port` - See Argument Reference above.
-* `enabled` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 
 ## Import
 

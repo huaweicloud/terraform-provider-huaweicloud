@@ -34,7 +34,7 @@ func TestAccGaussDBInstance_basic(t *testing.T) {
 
 func testAccCheckGaussDBInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.gaussdbV3Client(OS_REGION_NAME)
+	client, err := config.gaussdbV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -65,7 +65,7 @@ func testAccCheckGaussDBInstanceExists(n string, instance *instances.TaurusDBIns
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.gaussdbV3Client(OS_REGION_NAME)
+		client, err := config.gaussdbV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 		}
@@ -87,8 +87,6 @@ func testAccGaussDBInstanceConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_availability_zones" "test" {}
-
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
@@ -97,8 +95,8 @@ resource "huaweicloud_gaussdb_mysql_instance" "test" {
   name        = "%s"
   password    = "Test@123"
   flavor      = "gaussdb.mysql.4xlarge.x86.4"
-  vpc_id      = huaweicloud_vpc_v1.test.id
-  subnet_id   = huaweicloud_vpc_subnet_v1.test.id
+  vpc_id      = huaweicloud_vpc.test.id
+  subnet_id   = huaweicloud_vpc_subnet.test.id
 
   security_group_id = data.huaweicloud_networking_secgroup.test.id
 

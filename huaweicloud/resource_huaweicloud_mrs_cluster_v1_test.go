@@ -33,7 +33,7 @@ func TestAccMRSV1Cluster_basic(t *testing.T) {
 
 func testAccCheckMRSV1ClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	mrsClient, err := config.MrsV1Client(OS_REGION_NAME)
+	mrsClient, err := config.MrsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud mrs: %s", err)
 	}
@@ -70,7 +70,7 @@ func testAccCheckMRSV1ClusterExists(n string, clusterGet *cluster.Cluster) resou
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		mrsClient, err := config.MrsV1Client(OS_REGION_NAME)
+		mrsClient, err := config.MrsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud mrs client: %s ", err)
 		}
@@ -119,4 +119,4 @@ resource "huaweicloud_mrs_cluster_v1" "cluster1" {
   component_list {
       component_name = "Hive"
   }
-}`, OS_REGION_NAME, OS_VPC_ID, OS_NETWORK_ID)
+}`, HW_REGION_NAME, HW_VPC_ID, HW_NETWORK_ID)

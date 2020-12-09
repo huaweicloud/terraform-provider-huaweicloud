@@ -29,19 +29,19 @@ resource "huaweicloud_rds_parametergroup" "pg_1" {
 
 The following arguments are supported:
 
-* `name` - (Required) The parameter group name. It contains a maximum of 64 characters.
+* `name` - (Required, String) The parameter group name. It contains a maximum of 64 characters.
 
-* `description` - (Optional) The parameter group description. It contains a maximum of 256 characters and cannot contain the following special characters:>!<"&'= the value is left blank by default.
+* `description` - (Optional, String) The parameter group description. It contains a maximum of 256 characters and cannot contain the following special characters:>!<"&'= the value is left blank by default.
 
-* `values` - (Optional) Parameter group values key/value pairs defined by users based on the default parameter groups.
+* `values` - (Optional, Map) Parameter group values key/value pairs defined by users based on the default parameter groups.
 
-* `datastore` - (Required) Database object. The database object structure is documented below. Changing this creates a new parameter group.
+* `datastore` - (Required, List, ForceNew) Database object. The database object structure is documented below. Changing this creates a new parameter group.
 
 The `datastore` block supports:
 
-* `type` - (Required) The DB engine. Currently, MySQL, PostgreSQL, and Microsoft SQL Server are supported. The value is case-insensitive and can be mysql, postgresql, or sqlserver.
+* `type` - (Required, String) The DB engine. Currently, MySQL, PostgreSQL, and Microsoft SQL Server are supported. The value is case-insensitive and can be mysql, postgresql, or sqlserver.
 
-* `version` - (Required) Specifies the database version.
+* `version` - (Required, String) Specifies the database version.
 
 	* MySQL databases support MySQL 5.6 and 5.7. Example value: 5.7.
 	* PostgreSQL databases support PostgreSQL 9.5 and 9.6. Example value: 9.5.
@@ -50,7 +50,7 @@ The `datastore` block supports:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` -  ID of the parameter group.
 

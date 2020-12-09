@@ -210,7 +210,7 @@ func resourceCCENodePool() *schema.Resource {
 
 func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	nodePoolClient, err := config.cceV3Client(GetRegion(d, config))
+	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
 	}
@@ -304,12 +304,12 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"Synchronizing"},
-		Target:     []string{""},
-		Refresh:    waitForCceNodePoolActive(nodePoolClient, clusterid, s.Metadata.Id),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      15 * time.Second,
-		MinTimeout: 5 * time.Second,
+		Pending:      []string{"Synchronizing"},
+		Target:       []string{""},
+		Refresh:      waitForCceNodePoolActive(nodePoolClient, clusterid, s.Metadata.Id),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        120 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
@@ -324,7 +324,7 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	nodePoolClient, err := config.cceV3Client(GetRegion(d, config))
+	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
 	}
@@ -392,7 +392,7 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	nodePoolClient, err := config.cceV3Client(GetRegion(d, config))
+	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -412,6 +412,7 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 				ScaleDownCooldownTime: d.Get("scale_down_cooldown_time").(int),
 				Priority:              d.Get("priority").(int),
 			},
+			Type: d.Get("type").(string),
 		},
 	}
 
@@ -439,7 +440,7 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCCENodePoolDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	nodePoolClient, err := config.cceV3Client(GetRegion(d, config))
+	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -449,12 +450,12 @@ func resourceCCENodePoolDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error deleting HuaweiCloud CCE Node Pool: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"Deleting"},
-		Target:     []string{"Deleted"},
-		Refresh:    waitForCceNodePoolDelete(nodePoolClient, clusterid, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"Deleting"},
+		Target:       []string{"Deleted"},
+		Refresh:      waitForCceNodePoolDelete(nodePoolClient, clusterid, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        60 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()

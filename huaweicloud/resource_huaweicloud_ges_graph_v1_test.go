@@ -56,12 +56,12 @@ resource "huaweicloud_ges_graph_v1" "graph" {
   subnet_id = "%s"
   vpc_id = "%s"
 }
-	`, val, OS_AVAILABILITY_ZONE, val, OS_REGION_NAME, OS_NETWORK_ID, OS_VPC_ID)
+	`, val, HW_AVAILABILITY_ZONE, val, HW_REGION_NAME, HW_NETWORK_ID, HW_VPC_ID)
 }
 
 func testAccCheckGesGraphV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.gesV1Client(OS_REGION_NAME)
+	client, err := config.gesV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -90,7 +90,7 @@ func testAccCheckGesGraphV1Destroy(s *terraform.State) error {
 func testAccCheckGesGraphV1Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.gesV1Client(OS_REGION_NAME)
+		client, err := config.gesV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}

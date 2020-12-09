@@ -124,7 +124,7 @@ func resourceVBSBackupTagsV2(d *schema.ResourceData) []backups.Tag {
 
 func resourceVBSBackupV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vbsClient, err := config.vbsV2Client(GetRegion(d, config))
+	vbsClient, err := config.VbsV2Client(GetRegion(d, config))
 
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud vbs client: %s", err)
@@ -160,7 +160,7 @@ func resourceVBSBackupV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vbsClient, err := config.vbsV2Client(GetRegion(d, config))
+	vbsClient, err := config.VbsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud Vbs client: %s", err)
 	}
@@ -193,7 +193,7 @@ func resourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 func resourceVBSBackupV2Delete(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*Config)
-	vbsClient, err := config.vbsV2Client(GetRegion(d, config))
+	vbsClient, err := config.VbsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud vbs: %s", err)
 	}

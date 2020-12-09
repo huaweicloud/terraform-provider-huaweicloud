@@ -18,15 +18,16 @@ data "huaweicloud_dcs_product" "product1" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the dcs products. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the dcs products. If omitted, the provider-level region will be used.
 
-* `spec_code` - (Optional) DCS instance specification code. For details, see
+* `spec_code` - (Optional, String) DCS instance specification code. For details, see
 [Querying Service Specifications](https://support.huaweicloud.com/en-us/api-dcs/dcs-api-0312040.html).
 
 
 ## Attributes Reference
 
-`id` is set to the ID of the found product. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `spec_code` - See Argument Reference above.
+* `id` - Specifies a data source ID in UUID format.
+
+

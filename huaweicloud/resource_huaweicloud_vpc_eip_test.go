@@ -68,7 +68,7 @@ func TestAccVpcV1EIP_WithEpsId(t *testing.T) {
 				Config: testAccVpcV1EIP_epsId(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1EIPExists(resourceName, &eip),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -77,7 +77,7 @@ func TestAccVpcV1EIP_WithEpsId(t *testing.T) {
 
 func testAccCheckVpcV1EIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.NetworkingV1Client(OS_REGION_NAME)
+	networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating EIP Client: %s", err)
 	}
@@ -108,7 +108,7 @@ func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheck
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.NetworkingV1Client(OS_REGION_NAME)
+		networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating networking client: %s", err)
 		}
@@ -158,7 +158,7 @@ resource "huaweicloud_vpc_eip" "test" {
   }
   enterprise_project_id = "%s"
 }
-`, rName, OS_ENTERPRISE_PROJECT_ID)
+`, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccVpcV1EIP_share(rName string) string {

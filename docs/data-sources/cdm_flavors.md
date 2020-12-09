@@ -16,9 +16,9 @@ data "huaweicloud_cdm_flavors" "flavor" {
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `region` - (Optional) The region in which to obtain the CDM flavors. If omitted, the provider-level region will be used.
+* `region` - The region in which to obtain the CDM flavors. If omitted, the provider-level region will be used.
 
 * `version` -
   The version of the flavor.

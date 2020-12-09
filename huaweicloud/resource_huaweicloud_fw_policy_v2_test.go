@@ -86,7 +86,7 @@ func TestAccFWPolicyV2_timeout(t *testing.T) {
 
 func testAccCheckFWPolicyV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	fwClient, err := config.fwV2Client(OS_REGION_NAME)
+	fwClient, err := config.fwV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -117,7 +117,7 @@ func testAccCheckFWPolicyV2Exists(n, name, description string, ruleCount int) re
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		fwClient, err := config.fwV2Client(OS_REGION_NAME)
+		fwClient, err := config.fwV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 		}

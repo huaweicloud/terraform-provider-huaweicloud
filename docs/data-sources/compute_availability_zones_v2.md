@@ -16,12 +16,13 @@ data "huaweicloud_compute_availability_zones_v2" "zones" {}
 
 ## Argument Reference
 
-* `state` - (Optional) The `state` of the availability zones to match, default ("available").
+* `state` - (Optional, String) The `state` of the availability zones to match, default ("available").
 
 
 ## Attributes Reference
 
-`id` is set to hash of the returned zone list. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
 
 * `names` - The names of the availability zones, ordered alphanumerically, that match the queried `state`

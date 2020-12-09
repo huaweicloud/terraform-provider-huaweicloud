@@ -44,28 +44,25 @@ resource "huaweicloud_networking_router_route_v2" "router_route_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the V2 networking client.
+* `region` - (Optional, String, ForceNew) The region in which to create the V2 networking client.
     A networking client is needed to configure a routing entry on a router. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     routing entry.
 
-* `router_id` - (Required) ID of the router this routing entry belongs to. Changing
+* `router_id` - (Required, String, ForceNew) ID of the router this routing entry belongs to. Changing
     this creates a new routing entry.
 
-* `destination_cidr` - (Required) CIDR block to match on the packet’s destination IP. Changing
+* `destination_cidr` - (Required, String, ForceNew) CIDR block to match on the packet’s destination IP. Changing
     this creates a new routing entry.
 
-* `next_hop` - (Required) IP address of the next hop gateway.  Changing
+* `next_hop` - (Required, String, ForceNew) IP address of the next hop gateway.  Changing
     this creates a new routing entry.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `router_id` - See Argument Reference above.
-* `destination_cidr` - See Argument Reference above.
-* `next_hop` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 
 ## Notes
 

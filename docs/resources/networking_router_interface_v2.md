@@ -37,28 +37,25 @@ resource "huaweicloud_networking_router_interface_v2" "router_interface_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the V2 networking client.
+* `region` - (Optional, String, ForceNew) The region in which to create the V2 networking client.
     A networking client is needed to create a router. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     router interface.
 
-* `router_id` - (Required) ID of the router this interface belongs to. Changing
+* `router_id` - (Required, String, ForceNew) ID of the router this interface belongs to. Changing
     this creates a new router interface.
 
-* `subnet_id` - (Optional) ID of the subnet this interface connects to. Changing
+* `subnet_id` - (Optional, String, ForceNew) ID of the subnet this interface connects to. Changing
     this creates a new router interface.
 
-* `port_id` - (Optional) ID of the port this interface connects to. Changing
+* `port_id` - (Optional, String, ForceNew) ID of the port this interface connects to. Changing
     this creates a new router interface.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `router_id` - See Argument Reference above.
-* `subnet_id` - See Argument Reference above.
-* `port_id` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

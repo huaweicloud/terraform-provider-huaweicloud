@@ -186,7 +186,7 @@ github.com/hashicorp/terraform-svchost/auth
 github.com/hashicorp/terraform-svchost/disco
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20201112061236-6ddae35b9312
+# github.com/huaweicloud/golangsdk v0.0.0-20201208095655-46b6c076ba1b
 ## explicit
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/internal
@@ -201,6 +201,7 @@ github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/policies
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/tags
 github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions
 github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes
+github.com/huaweicloud/golangsdk/openstack/bss/v2/orders
 github.com/huaweicloud/golangsdk/openstack/cce/v3/addons
 github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters
 github.com/huaweicloud/golangsdk/openstack/cce/v3/nodepools
@@ -267,6 +268,8 @@ github.com/huaweicloud/golangsdk/openstack/identity/v3/tokens
 github.com/huaweicloud/golangsdk/openstack/identity/v3/users
 github.com/huaweicloud/golangsdk/openstack/imageservice/v2/imagedata
 github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images
+github.com/huaweicloud/golangsdk/openstack/ims/v2/cloudimages
+github.com/huaweicloud/golangsdk/openstack/ims/v2/tags
 github.com/huaweicloud/golangsdk/openstack/kms/v1/keys
 github.com/huaweicloud/golangsdk/openstack/lts/huawei/loggroups
 github.com/huaweicloud/golangsdk/openstack/lts/huawei/logstreams

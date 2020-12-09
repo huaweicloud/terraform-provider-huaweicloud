@@ -24,13 +24,13 @@ data "huaweicloud_s3_bucket_object" "b" {
 
 The following arguments are supported:
 
-* `bucket` - (Required) The name of the bucket to read the object from
-* `key` - (Required) The full path to the object inside the bucket
-* `version_id` - (Optional) Specific version ID of the object returned (defaults to latest version)
+* `bucket` - (Required, String) The name of the bucket to read the object from
+* `key` - (Required, String) The full path to the object inside the bucket
+* `version_id` - (Optional, String) Specific version ID of the object returned (defaults to latest version)
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `body` - Object data (see **limitations above** to understand cases in which this field is actually available)
 * `cache_control` - Specifies caching behavior along the request/reply chain.

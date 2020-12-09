@@ -15,115 +15,146 @@ var osMutexKV = mutexkv.NewMutexKV()
 func Provider() terraform.ResourceProvider {
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  descriptions["region"],
+				InputDefault: "cn-north-1",
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_REGION_NAME",
+					"OS_REGION_NAME",
+				}, nil),
+			},
+
 			"access_key": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				DefaultFunc:  schema.EnvDefaultFunc("OS_ACCESS_KEY", nil),
 				Description:  descriptions["access_key"],
 				RequiredWith: []string{"secret_key"},
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_ACCESS_KEY",
+					"OS_ACCESS_KEY",
+				}, nil),
 			},
 
 			"secret_key": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				DefaultFunc:  schema.EnvDefaultFunc("OS_SECRET_KEY", nil),
 				Description:  descriptions["secret_key"],
 				RequiredWith: []string{"access_key"},
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_SECRET_KEY",
+					"OS_SECRET_KEY",
+				}, nil),
 			},
 
-			"auth_url": {
-				Type:     schema.TypeString,
-				Optional: true,
-				DefaultFunc: schema.EnvDefaultFunc(
-					"OS_AUTH_URL", "https://iam.myhuaweicloud.com:443/v3"),
-				Description: descriptions["auth_url"],
+			"domain_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["domain_id"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_DOMAIN_ID",
+					"OS_DOMAIN_ID",
+					"OS_USER_DOMAIN_ID",
+					"OS_PROJECT_DOMAIN_ID",
+				}, ""),
 			},
 
-			"region": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  descriptions["region"],
-				DefaultFunc:  schema.EnvDefaultFunc("OS_REGION_NAME", nil),
-				InputDefault: "cn-north-1",
+			"domain_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["domain_name"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_DOMAIN_NAME",
+					"OS_DOMAIN_NAME",
+					"OS_USER_DOMAIN_NAME",
+					"OS_PROJECT_DOMAIN_NAME",
+				}, ""),
 			},
 
 			"user_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_USERNAME", ""),
 				Description: descriptions["user_name"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_USER_NAME",
+					"OS_USERNAME",
+				}, ""),
 			},
 
 			"user_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_USER_ID", ""),
-				Description: descriptions["user_name"],
-			},
-
-			"tenant_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: descriptions["user_id"],
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-					"OS_TENANT_ID",
-					"OS_PROJECT_ID",
+					"HW_USER_ID",
+					"OS_USER_ID",
 				}, ""),
-				Description: descriptions["tenant_id"],
-			},
-
-			"tenant_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-					"OS_TENANT_NAME",
-					"OS_PROJECT_NAME",
-				}, ""),
-				Description: descriptions["tenant_name"],
 			},
 
 			"password": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Sensitive:   true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_PASSWORD", ""),
 				Description: descriptions["password"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_USER_PASSWORD",
+					"OS_PASSWORD",
+				}, ""),
+			},
+
+			"project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["project_id"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_PROJECT_ID",
+					"OS_PROJECT_ID",
+				}, nil),
+			},
+
+			"project_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["project_name"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_PROJECT_NAME",
+					"OS_PROJECT_NAME",
+				}, nil),
+			},
+
+			"tenant_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["tenant_id"],
+				DefaultFunc: schema.EnvDefaultFunc("OS_TENANT_ID", ""),
+			},
+
+			"tenant_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["tenant_name"],
+				DefaultFunc: schema.EnvDefaultFunc("OS_TENANT_NAME", ""),
 			},
 
 			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_AUTH_TOKEN", ""),
 				Description: descriptions["token"],
-			},
-
-			"domain_id": {
-				Type:     schema.TypeString,
-				Optional: true,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-					"OS_USER_DOMAIN_ID",
-					"OS_PROJECT_DOMAIN_ID",
-					"OS_DOMAIN_ID",
+					"HW_AUTH_TOKEN",
+					"OS_AUTH_TOKEN",
 				}, ""),
-				Description: descriptions["domain_id"],
-			},
-
-			"domain_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
-					"OS_USER_DOMAIN_NAME",
-					"OS_PROJECT_DOMAIN_NAME",
-					"OS_DOMAIN_NAME",
-					"OS_DEFAULT_DOMAIN",
-				}, ""),
-				Description: descriptions["domain_name"],
 			},
 
 			"insecure": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_INSECURE", false),
 				Description: descriptions["insecure"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_INSECURE",
+					"OS_INSECURE",
+				}, false),
 			},
 
 			"cacert_file": {
@@ -162,6 +193,7 @@ func Provider() terraform.ResourceProvider {
 				Description:  descriptions["agency_domain_name"],
 				RequiredWith: []string{"agency_name"},
 			},
+
 			"delegated_project": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -169,31 +201,42 @@ func Provider() terraform.ResourceProvider {
 				Description: descriptions["delegated_project"],
 			},
 
+			"auth_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["auth_url"],
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_AUTH_URL",
+					"OS_AUTH_URL",
+				}, "https://iam.myhuaweicloud.com:443/v3"),
+			},
+
 			"cloud": {
-				Type:     schema.TypeString,
-				Optional: true,
-				DefaultFunc: schema.EnvDefaultFunc(
-					"OS_CLOUD", "myhuaweicloud.com"),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: descriptions["cloud"],
+				DefaultFunc: schema.EnvDefaultFunc(
+					"HW_CLOUD", "myhuaweicloud.com"),
+			},
+
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["enterprise_project_id"],
+				DefaultFunc: schema.EnvDefaultFunc("HW_ENTERPRISE_PROJECT_ID", ""),
 			},
 
 			"max_retries": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     5,
 				Description: descriptions["max_retries"],
-			},
-			"enterprise_project_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_ENTERPRISE_PROJECT_ID", ""),
-				Description: descriptions["enterprise_project_id"],
+				DefaultFunc: schema.EnvDefaultFunc("HW_MAX_RETRIES", 5),
 			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"huaweicloud_antiddos":                    dataSourceAntiDdosV1(),
-			"huaweicloud_availability_zones":          dataSourceAvailabilityZones(),
+			"huaweicloud_availability_zones":          DataSourceAvailabilityZones(),
 			"huaweicloud_cce_cluster":                 dataSourceCCEClusterV3(),
 			"huaweicloud_cce_node":                    dataSourceCCENodeV3(),
 			"huaweicloud_cdm_flavors":                 dataSourceCdmFlavorV1(),
@@ -210,24 +253,26 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dms_product":                 dataSourceDmsProductV1(),
 			"huaweicloud_dms_maintainwindow":          dataSourceDmsMaintainWindowV1(),
 			"huaweicloud_enterprise_project":          DataSourceEnterpriseProject(),
+			"huaweicloud_gaussdb_cassandra_instance":  dataSourceGeminiDBInstance(),
+			"huaweicloud_gaussdb_opengauss_instance":  dataSourceOpenGaussInstance(),
 			"huaweicloud_gaussdb_mysql_configuration": dataSourceGaussdbMysqlConfigurations(),
 			"huaweicloud_gaussdb_mysql_flavors":       dataSourceGaussdbMysqlFlavors(),
 			"huaweicloud_gaussdb_mysql_instance":      dataSourceGaussDBMysqlInstance(),
 			"huaweicloud_iam_role":                    dataSourceIAMRoleV3(),
 			"huaweicloud_identity_role":               DataSourceIdentityRoleV3(),
-			"huaweicloud_images_image":                dataSourceImagesImageV2(),
+			"huaweicloud_images_image":                DataSourceImagesImageV2(),
 			"huaweicloud_kms_key":                     dataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key":                dataSourceKmsDataKeyV1(),
 			"huaweicloud_nat_gateway":                 dataSourceNatGatewayV2(),
-			"huaweicloud_networking_port":             dataSourceNetworkingPortV2(),
-			"huaweicloud_networking_secgroup":         dataSourceNetworkingSecGroupV2(),
+			"huaweicloud_networking_port":             DataSourceNetworkingPortV2(),
+			"huaweicloud_networking_secgroup":         DataSourceNetworkingSecGroupV2(),
 			"huaweicloud_obs_bucket_object":           dataSourceObsBucketObject(),
 			"huaweicloud_rds_flavors":                 dataSourceRdsFlavorV3(),
 			"huaweicloud_sfs_file_system":             dataSourceSFSFileSystemV2(),
 			"huaweicloud_vbs_backup_policy":           dataSourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup":                  dataSourceVBSBackupV2(),
 			"huaweicloud_vpc":                         DataSourceVirtualPrivateCloudVpcV1(),
-			"huaweicloud_vpc_bandwidth":               dataSourceBandWidth(),
+			"huaweicloud_vpc_bandwidth":               DataSourceBandWidth(),
 			"huaweicloud_vpc_ids":                     dataSourceVirtualPrivateCloudVpcIdsV1(),
 			"huaweicloud_vpc_peering_connection":      dataSourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_route":                   DataSourceVPCRouteV2(),
@@ -235,9 +280,9 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpc_subnet":                  DataSourceVpcSubnetV1(),
 			"huaweicloud_vpc_subnet_ids":              DataSourceVpcSubnetIdsV1(),
 			// Legacy
-			"huaweicloud_images_image_v2":           dataSourceImagesImageV2(),
-			"huaweicloud_networking_port_v2":        dataSourceNetworkingPortV2(),
-			"huaweicloud_networking_secgroup_v2":    dataSourceNetworkingSecGroupV2(),
+			"huaweicloud_images_image_v2":           DataSourceImagesImageV2(),
+			"huaweicloud_networking_port_v2":        DataSourceNetworkingPortV2(),
+			"huaweicloud_networking_secgroup_v2":    DataSourceNetworkingSecGroupV2(),
 			"huaweicloud_kms_key_v1":                dataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key_v1":           dataSourceKmsDataKeyV1(),
 			"huaweicloud_rds_flavors_v3":            dataSourceRdsFlavorV3(),
@@ -294,12 +339,12 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_cdn_domain":                      resourceCdnDomainV1(),
 			"huaweicloud_ces_alarmrule":                   resourceAlarmRule(),
 			"huaweicloud_cloudtable_cluster":              resourceCloudtableClusterV2(),
-			"huaweicloud_compute_instance":                resourceComputeInstanceV2(),
-			"huaweicloud_compute_interface_attach":        resourceComputeInterfaceAttachV2(),
-			"huaweicloud_compute_keypair":                 resourceComputeKeypairV2(),
-			"huaweicloud_compute_servergroup":             resourceComputeServerGroupV2(),
-			"huaweicloud_compute_eip_associate":           resourceComputeFloatingIPAssociateV2(),
-			"huaweicloud_compute_volume_attach":           resourceComputeVolumeAttachV2(),
+			"huaweicloud_compute_instance":                ResourceComputeInstanceV2(),
+			"huaweicloud_compute_interface_attach":        ResourceComputeInterfaceAttachV2(),
+			"huaweicloud_compute_keypair":                 ResourceComputeKeypairV2(),
+			"huaweicloud_compute_servergroup":             ResourceComputeServerGroupV2(),
+			"huaweicloud_compute_eip_associate":           ResourceComputeFloatingIPAssociateV2(),
+			"huaweicloud_compute_volume_attach":           ResourceComputeVolumeAttachV2(),
 			"huaweicloud_cs_cluster":                      resourceCsClusterV1(),
 			"huaweicloud_cs_peering_connect":              resourceCsPeeringConnectV1(),
 			"huaweicloud_cs_route":                        resourceCsRouteV1(),
@@ -308,7 +353,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_css_cluster":                     resourceCssClusterV1(),
 			"huaweicloud_css_snapshot":                    resourceCssSnapshot(),
 			"huaweicloud_cts_tracker":                     resourceCTSTrackerV1(),
-			"huaweicloud_dcs_instance":                    resourceDcsInstanceV1(),
+			"huaweicloud_dcs_instance":                    ResourceDcsInstanceV1(),
 			"huaweicloud_dds_instance":                    resourceDdsInstanceV3(),
 			"huaweicloud_dis_stream":                      resourceDisStreamV2(),
 			"huaweicloud_dli_queue":                       resourceDliQueueV1(),
@@ -319,8 +364,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dns_recordset":                   ResourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone":                        ResourceDNSZoneV2(),
 			"huaweicloud_dws_cluster":                     resourceDwsCluster(),
-			"huaweicloud_evs_snapshot":                    resourceEvsSnapshotV2(),
-			"huaweicloud_evs_volume":                      resourceEvsStorageVolumeV3(),
+			"huaweicloud_evs_snapshot":                    ResourceEvsSnapshotV2(),
+			"huaweicloud_evs_volume":                      ResourceEvsStorageVolumeV3(),
 			"huaweicloud_fgs_function":                    resourceFgsFunctionV2(),
 			"huaweicloud_gaussdb_cassandra_instance":      resourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_mysql_instance":          resourceGaussDBInstance(),
@@ -332,7 +377,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_identity_project":                ResourceIdentityProjectV3(),
 			"huaweicloud_identity_role_assignment":        ResourceIdentityRoleAssignmentV3(),
 			"huaweicloud_identity_user":                   ResourceIdentityUserV3(),
-			"huaweicloud_images_image":                    resourceImagesImageV2(),
+			"huaweicloud_images_image":                    ResourceImsImage(),
 			"huaweicloud_kms_key":                         resourceKmsKeyV1(),
 			"huaweicloud_lb_certificate":                  resourceCertificateV2(),
 			"huaweicloud_lb_l7policy":                     resourceL7PolicyV2(),
@@ -355,7 +400,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_network_acl":                     resourceNetworkACL(),
 			"huaweicloud_network_acl_rule":                resourceNetworkACLRule(),
 			"huaweicloud_networking_eip_associate":        resourceNetworkingFloatingIPAssociateV2(),
-			"huaweicloud_networking_port":                 resourceNetworkingPortV2(),
+			"huaweicloud_networking_port":                 ResourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":             ResourceNetworkingSecGroupV2(),
 			"huaweicloud_networking_secgroup_rule":        ResourceNetworkingSecGroupRuleV2(),
 			"huaweicloud_networking_vip":                  resourceNetworkingVIPV2(),
@@ -374,7 +419,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vbs_backup":                      resourceVBSBackupV2(),
 			"huaweicloud_vbs_backup_policy":               resourceVBSBackupPolicyV2(),
 			"huaweicloud_vpc":                             ResourceVirtualPrivateCloudV1(),
-			"huaweicloud_vpc_bandwidth":                   resourceVpcBandWidthV2(),
+			"huaweicloud_vpc_bandwidth":                   ResourceVpcBandWidthV2(),
 			"huaweicloud_vpc_eip":                         ResourceVpcEIPV1(),
 			"huaweicloud_vpc_peering_connection":          ResourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_peering_connection_accepter": resourceVpcPeeringConnectionAccepterV2(),
@@ -386,15 +431,15 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpnaas_service":                  resourceVpnServiceV2(),
 			"huaweicloud_vpnaas_site_connection":          resourceVpnSiteConnectionV2(),
 			// Legacy
-			"huaweicloud_compute_instance_v2":                resourceComputeInstanceV2(),
-			"huaweicloud_compute_interface_attach_v2":        resourceComputeInterfaceAttachV2(),
-			"huaweicloud_compute_keypair_v2":                 resourceComputeKeypairV2(),
-			"huaweicloud_compute_servergroup_v2":             resourceComputeServerGroupV2(),
-			"huaweicloud_compute_volume_attach_v2":           resourceComputeVolumeAttachV2(),
+			"huaweicloud_compute_instance_v2":                ResourceComputeInstanceV2(),
+			"huaweicloud_compute_interface_attach_v2":        ResourceComputeInterfaceAttachV2(),
+			"huaweicloud_compute_keypair_v2":                 ResourceComputeKeypairV2(),
+			"huaweicloud_compute_servergroup_v2":             ResourceComputeServerGroupV2(),
+			"huaweicloud_compute_volume_attach_v2":           ResourceComputeVolumeAttachV2(),
 			"huaweicloud_dns_ptrrecord_v2":                   ResourceDNSPtrRecordV2(),
 			"huaweicloud_dns_recordset_v2":                   ResourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone_v2":                        ResourceDNSZoneV2(),
-			"huaweicloud_dcs_instance_v1":                    resourceDcsInstanceV1(),
+			"huaweicloud_dcs_instance_v1":                    ResourceDcsInstanceV1(),
 			"huaweicloud_dds_instance_v3":                    resourceDdsInstanceV3(),
 			"huaweicloud_fw_firewall_group_v2":               resourceFWFirewallGroupV2(),
 			"huaweicloud_fw_policy_v2":                       resourceFWPolicyV2(),
@@ -415,7 +460,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_lb_whitelist_v2":                    resourceWhitelistV2(),
 			"huaweicloud_mrs_cluster_v1":                     resourceMRSClusterV1(),
 			"huaweicloud_mrs_job_v1":                         resourceMRSJobV1(),
-			"huaweicloud_networking_port_v2":                 resourceNetworkingPortV2(),
+			"huaweicloud_networking_port_v2":                 ResourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup_v2":             ResourceNetworkingSecGroupV2(),
 			"huaweicloud_networking_secgroup_rule_v2":        ResourceNetworkingSecGroupRuleV2(),
 			"huaweicloud_smn_topic_v2":                       resourceTopic(),
@@ -430,7 +475,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_iam_agency":                         resourceIAMAgencyV3(),
 			"huaweicloud_iam_agency_v3":                      resourceIAMAgencyV3(),
 			"huaweicloud_vpc_v1":                             ResourceVirtualPrivateCloudV1(),
-			"huaweicloud_vpc_bandwidth_v2":                   resourceVpcBandWidthV2(),
+			"huaweicloud_vpc_bandwidth_v2":                   ResourceVpcBandWidthV2(),
 			"huaweicloud_vpc_eip_v1":                         ResourceVpcEIPV1(),
 			"huaweicloud_vpc_peering_connection_v2":          ResourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_peering_connection_accepter_v2": resourceVpcPeeringConnectionAccepterV2(),
@@ -485,9 +530,9 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_networking_router_route_v2":         resourceNetworkingRouterRouteV2(),
 			"huaweicloud_networking_floatingip_associate_v2": resourceNetworkingFloatingIPAssociateV2(),
 			"huaweicloud_ecs_instance_v1":                    resourceEcsInstanceV1(),
-			"huaweicloud_compute_secgroup_v2":                resourceComputeSecGroupV2(),
-			"huaweicloud_compute_floatingip_v2":              resourceComputeFloatingIPV2(),
-			"huaweicloud_compute_floatingip_associate_v2":    resourceComputeFloatingIPAssociateV2(),
+			"huaweicloud_compute_secgroup_v2":                ResourceComputeSecGroupV2(),
+			"huaweicloud_compute_floatingip_v2":              ResourceComputeFloatingIPV2(),
+			"huaweicloud_compute_floatingip_associate_v2":    ResourceComputeFloatingIPAssociateV2(),
 			"huaweicloud_elb_loadbalancer":                   resourceELBLoadBalancer(),
 			"huaweicloud_elb_listener":                       resourceELBListener(),
 			"huaweicloud_elb_healthcheck":                    resourceELBHealthCheck(),
@@ -523,19 +568,21 @@ func init() {
 
 		"user_id": "User ID to login with.",
 
-		"tenant_id": "The ID of the Tenant (Identity v2) or Project (Identity v3)\n" +
-			"to login with.",
+		"project_id": "The ID of the project to login with.",
 
-		"tenant_name": "The name of the Tenant (Identity v2) or Project (Identity v3)\n" +
-			"to login with.",
+		"project_name": "The name of the project to login with.",
+
+		"tenant_id": "The ID of the Tenant (Identity v2) to login with.",
+
+		"tenant_name": "The name of the Tenant (Identity v2) to login with.",
 
 		"password": "Password to login with.",
 
 		"token": "Authentication token to use as an alternative to username/password.",
 
-		"domain_id": "The ID of the Domain to scope to (Identity v3).",
+		"domain_id": "The ID of the Domain to scope to.",
 
-		"domain_name": "The name of the Domain to scope to (Identity v3).",
+		"domain_name": "The name of the Domain to scope to.",
 
 		"insecure": "Trust self-signed certificates.",
 
@@ -560,20 +607,31 @@ func init() {
 }
 
 func configureProvider(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
-	var tenant_name, delegated_project string
+	var tenantName, tenantID, delegated_project string
+	region := d.Get("region").(string)
 
-	// Use region as tenant_name if it's not set
-	if v, ok := d.GetOk("tenant_name"); ok && v.(string) != "" {
-		tenant_name = v.(string)
+	// project_name is prior to tenant_name
+	// if neither of them was set, use region as the default project
+	if v, ok := d.GetOk("project_name"); ok && v.(string) != "" {
+		tenantName = v.(string)
+	} else if v, ok := d.GetOk("tenant_name"); ok && v.(string) != "" {
+		tenantName = v.(string)
 	} else {
-		tenant_name = d.Get("region").(string)
+		tenantName = region
+	}
+
+	// project_id is prior to tenant_id
+	if v, ok := d.GetOk("project_id"); ok && v.(string) != "" {
+		tenantID = v.(string)
+	} else {
+		tenantID = d.Get("tenant_id").(string)
 	}
 
 	// Use region as delegated_project if it's not set
 	if v, ok := d.GetOk("delegated_project"); ok && v.(string) != "" {
 		delegated_project = v.(string)
 	} else {
-		delegated_project = d.Get("region").(string)
+		delegated_project = region
 	}
 
 	config := Config{
@@ -587,10 +645,10 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		IdentityEndpoint:    d.Get("auth_url").(string),
 		Insecure:            d.Get("insecure").(bool),
 		Password:            d.Get("password").(string),
-		Region:              d.Get("region").(string),
 		Token:               d.Get("token").(string),
-		TenantID:            d.Get("tenant_id").(string),
-		TenantName:          tenant_name,
+		Region:              region,
+		TenantID:            tenantID,
+		TenantName:          tenantName,
 		Username:            d.Get("user_name").(string),
 		UserID:              d.Get("user_id").(string),
 		AgencyName:          d.Get("agency_name").(string),

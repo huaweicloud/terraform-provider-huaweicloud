@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths"
 )
 
-func dataSourceBandWidth() *schema.Resource {
+func DataSourceBandWidth() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceBandWidthRead,
 

@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func resourceVpcBandWidthV2() *schema.Resource {
+func ResourceVpcBandWidthV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVpcBandWidthV2Create,
 		Read:   resourceVpcBandWidthV2Read,
@@ -39,12 +39,10 @@ func resourceVpcBandWidthV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"size": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ForceNew:     false,
 				ValidateFunc: validateIntegerInRange(5, 2000),
 			},
 			"enterprise_project_id": {

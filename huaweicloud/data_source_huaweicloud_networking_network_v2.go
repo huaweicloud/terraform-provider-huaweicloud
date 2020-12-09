@@ -43,8 +43,8 @@ func dataSourceNetworkingNetworkV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
+					"HW_PROJECT_ID",
 					"OS_TENANT_ID",
-					"OS_PROJECT_ID",
 				}, ""),
 				Description: descriptions["tenant_id"],
 			},

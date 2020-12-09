@@ -47,16 +47,10 @@ resource "huaweicloud_cs_route" "route" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the cs peering connect route resource. If omitted, the provider-level region will be used. Changing this creates a new cs peering connect route resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the cs peering connect route resource. If omitted, the provider-level region will be used. Changing this creates a new cs peering connect route resource.
 
-* `cluster_id` -
-  (Required)
-  The id of cloud stream cluster. Changing this parameter will create a new resource.
+* `cluster_id` - (Required, String, ForceNew) The id of cloud stream cluster. Changing this parameter will create a new resource.
 
-* `destination` -
-  (Required)
-  Routing destination CIDR. Changing this parameter will create a new resource.
+* `destination` - (Required, String, ForceNew) Routing destination CIDR. Changing this parameter will create a new resource.
 
-* `peering_id` -
-  (Required)
-  The peering connection id of cloud stream cluster. Changing this parameter will create a new resource.
+* `peering_id` - (Required, String, ForceNew) The peering connection id of cloud stream cluster. Changing this parameter will create a new resource.

@@ -51,7 +51,7 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 
 func testAccCheckSFSTurboDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	sfsClient, err := config.sfsV1Client(OS_REGION_NAME)
+	sfsClient, err := config.SfsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud sfs turbo client: %s", err)
 	}
@@ -82,7 +82,7 @@ func testAccCheckSFSTurboExists(n string, share *shares.Turbo) resource.TestChec
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		sfsClient, err := config.sfsV1Client(OS_REGION_NAME)
+		sfsClient, err := config.SfsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud sfs turbo client: %s", err)
 		}
@@ -134,7 +134,7 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
   vpc_id      = huaweicloud_vpc_v1.test.id
   subnet_id   = huaweicloud_vpc_subnet_v1.test.id
   security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
-  availability_zone = huaweicloud_availability_zones.myaz.names[0]
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
 }
 `, testAccNetworkPreConditions(suffix), suffix)
 }
@@ -151,7 +151,7 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
   vpc_id      = huaweicloud_vpc_v1.test.id
   subnet_id   = huaweicloud_vpc_subnet_v1.test.id
   security_group_id = huaweicloud_networking_secgroup_v2.secgroup.id
-  availability_zone = huaweicloud_availability_zones.myaz.names[0]
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
 }
 `, testAccNetworkPreConditions(suffix), suffix)
 }

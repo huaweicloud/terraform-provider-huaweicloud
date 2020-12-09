@@ -46,17 +46,17 @@ resource "huaweicloud_sfs_access_rule" "rule_1" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the sfs access rule resource. If omitted, the provider-level region will be used. Changing this creates a new access rule resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the sfs access rule resource. If omitted, the provider-level region will be used. Changing this creates a new access rule resource.
 
-* `sfs_id` - (Required) Specifies the UUID of the shared file system. Changing this will create a new access rule.
+* `sfs_id` - (Required, String, ForceNew) Specifies the UUID of the shared file system. Changing this will create a new access rule.
 
-* `access_level` - (Optional) Specifies the access level of the shared file system. Possible values are *ro* (read-only)
+* `access_level` - (Optional, String, ForceNew) Specifies the access level of the shared file system. Possible values are *ro* (read-only)
     and *rw* (read-write). The default value is *rw* (read/write). Changing this will create a new access rule.
 
-* `access_type` - (Optional) Specifies the type of the share access rule. The default value is *cert*.
+* `access_type` - (Optional, String, ForceNew) Specifies the type of the share access rule. The default value is *cert*.
     Changing this will create a new access rule.
 
-* `access_to` - (Required) Specifies the value that defines the access rule. The value contains 1 to 255 characters.
+* `access_to` - (Required, String, ForceNew) Specifies the value that defines the access rule. The value contains 1 to 255 characters.
     Changing this will create a new access rule. The value varies according to the scenario:
     - Set the VPC ID in VPC authorization scenarios.
     - Set this parameter in IP address authorization scenario.

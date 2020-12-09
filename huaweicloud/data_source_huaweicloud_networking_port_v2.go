@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
-func dataSourceNetworkingPortV2() *schema.Resource {
+func DataSourceNetworkingPortV2() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceNetworkingPortV2Read,
 

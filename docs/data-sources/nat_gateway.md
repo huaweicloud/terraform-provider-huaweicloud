@@ -17,32 +17,31 @@ data "huaweicloud_nat_gateway" "natgateway" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the gateways. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the gateways. If omitted, the provider-level region will be used.
 
-* `id` - (Optional) The ID of the NAT gateway.
+* `id` - (Optional, String) The ID of the NAT gateway.
 
-* `name` - (Optional) The name of the NAT gateway.
+* `name` - (Optional, String) The name of the NAT gateway.
 
-* `description` - (Optional) The information about the NAT gateway..
+* `description` - (Optional, String) The information about the NAT gateway..
 
-* `spec` - (Optional) The NAT gateway type.
+* `spec` - (Optional, String) The NAT gateway type.
               The value can be:
               1: small type, which supports up to 10,000 SNAT connections.
               2: medium type, which supports up to 50,000 SNAT connections.
               3: large type, which supports up to 200,000 SNAT connections.
               4: extra-large type, which supports up to 1,000,000 SNAT connections.
 
-* `router_id` - (Optional) The router ID.
+* `router_id` - (Optional, String) The router ID.
 
-* `internal_network_id` - (Optional) The network ID of the downstream interface (the next hop of the DVR) of the NAT gateway.
+* `internal_network_id` - (Optional, String) The network ID of the downstream interface (the next hop of the DVR) of the NAT gateway.
 
-* `status` - (Optional) The status of the NAT gateway.
+* `status` - (Optional, String) The status of the NAT gateway.
 
 
 ## Attributes Reference
 
-The following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `admin_state_up` - The unfrozen or frozen state.
                         The value can be:

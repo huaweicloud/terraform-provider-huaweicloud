@@ -32,12 +32,14 @@ output "subnet_cidr_blocks" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the subnet ids. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the subnet ids. If omitted, the provider-level region will be used.
 
-* `vpc_id` (Required) - Specifies the VPC ID used as the query filter.
+* `vpc_id` - (Required, String) Specifies the VPC ID used as the query filter.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
 
 * `ids` - A set of all the subnet ids found. This data source will fail if none are found.

@@ -21,25 +21,19 @@ resource "huaweicloud_lts_group" "log_group1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the log group resource. If omitted, the provider-level region will be used. Changing this creates a new log group resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the log group resource. If omitted, the provider-level region will be used. Changing this creates a new log group resource.
 
-* `group_name` - (Required)
-  Specifies the log group name.
-  Changing this parameter will create a new resource.
+* `group_name` - (Required, String, ForceNew) Specifies the log group name. Changing this parameter will create a new resource.
 
-* `ttl_in_days` - (Required)
-  Specifies the log expiration time(days), value range: 1-30.
+* `ttl_in_days` - (Required, Int) Specifies the log expiration time(days), value range: 1-30.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - The log group ID.
 
-* `group_name` - See Argument Reference above.
-
-* `ttl_in_days` -
-  Specifies the log expiration time(days).
+* `ttl_in_days` - Specifies the log expiration time(days).
 
 ## Import
 

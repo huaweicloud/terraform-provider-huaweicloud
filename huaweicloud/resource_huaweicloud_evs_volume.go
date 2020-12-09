@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/evs/v3/volumes"
 )
 
-func resourceEvsStorageVolumeV3() *schema.Resource {
+func ResourceEvsStorageVolumeV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceEvsVolumeV3Create,
 		Read:   resourceEvsVolumeV3Read,
@@ -52,7 +52,6 @@ func resourceEvsStorageVolumeV3() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"size": {
 				Type:     schema.TypeInt,
@@ -62,7 +61,6 @@ func resourceEvsStorageVolumeV3() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"snapshot_id": {
 				Type:     schema.TypeString,
@@ -92,7 +90,6 @@ func resourceEvsStorageVolumeV3() *schema.Resource {
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"attachment": {
@@ -151,7 +148,7 @@ func resourceVolumeAttachmentHash(v interface{}) int {
 
 func resourceEvsVolumeV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	blockStorageClient, err := config.blockStorageV3Client(GetRegion(d, config))
+	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
@@ -214,7 +211,7 @@ func resourceEvsVolumeV3Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	blockStorageClient, err := config.blockStorageV3Client(GetRegion(d, config))
+	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
@@ -263,7 +260,7 @@ func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
 // using OpenStack Cinder API v2 to update volume resource
 func resourceEvsVolumeV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	blockStorageClient, err := config.blockStorageV2Client(GetRegion(d, config))
+	blockStorageClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}

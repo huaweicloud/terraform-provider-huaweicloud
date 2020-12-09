@@ -39,7 +39,7 @@ func TestAccNatSnatRule_basic(t *testing.T) {
 
 func testAccCheckNatV2SnatRuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	natClient, err := config.natV2Client(OS_REGION_NAME)
+	natClient, err := config.natV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
@@ -70,7 +70,7 @@ func testAccCheckNatV2SnatRuleExists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		natClient, err := config.natV2Client(OS_REGION_NAME)
+		natClient, err := config.natV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 		}

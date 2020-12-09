@@ -38,12 +38,10 @@ func resourceNetworkingRouterV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"admin_state_up": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 			"distributed": {
@@ -55,19 +53,16 @@ func resourceNetworkingRouterV2() *schema.Resource {
 			"external_network_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 			"enable_snat": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 			"external_fixed_ip": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

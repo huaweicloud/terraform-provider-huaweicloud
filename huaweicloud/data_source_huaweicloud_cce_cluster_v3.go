@@ -136,7 +136,7 @@ func dataSourceCCEClusterV3() *schema.Resource {
 
 func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	cceClient, err := config.cceV3Client(GetRegion(d, config))
+	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
@@ -210,7 +210,7 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 	cert, err := r.Extract()
 
 	if err != nil {
-		log.Printf("Error retrieving opentelekomcloud CCE cluster cert: %s", err)
+		log.Printf("Error retrieving HuaweiCloud CCE cluster cert: %s", err)
 	}
 
 	//Set Certificate Clusters

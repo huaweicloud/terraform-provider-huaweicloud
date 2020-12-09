@@ -94,7 +94,7 @@ func TestAccCCEClusterV3_withEpsId(t *testing.T) {
 				Config: testAccCCEClusterV3_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -103,7 +103,7 @@ func TestAccCCEClusterV3_withEpsId(t *testing.T) {
 
 func testAccCheckCCEClusterV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	cceClient, err := config.cceV3Client(OS_REGION_NAME)
+	cceClient, err := config.CceV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -134,7 +134,7 @@ func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resour
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		cceClient, err := config.cceV3Client(OS_REGION_NAME)
+		cceClient, err := config.CceV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 		}
@@ -245,5 +245,5 @@ resource "huaweicloud_cce_cluster" "test" {
   enterprise_project_id  = "%s"
 }
 
-`, testAccCCEClusterV3_Base(rName), rName, OS_ENTERPRISE_PROJECT_ID)
+`, testAccCCEClusterV3_Base(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }

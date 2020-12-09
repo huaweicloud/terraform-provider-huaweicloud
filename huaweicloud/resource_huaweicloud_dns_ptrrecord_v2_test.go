@@ -46,7 +46,7 @@ func TestAccDNSV2PtrRecord_basic(t *testing.T) {
 
 func testAccCheckDNSV2PtrRecordDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	dnsClient, err := config.DnsV2Client(OS_REGION_NAME)
+	dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
@@ -77,7 +77,7 @@ func testAccCheckDNSV2PtrRecordExists(n string, ptrrecord *ptrrecords.Ptr) resou
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		dnsClient, err := config.DnsV2Client(OS_REGION_NAME)
+		dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 		}

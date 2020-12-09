@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/floatingips"
 )
 
-func resourceComputeFloatingIPV2() *schema.Resource {
+func ResourceComputeFloatingIPV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeFloatingIPV2Create,
 		Read:   resourceComputeFloatingIPV2Read,
@@ -57,7 +57,7 @@ func resourceComputeFloatingIPV2() *schema.Resource {
 
 func resourceComputeFloatingIPV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -78,7 +78,7 @@ func resourceComputeFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 
 func resourceComputeFloatingIPV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -119,7 +119,7 @@ func FloatingIPV2StateRefreshFunc(computeClient *golangsdk.ServiceClient, d *sch
 
 func resourceComputeFloatingIPV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}

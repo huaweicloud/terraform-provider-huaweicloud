@@ -40,22 +40,18 @@ func ResourceDNSPtrRecordV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"floatingip_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"ttl": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     false,
 				ValidateFunc: resourceValidateTTL,
 			},
 			"tags": tagsSchema(),

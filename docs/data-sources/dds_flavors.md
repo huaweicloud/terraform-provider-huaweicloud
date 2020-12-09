@@ -18,20 +18,22 @@ data "huaweicloud_dds_flavors" "flavor" {
 
 ## Argument Reference
 
-* `region` - (Optional) Specifies the region in which to obtain the V3 dds client. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) Specifies the region in which to obtain the V3 dds client. If omitted, the provider-level region will be used.
 
-* `engine_name` - (Required) Specifies the engine name of the dds, "DDS-Community" and "DDS-Enhanced" are supported.
+* `engine_name` - (Required, String) Specifies the engine name of the dds, "DDS-Community" and "DDS-Enhanced" are supported.
 
-* `type` - (Optional) Specifies the type of the dds falvor. "mongos", "shard", "config", "replica" and "single" are supported.
+* `type` - (Optional, String) Specifies the type of the dds falvor. "mongos", "shard", "config", "replica" and "single" are supported.
 
-* `vcpus` - (Optional) Specifies the vcpus of the dds flavor.
+* `vcpus` - (Optional, String) Specifies the vcpus of the dds flavor.
 
-* `memory` - (Optional) Specifies the ram of the dds flavor in GB.
+* `memory` - (Optional, String) Specifies the ram of the dds flavor in GB.
 
 
 ## Attributes Reference
 
-* `region` - See Argument Reference above.
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
 
 * `flavors` - Indicates the flavors information. Structure is documented below.
 

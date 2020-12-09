@@ -2,7 +2,6 @@ package instances
 
 import (
 	"github.com/huaweicloud/golangsdk"
-	"github.com/huaweicloud/golangsdk/openstack/common/structs"
 	"github.com/huaweicloud/golangsdk/pagination"
 )
 
@@ -10,7 +9,13 @@ var requestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
 	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 }
 
-type ChargeInfoOpt structs.ChargeInfo
+type ChargeInfoOpt struct {
+	ChargingMode string `json:"charge_mode,omitempty"`
+	PeriodType   string `json:"period_type,omitempty"`
+	PeriodNum    int    `json:"period_num,omitempty"`
+	IsAutoRenew  string `json:"is_auto_renew,omitempty"`
+	IsAutoPay    string `json:"is_auto_pay,omitempty"`
+}
 
 type DataStoreOpt struct {
 	Type    string `json:"type" required:"true"`
@@ -173,6 +178,30 @@ func List(client *golangsdk.ServiceClient, opts ListTaurusDBBuilder) pagination.
 	pageList.Headers = requestOpts.MoreHeaders
 
 	return pageList
+}
+
+func GetInstanceByName(client *golangsdk.ServiceClient, name string) (TaurusDBInstance, error) {
+	var instance TaurusDBInstance
+
+	opts := ListTaurusDBInstanceOpts{
+		Name: name,
+	}
+
+	pages, err := List(client, &opts).AllPages()
+	if err != nil {
+		return instance, err
+	}
+
+	all, err := ExtractTaurusDBInstances(pages)
+	if err != nil {
+		return instance, err
+	}
+	if all.TotalCount == 0 {
+		return instance, nil
+	}
+
+	instance = all.Instances[0]
+	return instance, nil
 }
 
 type UpdateNameOpts struct {

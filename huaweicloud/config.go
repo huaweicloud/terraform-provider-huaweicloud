@@ -17,7 +17,6 @@ import (
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
-	"github.com/hashicorp/terraform-plugin-sdk/httpclient"
 	"github.com/huaweicloud/golangsdk"
 	huaweisdk "github.com/huaweicloud/golangsdk/openstack"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/projects"
@@ -143,7 +142,7 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 	}
 
 	// Set UserAgent
-	client.UserAgent.Prepend(httpclient.TerraformUserAgent(c.TerraformVersion))
+	client.UserAgent.Prepend("terraform-provider-huaweicloud")
 
 	config, err := generateTLSConfig(c)
 	if err != nil {
@@ -519,10 +518,6 @@ func (c *Config) IdentityV3Client(region string) (*golangsdk.ServiceClient, erro
 	return c.NewServiceClient("identity", region)
 }
 
-func (c *Config) DnsV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("dns", region)
-}
-
 func (c *Config) CdnV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cdn", region)
 }
@@ -532,35 +527,35 @@ func (c *Config) EnterpriseProjectClient(region string) (*golangsdk.ServiceClien
 }
 
 // ********** client for Compute **********
-func (c *Config) computeV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) ComputeV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ecs", region)
 }
 
-func (c *Config) computeV11Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) ComputeV11Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ecsv11", region)
 }
 
-func (c *Config) computeV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) ComputeV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ecsv21", region)
 }
 
-func (c *Config) autoscalingV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) AutoscalingV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("autoscalingv1", region)
 }
 
-func (c *Config) imageV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) ImageV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("imagev2", region)
 }
 
-func (c *Config) cceV3Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CceV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ccev3", region)
 }
 
-func (c *Config) cceAddonV3Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CceAddonV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cceaddonv3", region)
 }
 
-func (c *Config) cciV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CciV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cciv1", region)
 }
 
@@ -569,27 +564,27 @@ func (c *Config) FgsV2Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 // ********** client for Storage **********
-func (c *Config) blockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) BlockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("volumev2", region)
 }
 
-func (c *Config) blockStorageV3Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) BlockStorageV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("volumev3", region)
 }
 
-func (c *Config) sfsV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) SfsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("sfsv2", region)
 }
 
-func (c *Config) sfsV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) SfsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("sfs-turbo", region)
 }
 
-func (c *Config) csbsV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CsbsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("csbsv1", region)
 }
 
-func (c *Config) vbsV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) VbsV2Client(region string) (*golangsdk.ServiceClient, error) {
 
 	return c.NewServiceClient("vbsv2", region)
 }
@@ -625,6 +620,14 @@ func (c *Config) elbV2Client(region string) (*golangsdk.ServiceClient, error) {
 
 func (c *Config) fwV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("networkv2", region)
+}
+
+func (c *Config) DnsV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dns", region)
+}
+
+func (c *Config) DnsWithRegionClient(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dns_region", region)
 }
 
 // ********** client for Management **********
@@ -739,6 +742,10 @@ func (c *Config) gaussdbV3Client(region string) (*golangsdk.ServiceClient, error
 // ********** client for Others **********
 func (c *Config) BssV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("bss", region)
+}
+
+func (c *Config) BssV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("bssv2", region)
 }
 
 func (c *Config) maasV1Client(region string) (*golangsdk.ServiceClient, error) {

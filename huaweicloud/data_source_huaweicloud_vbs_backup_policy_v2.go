@@ -91,7 +91,7 @@ func dataSourceVBSBackupPolicyV2() *schema.Resource {
 
 func dataSourceVBSPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	vbsClient, err := config.vbsV2Client(GetRegion(d, config))
+	vbsClient, err := config.VbsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud vbs client: %s", err)
 	}

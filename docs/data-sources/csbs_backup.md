@@ -23,25 +23,25 @@ data "huaweicloud_csbs_backup" "csbs" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the CSBS backups. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the CSBS backups. If omitted, the provider-level region will be used.
 
-* `id` - (Optional) Specifies the ID of backup.
+* `id` - (Optional, String) Specifies the ID of backup.
 
-* `backup_name` - (Optional) Specifies the backup name.
+* `backup_name` - (Optional, String) Specifies the backup name.
 
-* `status` - (Optional) Specifies the backup status.
+* `status` - (Optional, String) Specifies the backup status.
 
-* `resource_name` - (Optional) Specifies the backup object name.
+* `resource_name` - (Optional, String) Specifies the backup object name.
 
-* `backup_record_id` - (Optional) Specifies the backup record ID.
+* `backup_record_id` - (Optional, String) Specifies the backup record ID.
 
-* `resource_type` - (Optional) Specifies the type of backup objects.
+* `resource_type` - (Optional, String) Specifies the type of backup objects.
 
-* `resource_id` - (Optional) Specifies the backup object ID.
+* `resource_id` - (Optional, String) Specifies the backup object ID.
 
-* `policy_id` - (Optional) Specifies the Policy Id.
+* `policy_id` - (Optional, String) Specifies the Policy Id.
 
-* `vm_ip` - (Optional) Specifies the ip of VM.
+* `vm_ip` - (Optional, String) Specifies the ip of VM.
 
 ## Attributes Reference
 In addition to all arguments above, the following attributes are exported:

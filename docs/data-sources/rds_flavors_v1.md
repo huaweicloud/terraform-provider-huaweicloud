@@ -21,13 +21,13 @@ data "huaweicloud_rds_flavors_v1" "flavor" {
 
 ## Argument Reference
 
-* `region` - (Required) The region in which to obtain the V1 rds client.
+* `region` - (Required, String) The region in which to obtain the V1 rds client.
 
-* `datastore_name` - (Required) The datastore name of the rds.
+* `datastore_name` - (Required, String) The datastore name of the rds.
 
-* `datastore_version` - (Required) The datastore version of the rds.
+* `datastore_version` - (Required, String) The datastore version of the rds.
 
-* `speccode` - (Optional) The spec code of a rds flavor.
+* `speccode` - (Optional, String) The spec code of a rds flavor.
 
 ## Available value for attributes
 
@@ -40,12 +40,8 @@ SQLServer| 2014 SP2 SE | <br> ha = True: <br>  rds.mssql.m1.2xlarge.ha rds.mssql
 
 ## Attributes Reference
 
-`id` is set to the ID of the found rds flavor. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `datastore_name` - See Argument Reference above.
-* `datastore_version` - See Argument Reference above.
-* `speccode` - See Argument Reference above.
+* `id` - Specifies a data source ID in UUID format.
 * `name` - The name of the rds flavor.
 * `ram` - The name of the rds flavor.

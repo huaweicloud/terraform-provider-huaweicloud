@@ -35,7 +35,7 @@ func TestAccGeminiDBInstance_basic(t *testing.T) {
 
 func testAccCheckGeminiDBInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.GeminiDBV3Client(OS_REGION_NAME)
+	client, err := config.GeminiDBV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
 	}
@@ -69,7 +69,7 @@ func testAccCheckGeminiDBInstanceExists(n string, instance *instances.GeminiDBIn
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.GeminiDBV3Client(OS_REGION_NAME)
+		client, err := config.GeminiDBV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
 		}
@@ -89,19 +89,19 @@ func testAccCheckGeminiDBInstanceExists(n string, instance *instances.GeminiDBIn
 
 func testAccVpcConfig_Base(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc_v1" "test" {
+resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
 }
 
-resource "huaweicloud_vpc_subnet_v1" "test" {
+resource "huaweicloud_vpc_subnet" "test" {
   name          = "%s"
   cidr          = "192.168.0.0/16"
   gateway_ip    = "192.168.0.1"
 
   primary_dns   = "100.125.1.250"
   secondary_dns = "100.125.21.250"
-  vpc_id        = huaweicloud_vpc_v1.test.id
+  vpc_id        = huaweicloud_vpc.test.id
 }
 `, rName, rName)
 }
@@ -112,7 +112,7 @@ func testAccGeminiDBInstanceConfig_basic(rName string) string {
 
 data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_networking_secgroup_v2" "test" {
+data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
 
@@ -121,12 +121,12 @@ resource "huaweicloud_gaussdb_cassandra_instance" "test" {
   password    = "Test@123"
   flavor      = "geminidb.cassandra.xlarge.4"
   volume_size = 100
-  vpc_id      = huaweicloud_vpc_v1.test.id
-  subnet_id   = huaweicloud_vpc_subnet_v1.test.id
+  vpc_id      = huaweicloud_vpc.test.id
+  subnet_id   = huaweicloud_vpc_subnet.test.id
   ssl         = true
   node_num    = 4
 
-  security_group_id = data.huaweicloud_networking_secgroup_v2.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   backup_strategy {

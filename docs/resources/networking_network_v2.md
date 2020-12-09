@@ -64,44 +64,40 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the V2 Networking client.
+* `region` - (Optional, String, ForceNew) The region in which to create the V2 Networking client.
     A Networking client is needed to create a Neutron network. If omitted, the
     `region` argument of the provider is used. Changing this creates a new
     network.
 
-* `name` - (Optional) The name of the network. Changing this updates the name of
+* `name` - (Optional, String) The name of the network. Changing this updates the name of
     the existing network.
 
-* `shared` - (Optional)  Specifies whether the network resource can be accessed
+* `shared` - (Optional, String)  Specifies whether the network resource can be accessed
     by any tenant or not. Changing this updates the sharing capabalities of the
     existing network.
 
-* `tenant_id` - (Optional) The owner of the network. Required if admin wants to
+* `tenant_id` - (Optional, String, ForceNew) The owner of the network. Required if admin wants to
     create a network for another tenant. Changing this creates a new network.
 
-* `admin_state_up` - (Optional) The administrative state of the network.
+* `admin_state_up` - (Optional, String) The administrative state of the network.
     Acceptable values are "true" and "false". Changing this value updates the
     state of the existing network.
 
-* `segments` - (Optional) An array of one or more provider segment objects.
+* `segments` - (Optional, List, ForceNew) An array of one or more provider segment objects.
 
-* `value_specs` - (Optional) Map of additional options.
+* `value_specs` - (Optional, Map, ForceNew) Map of additional options.
 
 The `segments` block supports:
 
-* `physical_network` - (Optional) The phisical network where this network is implemented.
-* `segmentation_id` - (Optional) An isolated segment on the physical network.
-* `network_type` - (Optional) The type of physical network.
+* `physical_network` - (Optional, String, ForceNew) The phisical network where this network is implemented.
+* `segmentation_id` - (Optional, Int, ForceNew) An isolated segment on the physical network.
+* `network_type` - (Optional, String, ForceNew) The type of physical network.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `shared` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `admin_state_up` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

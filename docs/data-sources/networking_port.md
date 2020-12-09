@@ -17,54 +17,37 @@ data "huaweicloud_networking_port" "port_1" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the V2 Neutron client.
+* `region` - (Optional, String) The region in which to obtain the V2 Neutron client.
   A Neutron client is needed to retrieve port ids. If omitted, the
   `region` argument of the provider is used.
 
-* `project_id` - (Optional) The owner of the port.
+* `project_id` - (Optional, String) The owner of the port.
 
-* `port_id` - (Optional) The ID of the port.
+* `port_id` - (Optional, String) The ID of the port.
 
-* `name` - (Optional) The name of the port.
+* `name` - (Optional, String) The name of the port.
 
-* `admin_state_up` - (Optional) The administrative state of the port.
+* `admin_state_up` - (Optional, Bool) The administrative state of the port.
 
-* `network_id` - (Optional) The ID of the network the port belongs to.
+* `network_id` - (Optional, String) The ID of the network the port belongs to.
 
-* `device_owner` - (Optional) The device owner of the port.
+* `device_owner` - (Optional, String) The device owner of the port.
 
-* `mac_address` - (Optional) The MAC address of the port.
+* `mac_address` - (Optional, String) The MAC address of the port.
 
-* `device_id` - (Optional) The ID of the device the port belongs to.
+* `device_id` - (Optional, String) The ID of the device the port belongs to.
 
-* `fixed_ip` - (Optional) The port IP address filter.
+* `fixed_ip` - (Optional, String) The port IP address filter.
 
-* `status` - (Optional) The status of the port.
+* `status` - (Optional, String) The status of the port.
 
-* `security_group_ids` - (Optional) The list of port security group IDs to filter.
+* `security_group_ids` - (Optional, String) The list of port security group IDs to filter.
 
 ## Attributes Reference
 
-`id` is set to the ID of the found port. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `region` - See Argument Reference above.
-
-* `project_id` - See Argument Reference above.
-
-* `port_id` - See Argument Reference above.
-
-* `name` - See Argument Reference above.
-
-* `admin_state_up` - See Argument Reference above.
-
-* `network_id` - See Argument Reference above.
-
-* `device_owner` - See Argument Reference above.
-
-* `mac_address` - See Argument Reference above.
-
-* `device_id` - See Argument Reference above.
+* `id` - Specifies a data source ID in UUID format.
 
 * `all_fixed_ips` - The collection of Fixed IP addresses on the port in the
   order returned by the Network v2 API.

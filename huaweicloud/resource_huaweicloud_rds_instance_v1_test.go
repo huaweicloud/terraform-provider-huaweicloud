@@ -32,7 +32,7 @@ func TestAccRDSV1Instance_basic(t *testing.T) {
 
 func testAccCheckRDSV1InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	rdsClient, err := config.RdsV1Client(OS_REGION_NAME)
+	rdsClient, err := config.RdsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud rds: %s", err)
 	}
@@ -63,7 +63,7 @@ func testAccCheckRDSV1InstanceExists(n string, instance *instances.Instance) res
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		rdsClient, err := config.RdsV1Client(OS_REGION_NAME)
+		rdsClient, err := config.RdsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud rds client: %s ", err)
 		}
@@ -128,4 +128,4 @@ resource "huaweicloud_rds_instance_v1" "instance" {
     replicationmode = "async"
   }
   depends_on = ["huaweicloud_compute_secgroup_v2.secgrp_rds"]
-}`, OS_REGION_NAME, OS_REGION_NAME, OS_AVAILABILITY_ZONE, OS_VPC_ID, OS_NETWORK_ID)
+}`, HW_REGION_NAME, HW_REGION_NAME, HW_AVAILABILITY_ZONE, HW_VPC_ID, HW_NETWORK_ID)

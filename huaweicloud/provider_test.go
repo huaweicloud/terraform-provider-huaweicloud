@@ -12,35 +12,35 @@ import (
 )
 
 var (
-	OS_AVAILABILITY_ZONE      = os.Getenv("OS_AVAILABILITY_ZONE")
-	OS_DEPRECATED_ENVIRONMENT = os.Getenv("OS_DEPRECATED_ENVIRONMENT")
-	OS_DNS_ENVIRONMENT        = os.Getenv("OS_DNS_ENVIRONMENT")
-	OS_EXTGW_ID               = os.Getenv("OS_EXTGW_ID")
-	OS_FLAVOR_ID              = os.Getenv("OS_FLAVOR_ID")
-	OS_FLAVOR_NAME            = os.Getenv("OS_FLAVOR_NAME")
-	OS_IMAGE_ID               = os.Getenv("OS_IMAGE_ID")
-	OS_IMAGE_NAME             = os.Getenv("OS_IMAGE_NAME")
-	OS_NETWORK_ID             = os.Getenv("OS_NETWORK_ID")
-	OS_SUBNET_ID              = os.Getenv("OS_SUBNET_ID")
-	OS_POOL_NAME              = os.Getenv("OS_POOL_NAME")
-	OS_REGION_NAME            = os.Getenv("OS_REGION_NAME")
-	OS_CUSTOM_REGION_NAME     = os.Getenv("OS_CUSTOM_REGION_NAME")
-	OS_ACCESS_KEY             = os.Getenv("OS_ACCESS_KEY")
-	OS_SECRET_KEY             = os.Getenv("OS_SECRET_KEY")
-	OS_SRC_ACCESS_KEY         = os.Getenv("OS_SRC_ACCESS_KEY")
-	OS_SRC_SECRET_KEY         = os.Getenv("OS_SRC_SECRET_KEY")
-	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
-	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
-	OS_DOMAIN_ID              = os.Getenv("OS_DOMAIN_ID")
-	OS_DWS_ENVIRONMENT        = os.Getenv("OS_DWS_ENVIRONMENT")
-	OS_MRS_ENVIRONMENT        = os.Getenv("OS_MRS_ENVIRONMENT")
-	OS_DMS_ENVIRONMENT        = os.Getenv("OS_DMS_ENVIRONMENT")
-	OS_NAT_ENVIRONMENT        = os.Getenv("OS_NAT_ENVIRONMENT")
-	OS_KMS_ENVIRONMENT        = os.Getenv("OS_KMS_ENVIRONMENT")
-	OS_CCI_ENVIRONMENT        = os.Getenv("OS_CCI_ENVIRONMENT")
-	OS_CDN_DOMAIN_NAME        = os.Getenv("OS_CDN_DOMAIN_NAME")
-	OS_ADMIN                  = os.Getenv("OS_ADMIN")
-	OS_ENTERPRISE_PROJECT_ID  = os.Getenv("OS_ENTERPRISE_PROJECT_ID")
+	HW_AVAILABILITY_ZONE          = os.Getenv("HW_AVAILABILITY_ZONE")
+	HW_DEPRECATED_ENVIRONMENT     = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
+	HW_DNS_ENVIRONMENT            = os.Getenv("HW_DNS_ENVIRONMENT")
+	HW_EXTGW_ID                   = os.Getenv("HW_EXTGW_ID")
+	HW_FLAVOR_ID                  = os.Getenv("HW_FLAVOR_ID")
+	HW_FLAVOR_NAME                = os.Getenv("HW_FLAVOR_NAME")
+	HW_IMAGE_ID                   = os.Getenv("HW_IMAGE_ID")
+	HW_IMAGE_NAME                 = os.Getenv("HW_IMAGE_NAME")
+	HW_NETWORK_ID                 = os.Getenv("HW_NETWORK_ID")
+	HW_SUBNET_ID                  = os.Getenv("HW_SUBNET_ID")
+	HW_POOL_NAME                  = os.Getenv("HW_POOL_NAME")
+	HW_REGION_NAME                = os.Getenv("HW_REGION_NAME")
+	HW_CUSTOM_REGION_NAME         = os.Getenv("HW_CUSTOM_REGION_NAME")
+	HW_ACCESS_KEY                 = os.Getenv("HW_ACCESS_KEY")
+	HW_SECRET_KEY                 = os.Getenv("HW_SECRET_KEY")
+	HW_SRC_ACCESS_KEY             = os.Getenv("HW_SRC_ACCESS_KEY")
+	HW_SRC_SECRET_KEY             = os.Getenv("HW_SRC_SECRET_KEY")
+	HW_VPC_ID                     = os.Getenv("HW_VPC_ID")
+	HW_PROJECT_ID                 = os.Getenv("HW_PROJECT_ID")
+	HW_DOMAIN_ID                  = os.Getenv("HW_DOMAIN_ID")
+	HW_DWS_ENVIRONMENT            = os.Getenv("HW_DWS_ENVIRONMENT")
+	HW_MRS_ENVIRONMENT            = os.Getenv("HW_MRS_ENVIRONMENT")
+	HW_DMS_ENVIRONMENT            = os.Getenv("HW_DMS_ENVIRONMENT")
+	HW_NAT_ENVIRONMENT            = os.Getenv("HW_NAT_ENVIRONMENT")
+	HW_KMS_ENVIRONMENT            = os.Getenv("HW_KMS_ENVIRONMENT")
+	HW_CCI_ENVIRONMENT            = os.Getenv("HW_CCI_ENVIRONMENT")
+	HW_CDN_DOMAIN_NAME            = os.Getenv("HW_CDN_DOMAIN_NAME")
+	HW_ADMIN                      = os.Getenv("HW_ADMIN")
+	HW_ENTERPRISE_PROJECT_ID_TEST = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -55,110 +55,104 @@ func init() {
 
 func testAccPreCheck(t *testing.T) {
 	// Do not run the test if this is a deprecated testing environment.
-	if OS_DEPRECATED_ENVIRONMENT != "" {
+	if HW_DEPRECATED_ENVIRONMENT != "" {
 		t.Skip("This environment only runs deprecated tests")
 	}
 }
 
 func testAccPrecheckCustomRegion(t *testing.T) {
-	if OS_CUSTOM_REGION_NAME == "" {
+	if HW_CUSTOM_REGION_NAME == "" {
 		t.Skip("This environment does not support custom region tests")
 	}
 }
 
 func testAccPreCheckDeprecated(t *testing.T) {
-	if OS_DEPRECATED_ENVIRONMENT == "" {
+	if HW_DEPRECATED_ENVIRONMENT == "" {
 		t.Skip("This environment does not support deprecated tests")
 	}
 }
 
 func testAccPreCheckAdminOnly(t *testing.T) {
-	if OS_ADMIN == "" {
+	if HW_ADMIN == "" {
 		t.Skip("Skipping test because it requires the admin user group")
 	}
 }
 
 func testAccPreCheckDNS(t *testing.T) {
-	if OS_DNS_ENVIRONMENT == "" {
+	if HW_DNS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support DNS tests")
 	}
 }
 
 func testAccPreCheckULB(t *testing.T) {
-	if OS_SUBNET_ID == "" {
-		t.Skip("OS_SUBNET must be set for LB acceptance tests")
-	}
-}
-
-func testAccPreCheckELB(t *testing.T) {
-	if OS_TENANT_ID == "" {
-		t.Skip("This environment does not support ELB tests")
+	if HW_SUBNET_ID == "" {
+		t.Skip("HW_SUBNET_ID must be set for LB acceptance tests")
 	}
 }
 
 func testAccPreCheckMaas(t *testing.T) {
-	if OS_ACCESS_KEY == "" || OS_SECRET_KEY == "" || OS_SRC_ACCESS_KEY == "" || OS_SRC_SECRET_KEY == "" {
-		t.Skip("OS_ACCESS_KEY, OS_SECRET_KEY, OS_SRC_ACCESS_KEY, and OS_SRC_SECRET_KEY  must be set for MAAS acceptance tests")
+	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" || HW_SRC_ACCESS_KEY == "" || HW_SRC_SECRET_KEY == "" {
+		t.Skip("HW_ACCESS_KEY, HW_SECRET_KEY, HW_SRC_ACCESS_KEY, and HW_SRC_SECRET_KEY  must be set for MAAS acceptance tests")
 	}
 }
 
 func testAccPreCheckS3(t *testing.T) {
-	if OS_ACCESS_KEY == "" || OS_SECRET_KEY == "" {
-		t.Skip("OS_ACCESS_KEY and OS_SECRET_KEY  must be set for S3 acceptance tests")
-	}
-}
-
-func testAccPreCheckImage(t *testing.T) {
-	if OS_ACCESS_KEY != "" && OS_SECRET_KEY != "" {
-		t.Skip("AK/SK authentication doesn't support images tests")
+	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" {
+		t.Skip("HW_ACCESS_KEY and HW_SECRET_KEY  must be set for S3 acceptance tests")
 	}
 }
 
 func testAccPreCheckDws(t *testing.T) {
-	if OS_DWS_ENVIRONMENT == "" {
+	if HW_DWS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support DWS tests")
 	}
 }
 
 func testAccPreCheckMrs(t *testing.T) {
-	if OS_MRS_ENVIRONMENT == "" {
+	if HW_MRS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support MRS tests")
 	}
 }
 
 func testAccPreCheckDms(t *testing.T) {
-	if OS_DMS_ENVIRONMENT == "" {
+	if HW_DMS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support DMS tests")
 	}
 }
 
 func testAccPreCheckNat(t *testing.T) {
-	if OS_NAT_ENVIRONMENT == "" {
+	if HW_NAT_ENVIRONMENT == "" {
 		t.Skip("This environment does not support NAT tests")
 	}
 }
 
 func testAccPreCheckKms(t *testing.T) {
-	if OS_KMS_ENVIRONMENT == "" {
+	if HW_KMS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support KMS tests")
 	}
 }
 
 func testAccPreCheckCDN(t *testing.T) {
-	if OS_CDN_DOMAIN_NAME == "" {
+	if HW_CDN_DOMAIN_NAME == "" {
 		t.Skip("This environment does not support CDN tests")
 	}
 }
 
 func testAccPreCheckCCI(t *testing.T) {
-	if OS_CCI_ENVIRONMENT == "" {
+	if HW_CCI_ENVIRONMENT == "" {
 		t.Skip("This environment does not support CCI tests")
 	}
 }
 
 func testAccPreCheckEpsID(t *testing.T) {
-	if OS_ENTERPRISE_PROJECT_ID == "" {
+	if HW_ENTERPRISE_PROJECT_ID_TEST == "" {
 		t.Skip("This environment does not support EPS_ID tests")
+	}
+}
+
+func testAccAsConfigPreCheck(t *testing.T) {
+	if HW_FLAVOR_ID == "" {
+		t.Skip("HW_FLAVOR_ID must be set for acceptance tests")
 	}
 }
 
@@ -313,10 +307,4 @@ func envVarFile(varName string) (string, error) {
 		return "", fmt.Errorf("Error closing temp file: %s", err)
 	}
 	return tmpFile.Name(), nil
-}
-
-func testAccAsConfigPreCheck(t *testing.T) {
-	if OS_FLAVOR_ID == "" {
-		t.Skip("OS_FLAVOR_ID must be set for acceptance tests")
-	}
 }

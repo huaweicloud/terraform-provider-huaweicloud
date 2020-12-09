@@ -39,7 +39,6 @@ func resourceEcsInstanceV1() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"image_id": {
 				Type:     schema.TypeString,
@@ -49,7 +48,6 @@ func resourceEcsInstanceV1() *schema.Resource {
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"user_data": {
 				Type:     schema.TypeString,
@@ -154,7 +152,6 @@ func resourceEcsInstanceV1() *schema.Resource {
 			"security_groups": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
@@ -220,11 +217,11 @@ func resourceEcsInstanceV1() *schema.Resource {
 
 func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV11Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV11Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute V1.1 client: %s", err)
 	}
-	computeV1Client, err := config.computeV1Client(GetRegion(d, config))
+	computeV1Client, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute V1 client: %s", err)
 	}
@@ -335,7 +332,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 
 func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV1Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -384,7 +381,7 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -486,7 +483,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("tags") {
-		ecsClient, err := config.computeV1Client(GetRegion(d, config))
+		ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 		}
@@ -511,11 +508,11 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 
 func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeV1Client, err := config.computeV1Client(GetRegion(d, config))
+	computeV1Client, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
-	computeV2Client, err := config.computeV2Client(GetRegion(d, config))
+	computeV2Client, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute V2 client: %s", err)
 	}

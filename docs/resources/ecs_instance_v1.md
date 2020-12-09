@@ -148,29 +148,29 @@ function, or the `template_cloudinit_config` resource.
 
 The following arguments are supported:
 
-* `name` - (Required) A unique name for the instance.
+* `name` - (Required, String) A unique name for the instance.
 
-* `image_id` - (Required) The ID of the desired image for the server. Changing this creates a new server.
+* `image_id` - (Required, String, ForceNew) The ID of the desired image for the server. Changing this creates a new server.
 
-* `flavor` - (Required) The name of the desired flavor for the server. Changing this resizes the existing server.
+* `flavor` - (Required, String) The name of the desired flavor for the server. Changing this resizes the existing server.
 
-* `user_data` - (Optional) The user data to provide when launching the instance.
+* `user_data` - (Optional, String, ForceNew) The user data to provide when launching the instance.
     Changing this creates a new server.
 
-* `password` - (Optional) The administrative password to assign to the server.
+* `password` - (Optional, String, ForceNew) The administrative password to assign to the server.
     Changing this creates a new server.
 
-* `key_name` - (Optional) The name of a key pair to put on the server. The key
+* `key_name` - (Optional, String, ForceNew) The name of a key pair to put on the server. The key
     pair must already be created and associated with the tenant's account.
     Changing this creates a new server.
 
-* `vpc_id` - (Required) The ID of the desired VPC for the server. Changing this creates a new server.
+* `vpc_id` - (Required, String, ForceNew) The ID of the desired VPC for the server. Changing this creates a new server.
 
-* `nics` - (Optional) An array of one or more networks to attach to the
+* `nics` - (Optional, List, ForceNew) An array of one or more networks to attach to the
     instance. The nics object structure is documented below. Changing this
     creates a new server.
 
-* `system_disk_type` - (Optional) The system disk type of the server. For HANA, HL1, and HL2 ECSs use co-p1 and uh-l1 disks.
+* `system_disk_type` - (Optional, String, ForceNew) The system disk type of the server. For HANA, HL1, and HL2 ECSs use co-p1 and uh-l1 disks.
     Changing this creates a new server. Available options are:
 	* `SATA`: common I/O disk type.
 	* `SAS`: high I/O disk type.
@@ -178,49 +178,49 @@ The following arguments are supported:
 	* `co-p1`: high I/O(performance-optimized) disk type.
 	* `uh-l1`: ultra-high I/O(latency-optimized) disk type.
 
-* `system_disk_size` - (Optional) The system disk size in GB, The value range is 1 to 1024. Changing this creates a new server.
+* `system_disk_size` - (Optional, Int, ForceNew) The system disk size in GB, The value range is 1 to 1024. Changing this creates a new server.
 
-* `data_disks` - (Optional) An array of one or more data disks to attach to the
+* `data_disks` - (Optional, List, ForceNew) An array of one or more data disks to attach to the
     instance. The data_disks object structure is documented below. Changing this
     creates a new server.
 
-* `security_groups` - (Optional) An array of one or more security group names
+* `security_groups` - (Optional, String) An array of one or more security group names
     to associate with the server. Changing this results in adding/removing
     security groups from the existing server.
 
-* `availability_zone` - (Required) The availability zone in which to create
+* `availability_zone` - (Required, String, ForceNew) The availability zone in which to create
     the server. Please refer to https://developer.huaweicloud.com/endpoint
     for the values. Changing this creates a new server.
 
-* `charging_mode` - (Optional) The charging mode of the instance. Valid options are: prePaid and postPaid, defaults to postPaid. Changing this creates a new server.
+* `charging_mode` - (Optional, String, ForceNew) The charging mode of the instance. Valid options are: prePaid and postPaid, defaults to postPaid. Changing this creates a new server.
 
-* `period_unit` - (Optional) The charging period unit of the instance. Valid options are: month and year, defaults to month. Changing this creates a new server.
+* `period_unit` - (Optional, String, ForceNew) The charging period unit of the instance. Valid options are: month and year, defaults to month. Changing this creates a new server.
 
-* `period` - (Optional) The charging period of the instance. Changing this creates a new server.
+* `period` - (Optional, Int, ForceNew) The charging period of the instance. Changing this creates a new server.
 
-* `auto_renew` - (Optional) Specifies whether auto renew is enabled. Changing this creates a new server.
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Changing this creates a new server.
 
-* `auto_recovery` - (Optional) Whether configure automatic recovery of an instance.
+* `auto_recovery` - (Optional, Bool) Whether configure automatic recovery of an instance.
 
-* `delete_disks_on_termination` - (Optional) Delete the data disks upon termination of the instance. Defaults to false. Changing this creates a new server.
+* `delete_disks_on_termination` - (Optional, Bool) Delete the data disks upon termination of the instance. Defaults to false. Changing this creates a new server.
 
-* `enterprise_project_id` - (Optional) The enterprise project id. Changing this creates a new server.
+* `enterprise_project_id` - (Optional, String) The enterprise project id. Changing this creates a new server.
 
-* `tags` - (Optional) Tags key/value pairs to associate with the instance.
+* `tags` - (Optional, Map) Tags key/value pairs to associate with the instance.
 
-* `op_svc_userid` - (Optional) User ID, required when using key_name. Changing this creates a new server.
+* `op_svc_userid` - (Optional, String, ForceNew) User ID, required when using key_name. Changing this creates a new server.
 
 
 The `nics` block supports:
 
-* `network_id` - (Required) The network UUID to attach to the server. Changing this creates a new server.
+* `network_id` - (Required, String, ForceNew) The network UUID to attach to the server. Changing this creates a new server.
 
-* `ip_address` - (Optional) Specifies a fixed IPv4 address to be used on this
+* `ip_address` - (Optional, String, ForceNew) Specifies a fixed IPv4 address to be used on this
     network. Changing this creates a new server.
 
 The `data_disks` block supports:
 
-* `type` - (Required) The data disk type of the server. For HANA, HL1, and HL2 ECSs use co-p1 and uh-l1 disks.
+* `type` - (Required, String, ForceNew) The data disk type of the server. For HANA, HL1, and HL2 ECSs use co-p1 and uh-l1 disks.
     Changing this creates a new server. Available options are:
 	* `SATA`: common I/O disk type.
 	* `SAS`: high I/O disk type.
@@ -228,16 +228,16 @@ The `data_disks` block supports:
 	* `co-p1`: high I/O(performance-optimized) disk type.
 	* `uh-l1`: ultra-high I/O(latency-optimized) disk type.
 
-* `size` - (Required) The size of the data disk in GB. The value range is 10 to 32768.
+* `size` - (Required, Int, ForceNew) The size of the data disk in GB. The value range is 10 to 32768.
     Changing this creates a new server.
 
-* `snapshot_id` - (Optional) Specifies the snapshot ID or ID of the original data disk contained in the full-ECS image.
+* `snapshot_id` - (Optional, String, ForceNew) Specifies the snapshot ID or ID of the original data disk contained in the full-ECS image.
     Changing this creates a new server.
 
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - The ID of the server.
 * `nics/mac_address` - The MAC address of the NIC on that network.

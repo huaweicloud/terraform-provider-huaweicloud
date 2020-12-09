@@ -31,7 +31,7 @@ func TestAccASV1Policy_basic(t *testing.T) {
 
 func testAccCheckASV1PolicyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	asClient, err := config.autoscalingV1Client(OS_REGION_NAME)
+	asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 	}
@@ -64,7 +64,7 @@ func testAccCheckASV1PolicyExists(n string, policy *policies.Policy) resource.Te
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		asClient, err := config.autoscalingV1Client(OS_REGION_NAME)
+		asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 		}
@@ -130,4 +130,4 @@ resource "huaweicloud_as_policy" "acc_as_policy"{
     launch_time = "2020-12-22T12:00Z"
   }
 }
-`, OS_IMAGE_ID, OS_VPC_ID, OS_NETWORK_ID)
+`, HW_IMAGE_ID, HW_VPC_ID, HW_NETWORK_ID)

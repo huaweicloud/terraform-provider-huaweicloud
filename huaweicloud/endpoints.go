@@ -36,12 +36,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Scope:            "global",
 		WithOutProjectID: true,
 	},
-	"dns": ServiceCatalog{
-		Name:             "dns",
-		Version:          "v2",
-		Scope:            "global",
-		WithOutProjectID: true,
-	},
 	"eps": ServiceCatalog{
 		Name:             "eps",
 		Version:          "v1.0",
@@ -52,6 +46,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	"bss": ServiceCatalog{
 		Name:             "bss",
 		Version:          "v1.0",
+		Scope:            "global",
+		WithOutProjectID: true,
+	},
+	"bssv2": ServiceCatalog{
+		Name:             "bss",
+		Version:          "v2",
 		Scope:            "global",
 		WithOutProjectID: true,
 	},
@@ -153,12 +153,24 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 	},
 	"elbv2": ServiceCatalog{
-		Name:    "elb",
-		Version: "v2.0",
+		Name:             "elb",
+		Version:          "v2.0",
+		WithOutProjectID: true,
 	},
 	"fwv2": ServiceCatalog{
 		Name:             "vpc",
 		Version:          "v2.0",
+		WithOutProjectID: true,
+	},
+	"dns": ServiceCatalog{
+		Name:             "dns",
+		Version:          "v2",
+		Scope:            "global",
+		WithOutProjectID: true,
+	},
+	"dns_region": ServiceCatalog{
+		Name:             "dns",
+		Version:          "v2",
 		WithOutProjectID: true,
 	},
 

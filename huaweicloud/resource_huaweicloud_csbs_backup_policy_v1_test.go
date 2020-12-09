@@ -68,7 +68,7 @@ func TestAccCSBSBackupPolicyV1_timeout(t *testing.T) {
 
 func testAccCheckCSBSBackupPolicyV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	policyClient, err := config.csbsV1Client(OS_REGION_NAME)
+	policyClient, err := config.CsbsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating csbs client: %s", err)
 	}
@@ -99,7 +99,7 @@ func testAccCheckCSBSBackupPolicyV1Exists(n string, policy *policies.BackupPolic
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		policyClient, err := config.csbsV1Client(OS_REGION_NAME)
+		policyClient, err := config.CsbsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating csbs client: %s", err)
 		}
@@ -149,7 +149,7 @@ resource "huaweicloud_csbs_backup_policy" "backup_policy" {
     trigger_pattern = "BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nRRULE:FREQ=WEEKLY;BYDAY=TH;BYHOUR=12;BYMINUTE=27\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n"
   }
 }
-`, rName, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_FLAVOR_ID, OS_NETWORK_ID, rName)
+`, rName, HW_IMAGE_ID, HW_AVAILABILITY_ZONE, HW_FLAVOR_ID, HW_NETWORK_ID, rName)
 }
 
 func testAccCSBSBackupPolicyV1_update(rName, updateName string) string {
@@ -182,7 +182,7 @@ resource "huaweicloud_csbs_backup_policy" "backup_policy" {
     trigger_pattern = "BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nRRULE:FREQ=WEEKLY;BYDAY=TH;BYHOUR=12;BYMINUTE=27\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n"
   }
 }
-`, rName, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_FLAVOR_ID, OS_NETWORK_ID, updateName)
+`, rName, HW_IMAGE_ID, HW_AVAILABILITY_ZONE, HW_FLAVOR_ID, HW_NETWORK_ID, updateName)
 }
 
 func testAccCSBSBackupPolicyV1_timeout(rName string) string {
@@ -220,5 +220,5 @@ resource "huaweicloud_csbs_backup_policy" "backup_policy" {
     delete = "5m"
   }
 }
-`, rName, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_FLAVOR_ID, OS_NETWORK_ID, rName)
+`, rName, HW_IMAGE_ID, HW_AVAILABILITY_ZONE, HW_FLAVOR_ID, HW_NETWORK_ID, rName)
 }

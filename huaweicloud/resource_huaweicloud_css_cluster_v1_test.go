@@ -81,7 +81,7 @@ func TestAccCssClusterV1_security(t *testing.T) {
 
 func testAccCheckCssClusterV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.cssV1Client(OS_REGION_NAME)
+	client, err := config.cssV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -110,7 +110,7 @@ func testAccCheckCssClusterV1Destroy(s *terraform.State) error {
 func testAccCheckCssClusterV1Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.cssV1Client(OS_REGION_NAME)
+		client, err := config.cssV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}
@@ -168,7 +168,7 @@ resource "huaweicloud_css_cluster_v1" "cluster" {
     key = "value"
   }
 }
-	`, val, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE)
+	`, val, val, HW_NETWORK_ID, HW_VPC_ID, HW_AVAILABILITY_ZONE)
 }
 
 func testAccCssClusterV1_update(val string) string {
@@ -201,7 +201,7 @@ resource "huaweicloud_css_cluster_v1" "cluster" {
     key_update = "value"
   }
 }
-	`, val, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE)
+	`, val, val, HW_NETWORK_ID, HW_VPC_ID, HW_AVAILABILITY_ZONE)
 }
 
 func testAccCssClusterV1_security(val string) string {
@@ -232,5 +232,5 @@ resource "huaweicloud_css_cluster_v1" "cluster" {
     availability_zone = "%s"
   }
 }
-	`, val, val, OS_NETWORK_ID, OS_VPC_ID, OS_AVAILABILITY_ZONE)
+	`, val, val, HW_NETWORK_ID, HW_VPC_ID, HW_AVAILABILITY_ZONE)
 }

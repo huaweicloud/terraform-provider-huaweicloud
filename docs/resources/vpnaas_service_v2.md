@@ -1,5 +1,5 @@
 ---
-subcategory: "Virtual Private Network (VPN)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_vpnaas\_service\_v2
@@ -46,19 +46,12 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `router_id` - See Argument Reference above.
-* `admin_state_up` - See Argument Reference above.
-* `subnet_id` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 * `status` - Indicates whether IPsec VPN service is currently operational. Values are ACTIVE, DOWN, BUILD, ERROR, PENDING_CREATE, PENDING_UPDATE, or PENDING_DELETE.
 * `external_v6_ip` - The read-only external (public) IPv6 address that is used for the VPN service.
 * `external_v4_ip` - The read-only external (public) IPv4 address that is used for the VPN service.
-* `description` - See Argument Reference above.
-* `value_specs` - See Argument Reference above.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

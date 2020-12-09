@@ -22,20 +22,17 @@ data "huaweicloud_dcs_az" "az1" {
 
 For details, See [Querying AZ Information](https://support.huaweicloud.com/en-us/api-dcs/dcs-api-0312039.html).
 
-* `region` - (Optional) The region in which to obtain the dcs az. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the dcs az. If omitted, the provider-level region will be used.
 
-* `name` - (Optional) Indicates the name of an AZ.
+* `name` - (Optional, String) Indicates the name of an AZ.
 
-* `code` - (Optional) Indicates the code of an AZ.
+* `code` - (Optional, String) Indicates the code of an AZ.
 
-* `port` - (Optional) Indicates the port number of an AZ.
+* `port` - (Optional, String) Indicates the port number of an AZ.
 
 
 ## Attributes Reference
 
-`id` is set to the ID of the found az. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `name` - See Argument Reference above.
-* `code` - See Argument Reference above.
-* `port` - See Argument Reference above.
+* `id` - Specifies a data source ID in UUID format.

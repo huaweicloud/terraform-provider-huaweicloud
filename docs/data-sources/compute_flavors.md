@@ -27,21 +27,25 @@ resource "huaweicloud_compute_instance" "instance" {
 
 ## Argument Reference
 
-* `region` - (Optional) The region in which to obtain the flavors. If omitted, the provider-level region will be used.
+In addition to all arguments above, the following attributes are exported:
 
-* `availability_zone` - (Optional) Specifies the AZ name.
+* `region` - (Optional, String) The region in which to obtain the flavors. If omitted, the provider-level region will be used.
 
-* `performance_type` - (Optional) Specifies the ECS flavor type.
+* `availability_zone` - (Optional, String) Specifies the AZ name.
 
-* `generation` - (Optional) Specifies the generation of an ECS type.
+* `performance_type` - (Optional, String) Specifies the ECS flavor type.
 
-* `cpu_core_count` - (Optional) Specifies the number of vCPUs in the ECS flavor.
+* `generation` - (Optional, String) Specifies the generation of an ECS type.
 
-* `memory_size` - (Optional) Specifies the memory size(GB) in the ECS flavor.
+* `cpu_core_count` - (Optional, Int) Specifies the number of vCPUs in the ECS flavor.
+
+* `memory_size` - (Optional, Int) Specifies the memory size(GB) in the ECS flavor.
 
 
 ## Attributes Reference
 
-`id` is set to the ID of the found flavors. In addition, the following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
+
+* `id` - Specifies a data source ID in UUID format.
 
 * `ids` - A list of flavor IDs.

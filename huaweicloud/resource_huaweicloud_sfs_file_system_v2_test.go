@@ -30,7 +30,6 @@ func TestAccSFSFileSystemV2_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 					resource.TestCheckResourceAttr(resourceName, "size", "10"),
 					resource.TestCheckResourceAttr(resourceName, "access_level", "rw"),
-					resource.TestCheckResourceAttr(resourceName, "access_to", OS_VPC_ID),
 					resource.TestCheckResourceAttr(resourceName, "access_type", "cert"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
@@ -68,7 +67,7 @@ func TestAccSFSFileSystemV2_withEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSFSFileSystemV2Exists(resourceName, &share),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -106,7 +105,7 @@ func TestAccSFSFileSystemV2_withoutRule(t *testing.T) {
 
 func testAccCheckSFSFileSystemV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	sfsClient, err := config.sfsV2Client(OS_REGION_NAME)
+	sfsClient, err := config.SfsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud sfs client: %s", err)
 	}
@@ -137,7 +136,7 @@ func testAccCheckSFSFileSystemV2Exists(n string, share *shares.Share) resource.T
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		sfsClient, err := config.sfsV2Client(OS_REGION_NAME)
+		sfsClient, err := config.SfsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud sfs client: %s", err)
 		}
@@ -174,7 +173,7 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
   access_to    = huaweicloud_vpc.test.id
   access_type  = "cert"
   access_level = "rw"
-  availability_zone = huaweicloud_availability_zones.myaz.names[0]
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
 
   tags = {
     key   = "value"
@@ -201,10 +200,10 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
   access_to    = huaweicloud_vpc.test.id
   access_type  = "cert"
   access_level = "rw"
-  availability_zone = huaweicloud_availability_zones.myaz.names[0]
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
   enterprise_project_id = "%s"
 }
-`, rName, rName, OS_ENTERPRISE_PROJECT_ID)
+`, rName, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccSFSFileSystemV2_update(rName, updateName string) string {
@@ -224,11 +223,11 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
   access_to    = huaweicloud_vpc.test.id
   access_type  = "cert"
   access_level = "rw"
-  availability_zone = huaweicloud_availability_zones.myaz.names[0]
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
 
   tags = {
-    key   = "value"
-    owner = "terraform"
+    foo   = "bar"
+    owner = "terraform_update"
   }
 }
 `, rName, updateName)

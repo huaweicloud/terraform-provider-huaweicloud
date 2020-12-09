@@ -68,20 +68,18 @@ POLICY
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the OBS bucket policy resource. If omitted, the provider-level region will be used. Changing this creates a new OBS bucket policy resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the OBS bucket policy resource. If omitted, the provider-level region will be used. Changing this creates a new OBS bucket policy resource.
 
-* `bucket` - (Required) Specifies the name of the bucket to which to apply the policy.
-* `policy` - (Required) Specifies the text of the bucket policy in JSON format. For more information about
+* `bucket` - (Required, String, ForceNew) Specifies the name of the bucket to which to apply the policy.
+* `policy` - (Required, String) Specifies the text of the bucket policy in JSON format. For more information about
   obs format bucket policy, see the [Developer Guide](https://support.huaweicloud.com/intl/en-us/devg-obs/obs_06_0048.html).
-* `policy_format` - (Optional) Specifies the policy format, the supported values are *obs* and *s3*. Defaults to *obs* .
+* `policy_format` - (Optional, String) Specifies the policy format, the supported values are *obs* and *s3*. Defaults to *obs* .
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `bucket` - See Argument Reference above.
-* `policy` - See Argument Reference above.
-* `policy_format` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 
 ## Import
 

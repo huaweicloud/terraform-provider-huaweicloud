@@ -32,17 +32,17 @@ GaussDB | huaweicloud_gaussdb_cassandra_instance<br>huaweicloud_gaussdb_mysql_in
 
 ## Argument Reference
 
-* `name` - (Optional) Specifies the enterprise project name. Fuzzy search is supported.
+* `name` - (Optional, String) Specifies the enterprise project name. Fuzzy search is supported.
 
-* `id` - (Optional) Specifies the ID of an enterprise project. The value 0 indicates enterprise project default.
+* `id` - (Optional, String) Specifies the ID of an enterprise project. The value 0 indicates enterprise project default.
 
-* `status` - (Optional) Specifies the status of an enterprise project.
+* `status` - (Optional, Int) Specifies the status of an enterprise project.
     - 1 indicates Enabled.
     - 2 indicates Disabled.
 
 ## Attributes Reference
 
-All above argument parameters can be exported as attribute parameters along with attribute reference:
+In addition to all arguments above, the following attributes are exported:
 
 * `description` - Provides supplementary information about the enterprise project.
 

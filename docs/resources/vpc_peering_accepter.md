@@ -58,11 +58,11 @@ resource "huaweicloud_vpc_peering_connection_accepter" "peer" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the vpc peering connection accepter. If omitted, the provider-level region will be used. Changing this creates a new VPC peering connection accepter resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the vpc peering connection accepter. If omitted, the provider-level region will be used. Changing this creates a new VPC peering connection accepter resource.
 
-* `vpc_peering_connection_id` (Required) - The VPC Peering Connection ID to manage. Changing this creates a new VPC peering connection accepter.
+* `vpc_peering_connection_id` (Required, String, ForceNew) - The VPC Peering Connection ID to manage. Changing this creates a new VPC peering connection accepter.
 
-* `accept` (Optional)- Whether or not to accept the peering request. Defaults to `false`.
+* `accept` (Optional, Bool)- Whether or not to accept the peering request. Defaults to `false`.
 
 
 ## Removing huaweicloud\_vpc\_peering\_connection\_accepter from your configuration
@@ -71,7 +71,7 @@ huaweicloud allows a cross-tenant VPC Peering Connection to be deleted from eith
 
 ## Attributes Reference
 
-All of the argument attributes except accept are also exported as result attributes.
+In addition to all arguments above, the following attributes are exported:
 
 * `name` - 	The VPC peering connection name.
 
@@ -84,8 +84,6 @@ All of the argument attributes except accept are also exported as result attribu
 * `peer_vpc_id` - The VPC ID of the accepter tenant.
 
 * `peer_tenant_id` - The Tenant Id of the accepter tenant.
-
-
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

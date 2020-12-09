@@ -34,28 +34,28 @@ resource "huaweicloud_smn_subscription" "subscription_2" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the SMN subscription resource. If omitted, the provider-level region will be used. Changing this creates a new SMN subscription resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the SMN subscription resource. If omitted, the provider-level region will be used. Changing this creates a new SMN subscription resource.
 
-* `topic_urn` - (Required) Resource identifier of a topic, which is unique.
+* `topic_urn` - (Required, String, ForceNew) Resource identifier of a topic, which is unique.
 
-* `endpoint` - (Required) Message endpoint.
+* `endpoint` - (Required, String, ForceNew) Message endpoint.
      For an HTTP subscription, the endpoint starts with http\://.
      For an HTTPS subscription, the endpoint starts with https\://.
      For an email subscription, the endpoint is a mail address.
      For an SMS message subscription, the endpoint is a phone number.
 
-* `protocol` - (Required) Protocol of the message endpoint. Currently, email,
+* `protocol` - (Required, String, ForceNew) Protocol of the message endpoint. Currently, email,
      sms, http, and https are supported.
 
-* `remark` - (Optional) Remark information. The remarks must be a UTF-8-coded
+* `remark` - (Optional, String, ForceNew) Remark information. The remarks must be a UTF-8-coded
      character string containing 128 bytes.
 
-* `subscription_urn` - (Optional) Resource identifier of a subscription, which
+* `subscription_urn` - (Optional, String, ForceNew) Resource identifier of a subscription, which
      is unique.
 
-* `owner` - (Optional) Project ID of the topic creator.
+* `owner` - (Optional, String, ForceNew) Project ID of the topic creator.
 
-* `status` - (Optional) Subscription status.
+* `status` - (Optional, Int, ForceNew) Subscription status.
      0 indicates that the subscription is not confirmed.
      1 indicates that the subscription is confirmed.
      3 indicates that the subscription is canceled.
@@ -63,12 +63,6 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `topic_urn` - See Argument Reference above.
-* `endpoint` - See Argument Reference above.
-* `protocol` - See Argument Reference above.
-* `remark` - See Argument Reference above.
-* `subscription_urn` - See Argument Reference above.
-* `owner` - See Argument Reference above.
-* `status` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.

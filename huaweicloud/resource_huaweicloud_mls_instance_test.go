@@ -44,7 +44,7 @@ func testAccMlsInstance_basic(val string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_mrs_cluster_v1" "cluster1" {
   cluster_name = "mrs-cluster-acc%s"
-  region = "en-OS_REGION_NAME"
+  region = "en-HW_REGION_NAME"
   billing_type = 12
   master_node_num = 2
   core_node_num = 3
@@ -94,12 +94,12 @@ resource "huaweicloud_mls_instance" "instance" {
     create = "60m"
   }
 }
-	`, val, OS_AVAILABILITY_ZONE, OS_VPC_ID, OS_NETWORK_ID, val, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
+	`, val, HW_AVAILABILITY_ZONE, HW_VPC_ID, HW_NETWORK_ID, val, HW_VPC_ID, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)
 }
 
 func testAccCheckMlsInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.mlsV1Client(OS_REGION_NAME)
+	client, err := config.mlsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -129,7 +129,7 @@ func testAccCheckMlsInstanceDestroy(s *terraform.State) error {
 func testAccCheckMlsInstanceExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.mlsV1Client(OS_REGION_NAME)
+		client, err := config.mlsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}

@@ -35,7 +35,7 @@ func TestAccDmsGroupsV1_basic(t *testing.T) {
 
 func testAccCheckDmsV1GroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	dmsClient, err := config.dmsV1Client(OS_REGION_NAME)
+	dmsClient, err := config.dmsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud group client: %s", err)
 	}
@@ -76,7 +76,7 @@ func testAccCheckDmsV1GroupExists(n string, group groups.Group) resource.TestChe
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		dmsClient, err := config.dmsV1Client(OS_REGION_NAME)
+		dmsClient, err := config.dmsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud group client: %s", err)
 		}

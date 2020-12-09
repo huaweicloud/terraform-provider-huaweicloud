@@ -22,27 +22,25 @@ data "huaweicloud_cce_cluster" "cluster" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the cce clusters. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the cce clusters. If omitted, the provider-level region will be used.
 
-* `name` -  (Optional)The Name of the cluster resource.
+* `name` -  (Optional, String)The Name of the cluster resource.
  
-* `id` - (Optional) The ID of container cluster.
+* `id` - (Optional, String) The ID of container cluster.
 
-* `status` - (Optional) The state of the cluster.
+* `status` - (Optional, String) The state of the cluster.
 
-* `cluster_type` - (Optional) Type of the cluster. Possible values: VirtualMachine, BareMetal.
+* `cluster_type` - (Optional, String) Type of the cluster. Possible values: VirtualMachine, BareMetal.
 
 ## Attributes Reference
 
-All above argument parameters can be exported as attribute parameters along with attribute reference:
+In addition to all arguments above, the following attributes are exported:
 
 * `billingMode` - Charging mode of the cluster.
 
 * `description` - Cluster description.
 
 * `name` - The name of the cluster in string format.
-
-* `id` - The ID of the cluster.
   
 * `flavor_id` - The cluster specification in string format.
 
@@ -75,9 +73,3 @@ All above argument parameters can be exported as attribute parameters along with
 * `certificate_users/client_key_data` - The client key data.
 
 * `kube_config_raw` - Raw Kubernetes config to be used by kubectl and other compatible tools.
-
-
-
- 
-
-

@@ -82,11 +82,11 @@ resource "huaweicloud_cce_cluster" "cluster" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the cce cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cce cluster resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the cce cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cce cluster resource.
 
-* `name` - (Required) Cluster name. Changing this parameter will create a new cluster resource.
+* `name` - (Required, String, ForceNew) Cluster name. Changing this parameter will create a new cluster resource.
 
-* `flavor_id` - (Required) Cluster specifications. Changing this parameter will create a new cluster resource. Possible values:
+* `flavor_id` - (Required, String, ForceNew) Cluster specifications. Changing this parameter will create a new cluster resource. Possible values:
 
 	* `cce.s1.small` - small-scale single cluster (up to 50 nodes).
 	* `cce.s1.medium` - medium-scale single cluster (up to 200 nodes).
@@ -101,53 +101,53 @@ The following arguments are supported:
 	* `cce.t2.medium` - medium-scale HA physical machine cluster (up to 100 nodes).
 	* `cce.t2.large` - large-scale HA physical machine cluster (up to 500 nodes).
 
-* `cluster_version` - (Optional) For the cluster version, defaults to the latest supported version. To learn which cluster
+* `cluster_version` - (Optional, String, ForceNew) For the cluster version, defaults to the latest supported version. To learn which cluster
 versions are available, choose Dashboard > Buy Cluster on the CCE console. Changing this parameter will create a new cluster resource.
 
-* `cluster_type` - (Optional) Cluster Type, possible values are VirtualMachine, BareMetal and ARM64. Defaults to *VirtualMachine*.
+* `cluster_type` - (Optional, String, ForceNew) Cluster Type, possible values are VirtualMachine, BareMetal and ARM64. Defaults to *VirtualMachine*.
   Changing this parameter will create a new cluster resource.
 
-* `description` - (Optional) The Cluster description.
+* `description` - (Optional, String) The Cluster description.
 
-* `billing_mode` - (Optional) Charging mode of the cluster, which is 0 (on demand). Changing this parameter will create a new cluster resource.
+* `billing_mode` - (Optional, Int, ForceNew) Charging mode of the cluster, which is 0 (on demand). Changing this parameter will create a new cluster resource.
 
-* `extend_param` - (Optional) Extended parameter. Changing this parameter will create a new cluster resource.
+* `extend_param` - (Optional, Map, ForceNew) Extended parameter. Changing this parameter will create a new cluster resource.
 
-* `vpc_id` - (Required) The ID of the VPC used to create the node. Changing this parameter will create a new cluster resource.
+* `vpc_id` - (Required, String, ForceNew) The ID of the VPC used to create the node. Changing this parameter will create a new cluster resource.
 
-* `subnet_id` - (Required) The ID of the subnet used to create the node  which should be configured with a *DNS address*.
+* `subnet_id` - (Required, String, ForceNew) The ID of the subnet used to create the node  which should be configured with a *DNS address*.
   Changing this parameter will create a new cluster resource.
 
-* `highway_subnet_id` - (Optional) The ID of the high speed network used to create bare metal nodes. Changing this parameter will create a new cluster resource.
+* `highway_subnet_id` - (Optional, String, ForceNew) The ID of the high speed network used to create bare metal nodes. Changing this parameter will create a new cluster resource.
 
-* `container_network_type` - (Required) Container network parameters. Possible values:
+* `container_network_type` - (Required, String, ForceNew) Container network parameters. Possible values:
 
 	* `overlay_l2` - An overlay_l2 network built for containers by using Open vSwitch(OVS)
 	* `underlay_ipvlan` - An underlay_ipvlan network built for bare metal servers by using ipvlan.
 	* `vpc-router` - An vpc-router network built for containers by using ipvlan and custom VPC routes.
 
-* `container_network_cidr` - (Optional) Container network segment. Changing this parameter will create a new cluster resource.
+* `container_network_cidr` - (Optional, String, ForceNew) Container network segment. Changing this parameter will create a new cluster resource.
 
-* `authentication_mode` - (Optional) Authentication mode of the cluster, possible values are x509 and rbac. Defaults to *rbac*.
+* `authentication_mode` - (Optional, String, ForceNew) Authentication mode of the cluster, possible values are x509 and rbac. Defaults to *rbac*.
     Changing this parameter will create a new cluster resource.
 
-* `authenticating_proxy_ca` - (Optional) CA root certificate provided in the authenticating_proxy mode. The CA root certificate
+* `authenticating_proxy_ca` - (Optional, String, ForceNew) CA root certificate provided in the authenticating_proxy mode. The CA root certificate
 	is encoded to the Base64 format. Changing this parameter will create a new cluster resource.
 
-* `multi_az` - (Optional) Enable multiple AZs for the cluster, only when using HA flavors. Changing this parameter will create a new cluster resource.
+* `multi_az` - (Optional, Bool, ForceNew) Enable multiple AZs for the cluster, only when using HA flavors. Changing this parameter will create a new cluster resource.
 
-* `eip` - (Optional) EIP address of the cluster. Changing this parameter will create a new cluster resource.
+* `eip` - (Optional, String, ForceNew) EIP address of the cluster. Changing this parameter will create a new cluster resource.
 
-* `kube_proxy_mode` - (Optional) Service forwarding mode. Two modes are available:
+* `kube_proxy_mode` - (Optional, String, ForceNew) Service forwarding mode. Two modes are available:
 
   - iptables: Traditional kube-proxy uses iptables rules to implement service load balancing. In this mode, too many iptables rules will be generated when many services are deployed. In addition, non-incremental updates will cause a latency and even obvious performance issues in the case of heavy service traffic.
   - ipvs: Optimized kube-proxy mode with higher throughput and faster speed. This mode supports incremental updates and can keep connections uninterrupted during service updates. It is suitable for large-sized clusters.
 
-* `enterprise_project_id` - (Optional) The enterprise project id of the cce cluster. Changing this creates a new cluster.
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the cce cluster. Changing this creates a new cluster.
 
 ## Attributes Reference
 
-All above argument parameters can be exported as attribute parameters along with attribute reference.
+In addition to all arguments above, the following attributes are exported:
 
   * `id` -  Id of the cluster resource.
 

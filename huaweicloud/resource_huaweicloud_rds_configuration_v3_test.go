@@ -44,7 +44,7 @@ func TestAccRdsConfigurationV3_basic(t *testing.T) {
 
 func testAccCheckRdsConfigV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	rdsClient, err := config.RdsV3Client(OS_REGION_NAME)
+	rdsClient, err := config.RdsV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud RDS client: %s", err)
 	}
@@ -75,7 +75,7 @@ func testAccCheckRdsConfigV3Exists(n string, configuration *configurations.Confi
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		rdsClient, err := config.RdsV3Client(OS_REGION_NAME)
+		rdsClient, err := config.RdsV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud RDS client: %s", err)
 		}

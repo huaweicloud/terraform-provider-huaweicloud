@@ -44,7 +44,7 @@ func TestAccSFSAccessRuleV2_basic(t *testing.T) {
 
 func testAccCheckSFSAccessRuleV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	sfsClient, err := config.sfsV2Client(OS_REGION_NAME)
+	sfsClient, err := config.SfsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud sfs client: %s", err)
 	}
@@ -89,7 +89,7 @@ func testAccCheckSFSAccessRuleV2Exists(n string, rule *shares.AccessRight) resou
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		sfsClient, err := config.sfsV2Client(OS_REGION_NAME)
+		sfsClient, err := config.SfsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud sfs client: %s", err)
 		}
@@ -119,6 +119,7 @@ func configAccSFSAccessRuleV2_basic(sfsName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc" "vpc_default" {
   name = "vpc-default"
+  enterprise_project_id = "0"
 }
 
 resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
@@ -138,6 +139,7 @@ func configAccSFSAccessRuleV2_ipAuth(sfsName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc" "vpc_default" {
   name = "vpc-default"
+  enterprise_project_id = "0"
 }
 
 resource "huaweicloud_sfs_file_system_v2" "sfs_1" {

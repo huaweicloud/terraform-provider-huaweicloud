@@ -17,15 +17,15 @@ data "huaweicloud_obs_bucket_object" "object" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the OBS object. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the OBS object. If omitted, the provider-level region will be used.
 
-* `bucket` - (Required) The name of the bucket to put the file in.
+* `bucket` - (Required, String) The name of the bucket to put the file in.
 
-* `key` - (Required) The name of the object once it is in the bucket.
+* `key` - (Required, String) The name of the object once it is in the bucket.
 
 ## Attributes Reference
 
-The following attributes are exported
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - the `key` of the resource supplied above.
 * `bucket` -  the name of the bucket to put the file in.

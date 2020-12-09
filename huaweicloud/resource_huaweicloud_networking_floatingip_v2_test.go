@@ -55,7 +55,7 @@ func TestAccNetworkingV2FloatingIP_fixedip_bind(t *testing.T) {
 
 func testAccCheckNetworkingV2FloatingIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+	networkClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud floating IP: %s", err)
 	}
@@ -86,7 +86,7 @@ func testAccCheckNetworkingV2FloatingIPExists(n string, kp *floatingips.Floating
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+		networkClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -181,4 +181,4 @@ resource "huaweicloud_networking_floatingip_v2" "fip_1" {
   port_id = "${huaweicloud_networking_port_v2.port_1.id}"
   fixed_ip = "${huaweicloud_networking_port_v2.port_1.fixed_ip.0.ip_address}"
 }
-`, OS_EXTGW_ID, OS_POOL_NAME)
+`, HW_EXTGW_ID, HW_POOL_NAME)

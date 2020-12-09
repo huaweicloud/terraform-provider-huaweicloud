@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs"
 )
 
-func resourceComputeKeypairV2() *schema.Resource {
+func ResourceComputeKeypairV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeKeypairV2Create,
 		Read:   resourceComputeKeypairV2Read,
@@ -47,7 +47,7 @@ func resourceComputeKeypairV2() *schema.Resource {
 
 func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -73,7 +73,7 @@ func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) er
 
 func resourceComputeKeypairV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -92,7 +92,7 @@ func resourceComputeKeypairV2Read(d *schema.ResourceData, meta interface{}) erro
 
 func resourceComputeKeypairV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}

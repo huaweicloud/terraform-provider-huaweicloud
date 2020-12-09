@@ -73,4 +73,4 @@ resource "huaweicloud_csbs_backup_policy_v1" "backup_policy_v1" {
 data "huaweicloud_csbs_backup_policy_v1" "csbs_policy" {  
   id = "${huaweicloud_csbs_backup_policy_v1.backup_policy_v1.id}"
 }
-`, OS_IMAGE_ID, OS_AVAILABILITY_ZONE, OS_FLAVOR_ID, OS_NETWORK_ID)
+`, HW_IMAGE_ID, HW_AVAILABILITY_ZONE, HW_FLAVOR_ID, HW_NETWORK_ID)

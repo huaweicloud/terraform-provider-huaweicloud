@@ -28,30 +28,26 @@ resource "huaweicloud_lb_whitelist" "whitelist_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the ELB whitelist resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the ELB whitelist resource.
     If omitted, the provider-level region will be used.
     Changing this creates a new whitelist.
 
-* `tenant_id` - (Optional) Required for admins. The UUID of the tenant who owns
+* `tenant_id` - (Optional, String, ForceNew) Required for admins. The UUID of the tenant who owns
     the whitelist. Only administrative users can specify a tenant UUID
     other than their own. Changing this creates a new whitelist.
 
-* `listener_id` - (Required) The Listener ID that the whitelist will be associated with. Changing this creates a new whitelist.
+* `listener_id` - (Required, String, ForceNew) The Listener ID that the whitelist will be associated with. Changing this creates a new whitelist.
 
-* `enable_whitelist` - (Optional) Specify whether to enable access control.
+* `enable_whitelist` - (Optional, Bool) Specify whether to enable access control.
 
-* `whitelist` - (Optional) Specifies the IP addresses in the whitelist. Use commas(,) to separate
+* `whitelist` - (Optional, String) Specifies the IP addresses in the whitelist. Use commas(,) to separate
     the multiple IP addresses.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - The unique ID for the whitelist.
-* `tenant_id` - See Argument Reference above.
-* `listener_id` - See Argument Reference above.
-* `enable_whitelist` - See Argument Reference above.
-* `whitelist` - See Argument Reference above.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

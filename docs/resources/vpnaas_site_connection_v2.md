@@ -1,5 +1,5 @@
 ---
-subcategory: "Virtual Private Network (VPN)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_vpnaas\_site\_connection\_v2
@@ -96,27 +96,9 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `admin_state_up` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `dpd` - See Argument Reference above.
-* `psk` - See Argument Reference above.
-* `initiator` - See Argument Reference above.
-* `peer_address` - See Argument Reference above.
-* `peer_id` - See Argument Reference above.
-* `peer_cidrs` - See Argument Reference above.
-* `mtu` - See Argument Reference above.
-* `local_id` - See Argument Reference above.
-* `peer_ep_group_id` - See Argument Reference above.
-* `ipsecpolicy_id` - See Argument Reference above.
-* `vpnservice_id` - See Argument Reference above.
-* `ikepolicy_id` - See Argument Reference above.
-* `value_specs` - See Argument Reference above.
-* `tags` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

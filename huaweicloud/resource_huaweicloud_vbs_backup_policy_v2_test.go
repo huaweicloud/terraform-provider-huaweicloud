@@ -80,7 +80,7 @@ func TestAccVBSBackupPolicyV2_rentention_day(t *testing.T) {
 
 func testAccVBSBackupPolicyV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	vbsClient, err := config.vbsV2Client(OS_REGION_NAME)
+	vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud sfs client: %s", err)
 	}
@@ -111,7 +111,7 @@ func testAccVBSBackupPolicyV2Exists(n string, policy *policies.Policy) resource.
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		vbsClient, err := config.vbsV2Client(OS_REGION_NAME)
+		vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud vbs client: %s", err)
 		}

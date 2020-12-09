@@ -39,43 +39,36 @@ func resourceASGroup() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: resourceASGroupValidateGroupName,
-				ForceNew:     false,
 			},
 			"scaling_configuration_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 			"desire_instance_number": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
 			},
 			"min_instance_number": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  0,
-				ForceNew: false,
 			},
 			"max_instance_number": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  0,
-				ForceNew: false,
 			},
 			"cool_down_time": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      300,
 				ValidateFunc: resourceASGroupValidateCoolDownTime,
-				ForceNew:     false,
 				Description:  "The cooling duration, in seconds.",
 			},
 			"lb_listener_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     false,
 				ValidateFunc: resourceASGroupValidateListenerId,
 				Description:  "The system supports the binding of up to six ELB listeners, the IDs of which are separated using a comma.",
 				Deprecated:   "use lbaas_listeners instead",
@@ -107,7 +100,6 @@ func resourceASGroup() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				ForceNew: false,
 			},
 			"networks": {
 				Type:     schema.TypeList,
@@ -121,7 +113,6 @@ func resourceASGroup() *schema.Resource {
 						},
 					},
 				},
-				ForceNew: false,
 			},
 			"security_groups": {
 				Type:     schema.TypeList,
@@ -134,7 +125,6 @@ func resourceASGroup() *schema.Resource {
 						},
 					},
 				},
-				ForceNew: false,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -145,7 +135,6 @@ func resourceASGroup() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: resourceASGroupValidateHealthAuditMethod,
-				ForceNew:     false,
 				Default:      "NOVA_AUDIT",
 			},
 			"health_periodic_audit_time": {
@@ -153,7 +142,6 @@ func resourceASGroup() *schema.Resource {
 				Optional:     true,
 				Default:      5,
 				ValidateFunc: resourceASGroupValidateHealthAuditTime,
-				ForceNew:     false,
 				Description:  "The health check period for instances, in minutes.",
 			},
 			"instance_terminate_policy": {
@@ -161,26 +149,22 @@ func resourceASGroup() *schema.Resource {
 				Optional:     true,
 				Default:      "OLD_CONFIG_OLD_INSTANCE",
 				ValidateFunc: resourceASGroupValidateTerminatePolicy,
-				ForceNew:     false,
 			},
 			"notifications": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				ForceNew: false,
 			},
 			"delete_publicip": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
-				ForceNew: false,
 			},
 			"delete_instances": {
 				Description: "Whether to delete instances when they are removed from the AS group.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "no",
-				ForceNew:    false,
 			},
 			"instances": {
 				Type:        schema.TypeList,
@@ -199,7 +183,6 @@ func resourceASGroup() *schema.Resource {
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -423,7 +406,7 @@ func checkASGroupInstancesRemoved(asClient *golangsdk.ServiceClient, groupID str
 
 func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	asClient, err := config.autoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -516,7 +499,7 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	asClient, err := config.autoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -589,7 +572,7 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	asClient, err := config.autoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -668,7 +651,7 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceASGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	asClient, err := config.autoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}

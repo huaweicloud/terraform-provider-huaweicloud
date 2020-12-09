@@ -29,21 +29,20 @@ resource "huaweicloud_dms_group" "group_1" {
 
 The following arguments are supported:
 
-* `name` - (Required) Indicates the unique name of a group. A string of 1 to 64
+* `name` - (Required, String, ForceNew) Indicates the unique name of a group. A string of 1 to 64
     characters that contain a-z, A-Z, 0-9, hyphens (-), and underscores (_).
     The name cannot be modified once specified.
 
-* `queue_id` - (Required) Indicates the ID of a specified queue.
+* `queue_id` - (Required, String, ForceNew) Indicates the ID of a specified queue.
 
-* `region` - (Optional) The region in which to create the DMS group resource. If omitted, the provider-level region will be used. Changing this creates a new DMS group resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the DMS group resource. If omitted, the provider-level region will be used. Changing this creates a new DMS group resource.
 
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-
-* `name` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 * `queue_id` - Indicates the ID of a queue.
 * `redrive_policy` - Indicates whether to enable dead letter messages.
 * `produced_messages` - Indicates the total number of messages (not including the messages that have expired and been deleted) in a queue.

@@ -1,3 +1,22 @@
+## 1.20.0 (November 30, 2020)
+
+ENHANCEMENTS:
+
+Update resource Attributes Reference in docs ([#715](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/715))
+
+## 1.19.3 (November 28, 2020)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_gaussdb_mysql_instance` ([#682](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/682))
+* **New Data Source:** `huaweicloud_gaussdb_cassandra_instance` ([#690](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/690))
+* **New Data Source:** `huaweicloud_gaussdb_opengauss_instance` ([#699](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/699))
+* **New Resource:** `huaweicloud_images_image` ([#706](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/706))
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_kms_key: Add enterprise_project_id suppport ([#693](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/693))
+
 ## 1.19.2 (November 19, 2020)
 
 FEATURES:

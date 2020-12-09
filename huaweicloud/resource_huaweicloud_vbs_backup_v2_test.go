@@ -60,7 +60,7 @@ func TestAccVBSBackupV2_timeout(t *testing.T) {
 
 func testAccCheckVBSBackupV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	vbsClient, err := config.vbsV2Client(OS_REGION_NAME)
+	vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud vbs client: %s", err)
 	}
@@ -91,7 +91,7 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		vbsClient, err := config.vbsV2Client(OS_REGION_NAME)
+		vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud vbs client: %s", err)
 		}
@@ -132,7 +132,7 @@ resource "huaweicloud_vbs_backup" "backup_1" {
   snapshot_id = huaweicloud_evs_snapshot.snapshot_1.id
   name        = "%s"
 }
-`, rName, OS_AVAILABILITY_ZONE, rName, rName)
+`, rName, HW_AVAILABILITY_ZONE, rName, rName)
 }
 
 func testAccVBSBackupV2_timeout(rName string) string {
@@ -160,5 +160,5 @@ resource "huaweicloud_vbs_backup" "backup_1" {
     delete = "5m"
   }
 }
-`, rName, OS_AVAILABILITY_ZONE, rName, rName)
+`, rName, HW_AVAILABILITY_ZONE, rName, rName)
 }

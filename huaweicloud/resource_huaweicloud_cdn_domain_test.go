@@ -22,7 +22,7 @@ func TestAccCdnDomain_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCdnDomainV1Exists("huaweicloud_cdn_domain_v1.domain_1", &domain),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cdn_domain_v1.domain_1", "name", OS_CDN_DOMAIN_NAME),
+						"huaweicloud_cdn_domain_v1.domain_1", "name", HW_CDN_DOMAIN_NAME),
 				),
 			},
 		},
@@ -31,7 +31,7 @@ func TestAccCdnDomain_basic(t *testing.T) {
 
 func testAccCheckCdnDomainV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	cdnClient, err := config.CdnV1Client(OS_REGION_NAME)
+	cdnClient, err := config.CdnV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CDN Domain client: %s", err)
 	}
@@ -62,7 +62,7 @@ func testAccCheckCdnDomainV1Exists(n string, domain *domains.CdnDomain) resource
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		cdnClient, err := config.CdnV1Client(OS_REGION_NAME)
+		cdnClient, err := config.CdnV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud CDN Domain client: %s", err)
 		}
@@ -92,4 +92,4 @@ resource "huaweicloud_cdn_domain_v1" "domain_1" {
       origin_type  = "ipaddr"
   }
 }
-`, OS_CDN_DOMAIN_NAME)
+`, HW_CDN_DOMAIN_NAME)

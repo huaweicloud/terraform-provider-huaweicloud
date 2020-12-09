@@ -115,9 +115,9 @@ func resourceListenerV2() *schema.Resource {
 
 func resourceListenerV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	adminStateUp := d.Get("admin_state_up").(bool)
@@ -182,12 +182,8 @@ func resourceListenerV2Create(d *schema.ResourceData, meta interface{}) error {
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		elbv2Client, err := config.elbV2Client(GetRegion(d, config))
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud elb v2 client: %s", err)
-		}
 		taglist := expandResourceTags(tagRaw)
-		if tagErr := tags.Create(elbv2Client, "listeners", listener.ID, taglist).ExtractErr(); tagErr != nil {
+		if tagErr := tags.Create(lbClient, "listeners", listener.ID, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of elb listener %s: %s", listener.ID, tagErr)
 		}
 	}
@@ -197,9 +193,9 @@ func resourceListenerV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceListenerV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	listener, err := listeners.Get(lbClient, d.Id()).Extract()
@@ -222,13 +218,8 @@ func resourceListenerV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("default_tls_container_ref", listener.DefaultTlsContainerRef)
 	d.Set("region", GetRegion(d, config))
 
-	// set tags
-	elbv2Client, err := config.elbV2Client(GetRegion(d, config))
-	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb v2 client: %s", err)
-	}
-
-	resourceTags, err := tags.Get(elbv2Client, "listeners", d.Id()).Extract()
+	// fetch tags
+	resourceTags, err := tags.Get(lbClient, "listeners", d.Id()).Extract()
 	if err != nil {
 		return fmt.Errorf("Error fetching tags of elb listener: %s", err)
 	}
@@ -240,14 +231,13 @@ func resourceListenerV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceListenerV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+	}
 
 	if d.HasChanges("name", "description", "admin_state_up", "connection_limit",
 		"default_tls_container_ref", "sni_container_refs", "http2_enable") {
-		lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
-		}
-
 		var updateOpts listeners.UpdateOpts
 		if d.HasChange("name") {
 			updateOpts.Name = d.Get("name").(string)
@@ -311,12 +301,7 @@ func resourceListenerV2Update(d *schema.ResourceData, meta interface{}) error {
 
 	// update tags
 	if d.HasChange("tags") {
-		elbv2Client, err := config.elbV2Client(GetRegion(d, config))
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud elb v2 client: %s", err)
-		}
-
-		tagErr := UpdateResourceTags(elbv2Client, d, "listeners", d.Id())
+		tagErr := UpdateResourceTags(lbClient, d, "listeners", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of elb listener:%s, err:%s", d.Id(), tagErr)
 		}
@@ -328,9 +313,9 @@ func resourceListenerV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceListenerV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	lbClient, err := config.elbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing

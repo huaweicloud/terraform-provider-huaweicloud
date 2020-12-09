@@ -23,38 +23,33 @@ resource "huaweicloud_nat_gateway" "nat_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the Nat gateway resource. If omitted, the provider-level region will be used. Changing this creates a new Nat gateway resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the Nat gateway resource. If omitted, the provider-level region will be used. Changing this creates a new Nat gateway resource.
 
-* `name` - (Required) The name of the nat gateway.
+* `name` - (Required, String) The name of the nat gateway.
 
-* `description` - (Optional) The description of the nat gateway.
+* `description` - (Optional, String) The description of the nat gateway.
 
-* `spec` - (Required) The specification of the nat gateway, valid values are "1",
+* `spec` - (Required, String) The specification of the nat gateway, valid values are "1",
     "2", "3", "4".
 
-* `tenant_id` - (Optional) The target tenant ID in which to allocate the nat
+* `tenant_id` - (Optional, String, ForceNew) The target tenant ID in which to allocate the nat
     gateway. Changing this creates a new nat gateway.
 
-* `router_id` - (Required) ID of the router this nat gateway belongs to. Changing
+* `router_id` - (Required, String, ForceNew) ID of the router this nat gateway belongs to. Changing
     this creates a new nat gateway.
 
-* `internal_network_id` - (Optional) ID of the network this nat gateway connects to.
+* `internal_network_id` - (Required, String, ForceNew) ID of the network this nat gateway connects to.
     Changing this creates a new nat gateway.
 
-* `enterprise_project_id` - (Optional) The enterprise project id of the nat gateway. 
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the nat gateway. 
     Changing this creates a new nat gateway.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `region` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `spec` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
-* `router_id` - See Argument Reference above.
-* `internal_network_id` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
+
 * `status` - The status of the nat gateway.
 
 ## Timeouts

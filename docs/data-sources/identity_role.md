@@ -65,15 +65,13 @@ data "huaweicloud_identity_role" "auth_admin" {
 
 ## Argument Reference
 
-* `name` - (Required) The name of the role.
+* `name` - (Required, String) The name of the role.
 
-* `domain_id` - (Optional) The domain the role belongs to.
+* `domain_id` - (Optional, String) The domain the role belongs to.
 
 ## Attributes Reference
 
-`id` is set to the ID of the found role. In addition, the following attributes
-are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `name` - See Argument Reference above.
-* `domain_id` - See Argument Reference above.
-* `region` - See Argument Reference above.
+* `id` - Specifies a data source ID in UUID format.
+

@@ -30,7 +30,7 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 
 func testAccCheckFgsV2FunctionDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	fgsClient, err := config.FgsV2Client(OS_REGION_NAME)
+	fgsClient, err := config.FgsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 	}
@@ -61,7 +61,7 @@ func testAccCheckFgsV2FunctionExists(n string, ft *function.Function) resource.T
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		fgsClient, err := config.FgsV2Client(OS_REGION_NAME)
+		fgsClient, err := config.FgsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 		}

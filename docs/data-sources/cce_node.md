@@ -22,20 +22,20 @@ data "huaweicloud_cce_node" "node" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the cce nodes. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the cce nodes. If omitted, the provider-level region will be used.
  
-* `Cluster_id` - (Required) The id of container cluster.
+* `Cluster_id` - (Required, String) The id of container cluster.
 
-* `name` - (Optional) - Name of the node.
+* `name` - (Optional, String) Name of the node.
 
-* `node_id` - (Optional) - The id of the node.
+* `node_id` - (Optional, String) The id of the node.
 
-* `status` - (Optional) - The state of the node.
+* `status` - (Optional, String) The state of the node.
 
 
 ## Attributes Reference
 
-All above argument parameters can be exported as attribute parameters along with attribute reference:
+In addition to all arguments above, the following attributes are exported:
 
 * `flavor_id` - The flavor id to be used. 
 

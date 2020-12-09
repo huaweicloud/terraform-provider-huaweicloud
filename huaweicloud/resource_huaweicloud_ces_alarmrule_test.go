@@ -37,7 +37,7 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 
 func testCESAlarmRuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.newCESClient(OS_REGION_NAME)
+	networkingClient, err := config.newCESClient(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud ces client: %s", err)
 	}
@@ -69,7 +69,7 @@ func testCESAlarmRuleExists(n string, ar *alarmrule.AlarmRule) resource.TestChec
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.newCESClient(OS_REGION_NAME)
+		networkingClient, err := config.newCESClient(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud ces client: %s", err)
 		}
@@ -128,7 +128,7 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     ]
   }
 }
-`, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
+`, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)
 
 var testCESAlarmRule_update = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "vm_1" {
@@ -173,4 +173,4 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     ]
   }
 }
-`, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
+`, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)

@@ -61,7 +61,7 @@ func TestAccVpcBandWidthV2_WithEpsId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcBandWidthV2Exists(resourceName, &bandwidth),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -70,7 +70,7 @@ func TestAccVpcBandWidthV2_WithEpsId(t *testing.T) {
 
 func testAccCheckVpcBandWidthV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.NetworkingV1Client(OS_REGION_NAME)
+	networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud networking client: %s", err)
 	}
@@ -101,7 +101,7 @@ func testAccCheckVpcBandWidthV2Exists(n string, bandwidth *bandwidths.BandWidth)
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.NetworkingV1Client(OS_REGION_NAME)
+		networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud networking client: %s", err)
 		}
@@ -137,5 +137,5 @@ resource "huaweicloud_vpc_bandwidth" "test" {
 	size = "%d"
 	enterprise_project_id = "%s"
 }
-`, rName, size, OS_ENTERPRISE_PROJECT_ID)
+`, rName, size, HW_ENTERPRISE_PROJECT_ID_TEST)
 }

@@ -155,6 +155,7 @@ type ServerExtendParam struct {
 
 type MetaData struct {
 	OpSvcUserId string `json:"op_svc_userid,omitempty"`
+	AgencyName  string `json:"agency_name,omitempty"`
 }
 
 type SecurityGroup struct {
@@ -162,7 +163,8 @@ type SecurityGroup struct {
 }
 
 type SchedulerHints struct {
-	Group string `json:"group,omitempty"`
+	Group       string `json:"group,omitempty"`
+	FaultDomain string `json:"fault_domain,omitempty"`
 
 	// Specifies whether the ECS is created on a Dedicated Host (DeH) or in a shared pool.
 	Tenancy string `json:"tenancy,omitempty"`

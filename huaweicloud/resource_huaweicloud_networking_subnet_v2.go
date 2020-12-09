@@ -48,7 +48,6 @@ func resourceNetworkingSubnetV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"tenant_id": {
 				Type:     schema.TypeString,
@@ -77,7 +76,6 @@ func resourceNetworkingSubnetV2() *schema.Resource {
 				Type:          schema.TypeString,
 				ConflictsWith: []string{"no_gateway"},
 				Optional:      true,
-				ForceNew:      false,
 				Computed:      true,
 			},
 			"no_gateway": {
@@ -85,7 +83,6 @@ func resourceNetworkingSubnetV2() *schema.Resource {
 				ConflictsWith: []string{"gateway_ip"},
 				Optional:      true,
 				Default:       false,
-				ForceNew:      false,
 			},
 			"ip_version": {
 				Type:     schema.TypeInt,
@@ -96,21 +93,18 @@ func resourceNetworkingSubnetV2() *schema.Resource {
 			"enable_dhcp": {
 				Type:         schema.TypeBool,
 				Optional:     true,
-				ForceNew:     false,
 				Default:      true,
 				ValidateFunc: validateTrueOnly,
 			},
 			"dns_nameservers": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
 			"host_routes": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"destination_cidr": {

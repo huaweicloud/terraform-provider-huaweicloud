@@ -29,7 +29,6 @@ func resourceASPolicy() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: resourceASPolicyValidateName,
-				ForceNew:     false,
 			},
 			"scaling_group_id": {
 				Type:     schema.TypeString,
@@ -39,48 +38,40 @@ func resourceASPolicy() *schema.Resource {
 			"scaling_policy_type": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     false,
 				ValidateFunc: resourceASPolicyValidatePolicyType,
 			},
 			"alarm_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"scheduled_policy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: false,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"launch_time": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: false,
 						},
 						"recurrence_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ForceNew:     false,
 							ValidateFunc: resourceASPolicyValidateRecurrenceType,
 						},
 						"recurrence_value": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 						},
 						"start_time": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							ForceNew:         false,
 							Default:          getCurrentUTCwithoutSec(),
 							DiffSuppressFunc: suppressDiffAll,
 						},
 						"end_time": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: false,
 						},
 					},
 				},
@@ -89,7 +80,6 @@ func resourceASPolicy() *schema.Resource {
 				Optional: true,
 				Type:     schema.TypeList,
 				MaxItems: 1,
-				ForceNew: false,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"operation": {
@@ -108,7 +98,6 @@ func resourceASPolicy() *schema.Resource {
 			"cool_down_time": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
 				Default:  900,
 			},
 		},
@@ -181,7 +170,7 @@ func getPolicyAction(rawPolicyAction map[string]interface{}) policies.ActionOpts
 
 func resourceASPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	asClient, err := config.autoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -222,7 +211,7 @@ func resourceASPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceASPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	asClient, err := config.autoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -269,7 +258,7 @@ func resourceASPolicyRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceASPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	asClient, err := config.autoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
@@ -307,7 +296,7 @@ func resourceASPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceASPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	asClient, err := config.autoscalingV1Client(GetRegion(d, config))
+	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}

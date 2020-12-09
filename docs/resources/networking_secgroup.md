@@ -20,29 +20,27 @@ resource "huaweicloud_networking_secgroup" "secgroup" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the security group resource. If omitted, the provider-level region will be used. Changing this creates a new security group resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the security group resource. If omitted, the provider-level region will be used. Changing this creates a new security group resource.
 
-* `name` - (Required) A unique name for the security group.
+* `name` - (Required, String) A unique name for the security group.
 
-* `description` - (Optional) A unique name for the security group.
+* `description` - (Optional, String) Description for the security group.
 
-* `tenant_id` - (Optional) The owner of the security group. Required if admin
+* `tenant_id` - (Optional, String, ForceNew) The owner of the security group. Required if admin
     wants to create a port for another tenant. Changing this creates a new
     security group.
 
-* `delete_default_rules` - (Optional) Whether or not to delete the default
+* `delete_default_rules` - (Optional, Bool, ForceNew) Whether or not to delete the default
     egress security rules. This is `false` by default. See the below note
     for more information.
 
-* `enterprise_project_id` - (Optional) The enterprise project id of the security group. Changing this creates a new security group.
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the security group. Changing this creates a new security group.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `tenant_id` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 
 ## Default Security Group Rules
 

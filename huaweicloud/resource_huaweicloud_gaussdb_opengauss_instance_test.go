@@ -34,7 +34,7 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 
 func testAccCheckOpenGaussInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.openGaussV3Client(OS_REGION_NAME)
+	client, err := config.openGaussV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -65,7 +65,7 @@ func testAccCheckOpenGaussInstanceExists(n string, instance *instances.GaussDBIn
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.openGaussV3Client(OS_REGION_NAME)
+		client, err := config.openGaussV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 		}
@@ -87,7 +87,7 @@ func testAccOpenGaussInstanceConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_networking_secgroup_v2" "test" {
+data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
 
@@ -95,11 +95,11 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   name        = "%s"
   password    = "Test@123"
   flavor      = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
-  vpc_id      = huaweicloud_vpc_v1.test.id
-  subnet_id   = huaweicloud_vpc_subnet_v1.test.id
+  vpc_id      = huaweicloud_vpc.test.id
+  subnet_id   = huaweicloud_vpc_subnet.test.id
 
   availability_zone = "cn-north-4a,cn-north-4a,cn-north-4a"
-  security_group_id = data.huaweicloud_networking_secgroup_v2.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
 
   ha {
     mode             = "enterprise"

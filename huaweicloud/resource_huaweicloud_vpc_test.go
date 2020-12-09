@@ -70,7 +70,7 @@ func TestAccVpcV1_WithEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "status", "OK"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", OS_ENTERPRISE_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -78,7 +78,7 @@ func TestAccVpcV1_WithEpsId(t *testing.T) {
 }
 
 // TestAccVpcV1_WithCustomRegion this case will run a test for resource-level region. Before run this case,
-// you shoule set `OS_CUSTOM_REGION_NAME` in your system and it should be different from `OS_REGION_NAME`.
+// you shoule set `HW_CUSTOM_REGION_NAME` in your system and it should be different from `HW_REGION_NAME`.
 func TestAccVpcV1_WithCustomRegion(t *testing.T) {
 
 	vpcName1 := fmt.Sprintf("test_vpc_region_%s", acctest.RandString(5))
@@ -95,10 +95,10 @@ func TestAccVpcV1_WithCustomRegion(t *testing.T) {
 		CheckDestroy: testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: tesstAccVpcV1_WithCustomRegion(vpcName1, vpcName2, OS_CUSTOM_REGION_NAME),
+				Config: tesstAccVpcV1_WithCustomRegion(vpcName1, vpcName2, HW_CUSTOM_REGION_NAME),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCustomRegionVpcV1Exists(resName1, &vpc1, OS_REGION_NAME),
-					testAccCheckCustomRegionVpcV1Exists(resName2, &vpc2, OS_CUSTOM_REGION_NAME),
+					testAccCheckCustomRegionVpcV1Exists(resName1, &vpc1, HW_REGION_NAME),
+					testAccCheckCustomRegionVpcV1Exists(resName2, &vpc2, HW_CUSTOM_REGION_NAME),
 				),
 			},
 		},
@@ -107,7 +107,7 @@ func TestAccVpcV1_WithCustomRegion(t *testing.T) {
 
 func testAccCheckVpcV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	vpcClient, err := config.NetworkingV1Client(OS_REGION_NAME)
+	vpcClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud vpc client: %s", err)
 	}
@@ -169,7 +169,7 @@ func testAccCheckVpcV1Exists(n string, vpc *vpcs.Vpc) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		vpcClient, err := config.NetworkingV1Client(OS_REGION_NAME)
+		vpcClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud vpc client: %s", err)
 		}
@@ -224,7 +224,7 @@ resource "huaweicloud_vpc" "test" {
   cidr = "192.168.0.0/16"
   enterprise_project_id = "%s"
 }
-`, rName, OS_ENTERPRISE_PROJECT_ID)
+`, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func tesstAccVpcV1_WithCustomRegion(name1 string, name2 string, region string) string {

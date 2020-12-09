@@ -34,17 +34,13 @@ The following arguments are supported:
     If you don't specify `ip_address`, an available IP address from
     the specified subnet will be allocated to this vip.
 
-* `name` - (Optional) Specifies a unique name for the vip.
+* `name` - (Optional, String) Specifies a unique name for the vip.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - The ID of the vip.
-* `name` - See Argument Reference above.
-* `network_id` - See Argument Reference above.
-* `subnet_id` - See Argument Reference above.
-* `ip_address` - See Argument Reference above.
 * `mac_address` - The MAC address of the vip.
 * `status` - The status of vip.
 * `tenant_id` - The tenant ID of the vip.

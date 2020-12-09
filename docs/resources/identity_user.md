@@ -24,28 +24,28 @@ resource "huaweicloud_identity_user" "user_1" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of the user. The user name consists of 5 to 32
+* `name` - (Required, String) The name of the user. The user name consists of 5 to 32
      characters. It can contain only uppercase letters, lowercase letters, 
      digits, spaces, and special characters (-_) and cannot start with a digit.
 
-* `description` - (Optional) A description of the user.
+* `description` - (Optional, String) A description of the user.
 
-* `default_project_id` - (Optional) The default project this user belongs to.
+* `default_project_id` - (Optional, String) The default project this user belongs to.
 
-* `domain_id` - (Optional) The domain this user belongs to.
+* `domain_id` - (Optional, String) The domain this user belongs to.
 
-* `enabled` - (Optional) Whether the user is enabled or disabled. Valid
+* `enabled` - (Optional, Bool) Whether the user is enabled or disabled. Valid
     values are `true` and `false`.
 
-* `password` - (Optional) The password for the user. It must contain at least 
+* `password` - (Optional, String) The password for the user. It must contain at least 
      two of the following character types: uppercase letters, lowercase letters, 
      digits, and special characters.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `domain_id` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 
 ## Import
 

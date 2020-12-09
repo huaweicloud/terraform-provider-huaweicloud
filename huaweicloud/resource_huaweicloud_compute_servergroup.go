@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/servergroups"
 )
 
-func resourceComputeServerGroupV2() *schema.Resource {
+func ResourceComputeServerGroupV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeServerGroupV2Create,
 		Read:   resourceComputeServerGroupV2Read,
@@ -42,6 +42,11 @@ func resourceComputeServerGroupV2() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"fault_domains": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"value_specs": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -54,7 +59,7 @@ func resourceComputeServerGroupV2() *schema.Resource {
 
 func resourceComputeServerGroupV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -80,7 +85,7 @@ func resourceComputeServerGroupV2Create(d *schema.ResourceData, meta interface{}
 
 func resourceComputeServerGroupV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -102,12 +107,9 @@ func resourceComputeServerGroupV2Read(d *schema.ResourceData, meta interface{}) 
 	}
 	d.Set("policies", policies)
 
-	// Set the members
-	members := []string{}
-	for _, m := range sg.Members {
-		members = append(members, m)
-	}
-	d.Set("members", members)
+	// Set the members & fault_domains
+	d.Set("members", sg.Members)
+	d.Set("fault_domains", sg.FaultDomain.Names)
 
 	d.Set("region", GetRegion(d, config))
 
@@ -116,7 +118,7 @@ func resourceComputeServerGroupV2Read(d *schema.ResourceData, meta interface{}) 
 
 func resourceComputeServerGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	computeClient, err := config.computeV2Client(GetRegion(d, config))
+	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}

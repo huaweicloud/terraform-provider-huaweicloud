@@ -12,7 +12,6 @@ Use the navigation to the left to read about the available resources.
 # Configure the HuaweiCloud Provider
 provider "huaweicloud" {
   region      = "cn-north-1"
-  domain_name = "my-account-name"
   access_key  = "my-access-key"
   secret_key  = "my-secret-key"
 }
@@ -47,17 +46,15 @@ Usage:
 ```hcl
 provider "huaweicloud" {
   region      = "cn-north-1"
-  domain_name = "my-account-name"
   access_key  = "my-access-key"
   secret_key  = "my-secret-key"
 }
 ```
--> **NOTE:** `domain_name`, [Account name](https://support.huaweicloud.com/en-us/usermanual-iam/iam_01_0552.html) need to be set if using IAM or prePaid resources.
 
 ### Environment variables
 
-You can provide your credentials via the `OS_ACCESS_KEY` and
-`OS_SECRET_KEY`, environment variables, representing your Huawei
+You can provide your credentials via the `HW_ACCESS_KEY` and
+`HW_SECRET_KEY` environment variables, representing your Huawei
 Cloud Access Key and Secret Key, respectively.
 
 ```hcl
@@ -67,10 +64,9 @@ provider "huaweicloud" {}
 Usage:
 
 ```sh
-$ export OS_ACCESS_KEY="anaccesskey"
-$ export OS_SECRET_KEY="asecretkey"
-$ export OS_REGION_NAME="cn-north-1"
-$ export OS_DOMAIN_NAME="account-name"
+$ export HW_ACCESS_KEY="anaccesskey"
+$ export HW_SECRET_KEY="asecretkey"
+$ export HW_REGION_NAME="cn-north-1"
 $ terraform plan
 ```
 
@@ -79,36 +75,39 @@ $ terraform plan
 The following arguments are supported:
 
 * `region` - (Required) This is the Huawei Cloud region. It must be provided,
-  but it can also be sourced from the `OS_REGION_NAME` environment variables.
+  but it can also be sourced from the `HW_REGION_NAME` environment variables.
 
-* `domain_name` - (Optional, Required for IAM and prePaid resources) The
+* `domain_name` - (Optional, Required for IAM resources) The
   [Account name](https://support.huaweicloud.com/en-us/usermanual-iam/iam_01_0552.html)
-  of IAM to scope to. If omitted, the `OS_DOMAIN_NAME` environment variable is used.
+  of IAM to scope to. If omitted, the `HW_DOMAIN_NAME` environment variable is used.
 
 * `access_key` - (Optional) The access key of the HuaweiCloud to use.
-  If omitted, the `OS_ACCESS_KEY` environment variable is used.
+  If omitted, the `HW_ACCESS_KEY` environment variable is used.
 
 * `secret_key` - (Optional) The secret key of the HuaweiCloud to use.
-  If omitted, the `OS_SECRET_KEY` environment variable is used.
+  If omitted, the `HW_SECRET_KEY` environment variable is used.
 
-* `tenant_name` - (Optional) The Name of the Tenant/Project to login with.
-  If omitted, the `OS_TENANT_NAME` or `OS_PROJECT_NAME` environment variable are used.
+* `project_name` - (Optional) The Name of the project to login with.
+  If omitted, the `HW_PROJECT_NAME` environment variable or `region` is used.
 
 * `auth_url` - (Optional, Required before 1.14.0) The Identity authentication URL. If omitted, the
-  `OS_AUTH_URL` environment variable is used. This is not required if you use Huawei Cloud.
+  `HW_AUTH_URL` environment variable is used. This is not required if you use Huawei Cloud.
 
 * `cloud` - (Optional) The endpoint of the cloud provider. If omitted, the
-  `OS_CLOUD` environment variable is used. Defaults to `myhuaweicloud.com`.
+  `HW_CLOUD` environment variable is used. Defaults to `myhuaweicloud.com`.
 
 * `insecure` - (Optional) Trust self-signed SSL certificates. If omitted, the
-  `OS_INSECURE` environment variable is used.
+  `HW_INSECURE` environment variable is used.
 
 * `max_retries` - (Optional) This is the maximum number of times an API
   call is retried, in the case where requests are being throttled or
   experiencing transient failures. The delay between the subsequent API
-  calls increases exponentially. If omitted, default value is `5`.
+  calls increases exponentially. The default value is `5`.
+  If omitted, the `HW_MAX_RETRIES` environment variable is used.
 
-* `enterprise_project_id` - (Optional) Default Enterprise Project ID for supported resources. Please see the documentation at [EPS](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/eps).
+* `enterprise_project_id` - (Optional) Default Enterprise Project ID for supported resources.
+  Please see the documentation at [EPS](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/eps).
+  If omitted, the `HW_ENTERPRISE_PROJECT_ID` environment variable is used.
 
 
 ## Testing and Development
@@ -116,11 +115,11 @@ The following arguments are supported:
 In order to run the Acceptance Tests for development, the following environment
 variables must also be set:
 
-* `OS_REGION_NAME` - The region in which to create the resources.
+* `HW_REGION_NAME` - The region in which to create the resources.
 
-* `OS_ACCESS_KEY` - The access key of the HuaweiCloud to use.
+* `HW_ACCESS_KEY` - The access key of the HuaweiCloud to use.
 
-* `OS_SECRET_KEY` - The secret key of the HuaweiCloud to use.
+* `HW_SECRET_KEY` - The secret key of the HuaweiCloud to use.
 
 
 You should be able to use any HuaweiCloud environment to develop on as long as the

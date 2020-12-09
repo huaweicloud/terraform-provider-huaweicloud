@@ -41,7 +41,7 @@ func TestAccVpcRouteV2_basic(t *testing.T) {
 
 func testAccCheckRouteV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	routeClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+	routeClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud route client: %s", err)
 	}
@@ -72,7 +72,7 @@ func testAccCheckRouteV2Exists(n string, route *routes.Route) resource.TestCheck
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		routeClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+		routeClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud route client: %s", err)
 		}

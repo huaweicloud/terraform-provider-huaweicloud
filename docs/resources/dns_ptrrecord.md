@@ -38,32 +38,28 @@ resource "huaweicloud_dns_ptrrecord" "ptr_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the PTR record.
+* `region` - (Optional, String, ForceNew) The region in which to create the PTR record.
     If omitted, the `region` argument of the provider will be used.
     Changing this creates a new PTR record.
 
-* `name` - (Required) Domain name of the PTR record. A domain name is case insensitive.
+* `name` - (Required, String) Domain name of the PTR record. A domain name is case insensitive.
   Uppercase letters will also be converted into lowercase letters.
 
-* `description` - (Optional) Description of the PTR record.
+* `description` - (Optional, String) Description of the PTR record.
 
-* `floatingip_id` - (Required) The ID of the FloatingIP/EIP.
+* `floatingip_id` - (Required, String) The ID of the FloatingIP/EIP.
 
-* `ttl` - (Optional) The time to live (TTL) of the record set (in seconds). The value
+* `ttl` - (Optional, Int) The time to live (TTL) of the record set (in seconds). The value
   range is 300–2147483647. The default value is 300.
 
-* `tags` - (Optional) Tags key/value pairs to associate with the PTR record.
+* `tags` - (Optional, Map) Tags key/value pairs to associate with the PTR record.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
 * `id` -  The PTR record ID, which is in {region}:{floatingip_id} format.
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `floatingip_id` - See Argument Reference above.
-* `ttl` - See Argument Reference above.
-* `tags` - See Argument Reference above.
+
 * `address` - The address of the FloatingIP/EIP.
 
 ## Timeouts

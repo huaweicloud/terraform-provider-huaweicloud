@@ -42,7 +42,7 @@ func CheckDeleted(d *schema.ResourceData, err error, msg string) error {
 
 // GetRegion returns the region that was specified in the resource. If a
 // region was not set, the provider-level region is checked. The provider-level
-// region can either be set by the region argument or by OS_REGION_NAME.
+// region can either be set by the region argument or by HW_REGION_NAME.
 func GetRegion(d *schema.ResourceData, config *Config) string {
 	if v, ok := d.GetOk("region"); ok {
 		return v.(string)
@@ -196,4 +196,18 @@ func dataResourceIdHash(ids []string) string {
 	}
 
 	return fmt.Sprintf("%d", hashcode.String(buf.String()))
+}
+
+// Remove duplicate elements from slice
+func removeDuplicateElem(s []string) []string {
+	result := []string{}
+	tmpMap := map[string]byte{}
+	for _, e := range s {
+		l := len(tmpMap)
+		tmpMap[e] = 0
+		if len(tmpMap) != l {
+			result = append(result, e)
+		}
+	}
+	return result
 }

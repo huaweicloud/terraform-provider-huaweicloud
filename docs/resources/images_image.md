@@ -4,18 +4,55 @@ subcategory: "Image Management Service (IMS)"
 
 # huaweicloud\_images\_image
 
-Manages a Image resource within HuaweiCloud IMS.
-This is an alternative to `huaweicloud_images_image_v2`
+Manages an Image resource within HuaweiCloud IMS.
 
 ## Example Usage
 
+###  Creating an image from ECS
+
 ```hcl
-resource "huaweicloud_images_image" "rancheros" {
-  name             = "RancherOS"
-  image_source_url = "https://releases.rancher.com/os/latest/rancheros-openstack.img"
-  container_format = "bare"
-  disk_format      = "qcow2"
-  tags             = ["foo.bar", "tag.value"]
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  name              = "%s"
+  image_name        = "Ubuntu 18.04 server 64bit"
+  security_groups   = ["default"]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = data.huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_images_image" "test" {
+  name        = "%s"
+  instance_id = huaweicloud_compute_instance.test.id
+  description = "created by Terraform"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+```
+
+###  Creating an image from OBS bucket
+
+```hcl
+resource "huaweicloud_images_image" "ims_test_file" {
+  name        = "ims_test_file"
+  image_url   = "ims-image:centos70.qcow2"
+  min_disk    = 40
+  description = "Create an image from the OBS bucket."
+  
+  tags = {
+    foo = "bar1"
+    key = "value"
+  }
 }
 ```
 
@@ -23,87 +60,62 @@ resource "huaweicloud_images_image" "rancheros" {
 
 The following arguments are supported:
 
-* `container_format` - (Required) The container format. Must be "bare".
+* `name` - (Required, String) The name of the image.
 
-* `disk_format` - (Required) The disk format. Must be one of "qcow2", "vhd".
+* `description` - (Optional, String, ForceNew) A description of the image.
 
-* `local_file_path` - (Optional) This is the filepath of the raw image file
-   that will be uploaded to Glance. Conflicts with `image_source_url`.
+* `min_ram` - (Optional, Int, ForceNew) The minimum memory of the image in the unit of MB.
+  The default value is 0, indicating that the memory is not restricted.
 
-* `image_cache_path` - (Optional) This is the directory where the images will
-   be downloaded. Images will be stored with a filename corresponding to
-   the url's md5 hash. Defaults to "$HOME/.terraform/image_cache"
+* `max_ram` - (Optional, Int, ForceNew) The maximum memory of the image in the unit of MB.
 
-* `image_source_url` - (Optional) This is the url of the raw image that will
-   be downloaded in the `image_cache_path` before being uploaded to Glance.
-   Glance is able to download image from internet but the `golangsdk` library
-   does not yet provide a way to do so.
-   Conflicts with `local_file_path`.
+* `tags` - (Optional, Map) The tags of the image.
 
-* `min_disk_gb` - (Optional) Amount of disk space (in GB) required to boot image.
-   Defaults to 0.
+* `instance_id` - (Optional, String, ForceNew) The ID of the ECS that needs to be converted into an image.
+  This parameter is mandatory when you create a privete image from an ECS.
 
-* `min_ram_mb` - (Optional) Amount of ram (in MB) required to boot image.
-   Defauts to 0.
+* `image_url` - (Optional, String, ForceNew) The URL of the external image file in the OBS bucket.
+  This parameter is mandatory when you create a private image from an external file
+  uploaded to an OBS bucket. The format is *OBS bucket name:Image file name*.
 
-* `name` - (Required) The name of the image.
+* `min_disk` - (Optional, Int, ForceNew) The minimum size of the system disk in the unit of GB.
+  This parameter is mandatory when you create a private image from an external file
+  uploaded to an OBS bucket. The value ranges from 1 GB to 1024 GB.
 
-* `protected` - (Optional) If true, image will not be deletable.
-   Defaults to false.
+* `os_version` - (Optional, String, ForceNew) The OS version.
+  This parameter is valid when you create a private image from an external file
+  uploaded to an OBS bucket.
 
-* `region` - (Optional) The region in which to create the V2 Glance client.
-    A Glance client is needed to create an Image that can be used with
-    a compute instance. If omitted, the `region` argument of the provider
-    is used. Changing this creates a new Image.
+* `is_config` - (Optional, Bool, ForceNew) If automatic configuration is required, set the value to true.
+  Otherwise, set the value to false.
 
-* `tags` - (Optional) The tags of the image. It must be a list of strings.
-    At this time, it is not possible to delete all tags of an image.
+* `cmk_id` - (Optional, String, ForceNew) The master key used for encrypting an image.
 
-* `visibility` - (Optional) The visibility of the image. Must be "private".
-   The ability to set the visibility depends upon the configuration of
-   the HuaweiCloud cloud.
-
-Note: The `properties` attribute handling in the golangsdk library is currently buggy
-and needs to be fixed before being implemented in this resource.
+* `type` - (Optional, String, ForceNew) The image type. Must be one of `ECS`, `FusionCompute`, `BMS`, or `Ironic`.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `checksum` - The checksum of the data associated with the image.
-* `container_format` - See Argument Reference above.
-* `created_at` - The date the image was created.
-* `disk_format` - See Argument Reference above.
-* `file` - the trailing path after the glance
-   endpoint that represent the location of the image
-   or the path to retrieve it.
-* `id` - A unique ID assigned by Glance.
-* `metadata` - The metadata associated with the image.
-   Image metadata allow for meaningfully define the image properties
-   and tags. See http://docs.openstack.org/developer/glance/metadefs-concepts.html.
-* `min_disk_gb` - See Argument Reference above.
-* `min_ram_mb` - See Argument Reference above.
-* `name` - See Argument Reference above.
-* `owner` - The id of the huaweicloud user who owns the image.
-* `protected` - See Argument Reference above.
-* `region` - See Argument Reference above.
-* `schema` - The path to the JSON-schema that represent
-   the image or image
-* `size_bytes` - The size in bytes of the data associated with the image.
-* `status` - The status of the image. It can be "queued", "active"
-   or "saving".
-* `tags` - See Argument Reference above.
-* `update_at` - The date the image was last updated.
-* `visibility` - See Argument Reference above.
+* `id` - A unique ID assigned by IMS.
+
+* `visibility` - Whether the image is visible to other tenants.
+
+* `data_origin` - The image resource. The pattern can be 'instance,*instance_id*' or 'file,*image_url*'.
+
+* `disk_format` - The image file format. The value can be `vhd`, `zvhd`, `raw`, `zvhd2`, or `qcow2`.
+
+* `image_size` - The size(bytes) of the image file format.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 30 minute.
+- `create` - Default is 10 minute.
+- `delete` - Default is 3 minute.
 
 ## Import
 
 Images can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_images_image.rancheros 89c60255-9bd6-460c-822a-e2b959ede9d2
+```sh
+terraform import huaweicloud_images_image.my_image 7886e623-f1b3-473e-b882-67ba1c35887f
 ```

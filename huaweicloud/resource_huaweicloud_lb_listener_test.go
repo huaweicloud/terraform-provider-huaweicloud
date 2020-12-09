@@ -42,9 +42,9 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 
 func testAccCheckLBV2ListenerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+	elbClient, err := config.elbV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -52,7 +52,7 @@ func testAccCheckLBV2ListenerDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := listeners.Get(networkingClient, rs.Primary.ID).Extract()
+		_, err := listeners.Get(elbClient, rs.Primary.ID).Extract()
 		if err == nil {
 			return fmt.Errorf("Listener still exists: %s", rs.Primary.ID)
 		}
@@ -73,12 +73,12 @@ func testAccCheckLBV2ListenerExists(n string, listener *listeners.Listener) reso
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		networkingClient, err := config.NetworkingV2Client(OS_REGION_NAME)
+		elbClient, err := config.elbV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
 
-		found, err := listeners.Get(networkingClient, rs.Primary.ID).Extract()
+		found, err := listeners.Get(elbClient, rs.Primary.ID).Extract()
 		if err != nil {
 			return err
 		}
@@ -110,7 +110,7 @@ resource "huaweicloud_lb_listener" "listener_1" {
     owner = "terraform"
   }
 }
-`, OS_SUBNET_ID)
+`, HW_SUBNET_ID)
 
 var TestAccLBV2ListenerConfig_update = fmt.Sprintf(`
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
@@ -130,4 +130,4 @@ resource "huaweicloud_lb_listener" "listener_1" {
     owner = "terraform_update"
   }
 }
-`, OS_SUBNET_ID)
+`, HW_SUBNET_ID)

@@ -84,9 +84,9 @@ resource "huaweicloud_dcs_instance" "instance_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the DCS instance resource. If omitted, the provider-level region will be used. Changing this creates a new DCS instance resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the DCS instance resource. If omitted, the provider-level region will be used. Changing this creates a new DCS instance resource.
 
-* `name` - (Required) Indicates the name of an instance. It starts with English characters 
+* `name` - (Required, String) Indicates the name of an instance. It starts with English characters 
     and can only be composed of English letters, numbers, underscores and underscores. 
     When creating a single instance, the name is a string of 4 to 64 bits in length. 
     When creating instances in batches, the length of the name is a string of 4 to 56 characters, 
@@ -94,17 +94,17 @@ The following arguments are supported:
     For example, if you create two instances in batches and the custom name is dcs_demo, 
     the names of the two instances are dcs_demo-000 and dcs_demo-001.
 
-* `description` - (Optional) Indicates the description of an instance. It is a character
+* `description` - (Optional, String) Indicates the description of an instance. It is a character
     string containing not more than 1024 characters.
 
-* `engine` - (Required) Indicates a cache engine. Options: Redis and Memcached. Changing this
+* `engine` - (Required, String, ForceNew) Indicates a cache engine. Options: Redis and Memcached. Changing this
     creates a new instance.
 
-* `engine_version` - (Optional) Indicates the version of a message engine.When the cache engine is Redis, 
+* `engine_version` - (Optional, String, ForceNew) Indicates the version of a message engine.When the cache engine is Redis, 
     the value is 3.0, 4.0 or 5.0. 
     Changing this creates a new instance.
 
-* `capacity` - (Required) Indicates the Cache capacity. Unit: GB.
+* `capacity` - (Required, ForceNew) Indicates the Cache capacity. Unit: GB.
     Redis3.0: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64. 
     Proxy cluster instance specifications support 64, 128, 256, 512, and 1024.
 
@@ -115,14 +115,14 @@ The following arguments are supported:
     Memcached: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64.
     Changing this creates a new instance.
 
-* `access_user` - (Optional) Username used for accessing a DCS instance after password
+* `access_user` - (Optional, String, ForceNew) Username used for accessing a DCS instance after password
     authentication. A username starts with a letter, consists of 1 to 64 characters,
     and supports only letters, digits, and hyphens (-).
     - When the cache engine is Memcached, this parameter is optional.
     - When the cache engine is Redis, this parameter does not need to be set.
     Changing this creates a new instance.
 
-* `password` - (Optional) Password of a DCS instance.
+* `password` - (Optional, String, ForceNew) Password of a DCS instance.
     The password of a DCS Redis instance must meet the following complexity requirements:
     - Enter a string of 8 to 32 bits in length.
     - The new password cannot be the same as the old password.
@@ -130,31 +130,31 @@ The following arguments are supported:
         uppercase letter, digital, Special characters include (`~!@#$%^&*()-_=+|[{}]:'",<.>/?).
     Changing this creates a new instance.
 
-* `vpc_id` - (Required) Specifies the id of the VPC.
+* `vpc_id` - (Required, String, ForceNew) Specifies the id of the VPC.
     Changing this creates a new instance.
 
-* `subnet_id` - (Required) Specifies the id of the subnet.
+* `subnet_id` - (Required, String, ForceNew) Specifies the id of the subnet.
     Changing this creates a new instance.
 
-* `security_group_id` - (Optional) Specifies the id of the security group which the instance belongs to.
+* `security_group_id` - (Optional, String) Specifies the id of the security group which the instance belongs to.
     This parameter is mandatory for Memcached and Redis 3.0 versions.
 
-* `whitelists` - (Optional) Specifies the IP addresses which can access the instance.
+* `whitelists` - (Optional, List) Specifies the IP addresses which can access the instance.
     This parameter is valid for Redis 4.0 and 5.0 versions. The structure is described below.
 
-* `whitelist_enable` - (Optional) Enable or disable the IP addresse whitelists. Default to true.
+* `whitelist_enable` - (Optional, Bool) Enable or disable the IP addresse whitelists. Default to true.
     If the whitelist is disabled, all IP addresses connected to the VPC can access the instance.
 
-* `available_zones` - (Required) IDs of the AZs where cache nodes reside.
+* `available_zones` - (Required, List, ForceNew) IDs of the AZs where cache nodes reside.
     If you are creating active/standby, Proxy cluster, and Cluster cluster instances to support 
     cross-zone deployment, you can specify the standby zone for the standby node. When specifying 
     availability zones for nodes, separate them with commas.
     Changing this creates a new instance.
 
-* `product_id` - (Required) Product ID or Names used to differentiate DCS instance types.
+* `product_id` - (Required, String, ForceNew) Product ID or Names used to differentiate DCS instance types.
     Changing this creates a new instance.
 
-* `maintain_begin` - (Optional) Indicates the time at which a maintenance time window starts.
+* `maintain_begin` - (Optional, String) Indicates the time at which a maintenance time window starts.
     Format: HH:mm:ss.
     The start time and end time of a maintenance time window must indicate the time segment of
 	a supported maintenance time window. For details, see section Querying Maintenance Time Windows.
@@ -163,7 +163,7 @@ The following arguments are supported:
 	is left blank, parameter maintain_end is also blank. In this case, the system automatically
 	allocates the default start time 02:00.
 
-* `maintain_end` - (Optional) Indicates the time at which a maintenance time window ends.
+* `maintain_end` - (Optional, String) Indicates the time at which a maintenance time window ends.
     Format: HH:mm:ss.
     The start time and end time of a maintenance time window must indicate the time segment of
 	a supported maintenance time window. For details, see section Querying Maintenance Time Windows.
@@ -173,61 +173,40 @@ The following arguments are supported:
 	blank, parameter maintain_begin is also blank. In this case, the system automatically allocates
 	the default end time 06:00.
 
-* `save_days` - (Optional) Retention time. Unit: day. Range: 1–7. Changing this creates a new instance.
+* `save_days` - (Optional, Int, ForceNew) Retention time. Unit: day. Range: 1–7. Changing this creates a new instance.
 
-* `backup_type` - (Optional) Backup type. Options:
+* `backup_type` - (Optional, String, ForceNew) Backup type. Options:
     auto: automatic backup.
     manual: manual backup.
     Changing this creates a new instance.
 
-* `begin_at` - (Optional) Time at which backup starts. "00:00-01:00" indicates that backup
+* `begin_at` - (Optional, String, ForceNew) Time at which backup starts. "00:00-01:00" indicates that backup
     starts at 00:00:00. Changing this creates a new instance.
 
-* `period_type` - (Optional) Interval at which backup is performed. Currently, only weekly
+* `period_type` - (Optional, String, ForceNew) Interval at which backup is performed. Currently, only weekly
     backup is supported. Changing this creates a new instance.
 
-* `backup_at` - (Optional) Day in a week on which backup starts. Range: 1–7. Where: 1
+* `backup_at` - (Optional, List, ForceNew) Day in a week on which backup starts. Range: 1–7. Where: 1
     indicates Monday; 7 indicates Sunday. Changing this creates a new instance.
 
-* `enterprise_project_id` - (Optional) The enterprise project id of the dcs instance. Changing this creates a new instance.
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the dcs instance. Changing this creates a new instance.
 
-* `tags` - (Optional) The key/value pairs to associate with the dcs instance.
+* `tags` - (Optional, Map) The key/value pairs to associate with the dcs instance.
 
 The `whitelists` block supports:
 
-* `group_name` - (Required) Specifies the name of IP address group.
+* `group_name` - (Required, String) Specifies the name of IP address group.
 
-* `ip_address` - (Required) Specifies the list of IP address or CIDR which can be whitelisted for an instance.
+* `ip_address` - (Required, List) Specifies the list of IP address or CIDR which can be whitelisted for an instance.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `name` - See Argument Reference above.
-* `description` - See Argument Reference above.
-* `engine` - See Argument Reference above.
-* `engine_version` - See Argument Reference above.
-* `capacity` - See Argument Reference above.
-* `access_user` - See Argument Reference above.
-* `password` - See Argument Reference above.
-* `vpc_id` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 * `vpc_name` - Indicates the name of a vpc.
-* `subnet_id` - See Argument Reference above.
 * `subnet_name` - Indicates the name of a subnet.
-* `security_group_id` - See Argument Reference above.
 * `security_group_name` - Indicates the name of a security group.
-* `whitelists` - See Argument Reference above.
-* `whitelist_enable` - See Argument Reference above.
-* `available_zones` - See Argument Reference above.
-* `product_id` - See Argument Reference above.
-* `maintain_begin` - See Argument Reference above.
-* `maintain_end` - See Argument Reference above.
-* `save_days` - See Argument Reference above.
-* `backup_type` - See Argument Reference above.
-* `begin_at` - See Argument Reference above.
-* `period_type` - See Argument Reference above.
-* `backup_at` - See Argument Reference above.
-* `tags` - See Argument Reference above.
 * `order_id` - An order ID is generated only in the monthly or yearly billing mode.
     In other billing modes, no value is returned for this parameter.
 * `resource_spec_code` - Resource specifications.

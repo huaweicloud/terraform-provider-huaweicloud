@@ -125,7 +125,7 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 		key := rs.Primary.Attributes["key"]
 
 		config := testAccProvider.Meta().(*Config)
-		obsClient, err := config.newObjectStorageClient(OS_REGION_NAME)
+		obsClient, err := config.newObjectStorageClient(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}

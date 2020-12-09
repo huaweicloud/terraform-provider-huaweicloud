@@ -39,6 +39,7 @@ func TestAccNatDnat_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNatDnatExists(),
 					resource.TestCheckResourceAttr(resourceName, "protocol", "tcp"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 				),
 			},
 			{
@@ -52,7 +53,7 @@ func TestAccNatDnat_basic(t *testing.T) {
 
 func testAccCheckNatDnatDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.natV2Client(OS_REGION_NAME)
+	client, err := config.natV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -82,7 +83,7 @@ func testAccCheckNatDnatDestroy(s *terraform.State) error {
 func testAccCheckNatDnatExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.natV2Client(OS_REGION_NAME)
+		client, err := config.natV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}
@@ -156,5 +157,5 @@ resource "huaweicloud_nat_dnat_rule" "dnat" {
   internal_service_port = 993
   external_service_port = 242
 }
-	`, testAccNatPreCondition(suffix), suffix, suffix, OS_AVAILABILITY_ZONE)
+	`, testAccNatPreCondition(suffix), suffix, suffix, HW_AVAILABILITY_ZONE)
 }

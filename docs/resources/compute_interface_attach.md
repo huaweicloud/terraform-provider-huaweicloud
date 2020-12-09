@@ -100,27 +100,24 @@ resource "huaweicloud_compute_interface_attach" "attached" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the network interface attache resource. If omitted, the provider-level region will be used. Changing this creates a new network interface attache resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the network interface attache resource. If omitted, the provider-level region will be used. Changing this creates a new network interface attache resource.
 
-* `instance_id` - (Required) The ID of the Instance to attach the Port or Network to.
+* `instance_id` - (Required, String, ForceNew) The ID of the Instance to attach the Port or Network to.
 
-* `port_id` - (Optional) The ID of the Port to attach to an Instance.
+* `port_id` - (Optional, String, ForceNew) The ID of the Port to attach to an Instance.
    _NOTE_: This option and `network_id` are mutually exclusive.
 
-* `network_id` - (Optional) The ID of the Network to attach to an Instance. A port will be created automatically.
+* `network_id` - (Optional, String, ForceNew) The ID of the Network to attach to an Instance. A port will be created automatically.
    _NOTE_: This option and `port_id` are mutually exclusive.
 
-* `fixed_ip` - (Optional) An IP address to assosciate with the port.
+* `fixed_ip` - (Optional, String, ForceNew) An IP address to assosciate with the port.
    _NOTE_: This option cannot be used with port_id. You must specifiy a network_id. The IP address must lie in a range on the supplied network.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `instance_id` - See Argument Reference above.
-* `port_id` - See Argument Reference above.
-* `network_id` - See Argument Reference above.
-* `fixed_ip`  - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

@@ -28,43 +28,31 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 
 The following arguments are supported:
 
-* `name` - (Required) The acceleration domain name.
+* `name` - (Required, String, ForceNew) The acceleration domain name.
     Changing this parameter will create a new resource.
 
-* `type` - (Required) The service type. The valid values are  'web', 'download' and 'video'.
+* `type` - (Required, String, ForceNew) The service type. The valid values are  'web', 'download' and 'video'.
     Changing this parameter will create a new resource.
 
-* `sources` - (Required) An array of one or more objects specifies the domain name of the origin server.
+* `sources` - (Required, List, ForceNew) An array of one or more objects specifies the domain name of the origin server.
     The sources object structure is documented below.
 
-* `enterprise_project_id` - (Optional) The enterprise project id.
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id.
     Changing this parameter will create a new resource.
 
 
 The `sources` block supports:
 
-* `origin` - (Required) The domain name or IP address of the origin server.
+* `origin` - (Required, String) The domain name or IP address of the origin server.
 
-* `origin_type` - (Required) The origin server type. The valid values are 'ipaddr', 'domain', and 'obs_bucket'.
+* `origin_type` - (Required, String) The origin server type. The valid values are 'ipaddr', 'domain', and 'obs_bucket'.
 
-* `active` - (Optional) Whether an origin server is active or standby (1: active; 0: standby).
+* `active` - (Optional, Int) Whether an origin server is active or standby (1: active; 0: standby).
     The default value is 1.
 
 ## Attributes Reference
 
-The following attributes are exported:
-
-* `name` - See Argument Reference above.
-
-* `type` - See Argument Reference above.
-
-* `enterprise_project_id` - See Argument Reference above.
-
-* `sources/origin` - See Argument Reference above.
-
-* `sources/origin_type` - See Argument Reference above.
-
-* `sources/active` - See Argument Reference above.
+In addition to all arguments above, the following attributes are exported:
 
 * `id` - The acceleration domain name ID.
 

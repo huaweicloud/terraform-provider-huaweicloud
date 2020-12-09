@@ -41,15 +41,13 @@ resource "huaweicloud_identity_group_membership" "membership_1" {
 
 The following arguments are supported:
 
-* `group` - (Required) The group ID of this membership. 
+* `group` - (Required, String, ForceNew) The group ID of this membership. 
 
-* `users` - (Required) A List of user IDs to associate to the group.
+* `users` - (Required, List) A List of user IDs to associate to the group.
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `group` - See Argument Reference above.
-
-* `users` - See Argument Reference above.
+* `id` - Specifies a resource ID in UUID format.
 

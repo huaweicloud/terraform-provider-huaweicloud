@@ -28,8 +28,8 @@ func TestAccComputeV2EIPAssociate_basic(t *testing.T) {
 			{
 				Config: testAccComputeV2EIPAssociate_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.test", &instance),
-					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip_v1.test", &eip),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.test", &instance),
+					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip.test", &eip),
 					testAccCheckComputeV2EIPAssociateAssociated(&eip, &instance, 1),
 				),
 			},
@@ -57,8 +57,8 @@ func TestAccComputeV2EIPAssociate_fixedIP(t *testing.T) {
 			{
 				Config: testAccComputeV2EIPAssociate_fixedIP(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance_v2.test", &instance),
-					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip_v1.test", &eip),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.test", &instance),
+					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip.test", &eip),
 					testAccCheckComputeV2EIPAssociateAssociated(&eip, &instance, 1),
 				),
 			},
@@ -73,7 +73,7 @@ func TestAccComputeV2EIPAssociate_fixedIP(t *testing.T) {
 
 func testAccCheckComputeV2EIPAssociateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	computeClient, err := config.computeV2Client(OS_REGION_NAME)
+	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -117,7 +117,7 @@ func testAccCheckComputeV2EIPAssociateAssociated(
 	eip *eips.PublicIp, instance *servers.Server, n int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		computeClient, err := config.computeV2Client(OS_REGION_NAME)
+		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 
 		newInstance, err := servers.Get(computeClient, instance.ID).Extract()
 		if err != nil {
@@ -144,30 +144,20 @@ func testAccCheckComputeV2EIPAssociateAssociated(
 
 func testAccComputeV2EIPAssociate_Base(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc_v1" "test" {
+%s
+
+resource "huaweicloud_compute_instance" "test" {
   name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet_v1" "test" {
-  name          = "%s"
-  cidr          = "192.168.0.0/16"
-  gateway_ip    = "192.168.0.1"
-  vpc_id        = huaweicloud_vpc_v1.test.id
-}
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_compute_instance_v2" "test" {
-  name = "%s"
+  image_id          = data.huaweicloud_images_image.test.id
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   security_groups = ["default"]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   network {
-    uuid = huaweicloud_vpc_subnet_v1.test.id
+    uuid = data.huaweicloud_vpc_subnet.test.id
   }
 }
 
-resource "huaweicloud_vpc_eip_v1" "test" {
+resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type = "5_bgp"
   }
@@ -178,7 +168,7 @@ resource "huaweicloud_vpc_eip_v1" "test" {
     charge_mode = "traffic"
   }
 }
-`, rName, rName, rName, rName)
+`, testAccCompute_data, rName, rName)
 }
 
 func testAccComputeV2EIPAssociate_basic(rName string) string {
@@ -186,8 +176,8 @@ func testAccComputeV2EIPAssociate_basic(rName string) string {
 %s
 
 resource "huaweicloud_compute_eip_associate" "test" {
-  public_ip = huaweicloud_vpc_eip_v1.test.address
-  instance_id = huaweicloud_compute_instance_v2.test.id
+  public_ip = huaweicloud_vpc_eip.test.address
+  instance_id = huaweicloud_compute_instance.test.id
 }
 `, testAccComputeV2EIPAssociate_Base(rName))
 }
@@ -197,9 +187,9 @@ func testAccComputeV2EIPAssociate_fixedIP(rName string) string {
 %s
 
 resource "huaweicloud_compute_eip_associate" "test" {
-  public_ip = huaweicloud_vpc_eip_v1.test.address
-  instance_id = huaweicloud_compute_instance_v2.test.id
-  fixed_ip    = huaweicloud_compute_instance_v2.test.access_ip_v4
+  public_ip = huaweicloud_vpc_eip.test.address
+  instance_id = huaweicloud_compute_instance.test.id
+  fixed_ip    = huaweicloud_compute_instance.test.access_ip_v4
 }
 `, testAccComputeV2EIPAssociate_Base(rName))
 }

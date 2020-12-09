@@ -23,7 +23,7 @@ func TestAccEcsV1Instance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEcsV1InstanceExists("huaweicloud_ecs_instance_v1.instance_1", &instance),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_ecs_instance_v1.instance_1", "availability_zone", OS_AVAILABILITY_ZONE),
+						"huaweicloud_ecs_instance_v1.instance_1", "availability_zone", HW_AVAILABILITY_ZONE),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_ecs_instance_v1.instance_1", "auto_recovery", "true"),
 				),
@@ -41,7 +41,7 @@ func TestAccEcsV1Instance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEcsV1InstanceExists("huaweicloud_ecs_instance_v1.instance_1", &instance),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_ecs_instance_v1.instance_1", "availability_zone", OS_AVAILABILITY_ZONE),
+						"huaweicloud_ecs_instance_v1.instance_1", "availability_zone", HW_AVAILABILITY_ZONE),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_ecs_instance_v1.instance_1", "auto_recovery", "false"),
 				),
@@ -52,7 +52,7 @@ func TestAccEcsV1Instance_basic(t *testing.T) {
 
 func testAccCheckEcsV1InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	computeClient, err := config.computeV1Client(OS_REGION_NAME)
+	computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -85,7 +85,7 @@ func testAccCheckEcsV1InstanceExists(n string, instance *cloudservers.CloudServe
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		computeClient, err := config.computeV1Client(OS_REGION_NAME)
+		computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
@@ -126,7 +126,7 @@ resource "huaweicloud_ecs_instance_v1" "instance_1" {
     key = "value"
   }
 }
-`, OS_IMAGE_ID, OS_FLAVOR_NAME, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
+`, HW_IMAGE_ID, HW_FLAVOR_NAME, HW_VPC_ID, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)
 
 var testAccEcsV1Instance_update = fmt.Sprintf(`
 resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
@@ -155,4 +155,4 @@ resource "huaweicloud_ecs_instance_v1" "instance_1" {
     key1 = "value"
   }
 }
-`, OS_IMAGE_ID, OS_FLAVOR_NAME, OS_VPC_ID, OS_NETWORK_ID, OS_AVAILABILITY_ZONE)
+`, HW_IMAGE_ID, HW_FLAVOR_NAME, HW_VPC_ID, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)

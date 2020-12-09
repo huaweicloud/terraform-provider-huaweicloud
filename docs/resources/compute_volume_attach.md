@@ -14,7 +14,7 @@ This is an alternative to `huaweicloud_compute_volume_attach_v2`
 ```hcl
 resource "huaweicloud_evs_volume" "myvol" {
   name              = "volume"
-  availability_zone = "cn-norht-4a"
+  availability_zone = "cn-north-4a"
   volume_type       = "SAS"
   size              = 10
 }
@@ -44,7 +44,7 @@ resource "huaweicloud_compute_volume_attach" "attached" {
 resource "huaweicloud_evs_volume" "myvol" {
   count             = 2
   name              = "volume_1"
-  availability_zone = "cn-norht-4a"
+  availability_zone = "cn-north-4a"
   volume_type       = "SAS"
   size              = 10
 }
@@ -73,13 +73,13 @@ output "volume devices" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to create the volume resource. If omitted, the provider-level region will be used. Changing this creates a new resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the volume resource. If omitted, the provider-level region will be used. Changing this creates a new resource.
 
-* `instance_id` - (Required) The ID of the Instance to attach the Volume to.
+* `instance_id` - (Required, String, ForceNew) The ID of the Instance to attach the Volume to.
 
-* `volume_id` - (Required) The ID of the Volume to attach to an Instance.
+* `volume_id` - (Required, String, ForceNew) The ID of the Volume to attach to an Instance.
 
-* `device` - (Optional) The device of the volume attachment (ex: `/dev/vdc`).
+* `device` - (Optional, String) The device of the volume attachment (ex: `/dev/vdc`).
   _NOTE_: Being able to specify a device is dependent upon the hypervisor in
   use. There is a chance that the device specified in Terraform will not be
   the same device the hypervisor chose. If this happens, Terraform will wish
@@ -88,13 +88,10 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attributes are exported:
+In addition to all arguments above, the following attributes are exported:
 
-* `instance_id` - See Argument Reference above.
-* `volume_id` - See Argument Reference above.
-* `device` - See Argument Reference above. _NOTE_: The correctness of this
-  information is dependent upon the hypervisor in use. In some cases, this
-  should not be used as an authoritative piece of information.
+* `id` - Specifies a resource ID in UUID format.
+
 * `pci_address` - PCI address of the block device.
 
 ## Timeouts

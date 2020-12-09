@@ -34,7 +34,7 @@ func TestAccS3Bucket_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3BucketExists("huaweicloud_s3_bucket.bucket"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_s3_bucket.bucket", "region", OS_REGION_NAME),
+						"huaweicloud_s3_bucket.bucket", "region", HW_REGION_NAME),
 					resource.TestCheckNoResourceAttr(
 						"huaweicloud_s3_bucket.bucket", "website_endpoint"),
 					resource.TestCheckResourceAttr(
@@ -107,7 +107,7 @@ func TestAccS3Bucket_region(t *testing.T) {
 				Config: testAccS3BucketConfigWithRegion(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckS3BucketExists("huaweicloud_s3_bucket.bucket"),
-					resource.TestCheckResourceAttr("huaweicloud_s3_bucket.bucket", "region", OS_REGION_NAME),
+					resource.TestCheckResourceAttr("huaweicloud_s3_bucket.bucket", "region", HW_REGION_NAME),
 				),
 			},
 		},
@@ -375,7 +375,7 @@ func TestAccS3Bucket_Cors(t *testing.T) {
 			}
 
 			config := testAccProvider.Meta().(*Config)
-			conn, err := config.computeS3conn(OS_REGION_NAME)
+			conn, err := config.computeS3conn(HW_REGION_NAME)
 			if err != nil {
 				return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 			}
@@ -613,7 +613,7 @@ func testAccCheckS3BucketExistsWithProviders(n string, providers *[]*schema.Prov
 			}
 
 			config := testAccProvider.Meta().(*Config)
-			conn, err := config.computeS3conn(OS_REGION_NAME)
+			conn, err := config.computeS3conn(HW_REGION_NAME)
 			if err != nil {
 				return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 			}
@@ -643,7 +643,7 @@ func testAccCheckS3DestroyBucket(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		conn, err := config.computeS3conn(OS_REGION_NAME)
+		conn, err := config.computeS3conn(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 		}
@@ -662,7 +662,7 @@ func testAccCheckS3BucketPolicy(n string, policy string) resource.TestCheckFunc 
 	return func(s *terraform.State) error {
 		rs, _ := s.RootModule().Resources[n]
 		config := testAccProvider.Meta().(*Config)
-		conn, err := config.computeS3conn(OS_REGION_NAME)
+		conn, err := config.computeS3conn(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 		}
@@ -713,7 +713,7 @@ func testAccCheckS3BucketWebsite(n string, indexDoc string, errorDoc string, red
 	return func(s *terraform.State) error {
 		rs, _ := s.RootModule().Resources[n]
 		config := testAccProvider.Meta().(*Config)
-		conn, err := config.computeS3conn(OS_REGION_NAME)
+		conn, err := config.computeS3conn(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 		}
@@ -773,7 +773,7 @@ func testAccCheckS3BucketWebsiteRoutingRules(n string, routingRules []*s3.Routin
 	return func(s *terraform.State) error {
 		rs, _ := s.RootModule().Resources[n]
 		config := testAccProvider.Meta().(*Config)
-		conn, err := config.computeS3conn(OS_REGION_NAME)
+		conn, err := config.computeS3conn(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 		}
@@ -801,7 +801,7 @@ func testAccCheckS3BucketVersioning(n string, versioningStatus string) resource.
 	return func(s *terraform.State) error {
 		rs, _ := s.RootModule().Resources[n]
 		config := testAccProvider.Meta().(*Config)
-		conn, err := config.computeS3conn(OS_REGION_NAME)
+		conn, err := config.computeS3conn(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 		}
@@ -832,7 +832,7 @@ func testAccCheckS3BucketCors(n string, corsRules []*s3.CORSRule) resource.TestC
 	return func(s *terraform.State) error {
 		rs, _ := s.RootModule().Resources[n]
 		config := testAccProvider.Meta().(*Config)
-		conn, err := config.computeS3conn(OS_REGION_NAME)
+		conn, err := config.computeS3conn(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 		}
@@ -857,7 +857,7 @@ func testAccCheckS3BucketLogging(n, b, p string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, _ := s.RootModule().Resources[n]
 		config := testAccProvider.Meta().(*Config)
-		conn, err := config.computeS3conn(OS_REGION_NAME)
+		conn, err := config.computeS3conn(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud s3 client: %s", err)
 		}
@@ -902,11 +902,11 @@ func testAccBucketName(randInt int) string {
 }
 
 func testAccBucketDomainName(randInt int) string {
-	return fmt.Sprintf("tf-test-bucket-%d.obs.%s.myhuaweicloud.com", randInt, OS_REGION_NAME)
+	return fmt.Sprintf("tf-test-bucket-%d.obs.%s.myhuaweicloud.com", randInt, HW_REGION_NAME)
 }
 
 func testAccWebsiteEndpoint(randInt int) string {
-	return fmt.Sprintf("tf-test-bucket-%d.s3-website.%s.amazonaws.com", randInt, OS_REGION_NAME)
+	return fmt.Sprintf("tf-test-bucket-%d.s3-website.%s.amazonaws.com", randInt, HW_REGION_NAME)
 }
 
 func testAccS3BucketPolicy(randInt int) string {
@@ -998,7 +998,7 @@ resource "huaweicloud_s3_bucket" "bucket" {
 	bucket = "tf-test-bucket-%d"
 	region = "%s"
 }
-`, randInt, OS_REGION_NAME)
+`, randInt, HW_REGION_NAME)
 }
 
 func testAccS3BucketWebsiteConfig(randInt int) string {
