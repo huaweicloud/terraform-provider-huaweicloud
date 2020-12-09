@@ -15,7 +15,6 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
 func resourceEcsInstanceV1() *schema.Resource {
@@ -235,7 +234,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		SecurityGroups:   resourceInstanceSecGroupsV1(d),
 		AvailabilityZone: d.Get("availability_zone").(string),
 		Nics:             resourceInstanceNicsV1(d),
-		RootVolume:       resourceInstanceRootVolumeV1(d),
+		RootVolume:       resourceInstanceRootVolumeV1(d, config),
 		DataVolumes:      resourceInstanceDataVolumesV1(d),
 		AdminPass:        d.Get("password").(string),
 		UserData:         []byte(d.Get("user_data").(string)),
@@ -579,106 +578,4 @@ func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error
 
 	d.SetId("")
 	return nil
-}
-
-func resourceInstanceNicsV1(d *schema.ResourceData) []cloudservers.Nic {
-	var nicRequests []cloudservers.Nic
-
-	nics := d.Get("nics").([]interface{})
-	for i := range nics {
-		nic := nics[i].(map[string]interface{})
-		nicRequest := cloudservers.Nic{
-			SubnetId:  nic["network_id"].(string),
-			IpAddress: nic["ip_address"].(string),
-		}
-
-		nicRequests = append(nicRequests, nicRequest)
-	}
-	return nicRequests
-}
-
-func resourceInstanceRootVolumeV1(d *schema.ResourceData) cloudservers.RootVolume {
-	disk_type := d.Get("system_disk_type").(string)
-	if disk_type == "" {
-		disk_type = "GPSSD"
-	}
-	volRequest := cloudservers.RootVolume{
-		VolumeType: disk_type,
-		Size:       d.Get("system_disk_size").(int),
-	}
-	return volRequest
-}
-
-func resourceInstanceDataVolumesV1(d *schema.ResourceData) []cloudservers.DataVolume {
-	var volRequests []cloudservers.DataVolume
-
-	vols := d.Get("data_disks").([]interface{})
-	for i := range vols {
-		vol := vols[i].(map[string]interface{})
-		volRequest := cloudservers.DataVolume{
-			VolumeType: vol["type"].(string),
-			Size:       vol["size"].(int),
-		}
-		if vol["snapshot_id"] != "" {
-			extendparam := cloudservers.VolumeExtendParam{
-				SnapshotId: vol["snapshot_id"].(string),
-			}
-			volRequest.Extendparam = &extendparam
-		}
-
-		volRequests = append(volRequests, volRequest)
-	}
-	return volRequests
-}
-
-func resourceInstanceSecGroupsV1(d *schema.ResourceData) []cloudservers.SecurityGroup {
-	rawSecGroups := d.Get("security_groups").(*schema.Set).List()
-	secgroups := make([]cloudservers.SecurityGroup, len(rawSecGroups))
-	for i, raw := range rawSecGroups {
-		secgroups[i] = cloudservers.SecurityGroup{
-			ID: raw.(string),
-		}
-	}
-	return secgroups
-}
-
-func flattenInstanceNicsV1(
-	d *schema.ResourceData, meta interface{}, addresses map[string][]cloudservers.Address) []map[string]interface{} {
-
-	config := meta.(*Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
-	if err != nil {
-		log.Printf("Error creating HuaweiCloud networking client: %s", err)
-	}
-
-	var network string
-	nics := []map[string]interface{}{}
-	// Loop through all networks and addresses.
-	for _, addrs := range addresses {
-		for _, addr := range addrs {
-			// Skip if not fixed ip
-			if addr.Type != "fixed" {
-				continue
-			}
-
-			p, err := ports.Get(networkingClient, addr.PortID).Extract()
-			if err != nil {
-				network = ""
-				log.Printf("[DEBUG] flattenInstanceNicsV1: failed to fetch port %s", addr.PortID)
-			} else {
-				network = p.NetworkID
-			}
-
-			v := map[string]interface{}{
-				"network_id":  network,
-				"ip_address":  addr.Addr,
-				"mac_address": addr.MacAddr,
-				"port_id":     addr.PortID,
-			}
-			nics = append(nics, v)
-		}
-	}
-
-	log.Printf("[DEBUG] flattenInstanceNicsV1: %#v", nics)
-	return nics
 }

@@ -66,6 +66,8 @@ type Config struct {
 	// RPLock is used to make the accessing of RegionProjectIDMap serial,
 	// prevent sending duplicate query requests
 	RPLock *sync.Mutex
+	// Default values of arguments in resources
+	DefaultArgumentValues map[string]map[string]interface{}
 }
 
 func (c *Config) LoadAndValidate() error {

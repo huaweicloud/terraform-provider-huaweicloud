@@ -662,6 +662,14 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		RPLock:              new(sync.Mutex),
 	}
 
+	DefaultArgumentValues := map[string]map[string]interface{}{
+		"compute_instance": {
+			"system_disk_type": "GPSSD",
+		},
+	}
+
+	config.DefaultArgumentValues = DefaultArgumentValues
+
 	if err := config.LoadAndValidate(); err != nil {
 		return nil, err
 	}
