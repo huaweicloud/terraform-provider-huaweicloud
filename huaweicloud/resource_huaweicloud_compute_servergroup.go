@@ -42,6 +42,11 @@ func ResourceComputeServerGroupV2() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"fault_domains": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"value_specs": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -102,12 +107,9 @@ func resourceComputeServerGroupV2Read(d *schema.ResourceData, meta interface{}) 
 	}
 	d.Set("policies", policies)
 
-	// Set the members
-	members := []string{}
-	for _, m := range sg.Members {
-		members = append(members, m)
-	}
-	d.Set("members", members)
+	// Set the members & fault_domains
+	d.Set("members", sg.Members)
+	d.Set("fault_domains", sg.FaultDomain.Names)
 
 	d.Set("region", GetRegion(d, config))
 
