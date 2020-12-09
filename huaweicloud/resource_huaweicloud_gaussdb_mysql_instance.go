@@ -64,6 +64,7 @@ func resourceGaussDBInstance() *schema.Resource {
 			"configuration_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"enterprise_project_id": {
