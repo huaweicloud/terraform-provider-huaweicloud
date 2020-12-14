@@ -17,6 +17,14 @@ type BackupStrategyOpt struct {
 	KeepDays  string `json:"keep_days,omitempty"`
 }
 
+type ChargeInfoOpt struct {
+	ChargingMode string `json:"charge_mode,omitempty"`
+	PeriodType   string `json:"period_type,omitempty"`
+	PeriodNum    int    `json:"period_num,omitempty"`
+	IsAutoRenew  string `json:"is_auto_renew,omitempty"`
+	IsAutoPay    string `json:"is_auto_pay,omitempty"`
+}
+
 type CreateGeminiDBOpts struct {
 	Name                string             `json:"name" required:"true"`
 	Region              string             `json:"region" required:"true"`
@@ -32,6 +40,7 @@ type CreateGeminiDBOpts struct {
 	DataStore           DataStore          `json:"datastore" required:"true"`
 	Flavor              []FlavorOpt        `json:"flavor" required:"true"`
 	BackupStrategy      *BackupStrategyOpt `json:"backup_strategy,omitempty"`
+	ChargeInfo          *ChargeInfoOpt     `json:"charge_info,omitempty"`
 }
 
 type CreateGeminiDBBuilder interface {
