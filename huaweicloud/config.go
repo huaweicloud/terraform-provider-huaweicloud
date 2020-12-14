@@ -59,6 +59,9 @@ type Config struct {
 
 	DomainClient *golangsdk.ProviderClient
 
+	// the custom endpoints used to override the default endpoint URL
+	endpoints map[string]string
+
 	// RegionProjectIDMap is a map which stores the region-projectId pairs,
 	// and region name will be the key and projectID will be the value in this map.
 	RegionProjectIDMap map[string]string
@@ -421,11 +424,20 @@ func (c *Config) newObjectStorageClient(region string) (*obs.ObsClient, error) {
 // If you want to add new ServiceClient, please make sure the catalog was already in allServiceCatalog.
 // the endpoint likes https://{Name}.{Region}.myhuaweicloud.com/{Version}/{project_id}/{ResourceBase}
 func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient, error) {
+	serviceCatalog, ok := allServiceCatalog[srv]
+	if !ok {
+		return nil, fmt.Errorf("service type %s is invalid or not supportted", srv)
+	}
+
 	client := c.HwClient
-	if allServiceCatalog[srv].Admin {
+	if serviceCatalog.Admin {
 		client = c.DomainClient
 	}
-	return c.newServiceClientByName(client, allServiceCatalog[srv], region)
+
+	if endpoint, ok := c.endpoints[srv]; ok {
+		return c.newServiceClientByEndpoint(client, srv, endpoint)
+	}
+	return c.newServiceClientByName(client, serviceCatalog, region)
 }
 
 func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalog ServiceCatalog, region string) (*golangsdk.ServiceClient, error) {
@@ -474,6 +486,28 @@ func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalo
 		sc.ResourceBase = sc.ResourceBase + catalog.ResourceBase + "/"
 	}
 
+	return sc, nil
+}
+
+// newServiceClientByEndpoint returns a ServiceClient which the endpoint was initialized by customer
+// the format of customer endpoint likes https://{Name}.{Region}.xxxx.com
+func (c *Config) newServiceClientByEndpoint(client *golangsdk.ProviderClient, srv, endpoint string) (*golangsdk.ServiceClient, error) {
+	catalog, ok := allServiceCatalog[srv]
+	if !ok {
+		return nil, fmt.Errorf("service type %s is invalid or not supportted", srv)
+	}
+
+	sc := &golangsdk.ServiceClient{
+		ProviderClient: client,
+		Endpoint:       endpoint,
+	}
+	sc.ResourceBase = sc.Endpoint + catalog.Version + "/"
+	if !catalog.WithOutProjectID {
+		sc.ResourceBase = sc.ResourceBase + client.ProjectID + "/"
+	}
+	if catalog.ResourceBase != "" {
+		sc.ResourceBase = sc.ResourceBase + catalog.ResourceBase + "/"
+	}
 	return sc, nil
 }
 
