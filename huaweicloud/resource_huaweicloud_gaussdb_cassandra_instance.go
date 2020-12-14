@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/bss/v2/orders"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/configurations"
@@ -145,6 +146,32 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			},
 			"force_import": {
 				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+			"charging_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"prePaid", "postPaid",
+				}, true),
+			},
+			"period_unit": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, true),
+			},
+			"period": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+			},
+			"auto_renew": {
+				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
@@ -313,6 +340,18 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 	if ssl := d.Get("ssl").(bool); ssl {
 		createOpts.Ssl = "1"
 	}
+
+	// PrePaid
+	if d.Get("charging_mode") == "prePaid" {
+		chargeInfo := &instances.ChargeInfoOpt{
+			ChargingMode: d.Get("charging_mode").(string),
+			PeriodType:   d.Get("period_unit").(string),
+			PeriodNum:    d.Get("period").(int),
+			IsAutoPay:    "true",
+			IsAutoRenew:  d.Get("auto_renew").(string),
+		}
+		createOpts.ChargeInfo = chargeInfo
+	}
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	instance, err := instances.Create(client, createOpts).Extract()
@@ -461,10 +500,28 @@ func resourceGeminiDBInstanceV3Delete(d *schema.ResourceData, meta interface{}) 
 	}
 
 	instanceId := d.Id()
-	result := instances.Delete(client, instanceId)
-	if result.Err != nil {
-		return result.Err
+	if d.Get("charging_mode") == "prePaid" {
+		bssV2Client, err := config.BssV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
+		}
+
+		resourceIds := []string{instanceId}
+		unsubscribeOpts := orders.UnsubscribeOpts{
+			ResourceIds:     resourceIds,
+			UnsubscribeType: 1,
+		}
+		_, err = orders.Unsubscribe(bssV2Client, unsubscribeOpts).Extract()
+		if err != nil {
+			return fmt.Errorf("Error unsubscribe HuaweiCloud GaussDB instance: %s", err)
+		}
+	} else {
+		result := instances.Delete(client, instanceId)
+		if result.Err != nil {
+			return result.Err
+		}
 	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"normal", "abnormal", "creating", "createfail", "enlargefail", "data_disk_full"},
 		Target:       []string{"deleted"},
