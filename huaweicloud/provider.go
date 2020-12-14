@@ -713,6 +713,25 @@ func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error)
 		epMap[key] = endpoint
 	}
 
+	// unify the endpoint which has multi types
+	if endpoint, ok := epMap["iam"]; ok {
+		epMap["identity"] = endpoint
+	}
+	if endpoint, ok := epMap["ecs"]; ok {
+		epMap["ecsv11"] = endpoint
+		epMap["ecsv21"] = endpoint
+	}
+	if endpoint, ok := epMap["cce"]; ok {
+		epMap["cce_addon"] = endpoint
+	}
+	if endpoint, ok := epMap["evs"]; ok {
+		epMap["volumev2"] = endpoint
+	}
+	if endpoint, ok := epMap["vpc"]; ok {
+		epMap["networkv2"] = endpoint
+		epMap["security_group"] = endpoint
+	}
+
 	log.Printf("[DEBUG] customer endpoints: %+v", epMap)
 	return epMap, nil
 }

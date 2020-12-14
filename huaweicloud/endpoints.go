@@ -69,20 +69,20 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "ecs",
 		Version: "v2.1",
 	},
-	"autoscalingv1": ServiceCatalog{
+	"autoscaling": ServiceCatalog{
 		Name:    "as",
 		Version: "autoscaling-api/v1",
 	},
-	"imagev2": ServiceCatalog{
+	"ims": ServiceCatalog{
 		Name:             "ims",
 		Version:          "v2",
 		WithOutProjectID: true,
 	},
-	"ccev3": ServiceCatalog{
+	"cce": ServiceCatalog{
 		Name:    "cce",
 		Version: "api/v3/projects",
 	},
-	"cceaddonv3": ServiceCatalog{
+	"cce_addon": ServiceCatalog{
 		Name:             "cce",
 		Version:          "api/v3",
 		WithOutProjectID: true,
@@ -102,11 +102,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "evs",
 		Version: "v2",
 	},
-	"volumev3": ServiceCatalog{
+	"evs": ServiceCatalog{
 		Name:    "evs",
 		Version: "v3",
 	},
-	"sfsv2": ServiceCatalog{
+	"sfs": ServiceCatalog{
 		Name:    "sfs",
 		Version: "v2",
 	},
@@ -114,11 +114,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "sfs-turbo",
 		Version: "v1",
 	},
-	"csbsv1": ServiceCatalog{
+	"csbs": ServiceCatalog{
 		Name:    "csbs",
 		Version: "v1",
 	},
-	"vbsv2": ServiceCatalog{
+	"vbs": ServiceCatalog{
 		Name:    "vbs",
 		Version: "v2",
 	},
@@ -179,11 +179,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "rds",
 		Version: "rds/v1",
 	},
-	"rdsv3": ServiceCatalog{
+	"rds": ServiceCatalog{
 		Name:    "rds",
 		Version: "v3",
 	},
-	"ddsv3": ServiceCatalog{
+	"dds": ServiceCatalog{
 		Name:    "dds",
 		Version: "v3",
 	},
@@ -263,7 +263,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "cloudtable",
 		Version: "v2",
 	},
-	"cdmv11": ServiceCatalog{
+	"cdm": ServiceCatalog{
 		Name:    "cdm",
 		Version: "v1.1",
 	},
