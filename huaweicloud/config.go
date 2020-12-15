@@ -574,19 +574,19 @@ func (c *Config) ComputeV2Client(region string) (*golangsdk.ServiceClient, error
 }
 
 func (c *Config) AutoscalingV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("autoscalingv1", region)
+	return c.NewServiceClient("autoscaling", region)
 }
 
 func (c *Config) ImageV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("imagev2", region)
+	return c.NewServiceClient("ims", region)
 }
 
 func (c *Config) CceV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("ccev3", region)
+	return c.NewServiceClient("cce", region)
 }
 
 func (c *Config) CceAddonV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("cceaddonv3", region)
+	return c.NewServiceClient("cce_addon", region)
 }
 
 func (c *Config) CciV1Client(region string) (*golangsdk.ServiceClient, error) {
@@ -603,11 +603,11 @@ func (c *Config) BlockStorageV2Client(region string) (*golangsdk.ServiceClient, 
 }
 
 func (c *Config) BlockStorageV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("volumev3", region)
+	return c.NewServiceClient("evs", region)
 }
 
 func (c *Config) SfsV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("sfsv2", region)
+	return c.NewServiceClient("sfs", region)
 }
 
 func (c *Config) SfsV1Client(region string) (*golangsdk.ServiceClient, error) {
@@ -615,12 +615,12 @@ func (c *Config) SfsV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) CsbsV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("csbsv1", region)
+	return c.NewServiceClient("csbs", region)
 }
 
 func (c *Config) VbsV2Client(region string) (*golangsdk.ServiceClient, error) {
 
-	return c.NewServiceClient("vbsv2", region)
+	return c.NewServiceClient("vbs", region)
 }
 
 // ********** client for Network **********
@@ -720,7 +720,7 @@ func (c *Config) cloudtableV2Client(region string) (*golangsdk.ServiceClient, er
 }
 
 func (c *Config) cdmV11Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("cdmv11", region)
+	return c.NewServiceClient("cdm", region)
 }
 
 func (c *Config) gesV1Client(region string) (*golangsdk.ServiceClient, error) {
@@ -754,11 +754,11 @@ func (c *Config) RdsV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) RdsV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("rdsv3", region)
+	return c.NewServiceClient("rds", region)
 }
 
 func (c *Config) ddsV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("ddsv3", region)
+	return c.NewServiceClient("dds", region)
 }
 
 func (c *Config) GeminiDBV3Client(region string) (*golangsdk.ServiceClient, error) {
