@@ -11,3 +11,7 @@ func rootURL(client *golangsdk.ServiceClient) string {
 func resourceURL(client *golangsdk.ServiceClient, id string) string {
 	return client.ServiceURL(client.ProjectID, resourcePath, id)
 }
+
+func listURL(client *golangsdk.ServiceClient) string {
+	return client.ServiceURL(client.ProjectID, resourcePath)
+}
