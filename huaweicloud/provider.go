@@ -283,6 +283,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vbs_backup":                  dataSourceVBSBackupV2(),
 			"huaweicloud_vpc":                         DataSourceVirtualPrivateCloudVpcV1(),
 			"huaweicloud_vpc_bandwidth":               DataSourceBandWidth(),
+			"huaweicloud_vpc_eip":                     DataSourceVpcEip(),
 			"huaweicloud_vpc_ids":                     dataSourceVirtualPrivateCloudVpcIdsV1(),
 			"huaweicloud_vpc_peering_connection":      dataSourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_route":                   DataSourceVPCRouteV2(),
