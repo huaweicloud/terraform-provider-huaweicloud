@@ -59,6 +59,9 @@ type Config struct {
 
 	DomainClient *golangsdk.ProviderClient
 
+	// the custom endpoints used to override the default endpoint URL
+	endpoints map[string]string
+
 	// RegionProjectIDMap is a map which stores the region-projectId pairs,
 	// and region name will be the key and projectID will be the value in this map.
 	RegionProjectIDMap map[string]string
@@ -421,11 +424,20 @@ func (c *Config) newObjectStorageClient(region string) (*obs.ObsClient, error) {
 // If you want to add new ServiceClient, please make sure the catalog was already in allServiceCatalog.
 // the endpoint likes https://{Name}.{Region}.myhuaweicloud.com/{Version}/{project_id}/{ResourceBase}
 func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient, error) {
+	serviceCatalog, ok := allServiceCatalog[srv]
+	if !ok {
+		return nil, fmt.Errorf("service type %s is invalid or not supportted", srv)
+	}
+
 	client := c.HwClient
-	if allServiceCatalog[srv].Admin {
+	if serviceCatalog.Admin {
 		client = c.DomainClient
 	}
-	return c.newServiceClientByName(client, allServiceCatalog[srv], region)
+
+	if endpoint, ok := c.endpoints[srv]; ok {
+		return c.newServiceClientByEndpoint(client, srv, endpoint)
+	}
+	return c.newServiceClientByName(client, serviceCatalog, region)
 }
 
 func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalog ServiceCatalog, region string) (*golangsdk.ServiceClient, error) {
@@ -474,6 +486,28 @@ func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalo
 		sc.ResourceBase = sc.ResourceBase + catalog.ResourceBase + "/"
 	}
 
+	return sc, nil
+}
+
+// newServiceClientByEndpoint returns a ServiceClient which the endpoint was initialized by customer
+// the format of customer endpoint likes https://{Name}.{Region}.xxxx.com
+func (c *Config) newServiceClientByEndpoint(client *golangsdk.ProviderClient, srv, endpoint string) (*golangsdk.ServiceClient, error) {
+	catalog, ok := allServiceCatalog[srv]
+	if !ok {
+		return nil, fmt.Errorf("service type %s is invalid or not supportted", srv)
+	}
+
+	sc := &golangsdk.ServiceClient{
+		ProviderClient: client,
+		Endpoint:       endpoint,
+	}
+	sc.ResourceBase = sc.Endpoint + catalog.Version + "/"
+	if !catalog.WithOutProjectID {
+		sc.ResourceBase = sc.ResourceBase + client.ProjectID + "/"
+	}
+	if catalog.ResourceBase != "" {
+		sc.ResourceBase = sc.ResourceBase + catalog.ResourceBase + "/"
+	}
 	return sc, nil
 }
 
@@ -540,19 +574,19 @@ func (c *Config) ComputeV2Client(region string) (*golangsdk.ServiceClient, error
 }
 
 func (c *Config) AutoscalingV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("autoscalingv1", region)
+	return c.NewServiceClient("autoscaling", region)
 }
 
 func (c *Config) ImageV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("imagev2", region)
+	return c.NewServiceClient("ims", region)
 }
 
 func (c *Config) CceV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("ccev3", region)
+	return c.NewServiceClient("cce", region)
 }
 
 func (c *Config) CceAddonV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("cceaddonv3", region)
+	return c.NewServiceClient("cce_addon", region)
 }
 
 func (c *Config) CciV1Client(region string) (*golangsdk.ServiceClient, error) {
@@ -569,11 +603,11 @@ func (c *Config) BlockStorageV2Client(region string) (*golangsdk.ServiceClient, 
 }
 
 func (c *Config) BlockStorageV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("volumev3", region)
+	return c.NewServiceClient("evs", region)
 }
 
 func (c *Config) SfsV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("sfsv2", region)
+	return c.NewServiceClient("sfs", region)
 }
 
 func (c *Config) SfsV1Client(region string) (*golangsdk.ServiceClient, error) {
@@ -581,12 +615,12 @@ func (c *Config) SfsV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) CsbsV1Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("csbsv1", region)
+	return c.NewServiceClient("csbs", region)
 }
 
 func (c *Config) VbsV2Client(region string) (*golangsdk.ServiceClient, error) {
 
-	return c.NewServiceClient("vbsv2", region)
+	return c.NewServiceClient("vbs", region)
 }
 
 // ********** client for Network **********
@@ -686,7 +720,7 @@ func (c *Config) cloudtableV2Client(region string) (*golangsdk.ServiceClient, er
 }
 
 func (c *Config) cdmV11Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("cdmv11", region)
+	return c.NewServiceClient("cdm", region)
 }
 
 func (c *Config) gesV1Client(region string) (*golangsdk.ServiceClient, error) {
@@ -720,11 +754,11 @@ func (c *Config) RdsV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) RdsV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("rdsv3", region)
+	return c.NewServiceClient("rds", region)
 }
 
 func (c *Config) ddsV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("ddsv3", region)
+	return c.NewServiceClient("dds", region)
 }
 
 func (c *Config) GeminiDBV3Client(region string) (*golangsdk.ServiceClient, error) {

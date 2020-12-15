@@ -96,6 +96,14 @@ The following arguments are supported:
 
 * `force_import` - (Optional, Bool, ForceNew) If specified, try to import the instance instead of creating if the name already existed.
 
+* `charging_mode` - (Optional, String, ForceNew) The charging mode of the instance. Valid options are: prePaid and postPaid, defaults to postPaid. Changing this creates a new resource.
+
+* `period_unit` - (Optional, String, ForceNew) The charging period unit of the instance. Valid options are: month and year, defaults to month. Changing this creates a new resource.
+
+* `period` - (Optional, Int, ForceNew) The charging period of the instance. Changing this creates a new resource.
+
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Changing this creates a new resource.
+
 * `datastore` - (Optional, List, ForceNew) Specifies the database information. Structure is documented below.
   Changing this parameter will create a new resource.
 
