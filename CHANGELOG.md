@@ -1,8 +1,22 @@
+## 1.20.1 (December 16, 2020)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_vpc_eip` ([#743](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/743))
+* **New Data Source:** `huaweicloud_compute_instance` ([#744](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/744))
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_gaussdb_mysql_instance: Add prePaid support ([#733](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/733))
+* resource/huaweicloud_compute_instance: Add fault_domain support ([#735](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/735))
+* resource/huaweicloud_gaussdb_cassandra_instance: Add prePaid support ([#740](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/740))
+* Add custom endpoints support ([#741](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/741))
+
 ## 1.20.0 (November 30, 2020)
 
 ENHANCEMENTS:
 
-Update resource Attributes Reference in docs ([#715](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/715))
+* Update resource Attributes Reference in docs ([#715](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/715))
 
 ## 1.19.3 (November 28, 2020)
 
