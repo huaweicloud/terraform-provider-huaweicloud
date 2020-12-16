@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 type CreateOpts struct {
@@ -257,4 +258,65 @@ func DeleteOrder(client *golangsdk.ServiceClient, opts DeleteOrderOpts) (r Delet
 	}
 	_, r.Err = client.Post(deleteOrderURL(client), reqBody, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
 	return
+}
+
+// ListOptsBuilder allows extensions to add additional parameters to the
+// List request.
+type ListOptsBuilder interface {
+	ToServerListQuery() (string, error)
+}
+
+// ListOpts allows the filtering and sorting of paginated collections through
+// the API. Filtering is achieved by passing in struct field values that map to
+// the server attributes you want to see returned. Marker and Limit are used
+// for pagination.
+type ListOpts struct {
+	// Name of the server as a string; can be queried with regular expressions.
+	// Realize that ?name=bob returns both bob and bobb. If you need to match bob
+	// only, you can use a regular expression matching the syntax of the
+	// underlying database server implemented for Compute.
+	Name string `q:"name"`
+
+	// Flavor is the name of the flavor in URL format.
+	Flavor string `q:"flavor"`
+
+	// Status is the value of the status of the server so that you can filter on
+	// "ACTIVE" for example.
+	Status string `q:"status"`
+
+	// Specifies the ECS that is bound to an enterprise project.
+	EnterpriseProjectID string `q:"enterprise_project_id"`
+
+	// Indicates the filtering result for IPv4 addresses, which are fuzzy matched.
+	// These IP addresses are private IP addresses of the ECS.
+	IP string `q:"ip"`
+
+	// Specifies the maximum number of ECSs on one page.
+	// Each page contains 25 ECSs by default, and a maximum of 1000 ECSs are returned.
+	Limit int `q:"limit"`
+
+	// Specifies a page number. The default value is 1.
+	// The value must be greater than or equal to 0. If the value is 0, the first page is displayed.
+	Offset int `q:"offset"`
+}
+
+// ToServerListQuery formats a ListOpts into a query string.
+func (opts ListOpts) ToServerListQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	return q.String(), err
+}
+
+// List makes a request against the API to list servers accessible to you.
+func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Pager {
+	url := listDetailURL(client)
+	if opts != nil {
+		query, err := opts.ToServerListQuery()
+		if err != nil {
+			return pagination.Pager{Err: err}
+		}
+		url += query
+	}
+	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
+		return ServerPage{pagination.LinkedPageBase{PageResult: r}}
+	})
 }

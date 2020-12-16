@@ -14,6 +14,10 @@ func getURL(sc *golangsdk.ServiceClient, serverID string) string {
 	return sc.ServiceURL("cloudservers", serverID)
 }
 
+func listDetailURL(client *golangsdk.ServiceClient) string {
+	return client.ServiceURL("cloudservers", "detail")
+}
+
 func jobURL(sc *golangsdk.ServiceClient, jobId string) string {
 	return sc.ServiceURL("jobs", jobId)
 }
