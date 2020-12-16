@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 type cloudServerResult struct {
@@ -139,4 +140,40 @@ func (r GetResult) Extract() (*CloudServer, error) {
 	}
 	err := r.ExtractInto(&s)
 	return s.Server, err
+}
+
+// ServerPage abstracts the raw results of making a List() request against
+// the API.
+type ServerPage struct {
+	pagination.LinkedPageBase
+}
+
+// IsEmpty returns true if a page contains no Server results.
+func (r ServerPage) IsEmpty() (bool, error) {
+	s, err := ExtractServers(r)
+	return len(s) == 0, err
+}
+
+// NextPageURL uses the response's embedded link reference to navigate to the
+// next page of results.
+func (r ServerPage) NextPageURL() (string, error) {
+	var s struct {
+		Links []golangsdk.Link `json:"servers_links"`
+	}
+	err := r.ExtractInto(&s)
+	if err != nil {
+		return "", err
+	}
+	return golangsdk.ExtractNextURL(s.Links)
+}
+
+// ExtractServers interprets the results of a single page from a List() call,
+// producing a slice of CloudServer entities.
+func ExtractServers(r pagination.Page) ([]CloudServer, error) {
+	var s struct {
+		Servers []CloudServer `json:"servers"`
+	}
+
+	err := (r.(ServerPage)).ExtractInto(&s)
+	return s.Servers, err
 }
