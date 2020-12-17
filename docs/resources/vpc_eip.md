@@ -57,8 +57,7 @@ The following arguments are supported:
 
 The `publicip` block supports:
 
-* `type` - (Required, String, ForceNew) The value must be a type supported by the system. Only
-    `5_bgp` supported now. Changing this creates a new eip.
+* `type` - (Required, String, ForceNew) The type of the eip. Changing this creates a new eip.
 
 * `ip_address` - (Optional, String, ForceNew) The value must be a valid IP address in the available
     IP address segment. Changing this creates a new eip.

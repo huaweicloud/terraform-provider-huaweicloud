@@ -2,6 +2,7 @@ package eips
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 //ApplyResult is a struct which represents the result of apply public ip
@@ -60,4 +61,30 @@ func (r UpdateResult) Extract() (PublicIp, error) {
 	var ip PublicIp
 	err := r.Result.ExtractIntoStructPtr(&ip, "publicip")
 	return ip, err
+}
+
+type PublicIPPage struct {
+	pagination.LinkedPageBase
+}
+
+func (r PublicIPPage) NextPageURL() (string, error) {
+	publicIps, err := ExtractPublicIPs(r)
+	if err != nil {
+		return "", err
+	}
+	return r.WrapNextPageURL(publicIps[len(publicIps)-1].ID)
+}
+
+func ExtractPublicIPs(r pagination.Page) ([]PublicIp, error) {
+	var s struct {
+		PublicIPs []PublicIp `json:"publicips"`
+	}
+	err := r.(PublicIPPage).ExtractInto(&s)
+	return s.PublicIPs, err
+}
+
+// IsEmpty checks whether a NetworkPage struct is empty.
+func (r PublicIPPage) IsEmpty() (bool, error) {
+	s, err := ExtractPublicIPs(r)
+	return len(s) == 0, err
 }
