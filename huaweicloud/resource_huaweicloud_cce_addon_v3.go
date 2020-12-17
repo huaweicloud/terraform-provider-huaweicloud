@@ -53,8 +53,47 @@ func resourceCCEAddonV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"values": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"basic": {
+							Type:     schema.TypeMap,
+							Required: true,
+						},
+						"custom": {
+							Type:     schema.TypeMap,
+							Optional: true,
+						},
+					},
+				},
+			},
 		},
 	}
+}
+
+func getValuesValues(d *schema.ResourceData) (basic, custom map[string]interface{}, err error) {
+	values := d.Get("values").([]interface{})
+	if len(values) == 0 {
+		log.Printf("[WARNING] no values are set for CCE addon")
+		basic = map[string]interface{}{}
+		return
+	}
+	valuesMap := values[0].(map[string]interface{})
+
+	basicRaw, ok := valuesMap["basic"]
+	if !ok {
+		err = fmt.Errorf("no basic values are set for CCE addon") // should be impossible, as Required: true
+		return
+	}
+	if customRaw, ok := valuesMap["custom"]; ok {
+		custom = customRaw.(map[string]interface{})
+	}
+	basic = basicRaw.(map[string]interface{})
+	return
 }
 
 func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
@@ -66,6 +105,12 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var cluster_id = d.Get("cluster_id").(string)
+
+	basic, custom, err := getValuesValues(d)
+
+	if err != nil {
+		return fmt.Errorf("error getting values for CCE addon: %s", err)
+	}
 
 	createOpts := addons.CreateOpts{
 		Kind:       "Addon",
@@ -80,7 +125,8 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 			ClusterID:         cluster_id,
 			AddonTemplateName: d.Get("template_name").(string),
 			Values: addons.Values{
-				Basic: map[string]interface{}{},
+				Basic:  basic,
+				Custom: custom,
 			},
 		},
 	}

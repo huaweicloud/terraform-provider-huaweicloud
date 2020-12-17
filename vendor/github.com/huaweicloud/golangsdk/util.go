@@ -28,7 +28,7 @@ func WaitFor(timeout int, predicate func() (bool, error)) error {
 			return fmt.Errorf("A timeout occurred")
 		}
 
-		time.Sleep(1 * time.Second)
+		time.Sleep(5 * time.Second)
 
 		var result WaitForResult
 		ch := make(chan bool, 1)
