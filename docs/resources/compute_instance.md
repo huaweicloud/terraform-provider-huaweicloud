@@ -296,6 +296,8 @@ The `scheduler_hints` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
+* `status` - The status of the instance.
+* `public_ip` - The EIP address that is associted to the instance.
 * `access_ip_v4` - The first detected Fixed IPv4 address _or_ the
     Floating IP.
 * `network/fixed_ip_v4` - The Fixed IPv4 address of the Instance on that network.

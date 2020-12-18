@@ -55,7 +55,11 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
+			"availability_zone": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -86,17 +90,22 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Computed:    true,
 				DefaultFunc: schema.EnvDefaultFunc("HW_FLAVOR_NAME", nil),
 			},
+			"admin_pass": {
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Optional:  true,
+			},
+			"key_pair": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"security_groups": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
-			},
-			"availability_zone": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
 			},
 			"network": {
 				Type:     schema.TypeList,
@@ -142,84 +151,6 @@ func ResourceComputeInstanceV2() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
-						},
-					},
-				},
-			},
-			"user_data": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				// just stash the hash for state & diff comparisons
-				StateFunc: func(v interface{}) string {
-					switch v.(type) {
-					case string:
-						hash := sha1.Sum([]byte(v.(string)))
-						return hex.EncodeToString(hash[:])
-					default:
-						return ""
-					}
-				},
-			},
-			"metadata": {
-				Type:          schema.TypeMap,
-				Optional:      true,
-				ConflictsWith: []string{"system_disk_type", "system_disk_size", "data_disks"},
-				Deprecated:    "use tags instead",
-				Elem:          &schema.Schema{Type: schema.TypeString},
-			},
-			"admin_pass": {
-				Type:      schema.TypeString,
-				Sensitive: true,
-				Optional:  true,
-			},
-			"key_pair": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"block_device": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				ConflictsWith: []string{"system_disk_type", "system_disk_size", "data_disks"},
-				Deprecated:    "use system_disk_type, system_disk_size, data_disks instead",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"source_type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"uuid": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-						},
-						"volume_size": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							ForceNew: true,
-						},
-						"destination_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-						},
-						"boot_index": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							ForceNew: true,
-						},
-						"delete_on_termination": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
-							ForceNew: true,
-						},
-						"guest_format": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -295,6 +226,21 @@ func ResourceComputeInstanceV2() *schema.Resource {
 					},
 				},
 				Set: resourceComputeSchedulerHintsHash,
+			},
+			"user_data": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				// just stash the hash for state & diff comparisons
+				StateFunc: func(v interface{}) string {
+					switch v.(type) {
+					case string:
+						hash := sha1.Sum([]byte(v.(string)))
+						return hex.EncodeToString(hash[:])
+					default:
+						return ""
+					}
+				},
 			},
 			"stop_before_destroy": {
 				Type:     schema.TypeBool,
@@ -385,6 +331,10 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"public_ip": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"access_ip_v4": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -392,6 +342,65 @@ func ResourceComputeInstanceV2() *schema.Resource {
 			"access_ip_v6": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			// Deprecated
+			"metadata": {
+				Type:          schema.TypeMap,
+				Optional:      true,
+				ConflictsWith: []string{"system_disk_type", "system_disk_size", "data_disks"},
+				Deprecated:    "use tags instead",
+				Elem:          &schema.Schema{Type: schema.TypeString},
+			},
+			"block_device": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				ConflictsWith: []string{"system_disk_type", "system_disk_size", "data_disks"},
+				Deprecated:    "use system_disk_type, system_disk_size, data_disks instead",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"source_type": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"uuid": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"volume_size": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+						},
+						"destination_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"boot_index": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+						},
+						"delete_on_termination": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+							ForceNew: true,
+						},
+						"guest_format": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -650,14 +659,30 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	d.Set("region", GetRegion(d, config))
 	d.Set("availability_zone", server.AvailabilityZone)
 	d.Set("name", server.Name)
+	d.Set("status", server.Status)
 	d.Set("agency_name", server.Metadata.AgencyName)
+
+	flavorInfo := server.Flavor
+	d.Set("flavor_id", flavorInfo.ID)
+	d.Set("flavor_name", flavorInfo.Name)
+
+	// Set the instance's image information appropriately
+	if err := setImageInformation(d, computeClient, server.Image.ID); err != nil {
+		return err
+	}
+
+	if server.KeyName != "" {
+		d.Set("key_pair", server.KeyName)
+	}
+	if eip := computePublicIP(server); eip != "" {
+		d.Set("public_ip", eip)
+	}
 
 	// Get the instance network and address information
 	networks, err := flattenInstanceNetworks(d, meta, server)
 	if err != nil {
 		return err
 	}
-
 	// Determine the best IPv4 and IPv6 addresses to access the instance with
 	hostv4, hostv6 := getInstanceAccessAddresses(d, networks)
 
@@ -697,10 +722,6 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	}
 	d.Set("security_groups", secGrpNames)
 
-	flavorInfo := server.Flavor
-	d.Set("flavor_id", flavorInfo.ID)
-	d.Set("flavor_name", flavorInfo.Name)
-
 	root_volume := ""
 	// Set volume attached
 	bds := []map[string]interface{}{}
@@ -736,11 +757,6 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 		d.Set("system_disk_id", root_volume)
 		d.Set("system_disk_size", v.Size)
 		d.Set("system_disk_type", v.VolumeType)
-	}
-
-	// Set the instance's image information appropriately
-	if err := setImageInformation(d, computeClient, server.Image.ID); err != nil {
-		return err
 	}
 
 	// Set instance tags
@@ -1285,6 +1301,22 @@ func setImageInformation(d *schema.ResourceData, computeClient *golangsdk.Servic
 	}
 
 	return nil
+}
+
+// computePublicIP get the first floating address
+func computePublicIP(server *cloudservers.CloudServer) string {
+	var publicIP string
+
+	for _, addresses := range server.Addresses {
+		for _, addr := range addresses {
+			if addr.Type == "floating" {
+				publicIP = addr.Addr
+				break
+			}
+		}
+	}
+
+	return publicIP
 }
 
 func getFlavorID(client *golangsdk.ServiceClient, d *schema.ResourceData) (string, error) {

@@ -28,6 +28,11 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeV2InstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrSet(resourceName, "system_disk_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "security_groups.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "network.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "volume_attached.#"),
 				),
 			},
 			{
