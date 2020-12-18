@@ -9,18 +9,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-
 func TestAccHuaweiCloudImagesV2ImageDataSource_basic(t *testing.T) {
+	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccHuaweiCloudImagesV2ImageDataSource_ubuntu,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_ubuntu(rName),
 			},
 			{
-				Config: testAccHuaweiCloudImagesV2ImageDataSource_basic,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesV2DataSourceID("data.huaweicloud_images_image.test"),
 					resource.TestCheckResourceAttr(
@@ -36,33 +36,35 @@ func TestAccHuaweiCloudImagesV2ImageDataSource_basic(t *testing.T) {
 }
 
 func TestAccHuaweiCloudImagesV2ImageDataSource_testQueries(t *testing.T) {
+	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccHuaweiCloudImagesV2ImageDataSource_ubuntu,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_ubuntu(rName),
 			},
 			{
-				Config: testAccHuaweiCloudImagesV2ImageDataSource_queryTag,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_queryTag(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesV2DataSourceID("data.huaweicloud_images_image.test"),
 				),
 			},
 			{
-				Config: testAccHuaweiCloudImagesV2ImageDataSource_querySizeMin,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_querySizeMin(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesV2DataSourceID("data.huaweicloud_images_image.test"),
 				),
 			},
 			{
-				Config: testAccHuaweiCloudImagesV2ImageDataSource_querySizeMax,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_querySizeMax(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesV2DataSourceID("data.huaweicloud_images_image.test"),
 				),
 			},
 			{
-				Config: testAccHuaweiCloudImagesV2ImageDataSource_ubuntu,
+				Config: testAccHuaweiCloudImagesV2ImageDataSource_ubuntu(rName),
 			},
 		},
 	})
@@ -83,8 +85,20 @@ func testAccCheckImagesV2DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccHuaweiCloudImagesV2ImageDataSource_ubuntu = fmt.Sprintf(`
-%s
+func testAccHuaweiCloudImagesV2ImageDataSource_ubuntu(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 resource "huaweicloud_compute_instance" "test" {
   name              = "%s"
@@ -109,18 +123,22 @@ resource "huaweicloud_images_image" "test" {
   }
 }
 
-`, testAccCompute_data, rName, rName)
+`, rName, rName)
+}
 
-var testAccHuaweiCloudImagesV2ImageDataSource_basic = fmt.Sprintf(`
+func testAccHuaweiCloudImagesV2ImageDataSource_basic(rName string) string {
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_images_image" "test" {
 	most_recent = true
 	name = huaweicloud_images_image.test.name
 }
-`, testAccHuaweiCloudImagesV2ImageDataSource_ubuntu)
+`, testAccHuaweiCloudImagesV2ImageDataSource_ubuntu(rName))
+}
 
-var testAccHuaweiCloudImagesV2ImageDataSource_queryTag = fmt.Sprintf(`
+func testAccHuaweiCloudImagesV2ImageDataSource_queryTag(rName string) string {
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_images_image" "test" {
@@ -128,9 +146,11 @@ data "huaweicloud_images_image" "test" {
 	visibility = "private"
 	tag = "foo=bar"
 }
-`, testAccHuaweiCloudImagesV2ImageDataSource_ubuntu)
+`, testAccHuaweiCloudImagesV2ImageDataSource_ubuntu(rName))
+}
 
-var testAccHuaweiCloudImagesV2ImageDataSource_querySizeMin = fmt.Sprintf(`
+func testAccHuaweiCloudImagesV2ImageDataSource_querySizeMin(rName string) string {
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_images_image" "test" {
@@ -138,9 +158,11 @@ data "huaweicloud_images_image" "test" {
 	visibility = "private"
 	size_min = "13000000"
 }
-`, testAccHuaweiCloudImagesV2ImageDataSource_ubuntu)
+`, testAccHuaweiCloudImagesV2ImageDataSource_ubuntu(rName))
+}
 
-var testAccHuaweiCloudImagesV2ImageDataSource_querySizeMax = fmt.Sprintf(`
+func testAccHuaweiCloudImagesV2ImageDataSource_querySizeMax(rName string) string {
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_images_image" "test" {
@@ -148,4 +170,5 @@ data "huaweicloud_images_image" "test" {
 	visibility = "private"
 	size_max = "23000000"
 }
-`, testAccHuaweiCloudImagesV2ImageDataSource_ubuntu)
+`, testAccHuaweiCloudImagesV2ImageDataSource_ubuntu(rName))
+}
