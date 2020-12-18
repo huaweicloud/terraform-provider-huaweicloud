@@ -256,18 +256,18 @@ func resourceImsImageRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("image_size", img.ImageSize)
 
 	// Set image tags
-	Taglist, err := tags.Get(ims_Client, d.Id()).Extract()
-	if err != nil {
-		return fmt.Errorf("Error fetching HuaweiCloud image tags: %s", err)
+	if Taglist, err := tags.Get(ims_Client, d.Id()).Extract(); err == nil {
+		tagmap := make(map[string]string)
+		for _, val := range Taglist.Tags {
+			tagmap[val.Key] = val.Value
+		}
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("[DEBUG] Error saving tags for HuaweiCloud image (%s): %s", d.Id(), err)
+		}
+	} else {
+		log.Printf("[WARN] fetching tags of image failed: %s", err)
 	}
 
-	tagmap := make(map[string]string)
-	for _, val := range Taglist.Tags {
-		tagmap[val.Key] = val.Value
-	}
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving tags for HuaweiCloud image (%s): %s", d.Id(), err)
-	}
 	return nil
 }
 
