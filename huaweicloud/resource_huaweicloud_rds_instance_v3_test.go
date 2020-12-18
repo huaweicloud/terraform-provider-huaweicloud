@@ -42,6 +42,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+10:00"),
 				),
 			},
 			{
@@ -108,11 +109,12 @@ resource "huaweicloud_networking_secgroup" "secgroup_1" {
 
 resource "huaweicloud_rds_instance" "instance" {
   name = "terraform_test_rds_instance%s"
-  flavor = "rds.pg.c2.medium"
+  flavor = "rds.pg.c2.large"
   availability_zone = ["%s"]
   security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
   subnet_id = huaweicloud_vpc_subnet.test.id
   vpc_id = huaweicloud_vpc.test.id
+  time_zone = "UTC+10:00"
 
   db {
     password = "Huangwei!120521"
@@ -160,11 +162,12 @@ resource "huaweicloud_networking_secgroup" "secgroup_1" {
 
 resource "huaweicloud_rds_instance" "instance" {
   name = "terraform_test_rds_instance%s"
-  flavor = "rds.pg.c2.medium"
+  flavor = "rds.pg.c2.large"
   availability_zone = ["%s"]
   security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
   subnet_id = huaweicloud_vpc_subnet.test.id
   vpc_id = huaweicloud_vpc.test.id
+  time_zone = "UTC+10:00"
 
   db {
     password = "Huangwei!120521"
