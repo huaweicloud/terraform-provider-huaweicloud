@@ -33,7 +33,7 @@ resource "huaweicloud_rds_instance" "instance" {
     type = "ULTRAHIGH"
     size = 100
   }
-  flavor = "rds.pg.c2.medium"
+  flavor = "rds.pg.c2.large"
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = 1
@@ -65,7 +65,7 @@ resource "huaweicloud_rds_instance" "instance" {
     type = "ULTRAHIGH"
     size = 100
   }
-  flavor              = "rds.pg.s1.medium.ha"
+  flavor              = "rds.pg.s1.large.ha"
   ha_replication_mode = "async"
   backup_strategy {
     start_time = "08:00-09:00"
@@ -105,7 +105,7 @@ resource "huaweicloud_rds_instance" "instance" {
     type               = "ULTRAHIGH"
     size               = 100
   }
-  flavor = "rds.pg.c2.medium"
+  flavor = "rds.pg.c2.large"
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = 1
@@ -151,10 +151,16 @@ The following arguments are supported:
 
 * `param_group_id` - (Optional, String, ForceNew) Specifies the parameter group ID. Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the RDS instance. Changing this creates a new RDS instance.
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the RDS instance. Changing this parameter creates a new RDS instance.
 
 * `tags` - (Optional, Map) A mapping of tags to assign to the RDS instance.
   Each tag is represented by one key-value pair.
+  
+* `time_zone` - (Optional, String, ForceNew) Specifies the UTC time zone. 
+  For MySQL and PostgreSQL Chinese mainland site and international site use UTC by default. 
+  The value ranges from UTC-12:00 to UTC+12:00 at the full hour. 
+  For Microsoft SQL Server international site use UTC by default and Chinese mainland site use China Standard Time. 
+  The time zone is expressed as a character string, refer to Document [table 10](https://support.huaweicloud.com/intl/en-us/api-rds/rds_01_0002.html#rds_01_0002__table613473883617).
 
 The `db` block supports:
 
