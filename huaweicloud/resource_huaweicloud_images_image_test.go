@@ -137,7 +137,18 @@ func testAccCheckImsImageTags(n string, k string, v string) resource.TestCheckFu
 
 func testAccImsImage_basic(rName string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 resource "huaweicloud_compute_instance" "test" {
   name              = "%s"
@@ -161,12 +172,23 @@ resource "huaweicloud_images_image" "test" {
     key = "value"
   }
 }
-`, testAccCompute_data, rName, rName)
+`, rName, rName)
 }
 
 func testAccImsImage_update(rName string) string {
 	return fmt.Sprintf(`
-%s
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
 
 resource "huaweicloud_compute_instance" "test" {
   name              = "%s"
@@ -191,5 +213,5 @@ resource "huaweicloud_images_image" "test" {
     key2 = "value2"
   }
 }
-`, testAccCompute_data, rName, rName)
+`, rName, rName)
 }
