@@ -235,6 +235,8 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 		base64PostInstall = installScriptEncode(v.(string))
 	}
 
+	initialNodeCount := d.Get("initial_node_count").(int)
+
 	createOpts := nodepools.CreateOpts{
 		Kind:       "NodePool",
 		ApiVersion: "v3",
@@ -271,7 +273,7 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 				ScaleDownCooldownTime: d.Get("scale_down_cooldown_time").(int),
 				Priority:              d.Get("priority").(int),
 			},
-			InitialNodeCount: d.Get("initial_node_count").(int),
+			InitialNodeCount: &initialNodeCount,
 		},
 	}
 
@@ -397,6 +399,8 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 
+	initialNodeCount := d.Get("initial_node_count").(int)
+
 	updateOpts := nodepools.UpdateOpts{
 		Kind:       "NodePool",
 		ApiVersion: "v3",
@@ -404,7 +408,7 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 			Name: d.Get("name").(string),
 		},
 		Spec: nodepools.UpdateSpec{
-			InitialNodeCount: d.Get("initial_node_count").(int),
+			InitialNodeCount: &initialNodeCount,
 			Autoscaling: nodepools.AutoscalingSpec{
 				Enable:                d.Get("scall_enable").(bool),
 				MinNodeCount:          d.Get("min_node_count").(int),

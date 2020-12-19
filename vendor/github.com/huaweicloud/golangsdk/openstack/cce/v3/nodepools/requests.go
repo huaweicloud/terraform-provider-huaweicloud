@@ -113,7 +113,7 @@ type CreateSpec struct {
 	// Node template
 	NodeTemplate nodes.Spec `json:"nodeTemplate" required:"true"`
 	// Initial number of expected nodes
-	InitialNodeCount int `json:"initialNodeCount" required:"true"`
+	InitialNodeCount *int `json:"initialNodeCount" required:"true"`
 	// Auto scaling parameters
 	Autoscaling AutoscalingSpec `json:"autoscaling"`
 	// Node management parameters
@@ -185,7 +185,7 @@ type UpdateSpec struct {
 	// Node template
 	NodeTemplate nodes.Spec `json:"nodeTemplate"`
 	// Initial number of expected nodes
-	InitialNodeCount int `json:"initialNodeCount" required:"true"`
+	InitialNodeCount *int `json:"initialNodeCount" required:"true"`
 	// Auto scaling parameters
 	Autoscaling AutoscalingSpec `json:"autoscaling"`
 }
