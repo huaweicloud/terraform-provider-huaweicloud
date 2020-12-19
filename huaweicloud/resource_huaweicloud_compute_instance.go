@@ -776,6 +776,8 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
+	ecsV11Client, err := config.ComputeV11Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -885,51 +887,22 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 			}
 		}
 
-		resizeOpts := &servers.ResizeOpts{
-			FlavorRef: newFlavorId,
+		extendParam := &cloudservers.ResizeExtendParam{
+			AutoPay: "true",
+		}
+		resizeOpts := &cloudservers.ResizeOpts{
+			FlavorRef:   newFlavorId,
+			Mode:        "withStopServer",
+			ExtendParam: extendParam,
 		}
 		log.Printf("[DEBUG] Resize configuration: %#v", resizeOpts)
-		err = servers.Resize(computeClient, d.Id(), resizeOpts).ExtractErr()
+		job, err := cloudservers.Resize(ecsV11Client, resizeOpts, d.Id()).ExtractJobResponse()
 		if err != nil {
 			return fmt.Errorf("Error resizing HuaweiCloud server: %s", err)
 		}
 
-		// Wait for the instance to finish resizing.
-		log.Printf("[DEBUG] Waiting for instance (%s) to finish resizing", d.Id())
-
-		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"RESIZE"},
-			Target:     []string{"VERIFY_RESIZE"},
-			Refresh:    ServerV2StateRefreshFunc(computeClient, d.Id()),
-			Timeout:    d.Timeout(schema.TimeoutUpdate),
-			Delay:      10 * time.Second,
-			MinTimeout: 3 * time.Second,
-		}
-
-		_, err = stateConf.WaitForState()
-		if err != nil {
-			return fmt.Errorf("Error waiting for instance (%s) to resize: %s", d.Id(), err)
-		}
-
-		// Confirm resize.
-		log.Printf("[DEBUG] Confirming resize")
-		err = servers.ConfirmResize(computeClient, d.Id()).ExtractErr()
-		if err != nil {
-			return fmt.Errorf("Error confirming resize of HuaweiCloud server: %s", err)
-		}
-
-		stateConf = &resource.StateChangeConf{
-			Pending:    []string{"VERIFY_RESIZE"},
-			Target:     []string{"ACTIVE"},
-			Refresh:    ServerV2StateRefreshFunc(computeClient, d.Id()),
-			Timeout:    d.Timeout(schema.TimeoutUpdate),
-			Delay:      10 * time.Second,
-			MinTimeout: 3 * time.Second,
-		}
-
-		_, err = stateConf.WaitForState()
-		if err != nil {
-			return fmt.Errorf("Error waiting for instance (%s) to confirm resize: %s", d.Id(), err)
+		if err := cloudservers.WaitForJobSuccess(ecsClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), job.JobID); err != nil {
+			return fmt.Errorf("Error waiting for instance (%s) to be resized: %s", d.Id(), err)
 		}
 	}
 
