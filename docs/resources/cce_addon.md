@@ -19,6 +19,11 @@ The following arguments are supported:
 * `cluster_id` - (Required, String, ForceNew) ID of the cluster. Changing this parameter will create a new resource.
 * `template_name` - (Required, String, ForceNew) Name of the addon template. Changing this parameter will create a new resource.
 * `version` - (Required, String, ForceNew) Version of the addon. Changing this parameter will create a new resource.
+* `values` - (Optional, List, ForceNew) Add-on template installation parameters. These parameters vary depending on the add-on.
+
+The `values` block supports:
+* `basic` - (Required, Map) Key/Value pairs vary depending on the add-on.
+* `custom` - (Optional, Map) Key/Value pairs vary depending on the add-on.
 
 ## Attributes Reference
 
