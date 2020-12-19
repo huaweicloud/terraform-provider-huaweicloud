@@ -320,3 +320,37 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 		return ServerPage{pagination.LinkedPageBase{PageResult: r}}
 	})
 }
+
+type ResizeOpts struct {
+	FlavorRef   string             `json:"flavorRef" required:"true"`
+	Mode        string             `json:"mode,omitempty"`
+	ExtendParam *ResizeExtendParam `json:"extendparam,omitempty"`
+}
+
+type ResizeExtendParam struct {
+	AutoPay string `json:"isAutoPay,omitempty"`
+}
+
+// ResizeOptsBuilder allows extensions to add additional parameters to the
+// Resize request.
+type ResizeOptsBuilder interface {
+	ToServerResizeMap() (map[string]interface{}, error)
+}
+
+// ToServerResizeMap assembles a request body based on the contents of a
+// ResizeOpts.
+func (opts ResizeOpts) ToServerResizeMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "resize")
+}
+
+// Resize requests a server to be resizeed.
+func Resize(client *golangsdk.ServiceClient, opts ResizeOptsBuilder, serverId string) (r JobResult) {
+	reqBody, err := opts.ToServerResizeMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(resizeURL(client, serverId), reqBody, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
+	return
+}
