@@ -248,6 +248,12 @@ func resourceRdsInstanceV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"time_zone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -266,6 +272,7 @@ func resourceRdsInstanceV3UserInputParams(d *schema.ResourceData) map[string]int
 		"subnet_id":               d.Get("subnet_id"),
 		"volume":                  d.Get("volume"),
 		"vpc_id":                  d.Get("vpc_id"),
+		"time_zone":               d.Get("time_zone"),
 	}
 }
 
@@ -737,6 +744,16 @@ func buildRdsInstanceV3CreateParameters(opts map[string]interface{}, arrayIndex 
 		params["vpc_id"] = v
 	}
 
+	v, err = navigateValue(opts, []string{"time_zone"}, arrayIndex)
+	if err != nil {
+		return nil, err
+	}
+	if e, err := isEmptyValue(reflect.ValueOf(v)); err != nil {
+		return nil, err
+	} else if !e {
+		params["time_zone"] = v
+	}
+
 	return params, nil
 }
 
@@ -1135,6 +1152,14 @@ func setRdsInstanceV3Properties(d *schema.ResourceData, response map[string]inte
 	}
 	if err = d.Set("tags", v); err != nil {
 		return fmt.Errorf("Error setting Instance:tags, err: %s", err)
+	}
+
+	v, err = navigateValue(response, []string{"list", "time_zone"}, nil)
+	if err != nil {
+		return fmt.Errorf("Error reading Instance:time_zone, err: %s", err)
+	}
+	if err = d.Set("time_zone", v); err != nil {
+		return fmt.Errorf("Error setting Instance:time_zone, err: %s", err)
 	}
 
 	return nil
