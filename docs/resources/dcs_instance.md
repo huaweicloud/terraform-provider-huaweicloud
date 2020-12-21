@@ -104,7 +104,7 @@ The following arguments are supported:
     the value is 3.0, 4.0 or 5.0. 
     Changing this creates a new instance.
 
-* `capacity` - (Required, ForceNew) Indicates the Cache capacity. Unit: GB.
+* `capacity` - (Required, Float, ForceNew) Indicates the Cache capacity. Unit: GB.
     Redis3.0: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64. 
     Proxy cluster instance specifications support 64, 128, 256, 512, and 1024.
 
@@ -173,20 +173,20 @@ The following arguments are supported:
 	blank, parameter maintain_begin is also blank. In this case, the system automatically allocates
 	the default end time 06:00.
 
-* `save_days` - (Optional, Int, ForceNew) Retention time. Unit: day. Range: 1–7. Changing this creates a new instance.
+* `save_days` - (Required, Int, ForceNew) Retention time. Unit: day. Range: 1–7. Changing this creates a new instance.
 
-* `backup_type` - (Optional, String, ForceNew) Backup type. Options:
+* `backup_type` - (Required, String, ForceNew) Backup type. Options:
     auto: automatic backup.
     manual: manual backup.
     Changing this creates a new instance.
 
-* `begin_at` - (Optional, String, ForceNew) Time at which backup starts. "00:00-01:00" indicates that backup
+* `begin_at` - (Required, String, ForceNew) Time at which backup starts. "00:00-01:00" indicates that backup
     starts at 00:00:00. Changing this creates a new instance.
 
-* `period_type` - (Optional, String, ForceNew) Interval at which backup is performed. Currently, only weekly
+* `period_type` - (Required, String, ForceNew) Interval at which backup is performed. Currently, only weekly
     backup is supported. Changing this creates a new instance.
 
-* `backup_at` - (Optional, List, ForceNew) Day in a week on which backup starts. Range: 1–7. Where: 1
+* `backup_at` - (Required, List, ForceNew) Day in a week on which backup starts. Range: 1–7. Where: 1
     indicates Monday; 7 indicates Sunday. Changing this creates a new instance.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the dcs instance. Changing this creates a new instance.
