@@ -58,7 +58,7 @@ func resourceCTSTrackerV1() *schema.Resource {
 			},
 			"topic_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"operations": {
 				Type:     schema.TypeSet,
@@ -88,6 +88,10 @@ func resourceCTSTrackerCreate(d *schema.ResourceData, meta interface{}) error {
 
 	if err != nil {
 		return fmt.Errorf("Error creating cts Client: %s", err)
+	}
+
+	if d.Get("is_support_smn").(bool) == true && d.Get("topic_id").(string) == "" {
+		return fmt.Errorf("Error 'topic_id' is required if 'is_support_smn' is set true")
 	}
 
 	createOpts := tracker.CreateOptsWithSMN{

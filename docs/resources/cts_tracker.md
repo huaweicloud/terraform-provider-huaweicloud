@@ -35,7 +35,7 @@ The following arguments are supported:
 
 * `is_support_smn` - (Required, Bool) Specifies whether SMN is supported. When the value is false, topic_id and operations can be left empty.
 
-* `topic_id` - (Required, String)The theme of the SMN service, Is obtained from SMN and in the format of **urn:smn:([a-z]|[A-Z]|[0-9]|\-){1,32}:([a-z]|[A-Z]|[0-9]){32}:([a-z]|[A-Z]|[0-9]|\-|\_){1,256}**.
+* `topic_id` - (Optional, String) Required if the value of `is_support_smn` is true. The theme of the SMN service, Is obtained from SMN and in the format of **urn:smn:([a-z]|[A-Z]|[0-9]|\-){1,32}:([a-z]|[A-Z]|[0-9]){32}:([a-z]|[A-Z]|[0-9]|\-|\_){1,256}**.
 
 * `operations` - (Required, String) Trigger conditions for sending a notification.
 
