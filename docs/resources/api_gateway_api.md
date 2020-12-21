@@ -56,7 +56,7 @@ The following arguments are supported:
     The value can be 1 (public) and 2 (private). Defaults to 2.
 
 * `auth_type` - (Required, String) Specifies the security authentication mode.
-     The value can be 'App', 'IAM', and 'NONE'.
+     The value can be 'APP', 'IAM', and 'NONE'.
 
 * `request_protocol` - (Optional, String) Specifies the request protocol. The value can be 'HTTP', 'HTTPS', and 'BOTH'
     which means the API can be accessed through both 'HTTP' and 'HTTPS'. Defaults to 'HTTPS'.
@@ -77,7 +77,7 @@ The following arguments are supported:
 * `request_parameter` - (Optional, List) the request parameter list (documented below).
 * `backend_parameter` - (Optional, List) the backend parameter list (documented below).
 
-* `tags` - (Optional, String) the tags of API in format of string list.
+* `tags` - (Optional, List) the tags of API in format of string list.
 
 * `version` - (Optional, String) Specifies the version of the API. A maximum of 16 characters are allowed.
 
