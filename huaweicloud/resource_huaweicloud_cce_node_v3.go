@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 )
 
-func resourceCCENodeV3() *schema.Resource {
+func ResourceCCENodeV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCCENodeV3Create,
 		Read:   resourceCCENodeV3Read,
