@@ -46,5 +46,5 @@ In addition to all arguments above, the following attributes are exported:
 Projects can be imported using the `id`, e.g.
 
 ```
-$ terraform import huaweicloud_identity_project_v3.project_1 89c60255-9bd6-460c-822a-e2b959ede9d2
+$ terraform import huaweicloud_identity_project.project_1 89c60255-9bd6-460c-822a-e2b959ede9d2
 ```

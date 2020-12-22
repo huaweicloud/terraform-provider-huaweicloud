@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -42,4 +43,29 @@ func convertStructToMap(obj interface{}, nameMap map[string]string) (map[string]
 	}
 	log.Printf("[DEBUG]convertStructToMap:: map= %#v\n", p)
 	return p, nil
+}
+
+func compareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
+	var obj1 interface{}
+	err := json.Unmarshal([]byte(tem1), &obj1)
+	if err != nil {
+		return false, err
+	}
+
+	canonicalJson1, _ := json.Marshal(obj1)
+
+	var obj2 interface{}
+	err = json.Unmarshal([]byte(tem2), &obj2)
+	if err != nil {
+		return false, err
+	}
+
+	canonicalJson2, _ := json.Marshal(obj2)
+
+	equal := bytes.Compare(canonicalJson1, canonicalJson2) == 0
+	if !equal {
+		log.Printf("[DEBUG] Canonical template are not equal.\nFirst: %s\nSecond: %s\n",
+			canonicalJson1, canonicalJson2)
+	}
+	return equal, nil
 }

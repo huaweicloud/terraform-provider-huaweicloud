@@ -387,6 +387,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_identity_group":                  ResourceIdentityGroupV3(),
 			"huaweicloud_identity_group_membership":       ResourceIdentityGroupMembershipV3(),
 			"huaweicloud_identity_project":                ResourceIdentityProjectV3(),
+			"huaweicloud_identity_role":                   resourceIdentityRole(),
 			"huaweicloud_identity_role_assignment":        ResourceIdentityRoleAssignmentV3(),
 			"huaweicloud_identity_user":                   ResourceIdentityUserV3(),
 			"huaweicloud_images_image":                    ResourceImsImage(),
