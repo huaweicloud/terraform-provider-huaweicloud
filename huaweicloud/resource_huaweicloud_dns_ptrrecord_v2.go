@@ -48,6 +48,7 @@ func ResourceDNSPtrRecordV2() *schema.Resource {
 			"floatingip_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"ttl": {
 				Type:         schema.TypeInt,
