@@ -47,7 +47,7 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Description of the PTR record.
 
-* `floatingip_id` - (Required, String) The ID of the FloatingIP/EIP.
+* `floatingip_id` - (Required, String, ForceNew) The ID of the FloatingIP/EIP.
 
 * `ttl` - (Optional, Int) The time to live (TTL) of the record set (in seconds). The value
   range is 300–2147483647. The default value is 300.
