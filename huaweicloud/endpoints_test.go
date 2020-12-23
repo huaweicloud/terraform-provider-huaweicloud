@@ -667,6 +667,18 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 		t.Fatalf("DNS region endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("DNS region endpoint:\t %s", actualURL)
+
+	// test the endpoint of VPC endpoint
+	serviceClient, err = config.VPCEPClient(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud VPC endpoint client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://vpcep.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("VPCEP endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("VPCEP endpoint:\t %s", actualURL)
 }
 
 func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {

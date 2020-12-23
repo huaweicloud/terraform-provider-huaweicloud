@@ -628,12 +628,20 @@ func (c *Config) NetworkingV1Client(region string) (*golangsdk.ServiceClient, er
 	return c.NewServiceClient("vpc", region)
 }
 
+// NetworkingV2Client returns a ServiceClient for neutron APIs
+// the endpoint likes: https://vpc.{region}.myhuaweicloud.com/v2.0/
+func (c *Config) NetworkingV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("networkv2", region)
+}
+
 func (c *Config) SecurityGroupV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("security_group", region)
 }
 
-func (c *Config) NetworkingV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("networkv2", region)
+// VPCEPClient returns a ServiceClient for VPC Endpoint APIs
+// the endpoint likes: https://vpcep.{region}.myhuaweicloud.com/v1/{project_id}/
+func (c *Config) VPCEPClient(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("vpcep", region)
 }
 
 func (c *Config) natV2Client(region string) (*golangsdk.ServiceClient, error) {

@@ -162,6 +162,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v2.0",
 		WithOutProjectID: true,
 	},
+	"vpcep": ServiceCatalog{
+		Name:    "vpcep",
+		Version: "v1",
+	},
 	"dns": ServiceCatalog{
 		Name:             "dns",
 		Version:          "v2",
