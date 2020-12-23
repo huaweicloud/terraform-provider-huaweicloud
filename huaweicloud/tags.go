@@ -6,6 +6,11 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 )
 
+const (
+	tagVPCEP        string = "endpoint"
+	tagVPCEPService string = "endpoint_service"
+)
+
 // tagsSchema returns the schema to use for tags.
 func tagsSchema() *schema.Schema {
 	return &schema.Schema{

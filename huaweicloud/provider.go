@@ -438,6 +438,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpc_peering_connection_accepter": resourceVpcPeeringConnectionAccepterV2(),
 			"huaweicloud_vpc_route":                       ResourceVPCRouteV2(),
 			"huaweicloud_vpc_subnet":                      ResourceVpcSubnetV1(),
+			"huaweicloud_vpcep_service":                   ResourceVPCEndpointService(),
 			"huaweicloud_vpnaas_endpoint_group":           resourceVpnEndpointGroupV2(),
 			"huaweicloud_vpnaas_ike_policy":               resourceVpnIKEPolicyV2(),
 			"huaweicloud_vpnaas_ipsec_policy":             resourceVpnIPSecPolicyV2(),
