@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func resourceCCEAddonV3() *schema.Resource {
+func ResourceCCEAddonV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCCEAddonV3Create,
 		Read:   resourceCCEAddonV3Read,

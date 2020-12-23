@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
 )
 
-func dataSourceCCEClusterV3() *schema.Resource {
+func DataSourceCCEClusterV3() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceCCEClusterV3Read,
 

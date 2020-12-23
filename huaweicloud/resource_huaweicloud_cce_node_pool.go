@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
 )
 
-func resourceCCENodePool() *schema.Resource {
+func ResourceCCENodePool() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCCENodePoolCreate,
 		Read:   resourceCCENodePoolRead,

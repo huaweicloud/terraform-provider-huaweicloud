@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
 )
 
-func resourceCCEClusterV3() *schema.Resource {
+func ResourceCCEClusterV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCCEClusterV3Create,
 		Read:   resourceCCEClusterV3Read,
