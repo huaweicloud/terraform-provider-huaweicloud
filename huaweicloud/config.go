@@ -388,7 +388,7 @@ func (c *Config) computeS3conn(region string) (*s3.S3, error) {
 	return s3conn, nil
 }
 
-func (c *Config) newObjectStorageClientWithSignature(region string) (*obs.ObsClient, error) {
+func (c *Config) NewObjectStorageClientWithSignature(region string) (*obs.ObsClient, error) {
 	if c.AccessKey == "" || c.SecretKey == "" {
 		return nil, fmt.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
 	}
@@ -404,7 +404,7 @@ func (c *Config) newObjectStorageClientWithSignature(region string) (*obs.ObsCli
 	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"))
 }
 
-func (c *Config) newObjectStorageClient(region string) (*obs.ObsClient, error) {
+func (c *Config) NewObjectStorageClient(region string) (*obs.ObsClient, error) {
 	if c.AccessKey == "" || c.SecretKey == "" {
 		return nil, fmt.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
 	}
