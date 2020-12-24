@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/whitelists"
@@ -11,6 +12,7 @@ import (
 
 func TestAccLBV2Whitelist_basic(t *testing.T) {
 	var whitelist whitelists.Whitelist
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_whitelist.whitelist_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -19,13 +21,13 @@ func TestAccLBV2Whitelist_basic(t *testing.T) {
 		CheckDestroy: testAccCheckLBV2WhitelistDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: TestAccLBV2WhitelistConfig_basic,
+				Config: testAccLBV2WhitelistConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2WhitelistExists(resourceName, &whitelist),
 				),
 			},
 			{
-				Config: TestAccLBV2WhitelistConfig_update,
+				Config: testAccLBV2WhitelistConfig_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "enable_whitelist", "true"),
 				),
@@ -87,14 +89,19 @@ func testAccCheckLBV2WhitelistExists(n string, whitelist *whitelists.Whitelist) 
 	}
 }
 
-var TestAccLBV2WhitelistConfig_basic = fmt.Sprintf(`
+func testAccLBV2WhitelistConfig_basic(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "loadbalancer_1"
-  vip_subnet_id = "%s"
+  name          = "%s"
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "listener_1"
+  name            = "%s"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
@@ -105,16 +112,22 @@ resource "huaweicloud_lb_whitelist" "whitelist_1" {
   whitelist        = "192.168.11.1,192.168.0.1/24"
   listener_id      = huaweicloud_lb_listener.listener_1.id
 }
-`, HW_SUBNET_ID)
+`, rName, rName)
+}
 
-var TestAccLBV2WhitelistConfig_update = fmt.Sprintf(`
+func testAccLBV2WhitelistConfig_update(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "loadbalancer_1"
-  vip_subnet_id = "%s"
+  name          = "%s"
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "listener_1"
+  name            = "%s"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
@@ -125,4 +138,5 @@ resource "huaweicloud_lb_whitelist" "whitelist_1" {
   whitelist        = "192.168.11.1,192.168.0.1/24,192.168.201.18/8"
   listener_id      = huaweicloud_lb_listener.listener_1.id
 }
-`, HW_SUBNET_ID)
+`, rName, rName)
+}

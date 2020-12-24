@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,6 +14,7 @@ import (
 
 func TestAccLBV2L7Policy_basic(t *testing.T) {
 	var l7Policy l7policies.L7Policy
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_l7policy.l7policy_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -21,10 +23,10 @@ func TestAccLBV2L7Policy_basic(t *testing.T) {
 		CheckDestroy: testAccCheckLBV2L7PolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckLBV2L7PolicyConfig_basic,
+				Config: testAccCheckLBV2L7PolicyConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2L7PolicyExists(resourceName, &l7Policy),
-					resource.TestCheckResourceAttr(resourceName, "name", "test"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
 					resource.TestCheckResourceAttr(resourceName, "action", "REDIRECT_TO_POOL"),
 					resource.TestCheckResourceAttr(resourceName, "position", "1"),
@@ -89,32 +91,38 @@ func testAccCheckLBV2L7PolicyExists(n string, l7Policy *l7policies.L7Policy) res
 	}
 }
 
-var testAccCheckLBV2L7PolicyConfig_basic = fmt.Sprintf(`
+func testAccCheckLBV2L7PolicyConfig_basic(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "loadbalancer_1"
-  vip_subnet_id = "%s"
+  name          = "%s"
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "listener_1"
+  name            = "%s"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
 resource "huaweicloud_lb_pool" "pool_1" {
-  name            = "pool_1"
+  name            = "%s"
   protocol        = "HTTP"
   lb_method       = "ROUND_ROBIN"
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
 resource "huaweicloud_lb_l7policy" "l7policy_1" {
-  name         = "test"
+  name         = "%s"
   action       = "REDIRECT_TO_POOL"
   description  = "test description"
   position     = 1
   listener_id  = huaweicloud_lb_listener.listener_1.id
   redirect_pool_id = huaweicloud_lb_pool.pool_1.id
 }
-`, HW_SUBNET_ID)
+`, rName, rName, rName, rName)
+}
