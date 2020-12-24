@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
 )
 
-func resourceListenerV2() *schema.Resource {
+func ResourceListenerV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceListenerV2Create,
 		Read:   resourceListenerV2Read,
@@ -115,7 +115,7 @@ func resourceListenerV2() *schema.Resource {
 
 func resourceListenerV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -193,7 +193,7 @@ func resourceListenerV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceListenerV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -219,19 +219,19 @@ func resourceListenerV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("region", GetRegion(d, config))
 
 	// fetch tags
-	resourceTags, err := tags.Get(lbClient, "listeners", d.Id()).Extract()
-	if err != nil {
-		return fmt.Errorf("Error fetching tags of elb listener: %s", err)
+	if resourceTags, err := tags.Get(lbClient, "listeners", d.Id()).Extract(); err == nil {
+		tagmap := tagsToMap(resourceTags.Tags)
+		d.Set("tags", tagmap)
+	} else {
+		log.Printf("[WARN] fetching tags of elb listener failed: %s", err)
 	}
-	tagmap := tagsToMap(resourceTags.Tags)
-	d.Set("tags", tagmap)
 
 	return nil
 }
 
 func resourceListenerV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -313,7 +313,7 @@ func resourceListenerV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceListenerV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}

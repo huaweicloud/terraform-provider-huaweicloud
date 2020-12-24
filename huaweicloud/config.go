@@ -656,7 +656,7 @@ func (c *Config) elasticLBClient(region string) (*golangsdk.ServiceClient, error
 	return c.NewServiceClient("elb", region)
 }
 
-func (c *Config) elbV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) ElbV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("elbv2", region)
 }
 

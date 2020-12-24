@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
 )
 
-func resourceL7RuleV2() *schema.Resource {
+func ResourceL7RuleV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceL7RuleV2Create,
 		Read:   resourceL7RuleV2Read,
@@ -102,7 +102,7 @@ func resourceL7RuleV2() *schema.Resource {
 
 func resourceL7RuleV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -191,7 +191,7 @@ func resourceL7RuleV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceL7RuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -218,7 +218,7 @@ func resourceL7RuleV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceL7RuleV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -308,7 +308,7 @@ func resourceL7RuleV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceL7RuleV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -372,7 +372,7 @@ func resourceL7RuleV2Import(d *schema.ResourceData, meta interface{}) ([]*schema
 	}
 
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return nil, fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}

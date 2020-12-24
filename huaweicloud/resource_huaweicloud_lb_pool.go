@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
 )
 
-func resourcePoolV2() *schema.Resource {
+func ResourcePoolV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePoolV2Create,
 		Read:   resourcePoolV2Read,
@@ -130,7 +130,7 @@ func resourcePoolV2() *schema.Resource {
 
 func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -227,7 +227,7 @@ func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -253,7 +253,7 @@ func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourcePoolV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -314,7 +314,7 @@ func resourcePoolV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourcePoolV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	lbClient, err := config.elbV2Client(GetRegion(d, config))
+	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}

@@ -627,7 +627,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 
 	// test endpoint of elb v2.0
 	serviceClient, err = nil, nil
-	serviceClient, err = config.elbV2Client(HW_REGION_NAME)
+	serviceClient, err = config.ElbV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ELB v2.0 client: %s", err)
 	}
