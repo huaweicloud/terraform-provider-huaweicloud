@@ -340,6 +340,7 @@ github.com/huaweicloud/golangsdk/openstack/utils
 github.com/huaweicloud/golangsdk/openstack/vbs/v2/backups
 github.com/huaweicloud/golangsdk/openstack/vbs/v2/policies
 github.com/huaweicloud/golangsdk/openstack/vbs/v2/tags
+github.com/huaweicloud/golangsdk/openstack/vpcep/v1/endpoints
 github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services
 github.com/huaweicloud/golangsdk/pagination
 github.com/huaweicloud/golangsdk/testhelper
