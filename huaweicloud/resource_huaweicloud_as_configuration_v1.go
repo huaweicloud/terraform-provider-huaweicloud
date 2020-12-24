@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups"
 )
 
-func resourceASConfiguration() *schema.Resource {
+func ResourceASConfiguration() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceASConfigurationCreate,
 		Read:   resourceASConfigurationRead,
