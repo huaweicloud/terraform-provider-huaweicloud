@@ -13,3 +13,7 @@ func rootURL(c *golangsdk.ServiceClient) string {
 func resourceURL(c *golangsdk.ServiceClient, serviceID string) string {
 	return c.ServiceURL(rootPath, serviceID)
 }
+
+func publicResourceURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL(rootPath, "public")
+}

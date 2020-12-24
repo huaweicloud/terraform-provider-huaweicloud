@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 )
 
 // Service contains the response of the VPC endpoint service
@@ -33,7 +34,7 @@ type Service struct {
 	// whether the client IP address and port number or marker_id information is transmitted to the server
 	TCPProxy string `json:"tcp_proxy"`
 	// the resource tags
-	Tags []ResourceTags `json:"tags"`
+	Tags []tags.ResourceTag `json:"tags"`
 	// the error message when the status of the VPC endpoint service changes to failed
 	Error []ErrorInfo `json:"error"`
 	// the creation time of the VPC endpoint service
@@ -52,14 +53,25 @@ type PortMapping struct {
 	ServerPort int `json:"server_port"`
 }
 
-type ResourceTags struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
-
 type ErrorInfo struct {
 	Code    string `json:"error_code"`
 	Message string `json:"error_message"`
+}
+
+// PublicService contains the response of the public VPC endpoint service
+type PublicService struct {
+	// the ID of the public VPC endpoint service
+	ID string `json:"id"`
+	// the owner of the VPC endpoint service
+	Owner string `json:"owner"`
+	// the name of the VPC endpoint service
+	ServiceName string `json:"service_name"`
+	// the type of the VPC endpoint service: gateway or interface
+	ServiceType string `json:"service_type"`
+	// whether the associated VPC endpoint carries a charge: true or false
+	IsChange bool `json:"is_charge"`
+	// the creation time of the VPC endpoint service
+	Created string `json:"created_at"`
 }
 
 type commonResult struct {
@@ -69,6 +81,12 @@ type commonResult struct {
 // ListResult represents the result of a list operation. Call its ExtractServices
 // method to interpret it as Services.
 type ListResult struct {
+	commonResult
+}
+
+// ListPublicResult represents the result of a list public operation. Call its ExtractServices
+// method to interpret it as PublicServices.
+type ListPublicResult struct {
 	commonResult
 }
 
@@ -107,6 +125,19 @@ func (r commonResult) Extract() (*Service, error) {
 func (r ListResult) ExtractServices() ([]Service, error) {
 	var s struct {
 		Services []Service `json:"endpoint_services"`
+	}
+
+	err := r.ExtractInto(&s)
+	if err != nil {
+		return nil, err
+	}
+	return s.Services, nil
+}
+
+// ExtractServices is a function that accepts a result and extracts the given PublicService
+func (r ListPublicResult) ExtractServices() ([]PublicService, error) {
+	var s struct {
+		Services []PublicService `json:"endpoint_services"`
 	}
 
 	err := r.ExtractInto(&s)
