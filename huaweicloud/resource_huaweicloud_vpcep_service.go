@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
-	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services"
 )
 
@@ -133,6 +132,13 @@ func resourceVPCEndpointServiceCreate(d *schema.ResourceData, meta interface{}) 
 		Approval:    &approval,
 		Ports:       expandPortMappingOpts(d),
 	}
+	//set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		taglist := expandResourceTags(tagRaw)
+		createOpts.Tags = taglist
+	}
+
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := services.Create(vpcepClient, createOpts).Extract()
 	if err != nil {
@@ -155,15 +161,6 @@ func resourceVPCEndpointServiceCreate(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf(
 			"Error waiting for VPC endpoint service(%s) to become available: %s",
 			n.ID, stateErr)
-	}
-
-	//set tags
-	tagRaw := d.Get("tags").(map[string]interface{})
-	if len(tagRaw) > 0 {
-		taglist := expandResourceTags(tagRaw)
-		if tagErr := tags.Create(vpcepClient, tagVPCEPService, n.ID, taglist).ExtractErr(); tagErr != nil {
-			return fmt.Errorf("Error setting tags of VPC endpoint service %s: %s", n.ID, tagErr)
-		}
 	}
 
 	return resourceVPCEndpointServiceRead(d, meta)
@@ -210,14 +207,12 @@ func resourceVPCEndpointServiceRead(d *schema.ResourceData, meta interface{}) er
 	}
 	d.Set("port_mapping", ports)
 
-	// set tags: as the "tags.Get" has not been published in HuaweiCloud, we can fetch tags in Services.Service
-	if len(n.Tags) > 0 {
-		tagmap := make(map[string]string)
-		for _, val := range n.Tags {
-			tagmap[val.Key] = val.Value
-		}
-		d.Set("tags", tagmap)
+	// fetch tags from Services.Service
+	tagmap := make(map[string]string)
+	for _, val := range n.Tags {
+		tagmap[val.Key] = val.Value
 	}
+	d.Set("tags", tagmap)
 
 	return nil
 }
