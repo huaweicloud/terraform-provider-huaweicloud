@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 )
 
 // CreateOptsBuilder allows extensions to add parameters to the
@@ -33,6 +34,8 @@ type CreateOpts struct {
 	VipPortID string `json:"vip_port_id,omitempty"`
 	// Specifies whether the client IP address and port number or marker_id information is transmitted to the server.
 	TCPProxy string `json:"tcp_proxy,omitempty"`
+	// Specifies the resource tags in key/value format
+	Tags []tags.ResourceTag `json:"tags,omitempty"`
 }
 
 // PortOpts contains the port mappings opened to the VPC endpoint service.
@@ -123,7 +126,8 @@ type ListOptsBuilder interface {
 type ListOpts struct {
 	ServiceName string `q:"endpoint_service_name"`
 	ID          string `q:"id"`
-	Status      string `q:"status"`
+	// Status is not supported for ListPublic
+	Status string `q:"status"`
 }
 
 // ToServiceListQuery formats a ListOpts into a query string.
@@ -136,6 +140,30 @@ func (opts ListOpts) ToServiceListQuery() (string, error) {
 func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) ([]Service, error) {
 	var r ListResult
 	url := rootURL(client)
+	if opts != nil {
+		query, err := opts.ToServiceListQuery()
+		if err != nil {
+			return nil, err
+		}
+		url += query
+	}
+	_, r.Err = client.Get(url, &r.Body, nil)
+	if r.Err != nil {
+		return nil, r.Err
+	}
+
+	allNodes, err := r.ExtractServices()
+	if err != nil {
+		return nil, err
+	}
+
+	return allNodes, nil
+}
+
+// ListPublic makes a request against the API to list public VPC endpoint services.
+func ListPublic(client *golangsdk.ServiceClient, opts ListOptsBuilder) ([]PublicService, error) {
+	var r ListPublicResult
+	url := publicResourceURL(client)
 	if opts != nil {
 		query, err := opts.ToServiceListQuery()
 		if err != nil {
