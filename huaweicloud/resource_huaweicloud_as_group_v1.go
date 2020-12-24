@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/tags"
 )
 
-func resourceASGroup() *schema.Resource {
+func ResourceASGroup() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceASGroupCreate,
 		Read:   resourceASGroupRead,

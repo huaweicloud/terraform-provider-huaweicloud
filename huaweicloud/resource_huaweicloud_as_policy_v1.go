@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/policies"
 )
 
-func resourceASPolicy() *schema.Resource {
+func ResourceASPolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceASPolicyCreate,
 		Read:   resourceASPolicyRead,
