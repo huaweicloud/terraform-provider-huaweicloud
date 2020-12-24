@@ -5,6 +5,7 @@ import (
 	"log"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,15 +14,16 @@ import (
 
 func TestAccASV1Group_basic(t *testing.T) {
 	var asGroup groups.Group
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_as_group.hth_as_group"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccAsConfigPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckASV1GroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testASV1Group_basic,
+				Config: testASV1Group_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASV1GroupExists(resourceName, &asGroup),
 					resource.TestCheckResourceAttr(resourceName, "lbaas_listeners.0.protocol_port", "8080"),
@@ -88,40 +90,64 @@ func testAccCheckASV1GroupExists(n string, group *groups.Group) resource.TestChe
 	}
 }
 
-var testASV1Group_basic = fmt.Sprintf(`
+func testASV1Group_basic(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_images_image" "test" {
+  name        = "Ubuntu 18.04 server 64bit"
+  most_recent = true
+}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
 resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = "terraform"
+  name        = "%s"
   description = "This is a terraform test security group"
 }
 
 resource "huaweicloud_compute_keypair" "hth_key" {
-  name       = "as_key"
+  name       = "%s"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
-resource "huaweicloud_lb_loadbalancer_v2" "loadbalancer_1" {
-  name          = "loadbalancer_1"
-  vip_subnet_id = "%s"
+resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
+  name          = "%s"
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 }
 
-resource "huaweicloud_lb_listener_v2" "listener_1" {
-  name            = "listener_1"
+resource "huaweicloud_lb_listener" "listener_1" {
+  name            = "%s"
   protocol        = "HTTP"
   protocol_port   = 8080
-  loadbalancer_id = huaweicloud_lb_loadbalancer_v2.loadbalancer_1.id
+  loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
-resource "huaweicloud_lb_pool_v2" "pool_1" {
-  name        = "pool_1"
+resource "huaweicloud_lb_pool" "pool_1" {
+  name        = "%s"
   protocol    = "HTTP"
   lb_method   = "ROUND_ROBIN"
-  listener_id = huaweicloud_lb_listener_v2.listener_1.id
+  listener_id = huaweicloud_lb_listener.listener_1.id
 }
 
 resource "huaweicloud_as_configuration" "hth_as_config"{
-  scaling_configuration_name = "hth_as_config"
+  scaling_configuration_name = "%s"
   instance_config {
-    image    = "%s"
+	image    = data.huaweicloud_images_image.test.id
+	flavor   = data.huaweicloud_compute_flavors.test.ids[0]
     key_name = huaweicloud_compute_keypair.hth_key.id
     disk {
       size        = 40
@@ -132,23 +158,24 @@ resource "huaweicloud_as_configuration" "hth_as_config"{
 }
 
 resource "huaweicloud_as_group" "hth_as_group"{
-  scaling_group_name       = "hth_as_group"
+  scaling_group_name       = "%s"
   scaling_configuration_id = huaweicloud_as_configuration.hth_as_config.id
-  vpc_id                   = "%s"
+  vpc_id                   = data.huaweicloud_vpc.test.id
 
   networks {
-    id = "%s"
+    id = data.huaweicloud_vpc_subnet.test.id
   }
   security_groups {
     id = huaweicloud_networking_secgroup.secgroup.id
   }
   lbaas_listeners {
-    pool_id       = huaweicloud_lb_pool_v2.pool_1.id
-    protocol_port = huaweicloud_lb_listener_v2.listener_1.protocol_port
+    pool_id       = huaweicloud_lb_pool.pool_1.id
+    protocol_port = huaweicloud_lb_listener.listener_1.protocol_port
   }
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, HW_SUBNET_ID, HW_IMAGE_ID, HW_VPC_ID, HW_NETWORK_ID)
+`, rName, rName, rName, rName, rName, rName, rName)
+}

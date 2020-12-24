@@ -111,7 +111,7 @@ The `instance_config` block supports:
     and disk arguments do not take effect. If the instance_id argument is not specified,
     flavor, image, and disk arguments are mandatory.
 
-* `flavor` - (Optional, String) The flavor ID.
+* `flavor` - (Required, String) The flavor name.
 
 * `image` - (Optional, String) The image ID.
 
