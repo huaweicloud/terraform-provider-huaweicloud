@@ -781,6 +781,13 @@ func (c *Config) gaussdbV3Client(region string) (*golangsdk.ServiceClient, error
 	return c.NewServiceClient("gaussdb", region)
 }
 
+// ********** client for edge / IoT **********
+
+// IECV1Client returns a ServiceClient for IEC Endpoint APIs
+func (c *Config) IECV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("iec", region)
+}
+
 // ********** client for Others **********
 func (c *Config) BssV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("bss", region)
