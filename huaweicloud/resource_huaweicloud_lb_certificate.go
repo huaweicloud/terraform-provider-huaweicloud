@@ -12,7 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/certificates"
 )
 
-func resourceCertificateV2() *schema.Resource {
+func ResourceCertificateV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCertificateV2Create,
 		Read:   resourceCertificateV2Read,
@@ -85,7 +85,7 @@ func resourceCertificateV2() *schema.Resource {
 
 func resourceCertificateV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elbV2Client(GetRegion(d, config))
+	elbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -113,7 +113,7 @@ func resourceCertificateV2Create(d *schema.ResourceData, meta interface{}) error
 
 func resourceCertificateV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elbV2Client(GetRegion(d, config))
+	elbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -140,7 +140,7 @@ func resourceCertificateV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCertificateV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elbV2Client(GetRegion(d, config))
+	elbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -182,7 +182,7 @@ func resourceCertificateV2Update(d *schema.ResourceData, meta interface{}) error
 
 func resourceCertificateV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elbV2Client(GetRegion(d, config))
+	elbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}

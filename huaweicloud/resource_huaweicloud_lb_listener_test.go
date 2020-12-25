@@ -45,7 +45,7 @@ func TestAccLBV2Listener_basic(t *testing.T) {
 
 func testAccCheckLBV2ListenerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	elbClient, err := config.elbV2Client(HW_REGION_NAME)
+	elbClient, err := config.ElbV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -76,7 +76,7 @@ func testAccCheckLBV2ListenerExists(n string, listener *listeners.Listener) reso
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		elbClient, err := config.elbV2Client(HW_REGION_NAME)
+		elbClient, err := config.ElbV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}

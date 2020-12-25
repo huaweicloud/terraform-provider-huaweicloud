@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/whitelists"
 )
 
-func resourceWhitelistV2() *schema.Resource {
+func ResourceWhitelistV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceWhitelistV2Create,
 		Read:   resourceWhitelistV2Read,
@@ -58,7 +58,7 @@ func resourceWhitelistV2() *schema.Resource {
 
 func resourceWhitelistV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elbV2Client(GetRegion(d, config))
+	elbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -83,7 +83,7 @@ func resourceWhitelistV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceWhitelistV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elbV2Client(GetRegion(d, config))
+	elbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -106,7 +106,7 @@ func resourceWhitelistV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceWhitelistV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elbV2Client(GetRegion(d, config))
+	elbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -131,7 +131,7 @@ func resourceWhitelistV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceWhitelistV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elbV2Client(GetRegion(d, config))
+	elbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
