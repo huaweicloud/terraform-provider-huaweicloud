@@ -194,10 +194,10 @@ The following arguments are supported:
 
 * `name` - (Required, String) A unique name for the resource.
 
-* `image_id` - (Optional, String) Required if `image_name` is empty. The image ID of
+* `image_id` - (Optional, String, ForceNew) Required if `image_name` is empty. The image ID of
     the desired image for the server. Changing this creates a new server.
 
-* `image_name` - (Optional, String) Required if `image_id` is empty. The name of the
+* `image_name` - (Optional, String, ForceNew) Required if `image_id` is empty. The name of the
     desired image for the server. Changing this creates a new server.
 
 * `flavor_id` - (Optional, String) Required if `flavor_name` is empty. The flavor ID of
