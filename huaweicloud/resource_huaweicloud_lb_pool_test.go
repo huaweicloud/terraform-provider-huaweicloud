@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
@@ -11,25 +12,27 @@ import (
 
 func TestAccLBV2Pool_basic(t *testing.T) {
 	var pool pools.Pool
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_pool.pool_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckULB(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2PoolDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: TestAccLBV2PoolConfig_basic,
+				Config: testAccLBV2PoolConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2PoolExists(resourceName, &pool),
-					resource.TestCheckResourceAttr(resourceName, "name", "pool_1"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "lb_method", "ROUND_ROBIN"),
 				),
 			},
 			{
-				Config: TestAccLBV2PoolConfig_update,
+				Config: testAccLBV2PoolConfig_update(rName, rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "pool_1_updated"),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "lb_method", "LEAST_CONNECTIONS"),
 				),
 			},
@@ -90,21 +93,26 @@ func testAccCheckLBV2PoolExists(n string, pool *pools.Pool) resource.TestCheckFu
 	}
 }
 
-var TestAccLBV2PoolConfig_basic = fmt.Sprintf(`
+func testAccLBV2PoolConfig_basic(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "loadbalancer_1"
-  vip_subnet_id = "%s"
+  name          = "%s"
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "listener_1"
+  name            = "%s"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
 resource "huaweicloud_lb_pool" "pool_1" {
-  name        = "pool_1"
+  name        = "%s"
   protocol    = "HTTP"
   lb_method   = "ROUND_ROBIN"
   listener_id = huaweicloud_lb_listener.listener_1.id
@@ -115,23 +123,29 @@ resource "huaweicloud_lb_pool" "pool_1" {
     delete = "5m"
   }
 }
-`, HW_SUBNET_ID)
+`, rName, rName, rName)
+}
 
-var TestAccLBV2PoolConfig_update = fmt.Sprintf(`
+func testAccLBV2PoolConfig_update(rName, rNameUpdate string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "loadbalancer_1"
-  vip_subnet_id = "%s"
+  name          = "%s"
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "listener_1"
+  name            = "%s"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
 resource "huaweicloud_lb_pool" "pool_1" {
-  name           = "pool_1_updated"
+  name           = "%s"
   protocol       = "HTTP"
   lb_method      = "LEAST_CONNECTIONS"
   admin_state_up = "true"
@@ -143,4 +157,5 @@ resource "huaweicloud_lb_pool" "pool_1" {
     delete = "5m"
   }
 }
-`, HW_SUBNET_ID)
+`, rName, rName, rNameUpdate)
+}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
@@ -11,27 +12,29 @@ import (
 
 func TestAccLBV2Listener_basic(t *testing.T) {
 	var listener listeners.Listener
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_listener.listener_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckULB(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2ListenerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: TestAccLBV2ListenerConfig_basic,
+				Config: testAccLBV2ListenerConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2ListenerExists(resourceName, &listener),
-					resource.TestCheckResourceAttr(resourceName, "name", "listener_1"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "connection_limit", "-1"),
 				),
 			},
 			{
-				Config: TestAccLBV2ListenerConfig_update,
+				Config: testAccLBV2ListenerConfig_update(rName, rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "listener_1_updated"),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 				),
@@ -93,14 +96,19 @@ func testAccCheckLBV2ListenerExists(n string, listener *listeners.Listener) reso
 	}
 }
 
-var TestAccLBV2ListenerConfig_basic = fmt.Sprintf(`
+func testAccLBV2ListenerConfig_basic(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "loadbalancer_1"
-  vip_subnet_id = "%s"
+  name          = "%s"
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "listener_1"
+  name            = "%s"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
@@ -110,16 +118,22 @@ resource "huaweicloud_lb_listener" "listener_1" {
     owner = "terraform"
   }
 }
-`, HW_SUBNET_ID)
+`, rName, rName)
+}
 
-var TestAccLBV2ListenerConfig_update = fmt.Sprintf(`
+func testAccLBV2ListenerConfig_update(rName, rNameUpdate string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "loadbalancer_1"
-  vip_subnet_id = "%s"
+  name          = "%s"
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "listener_1_updated"
+  name            = "%s"
   protocol        = "HTTP"
   protocol_port   = 8080
   admin_state_up  = "true"
@@ -130,4 +144,5 @@ resource "huaweicloud_lb_listener" "listener_1" {
     owner = "terraform_update"
   }
 }
-`, HW_SUBNET_ID)
+`, rName, rNameUpdate)
+}

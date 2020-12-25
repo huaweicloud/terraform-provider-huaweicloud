@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -15,18 +16,20 @@ import (
 
 func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_loadbalancer.loadbalancer_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckULB(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2LoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLBV2LoadBalancerConfig_basic,
+				Config: testAccLBV2LoadBalancerConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2LoadBalancerExists(resourceName, &lb),
-					resource.TestCheckResourceAttr(resourceName, "name", "loadbalancer_1"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestMatchResourceAttr(resourceName, "vip_port_id",
@@ -34,9 +37,9 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccLBV2LoadBalancerConfig_update,
+				Config: testAccLBV2LoadBalancerConfig_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "loadbalancer_1_updated"),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 				),
@@ -48,15 +51,18 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
 	var sg_1, sg_2 groups.SecGroup
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameSecg1 := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameSecg2 := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_loadbalancer.loadbalancer_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckULB(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2LoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLBV2LoadBalancer_secGroup,
+				Config: testAccLBV2LoadBalancer_secGroup(rName, rNameSecg1, rNameSecg2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2LoadBalancerExists(resourceName, &lb),
 					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "1"),
@@ -68,7 +74,7 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccLBV2LoadBalancer_secGroup_update1,
+				Config: testAccLBV2LoadBalancer_secGroup_update1(rName, rNameSecg1, rNameSecg2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2LoadBalancerExists(resourceName, &lb),
 					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "2"),
@@ -81,7 +87,7 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccLBV2LoadBalancer_secGroup_update2,
+				Config: testAccLBV2LoadBalancer_secGroup_update2(rName, rNameSecg1, rNameSecg2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2LoadBalancerExists(resourceName, &lb),
 					resource.TestCheckResourceAttr(resourceName, "security_group_ids.#", "1"),
@@ -174,10 +180,15 @@ func testAccCheckLBV2LoadBalancerHasSecGroup(
 	}
 }
 
-var testAccLBV2LoadBalancerConfig_basic = fmt.Sprintf(`
+func testAccLBV2LoadBalancerConfig_basic(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "loadbalancer_1"
-  vip_subnet_id = "%s"
+  name          = "%s"
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 
   tags = {
     key   = "value"
@@ -190,13 +201,19 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
     delete = "5m"
   }
 }
-`, HW_SUBNET_ID)
+`, rName)
+}
 
-var testAccLBV2LoadBalancerConfig_update = fmt.Sprintf(`
+func testAccLBV2LoadBalancerConfig_update(rNameUpdate string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name           = "loadbalancer_1_updated"
+  name           = "%s"
   admin_state_up = "true"
-  vip_subnet_id  = "%s"
+  vip_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
 
   tags = {
     key1  = "value1"
@@ -209,65 +226,84 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
     delete = "5m"
   }
 }
-`, HW_SUBNET_ID)
+`, rNameUpdate)
+}
 
-var testAccLBV2LoadBalancer_secGroup = fmt.Sprintf(`
+func testAccLBV2LoadBalancer_secGroup(rName, rNameSecg1, rNameSecg2 string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
-  name        = "secgroup_1"
+  name        = "%s"
   description = "secgroup_1"
 }
 
 resource "huaweicloud_networking_secgroup" "secgroup_2" {
-  name        = "secgroup_2"
+  name        = "%s"
   description = "secgroup_2"
 }
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name               = "loadbalancer_1"
-  vip_subnet_id      = "%s"
+  name               = "%s"
+  vip_subnet_id      = data.huaweicloud_vpc_subnet.test.subnet_id
   security_group_ids = [
     huaweicloud_networking_secgroup.secgroup_1.id
   ]
 }
-`, HW_SUBNET_ID)
+`, rNameSecg1, rNameSecg2, rName)
+}
 
-var testAccLBV2LoadBalancer_secGroup_update1 = fmt.Sprintf(`
+func testAccLBV2LoadBalancer_secGroup_update1(rName, rNameSecg1, rNameSecg2 string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
-  name        = "secgroup_1"
+  name        = "%s"
   description = "secgroup_1"
 }
 
 resource "huaweicloud_networking_secgroup" "secgroup_2" {
-  name        = "secgroup_2"
+  name        = "%s"
   description = "secgroup_2"
 }
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name               = "loadbalancer_1"
-  vip_subnet_id      = "%s"
+  name               = "%s"
+  vip_subnet_id      = data.huaweicloud_vpc_subnet.test.subnet_id
   security_group_ids = [
     huaweicloud_networking_secgroup.secgroup_1.id,
     huaweicloud_networking_secgroup.secgroup_2.id
   ]
 }
-`, HW_SUBNET_ID)
+`, rNameSecg1, rNameSecg2, rName)
+}
 
-var testAccLBV2LoadBalancer_secGroup_update2 = fmt.Sprintf(`
+func testAccLBV2LoadBalancer_secGroup_update2(rName, rNameSecg1, rNameSecg2 string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
-  name        = "secgroup_1"
+  name        = "%s"
   description = "secgroup_1"
 }
 
 resource "huaweicloud_networking_secgroup" "secgroup_2" {
-  name        = "secgroup_2"
+  name        = "%s"
   description = "secgroup_2"
 }
 
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name               = "loadbalancer_1"
-  vip_subnet_id      = "%s"
+  name               = "%s"
+  vip_subnet_id      = data.huaweicloud_vpc_subnet.test.subnet_id
   security_group_ids = [
     huaweicloud_networking_secgroup.secgroup_2.id
   ]
 }
-`, HW_SUBNET_ID)
+`, rNameSecg1, rNameSecg2, rName)
+}

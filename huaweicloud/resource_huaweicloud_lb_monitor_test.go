@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/monitors"
@@ -11,26 +12,28 @@ import (
 
 func TestAccLBV2Monitor_basic(t *testing.T) {
 	var monitor monitors.Monitor
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_monitor.monitor_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckULB(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLBV2MonitorDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: TestAccLBV2MonitorConfig_basic,
+				Config: testAccLBV2MonitorConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2MonitorExists(resourceName, &monitor),
-					resource.TestCheckResourceAttr(resourceName, "name", "monitor_1"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "delay", "20"),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "10"),
 				),
 			},
 			{
-				Config: TestAccLBV2MonitorConfig_update,
+				Config: testAccLBV2MonitorConfig_update(rName, rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "monitor_1_updated"),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "delay", "30"),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "15"),
 				),
@@ -92,28 +95,33 @@ func testAccCheckLBV2MonitorExists(n string, monitor *monitors.Monitor) resource
 	}
 }
 
-var TestAccLBV2MonitorConfig_basic = fmt.Sprintf(`
+func testAccLBV2MonitorConfig_basic(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "loadbalancer_1"
-  vip_subnet_id = "%s"
+  name          = "%s"
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "listener_1"
+  name            = "%s"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
 resource "huaweicloud_lb_pool" "pool_1" {
-  name        = "pool_1"
+  name        = "%s"
   protocol    = "HTTP"
   lb_method   = "ROUND_ROBIN"
   listener_id = huaweicloud_lb_listener.listener_1.id
 }
 
 resource "huaweicloud_lb_monitor" "monitor_1" {
-  name        = "monitor_1"
+  name        = "%s"
   type        = "PING"
   delay       = 20
   timeout     = 10
@@ -126,30 +134,36 @@ resource "huaweicloud_lb_monitor" "monitor_1" {
     delete = "5m"
   }
 }
-`, HW_SUBNET_ID)
+`, rName, rName, rName, rName)
+}
 
-var TestAccLBV2MonitorConfig_update = fmt.Sprintf(`
+func testAccLBV2MonitorConfig_update(rName, rNameUpdate string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
-  name          = "loadbalancer_1"
-  vip_subnet_id = "%s"
+  name          = "%s"
+  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
 }
 
 resource "huaweicloud_lb_listener" "listener_1" {
-  name            = "listener_1"
+  name            = "%s"
   protocol        = "HTTP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
 resource "huaweicloud_lb_pool" "pool_1" {
-  name        = "pool_1"
+  name        = "%s"
   protocol    = "HTTP"
   lb_method   = "ROUND_ROBIN"
   listener_id = huaweicloud_lb_listener.listener_1.id
 }
 
 resource "huaweicloud_lb_monitor" "monitor_1" {
-  name           = "monitor_1_updated"
+  name           = "%s"
   type           = "PING"
   delay          = 30
   timeout        = 15
@@ -163,4 +177,5 @@ resource "huaweicloud_lb_monitor" "monitor_1" {
     delete = "5m"
   }
 }
-`, HW_SUBNET_ID)
+`, rName, rName, rName, rNameUpdate)
+}
