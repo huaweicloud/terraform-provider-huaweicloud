@@ -34,8 +34,8 @@ resource "huaweicloud_identity_agency" "agency" {
 
 The following arguments are supported:
 
-* `name` - (Required, String, String) The name of agency. The name is a string of 1 to 64
-    characters.
+* `name` - (Required, String, ForceNew) The name of agency. The name is a string of 1 to 64
+    characters. Changing this will create a new agency.
 
 * `description` - (Optional, String) Provides supplementary information about the
     agency. The value is a string of 0 to 255 characters.

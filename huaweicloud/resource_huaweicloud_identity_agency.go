@@ -43,6 +43,7 @@ func resourceIAMAgencyV3() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"delegated_domain_name": {
 				Type:     schema.TypeString,
