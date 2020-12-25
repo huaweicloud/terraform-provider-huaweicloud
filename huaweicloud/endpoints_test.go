@@ -819,6 +819,33 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	t.Logf("mls endpoint:\t %s", actualURL)
 }
 
+func TestAccServiceEndpoints_Edge(t *testing.T) {
+	testAccPreCheckServiceEndpoints(t)
+
+	testProvider := Provider().(*schema.Provider)
+	raw := make(map[string]interface{})
+	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
+	if err != nil {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	}
+
+	var expectedURL, actualURL string
+	var serviceClient *golangsdk.ServiceClient
+	config := testProvider.Meta().(*Config)
+
+	// test the endpoint of iec service
+	serviceClient, err = config.IECV1Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud IEC client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://iecs.%s/v1/", config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("IEC endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("IEC endpoint:\t %s", actualURL)
+}
+
 func TestAccServiceEndpoints_Others(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 

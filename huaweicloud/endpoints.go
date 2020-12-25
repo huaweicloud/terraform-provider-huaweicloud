@@ -296,6 +296,14 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v2",
 	},
 
+	// catalog for edge / IoT
+	"iec": ServiceCatalog{
+		Name:             "iecs",
+		Version:          "v1",
+		Scope:            "global",
+		WithOutProjectID: true,
+	},
+
 	// catalog for Others
 	"rts": ServiceCatalog{
 		Name:    "rts",
