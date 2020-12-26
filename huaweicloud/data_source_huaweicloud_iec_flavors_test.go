@@ -10,7 +10,6 @@ import (
 )
 
 func TestAccIECFlavorsDataSource_basic(t *testing.T) {
-	rName := "c6.large.2"
 	resourceName := "data.huaweicloud_iec_flavors.flavors_test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -18,18 +17,18 @@ func TestAccIECFlavorsDataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIECFlavorsConfig(rName),
+				Config: testAccIECFlavorsConfig(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIECFlavorsDataSourceID(resourceName, rName),
+					testAccCheckIECFlavorsDataSourceID(resourceName),
 					resource.TestMatchResourceAttr(resourceName, "flavors.#", regexp.MustCompile("[1-9]\\d*")),
-					resource.TestCheckResourceAttr(resourceName, "region", "cn-north-4"),
+					resource.TestCheckResourceAttr(resourceName, "region", HW_REGION_NAME),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckIECFlavorsDataSourceID(n, rName string) resource.TestCheckFunc {
+func testAccCheckIECFlavorsDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -43,11 +42,10 @@ func testAccCheckIECFlavorsDataSourceID(n, rName string) resource.TestCheckFunc 
 	}
 }
 
-func testAccIECFlavorsConfig(val string) string {
+func testAccIECFlavorsConfig() string {
 	return fmt.Sprintf(`
 data "huaweicloud_iec_flavors" "flavors_test" {
-  region = "cn-north-4"
-  name   = "%s"
+  region = "%s"
 }
-	`, val)
+	`, HW_REGION_NAME)
 }
