@@ -268,6 +268,7 @@ github.com/huaweicloud/golangsdk/openstack/identity/v3/roles
 github.com/huaweicloud/golangsdk/openstack/identity/v3/tokens
 github.com/huaweicloud/golangsdk/openstack/identity/v3/users
 github.com/huaweicloud/golangsdk/openstack/iec/v1/common
+github.com/huaweicloud/golangsdk/openstack/iec/v1/flavors
 github.com/huaweicloud/golangsdk/openstack/iec/v1/vpcs
 github.com/huaweicloud/golangsdk/openstack/imageservice/v2/imagedata
 github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images
