@@ -138,13 +138,13 @@ The following arguments are supported:
 -> **Note:** If the eip_id parameter is configured, you do not need to configure the bandwidth parameters:
   `iptype`, `bandwidth_charge_mode`, `bandwidth_size` and `share_type`.
 
-* `iptype` - (Optional, String) Elastic IP type. Changing this parameter will create a new resource.
+* `iptype` - (Optional, String, ForceNew) Elastic IP type. Changing this parameter will create a new resource.
 
-* `bandwidth_charge_mode` - (Optional, String) Bandwidth billing type. Changing this parameter will create a new resource.
+* `bandwidth_charge_mode` - (Optional, String, ForceNew) Bandwidth billing type. Changing this parameter will create a new resource.
 
-* `sharetype` - (Optional, String) Bandwidth sharing type. Changing this parameter will create a new resource.
+* `sharetype` - (Optional, String, ForceNew) Bandwidth sharing type. Changing this parameter will create a new resource.
 
-* `bandwidth_size` - (Optional, Int) Bandwidth size. Changing this parameter will create a new resource.
+* `bandwidth_size` - (Optional, Int, ForceNew) Bandwidth size. Changing this parameter will create a new resource.
 
 * `max_pods` - (Optional, Int, ForceNew) The maximum number of instances a node is allowed to create. Changing this parameter will create a new cluster resource.
 

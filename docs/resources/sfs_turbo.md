@@ -35,7 +35,7 @@ The following arguments are supported:
 
 * `size` - (Required, Int) Specifies the capacity of a common file system, in GB. The value ranges from 500 to 32768.
 
-* `share_proto` - (Optional, String) Specifies the protocol for sharing file systems. The valid value is NFS.
+* `share_proto` - (Optional, String, ForceNew) Specifies the protocol for sharing file systems. The valid value is NFS.
   Changing this will create a new resource.
 
 * `share_type` - (Optional, String, ForceNew) Specifies the file system type. The valid values are STANDARD and PERFORMANCE
