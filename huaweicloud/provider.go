@@ -272,6 +272,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_iam_role":                    dataSourceIAMRoleV3(),
 			"huaweicloud_identity_role":               DataSourceIdentityRoleV3(),
 			"huaweicloud_images_image":                DataSourceImagesImageV2(),
+			"huaweicloud_iec_flavors":                 dataSourceIecFlavors(),
 			"huaweicloud_kms_key":                     dataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key":                dataSourceKmsDataKeyV1(),
 			"huaweicloud_nat_gateway":                 dataSourceNatGatewayV2(),
