@@ -11,7 +11,7 @@ import (
 )
 
 func TestAccIECFlavorsDataSource_basic(t *testing.T) {
-	rName := fmt.Sprintf("terraform_test_iec_flavors-%s", acctest.RandString(5))
+	rName := "c6.large.2"
 	resourceName := "data.huaweicloud_iec_flavors.flavors_test"
 
 	resource.ParallelTest(t, resource.TestCase{
