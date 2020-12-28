@@ -38,14 +38,6 @@ func dataSourceIecSites() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"sites": {
 				Type:     schema.TypeList,
 				Computed: true,
