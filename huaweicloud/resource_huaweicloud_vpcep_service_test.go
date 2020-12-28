@@ -58,6 +58,38 @@ func TestAccVPCEPServiceBasic(t *testing.T) {
 	})
 }
 
+func TestAccVPCEPServicePermission(t *testing.T) {
+	var service services.Service
+
+	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
+	resourceName := "huaweicloud_vpcep_service.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCEPServiceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVPCEPServicePermission(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCEPServiceExists(resourceName, &service),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "available"),
+					resource.TestCheckResourceAttrSet(resourceName, "permissions.#"),
+				),
+			},
+			{
+				Config: testAccVPCEPServicePermissionUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "available"),
+					resource.TestCheckResourceAttrSet(resourceName, "permissions.#"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckVPCEPServiceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	vpcepClient, err := config.VPCEPClient(HW_REGION_NAME)
@@ -172,6 +204,46 @@ resource "huaweicloud_vpcep_service" "test" {
   }
   tags = {
     owner = "tf-acc-update"
+  }
+}
+`, testAccVPCEPServicePrecondition(rName), rName)
+}
+
+func testAccVPCEPServicePermission(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpcep_service" "test" {
+  name        = "%s"
+  server_type = "VM"
+  vpc_id      = data.huaweicloud_vpc.myvpc.id
+  port_id     = huaweicloud_compute_instance.ecs.network[0].port
+  approval    = false
+  permissions = ["iam:domain::1234", "iam:domain::5678"]
+
+  port_mapping {
+    service_port  = 8080
+    terminal_port = 80
+  }
+}
+`, testAccVPCEPServicePrecondition(rName), rName)
+}
+
+func testAccVPCEPServicePermissionUpdate(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpcep_service" "test" {
+  name        = "%s"
+  server_type = "VM"
+  vpc_id      = data.huaweicloud_vpc.myvpc.id
+  port_id     = huaweicloud_compute_instance.ecs.network[0].port
+  approval    = false
+  permissions = ["iam:domain::1234", "iam:domain::abcd"]
+
+  port_mapping {
+    service_port  = 8080
+    terminal_port = 80
   }
 }
 `, testAccVPCEPServicePrecondition(rName), rName)

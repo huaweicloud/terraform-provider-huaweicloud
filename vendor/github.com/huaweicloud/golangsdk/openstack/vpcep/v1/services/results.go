@@ -146,3 +146,73 @@ func (r ListPublicResult) ExtractServices() ([]PublicService, error) {
 	}
 	return s.Services, nil
 }
+
+// Connection contains the response of querying Connections of a VPC Endpoint Service
+type Connection struct {
+	// the ID of the VPC endpoint
+	EndpointID string `json:"id"`
+	// the packet ID of the VPC endpoint
+	MarkerID int `json:"marker_id"`
+	// the ID of the user's domain
+	DomainID string `json:"domain_id"`
+	// the connection status of the VPC endpoint
+	Status string `json:"status"`
+	// the creation time of the VPC endpoint
+	Created string `json:"created_at"`
+	// the update time of the VPC endpoint
+	Updated string `json:"updated_at"`
+	// the error message when the status of the VPC endpoint service changes to failed
+	Error []ErrorInfo `json:"error"`
+}
+
+// ConnectionResult represents the result of a list connections.
+// Call its ExtractConnections method to interpret it as []Connection.
+type ConnectionResult struct {
+	commonResult
+}
+
+// ExtractConnections is a function that accepts a result and extracts the given []Connection
+func (r ConnectionResult) ExtractConnections() ([]Connection, error) {
+	var s struct {
+		Connections []Connection `json:"connections"`
+	}
+
+	err := r.ExtractInto(&s)
+	if err != nil {
+		return nil, err
+	}
+	return s.Connections, nil
+}
+
+// Permission contains the response of querying Permissions of a VPC Endpoint Service
+type Permission struct {
+	// the unique ID of the permission.
+	ID string `json:"id"`
+	// the whitelist records.
+	Permission string `json:"permission"`
+	// the time of adding the whitelist record
+	Created string `json:"created_at"`
+}
+
+type PermActionResult struct {
+	commonResult
+}
+
+// ListPermResult represents the result of a list permissions. Call its ExtractPermissions
+// method to interpret it as []Permission.
+type ListPermResult struct {
+	commonResult
+}
+
+// ExtractPermissions is a function that accepts a result and extracts the given []Permission
+func (r ListPermResult) ExtractPermissions() ([]Permission, error) {
+	var s struct {
+		Permissions []Permission `json:"permissions"`
+	}
+
+	err := r.ExtractInto(&s)
+	if err != nil {
+		return nil, err
+	}
+	return s.Permissions, nil
+}

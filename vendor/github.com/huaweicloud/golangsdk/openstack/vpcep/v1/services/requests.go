@@ -5,10 +5,10 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 )
 
-// CreateOptsBuilder allows extensions to add parameters to the
-// Create request.
-type CreateOptsBuilder interface {
-	ToServiceCreateMap() (map[string]interface{}, error)
+// PostOptsBuilder allows extensions to add parameters to the
+// Post request.
+type PostOptsBuilder interface {
+	ToServicePostMap() (map[string]interface{}, error)
 }
 
 // CreateOpts contains the options for create a VPC endpoint service.
@@ -48,15 +48,15 @@ type PortOpts struct {
 	ServerPort int `json:"server_port,omitempty"`
 }
 
-// ToServiceCreateMap assembles a request body based on the contents of a CreateOpts.
-func (opts CreateOpts) ToServiceCreateMap() (map[string]interface{}, error) {
+// ToServicePostMap assembles a request body based on the contents of a CreateOpts.
+func (opts CreateOpts) ToServicePostMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "")
 }
 
 // Create accepts a CreateOpts struct and uses the values to create a new
 // VPC endpoint service.
-func Create(c *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateResult) {
-	b, err := opts.ToServiceCreateMap()
+func Create(c *golangsdk.ServiceClient, opts PostOptsBuilder) (r CreateResult) {
+	b, err := opts.ToServicePostMap()
 	if err != nil {
 		r.Err = err
 		return
@@ -119,7 +119,7 @@ func Delete(c *golangsdk.ServiceClient, serviceID string) (r DeleteResult) {
 // ListOptsBuilder allows extensions to add parameters to the
 // List request.
 type ListOptsBuilder interface {
-	ToServiceListQuery() (string, error)
+	ToListQuery() (string, error)
 }
 
 // ListOpts allows the filtering of list data using given parameters.
@@ -130,8 +130,8 @@ type ListOpts struct {
 	Status string `q:"status"`
 }
 
-// ToServiceListQuery formats a ListOpts into a query string.
-func (opts ListOpts) ToServiceListQuery() (string, error) {
+// ToListQuery formats a ListOpts into a query string.
+func (opts ListOpts) ToListQuery() (string, error) {
 	q, err := golangsdk.BuildQueryString(opts)
 	return q.String(), err
 }
@@ -141,7 +141,7 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) ([]Service, err
 	var r ListResult
 	url := rootURL(client)
 	if opts != nil {
-		query, err := opts.ToServiceListQuery()
+		query, err := opts.ToListQuery()
 		if err != nil {
 			return nil, err
 		}
@@ -165,7 +165,7 @@ func ListPublic(client *golangsdk.ServiceClient, opts ListOptsBuilder) ([]Public
 	var r ListPublicResult
 	url := publicResourceURL(client)
 	if opts != nil {
-		query, err := opts.ToServiceListQuery()
+		query, err := opts.ToListQuery()
 		if err != nil {
 			return nil, err
 		}
@@ -182,4 +182,113 @@ func ListPublic(client *golangsdk.ServiceClient, opts ListOptsBuilder) ([]Public
 	}
 
 	return allNodes, nil
+}
+
+// ConnActionOpts used to receive or reject a VPC endpoint for a VPC endpoint service.
+type ConnActionOpts struct {
+	// Specifies whether to receive or reject a VPC endpoint for a VPC endpoint service.
+	Action string `json:"action" required:"true"`
+	// Lists the VPC endpoints.
+	Endpoints []string `json:"endpoints" required:"true"`
+}
+
+// ToServicePostMap assembles a request body based on the contents of a ConnActionOpts.
+func (opts ConnActionOpts) ToServicePostMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// ConnAction accepts a ConnActionOpts struct and uses the values to receive or reject
+// a VPC endpoint for a VPC endpoint service.
+func ConnAction(c *golangsdk.ServiceClient, serviceID string, opts PostOptsBuilder) (r ConnectionResult) {
+	b, err := opts.ToServicePostMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
+	_, r.Err = c.Post(connectionsActionURL(c, serviceID), b, &r.Body, reqOpt)
+	return
+}
+
+// ListConnOpts used to query connections of a VPC endpoint service.
+type ListConnOpts struct {
+	// Specifies the unique ID of the VPC endpoint
+	EndpointID string `q:"id"`
+	// Specifies the packet ID of the VPC endpoint
+	MarkerID string `q:"marker_id"`
+}
+
+// ToListQuery formats a ListConnOpts into a query string.
+func (opts ListConnOpts) ToListQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	return q.String(), err
+}
+
+// ListConnections makes a request against the API to list connections of a VPC endpoint service.
+func ListConnections(client *golangsdk.ServiceClient, serviceID string, opts ListOptsBuilder) ([]Connection, error) {
+	var r ConnectionResult
+	url := connectionsURL(client, serviceID)
+	if opts != nil {
+		query, err := opts.ToListQuery()
+		if err != nil {
+			return nil, err
+		}
+		url += query
+	}
+	_, r.Err = client.Get(url, &r.Body, nil)
+	if r.Err != nil {
+		return nil, r.Err
+	}
+
+	allConnections, err := r.ExtractConnections()
+	if err != nil {
+		return nil, err
+	}
+
+	return allConnections, nil
+}
+
+// PermActionOpts used to add to or delete whitelist records from a VPC endpoint service.
+type PermActionOpts struct {
+	// Specifies the operation to be performed: dd or remove.
+	Action string `json:"action" required:"true"`
+	// Lists the whitelist records. The record is in the iam:domain::domain_id format.
+	Permissions []string `json:"permissions" required:"true"`
+}
+
+// ToServicePostMap assembles a request body based on the contents of a PermActionOpts.
+func (opts PermActionOpts) ToServicePostMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// PermAction accepts a PermActionOpts struct and uses the values toadd to or delete
+// whitelist records from a VPC endpoint service.
+func PermAction(c *golangsdk.ServiceClient, serviceID string, opts PostOptsBuilder) (r PermActionResult) {
+	b, err := opts.ToServicePostMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
+	_, r.Err = c.Post(permissionsActionURL(c, serviceID), b, &r.Body, reqOpt)
+	return
+}
+
+// ListPermissions makes a request against the API to query the whitelist records of
+// a VPC endpoint service.
+func ListPermissions(client *golangsdk.ServiceClient, serviceID string) ([]Permission, error) {
+	var r ListPermResult
+	url := permissionsURL(client, serviceID)
+
+	_, r.Err = client.Get(url, &r.Body, nil)
+	if r.Err != nil {
+		return nil, r.Err
+	}
+
+	allPermissions, err := r.ExtractPermissions()
+	if err != nil {
+		return nil, err
+	}
+
+	return allPermissions, nil
 }
