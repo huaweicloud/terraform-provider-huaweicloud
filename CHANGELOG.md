@@ -1,3 +1,26 @@
+## 1.20.2 (December 28, 2020)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_vpcep_public_services` ([#769](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/769))
+* **New Data Source:** `huaweicloud_iec_flavors` ([#779](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/779))
+* **New Data Source:** `huaweicloud_iec_images` ([#780](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/780))
+* **New Data Source:** `huaweicloud_iec_sites` ([#782](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/782))
+* **New Resource:** `huaweicloud_identity_role` ([#761](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/761))
+* **New Resource:** `huaweicloud_vpcep_service` ([#766](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/766))
+* **New Resource:** `huaweicloud_vpcep_endpoint` ([#772](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/772))
+* **New Resource:** `huaweicloud_iec_vpc` ([#775](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/775))
+* **New Resource:** `huaweicloud_vpcep_approval` ([#783](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/783))
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_instance: Add status and public_ip attributes ([#750](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/750))
+* resource/huaweicloud_rds_instance: Add time_zone attribute ([#751](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/751))
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_node_pool: Fix initial_node_count can't be 0 issue ([#757](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/757))
+
 ## 1.20.1 (December 16, 2020)
 
 FEATURES:
