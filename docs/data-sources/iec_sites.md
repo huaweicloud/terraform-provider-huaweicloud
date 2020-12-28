@@ -14,26 +14,22 @@ data "huaweicloud_iec_sites" "iec_sites" {}
 
 The following arguments are supported:
  
-* `area` - (Optional, String) Specifies the area of the iec instance located.
+* `area` - (Optional, String) Specifies the area of the iec sites located.
 
-* `province` - (Optional, String) Specifies the province of the iec instance 
+* `province` - (Optional, String) Specifies the province of the iec sites 
     located.
 
-* `city` - (Optional, String) Specifies the city of the iec instance located. 
+* `city` - (Optional, String) Specifies the city of the iec sites located. 
 
 * `operator` - (Optional, String) Specifies the operator supported of the iec 
-    instance.
+    sites.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `name` - The name of the iec service site.
-
-* `status` - The current status of the iec service site.
-
 * `sites` - An array of one or more iec service sites.
-    The images object structure is documented below.
+    The sites object structure is documented below.
 
 The `sites` block supports:
 
