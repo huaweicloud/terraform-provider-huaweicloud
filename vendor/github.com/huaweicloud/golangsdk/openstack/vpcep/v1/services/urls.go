@@ -17,3 +17,19 @@ func resourceURL(c *golangsdk.ServiceClient, serviceID string) string {
 func publicResourceURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL(rootPath, "public")
 }
+
+func connectionsURL(c *golangsdk.ServiceClient, serviceID string) string {
+	return c.ServiceURL(rootPath, serviceID, "connections")
+}
+
+func connectionsActionURL(c *golangsdk.ServiceClient, serviceID string) string {
+	return c.ServiceURL(rootPath, serviceID, "connections/action")
+}
+
+func permissionsURL(c *golangsdk.ServiceClient, serviceID string) string {
+	return c.ServiceURL(rootPath, serviceID, "permissions")
+}
+
+func permissionsActionURL(c *golangsdk.ServiceClient, serviceID string) string {
+	return c.ServiceURL(rootPath, serviceID, "permissions/action")
+}

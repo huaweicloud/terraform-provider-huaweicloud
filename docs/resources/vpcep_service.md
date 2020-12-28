@@ -50,6 +50,9 @@ The following arguments are supported:
 
 * `approval` (Optional, Bool) - Specifies whether connection approval is required. The default value is false.
 
+* `permissions` (Optional, List) - Specifies the list of accounts to access the VPC endpoint service.
+    The record is in the `iam:domain::domain_id` format. *iam:domain::\** allows all users to access the VPC endpoint service.
+
 * `tags` - (Optional, Map) The key/value pairs to associate with the VPC endpoint service.
 
 The `port_mapping` block supports:
@@ -75,6 +78,12 @@ In addition to all arguments above, the following attributes are exported:
 * `service_name` - The full name of the VPC endpoint service in the format: *region.name.id*.
 
 * `service_type` - The type of the VPC endpoint service. Only **interface** can be configured.
+
+* `connections` - An array of VPC endpoints connect to the VPC endpoint service. Structure is documented below.
+    - `endpoint_id` - The unique ID of the VPC endpoint.
+    - `marker_id` - The packet ID of the VPC endpoint.
+    - `domain_id` - The user's domain ID.
+    - `status` - The connection status of the VPC endpoint.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

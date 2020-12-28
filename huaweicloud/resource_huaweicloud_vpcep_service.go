@@ -89,6 +89,12 @@ func ResourceVPCEndpointService() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"permissions": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
 			"service_name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -96,6 +102,30 @@ func ResourceVPCEndpointService() *schema.Resource {
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"connections": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"endpoint_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"marker_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"domain_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
 			},
 			"tags": tagsSchema(),
 		},
@@ -113,6 +143,26 @@ func expandPortMappingOpts(d *schema.ResourceData) []services.PortOpts {
 		portOpts[i].ClientPort = port["terminal_port"].(int)
 	}
 	return portOpts
+}
+
+func doPermissionAction(client *golangsdk.ServiceClient, serviceID, action string, raw []interface{}) error {
+	if len(raw) == 0 {
+		return nil
+	}
+
+	permissions := make([]string, len(raw))
+	for i, v := range raw {
+		permissions[i] = v.(string)
+	}
+	permOpts := services.PermActionOpts{
+		Action:      action,
+		Permissions: permissions,
+	}
+
+	log.Printf("[DEBUG] %s permissions %#v to VPC endpoint service %s", action, permissions, serviceID)
+	result := services.PermAction(client, serviceID, permOpts)
+
+	return result.Err
 }
 
 func resourceVPCEndpointServiceCreate(d *schema.ResourceData, meta interface{}) error {
@@ -161,6 +211,13 @@ func resourceVPCEndpointServiceCreate(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf(
 			"Error waiting for VPC endpoint service(%s) to become available: %s",
 			n.ID, stateErr)
+	}
+
+	// add permissions
+	raw := d.Get("permissions").(*schema.Set).List()
+	err = doPermissionAction(vpcepClient, d.Id(), "add", raw)
+	if err != nil {
+		return fmt.Errorf("Error adding permissions to VPC endpoint service %s: %s", d.Id(), err)
 	}
 
 	return resourceVPCEndpointServiceRead(d, meta)
@@ -214,6 +271,15 @@ func resourceVPCEndpointServiceRead(d *schema.ResourceData, meta interface{}) er
 	}
 	d.Set("tags", tagmap)
 
+	// fetch connections
+	if conns, err := flattenVPCEndpointConnections(vpcepClient, d.Id()); err == nil {
+		d.Set("connections", conns)
+	}
+
+	// fetch permissions
+	if perms, err := flattenVPCEndpointPermissions(vpcepClient, d.Id()); err == nil {
+		d.Set("permissions", perms)
+	}
 	return nil
 }
 
@@ -251,6 +317,26 @@ func resourceVPCEndpointServiceUpdate(d *schema.ResourceData, meta interface{}) 
 			return fmt.Errorf("Error updating tags of VPC endpoint service %s: %s", d.Id(), tagErr)
 		}
 	}
+
+	// update
+	if d.HasChange("permissions") {
+		old, new := d.GetChange("permissions")
+		oldPermSet := old.(*schema.Set)
+		newPermSet := new.(*schema.Set)
+		added := newPermSet.Difference(oldPermSet)
+		removed := oldPermSet.Difference(newPermSet)
+
+		err = doPermissionAction(vpcepClient, d.Id(), "add", added.List())
+		if err != nil {
+			return fmt.Errorf("Error adding permissions to VPC endpoint service %s: %s", d.Id(), err)
+		}
+
+		err = doPermissionAction(vpcepClient, d.Id(), "remove", removed.List())
+		if err != nil {
+			return fmt.Errorf("Error removing permissions to VPC endpoint service %s: %s", d.Id(), err)
+		}
+	}
+
 	return resourceVPCEndpointServiceRead(d, meta)
 }
 
@@ -282,6 +368,43 @@ func resourceVPCEndpointServiceDelete(d *schema.ResourceData, meta interface{}) 
 
 	d.SetId("")
 	return nil
+}
+
+func flattenVPCEndpointConnections(client *golangsdk.ServiceClient, id string) ([]map[string]interface{}, error) {
+	allConns, err := services.ListConnections(client, id, nil)
+	if err != nil {
+		log.Printf("[WARN] Error querying connections of VPC endpoint service: %s", err)
+		return nil, err
+	}
+
+	log.Printf("[DEBUG] retrieving connections of VPC endpoint service: %#v", allConns)
+	connections := make([]map[string]interface{}, len(allConns))
+	for i, v := range allConns {
+		connections[i] = map[string]interface{}{
+			"endpoint_id": v.EndpointID,
+			"marker_id":   v.MarkerID,
+			"domain_id":   v.DomainID,
+			"status":      v.Status,
+		}
+	}
+
+	return connections, nil
+}
+
+func flattenVPCEndpointPermissions(client *golangsdk.ServiceClient, id string) ([]string, error) {
+	allPerms, err := services.ListPermissions(client, id)
+	if err != nil {
+		log.Printf("[WARN] Error querying permissions of VPC endpoint service: %s", err)
+		return nil, err
+	}
+
+	log.Printf("[DEBUG] retrieving permissions of VPC endpoint service: %#v", allPerms)
+	perms := make([]string, len(allPerms))
+	for i, v := range allPerms {
+		perms[i] = v.Permission
+	}
+
+	return perms, nil
 }
 
 func waitForResourceStatus(vpcepClient *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
