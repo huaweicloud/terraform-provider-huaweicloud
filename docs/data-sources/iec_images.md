@@ -37,6 +37,5 @@ The `images` block supports:
 
 * `id` - The id of the iec images.
 * `name` - The name of the iec images.
-* `status` - The status of the iec images. Images has four states: "saving", 
-    "deleted", "killed" and "active",
+* `status` - The status of the iec images.
 * `os_type` - The os_type of the iec images.
