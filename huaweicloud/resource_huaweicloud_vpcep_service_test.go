@@ -75,7 +75,7 @@ func TestAccVPCEPServicePermission(t *testing.T) {
 					testAccCheckVPCEPServiceExists(resourceName, &service),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
-					resource.TestCheckResourceAttrSet(resourceName, "permissions.#"),
+					resource.TestCheckResourceAttr(resourceName, "permissions.#", "2"),
 				),
 			},
 			{
@@ -83,7 +83,7 @@ func TestAccVPCEPServicePermission(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
-					resource.TestCheckResourceAttrSet(resourceName, "permissions.#"),
+					resource.TestCheckResourceAttr(resourceName, "permissions.#", "1"),
 				),
 			},
 		},
@@ -239,7 +239,7 @@ resource "huaweicloud_vpcep_service" "test" {
   vpc_id      = data.huaweicloud_vpc.myvpc.id
   port_id     = huaweicloud_compute_instance.ecs.network[0].port
   approval    = false
-  permissions = ["iam:domain::1234", "iam:domain::abcd"]
+  permissions = ["iam:domain::abcd"]
 
   port_mapping {
     service_port  = 8080
