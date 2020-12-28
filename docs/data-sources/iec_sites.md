@@ -28,6 +28,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
+* `id` - Specifies a data source ID in UUID format.
+
 * `sites` - An array of one or more iec service sites.
     The sites object structure is documented below.
 
