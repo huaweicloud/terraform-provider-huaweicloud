@@ -112,7 +112,7 @@ func ResourceVPCEndpointService() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"marker_id": {
+						"packet_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -382,7 +382,7 @@ func flattenVPCEndpointConnections(client *golangsdk.ServiceClient, id string) (
 	for i, v := range allConns {
 		connections[i] = map[string]interface{}{
 			"endpoint_id": v.EndpointID,
-			"marker_id":   v.MarkerID,
+			"packet_id":   v.MarkerID,
 			"domain_id":   v.DomainID,
 			"status":      v.Status,
 		}

@@ -8,7 +8,7 @@ Provides a resource to manage a VPC endpoint service resource.
 
 ## Example Usage
 
- ```hcl
+```hcl
 variable "vpc_id" {}
 variable "vm_port" {}
 
@@ -23,7 +23,7 @@ resource "huaweicloud_vpcep_service" "demo" {
     terminal_port = 80
   }
 }
- ```
+```
 
 ## Argument Reference
 
@@ -81,7 +81,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `connections` - An array of VPC endpoints connect to the VPC endpoint service. Structure is documented below.
     - `endpoint_id` - The unique ID of the VPC endpoint.
-    - `marker_id` - The packet ID of the VPC endpoint.
+    - `packet_id` - The packet ID of the VPC endpoint.
     - `domain_id` - The user's domain ID.
     - `status` - The connection status of the VPC endpoint.
 
