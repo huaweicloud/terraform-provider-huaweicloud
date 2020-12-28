@@ -84,7 +84,11 @@ func ResourceVPCEndpoint() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"domain_name": {
+			"packet_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"private_domain_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -182,11 +186,12 @@ func resourceVPCEndpointRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("enable_dns", ep.EnableDNS)
 	d.Set("enable_whitelist", ep.EnableWhitelist)
 	d.Set("whitelist", ep.Whitelist)
+	d.Set("packet_id", ep.MarkerID)
 
 	if len(ep.DNSNames) > 0 {
-		d.Set("domain_name", ep.DNSNames[0])
+		d.Set("private_domain_name", ep.DNSNames[0])
 	} else {
-		d.Set("domain_name", nil)
+		d.Set("private_domain_name", nil)
 	}
 
 	// fetch tags from endpoints.Endpoint

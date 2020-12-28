@@ -60,7 +60,7 @@ func ResourceVPCEndpointApproval() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"marker_id": {
+						"packet_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
