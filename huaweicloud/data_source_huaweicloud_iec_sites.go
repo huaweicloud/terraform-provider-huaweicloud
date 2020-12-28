@@ -127,14 +127,6 @@ func dataSourceIecSitesV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	site := allSites.Sites[0]
 	d.SetId(site.ID)
-	if len(allSites.Sites) == 1 {
-		d.Set("name", site.Name)
-		d.Set("area", site.Area)
-		d.Set("province", site.Province)
-		d.Set("city", site.City)
-		d.Set("operator", site.Operator.Name)
-		d.Set("status", site.Status)
-	}
 
 	return nil
 }
