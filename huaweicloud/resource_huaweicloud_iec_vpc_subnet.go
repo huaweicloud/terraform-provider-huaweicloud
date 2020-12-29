@@ -62,7 +62,7 @@ func resourceIecSubnet() *schema.Resource {
 			},
 			"gateway_ip": {
 				Type:         schema.TypeString,
-				Optional:     true,
+				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateIP,
 			},
