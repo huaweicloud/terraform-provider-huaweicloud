@@ -98,7 +98,7 @@ func testAccCheckEvsStorageV3VolumeDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_evs_volume_v3" {
+		if rs.Type != "huaweicloud_evs_volume" {
 			continue
 		}
 
