@@ -271,6 +271,7 @@ github.com/huaweicloud/golangsdk/openstack/iec/v1/common
 github.com/huaweicloud/golangsdk/openstack/iec/v1/flavors
 github.com/huaweicloud/golangsdk/openstack/iec/v1/images
 github.com/huaweicloud/golangsdk/openstack/iec/v1/sites
+github.com/huaweicloud/golangsdk/openstack/iec/v1/subnets
 github.com/huaweicloud/golangsdk/openstack/iec/v1/vpcs
 github.com/huaweicloud/golangsdk/openstack/imageservice/v2/imagedata
 github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images
