@@ -30,15 +30,21 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
 
 The following arguments are supported:
 
-* `name` - (Required, String) The name of the iec subnet. Changing this updates the 
-    name of the existing subnet.
+* `region` - (Optional, String, ForceNew) Specifies the region in witch to create 
+    the iec vpc subnet. If omitted, the provider-level region will be used.
+    Changing this parameter creates a new subnet resource.
 
-* `cidr` - (Required, String, ForceNew) CIDR representing IP range for this 
-    subnet, based on IP version. Changing this parameter creates a new subnet 
-    resource.
+* `name` - (Required, String) Specifies the name of the iec vpc subnet.
+    The value is a string of 1 to 64 characters that can contain letters, digits, 
+    underscores(_), and hyphens(-).
+    
+* `cidr` - (Required, String, ForceNew) Specifies the network segment on which the 
+    subnet resides. The value must be in CIDR format and within the CIDR block of 
+    the iec vpc. Changing this parameter creates a new subnet resource.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the iec vpc. Changing 
-    this parameter creates a new subnet resource.
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the iec vpc to which 
+    the subnet belongs. Changing this parameter creates a new subnet resource.
+    Notes: Mode of IEC vpc only can be set to "__CUSTOMER__".
 
 * `site_id` - (Required, String, ForceNew) Specifies the ID of the iec site. 
     Changing this parameter creates a new subnet resource.
@@ -47,21 +53,21 @@ The following arguments are supported:
     The value must be a valid IP address and in the subnet segment. 
     Changing this parameter creates a new subnet resource.
 
-* `dns_list` - (Optional, List) An array of DNS name server names used by hosts
-    in this subnet.
+* `dns_list` - (Optional, List) Specifies the DNS server address list of a subnet.
+    These DNS server address must be valid IP addresses. 
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - The resource ID in UUID format.
 
-* `dhcp_enable` - Specifies whether the DHCP function is enabled for the subnet.
+* `dhcp_enable` - The status of subnet DHCP is enabled or not.
 
-* `site_info` - Specifies the located information of the iec site. It contains 
+* `site_info` - The located information of the iec site. It contains 
     area, province and city.
 
-* `status` - Specifies the status of the subnet.
+* `status` - The status of the subnet.
 
 ## Timeouts
 
@@ -71,7 +77,7 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-IEC subnet can be imported using the `id`, e.g.
+IEC vpc subnet can be imported using the `id`, e.g.
 
 ```
 $ terraform import huaweicloud_iec_vpc_subnet.subnet_demo 51be9f2b-5a3b-406a-9271-36f0c929fbcc
