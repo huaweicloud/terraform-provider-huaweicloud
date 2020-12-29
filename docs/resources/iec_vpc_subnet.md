@@ -43,11 +43,9 @@ The following arguments are supported:
 * `site_id` - (Required, String, ForceNew) Specifies the ID of the iec site. 
     Changing this parameter creates a new subnet resource.
 
-* `gateway_ip` - (Required, String, ForceNew)  Default gateway used by devices in 
-    this subnet. Changing this parameter creates a new subnet resource.
-
-* `dhcp_enable` - (Optional, Bool) The administrative state of the network.
-    The value must be "true".
+* `gateway_ip` - (Required, String, ForceNew)  Specifies the gateway of the subnet. 
+    The value must be a valid IP address and in the subnet segment. 
+    Changing this parameter creates a new subnet resource.
 
 * `dns_list` - (Optional, List) An array of DNS name server names used by hosts
     in this subnet.
@@ -58,7 +56,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
 
-* `site_info` - Specifies the information of the iec site.
+* `dhcp_enable` - Specifies whether the DHCP function is enabled for the subnet.
+
+* `site_info` - Specifies the located information of the iec site. It contains 
+    area, province and city.
 
 * `status` - Specifies the status of the subnet.
 
