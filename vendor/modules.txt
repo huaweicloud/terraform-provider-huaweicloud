@@ -270,6 +270,7 @@ github.com/huaweicloud/golangsdk/openstack/identity/v3/users
 github.com/huaweicloud/golangsdk/openstack/iec/v1/common
 github.com/huaweicloud/golangsdk/openstack/iec/v1/flavors
 github.com/huaweicloud/golangsdk/openstack/iec/v1/images
+github.com/huaweicloud/golangsdk/openstack/iec/v1/publicips
 github.com/huaweicloud/golangsdk/openstack/iec/v1/sites
 github.com/huaweicloud/golangsdk/openstack/iec/v1/subnets
 github.com/huaweicloud/golangsdk/openstack/iec/v1/vpcs
