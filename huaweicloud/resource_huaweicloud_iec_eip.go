@@ -44,6 +44,7 @@ func resourceIecNetworkEip() *schema.Resource {
 			"ip_version": {
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntInSlice([]int{4}),
 			},
 			"port_id": {
@@ -96,9 +97,13 @@ func resourceIecEipV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	createOpts := publicips.CreateOpts{
 		Publicip: publicips.PublicIPRequest{
-			SiteID:    d.Get("site_id").(string),
-			IPVersion: strconv.Itoa(d.Get("ip_version").(int)),
+			SiteID: d.Get("site_id").(string),
 		},
+	}
+
+	ipVersion := d.Get("ip_version").(int)
+	if ipVersion != 0 {
+		createOpts.Publicip.IPVersion = strconv.Itoa(ipVersion)
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -249,7 +254,7 @@ func operateOnPort(d *schema.ResourceData, client *golangsdk.ServiceClient, port
 	_, err := publicips.Update(client, d.Id(), updateOpts).Extract()
 	if err != nil {
 		var action string = "binding"
-		if port != "" {
+		if port == "" {
 			action = "unbinding"
 		}
 		return fmt.Errorf("Error %s Huaweicloud IEC public ip: %s", action, err)
