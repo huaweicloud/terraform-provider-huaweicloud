@@ -24,14 +24,14 @@ The following arguments are supported:
 * `site_id` - (Required, String, ForceNew) Specifies the id of iec sevice site. 
     Changing this parameter creates a new iec eip resource.
 
-* `ip_version` - (Optional, Int) Specifies the version of elastic IP address. 
-    IEC services only support IPv4(4) now.
-
 * `port_id` - (Optional, String) The port id which this eip will associate with.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
+
+* `ip_version` - The version of elastic IP address. 
+    IEC services only support IPv4(4) now.
 
 * `id` - The resource ID in UUID format.
 
