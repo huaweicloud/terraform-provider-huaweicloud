@@ -35,8 +35,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
 
-* `status` - Specifies the [status](https://support.huaweicloud.com/intl/en-us/api-eip/eip_api_0002.html#eip_api_0002__en-us_topic_0201534285_table3035698) 
-    of iec eip.
+* `status` - Specifies the status of iec eip.
 
 * `public_ip` - The address of elastic IP.
 
