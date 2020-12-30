@@ -427,7 +427,7 @@ func resourceASConfigurationValidateDiskType(v interface{}, k string) (ws []stri
 	return
 }
 
-var VolumeTypes = [2]string{"SATA", "SSD"}
+var VolumeTypes = [5]string{"SATA", "SSD", "SAS", "co-p1", "uh-l1"}
 
 func resourceASConfigurationValidateVolumeType(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
