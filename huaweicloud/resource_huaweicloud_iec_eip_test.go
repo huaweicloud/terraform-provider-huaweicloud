@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -24,6 +25,12 @@ func TestAccIecEIPResource_basic(t *testing.T) {
 				Config: testAccIecEIP_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIecEIPExists(resourceName, &iecEip),
+					resource.TestCheckResourceAttr(resourceName, "ip_version", "4"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth_share_type", "WHOLE"),
+					resource.TestMatchResourceAttr(resourceName, "public_ip", regexp.MustCompile("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$")),
+					resource.TestCheckResourceAttrSet(resourceName, "site_info"),
+					resource.TestCheckResourceAttrSet(resourceName, "site_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_id"),
 				),
 			},
 			{
