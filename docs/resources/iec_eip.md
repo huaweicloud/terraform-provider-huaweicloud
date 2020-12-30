@@ -13,7 +13,6 @@ data "huaweicloud_iec_sites" "iec_sites" {}
 
 resource "huaweicloud_iec_eip" "eip_test" {
   site_id    = data.huaweicloud_iec_sites.iec_sites.sites[0].id
-  ip_version = 4
 }
 ```
 
@@ -24,18 +23,18 @@ The following arguments are supported:
 * `site_id` - (Required, String, ForceNew) Specifies the id of iec sevice site. 
     Changing this parameter creates a new iec eip resource.
 
-* `port_id` - (Optional, String) The port id which this eip will associate with.
+* `port_id` - (Optional, String) Specifies the port id which this eip will associate with.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `ip_version` - The version of elastic IP address. 
-    IEC services only support IPv4(4) now.
-
 * `id` - The resource ID in UUID format.
 
-* `status` - Specifies the status of iec eip.
+* `ip_version` - The version of elastic IP address. 
+    IEC services only support IPv4(4) now.
+    
+* `status` - The status of iec eip.
 
 * `public_ip` - The address of elastic IP.
 
