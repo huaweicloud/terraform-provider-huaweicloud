@@ -24,7 +24,6 @@ func TestAccIecEIPResource_basic(t *testing.T) {
 				Config: testAccIecEIP_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIecEIPExists(resourceName, &iecEip),
-					resource.TestCheckResourceAttr(resourceName, "ip_version", "4"),
 				),
 			},
 			{
@@ -99,7 +98,6 @@ data "huaweicloud_iec_sites" "sites_test" {
 
 resource "huaweicloud_iec_eip" "eip_test" {
   site_id    = data.huaweicloud_iec_sites.sites_test.sites[0].id
-  ip_version = 4
 }
 `, HW_REGION_NAME)
 }
