@@ -28,7 +28,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID in UUID format.
+* `id` - The keypair use the unique name as the ID.
 
 * `fingerprint` - The finger of iec keypair. The value contains a encoding 
     type(SHA256) and a string of 43 characters.
