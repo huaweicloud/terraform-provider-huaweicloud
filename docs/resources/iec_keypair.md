@@ -10,7 +10,7 @@ Manages a keypair resource within HuaweiCloud IEC.
 
 ```hcl
 resource "huaweicloud_iec_keypair" "test_keypair" {
-  name       = "iec-keypair-demo"
+  name = "iec-keypair-demo"
 }
 ```
 
@@ -39,5 +39,4 @@ Keypairs can be imported using the `name`, e.g.
 
 ```
 $ terraform import huaweicloud_iec_keypair.test_keypair iec-keypair-demo
-
 ```
