@@ -34,6 +34,12 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -191,10 +197,6 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 				Computed: true,
 			},
 			"mode": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"region": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

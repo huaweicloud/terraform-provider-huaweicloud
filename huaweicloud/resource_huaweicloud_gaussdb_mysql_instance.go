@@ -33,6 +33,12 @@ func resourceGaussDBInstance() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -180,10 +186,6 @@ func resourceGaussDBInstance() *schema.Resource {
 				Computed: true,
 			},
 			"mode": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"region": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
