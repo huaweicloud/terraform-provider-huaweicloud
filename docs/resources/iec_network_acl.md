@@ -8,6 +8,19 @@ Manages a network ACL resource within HuaweiCloud IEC.
 
 ## Example Usage
 
+### Without networks
+
+```hcl
+data "huaweicloud_iec_sites" "sites_test" {}
+
+resource "huaweicloud_iec_network_acl" "acl_test" {
+  name        = "acl_demo"
+  description = "This is a network ACL of IEC without networks."
+}
+```
+
+### With networks
+
 ```hcl
 data "huaweicloud_iec_sites" "sites_test" {}
 
@@ -22,33 +35,11 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
   cidr        = "192.168.128.0/18"
   vpc_id      = huaweicloud_iec_vpc.vpc_test.id
   site_id     = data.huaweicloud_iec_sites.sites_test.sites[0].id
-  gateway_ip  = "192.168.128.3"
-}
-
-resource "huaweicloud_iec_network_acl_rule" "rule_1" {
-  network_acl_id         = huaweicloud_iec_network_acl.acl_test.id
-  direction              = "ingress"
-  protocol               = "tcp"
-  action                 = "allow"
-  source_ip_address      = "132.156.0.0/16"
-  destination_ip_address = "192.168.128.0/18"
-  destination_port       = "445"
-  enabled                = true
-}
-
-resource "huaweicloud_iec_network_acl_rule" "rule_2" {
-  network_acl_id         = huaweicloud_iec_network_acl.acl_test.id
-  direction              = "egress"
-  protocol               = "tcp"
-  action                 = "allow"
-  source_ip_address      = "192.168.128.0/18"
-  destination_ip_address = "152.16.30.0/24"
-  destination_port       = "45"
-  enabled                = true
 }
 
 resource "huaweicloud_iec_network_acl" "acl_test" {
-  name = "acl_demo"
+  name        = "acl_demo"
+  description = "This is a network ACL of IEC with networks."
   networks {
     vpc_id = huaweicloud_iec_vpc.vpc_test.id
     subnet_id = huaweicloud_iec_vpc_subnet.subnet_test.id
@@ -68,14 +59,14 @@ The following arguments are supported:
     about the iec network ACL. This parameter can contain a maximum of 255 
     characters and cannot contain angle brackets (< or >).
 
-* `inbound_rules` - (Optional, List)  A list of the IDs of ingress rules 
-    associated with the iec network ACL. The maximum length of the list is 10.
+* `networks` - (Optional, List) Specifies an list of one or more networks. 
+    The networks object structure is documented below.
+    
+The `networks` block supports:
 
-* `outbound_rules` - (Optional, List) A list of the IDs of egress rules 
-    associated with the iec network ACL. The maximum length of the list is 10
+* `vpc_id` - (Required, String) Specifies the id of the iec vpc.
 
-* `networks` - (Optional, Set) An Set of one or more networks. The networks 
-    object structure is documented below.
+* `subnet_id` - (Required, String) Specifies the id of the iec subnet.
 
 ## Attributes Reference
 
@@ -85,10 +76,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The status of the iec network ACL. 
 
-The `networks` block supports:
+* `inbound_rules` - A list of the IDs of ingress rules associated with the 
+    iec network ACL.
 
-* `vpc_id` - The id of the iec vpc.
-* `subnet_id` - The id of the iec subnet.
+* `outbound_rules` - A list of the IDs of egress rules associated with the 
+    iec network ACL.
 
 ## Timeouts
 

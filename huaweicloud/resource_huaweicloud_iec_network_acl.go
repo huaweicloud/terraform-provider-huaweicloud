@@ -51,14 +51,12 @@ func resourceIecNetworkACL() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				MaxItems: 10,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"outbound_rules": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				MaxItems: 10,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"status": {

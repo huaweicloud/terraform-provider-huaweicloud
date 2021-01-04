@@ -9,28 +9,8 @@ Manages a network ACL rule resource within HuaweiCloud IEC.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_iec_sites" "sites_test" {}
-
-resource "huaweicloud_iec_vpc" "vpc_test" {
-  name = "iec-vpc_demo"
-  cidr = "192.168.0.0/16"
-  mode = "CUSTOMER"
-}
-
-resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
-  name        = "iec-subnet-demo"
-  cidr        = "192.168.128.0/24"
-  vpc_id      = huaweicloud_iec_vpc.vpc_test.id
-  site_id     = data.huaweicloud_iec_sites.sites_test.sites[0].id
-  gateway_ip  = "192.168.128.1"
-}
-
 resource "huaweicloud_iec_network_acl" "acl_test" {
   name = "iec-network-acl-demo"
-  networks {
-    vpc_id = huaweicloud_iec_vpc.vpc_test.id
-    subnet_id = huaweicloud_iec_vpc_subnet.subnet_test.id
-  }
 }
 
 resource "huaweicloud_iec_network_acl_rule" "rule_test" {
