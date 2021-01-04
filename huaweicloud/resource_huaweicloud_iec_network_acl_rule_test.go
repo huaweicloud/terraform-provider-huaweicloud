@@ -11,20 +11,9 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/firewalls"
 )
 
-func TestAccIecNetworkACLRule_basic(t *testing.T) {
+func TestAccIecNetworkACLRuleResource_basic(t *testing.T) {
 	rName := fmt.Sprintf("iec-acl-%s", acctest.RandString(5))
-	resourceKey := "huaweicloud_iec_network_acl.acl_test"
-	var fwGroup firewalls.Firewall
-	checkMapBasic := make(map[string]string)
-	checkMapBasic["durection"] = "ingress"
-	checkMapBasic["protocol"] = "tcp"
-	checkMapBasic["action"] = "allow"
-	checkMapBasic["destPort"] = "445"
-	checkMapUpdate := make(map[string]string)
-	checkMapUpdate["durection"] = "ingress"
-	checkMapUpdate["protocol"] = "udp"
-	checkMapUpdate["action"] = "deny"
-	checkMapUpdate["destPort"] = "23-30"
+	var fwGroup firewalls.RespFirewallRulesEntity
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -34,15 +23,19 @@ func TestAccIecNetworkACLRule_basic(t *testing.T) {
 			{
 				Config: testAccIecNetworkACLRule_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecNetworkACLRuleExists(resourceKey, &fwGroup),
-					testAccCheckIecNetworkACLRuleParameter(&fwGroup, checkMapBasic),
+					testAccCheckIecNetworkACLRuleExists("huaweicloud_iec_network_acl.acl_test", &fwGroup),
+					resource.TestCheckResourceAttrPtr("huaweicloud_iec_network_acl_rule.rule_test", "protocol", &fwGroup.Protocol),
+					resource.TestCheckResourceAttrPtr("huaweicloud_iec_network_acl_rule.rule_test", "action", &fwGroup.Action),
+					resource.TestCheckResourceAttrPtr("huaweicloud_iec_network_acl_rule.rule_test", "destination_port", &fwGroup.DstPort),
 				),
 			},
 			{
 				Config: testAccIecNetworkACLRule_basic_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIecNetworkACLRuleExists(resourceKey, &fwGroup),
-					testAccCheckIecNetworkACLRuleParameter(&fwGroup, checkMapUpdate),
+					testAccCheckIecNetworkACLRuleExists("huaweicloud_iec_network_acl.acl_test", &fwGroup),
+					resource.TestCheckResourceAttrPtr("huaweicloud_iec_network_acl_rule.rule_test", "protocol", &fwGroup.Protocol),
+					resource.TestCheckResourceAttrPtr("huaweicloud_iec_network_acl_rule.rule_test", "action", &fwGroup.Action),
+					resource.TestCheckResourceAttrPtr("huaweicloud_iec_network_acl_rule.rule_test", "destination_port", &fwGroup.DstPort),
 				),
 			},
 		},
@@ -70,7 +63,7 @@ func testAccCheckIecNetworkACLRuleDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckIecNetworkACLRuleExists(n string, resource *firewalls.Firewall) resource.TestCheckFunc {
+func testAccCheckIecNetworkACLRuleExists(n string, resource *firewalls.RespFirewallRulesEntity) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -91,40 +84,15 @@ func testAccCheckIecNetworkACLRuleExists(n string, resource *firewalls.Firewall)
 		if err != nil {
 			return err
 		}
-		if len(found.IngressFWPolicy.FirewallRules) != 0 || len(found.EgressFWPolicy.FirewallRules) != 0 {
-			*resource = *found
-		} else {
-			return fmt.Errorf("IEC Network ACL Rule not found")
-		}
-		return nil
-	}
-}
 
-func testAccCheckIecNetworkACLRuleParameter(resource *firewalls.Firewall, checkMap map[string]string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if len(resource.IngressFWPolicy.FirewallRules) != 0 {
-			if resource.IngressFWPolicy.FirewallRules[0].Protocol != checkMap["protocol"] {
-				return fmt.Errorf("[%s]: The Protocol of IEC Network ACL Ingress Rule is not right.", resource.IngressFWPolicy.FirewallRules[0].Protocol)
-			}
-			if resource.IngressFWPolicy.FirewallRules[0].Action != checkMap["action"] {
-				return fmt.Errorf("[%s]: The Action of IEC Network ACL Ingress Rule is not right.", resource.IngressFWPolicy.FirewallRules[0].Action)
-			}
-			if resource.IngressFWPolicy.FirewallRules[0].DstPort != checkMap["destPort"] {
-				return fmt.Errorf("[%s]: The Destination Port of IEC Network ACL Ingress is not right.", resource.IngressFWPolicy.FirewallRules[0].DstPort)
-			}
-		} else if len(resource.EgressFWPolicy.FirewallRules) != 0 {
-			if resource.EgressFWPolicy.FirewallRules[0].Protocol != checkMap["protocol"] {
-				return fmt.Errorf("[%s]: The Protocol of IEC Network ACL Egress Rule is not right.", resource.EgressFWPolicy.FirewallRules[0].Protocol)
-			}
-			if resource.EgressFWPolicy.FirewallRules[0].Action != checkMap["action"] {
-				return fmt.Errorf("[%s]: The Action of IEC Network ACL Egress is not right.", resource.EgressFWPolicy.FirewallRules[0].Action)
-			}
-			if resource.EgressFWPolicy.FirewallRules[0].DstPort != checkMap["destPort"] {
-				return fmt.Errorf("[%s]: The Destination Port of IEC Network ACL Egress is not right.", resource.EgressFWPolicy.FirewallRules[0].DstPort)
-			}
+		if len(found.IngressFWPolicy.FirewallRules) != 0 && len(found.EgressFWPolicy.FirewallRules) == 0 {
+			*resource = found.IngressFWPolicy.FirewallRules[0]
+		} else if len(found.EgressFWPolicy.FirewallRules) != 0 || len(found.IngressFWPolicy.FirewallRules) == 0 {
+			*resource = found.EgressFWPolicy.FirewallRules[0]
 		} else {
 			return fmt.Errorf("IEC Network ACL Rule not found")
 		}
+
 		return nil
 	}
 }

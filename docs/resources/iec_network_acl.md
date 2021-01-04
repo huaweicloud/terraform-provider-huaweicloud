@@ -8,41 +8,16 @@ Manages a network ACL resource within HuaweiCloud IEC.
 
 ## Example Usage
 
-### Without networks
-
 ```hcl
-data "huaweicloud_iec_sites" "sites_test" {}
-
-resource "huaweicloud_iec_network_acl" "acl_test" {
-  name        = "acl_demo"
-  description = "This is a network ACL of IEC without networks."
-}
-```
-
-### With networks
-
-```hcl
-data "huaweicloud_iec_sites" "sites_test" {}
-
-resource "huaweicloud_iec_vpc" "vpc_test" {
-  name = "vpc_demo"
-  cidr = "192.168.0.0/16"
-  mode = "CUSTOMER"
-}
-
-resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
-  name        = "subnet_demo"
-  cidr        = "192.168.128.0/18"
-  vpc_id      = huaweicloud_iec_vpc.vpc_test.id
-  site_id     = data.huaweicloud_iec_sites.sites_test.sites[0].id
-}
+variable "iec_vpc_id" {}
+variable "iec_subnet_id" {}
 
 resource "huaweicloud_iec_network_acl" "acl_test" {
   name        = "acl_demo"
   description = "This is a network ACL of IEC with networks."
   networks {
-    vpc_id = huaweicloud_iec_vpc.vpc_test.id
-    subnet_id = huaweicloud_iec_vpc_subnet.subnet_test.id
+    vpc_id    = var.iec_vpc_id
+    subnet_id = var.iec_subnet_id
   }
 }
 ```
@@ -88,3 +63,11 @@ This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.
 - `update` - Default is 10 minute.
 - `delete` - Default is 10 minute.
+
+## Import
+
+Network ACL can be imported using the `id`, e.g.
+
+```
+$ terraform import huaweicloud_iec_network_acl.acl_test 40b1159c-4e6e-11eb-a00e-fa165c365e51
+```

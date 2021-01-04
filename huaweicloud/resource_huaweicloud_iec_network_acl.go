@@ -15,6 +15,9 @@ func resourceIecNetworkACL() *schema.Resource {
 		Read:   resourceIecNetworkACLRead,
 		Update: resourceIecNetworkACLUpdate,
 		Delete: resourceIecNetworkACLDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -49,13 +52,11 @@ func resourceIecNetworkACL() *schema.Resource {
 			},
 			"inbound_rules": {
 				Type:     schema.TypeList,
-				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"outbound_rules": {
 				Type:     schema.TypeList,
-				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
