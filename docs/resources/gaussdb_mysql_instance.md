@@ -43,7 +43,7 @@ resource "huaweicloud_gaussdb_mysql_instance" "instance_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to create the GaussDB mysql instance resource. If omitted, the provider-level region will be used. Changing this creates a new instance resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the GaussDB mysql instance resource. If omitted, the provider-level region will be used. Changing this creates a new instance resource.
 
 * `name` - (Required, String) Specifies the instance name, which can be the same
   as an existing instance name. The value must be 4 to 64 characters in
