@@ -31,6 +31,8 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "a zone"),
 					resource.TestCheckResourceAttr(resourceName, "email", "email1@example.com"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "300"),
+					resource.TestCheckResourceAttr(resourceName, "tags.zone_type", "public"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 				),
 			},
 			{
@@ -44,6 +46,8 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "an updated zone"),
 					resource.TestCheckResourceAttr(resourceName, "email", "email2@example.com"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "600"),
+					resource.TestCheckResourceAttr(resourceName, "tags.zone_type", "public"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc"),
 				),
 			},
 		},
@@ -69,6 +73,8 @@ func TestAccDNSV2Zone_private(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "a private zone"),
 					resource.TestCheckResourceAttr(resourceName, "email", "email@example.com"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "300"),
+					resource.TestCheckResourceAttr(resourceName, "tags.zone_type", "private"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 				),
 			},
 		},
@@ -156,6 +162,11 @@ resource "huaweicloud_dns_zone" "zone_1" {
   email       = "email1@example.com"
   description = "a zone"
   ttl         = 300
+
+  tags = {
+    zone_type = "public"
+    owner     = "terraform"
+  }
 }
 	`, zoneName)
 }
@@ -167,6 +178,11 @@ resource "huaweicloud_dns_zone" "zone_1" {
   email       = "email2@example.com"
   description = "an updated zone"
   ttl         = 600
+
+  tags = {
+    zone_type = "public"
+    owner     = "tf-acc"
+  }
 }
 	`, zoneName)
 }
@@ -194,6 +210,10 @@ resource "huaweicloud_dns_zone" "zone_1" {
 
   router {
     router_id = data.huaweicloud_vpc.default.id
+  }
+  tags = {
+    zone_type = "private"
+    owner     = "terraform"
   }
 }
 	`, zoneName)
