@@ -44,15 +44,15 @@ The following arguments are supported:
 * `name` - (Required, String, ForceNew) The name of the record set. Note the `.` at the end of the name.
   Changing this creates a new DNS record set.
 
-* `type` - (Optional, String, ForceNew) The type of record set. The options include `A`, `AAAA`, `MX`,
-  `CNAME`, `TXT`, `NS`, `SRV`, and `PTR`. Changing this creates a new DNS record set.
+* `type` - (Required, String, ForceNew) The type of record set. The options include `A`, `AAAA`, `MX`,
+  `CNAME`, `TXT`, `NS`, `SRV`, `CAA`, and `PTR`. Changing this creates a new DNS record set.
+
+* `records` - (Required, List) An array of DNS records.
 
 * `ttl` - (Optional, Int) The time to live (TTL) of the record set (in seconds). The value
   range is 300–2147483647. The default value is 300.
 
 * `description` - (Optional, String) A description of the record set.
-
-* `records` - (Required, List) An array of DNS records.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the zone.
 

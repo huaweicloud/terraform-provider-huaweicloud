@@ -56,12 +56,12 @@ func ResourceDNSZoneV2() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      300,
-				ValidateFunc: resourceValidateTTL,
+				ValidateFunc: validation.IntBetween(1, 2147483647),
 			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: resourceValidateDescription,
+				ValidateFunc: validation.StringLenBetween(0, 255),
 			},
 			"router": {
 				Type:     schema.TypeSet,
