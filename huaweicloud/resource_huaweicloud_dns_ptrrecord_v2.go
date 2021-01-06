@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
@@ -53,7 +54,7 @@ func ResourceDNSPtrRecordV2() *schema.Resource {
 			"ttl": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ValidateFunc: resourceValidateTTL,
+				ValidateFunc: validation.IntBetween(1, 2147483647),
 			},
 			"tags": tagsSchema(),
 			"address": {

@@ -52,7 +52,7 @@ func ResourceDNSRecordSetV2() *schema.Resource {
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: resourceValidateDescription,
+				ValidateFunc: validation.StringLenBetween(0, 255),
 			},
 			"records": {
 				Type:     schema.TypeList,
@@ -64,14 +64,14 @@ func ResourceDNSRecordSetV2() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      300,
-				ValidateFunc: resourceValidateTTL,
+				ValidateFunc: validation.IntBetween(1, 2147483647),
 			},
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"A", "AAAA", "MX", "CNAME", "TXT", "NS", "SRV", "PTR",
+					"A", "AAAA", "MX", "CNAME", "TXT", "NS", "SRV", "PTR", "CAA",
 				}, false),
 			},
 			"value_specs": {
@@ -115,6 +115,9 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error creating HuaweiCloud DNS record set: %s", err)
 	}
 
+	id := fmt.Sprintf("%s/%s", zoneID, n.ID)
+	d.SetId(id)
+
 	log.Printf("[DEBUG] Waiting for DNS record set (%s) to become available", n.ID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
@@ -132,9 +135,6 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 			"Error waiting for record set (%s) to become ACTIVE for creation: %s",
 			n.ID, err)
 	}
-
-	id := fmt.Sprintf("%s/%s", zoneID, n.ID)
-	d.SetId(id)
 
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
@@ -341,24 +341,6 @@ func parseDNSV2RecordSetID(id string) (string, string, error) {
 	recordsetID := idParts[1]
 
 	return zoneID, recordsetID, nil
-}
-
-func resourceValidateDescription(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if len(value) > 255 {
-		errors = append(errors, fmt.Errorf("%q must less than 255 characters", k))
-	}
-
-	return
-}
-
-func resourceValidateTTL(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(int)
-	if 300 <= value && value <= 2147483647 {
-		return
-	}
-	errors = append(errors, fmt.Errorf("%q must be [300, 2147483647]", k))
-	return
 }
 
 // get resource type of DNS record set by zoneType
