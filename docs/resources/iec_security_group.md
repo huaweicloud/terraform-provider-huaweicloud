@@ -4,7 +4,7 @@ subcategory: "Intelligent EdgeCloud (IEC)"
 
 # huaweicloud\_iec\_security\_group
 
-Manages a security group resource within HuaweiCloud IEC.
+Manages a IEC security group resource within HuaweiCloud.
 
 ## Example Usage
 
