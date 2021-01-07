@@ -2,7 +2,6 @@ package huaweicloud
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -30,7 +29,7 @@ func TestAccIecSecurityGroupResource_basic(t *testing.T) {
 					testAccCheckIecSecurityGroupV1Exists(resourceName, &group),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", description),
-					resource.TestMatchResourceAttr(resourceName, "security_group_rules.#", regexp.MustCompile("0")),
+					resource.TestCheckResourceAttr(resourceName, "security_group_rules.#", "0"),
 				),
 			},
 			{
