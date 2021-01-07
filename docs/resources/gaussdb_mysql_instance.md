@@ -89,7 +89,7 @@ The following arguments are supported:
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 
-* `force_import` - (Optional, Bool, ForceNew) If specified, try to import the instance instead of creating if the name already existed.
+* `force_import` - (Optional, Bool) If specified, try to import the instance instead of creating if the name already existed.
 
 * `charging_mode` - (Optional, String, ForceNew) The charging mode of the instance. Valid options are: prePaid and postPaid, defaults to postPaid. Changing this creates a new resource.
 
