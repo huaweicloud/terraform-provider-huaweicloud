@@ -4,7 +4,7 @@ subcategory: "Intelligent EdgeCloud (IEC)"
 
 # huaweicloud\_iec\_security\_group\_rule
 
-Manages a security group rule resource within HuaweiCloud IEC.
+Manages a IEC security group rule resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -49,7 +49,7 @@ The following arguments are supported:
     Changing this parameter creates a new security group rule resource.
 
 * `remote_group_id` - (Optional, String, ForceNew) Specifies the remote group 
-    id, the value needs to be an Openstack ID of a security group. 
+    id, the value needs to be an ID of a security group. 
     This parameter and remote_ip_prefix are alternative.
     Changing this parameter creates a new security group rule resource.
 
