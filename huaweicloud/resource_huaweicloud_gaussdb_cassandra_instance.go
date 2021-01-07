@@ -153,7 +153,6 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 			"force_import": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 			},
 			"charging_mode": {
 				Type:     schema.TypeString,

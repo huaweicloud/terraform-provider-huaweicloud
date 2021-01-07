@@ -94,7 +94,7 @@ The following arguments are supported:
 * `ssl` - (Optional, Bool, ForceNew) Specifies whether to enable or disable SSL. Defaults to false.
   Changing this parameter will create a new resource.
 
-* `force_import` - (Optional, Bool, ForceNew) If specified, try to import the instance instead of creating if the name already existed.
+* `force_import` - (Optional, Bool) If specified, try to import the instance instead of creating if the name already existed.
 
 * `charging_mode` - (Optional, String, ForceNew) The charging mode of the instance. Valid options are: prePaid and postPaid, defaults to postPaid. Changing this creates a new resource.
 
