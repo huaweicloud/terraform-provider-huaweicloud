@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
@@ -13,6 +14,7 @@ import (
 
 func TestAccNetworkACLRule_basic(t *testing.T) {
 	resourceKey := "huaweicloud_network_acl_rule.rule_1"
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,20 +22,20 @@ func TestAccNetworkACLRule_basic(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkACLRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkACLRule_basic_1,
+				Config: testAccNetworkACLRule_basic_1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkACLRuleExists(resourceKey),
-					resource.TestCheckResourceAttr(resourceKey, "name", "rule_1"),
+					resource.TestCheckResourceAttr(resourceKey, "name", rName),
 					resource.TestCheckResourceAttr(resourceKey, "protocol", "udp"),
 					resource.TestCheckResourceAttr(resourceKey, "action", "deny"),
 					resource.TestCheckResourceAttr(resourceKey, "enabled", "true"),
 				),
 			},
 			{
-				Config: testAccNetworkACLRule_basic_2,
+				Config: testAccNetworkACLRule_basic_2(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkACLRuleExists(resourceKey),
-					resource.TestCheckResourceAttr(resourceKey, "name", "rule_1"),
+					resource.TestCheckResourceAttr(resourceKey, "name", rName),
 					resource.TestCheckResourceAttr(resourceKey, "protocol", "udp"),
 					resource.TestCheckResourceAttr(resourceKey, "action", "deny"),
 					resource.TestCheckResourceAttr(resourceKey, "enabled", "true"),
@@ -44,10 +46,10 @@ func TestAccNetworkACLRule_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccNetworkACLRule_basic_3,
+				Config: testAccNetworkACLRule_basic_3(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkACLRuleExists(resourceKey),
-					resource.TestCheckResourceAttr(resourceKey, "name", "rule_1"),
+					resource.TestCheckResourceAttr(resourceKey, "name", rName),
 					resource.TestCheckResourceAttr(resourceKey, "protocol", "tcp"),
 					resource.TestCheckResourceAttr(resourceKey, "action", "allow"),
 					resource.TestCheckResourceAttr(resourceKey, "enabled", "false"),
@@ -68,6 +70,7 @@ func TestAccNetworkACLRule_basic(t *testing.T) {
 
 func TestAccNetworkACLRule_anyProtocol(t *testing.T) {
 	resourceKey := "huaweicloud_network_acl_rule.rule_any"
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -75,10 +78,10 @@ func TestAccNetworkACLRule_anyProtocol(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkACLRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkACLRule_anyProtocol,
+				Config: testAccNetworkACLRule_anyProtocol(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkACLRuleExists(resourceKey),
-					resource.TestCheckResourceAttr(resourceKey, "name", "rule_any"),
+					resource.TestCheckResourceAttr(resourceKey, "name", rName),
 					resource.TestCheckResourceAttr(resourceKey, "protocol", "any"),
 					resource.TestCheckResourceAttr(resourceKey, "action", "allow"),
 					resource.TestCheckResourceAttr(resourceKey, "enabled", "true"),
@@ -151,17 +154,20 @@ func testAccCheckNetworkACLRuleExists(key string) resource.TestCheckFunc {
 	}
 }
 
-const testAccNetworkACLRule_basic_1 = `
+func testAccNetworkACLRule_basic_1(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_network_acl_rule" "rule_1" {
-  name = "rule_1"
+  name = "%s"
   protocol = "udp"
   action = "deny"
 }
-`
+`, rName)
+}
 
-const testAccNetworkACLRule_basic_2 = `
+func testAccNetworkACLRule_basic_2(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_network_acl_rule" "rule_1" {
-  name = "rule_1"
+  name = "%s"
   description = "Terraform accept test"
   protocol = "udp"
   action = "deny"
@@ -171,11 +177,13 @@ resource "huaweicloud_network_acl_rule" "rule_1" {
   destination_port = "555"
   enabled = true
 }
-`
+`, rName)
+}
 
-const testAccNetworkACLRule_basic_3 = `
+func testAccNetworkACLRule_basic_3(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_network_acl_rule" "rule_1" {
-  name = "rule_1"
+  name = "%s"
   description = "Terraform accept test updated"
   protocol = "tcp"
   action = "allow"
@@ -185,15 +193,18 @@ resource "huaweicloud_network_acl_rule" "rule_1" {
   destination_port = "777"
   enabled = false
 }
-`
+`, rName)
+}
 
-const testAccNetworkACLRule_anyProtocol = `
+func testAccNetworkACLRule_anyProtocol(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_network_acl_rule" "rule_any" {
-  name = "rule_any"
+  name = "%s"
   description = "Allow any protocol"
   protocol = "any"
   action = "allow"
   source_ip_address = "192.168.199.0/24"
   enabled = true
 }
-`
+`, rName)
+}
