@@ -34,20 +34,23 @@ The following arguments are supported:
     valid values are __IPv4__(IPv4 is default) or __IPv6__. 
     Changing this parameter creates a new security group rule resource.
 
+* `protocol` - (Required, String, ForceNew) Specifies the layer 4 protocol   
+    type, valid values are following. 
+    The valid values are: __tcp__, __udp__, __icmp__ and __gre__.
+    Changing this parameter creates a new security group rule resource. 
+
 * `security_group_id` - (Required, String, ForceNew) Specifies the security 
     group id the rule should belong to.
     Changing this parameter creates a new security group rule resource.
 
 * `remote_ip_prefix` - (Optional, String, ForceNew) Specifies the remote CIDR, 
     the value to be a valid CIDR (i.e. 192.168.0.0/16). 
-    remote_ip_prefix is required if remote_group_id is empty. 
-    remote_ip_prefix and remote_group_id must choose one to fill in.
+    This parameter and remote_group_id are alternative.
     Changing this parameter creates a new security group rule resource.
 
 * `remote_group_id` - (Optional, String, ForceNew) Specifies the remote group 
     id, the value needs to be an Openstack ID of a security group. 
-    remote_group_id is required if remote_ip_prefix is empty. 
-    remote_ip_prefix and remote_group_id must choose one to fill in.
+    This parameter and remote_ip_prefix are alternative.
     Changing this parameter creates a new security group rule resource.
 
 * `description` - (Optional, String, ForceNew) Specifies a description of the 
@@ -62,16 +65,11 @@ The following arguments are supported:
     allowed port range, valid integer value needs to be between 1 and 65535. 
     Changing this parameter creates a new security group rule resource.
 
-* `protocol` - (Optional, String, ForceNew) Specifies the layer 4 protocol   
-    type, valid values are following. The valid values are: __tcp__, __udp__, 
-    __icmp__ and __gre__.
-    Changing this parameter creates a new security group rule resource. 
-
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - A resource ID in UUID format.
 
 ## Timeouts
 

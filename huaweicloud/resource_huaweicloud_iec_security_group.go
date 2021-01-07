@@ -89,7 +89,6 @@ func resourceIecSecurityGroup() *schema.Resource {
 			},
 		},
 	}
-
 }
 
 func resourceIecSecurityGroupV1Read(d *schema.ResourceData, meta interface{}) error {

@@ -34,6 +34,14 @@ func resourceIecSecurityGroupRule() *schema.Resource {
 					"egress", "ingress",
 				}, true),
 			},
+			"protocol": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"icmp", "tcp", "udp", "gre",
+				}, true),
+			},
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -63,25 +71,17 @@ func resourceIecSecurityGroupRule() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"IPv4", "IPv6"}, true),
 				Default:      "IPv4",
 			},
-			"protocol": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"icmp", "tcp", "udp", "gre",
-				}, true),
-			},
 			"remote_ip_prefix": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"remote_group_id"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"remote_group_id"},
 			},
 			"remote_group_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"remote_ip_prefix"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"remote_ip_prefix"},
 			},
 		},
 	}
@@ -95,6 +95,10 @@ func resourceIecSecurityGroupRuleV1Create(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
+	if d.Get("protocol").(string) != "icmp" && d.Get("port_range_min").(int) > d.Get("port_range_max").(int) {
+		return fmt.Errorf("The value of `port_range_min` can not be greater than the value of `port_range_max`")
+	}
+
 	sgRule := common.ReqSecurityGroupRuleEntity{
 		Direction:       d.Get("direction").(string),
 		SecurityGroupID: d.Get("security_group_id").(string),
@@ -105,15 +109,9 @@ func resourceIecSecurityGroupRuleV1Create(d *schema.ResourceData, meta interface
 		RemoteGroupID:   d.Get("remote_group_id").(string),
 	}
 
-	if d.Get("port_range_min") != nil && d.Get("port_range_max") != nil && d.Get("protocol").(string) != "icmp" {
-		portMinRange := d.Get("port_range_min").(int)
-		portMaxRange := d.Get("port_range_max").(int)
-		if portMinRange <= portMaxRange {
-			sgRule.PortRangeMin = portMinRange
-			sgRule.PortRangeMax = portMaxRange
-		} else {
-			return fmt.Errorf("The value of `port_range_min` can not be greater than the value of `port_range_max`")
-		}
+	if d.Get("protocol").(string) != "icmp" {
+		sgRule.PortRangeMin = d.Get("port_range_min")
+		sgRule.PortRangeMax = d.Get("port_range_max")
 	}
 
 	createOpts := rules.CreateOpts{

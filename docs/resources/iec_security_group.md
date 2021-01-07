@@ -10,7 +10,7 @@ Manages a security group resource within HuaweiCloud IEC.
 
 ```hcl
 variable "iec_secgroup_name" {}
-
+ch
 resource "huaweicloud_iec_security_group" "secgroup_test" {
   name = var.iec_secgroup_name
 }
