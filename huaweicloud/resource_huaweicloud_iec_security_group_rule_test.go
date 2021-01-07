@@ -4,35 +4,38 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/groups"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/rules"
 )
 
-func TestAccIecSecurityGroupRuleResourceV1_Basic(t *testing.T) {
+func TestAccIecSecurityGroupRuleResource_Basic(t *testing.T) {
 
 	groupName := "huaweicloud_iec_security_group.my_group"
 	ruleName1 := "huaweicloud_iec_security_group_rule.rule_1"
 	ruleName2 := "huaweicloud_iec_security_group_rule.rule_2"
+	rName := fmt.Sprintf("iec-secgroup-%s", acctest.RandString(5))
 
 	var group groups.RespSecurityGroupEntity
 	var rule1, rule2 rules.RespSecurityGroupRule
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckIecSecurityGroupRuleV1Destory,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecSecurityGroupRuleV1_Basic(),
+				Config: testAccIecSecurityGroupRuleV1_Basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIecSecGroupV1Exists(groupName, &group),
 					testAccCheckIecSecurityGroupRuleV1Exists(ruleName1, &rule1),
-					testAccCheckIecSecurityGroupRuleV1Exists(ruleName2, &rule2),
 					resource.TestCheckResourceAttr(ruleName1, "direction", "egress"),
 					resource.TestCheckResourceAttr(ruleName1, "protocol", "tcp"),
 					resource.TestCheckResourceAttr(ruleName1, "port_range_min", "445"),
 					resource.TestCheckResourceAttr(ruleName1, "port_range_max", "445"),
+					testAccCheckIecSecurityGroupRuleV1Exists(ruleName2, &rule2),
 					resource.TestCheckResourceAttr(ruleName2, "direction", "ingress"),
 					resource.TestCheckResourceAttr(ruleName2, "protocol", "udp"),
 					resource.TestCheckResourceAttr(ruleName2, "port_range_min", "20"),
@@ -126,11 +129,10 @@ func testAccCheckIecSecurityGroupRuleV1Destory(state *terraform.State) error {
 	return nil
 }
 
-func testAccIecSecurityGroupRuleV1_Basic() string {
+func testAccIecSecurityGroupRuleV1_Basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_security_group" "my_group" {
-  name = "my-test-group-basic"
-  description = "this is a test group"
+  name = "%s"
 }
 
 resource "huaweicloud_iec_security_group_rule" "rule_1" {
@@ -150,5 +152,5 @@ resource "huaweicloud_iec_security_group_rule" "rule_2" {
   security_group_id = huaweicloud_iec_security_group.my_group.id
   remote_ip_prefix = "0.0.0.0/0"
 }
-`)
+`, rName)
 }

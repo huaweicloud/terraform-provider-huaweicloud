@@ -5,14 +5,14 @@ subcategory: "Intelligent EdgeCloud (IEC)"
 # huaweicloud\_iec\_security\_group
 
 Manages a security group resource within HuaweiCloud IEC.
-This is an alternative to `huaweicloud_iec_security_group_v1`
 
 ## Example Usage
 
 ```hcl
+variable "iec_secgroup_name" {}
+
 resource "huaweicloud_iec_security_group" "secgroup_test" {
-  name        = "my_secgroup_test"
-  description = "My security group"
+  name = var.iec_secgroup_name
 }
 ```
 
@@ -20,17 +20,20 @@ resource "huaweicloud_iec_security_group" "secgroup_test" {
 
 The following arguments are supported:
 
-* `name` - (Required, String) A unique name for the security group.
+* `name` - (Required, String) Specifies the name for the security group.
+    The iec security group allowed to have the same name.
 
-* `description` - (Optional, String) Description for the security group.
+* `description` - (Optional, String) Specifies the description of the iec
+    security group.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a iec security group resource ID in UUID format.
+* `id` - A resource ID in UUID format.
 
-* `security_group_rules` - An Array of one or more security group rules. The security_group_rules object structure is documented below.
+* `security_group_rules` - An Array of one or more security group rules. 
+    The security_group_rules object structure is documented below.
 
 The `security_group_rules` block supports:
 
@@ -44,10 +47,6 @@ The `security_group_rules` block supports:
 * `protocol` - The layer 4 protocol type.
 * `remote_ip_prefix` - The remote CIDR of the iec security group rules.
 * `remote_group_id` - The remote group id of the iec security group rules.
-
-## Default Security Group Rules
-
-In most cases, HuaweiCloud will create some ingress and egress rules for each new iec security group. These iec security group rules will not be managed by Terraform.
 
 ## Timeouts
 

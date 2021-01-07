@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/rules"
 )
 
-func resourceIecSecurityGroupRuleV1() *schema.Resource {
+func resourceIecSecurityGroupRule() *schema.Resource {
 
 	return &schema.Resource{
 		Create: resourceIecSecurityGroupRuleV1Create,
@@ -26,11 +26,6 @@ func resourceIecSecurityGroupRuleV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"direction": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -38,6 +33,16 @@ func resourceIecSecurityGroupRuleV1() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"egress", "ingress",
 				}, true),
+			},
+			"security_group_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"port_range_min": {
 				Type:         schema.TypeInt,
@@ -65,11 +70,6 @@ func resourceIecSecurityGroupRuleV1() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"icmp", "tcp", "udp", "gre",
 				}, true),
-			},
-			"security_group_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
 			},
 			"remote_ip_prefix": {
 				Type:          schema.TypeString,
@@ -103,14 +103,15 @@ func resourceIecSecurityGroupRuleV1Create(d *schema.ResourceData, meta interface
 		Protocol:        d.Get("protocol").(string),
 		RemoteIPPrefix:  d.Get("remote_ip_prefix").(string),
 		RemoteGroupID:   d.Get("remote_group_id").(string),
-		PortRangeMin:    d.Get("port_range_min").(int),
-		PortRangeMax:    d.Get("port_range_max").(int),
 	}
 
 	if d.Get("port_range_min") != nil && d.Get("port_range_max") != nil && d.Get("protocol").(string) != "icmp" {
 		portMinRange := d.Get("port_range_min").(int)
 		portMaxRange := d.Get("port_range_max").(int)
-		if portMinRange > portMaxRange {
+		if portMinRange <= portMaxRange {
+			sgRule.PortRangeMin = portMinRange
+			sgRule.PortRangeMax = portMaxRange
+		} else {
 			return fmt.Errorf("The value of `port_range_min` can not be greater than the value of `port_range_max`")
 		}
 	}
@@ -143,13 +144,18 @@ func resourceIecSecurityGroupRuleV1Read(d *schema.ResourceData, meta interface{}
 
 	d.Set("description", rule.SecurityGroupRule.Description)
 	d.Set("direction", rule.SecurityGroupRule.Direction)
-	d.Set("port_range_min", rule.SecurityGroupRule.PortRangeMin)
-	d.Set("port_range_max", rule.SecurityGroupRule.PortRangeMax)
 	d.Set("ethertype", rule.SecurityGroupRule.EtherType)
 	d.Set("protocol", rule.SecurityGroupRule.Protocol)
 	d.Set("security_group_id", rule.SecurityGroupRule.SecurityGroupID)
 	d.Set("remote_ip_prefix", rule.SecurityGroupRule.RemoteIPPrefix)
 	d.Set("remote_group_id", rule.SecurityGroupRule.RemoteGroupID)
+
+	if rule.SecurityGroupRule.PortRangeMin.(string) != "" {
+		d.Set("port_range_min", rule.SecurityGroupRule.PortRangeMin)
+	}
+	if rule.SecurityGroupRule.PortRangeMax.(string) != "" {
+		d.Set("port_range_max", rule.SecurityGroupRule.PortRangeMax)
+	}
 
 	return nil
 }

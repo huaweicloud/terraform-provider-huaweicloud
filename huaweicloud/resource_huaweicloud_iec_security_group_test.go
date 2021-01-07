@@ -4,21 +4,26 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/groups"
 )
 
-func TestAccIecSecurityGroupResourceV1_basic(t *testing.T) {
-	var group groups.RespSecurityGroupEntity
+func TestAccIecSecurityGroupResource_basic(t *testing.T) {
+
 	resourceName := "huaweicloud_iec_security_group.my_group"
+	rName := fmt.Sprintf("iec-secgroup-%s", acctest.RandString(5))
+
+	var group groups.RespSecurityGroupEntity
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckIecSecurityGroupV1Destory,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecSecurityGroupV1_Basic(),
+				Config: testAccIecSecurityGroupV1_Basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIecSecurityGroupV1Exists(resourceName, &group),
 					testAccCheckIecSecurityGroupV1RuleCount(&group, 0),
@@ -96,11 +101,11 @@ func testAccCheckIecSecurityGroupV1Destory(s *terraform.State) error {
 	return nil
 }
 
-func testAccIecSecurityGroupV1_Basic() string {
+func testAccIecSecurityGroupV1_Basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_iec_security_group" "my_group" {
-  name = "my_test_group"
-  description = "this is a test group"
+  name        = "%s"
+  description = "This is a test of iec security group"
 }
-`)
+`, rName)
 }

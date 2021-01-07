@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -11,7 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/groups"
 )
 
-func resourceIecSecurityGroupV1() *schema.Resource {
+func resourceIecSecurityGroup() *schema.Resource {
 
 	return &schema.Resource{
 		Create: resourceIecSecurityGroupV1Create,
@@ -43,14 +44,6 @@ func resourceIecSecurityGroupV1() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"security_group_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"description": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -60,6 +53,10 @@ func resourceIecSecurityGroupV1() *schema.Resource {
 							Computed: true,
 						},
 						"ethertype": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -80,6 +77,10 @@ func resourceIecSecurityGroupV1() *schema.Resource {
 							Computed: true,
 						},
 						"remote_ip_prefix": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"security_group_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -108,7 +109,28 @@ func resourceIecSecurityGroupV1Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("id", group.ID)
 	d.Set("name", group.Name)
 	d.Set("description", group.Description)
-	d.Set("security_group_rules", flattenSecurityGroupRules(group))
+
+	secRules := make([]map[string]interface{}, len(group.SecurityGroupRules))
+	for index, rule := range group.SecurityGroupRules {
+		secRules[index] = map[string]interface{}{
+			"id":                rule.ID,
+			"security_group_id": rule.SecurityGroupID,
+			"description":       rule.Description,
+			"direction":         rule.Direction,
+			"ethertype":         rule.EtherType,
+			"protocol":          rule.Protocol,
+			"remote_group_id":   rule.RemoteGroupID,
+			"remote_ip_prefix":  rule.RemoteIPPrefix,
+		}
+		if ret, err := strconv.Atoi(rule.PortRangeMax.(string)); err == nil {
+			secRules[index]["port_range_max"] = ret
+		}
+		if ret, err := strconv.Atoi(rule.PortRangeMin.(string)); err == nil {
+			secRules[index]["port_range_min"] = ret
+		}
+	}
+
+	d.Set("security_group_rules", secRules)
 
 	return nil
 }
@@ -159,33 +181,13 @@ func resourceIecSecurityGroupV1Delete(d *schema.ResourceData, meta interface{}) 
 	}
 
 	d.SetId("")
+
 	return nil
 }
 
-func flattenSecurityGroupRules(groups *groups.RespSecurityGroupEntity) []map[string]interface{} {
-
-	var secRules []map[string]interface{}
-	for _, rule := range groups.SecurityGroupRules {
-		r := map[string]interface{}{
-			"id":                rule.ID,
-			"security_group_id": rule.SecurityGroupID,
-			"description":       rule.Description,
-			"direction":         rule.Direction,
-			"ethertype":         rule.EtherType,
-			"protocol":          rule.Protocol,
-			"port_range_max":    rule.PortRangeMax,
-			"port_range_min":    rule.PortRangeMin,
-			"remote_group_id":   rule.RemoteGroupID,
-			"remote_ip_prefix":  rule.RemoteIPPrefix,
-		}
-		secRules = append(secRules, r)
-	}
-	return secRules
-}
-
 func waitForSecurityGroupDelete(iecClient *golangsdk.ServiceClient, groupID string) resource.StateRefreshFunc {
-
 	return func() (interface{}, string, error) {
+
 		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Security Group %s.\n", groupID)
 		sg, err := groups.Get(iecClient, groupID).Extract()
 		if err != nil {
