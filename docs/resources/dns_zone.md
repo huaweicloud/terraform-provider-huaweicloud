@@ -59,6 +59,8 @@ The following arguments are supported:
 
 * `description` - (Optional, String) A description of the zone.
 
+* `tags` - (Optional, Map) The key/value pairs to associate with the zone.
+
 * `value_specs` - (Optional, Map, ForceNew) Map of additional options. Changing this creates a
   new DNS zone.
 

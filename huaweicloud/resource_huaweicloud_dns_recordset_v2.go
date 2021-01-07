@@ -139,7 +139,7 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		resourceType, err := getDNSRecordSetResourceType(zoneType)
+		resourceType, err := getDNSRecordSetTagType(zoneType)
 		if err != nil {
 			return fmt.Errorf("Error getting resource type of DNS record set %s: %s", n.ID, err)
 		}
@@ -186,7 +186,7 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("zone_id", zoneID)
 
 	// save tags
-	resourceType, err := getDNSRecordSetResourceType(zoneType)
+	resourceType, err := getDNSRecordSetTagType(zoneType)
 	if err != nil {
 		return fmt.Errorf("Error getting resource type of DNS record set %s: %s", recordsetID, err)
 	}
@@ -258,7 +258,7 @@ func resourceDNSRecordSetV2Update(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// update tags
-	resourceType, err := getDNSRecordSetResourceType(zoneType)
+	resourceType, err := getDNSRecordSetTagType(zoneType)
 	if err != nil {
 		return fmt.Errorf("Error getting resource type of DNS record set %s: %s", d.Id(), err)
 	}
@@ -341,16 +341,6 @@ func parseDNSV2RecordSetID(id string) (string, string, error) {
 	recordsetID := idParts[1]
 
 	return zoneID, recordsetID, nil
-}
-
-// get resource type of DNS record set by zoneType
-func getDNSRecordSetResourceType(zoneType string) (string, error) {
-	if zoneType == "public" {
-		return "DNS-public_recordset", nil
-	} else if zoneType == "private" {
-		return "DNS-private_recordset", nil
-	}
-	return "", fmt.Errorf("invalid zone type: %s", zoneType)
 }
 
 func chooseDNSClientbyZoneID(d *schema.ResourceData, zoneID string, meta interface{}) (*golangsdk.ServiceClient, string, error) {

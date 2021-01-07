@@ -54,7 +54,7 @@ The following arguments are supported:
 
 * `description` - (Optional, String) A description of the record set.
 
-* `tags` - (Optional, Map) The key/value pairs to associate with the zone.
+* `tags` - (Optional, Map) The key/value pairs to associate with the record set.
 
 * `value_specs` - (Optional, Map, ForceNew) Map of additional options. Changing this creates a
   new record set.

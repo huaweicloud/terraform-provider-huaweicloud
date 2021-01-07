@@ -1,6 +1,8 @@
 package huaweicloud
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
@@ -73,4 +75,24 @@ func expandResourceTags(tagmap map[string]interface{}) []tags.ResourceTag {
 	}
 
 	return taglist
+}
+
+// get resource tag type of DNS zone by zoneType
+func getDNSZoneTagType(zoneType string) (string, error) {
+	if zoneType == "public" {
+		return "DNS-public_zone", nil
+	} else if zoneType == "private" {
+		return "DNS-private_zone", nil
+	}
+	return "", fmt.Errorf("invalid zone type: %s", zoneType)
+}
+
+// get resource tag type of DNS record set by zoneType
+func getDNSRecordSetTagType(zoneType string) (string, error) {
+	if zoneType == "public" {
+		return "DNS-public_recordset", nil
+	} else if zoneType == "private" {
+		return "DNS-private_recordset", nil
+	}
+	return "", fmt.Errorf("invalid zone type: %s", zoneType)
 }
