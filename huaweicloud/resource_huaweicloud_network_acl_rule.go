@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules"
 )
 
-func resourceNetworkACLRule() *schema.Resource {
+func ResourceNetworkACLRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkACLRuleCreate,
 		Read:   resourceNetworkACLRuleRead,
@@ -83,7 +83,7 @@ func resourceNetworkACLRule() *schema.Resource {
 
 func resourceNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	fwClient, err := config.fwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -119,7 +119,7 @@ func resourceNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	fwClient, err := config.fwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -152,7 +152,7 @@ func resourceNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	fwClient, err := config.fwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -210,7 +210,7 @@ func resourceNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceNetworkACLRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	fwClient, err := config.fwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}

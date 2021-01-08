@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
-func resourceNetworkACL() *schema.Resource {
+func ResourceNetworkACL() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkACLCreate,
 		Read:   resourceNetworkACLRead,
@@ -88,7 +88,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 	var inboundPolicyID, outboundPolicyID string
 
 	config := meta.(*Config)
-	fwClient, err := config.fwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -218,7 +218,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	fwClient, err := config.fwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -245,7 +245,7 @@ func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	fwClient, err := config.fwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -328,7 +328,7 @@ func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy firewall group: %s", d.Id())
 
 	config := meta.(*Config)
-	fwClient, err := config.fwV2Client(GetRegion(d, config))
+	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
