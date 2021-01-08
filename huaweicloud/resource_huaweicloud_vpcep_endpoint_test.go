@@ -30,7 +30,7 @@ func TestAccVPCEndpointBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "service_type", "interface"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_name"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_domain_name"),
 				),
 			},
 			{
@@ -69,7 +69,7 @@ func TestAccVPCEndpointPublic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "service_type", "interface"),
 					resource.TestCheckResourceAttr(resourceName, "whitelist.#", "2"),
 					resource.TestCheckResourceAttrSet(resourceName, "service_name"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_domain_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "ip_address"),
 				),
 			},
