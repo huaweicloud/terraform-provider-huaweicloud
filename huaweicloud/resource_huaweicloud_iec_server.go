@@ -22,7 +22,6 @@ func resourceIecServer() *schema.Resource {
 		Read:   resourceIecServerV1Read,
 		Update: resourceIecServerV1Update,
 		Delete: resourceIecServerV1Delete,
-		Importer: &schema.ResourceImporter{
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
