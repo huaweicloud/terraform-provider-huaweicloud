@@ -274,6 +274,8 @@ github.com/huaweicloud/golangsdk/openstack/iec/v1/images
 github.com/huaweicloud/golangsdk/openstack/iec/v1/keypairs
 github.com/huaweicloud/golangsdk/openstack/iec/v1/ports
 github.com/huaweicloud/golangsdk/openstack/iec/v1/publicips
+github.com/huaweicloud/golangsdk/openstack/iec/v1/security/groups
+github.com/huaweicloud/golangsdk/openstack/iec/v1/security/rules
 github.com/huaweicloud/golangsdk/openstack/iec/v1/sites
 github.com/huaweicloud/golangsdk/openstack/iec/v1/subnets
 github.com/huaweicloud/golangsdk/openstack/iec/v1/vpcs

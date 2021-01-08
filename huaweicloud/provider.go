@@ -398,6 +398,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_iec_keypair":                     resourceIecKeypair(),
 			"huaweicloud_iec_network_acl":                 resourceIecNetworkACL(),
 			"huaweicloud_iec_network_acl_rule":            resourceIecNetworkACLRule(),
+			"huaweicloud_iec_security_group":              resourceIecSecurityGroup(),
+			"huaweicloud_iec_security_group_rule":         resourceIecSecurityGroupRule(),
 			"huaweicloud_iec_vip":                         resourceIecVipV1(),
 			"huaweicloud_iec_vpc":                         ResourceIecVpc(),
 			"huaweicloud_iec_vpc_subnet":                  resourceIecSubnet(),
