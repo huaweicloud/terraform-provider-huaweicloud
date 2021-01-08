@@ -271,7 +271,7 @@ func testAccDcsV1Instance_tiny(instanceName string) string {
 	  vpc_id            = data.huaweicloud_vpc.test.id
 	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
-	  product_id        = "redis.ha.au1.tiny.128-h"
+	  product_id        = "redis.ha.xu1.tiny.r2.128-h"
 	  save_days         = 1
 	  backup_type       = "manual"
 	  begin_at          = "00:00-01:00"
@@ -306,7 +306,7 @@ func testAccDcsV1Instance_whitelists(instanceName string) string {
 	  vpc_id            = data.huaweicloud_vpc.test.id
 	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
-	  product_id        = "redis.ha.au1.large.r2.2-h"
+	  product_id        = "redis.ha.xu1.large.r2.2-h"
 	  save_days         = 1
 	  backup_type       = "manual"
 	  begin_at          = "00:00-01:00"

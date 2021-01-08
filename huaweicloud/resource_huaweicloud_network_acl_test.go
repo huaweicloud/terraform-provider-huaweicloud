@@ -163,28 +163,29 @@ func testAccCheckNetworkACLExists(n string, fwGroup *FirewallGroup) resource.Tes
 	}
 }
 
-const testAccNetworkACLRules = `
-resource "huaweicloud_vpc_v1" "vpc_1" {
-  name = "acc_vpc_test"
+func testAccNetworkACLRules(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "vpc_1" {
+  name = "%s_vpc"
   cidr = "192.168.0.0/16"
 }
 
-resource "huaweicloud_vpc_subnet_v1" "subnet_1" {
-  name = "acc_subnet_1"
+resource "huaweicloud_vpc_subnet" "subnet_1" {
+  name = "%s_subnet_1"
   cidr = "192.168.0.0/24"
   gateway_ip = "192.168.0.1"
-  vpc_id = huaweicloud_vpc_v1.vpc_1.id
+  vpc_id = huaweicloud_vpc.vpc_1.id
 }
 
-resource "huaweicloud_vpc_subnet_v1" "subnet_2" {
-	name = "acc_subnet_2"
+resource "huaweicloud_vpc_subnet" "subnet_2" {
+	name = "%s_subnet_2"
 	cidr = "192.168.10.0/24"
 	gateway_ip = "192.168.10.1"
-	vpc_id = huaweicloud_vpc_v1.vpc_1.id
+	vpc_id = huaweicloud_vpc.vpc_1.id
   }
 
 resource "huaweicloud_network_acl_rule" "rule_1" {
-  name             = "my-rule-1"
+  name             = "%s-rule-1"
   description      = "drop TELNET traffic"
   action           = "deny"
   protocol         = "tcp"
@@ -192,13 +193,14 @@ resource "huaweicloud_network_acl_rule" "rule_1" {
 }
 
 resource "huaweicloud_network_acl_rule" "rule_2" {
-  name             = "my-rule-2"
+  name             = "%s-rule-2"
   description      = "drop NTP traffic"
   action           = "deny"
   protocol         = "udp"
   destination_port = "123"
 }
-`
+`, name, name, name, name, name)
+}
 
 func testAccNetworkACL_basic(name string) string {
 	return fmt.Sprintf(`
@@ -209,9 +211,9 @@ resource "huaweicloud_network_acl" "fw_1" {
   description = "created by terraform test acc"
 
   inbound_rules = [huaweicloud_network_acl_rule.rule_1.id]
-  subnets = [huaweicloud_vpc_subnet_v1.subnet_1.id]
+  subnets = [huaweicloud_vpc_subnet.subnet_1.id]
 }
-`, testAccNetworkACLRules, name)
+`, testAccNetworkACLRules(name), name)
 }
 
 func testAccNetworkACL_basic_update(name string) string {
@@ -224,10 +226,10 @@ resource "huaweicloud_network_acl" "fw_1" {
 
   inbound_rules = [huaweicloud_network_acl_rule.rule_1.id,
       huaweicloud_network_acl_rule.rule_2.id]
-  subnets = [huaweicloud_vpc_subnet_v1.subnet_1.id,
-      huaweicloud_vpc_subnet_v1.subnet_2.id]
+  subnets = [huaweicloud_vpc_subnet.subnet_1.id,
+      huaweicloud_vpc_subnet.subnet_2.id]
 }
-`, testAccNetworkACLRules, name)
+`, testAccNetworkACLRules(name), name)
 }
 
 func testAccNetworkACL_no_subnets(name string) string {

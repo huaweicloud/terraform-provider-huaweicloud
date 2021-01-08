@@ -103,7 +103,6 @@ func TestAccHuaweiCloudObsBucketObjectDataSource_allParams(t *testing.T) {
 					testAccCheckAwsObsObjectDataSourceExists("data.huaweicloud_obs_bucket_object.obj"),
 					resource.TestCheckResourceAttr("data.huaweicloud_obs_bucket_object.obj", "content_type", "application/unknown"),
 					resource.TestCheckResourceAttr("data.huaweicloud_obs_bucket_object.obj", "storage_class", "STANDARD"),
-					resource.TestCheckResourceAttr("data.huaweicloud_obs_bucket_object.obj", "body", "\t{\"msg\": \"Hi there!\"}\n"),
 				),
 			},
 		},

@@ -18,7 +18,7 @@ func TestAccDcsAZV1DataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDcsAZV1DataSourceID("data.huaweicloud_dcs_az_v1.az1"),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dcs_az_v1.az1", "port", "8002"),
+						"data.huaweicloud_dcs_az_v1.az1", "port", "8403"),
 				),
 			},
 		},
@@ -41,8 +41,10 @@ func testAccCheckDcsAZV1DataSourceID(n string) resource.TestCheckFunc {
 }
 
 var testAccDcsAZV1DataSource_basic = fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
 data "huaweicloud_dcs_az_v1" "az1" {
-  code = "%s"
-  port = "8002"
+  code = data.huaweicloud_availability_zones.test.names[0]
+  port = "8403"
 }
-`, HW_AVAILABILITY_ZONE)
+`)
