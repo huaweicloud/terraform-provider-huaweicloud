@@ -110,7 +110,7 @@ func TestAccNetworkACL_remove(t *testing.T) {
 
 func testAccCheckNetworkACLDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	fwClient, err := config.fwV2Client(HW_REGION_NAME)
+	fwClient, err := config.FwV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
@@ -142,7 +142,7 @@ func testAccCheckNetworkACLExists(n string, fwGroup *FirewallGroup) resource.Tes
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		fwClient, err := config.fwV2Client(HW_REGION_NAME)
+		fwClient, err := config.FwV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 		}

@@ -550,7 +550,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 }
 
 // TestAccServiceEndpoints_Network test for the endpoints of the clients used in network
-// include networkingV1Client, networkingV2Client, natV2Client, loadElasticLoadBalancerClient and fwV2Client
+// include networkingV1Client, networkingV2Client, natV2Client, loadElasticLoadBalancerClient and FwV2Client
 func TestAccServiceEndpoints_Network(t *testing.T) {
 
 	testAccPreCheckServiceEndpoints(t)
@@ -636,7 +636,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	compareURL(expectedURL, actualURL, "elb", "v2.0", t)
 
 	// test the endpoint of fw v2 service
-	serviceClient, err = config.fwV2Client(HW_REGION_NAME)
+	serviceClient, err = config.FwV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud fw v2 client: %s", err)
 	}

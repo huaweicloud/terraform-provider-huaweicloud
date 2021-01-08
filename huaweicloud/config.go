@@ -660,7 +660,7 @@ func (c *Config) ElbV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("elbv2", region)
 }
 
-func (c *Config) fwV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) FwV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("networkv2", region)
 }
 
