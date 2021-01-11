@@ -3,7 +3,6 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -250,21 +249,17 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 	d.Set("host", n.Host)
 	d.Set("enterprise_project_id", n.Metadata["enterprise_project_id"])
 
-	// NOTE: This tries to remove system metadata.
+	// NOTE: only support the following metadata key
+	var metaKeys = [3]string{"#sfs_crypt_key_id", "#sfs_crypt_domain_id", "#sfs_crypt_alias"}
 	md := make(map[string]string)
-	var sys_keys = [2]string{"enterprise_project_id", "share_used"}
 
-OUTER:
 	for key, val := range n.Metadata {
-		if strings.HasPrefix(key, "#sfs") {
-			continue
-		}
-		for i := range sys_keys {
-			if key == sys_keys[i] {
-				continue OUTER
+		for i := range metaKeys {
+			if key == metaKeys[i] {
+				md[key] = val
+				break
 			}
 		}
-		md[key] = val
 	}
 	d.Set("metadata", md)
 
