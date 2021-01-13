@@ -70,7 +70,7 @@ The following arguments are supported:
 * `configuration_id` - (Optional, String, ForceNew) Specifies the configuration ID.
   Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id. Required if EPS enabled.
   Changing this parameter will create a new resource.
 
 * `read_replicas` - (Optional, Int) Specifies the count of read replicas. Defaults to 1.
