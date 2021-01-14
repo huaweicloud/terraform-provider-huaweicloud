@@ -100,10 +100,6 @@ func resourceSFSFileSystemV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"host": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"export_location": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -246,7 +242,6 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 	d.Set("availability_zone", n.AvailabilityZone)
 	d.Set("region", GetRegion(d, config))
 	d.Set("export_location", n.ExportLocation)
-	d.Set("host", n.Host)
 	d.Set("enterprise_project_id", n.Metadata["enterprise_project_id"])
 
 	// NOTE: only support the following metadata key
