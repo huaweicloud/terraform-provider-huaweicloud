@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/apigw/apis"
@@ -11,6 +12,7 @@ import (
 
 func TestAccApiGatewayAPI_basic(t *testing.T) {
 	var resName = "huaweicloud_api_gateway_api.acc_apigw_api"
+	rName := fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -18,11 +20,11 @@ func TestAccApiGatewayAPI_basic(t *testing.T) {
 		CheckDestroy: testAccCheckApiGatewayApiDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApigwAPI_basic,
+				Config: testAccApigwAPI_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApiGatewayApiExists(resName),
-					resource.TestCheckResourceAttr(resName, "name", "acc_apigw_api"),
-					resource.TestCheckResourceAttr(resName, "group_name", "acc_apigw_group_1"),
+					resource.TestCheckResourceAttr(resName, "name", rName),
+					resource.TestCheckResourceAttr(resName, "group_name", rName),
 					resource.TestCheckResourceAttr(resName, "auth_type", "NONE"),
 					resource.TestCheckResourceAttr(resName, "backend_type", "HTTP"),
 					resource.TestCheckResourceAttr(resName, "request_protocol", "HTTPS"),
@@ -35,7 +37,7 @@ func TestAccApiGatewayAPI_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccApigwAPI_update,
+				Config: testAccApigwAPI_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApiGatewayApiExists(resName),
 					resource.TestCheckResourceAttr(resName, "description", "updated by acc test"),
@@ -99,15 +101,16 @@ func testAccCheckApiGatewayApiExists(n string) resource.TestCheckFunc {
 	}
 }
 
-const testAccApigwAPI_basic = `
+func testAccApigwAPI_basic(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_api_gateway_group" "acc_apigw_group" {
-  name = "acc_apigw_group_1"
+  name = "%s"
   description = "created by acc test"
 }
 
 resource "huaweicloud_api_gateway_api" "acc_apigw_api" {
   group_id = huaweicloud_api_gateway_group.acc_apigw_group.id
-  name   = "acc_apigw_api"
+  name   = "%s"
   description  = "created by acc test"
   tags = ["tag1","tag2"]
   visibility = 2
@@ -126,16 +129,19 @@ resource "huaweicloud_api_gateway_api" "acc_apigw_api" {
     timeout = 10000
   }
 }
-`
-const testAccApigwAPI_update = `
+`, rName, rName)
+}
+
+func testAccApigwAPI_update(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_api_gateway_group" "acc_apigw_group" {
-  name = "acc_apigw_group_1"
+  name = "%s"
   description = "created by acc test"
 }
 
 resource "huaweicloud_api_gateway_api" "acc_apigw_api" {
   group_id = huaweicloud_api_gateway_group.acc_apigw_group.id
-  name   = "acc_apigw_api"
+  name   = "%s"
   description  = "updated by acc test"
   tags = ["tag1","tag2"]
   visibility = 2
@@ -154,4 +160,5 @@ resource "huaweicloud_api_gateway_api" "acc_apigw_api" {
     timeout = 10000
   }
 }
-`
+`, rName, rName)
+}
