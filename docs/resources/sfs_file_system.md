@@ -119,8 +119,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `export_location` - The address for accessing the shared file system.
 
-* `host` - The host name of the shared file system.
-
 * `share_access_id` - The UUID of the share access rule.
 
 * `access_rule_status` - The status of the share access rule.
