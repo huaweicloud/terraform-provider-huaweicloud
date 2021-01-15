@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/apigw/groups"
@@ -11,6 +12,8 @@ import (
 
 func TestAccApiGatewayGroup_basic(t *testing.T) {
 	var resName = "huaweicloud_api_gateway_group.acc_apigw_group"
+	rName := fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
+	rNameUpdate := rName + "_Update"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -18,21 +21,21 @@ func TestAccApiGatewayGroup_basic(t *testing.T) {
 		CheckDestroy: testAccCheckApiGatewayGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApigwGroup_basic,
+				Config: testAccApigwGroup_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApiGatewayGroupExists(resName),
 					resource.TestCheckResourceAttr(
-						resName, "name", "acc_apigw_group_1"),
+						resName, "name", rName),
 					resource.TestCheckResourceAttr(
 						resName, "description", "created by acc test"),
 				),
 			},
 			{
-				Config: testAccApigwGroup_update,
+				Config: testAccApigwGroup_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApiGatewayGroupExists(resName),
 					resource.TestCheckResourceAttr(
-						resName, "name", "acc_apigw_group_update"),
+						resName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(
 						resName, "description", "updated by acc test"),
 				),
@@ -92,15 +95,20 @@ func testAccCheckApiGatewayGroupExists(n string) resource.TestCheckFunc {
 	}
 }
 
-const testAccApigwGroup_basic = `
+func testAccApigwGroup_basic(rName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_api_gateway_group" "acc_apigw_group" {
-	name = "acc_apigw_group_1"
+	name = "%s"
 	description = "created by acc test"
 }
-`
-const testAccApigwGroup_update = `
+`, rName)
+}
+
+func testAccApigwGroup_update(rNameUpdate string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_api_gateway_group" "acc_apigw_group" {
-	name = "acc_apigw_group_update"
+	name = "%s"
 	description = "updated by acc test"
 }
-`
+`, rNameUpdate)
+}
