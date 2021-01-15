@@ -744,14 +744,14 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 			if err != nil {
 				return err
 			}
-			log.Printf("[DEBUG] Retrieved root volume %s: %+v", b.ID, volumeInfo)
+			log.Printf("[DEBUG] Retrieved volume %s: %#v", b.ID, volumeInfo)
 
 			// retrieve volume `pci_address`
 			va, err := block_devices.Get(ecsClient, d.Id(), b.ID).Extract()
 			if err != nil {
 				return err
 			}
-			log.Printf("[DEBUG] Retrieved volume attachment %s: %#v", d.Id(), va)
+			log.Printf("[DEBUG] Retrieved block device %s: %#v", b.ID, va)
 
 			bds[i] = map[string]interface{}{
 				"volume_id":   b.ID,
@@ -768,6 +768,18 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 			}
 		}
 		d.Set("volume_attached", bds)
+	}
+
+	// set scheduler_hints
+	osHints := server.OsSchedulerHints
+	if len(osHints.Group) > 0 {
+		schedulerHints := make([]map[string]interface{}, len(osHints.Group))
+		for i, v := range osHints.Group {
+			schedulerHints[i] = map[string]interface{}{
+				"group": v,
+			}
+		}
+		d.Set("scheduler_hints", schedulerHints)
 	}
 
 	// Set instance tags
