@@ -29,12 +29,6 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{ //request and response parameters
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -51,12 +45,14 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"status": {
+			"region": {
 				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 				Computed: true,
 			},
-			"shared": {
-				Type:     schema.TypeBool,
+			"status": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"routes": {
@@ -161,7 +157,6 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 	d.Set("cidr", n.CIDR)
 	d.Set("enterprise_project_id", n.EnterpriseProjectID)
 	d.Set("status", n.Status)
-	d.Set("shared", n.EnableSharedSnat)
 	d.Set("region", GetRegion(d, config))
 
 	// save route tables
