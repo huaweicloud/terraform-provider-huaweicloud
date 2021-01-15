@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -148,11 +149,11 @@ func resourceIecSecurityGroupRuleV1Read(d *schema.ResourceData, meta interface{}
 	d.Set("remote_ip_prefix", rule.SecurityGroupRule.RemoteIPPrefix)
 	d.Set("remote_group_id", rule.SecurityGroupRule.RemoteGroupID)
 
-	if rule.SecurityGroupRule.PortRangeMin.(string) != "" {
-		d.Set("port_range_min", rule.SecurityGroupRule.PortRangeMin)
+	if ret, err := strconv.Atoi(rule.SecurityGroupRule.PortRangeMin.(string)); err == nil {
+		d.Set("port_range_min", ret)
 	}
-	if rule.SecurityGroupRule.PortRangeMax.(string) != "" {
-		d.Set("port_range_max", rule.SecurityGroupRule.PortRangeMax)
+	if ret, err := strconv.Atoi(rule.SecurityGroupRule.PortRangeMax.(string)); err == nil {
+		d.Set("port_range_max", ret)
 	}
 
 	return nil
