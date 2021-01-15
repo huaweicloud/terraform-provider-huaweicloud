@@ -254,19 +254,24 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String) The enterprise project id. Changing this creates a new server.
 
-* `delete_disks_on_termination` - (Optional, Bool) Delete the data disks upon termination of the instance. Defaults to false. Changing this creates a new server.
+* `delete_disks_on_termination` - (Optional, Bool) Delete the data disks upon termination of the instance.
+    Defaults to false. Changing this creates a new server.
 
-* `charging_mode` - (Optional, String, ForceNew) The charging mode of the instance. Valid options are: prePaid and postPaid, defaults to postPaid. Changing this creates a new server.
+* `charging_mode` - (Optional, String, ForceNew) The charging mode of the instance. Valid options are: prePaid and postPaid,
+    defaults to postPaid. Changing this creates a new server.
 
-* `period_unit` - (Optional, String, ForceNew) The charging period unit of the instance. Valid options are: month and year, defaults to month. Changing this creates a new server.
+* `period_unit` - (Optional, String, ForceNew) The charging period unit of the instance. Valid options are: month and year,
+    defaults to month. Changing this creates a new server.
 
 * `period` - (Optional, Int, ForceNew) The charging period of the instance. Changing this creates a new server.
 
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Changing this creates a new server.
 
-* `user_id` - (Optional, String, ForceNew) User ID, required when using key_pair in prePaid charging mode. Changing this creates a new server.
+* `user_id` - (Optional, String, ForceNew) User ID, required when using key_pair in prePaid charging mode.
+    Changing this creates a new server.
 
-* `agency_name` - (Optional, String, ForceNew) Specifies the IAM agency name which is created on IAM to provide temporary credentials for ECS to access cloud services. Changing this creates a new server.
+* `agency_name` - (Optional, String, ForceNew) Specifies the IAM agency name which is created on IAM to provide
+    temporary credentials for ECS to access cloud services. Changing this creates a new server.
 
 
 The `network` block supports:
@@ -307,6 +312,7 @@ In addition to all arguments above, the following attributes are exported:
 * `volume_attached/pci_address` - The volume pci address on that attachment.
 * `volume_attached/boot_index` - The volume boot index on that attachment.
 * `volume_attached/size` - The volume size on that attachment.
+* `volume_attached/type` - The volume type on that attachment.
 * `system_disk_id` - The system disk voume ID.
 
 
@@ -328,4 +334,3 @@ This resource provides the following timeouts configuration options:
 - `create` - Default is 30 minute.
 - `update` - Default is 30 minute.
 - `delete` - Default is 30 minute.
-

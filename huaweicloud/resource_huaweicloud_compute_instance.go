@@ -260,6 +260,7 @@ func ResourceComputeInstanceV2() *schema.Resource {
 			"charging_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"prePaid", "postPaid",
@@ -312,16 +313,20 @@ func ResourceComputeInstanceV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"pci_address": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"boot_index": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"size": {
 							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"pci_address": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
@@ -657,10 +662,18 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Retrieved compute instance %s: %+v", d.Id(), server)
 	// Set some attributes
 	d.Set("region", GetRegion(d, config))
+	d.Set("enterprise_project_id", server.EnterpriseProjectID)
 	d.Set("availability_zone", server.AvailabilityZone)
 	d.Set("name", server.Name)
 	d.Set("status", server.Status)
 	d.Set("agency_name", server.Metadata.AgencyName)
+
+	chageMode := server.Metadata.ChargingMode
+	if chageMode == "0" {
+		d.Set("charging_mode", "postPaid")
+	} else if chageMode == "1" {
+		d.Set("charging_mode", "prePaid")
+	}
 
 	flavorInfo := server.Flavor
 	d.Set("flavor_id", flavorInfo.ID)
@@ -722,41 +735,39 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	}
 	d.Set("security_groups", secGrpNames)
 
-	root_volume := ""
 	// Set volume attached
-	bds := []map[string]interface{}{}
 	if len(server.VolumeAttached) > 0 {
-		for _, b := range server.VolumeAttached {
+		bds := make([]map[string]interface{}, len(server.VolumeAttached))
+		for i, b := range server.VolumeAttached {
+			// retrieve volume `size` and `type`
+			volumeInfo, err := volumes.Get(blockStorageClient, b.ID).Extract()
+			if err != nil {
+				return err
+			}
+			log.Printf("[DEBUG] Retrieved root volume %s: %+v", b.ID, volumeInfo)
+
+			// retrieve volume `pci_address`
 			va, err := block_devices.Get(ecsClient, d.Id(), b.ID).Extract()
 			if err != nil {
 				return err
 			}
 			log.Printf("[DEBUG] Retrieved volume attachment %s: %#v", d.Id(), va)
-			v := map[string]interface{}{
-				"pci_address": va.PciAddress,
+
+			bds[i] = map[string]interface{}{
 				"volume_id":   b.ID,
+				"size":        volumeInfo.Size,
+				"type":        volumeInfo.VolumeType,
 				"boot_index":  va.BootIndex,
-				"size":        va.Size,
+				"pci_address": va.PciAddress,
 			}
-			bds = append(bds, v)
+
 			if va.BootIndex == 0 {
-				root_volume = b.ID
+				d.Set("system_disk_id", b.ID)
+				d.Set("system_disk_size", volumeInfo.Size)
+				d.Set("system_disk_type", volumeInfo.VolumeType)
 			}
 		}
 		d.Set("volume_attached", bds)
-	}
-
-	// Set root volume
-	if root_volume != "" {
-		v, err := volumes.Get(blockStorageClient, root_volume).Extract()
-		if err != nil {
-			return err
-		}
-		log.Printf("[DEBUG] Retrieved root volume %s: %+v", root_volume, v)
-
-		d.Set("system_disk_id", root_volume)
-		d.Set("system_disk_size", v.Size)
-		d.Set("system_disk_type", v.VolumeType)
 	}
 
 	// Set instance tags
