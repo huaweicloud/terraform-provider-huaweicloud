@@ -1208,18 +1208,17 @@ func setObsBucketCorsRules(obsClient *obs.ObsClient, d *schema.ResourceData) err
 }
 
 func setObsBucketTags(obsClient *obs.ObsClient, d *schema.ResourceData) error {
-	bucket := d.Id()
-	if resourceTags, err := obsClient.GetBucketTagging(bucket); err != nil {
-		log.Printf("[WARN] Error fetching tags of OBS bucket %s: %s", bucket, err)
-	} else {
+	if resourceTags, err := obsClient.GetBucketTagging(d.Id()); err == nil {
 		tagmap := make(map[string]string)
 		for _, tag := range resourceTags.Tags {
 			tagmap[tag.Key] = tag.Value
 		}
-		log.Printf("[DEBUG] getting tags of OBS bucket %s: %#v", bucket, tagmap)
+		log.Printf("[DEBUG] getting tags of OBS bucket %s: %#v", d.Id(), tagmap)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags of OBS bucket %s: %s", bucket, err)
+			return fmt.Errorf("Error saving tags of HuaweiCloud OBS bucket (%s): %s", d.Id(), err)
 		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of HuaweiCloud OBS bucket (%s): %s", d.Id(), err)
 	}
 
 	return nil

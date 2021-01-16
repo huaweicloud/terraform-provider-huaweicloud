@@ -771,13 +771,13 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Set instance tags
-	if resourceTags, err := tags.Get(ecsClient, "cloudservers", d.Id()).Extract(); err != nil {
-		log.Printf("[WARN] Error fetching tags of compute instance %s: %s", d.Id(), err)
-	} else {
+	if resourceTags, err := tags.Get(ecsClient, "cloudservers", d.Id()).Extract(); err == nil {
 		tagmap := tagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("[Error] Saving tag to state for HuaweiCloud instance (%s): %s", d.Id(), err)
+			return fmt.Errorf("Error saving tags to state for HuaweiCloud compute instance (%s): %s", d.Id(), err)
 		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of HuaweiCloud compute instance (%s): %s", d.Id(), err)
 	}
 
 	return nil

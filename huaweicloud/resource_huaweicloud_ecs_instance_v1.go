@@ -360,13 +360,13 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("nics", nics)
 
 	// Set instance tags
-	if resourceTags, err := tags.Get(computeClient, "cloudservers", d.Id()).Extract(); err != nil {
-		log.Printf("[WARN] Error fetching tags of ECS instance %s: %s", d.Id(), err)
-	} else {
+	if resourceTags, err := tags.Get(computeClient, "cloudservers", d.Id()).Extract(); err == nil {
 		tagmap := tagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("[DEBUG] Error saving tag to state for HuaweiCloud instance (%s): %s", d.Id(), err)
+			return fmt.Errorf("Error saving tag to state for HuaweiCloud ECS instance (%s): %s", d.Id(), err)
 		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of HuaweiCloud ECS instance (%s): %s", d.Id(), err)
 	}
 
 	ar, err := resourceECSAutoRecoveryV1Read(d, meta, d.Id())

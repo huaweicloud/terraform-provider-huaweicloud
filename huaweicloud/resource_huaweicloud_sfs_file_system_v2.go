@@ -305,13 +305,13 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// set tags
-	if resourceTags, err := tags.Get(sfsClient, "sfs", d.Id()).Extract(); err != nil {
-		log.Printf("[WARN] Error fetching tags of sfs file system %s: %s", d.Id(), err)
-	} else {
+	if resourceTags, err := tags.Get(sfsClient, "sfs", d.Id()).Extract(); err == nil {
 		tagmap := tagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("[DEBUG] Error saving tag to state for sfs file system (%s): %s", d.Id(), err)
+			return fmt.Errorf("Error saving tag to state for HuaweiCloud sfs file system (%s): %s", d.Id(), err)
 		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of HuaweiCloud sfs file system (%s): %s", d.Id(), err)
 	}
 
 	return nil

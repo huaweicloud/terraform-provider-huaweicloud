@@ -270,13 +270,13 @@ func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Set tags
-	if resourceTags, err := tags.Get(networkingClient, "ipsec-site-connections", d.Id()).Extract(); err != nil {
-		log.Printf("[WARN] Error fetching tags of site connection %s: %s", d.Id(), err)
-	} else {
+	if resourceTags, err := tags.Get(networkingClient, "ipsec-site-connections", d.Id()).Extract(); err == nil {
 		tagmap := tagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags for VPN site connection %s: %s", d.Id(), err)
+			return fmt.Errorf("Error saving tags to state for HuaweiCloud VPN site connection %s: %s", d.Id(), err)
 		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of HuaweiCloud VPN site connection (%s): %s", d.Id(), err)
 	}
 
 	return nil

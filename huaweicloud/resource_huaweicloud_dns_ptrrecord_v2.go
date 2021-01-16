@@ -147,13 +147,13 @@ func resourceDNSPtrRecordV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("address", n.Address)
 
 	// save tags
-	if resourceTags, err := tags.Get(dnsClient, "DNS-ptr_record", d.Id()).Extract(); err != nil {
-		log.Printf("[WARN] Error fetching tags of DNS ptr record %s: %s", d.Id(), err)
-	} else {
+	if resourceTags, err := tags.Get(dnsClient, "DNS-ptr_record", d.Id()).Extract(); err == nil {
 		tagmap := tagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags for HuaweiCloud DNS ptr record %s: %s", d.Id(), err)
+			return fmt.Errorf("Error saving tags for HuaweiCloud DNS ptr record (%s): %s", d.Id(), err)
 		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of DMS HuaweiCloud DNS ptr record (%s): %s", d.Id(), err)
 	}
 
 	return nil

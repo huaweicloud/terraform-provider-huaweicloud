@@ -771,12 +771,12 @@ func resourceS3BucketRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	if tagSet, err := getTagSetS3(s3conn, d.Id()); err != nil {
-		log.Printf("[WARN] Error fetching tags of S3 bucket %s: %s", d.Id(), err)
-	} else {
+	if tagSet, err := getTagSetS3(s3conn, d.Id()); err == nil {
 		if err := d.Set("tags", tagsToMapS3(tagSet)); err != nil {
-			return fmt.Errorf("[DEBUG] Error saving tag to state for s3 bucketr: %s", err)
+			return fmt.Errorf("Error saving tag to state for HuaweiCloud s3 bucketr: %s", err)
 		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of HuaweiCloud s3 bucket (%s): %s", d.Id(), err)
 	}
 
 	// UNUSED?

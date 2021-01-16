@@ -206,12 +206,7 @@ func resourceVBSBackupPolicyV2Read(d *schema.ResourceData, meta interface{}) err
 	d.Set("status", n.ScheduledPolicy.Status)
 	d.Set("policy_resource_count", n.ResourceCount)
 
-	if tags, err := tags.Get(vbsClient, d.Id()).Extract(); err != nil {
-		if err404, ok := err.(golangsdk.ErrDefault404); ok {
-			log.Printf("[INFO] fetching backup Policy tags failed: %s", err404)
-		}
-		log.Printf("[WARN] Error fetching tags of backup Policy %s: %s", d.Id(), err)
-	} else {
+	if tags, err := tags.Get(vbsClient, d.Id()).Extract(); err == nil {
 		var tagList []map[string]interface{}
 		for _, v := range tags.Tags {
 			tag := make(map[string]interface{})
@@ -221,8 +216,10 @@ func resourceVBSBackupPolicyV2Read(d *schema.ResourceData, meta interface{}) err
 			tagList = append(tagList, tag)
 		}
 		if err := d.Set("tags", tagList); err != nil {
-			return fmt.Errorf("[DEBUG] Error saving tags to state for Huaweicloud backup policy (%s): %s", d.Id(), err)
+			return fmt.Errorf("Error saving tags to state for Huaweicloud backup policy (%s): %s", d.Id(), err)
 		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of HuaweiCloud backup policy (%s): %s", d.Id(), err)
 	}
 
 	return nil

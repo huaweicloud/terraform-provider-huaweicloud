@@ -480,13 +480,13 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("backup_strategy", backupStrategyList)
 
 	//save geminidb tags
-	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err != nil {
-		log.Printf("[WARN] Error fetching tags of geminidb %s: %s", d.Id(), err)
-	} else {
+	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
 		tagmap := tagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmt.Errorf("Error saving tags for HuaweiCloud geminidb (%s): %s", d.Id(), err)
 		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of HuaweiCloud geminidb (%s): %s", d.Id(), err)
 	}
 
 	return nil

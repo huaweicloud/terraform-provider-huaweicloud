@@ -178,20 +178,15 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 	// save VirtualPrivateCloudV2 tags
 	vpcV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
+		return fmt.Errorf("Error creating Huaweicloud VPC client: %s", err)
 	}
-	resourceTags, err := tags.Get(vpcV2Client, "vpcs", d.Id()).Extract()
-	if err != nil {
-		if err404, ok := err.(golangsdk.ErrDefault404); ok {
-			log.Printf("[INFO] fetching VPC tags failed: %s", err404)
-		} else {
-			log.Printf("[WARN] Error fetching tags of HuaweiCloud vpc %s: %s", d.Id(), err)
-		}
-	} else {
+	if resourceTags, err := tags.Get(vpcV2Client, "vpcs", d.Id()).Extract(); err == nil {
 		tagmap := tagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving HuaweiCloud VPC %s tags: %s", d.Id(), err)
+			return fmt.Errorf("Error saving tags to state for HuaweiCloud VPC %s tags: %s", d.Id(), err)
 		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of HuaweiCloud VPC (%s): %s", d.Id(), err)
 	}
 
 	return nil

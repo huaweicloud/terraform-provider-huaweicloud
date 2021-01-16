@@ -207,13 +207,13 @@ func resourceLoadBalancerV2Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// fetch tags
-	if resourceTags, err := tags.Get(elbClient, "loadbalancers", d.Id()).Extract(); err != nil {
-		log.Printf("[WARN] Error fetching tags of elb loadbalancer %s: %s", d.Id(), err)
-	} else {
+	if resourceTags, err := tags.Get(elbClient, "loadbalancers", d.Id()).Extract(); err == nil {
 		tagmap := tagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("[DEBUG] Error saving tag to state for lb loadbalancer instance (%s): %s", d.Id(), err)
+			return fmt.Errorf("Error saving tag to state for HuaweiCloud elb loadbalancer instance (%s): %s", d.Id(), err)
 		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of HuaweiCloud elb loadbalancer instance (%s): %s", d.Id(), err)
 	}
 
 	return nil

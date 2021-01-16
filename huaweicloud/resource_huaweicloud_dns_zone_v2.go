@@ -269,20 +269,20 @@ func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("description", zoneInfo.Description)
 	d.Set("ttl", zoneInfo.TTL)
 	if err = d.Set("masters", zoneInfo.Masters); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving masters to state for HuaweiCloud DNS zone (%s): %s", d.Id(), err)
+		return fmt.Errorf("Error saving masters to state for HuaweiCloud DNS zone (%s): %s", d.Id(), err)
 	}
 	d.Set("region", region)
 	d.Set("zone_type", zoneInfo.ZoneType)
 
 	// save tags
 	if resourceType, err := getDNSZoneTagType(zoneInfo.ZoneType); err == nil {
-		if resourceTags, err := tags.Get(dnsClient, resourceType, d.Id()).Extract(); err != nil {
-			log.Printf("[WARN] Error fetching tags of DNS zone %s: %s", d.Id(), err)
-		} else {
+		if resourceTags, err := tags.Get(dnsClient, resourceType, d.Id()).Extract(); err == nil {
 			tagmap := tagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
-				return fmt.Errorf("Error saving tags for HuaweiCloud DNS zone %s: %s", d.Id(), err)
+				return fmt.Errorf("Error saving tags for HuaweiCloud DNS zone (%s): %s", d.Id(), err)
 			}
+		} else {
+			log.Printf("[WARN] Error fetching tags of HuaweiCloud DNS zone (%s): %s", d.Id(), err)
 		}
 	}
 

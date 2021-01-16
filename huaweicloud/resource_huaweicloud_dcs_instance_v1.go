@@ -455,13 +455,13 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// set tags
-	if resourceTags, err := tags.Get(dcsV2Client, "instances", d.Id()).Extract(); err != nil {
-		log.Printf("[WARN] Error fetching tags of DCS instance %s: %s", d.Id(), err)
-	} else {
+	if resourceTags, err := tags.Get(dcsV2Client, "instances", d.Id()).Extract(); err == nil {
 		tagmap := tagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("[DEBUG] Error saving tag to state for DCS instance (%s): %s", d.Id(), err)
+			return fmt.Errorf("Error saving tag to state for HuaweiCloud DCS instance (%s): %s", d.Id(), err)
 		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of HuaweiCloud DCS instance (%s): %s", d.Id(), err)
 	}
 
 	return nil
