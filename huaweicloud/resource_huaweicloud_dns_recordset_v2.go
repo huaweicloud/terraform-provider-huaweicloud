@@ -188,16 +188,15 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 	// save tags
 	resourceType, err := getDNSRecordSetTagType(zoneType)
 	if err != nil {
-		return fmt.Errorf("Error getting resource type of DNS record set %s: %s", recordsetID, err)
+		log.Printf("[WARN] Error getting tags tpye of DNS record %s: %s", recordsetID, err)
 	}
-	resourceTags, err := tags.Get(dnsClient, resourceType, recordsetID).Extract()
-	if err != nil {
-		return fmt.Errorf("Error fetching HuaweiCloud DNS record set tags: %s", err)
-	}
-
-	tagmap := tagsToMap(resourceTags.Tags)
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("Error saving tags for HuaweiCloud DNS record set %s: %s", recordsetID, err)
+	if resourceTags, err := tags.Get(dnsClient, resourceType, recordsetID).Extract(); err != nil {
+		log.Printf("[WARN] Error fetching tags of DNS record %s: %s", d.Id(), err)
+	} else {
+		tagmap := tagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving tags for HuaweiCloud DNS record set %s: %s", recordsetID, err)
+		}
 	}
 
 	return nil
@@ -258,14 +257,13 @@ func resourceDNSRecordSetV2Update(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// update tags
-	resourceType, err := getDNSRecordSetTagType(zoneType)
-	if err != nil {
-		return fmt.Errorf("Error getting resource type of DNS record set %s: %s", d.Id(), err)
-	}
-
-	tagErr := UpdateResourceTags(dnsClient, d, resourceType, recordsetID)
-	if tagErr != nil {
-		return fmt.Errorf("Error updating tags of DNS record set %s: %s", d.Id(), tagErr)
+	if resourceType, err := getDNSRecordSetTagType(zoneType); err != nil {
+		log.Printf("[WARN] Error getting tags tpye of DNS record %s: %s", recordsetID, err)
+	} else {
+		tagErr := UpdateResourceTags(dnsClient, d, resourceType, recordsetID)
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags of DNS record set %s: %s", d.Id(), tagErr)
+		}
 	}
 
 	return resourceDNSRecordSetV2Read(d, meta)

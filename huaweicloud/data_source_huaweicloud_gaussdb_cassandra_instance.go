@@ -278,7 +278,7 @@ func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 	//save geminidb tags
 	resourceTags, err := tags.Get(client, "instances", d.Id()).Extract()
 	if err != nil {
-		return fmt.Errorf("Error fetching HuaweiCloud geminidb tags: %s", err)
+		log.Printf("[WARN] Error fetching tags of HuaweiCloud geminidb %s: %s", d.Id(), err)
 	}
 
 	tagmap := tagsToMap(resourceTags.Tags)

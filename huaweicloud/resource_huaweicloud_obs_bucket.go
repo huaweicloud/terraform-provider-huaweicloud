@@ -1209,27 +1209,19 @@ func setObsBucketCorsRules(obsClient *obs.ObsClient, d *schema.ResourceData) err
 
 func setObsBucketTags(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Id()
-	output, err := obsClient.GetBucketTagging(bucket)
-	if err != nil {
-		if obsError, ok := err.(obs.ObsError); ok {
-			if obsError.Code == "NoSuchTagSet" {
-				d.Set("tags", nil)
-				return nil
-			}
-			return fmt.Errorf("Error getting tags of OBS bucket %s: %s,\n Reason: %s",
-				bucket, obsError.Code, obsError.Message)
+	if resourceTags, err := obsClient.GetBucketTagging(bucket); err != nil {
+		log.Printf("[WARN] Error fetching tags of OBS bucket %s: %s", bucket, err)
+	} else {
+		tagmap := make(map[string]string)
+		for _, tag := range resourceTags.Tags {
+			tagmap[tag.Key] = tag.Value
 		}
-		return err
+		log.Printf("[DEBUG] getting tags of OBS bucket %s: %#v", bucket, tagmap)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving tags of OBS bucket %s: %s", bucket, err)
+		}
 	}
 
-	tagmap := make(map[string]string)
-	for _, tag := range output.Tags {
-		tagmap[tag.Key] = tag.Value
-	}
-	log.Printf("[DEBUG] getting tags of OBS bucket %s: %#v", bucket, tagmap)
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("Error saving tags of OBS bucket %s: %s", bucket, err)
-	}
 	return nil
 }
 

@@ -755,12 +755,12 @@ func setDisStreamV2Properties(d *schema.ResourceData, response map[string]interf
 	}
 
 	v, _ = opts["tags"]
-	v, err = flattenDisStreamV2Tags(response, nil, v)
-	if err != nil {
-		return fmt.Errorf("Error reading Stream:tags, err: %s", err)
-	}
-	if err = d.Set("tags", v); err != nil {
-		return fmt.Errorf("Error setting Stream:tags, err: %s", err)
+	if v, err = flattenDisStreamV2Tags(response, nil, v); err != nil {
+		log.Printf("[WARN] Error fetching Stream:tags, err: %s", err)
+	} else {
+		if err = d.Set("tags", v); err != nil {
+			return fmt.Errorf("Error setting Stream:tags, err: %s", err)
+		}
 	}
 
 	v, err = navigateValue(response, []string{"read", "writable_partition_count"}, nil)

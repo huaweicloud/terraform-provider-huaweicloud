@@ -757,15 +757,6 @@ func resourceS3BucketRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	// Add the hosted zone ID for this bucket's region as an attribute
-	// UNUSED?
-	/*
-		hostedZoneID := HostedZoneIDForRegion(region)
-		if err := d.Set("hosted_zone_id", hostedZoneID); err != nil {
-			return err
-		}
-	*/
-
 	// Add website_endpoint as an attribute
 	websiteEndpoint, err := websiteEndpoint(s3conn, d)
 	if err != nil {
@@ -780,14 +771,12 @@ func resourceS3BucketRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	// get tags
-	tagSet, err := getTagSetS3(s3conn, d.Id())
-	if err != nil {
-		return err
-	}
-
-	if err := d.Set("tags", tagsToMapS3(tagSet)); err != nil {
-		return err
+	if tagSet, err := getTagSetS3(s3conn, d.Id()); err != nil {
+		log.Printf("[WARN] Error fetching tags of S3 bucket %s: %s", d.Id(), err)
+	} else {
+		if err := d.Set("tags", tagsToMapS3(tagSet)); err != nil {
+			return fmt.Errorf("[DEBUG] Error saving tag to state for s3 bucketr: %s", err)
+		}
 	}
 
 	// UNUSED?

@@ -1146,12 +1146,12 @@ func setRdsInstanceV3Properties(d *schema.ResourceData, response map[string]inte
 		return fmt.Errorf("Error setting Instance:vpc_id, err: %s", err)
 	}
 
-	v, err = flattenRdsInstanceTags(response)
-	if err != nil {
-		return fmt.Errorf("Error reading Instance:tags, err: %s", err)
-	}
-	if err = d.Set("tags", v); err != nil {
-		return fmt.Errorf("Error setting Instance:tags, err: %s", err)
+	if v, err = flattenRdsInstanceTags(response); err != nil {
+		log.Printf("[WARN] Fetching tags of RDS instance failed: %s", err)
+	} else {
+		if err = d.Set("tags", v); err != nil {
+			return fmt.Errorf("Error setting Instance:tags, err: %s", err)
+		}
 	}
 
 	v, err = navigateValue(response, []string{"list", "time_zone"}, nil)

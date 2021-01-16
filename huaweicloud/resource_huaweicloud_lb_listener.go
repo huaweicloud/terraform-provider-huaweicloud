@@ -219,11 +219,13 @@ func resourceListenerV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("region", GetRegion(d, config))
 
 	// fetch tags
-	if resourceTags, err := tags.Get(lbClient, "listeners", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
-		d.Set("tags", tagmap)
+	if resourceTags, err := tags.Get(lbClient, "listeners", d.Id()).Extract(); err != nil {
+		log.Printf("[WARN] Error fetching tags of elb listener %s: %s", d.Id(), err)
 	} else {
-		log.Printf("[WARN] fetching tags of elb listener failed: %s", err)
+		tagmap := tagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("[DEBUG] Error saving tag to state for lb listener (%s): %s", d.Id(), err)
+		}
 	}
 
 	return nil

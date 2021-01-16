@@ -276,12 +276,13 @@ func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
 
 	// save tags
 	if resourceType, err := getDNSZoneTagType(zoneInfo.ZoneType); err == nil {
-		resourceTags, err := tags.Get(dnsClient, resourceType, d.Id()).Extract()
-		if err == nil {
-			tagmap := tagsToMap(resourceTags.Tags)
-			d.Set("tags", tagmap)
+		if resourceTags, err := tags.Get(dnsClient, resourceType, d.Id()).Extract(); err != nil {
+			log.Printf("[WARN] Error fetching tags of DNS zone %s: %s", d.Id(), err)
 		} else {
-			log.Printf("[WARN] Error fetching HuaweiCloud DNS zone tags: %s", err)
+			tagmap := tagsToMap(resourceTags.Tags)
+			if err := d.Set("tags", tagmap); err != nil {
+				return fmt.Errorf("Error saving tags for HuaweiCloud DNS zone %s: %s", d.Id(), err)
+			}
 		}
 	}
 

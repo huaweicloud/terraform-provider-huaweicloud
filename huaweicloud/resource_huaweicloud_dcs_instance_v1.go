@@ -455,13 +455,13 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// set tags
-	if resourceTags, err := tags.Get(dcsV2Client, "instances", d.Id()).Extract(); err == nil {
+	if resourceTags, err := tags.Get(dcsV2Client, "instances", d.Id()).Extract(); err != nil {
+		log.Printf("[WARN] Error fetching tags of DCS instance %s: %s", d.Id(), err)
+	} else {
 		tagmap := tagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmt.Errorf("[DEBUG] Error saving tag to state for DCS instance (%s): %s", d.Id(), err)
 		}
-	} else {
-		log.Printf("[WARN] fetching tags of DCS instance failed: %s", err)
 	}
 
 	return nil

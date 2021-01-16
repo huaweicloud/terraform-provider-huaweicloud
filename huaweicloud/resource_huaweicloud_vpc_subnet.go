@@ -207,7 +207,7 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 		if err404, ok := err.(golangsdk.ErrDefault404); ok {
 			log.Printf("[INFO] fetching Subnet tags failed: %s", err404)
 		} else {
-			return fmt.Errorf("Error fetching HuaweiCloud Subnet %s tags: %s", d.Id(), err)
+			log.Printf("[WARN] Error fetching tags of subnet %s: %s", d.Id(), err)
 		}
 	} else {
 		tagmap := tagsToMap(resourceTags.Tags)

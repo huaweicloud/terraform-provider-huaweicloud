@@ -610,11 +610,13 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("component_list", components)
 
 	// set tags
-	if resourceTags, err := tags.Get(client, "clusters", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
-		d.Set("tags", tagmap)
+	if resourceTags, err := tags.Get(client, "clusters", d.Id()).Extract(); err != nil {
+		log.Printf("[WARN] Error fetching tags of MRS cluster %s: %s", d.Id(), err)
 	} else {
-		log.Printf("[WARN] fetching tags of MRS cluster failed: %s", err)
+		tagmap := tagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("[DEBUG] Error saving tag to state for mrs cluster (%s): %s", d.Id(), err)
+		}
 	}
 
 	return nil
