@@ -2,6 +2,7 @@ package policies
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 type Role struct {
@@ -43,6 +44,10 @@ type DeleteResult struct {
 	golangsdk.ErrResult
 }
 
+type RolePage struct {
+	pagination.LinkedPageBase
+}
+
 // Extract interprets any roleResults as a Role.
 func (r roleResult) Extract() (*Role, error) {
 	var s struct {
@@ -50,4 +55,31 @@ func (r roleResult) Extract() (*Role, error) {
 	}
 	err := r.ExtractInto(&s)
 	return s.Role, err
+}
+
+func (r RolePage) IsEmpty() (bool, error) {
+	is, err := ExtractPageRoles(r)
+	return len(is) == 0, err
+}
+
+func (r RolePage) NextPageURL() (string, error) {
+	var s struct {
+		Links struct {
+			Next     string `json:"next"`
+			Previous string `json:"previous"`
+		} `json:"links"`
+	}
+	err := r.ExtractInto(&s)
+	if err != nil {
+		return "", err
+	}
+	return s.Links.Next, err
+}
+
+func ExtractPageRoles(r pagination.Page) ([]Role, error) {
+	var s struct {
+		Roles []Role `json:"roles"`
+	}
+	err := (r.(RolePage)).ExtractInto(&s)
+	return s.Roles, err
 }

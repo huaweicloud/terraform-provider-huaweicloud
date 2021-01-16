@@ -2,6 +2,7 @@ package policies
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 // Get retrieves details on a single policy, by ID.
@@ -11,6 +12,15 @@ func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
 		MoreHeaders: map[string]string{"Content-Type": "application/json"},
 	})
 	return
+}
+
+func List(client *golangsdk.ServiceClient) pagination.Pager {
+	pager := pagination.NewPager(client, listURL(client), func(r pagination.PageResult) pagination.Page {
+		return RolePage{pagination.LinkedPageBase{PageResult: r}}
+	})
+	pager.Headers = map[string]string{"Content-Type": "application/json;charset=utf8"}
+
+	return pager
 }
 
 // CreateOptsBuilder allows extensions to add additional parameters to
