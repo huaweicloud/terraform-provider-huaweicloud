@@ -185,7 +185,7 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 		if err404, ok := err.(golangsdk.ErrDefault404); ok {
 			log.Printf("[INFO] fetching VPC tags failed: %s", err404)
 		} else {
-			log.Printf("[WARN] Error fetching tags of  vpc %s: %s", d.Id(), err)
+			log.Printf("[WARN] Error fetching tags of HuaweiCloud vpc %s: %s", d.Id(), err)
 		}
 	} else {
 		tagmap := tagsToMap(resourceTags.Tags)
