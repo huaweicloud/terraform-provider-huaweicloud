@@ -29,6 +29,12 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{ //request and response parameters
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -40,12 +46,6 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 				ValidateFunc: validateCIDR,
 			},
 			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
-			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
