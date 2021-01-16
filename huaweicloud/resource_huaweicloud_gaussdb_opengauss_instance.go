@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances"
 )
 
@@ -162,7 +163,6 @@ func resourceOpenGaussInstance() *schema.Resource {
 			"backup_strategy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -170,12 +170,10 @@ func resourceOpenGaussInstance() *schema.Resource {
 						"start_time": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"keep_days": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -685,6 +683,28 @@ func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 	log.Printf("[DEBUG] Successfully updated instance %s", instanceId)
+
+	if d.HasChange("backup_strategy") {
+		backupRaw := d.Get("backup_strategy").([]interface{})
+		rawMap := backupRaw[0].(map[string]interface{})
+		keep_days := rawMap["keep_days"].(int)
+
+		updateOpts := backups.UpdateOpts{
+			KeepDays:  &keep_days,
+			StartTime: rawMap["start_time"].(string),
+			// Fixed to "1,2,3,4,5,6,7"
+			Period: "1,2,3,4,5,6,7",
+			// Fixed to "30"
+			DifferentialPeriod: "30",
+		}
+
+		log.Printf("[DEBUG] Update backup_strategy: %#v", updateOpts)
+
+		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error updating backup_strategy: %s", err)
+		}
+	}
 
 	return resourceOpenGaussInstanceRead(d, meta)
 }

@@ -28,6 +28,14 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
+			{
+				Config: testAccOpenGaussInstanceConfig_back_strategy_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckOpenGaussInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:30-09:30"),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
+				),
+			},
 		},
 	})
 }
@@ -109,6 +117,44 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   volume {
     type = "ULTRAHIGH"
     size = 40
+  }
+
+  sharding_num = 1
+  coordinator_num = 2
+}
+`, testAccVpcConfig_Base(rName), rName)
+}
+
+func testAccOpenGaussInstanceConfig_back_strategy_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
+
+resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  name        = "%s"
+  password    = "Test@123"
+  flavor      = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
+  vpc_id      = huaweicloud_vpc.test.id
+  subnet_id   = huaweicloud_vpc_subnet.test.id
+
+  availability_zone = "cn-north-4a,cn-north-4a,cn-north-4a"
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+
+  ha {
+    mode             = "enterprise"
+    replication_mode = "sync"
+    consistency      = "strong"
+  }
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+  backup_strategy {
+    start_time = "08:30-09:30"
+    keep_days  = 8
   }
 
   sharding_num = 1
