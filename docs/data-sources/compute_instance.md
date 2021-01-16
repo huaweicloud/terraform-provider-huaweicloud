@@ -69,6 +69,7 @@ The `volume_attached` block supports:
 * `volume_id` - The volume id on that attachment.
 * `boot_index` - The volume boot index on that attachment.
 * `size` - The volume size on that attachment.
+* `type` - The volume type on that attachment.
 * `pci_address` - The volume pci address on that attachment.
 
 The `scheduler_hints` block supports:
