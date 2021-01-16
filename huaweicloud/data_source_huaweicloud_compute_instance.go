@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
@@ -119,6 +120,10 @@ func DataSourceComputeInstance() *schema.Resource {
 						},
 						"size": {
 							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"pci_address": {
@@ -244,26 +249,41 @@ func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Set volume attached
-	instanceVolumes := []map[string]interface{}{}
 	if len(server.VolumeAttached) > 0 {
-		for _, b := range server.VolumeAttached {
+		blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud EVS client: %s", err)
+		}
+
+		bds := make([]map[string]interface{}, len(server.VolumeAttached))
+		for i, b := range server.VolumeAttached {
+			// retrieve volume `size` and `type`
+			volumeInfo, err := volumes.Get(blockStorageClient, b.ID).Extract()
+			if err != nil {
+				return err
+			}
+			log.Printf("[DEBUG] Retrieved volume %s: %#v", b.ID, volumeInfo)
+
+			// retrieve volume `pci_address`
 			va, err := block_devices.Get(ecsClient, d.Id(), b.ID).Extract()
 			if err != nil {
 				return err
 			}
-			log.Printf("[DEBUG] Retrieved volume attachment %s: %#v", d.Id(), va)
-			v := map[string]interface{}{
+			log.Printf("[DEBUG] Retrieved block device %s: %#v", b.ID, va)
+
+			bds[i] = map[string]interface{}{
 				"volume_id":   b.ID,
+				"size":        volumeInfo.Size,
+				"type":        volumeInfo.VolumeType,
 				"boot_index":  va.BootIndex,
-				"size":        va.Size,
 				"pci_address": va.PciAddress,
 			}
-			instanceVolumes = append(instanceVolumes, v)
+
 			if va.BootIndex == 0 {
 				d.Set("system_disk_id", b.ID)
 			}
 		}
-		d.Set("volume_attached", instanceVolumes)
+		d.Set("volume_attached", bds)
 	}
 
 	// Set instance tags

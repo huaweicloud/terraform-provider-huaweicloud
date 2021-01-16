@@ -250,6 +250,8 @@ func ResourceComputeInstanceV2() *schema.Resource {
 			"enterprise_project_id": {
 				Type:          schema.TypeString,
 				Optional:      true,
+				ForceNew:      true,
+				Computed:      true,
 				ConflictsWith: []string{"block_device", "metadata"},
 			},
 			"delete_disks_on_termination": {
