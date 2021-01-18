@@ -408,7 +408,7 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return fmt.Errorf("Error creating autoscaling client: %s", err)
 	}
 	log.Printf("[DEBUG] asClient: %#v", asClient)
 
@@ -501,7 +501,7 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return fmt.Errorf("Error creating autoscaling client: %s", err)
 	}
 
 	asg, err := groups.Get(asClient, d.Id()).Extract()
@@ -560,10 +560,10 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 			tagmap[val.Key] = val.Value
 		}
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags for HuaweiCloud ASGroup (%s): %s", d.Id(), err)
+			return fmt.Errorf("Error saving tags to state for ASGroup (%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of Huaweicloud ASGroup (%s): %s", d.Id(), err)
+		log.Printf("[WARN] Error fetching tags of ASGroup (%s): %s", d.Id(), err)
 	}
 	return nil
 }
@@ -572,7 +572,7 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return fmt.Errorf("Error creating autoscaling client: %s", err)
 	}
 	var desireNum int
 	minNum := d.Get("min_instance_number").(int)
@@ -651,7 +651,7 @@ func resourceASGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return fmt.Errorf("Error creating autoscaling client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Begin to get instances of ASGroup %q", d.Id())
