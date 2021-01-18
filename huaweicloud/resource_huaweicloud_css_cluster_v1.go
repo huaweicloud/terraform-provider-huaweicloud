@@ -316,14 +316,13 @@ func resourceCssClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// set tags
-	resourceTags, err := tags.Get(client, "css-cluster", d.Id()).Extract()
-	if err != nil {
-		return fmt.Errorf("Error fetching CSS cluster tags: %s", err)
-	}
-
-	tagmap := tagsToMap(resourceTags.Tags)
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving tag to state for CSS cluster (%s): %s", d.Id(), err)
+	if resourceTags, err := tags.Get(client, "css-cluster", d.Id()).Extract(); err == nil {
+		tagmap := tagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving tags to state for CSS cluster (%s): %s", d.Id(), err)
+		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of CSS cluster (%s): %s", d.Id(), err)
 	}
 
 	return nil
