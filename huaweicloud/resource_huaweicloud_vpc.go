@@ -55,10 +55,6 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"shared": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
 			"routes": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -161,7 +157,6 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 	d.Set("cidr", n.CIDR)
 	d.Set("enterprise_project_id", n.EnterpriseProjectID)
 	d.Set("status", n.Status)
-	d.Set("shared", n.EnableSharedSnat)
 	d.Set("region", GetRegion(d, config))
 
 	// save route tables

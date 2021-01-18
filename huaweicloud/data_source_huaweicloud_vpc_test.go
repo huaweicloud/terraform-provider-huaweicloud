@@ -26,8 +26,6 @@ func TestAccVpcV1DataSource_basic(t *testing.T) {
 					testAccDataSourceVpcV1Check("data.huaweicloud_vpc.by_cidr", rName),
 					testAccDataSourceVpcV1Check("data.huaweicloud_vpc.by_name", rName),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloud_vpc.by_id", "shared", "false"),
-					resource.TestCheckResourceAttr(
 						"data.huaweicloud_vpc.by_id", "status", "OK"),
 				),
 			},

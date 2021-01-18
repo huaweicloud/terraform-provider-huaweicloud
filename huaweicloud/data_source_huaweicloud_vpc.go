@@ -39,10 +39,6 @@ func DataSourceVirtualPrivateCloudVpcV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"shared": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
 			"routes": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -117,7 +113,6 @@ func dataSourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{
 	d.Set("enterprise_project_id", Vpc.EnterpriseProjectID)
 	d.Set("status", Vpc.Status)
 	d.Set("id", Vpc.ID)
-	d.Set("shared", Vpc.EnableSharedSnat)
 	d.Set("region", GetRegion(d, config))
 	if err := d.Set("routes", s); err != nil {
 		return err
