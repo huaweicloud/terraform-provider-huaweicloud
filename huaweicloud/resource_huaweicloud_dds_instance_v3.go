@@ -304,7 +304,7 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	client, err := config.ddsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating DDS client: %s ", err)
+		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
 	}
 
 	createOpts := instances.CreateOpts{
@@ -367,7 +367,7 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	client, err := config.ddsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating DDS client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s", err)
 	}
 
 	instanceID := d.Id()
@@ -448,7 +448,7 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	client, err := config.ddsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating DDS client: %s ", err)
+		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
 	}
 
 	var opts []instances.UpdateOpt
@@ -531,7 +531,7 @@ func resourceDdsInstanceV3Delete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	client, err := config.ddsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating DDS client: %s ", err)
+		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
 	}
 
 	instanceId := d.Id()
