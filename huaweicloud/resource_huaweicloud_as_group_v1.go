@@ -554,19 +554,17 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("region", GetRegion(d, config))
 
 	// save group tags
-	resourceTags, err := tags.Get(asClient, d.Id()).Extract()
-	if err != nil {
-		return fmt.Errorf("Error fetching HuaweiCloud ASGroup tags: %s", err)
+	if resourceTags, err := tags.Get(asClient, d.Id()).Extract(); err == nil {
+		tagmap := make(map[string]string)
+		for _, val := range resourceTags.Tags {
+			tagmap[val.Key] = val.Value
+		}
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving tags for HuaweiCloud ASGroup (%s): %s", d.Id(), err)
+		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of Huaweicloud ASGroup (%s): %s", d.Id(), err)
 	}
-
-	tagmap := make(map[string]string)
-	for _, val := range resourceTags.Tags {
-		tagmap[val.Key] = val.Value
-	}
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("Error saving tags for HuaweiCloud ASGroup (%s): %s", d.Id(), err)
-	}
-
 	return nil
 }
 
