@@ -305,12 +305,14 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// set tags
-	resourceTags, err := tags.Get(sfsClient, "sfs", d.Id()).Extract()
-	if err != nil {
-		return fmt.Errorf("Error fetching tags of sfs: %s", err)
+	if resourceTags, err := tags.Get(sfsClient, "sfs", d.Id()).Extract(); err == nil {
+		tagmap := tagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving tags to state for SFS file system (%s): %s", d.Id(), err)
+		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of SFS file system (%s): %s", d.Id(), err)
 	}
-	tagmap := tagsToMap(resourceTags.Tags)
-	d.Set("tags", tagmap)
 
 	return nil
 }
