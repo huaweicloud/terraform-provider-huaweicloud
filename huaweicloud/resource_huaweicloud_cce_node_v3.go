@@ -363,7 +363,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE Node client: %s", err)
+		return fmt.Errorf("Error creating CCE Node client: %s", err)
 	}
 
 	var loginSpec nodes.LoginSpec
@@ -457,23 +457,23 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		if _, ok := err.(golangsdk.ErrDefault403); ok {
 			retryNode, err := recursiveCreate(nodeClient, createOpts, clusterid, 403)
 			if err == "fail" {
-				return fmt.Errorf("Error creating HuaweiCloud Node")
+				return fmt.Errorf("Error creating Node")
 			}
 			s = retryNode
 		} else {
-			return fmt.Errorf("Error creating HuaweiCloud Node: %s", err)
+			return fmt.Errorf("Error creating Node: %s", err)
 		}
 	}
 
 	job, err := nodes.GetJobDetails(nodeClient, s.Status.JobID).ExtractJob()
 	if err != nil {
-		return fmt.Errorf("Error fetching HuaweiCloud Job Details: %s", err)
+		return fmt.Errorf("Error fetching Job Details: %s", err)
 	}
 	jobResorceId := job.Spec.SubJobs[0].Metadata.ID
 
 	subjob, err := nodes.GetJobDetails(nodeClient, jobResorceId).ExtractJob()
 	if err != nil {
-		return fmt.Errorf("Error fetching HuaweiCloud Job Details: %s", err)
+		return fmt.Errorf("Error fetching Job Details: %s", err)
 	}
 
 	var nodeid string
@@ -498,7 +498,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE Node: %s", err)
+		return fmt.Errorf("Error creating CCE Node: %s", err)
 	}
 
 	d.SetId(nodeid)
@@ -509,7 +509,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE Node client: %s", err)
+		return fmt.Errorf("Error creating CCE Node client: %s", err)
 	}
 	clusterid := d.Get("cluster_id").(string)
 	s, err := nodes.Get(nodeClient, clusterid, d.Id()).Extract()
@@ -520,7 +520,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving HuaweiCloud Node: %s", err)
+		return fmt.Errorf("Error retrieving Node: %s", err)
 	}
 
 	d.Set("region", GetRegion(d, config))
@@ -540,7 +540,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 		volumes = append(volumes, volume)
 	}
 	if err := d.Set("data_volumes", volumes); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving dataVolumes to state for HuaweiCloud Node (%s): %s", d.Id(), err)
+		return fmt.Errorf("[DEBUG] Error saving dataVolumes to state for Node (%s): %s", d.Id(), err)
 	}
 
 	rootVolume := []map[string]interface{}{
@@ -551,7 +551,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 		},
 	}
 	if err := d.Set("root_volume", rootVolume); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node (%s): %s", d.Id(), err)
+		return fmt.Errorf("[DEBUG] Error saving root Volume to state for Node (%s): %s", d.Id(), err)
 	}
 
 	// set computed attributes
@@ -564,21 +564,19 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	// fetch tags from ECS instance
 	computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("Error creating compute client: %s", err)
 	}
 
-	resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract()
-	if err != nil {
-		return fmt.Errorf("Error fetching HuaweiCloud instance tags: %s", err)
+	if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
+		tagmap := tagsToMap(resourceTags.Tags)
+		// ignore "CCE-Dynamic-Provisioning-Node"
+		delete(tagmap, "CCE-Dynamic-Provisioning-Node")
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving tags to state for CCE Node (%s): %s", serverId, err)
+		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of CCE Node (%s): %s", serverId, err)
 	}
-
-	tagmap := tagsToMap(resourceTags.Tags)
-	// ignore "CCE-Dynamic-Provisioning-Node"
-	delete(tagmap, "CCE-Dynamic-Provisioning-Node")
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("Error saving tags of cce node: %s", err)
-	}
-
 	return nil
 }
 
@@ -586,7 +584,7 @@ func resourceCCENodeV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmt.Errorf("Error creating CCE client: %s", err)
 	}
 
 	if d.HasChange("name") {
@@ -596,7 +594,7 @@ func resourceCCENodeV3Update(d *schema.ResourceData, meta interface{}) error {
 		clusterid := d.Get("cluster_id").(string)
 		_, err = nodes.Update(nodeClient, clusterid, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating HuaweiCloud cce node: %s", err)
+			return fmt.Errorf("Error updating cce node: %s", err)
 		}
 	}
 
@@ -604,7 +602,7 @@ func resourceCCENodeV3Update(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("tags") {
 		computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmt.Errorf("Error creating compute client: %s", err)
 		}
 
 		serverId := d.Get("server_id").(string)
@@ -621,12 +619,12 @@ func resourceCCENodeV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmt.Errorf("Error creating CCE client: %s", err)
 	}
 	clusterid := d.Get("cluster_id").(string)
 	err = nodes.Delete(nodeClient, clusterid, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud CCE Cluster: %s", err)
+		return fmt.Errorf("Error deleting CCE Cluster: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Deleting"},
@@ -639,7 +637,7 @@ func resourceCCENodeV3Delete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud CCE Node: %s", err)
+		return fmt.Errorf("Error deleting CCE Node: %s", err)
 	}
 
 	d.SetId("")
@@ -659,26 +657,26 @@ func waitForCceNodeActive(cceClient *golangsdk.ServiceClient, clusterId, nodeId 
 
 func waitForCceNodeDelete(cceClient *golangsdk.ServiceClient, clusterId, nodeId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete HuaweiCloud CCE Node %s.\n", nodeId)
+		log.Printf("[DEBUG] Attempting to delete CCE Node %s.\n", nodeId)
 
 		r, err := nodes.Get(cceClient, clusterId, nodeId).Extract()
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud CCE Node %s", nodeId)
+				log.Printf("[DEBUG] Successfully deleted CCE Node %s", nodeId)
 				return r, "Deleted", nil
 			}
 			return r, "Deleting", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud CCE Node %s still available.\n", nodeId)
+		log.Printf("[DEBUG] CCE Node %s still available.\n", nodeId)
 		return r, r.Status.Phase, nil
 	}
 }
 
 func waitForClusterAvailable(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[INFO] Waiting for HuaweiCloud Cluster to be available %s.\n", clusterId)
+		log.Printf("[INFO] Waiting for Cluster to be available %s.\n", clusterId)
 		n, err := clusters.Get(cceClient, clusterId).Extract()
 
 		if err != nil {
