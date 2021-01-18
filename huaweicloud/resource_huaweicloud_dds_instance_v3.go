@@ -441,6 +441,7 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	} else {
 		log.Printf("[WARN] Error fetching tags of DDS instance (%s): %s", d.Id(), err)
 	}
+
 	return nil
 }
 
