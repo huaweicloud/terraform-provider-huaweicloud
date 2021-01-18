@@ -567,16 +567,15 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
-	resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract()
-	if err != nil {
-		return fmt.Errorf("Error fetching HuaweiCloud instance tags: %s", err)
-	}
-
-	tagmap := tagsToMap(resourceTags.Tags)
-	// ignore "CCE-Dynamic-Provisioning-Node"
-	delete(tagmap, "CCE-Dynamic-Provisioning-Node")
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("Error saving tags of cce node: %s", err)
+	if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
+		tagmap := tagsToMap(resourceTags.Tags)
+		// ignore "CCE-Dynamic-Provisioning-Node"
+		delete(tagmap, "CCE-Dynamic-Provisioning-Node")
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving tags to state for CCE Node (%s): %s", serverId, err)
+		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of CCE Node (%s): %s", serverId, err)
 	}
 
 	return nil
