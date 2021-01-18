@@ -324,6 +324,7 @@ func resourceCssClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	} else {
 		log.Printf("[WARN] Error fetching tags of CSS cluster (%s): %s", d.Id(), err)
 	}
+
 	return nil
 }
 
