@@ -9,8 +9,6 @@ This is an alternative to `huaweicloud_vpc_v1`
 
 ## Example Usage
 
-The following example shows how one might accept a VPC id as a variable and use this data source to obtain the data necessary to create a subnet within it.
-
 ```hcl
 variable "vpc_name" {}
 
