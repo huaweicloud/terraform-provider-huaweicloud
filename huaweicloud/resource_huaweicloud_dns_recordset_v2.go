@@ -190,14 +190,13 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmt.Errorf("Error getting resource type of DNS record set %s: %s", recordsetID, err)
 	}
-	resourceTags, err := tags.Get(dnsClient, resourceType, recordsetID).Extract()
-	if err != nil {
-		return fmt.Errorf("Error fetching HuaweiCloud DNS record set tags: %s", err)
-	}
-
-	tagmap := tagsToMap(resourceTags.Tags)
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("Error saving tags for HuaweiCloud DNS record set %s: %s", recordsetID, err)
+	if resourceTags, err := tags.Get(dnsClient, resourceType, recordsetID).Extract(); err == nil {
+		tagmap := tagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving tags to state for DNS record set (%s): %s", recordsetID, err)
+		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of DNS record set (%s): %s", recordsetID, err)
 	}
 
 	return nil
