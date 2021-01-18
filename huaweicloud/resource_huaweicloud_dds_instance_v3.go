@@ -304,7 +304,7 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	client, err := config.ddsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
+		return fmt.Errorf("Error creating DDS client: %s ", err)
 	}
 
 	createOpts := instances.CreateOpts{
@@ -367,7 +367,7 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	client, err := config.ddsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s", err)
+		return fmt.Errorf("Error creating DDS client: %s", err)
 	}
 
 	instanceID := d.Id()
@@ -433,15 +433,14 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// save tags
-	resourceTags, err := tags.Get(client, "instances", d.Id()).Extract()
-	if err != nil {
-		return fmt.Errorf("Error fetching tags of DDS instance: %s", err)
+	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
+		tagmap := tagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving tags to state for DDS instance (%s): %s", d.Id(), err)
+		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of DDS instance (%s): %s", d.Id(), err)
 	}
-	tagmap := tagsToMap(resourceTags.Tags)
-	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving tag to state for DDS instance (%s): %s", d.Id(), err)
-	}
-
 	return nil
 }
 
@@ -449,7 +448,7 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	client, err := config.ddsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
+		return fmt.Errorf("Error creating DDS client: %s ", err)
 	}
 
 	var opts []instances.UpdateOpt
@@ -532,7 +531,7 @@ func resourceDdsInstanceV3Delete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	client, err := config.ddsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
+		return fmt.Errorf("Error creating DDS client: %s ", err)
 	}
 
 	instanceId := d.Id()
