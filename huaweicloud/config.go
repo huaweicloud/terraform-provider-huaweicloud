@@ -373,6 +373,9 @@ func (l sLogger) Log(args ...interface{}) {
 }
 
 func getObsEndpoint(c *Config, region string) string {
+	if endpoint, ok := c.endpoints["obs"]; ok {
+		return endpoint
+	}
 	return fmt.Sprintf("https://obs.%s.%s/", region, c.Cloud)
 }
 
