@@ -198,22 +198,17 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("region", GetRegion(d, config))
 
 	// save VpcSubnet tags
-	vpcSubnetV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
-	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
-	}
-	resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract()
-	if err != nil {
-		if err404, ok := err.(golangsdk.ErrDefault404); ok {
-			log.Printf("[INFO] fetching Subnet tags failed: %s", err404)
+	if vpcSubnetV2Client, err := config.NetworkingV2Client(GetRegion(d, config)); err == nil {
+		if resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract(); err == nil {
+			tagmap := tagsToMap(resourceTags.Tags)
+			if err := d.Set("tags", tagmap); err != nil {
+				return fmt.Errorf("Error saving tags to state for Subnet (%s): %s", d.Id(), err)
+			}
 		} else {
-			return fmt.Errorf("Error fetching HuaweiCloud Subnet %s tags: %s", d.Id(), err)
+			log.Printf("[WARN] Error fetching tags of Subnet (%s): %s", d.Id(), err)
 		}
 	} else {
-		tagmap := tagsToMap(resourceTags.Tags)
-		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving HuaweiCloud Subnet %s tags: %s", d.Id(), err)
-		}
+		return fmt.Errorf("Error creating VpcSubnet client: %s", err)
 	}
 
 	return nil
