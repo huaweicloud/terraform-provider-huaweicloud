@@ -7,8 +7,8 @@ Run `terraform -v` to show the version. If you are not running the latest versio
 
 ### Affected Resource(s)
 Please list the resources as a list, for example:
-- opc_instance
-- opc_storage_volume
+- **huaweicloud_compute_instance**
+- **huaweicloud_cce_node**
 
 If this issue appears to affect multiple resources, it may be an issue with Terraform's core, so please mention this.
 
@@ -36,7 +36,7 @@ Please list the steps required to reproduce the issue, for example:
 1. `terraform apply`
 
 ### Important Factoids
-Are there anything atypical about your accounts that we should know? For example: Running in EC2 Classic? Custom version of OpenStack? Tight ACLs?
+Are there anything atypical about your accounts that we should know? For example: Batch processing multiple resources? Poor network quality?
 
 ### References
 Are there any other GitHub issues (open or closed) or Pull Requests that should be linked here? For example:
