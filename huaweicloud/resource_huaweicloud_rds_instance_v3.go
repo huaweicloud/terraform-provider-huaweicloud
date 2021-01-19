@@ -234,6 +234,7 @@ func resourceRdsInstanceV3() *schema.Resource {
 
 			"private_ips": {
 				Type:     schema.TypeList,
+				Optional: true,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -1131,6 +1132,11 @@ func setRdsInstanceV3Properties(d *schema.ResourceData, response map[string]inte
 	if err = d.Set("public_ips", v); err != nil {
 		return fmt.Errorf("Error setting Instance:public_ips, err: %s", err)
 	}
+	if len(v.([]interface{})) != 0 {
+		if err = d.Set("fixed_ip", v.([]interface{})[0]); err != nil {
+			return fmt.Errorf("Error setting Instance:fixed_ip, err: %s", err)
+		}
+	}
 
 	v, err = navigateValue(response, []string{"list", "security_group_id"}, nil)
 	if err != nil {
@@ -1179,14 +1185,6 @@ func setRdsInstanceV3Properties(d *schema.ResourceData, response map[string]inte
 	}
 	if err = d.Set("time_zone", v); err != nil {
 		return fmt.Errorf("Error setting Instance:time_zone, err: %s", err)
-	}
-
-	v, err = navigateValue(response, []string{"list", "private_ips"}, nil)
-	if err != nil {
-		return fmt.Errorf("Error reading Instance:private_ips, err: %s", err)
-	}
-	if err = d.Set("fixed_ip", v.([]interface{})[0]); err != nil {
-		return fmt.Errorf("Error setting Instance:fixed_ip, err: %s", err)
 	}
 
 	return nil
