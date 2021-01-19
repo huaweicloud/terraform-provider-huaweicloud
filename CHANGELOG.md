@@ -1,3 +1,9 @@
+## 1.20.3 (January 19, 2021)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_gaussdb_opengauss_instance: Add backup_strategy update support ([#823](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/823))
+
 ## 1.20.2 (December 28, 2020)
 
 FEATURES:
