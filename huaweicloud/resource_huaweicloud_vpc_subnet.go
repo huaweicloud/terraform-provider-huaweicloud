@@ -198,17 +198,17 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("region", GetRegion(d, config))
 
 	// save VpcSubnet tags
-	vpcSubnetV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
-	if err != nil {
-		return fmt.Errorf("Error creating VpcSubnet client: %s", err)
-	}
-	if resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
-		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for Subnet (%s): %s", d.Id(), err)
+	if vpcSubnetV2Client, err := config.NetworkingV2Client(GetRegion(d, config)); err == nil {
+		if resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract(); err == nil {
+			tagmap := tagsToMap(resourceTags.Tags)
+			if err := d.Set("tags", tagmap); err != nil {
+				return fmt.Errorf("Error saving tags to state for Subnet (%s): %s", d.Id(), err)
+			}
+		} else {
+			log.Printf("[WARN] Error fetching tags of Subnet (%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of Subnet (%s): %s", d.Id(), err)
+		return fmt.Errorf("Error creating VpcSubnet client: %s", err)
 	}
 
 	return nil

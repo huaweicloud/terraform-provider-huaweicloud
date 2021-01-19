@@ -171,17 +171,17 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 	d.Set("routes", routes)
 
 	// save VirtualPrivateCloudV2 tags
-	vpcV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
-	if err != nil {
-		return fmt.Errorf("Error creating vpc client: %s", err)
-	}
-	if resourceTags, err := tags.Get(vpcV2Client, "vpcs", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
-		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for VPC (%s): %s", d.Id(), err)
+	if vpcV2Client, err := config.NetworkingV2Client(GetRegion(d, config)); err == nil {
+		if resourceTags, err := tags.Get(vpcV2Client, "vpcs", d.Id()).Extract(); err == nil {
+			tagmap := tagsToMap(resourceTags.Tags)
+			if err := d.Set("tags", tagmap); err != nil {
+				return fmt.Errorf("Error saving tags to state for VPC (%s): %s", d.Id(), err)
+			}
+		} else {
+			log.Printf("[WARN] Error fetching tags of VPC (%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of VPC (%s): %s", d.Id(), err)
+		return fmt.Errorf("Error creating vpc client: %s", err)
 	}
 
 	return nil
