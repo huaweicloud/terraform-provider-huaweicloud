@@ -25,13 +25,15 @@ import (
 )
 
 func TestAccCdmClusterV1_basic(t *testing.T) {
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCdmClusterV1Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCdmClusterV1_basic(acctest.RandString(10)),
+				Config: testAccCdmClusterV1_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCdmClusterV1Exists(),
 				),
@@ -40,23 +42,34 @@ func TestAccCdmClusterV1_basic(t *testing.T) {
 	})
 }
 
-func testAccCdmClusterV1_basic(val string) string {
+func testAccCdmClusterV1_basic(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_networking_secgroup_v2" "secgroup" {
-  name = "terraform_test_security_group%s"
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_cdm_flavors" "test" {}
+
+resource "huaweicloud_networking_secgroup" "secgroup" {
+  name        = "%s"
   description = "terraform security group acceptance test"
 }
 
-resource "huaweicloud_cdm_cluster_v1" "cluster" {
-  availability_zone = "%s"
-  flavor_id = "a79fd5ae-1833-448a-88e8-3ea2b913e1f6"
-  name = "terraform_test_cdm_cluster%s"
-  security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
-  subnet_id = "%s"
-  vpc_id = "%s"
-  version = "1.8.5"
-}
-	`, val, HW_AVAILABILITY_ZONE, val, HW_NETWORK_ID, HW_VPC_ID)
+resource "huaweicloud_cdm_cluster" "cluster" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id         = data.huaweicloud_cdm_flavors.test.flavors[0].id
+  name              = "%s"
+  security_group_id = huaweicloud_networking_secgroup.secgroup.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  version           = "2.8.2"
+}`, rName, rName)
 }
 
 func testAccCheckCdmClusterV1Destroy(s *terraform.State) error {
@@ -67,7 +80,7 @@ func testAccCheckCdmClusterV1Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_cdm_cluster_v1" {
+		if rs.Type != "huaweicloud_cdm_cluster" {
 			continue
 		}
 
@@ -83,7 +96,7 @@ func testAccCheckCdmClusterV1Destroy(s *terraform.State) error {
 				"X-Language":   "en-us",
 			}})
 		if err == nil {
-			return fmt.Errorf("huaweicloud_cdm_cluster_v1 still exists at %s", url)
+			return fmt.Errorf("huaweicloud_cdm_cluster still exists at %s", url)
 		}
 	}
 
@@ -98,14 +111,14 @@ func testAccCheckCdmClusterV1Exists() resource.TestCheckFunc {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}
 
-		rs, ok := s.RootModule().Resources["huaweicloud_cdm_cluster_v1.cluster"]
+		rs, ok := s.RootModule().Resources["huaweicloud_cdm_cluster.cluster"]
 		if !ok {
-			return fmt.Errorf("Error checking huaweicloud_cdm_cluster_v1.cluster exist, err=not found this resource")
+			return fmt.Errorf("Error checking huaweicloud_cdm_cluster.cluster exist, err=not found this resource")
 		}
 
 		url, err := replaceVarsForTest(rs, "clusters/{id}")
 		if err != nil {
-			return fmt.Errorf("Error checking huaweicloud_cdm_cluster_v1.cluster exist, err=building url failed: %s", err)
+			return fmt.Errorf("Error checking huaweicloud_cdm_cluster.cluster exist, err=building url failed: %s", err)
 		}
 		url = client.ServiceURL(url)
 
@@ -116,9 +129,9 @@ func testAccCheckCdmClusterV1Exists() resource.TestCheckFunc {
 			}})
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return fmt.Errorf("huaweicloud_cdm_cluster_v1.cluster is not exist")
+				return fmt.Errorf("huaweicloud_cdm_cluster.cluster is not exist")
 			}
-			return fmt.Errorf("Error checking huaweicloud_cdm_cluster_v1.cluster exist, err=send request failed: %s", err)
+			return fmt.Errorf("Error checking huaweicloud_cdm_cluster.cluster exist, err=send request failed: %s", err)
 		}
 		return nil
 	}
