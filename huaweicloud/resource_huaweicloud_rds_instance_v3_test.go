@@ -43,6 +43,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+10:00"),
+					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
 				),
 			},
 			{
@@ -115,6 +116,7 @@ resource "huaweicloud_rds_instance" "instance" {
   subnet_id = huaweicloud_vpc_subnet.test.id
   vpc_id = huaweicloud_vpc.test.id
   time_zone = "UTC+10:00"
+  fixed_ip = "192.168.0.58"
 
   db {
     password = "Huangwei!120521"
