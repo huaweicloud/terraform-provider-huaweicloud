@@ -140,6 +140,9 @@ The following arguments are supported:
 
 * `volume` - (Required, List) Specifies the volume information. Structure is documented below.
 
+* `fixed_ip` - (Optional, String, ForceNew) Specifies an intranet floating IP address of RDS DB instance. 
+    Changing this parameter will create a new resource.
+
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 
 * `ha_replication_mode` - (Optional, String, ForceNew) Specifies the replication mode for the standby DB instance. For MySQL, the value

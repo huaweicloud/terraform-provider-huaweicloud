@@ -173,6 +173,14 @@ func resourceRdsInstanceV3() *schema.Resource {
 				},
 			},
 
+			"fixed_ip": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validateIP,
+			},
+
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -273,6 +281,7 @@ func resourceRdsInstanceV3UserInputParams(d *schema.ResourceData) map[string]int
 		"volume":                  d.Get("volume"),
 		"vpc_id":                  d.Get("vpc_id"),
 		"time_zone":               d.Get("time_zone"),
+		"data_vip":                d.Get("fixed_ip"),
 	}
 }
 
@@ -754,6 +763,16 @@ func buildRdsInstanceV3CreateParameters(opts map[string]interface{}, arrayIndex 
 		params["time_zone"] = v
 	}
 
+	v, err = navigateValue(opts, []string{"data_vip"}, arrayIndex)
+	if err != nil {
+		return nil, err
+	}
+	if e, err := isEmptyValue(reflect.ValueOf(v)); err != nil {
+		return nil, err
+	} else if !e {
+		params["data_vip"] = v
+	}
+
 	return params, nil
 }
 
@@ -1103,6 +1122,11 @@ func setRdsInstanceV3Properties(d *schema.ResourceData, response map[string]inte
 	}
 	if err = d.Set("private_ips", v); err != nil {
 		return fmt.Errorf("Error setting Instance:private_ips, err: %s", err)
+	}
+	if len(v.([]interface{})) != 0 {
+		if err = d.Set("fixed_ip", v.([]interface{})[0]); err != nil {
+			return fmt.Errorf("Error setting Instance:fixed_ip, err: %s", err)
+		}
 	}
 
 	v, err = navigateValue(response, []string{"list", "public_ips"}, nil)
