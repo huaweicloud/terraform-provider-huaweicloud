@@ -107,7 +107,7 @@ func resourceSubscriptionDelete(d *schema.ResourceData, meta interface{}) error 
 	id := d.Id()
 	result := subscriptions.Delete(client, id)
 	if result.Err != nil {
-		return err
+		return result.Err
 	}
 
 	log.Printf("[DEBUG] Successfully deleted subscription %s", id)

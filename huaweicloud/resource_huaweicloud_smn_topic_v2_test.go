@@ -3,7 +3,6 @@ package huaweicloud
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -54,7 +53,6 @@ func testAccCheckSMNTopicV2Destroy(s *terraform.State) error {
 		return fmt.Errorf("Error creating HuaweiCloud smn: %s", err)
 	}
 
-	time.Sleep(120 * time.Second)
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_smn_topic_v2" {
 			continue

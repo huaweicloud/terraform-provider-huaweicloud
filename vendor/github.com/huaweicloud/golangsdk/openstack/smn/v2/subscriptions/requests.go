@@ -46,7 +46,10 @@ func Create(client *golangsdk.ServiceClient, ops CreateOpsBuilder, topicUrn stri
 
 //delete a subscription via subscription urn
 func Delete(client *golangsdk.ServiceClient, subscriptionUrn string) (r DeleteResult) {
-	_, r.Err = client.Delete(deleteURL(client, subscriptionUrn), &RequestOpts)
+	_, r.Err = client.Delete(deleteURL(client, subscriptionUrn), &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
 	return
 }
 
@@ -58,12 +61,16 @@ func Delete(client *golangsdk.ServiceClient, subscriptionUrn string) (r DeleteRe
 
 //list all the subscriptions
 func List(client *golangsdk.ServiceClient) (r ListResult) {
-	_, r.Err = client.Get(listURL(client), &r.Body, &RequestOpts)
+	_, r.Err = client.Get(listURL(client), &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
 	return
 }
 
 //list all the subscriptions
 func ListFromTopic(client *golangsdk.ServiceClient, subscriptionUrn string) (r ListResult) {
-	_, r.Err = client.Get(listFromTopicURL(client, subscriptionUrn), &r.Body, &RequestOpts)
+	_, r.Err = client.Get(listFromTopicURL(client, subscriptionUrn), &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
 	return
 }
