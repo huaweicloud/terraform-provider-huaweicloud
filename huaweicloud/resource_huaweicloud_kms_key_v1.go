@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/kms/v1/keys"
 )
 
@@ -40,12 +41,6 @@ func resourceKmsKeyV1() *schema.Resource {
 			"key_description": {
 				Type:     schema.TypeString,
 				Optional: true,
-			},
-			"realm": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -87,6 +82,11 @@ func resourceKmsKeyV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"tags": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -101,7 +101,6 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 	createOpts := &keys.CreateOpts{
 		KeyAlias:            d.Get("key_alias").(string),
 		KeyDescription:      d.Get("key_description").(string),
-		Realm:               d.Get("realm").(string),
 		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 	}
 
@@ -142,6 +141,15 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		taglist := expandResourceTags(tagRaw)
+		tagErr := tags.Create(kmsKeyV1Client, "kms", v.KeyID, taglist).ExtractErr()
+		if tagErr != nil {
+			log.Printf("Error creating tags for kms (%s): %s", v.KeyID, err)
+		}
+	}
+
 	// Store the key ID now
 	d.SetId(v.KeyID)
 	d.Set("key_id", v.KeyID)
@@ -172,7 +180,7 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("key_id", v.KeyID)
 	d.Set("domain_id", v.DomainID)
 	d.Set("key_alias", v.KeyAlias)
-	d.Set("realm", v.Realm)
+	d.Set("region", GetRegion(d, config))
 	d.Set("key_description", v.KeyDescription)
 	d.Set("creation_date", v.CreationDate)
 	d.Set("scheduled_deletion_date", v.ScheduledDeletionDate)
@@ -180,6 +188,16 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("default_key_flag", v.DefaultKeyFlag)
 	d.Set("expiration_time", v.ExpirationTime)
 	d.Set("enterprise_project_id", v.EnterpriseProjectID)
+
+	// Set instance tags
+	if resourceTags, err := tags.Get(kmsKeyV1Client, "kms", d.Id()).Extract(); err == nil {
+		tagmap := tagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving tags to state for kms (%s): %s", d.Id(), err)
+		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of kms (%s): %s", d.Id(), err)
+	}
 
 	return nil
 }
@@ -237,6 +255,13 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 			if key.KeyState != DisabledState {
 				return fmt.Errorf("Error disabling key, the key state is: %s", key.KeyState)
 			}
+		}
+	}
+
+	if d.HasChange("tags") {
+		tagErr := UpdateResourceTags(kmsKeyV1Client, d, "kms", d.Id())
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags of kms:%s, err:%s", d.Id(), err)
 		}
 	}
 

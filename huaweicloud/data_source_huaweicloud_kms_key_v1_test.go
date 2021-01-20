@@ -32,6 +32,25 @@ func TestAccKmsKeyV1DataSource_basic(t *testing.T) {
 	})
 }
 
+func TestAccKmsKeyV1DataSource_WithTags(t *testing.T) {
+	var datasourceName = "data.huaweicloud_kms_key.key1"
+	resource.ParallelTest(t, resource.TestCase{
+		// PreCheck:  func() { testAccPreCheckKms(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKmsKeyV1DataSource_withTags,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKmsKeyV1DataSourceID(datasourceName),
+					resource.TestCheckResourceAttr(datasourceName, "key_alias", keyAlias),
+					resource.TestCheckResourceAttr(datasourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(datasourceName, "tags.key", "value"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKmsKeyV1DataSource_WithEpsId(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheckKms(t); testAccPreCheckEpsID(t) },
@@ -74,6 +93,19 @@ resource "huaweicloud_kms_key_v1" "key1" {
   is_enabled      = true
 }`, keyAlias)
 
+var testAccKmsKeyV1DataSource_key_withTags = fmt.Sprintf(`
+resource "huaweicloud_kms_key" "key1" {
+  region = "af-south-1"
+  key_alias       = "%s"
+  key_description = "test description"
+  pending_days    = "7"
+  is_enabled      = true
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}`, keyAlias)
+
 var testAccKmsKeyV1DataSource_basic = fmt.Sprintf(`
 %s
 data "huaweicloud_kms_key_v1" "key1" {
@@ -83,6 +115,16 @@ data "huaweicloud_kms_key_v1" "key1" {
   key_state       = "2"
 }
 `, testAccKmsKeyV1DataSource_key)
+
+var testAccKmsKeyV1DataSource_withTags = fmt.Sprintf(`
+%s
+data "huaweicloud_kms_key" "key1" {
+  key_alias       = huaweicloud_kms_key.key1.key_alias
+  key_id          = huaweicloud_kms_key.key1.id
+  key_description = "test description"
+  key_state       = "2"
+}
+`, testAccKmsKeyV1DataSource_key_withTags)
 
 var testAccKmsKeyV1DataSource_epsId = fmt.Sprintf(`
 resource "huaweicloud_kms_key_v1" "key1" {

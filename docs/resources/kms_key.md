@@ -39,6 +39,7 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the kms key. Changing this creates a new key.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the kms key.
 
 ## Attributes Reference
 
