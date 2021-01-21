@@ -189,6 +189,9 @@ The following arguments are supported:
 * `delete_instances` - (Optional, String) Whether to delete the instances in the AS group
     when deleting the AS group. The options are `yes` and `no`.
 
+* `enable` - (Optional, Bool) Whether to enable the AS Group. The options are `true` and `false`.
+    The default value is `true`.
+
 The `networks` block supports:
 
 * `id` - (Required, String) The network UUID.
