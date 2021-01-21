@@ -31,6 +31,28 @@ func TestAccASV1Group_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"delete_instances",
+				},
+			},
+			{
+				Config: testASV1Group_basic_disable(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckASV1GroupExists(resourceName, &asGroup),
+					resource.TestCheckResourceAttr(resourceName, "status", "PAUSED"),
+				),
+			},
+			{
+				Config: testASV1Group_basic_enable(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckASV1GroupExists(resourceName, &asGroup),
+					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
+				),
+			},
 		},
 	})
 }
@@ -90,7 +112,7 @@ func testAccCheckASV1GroupExists(n string, group *groups.Group) resource.TestChe
 	}
 }
 
-func testASV1Group_basic(rName string) string {
+func testASV1Group_Base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -155,7 +177,12 @@ resource "huaweicloud_as_configuration" "hth_as_config"{
       disk_type   = "SYS"
     }
   }
+}`, rName, rName, rName, rName, rName, rName)
 }
+
+func testASV1Group_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_as_group" "hth_as_group"{
   scaling_group_name       = "%s"
@@ -177,5 +204,61 @@ resource "huaweicloud_as_group" "hth_as_group"{
     key = "value"
   }
 }
-`, rName, rName, rName, rName, rName, rName, rName)
+`, testASV1Group_Base(rName), rName)
+}
+
+func testASV1Group_basic_disable(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_group" "hth_as_group"{
+  scaling_group_name       = "%s"
+  scaling_configuration_id = huaweicloud_as_configuration.hth_as_config.id
+  vpc_id                   = data.huaweicloud_vpc.test.id
+  enable                   = false
+
+  networks {
+    id = data.huaweicloud_vpc_subnet.test.id
+  }
+  security_groups {
+    id = huaweicloud_networking_secgroup.secgroup.id
+  }
+  lbaas_listeners {
+    pool_id       = huaweicloud_lb_pool.pool_1.id
+    protocol_port = huaweicloud_lb_listener.listener_1.protocol_port
+  }
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, testASV1Group_Base(rName), rName)
+}
+
+func testASV1Group_basic_enable(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_group" "hth_as_group"{
+  scaling_group_name       = "%s"
+  scaling_configuration_id = huaweicloud_as_configuration.hth_as_config.id
+  vpc_id                   = data.huaweicloud_vpc.test.id
+  enable                   = true
+
+  networks {
+    id = data.huaweicloud_vpc_subnet.test.id
+  }
+  security_groups {
+    id = huaweicloud_networking_secgroup.secgroup.id
+  }
+  lbaas_listeners {
+    pool_id       = huaweicloud_lb_pool.pool_1.id
+    protocol_port = huaweicloud_lb_listener.listener_1.protocol_port
+  }
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, testASV1Group_Base(rName), rName)
 }

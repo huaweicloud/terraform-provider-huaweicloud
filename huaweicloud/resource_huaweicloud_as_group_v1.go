@@ -22,6 +22,9 @@ func ResourceASGroup() *schema.Resource {
 		Read:   resourceASGroupRead,
 		Update: resourceASGroupUpdate,
 		Delete: resourceASGroupDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -184,6 +187,11 @@ func ResourceASGroup() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 			},
 		},
 	}
@@ -480,11 +488,13 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	//enable asg
-	enableResult := groups.Enable(asClient, asgId)
-	if enableResult.Err != nil {
-		return fmt.Errorf("Error enabling ASGroup %q: %s", asgId, enableResult.Err)
+	if d.Get("enable").(bool) {
+		enableResult := groups.Enable(asClient, asgId)
+		if enableResult.Err != nil {
+			return fmt.Errorf("Error enabling ASGroup %q: %s", asgId, enableResult.Err)
+		}
+		log.Printf("[DEBUG] Enable ASGroup %q success!", asgId)
 	}
-	log.Printf("[DEBUG] Enable ASGroup %q success!", asgId)
 	// check all instances are inservice
 	if initNum > 0 {
 		timeout := d.Timeout(schema.TimeoutCreate)
@@ -517,7 +527,33 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 
 	// set properties based on the read info
 	d.Set("scaling_group_name", asg.Name)
+	d.Set("vpc_id", asg.VpcID)
 	d.Set("status", asg.Status)
+
+	if asg.Status == "INSERVICE" {
+		d.Set("enable", true)
+	} else {
+		d.Set("enable", false)
+	}
+
+	var networks []map[string]interface{}
+	for _, network := range asg.Networks {
+		mapping := map[string]interface{}{
+			"id": network.ID,
+		}
+		networks = append(networks, mapping)
+	}
+	d.Set("networks", networks)
+
+	var securityGroups []map[string]interface{}
+	for _, securityGroup := range asg.SecurityGroups {
+		mapping := map[string]interface{}{
+			"id": securityGroup.ID,
+		}
+		securityGroups = append(securityGroups, mapping)
+	}
+
+	d.Set("security_groups", securityGroups)
 	d.Set("current_instance_number", asg.ActualInstanceNumber)
 	d.Set("desire_instance_number", asg.DesireInstanceNumber)
 	d.Set("min_instance_number", asg.MinInstanceNumber)
@@ -642,6 +678,22 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 			if tagErr := tags.Create(asClient, asgID, taglist).ExtractErr(); tagErr != nil {
 				return fmt.Errorf("Error setting tags of ASGroup %q: %s", asgID, tagErr)
 			}
+		}
+	}
+
+	if d.HasChange("enable") {
+		if d.Get("enable").(bool) {
+			enableResult := groups.Enable(asClient, asgID)
+			if enableResult.Err != nil {
+				return fmt.Errorf("Error enabling ASGroup %q: %s", asgID, enableResult.Err)
+			}
+			log.Printf("[DEBUG] Enable ASGroup %q success!", asgID)
+		} else {
+			enableResult := groups.Disable(asClient, asgID)
+			if enableResult.Err != nil {
+				return fmt.Errorf("Error disabling ASGroup %q: %s", asgID, enableResult.Err)
+			}
+			log.Printf("[DEBUG] Disable ASGroup %q success!", asgID)
 		}
 	}
 
