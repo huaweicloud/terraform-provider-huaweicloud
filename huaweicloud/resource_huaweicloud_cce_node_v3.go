@@ -261,6 +261,7 @@ func ResourceCCENodeV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"tags": {
 				Type:     schema.TypeMap,
@@ -530,6 +531,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("os", s.Spec.Os)
 	d.Set("billing_mode", s.Spec.BillingMode)
 	d.Set("key_pair", s.Spec.Login.SshKey)
+	d.Set("subnet_id", s.Spec.NodeNicSpec.PrimaryNic.SubnetId)
 
 	var volumes []map[string]interface{}
 	for _, pairObject := range s.Spec.DataVolumes {
