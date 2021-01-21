@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/kms/v1/keys"
 )
 
@@ -59,6 +60,11 @@ func dataSourceKmsKeyV1() *schema.Resource {
 			"scheduled_deletion_date": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"tags": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -163,6 +169,15 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("default_key_flag", key.DefaultKeyFlag)
 	d.Set("expiration_time", key.ExpirationTime)
 	d.Set("enterprise_project_id", key.EnterpriseProjectID)
+
+	if resourceTags, err := tags.Get(kmsKeyV1Client, "kms", key.KeyID).Extract(); err == nil {
+		tagmap := tagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving tags to state for kms key(%s): %s", key.KeyID, err)
+		}
+	} else {
+		log.Printf("[WARN] Error fetching tags of kms key(%s): %s", key.KeyID, err)
+	}
 
 	return nil
 }

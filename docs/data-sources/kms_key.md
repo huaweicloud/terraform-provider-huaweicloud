@@ -53,3 +53,4 @@ In addition to all arguments above, the following attributes are exported:
 * `scheduled_deletion_date` - Scheduled deletion time (time stamp) of a key.
 * `expiration_time` - Expiration time.
 * `creation_date` - Creation time (time stamp) of a key.
+* `tags` - The key/value pairs to associate with the kms key.
