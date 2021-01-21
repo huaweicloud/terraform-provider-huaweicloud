@@ -11,10 +11,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 )
 
-func TestAccKmsKeyV1_basic(t *testing.T) {
+func TestAccKmsKeyV1Basic(t *testing.T) {
 	var key keys.Key
 	var keyAlias = fmt.Sprintf("kms_%s", acctest.RandString(5))
 	var keyAliasUpdate = fmt.Sprintf("kms_updated_%s", acctest.RandString(5))
+	var resourceName = "huaweicloud_kms_key.key_2"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckKms(t) },
@@ -22,15 +23,15 @@ func TestAccKmsKeyV1_basic(t *testing.T) {
 		CheckDestroy: testAccCheckKmsV1KeyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKmsV1Key_basic(keyAlias),
+				Config: testAccKmsV1KeyBasic(keyAlias),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_v1.key_2", &key),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_kms_key_v1.key_2", "key_alias", keyAlias),
+					testAccCheckKmsV1KeyExists(resourceName, &key),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
+					resource.TestCheckResourceAttr(resourceName, "region", HW_REGION_NAME),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_kms_key_v1.key_2",
+				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
@@ -39,13 +40,12 @@ func TestAccKmsKeyV1_basic(t *testing.T) {
 				},
 			},
 			{
-				Config: testAccKmsV1Key_update(keyAliasUpdate),
+				Config: testAccKmsV1KeyUpdate(keyAliasUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKmsV1KeyExists("huaweicloud_kms_key_v1.key_2", &key),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_kms_key_v1.key_2", "key_alias", keyAliasUpdate),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_kms_key_v1.key_2", "key_description", "key update description"),
+					testAccCheckKmsV1KeyExists(resourceName, &key),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAliasUpdate),
+					resource.TestCheckResourceAttr(resourceName, "key_description", "key update description"),
+					resource.TestCheckResourceAttr(resourceName, "region", HW_REGION_NAME),
 				),
 			},
 		},
@@ -174,13 +174,14 @@ func testAccCheckKmsKeyIsEnabled(key *keys.Key, isEnabled bool) resource.TestChe
 	}
 }
 
-func testAccKmsV1Key_basic(keyAlias string) string {
+func testAccKmsV1KeyBasic(keyAlias string) string {
 	return fmt.Sprintf(`
-		resource "huaweicloud_kms_key_v1" "key_2" {
-			key_alias = "%s"
-			pending_days = "7"
-		}
-	`, keyAlias)
+resource "huaweicloud_kms_key" "key_2" {
+  key_alias    = "%s"
+  pending_days = "7"
+  region       = "%s"
+}
+`, keyAlias, HW_REGION_NAME)
 }
 
 func testAccKmsV1Key_epsId(keyAlias string) string {
@@ -193,14 +194,14 @@ func testAccKmsV1Key_epsId(keyAlias string) string {
 	`, keyAlias, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccKmsV1Key_update(keyAliasUpdate string) string {
+func testAccKmsV1KeyUpdate(keyAliasUpdate string) string {
 	return fmt.Sprintf(`
-		resource "huaweicloud_kms_key_v1" "key_2" {
-           key_alias       = "%s"
-           key_description = "key update description"
-           pending_days = "7"
-		}
-	`, keyAliasUpdate)
+resource "huaweicloud_kms_key" "key_2" {
+  key_alias       = "%s"
+  key_description = "key update description"
+  pending_days    = "7"
+}
+`, keyAliasUpdate)
 }
 
 func testAccKmsKey_enabled(rName string) string {
