@@ -171,7 +171,9 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	if resourceTags, err := tags.Get(kmsKeyV1Client, "kms", key.KeyID).Extract(); err == nil {
 		tagmap := tagsToMap(resourceTags.Tags)
-		d.Set("tags", tagmap)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmt.Errorf("Error saving tags to state for kms (%s): %s", key.KeyID, err)
+		}
 	} else {
 		log.Printf("[WARN] Error fetching tags of kms (%s): %s", key.KeyID, err)
 	}

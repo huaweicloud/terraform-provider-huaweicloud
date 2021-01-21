@@ -35,7 +35,7 @@ func TestAccKmsKeyV1DataSource_basic(t *testing.T) {
 func TestAccKmsKeyV1DataSource_WithTags(t *testing.T) {
 	var datasourceName = "data.huaweicloud_kms_key.key1"
 	resource.ParallelTest(t, resource.TestCase{
-		// PreCheck:  func() { testAccPreCheckKms(t) },
+		PreCheck:  func() { testAccPreCheckKms(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
