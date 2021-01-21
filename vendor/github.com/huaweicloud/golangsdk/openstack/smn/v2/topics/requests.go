@@ -77,18 +77,25 @@ func Update(client *golangsdk.ServiceClient, ops UpdateOpsBuilder, id string) (r
 
 //delete a topic via id
 func Delete(client *golangsdk.ServiceClient, id string) (r DeleteResult) {
-	_, r.Err = client.Delete(deleteURL(client, id), &RequestOpts)
+	_, r.Err = client.Delete(deleteURL(client, id), &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
 	return
 }
 
 //get a topic with detailed information by id
 func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
-	_, r.Err = client.Get(getURL(client, id), &r.Body, &RequestOpts)
+	_, r.Err = client.Get(getURL(client, id), &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
 	return
 }
 
 //list all the topics
 func List(client *golangsdk.ServiceClient) (r ListResult) {
-	_, r.Err = client.Get(listURL(client), &r.Body, &RequestOpts)
+	_, r.Err = client.Get(listURL(client), &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
 	return
 }
