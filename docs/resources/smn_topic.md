@@ -27,17 +27,17 @@ The following arguments are supported:
 * `display_name` - (Optional, String) Topic display name, which is presented as the
     name of the email sender in an email message.
 
-* `topic_urn` - (Optional, String, ForceNew) Resource identifier of a topic, which is unique.
-
-* `push_policy` - (Optional, Int, ForceNew) Message pushing policy. 0 indicates that the message
-    sending fails and the message is cached in the queue. 1 indicates that the
-    failed message is discarded.
-
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
+
+* `topic_urn` - Resource identifier of a topic, which is unique.
+
+* `push_policy` - Message pushing policy. 0 indicates that the message
+    sending fails and the message is cached in the queue. 1 indicates that the
+    failed message is discarded.
 
 * `create_time` - Time when the topic was created.
 

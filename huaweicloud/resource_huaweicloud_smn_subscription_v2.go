@@ -47,20 +47,14 @@ func resourceSubscription() *schema.Resource {
 			},
 			"subscription_urn": {
 				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"owner": {
 				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 		},
