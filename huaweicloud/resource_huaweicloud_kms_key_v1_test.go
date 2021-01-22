@@ -52,6 +52,29 @@ func TestAccKmsKeyV1Basic(t *testing.T) {
 	})
 }
 
+func TestAccKmsKeyWithTags(t *testing.T) {
+	var key keys.Key
+	var keyAlias = fmt.Sprintf("kms_%s", acctest.RandString(5))
+	var resourceName = "huaweicloud_kms_key.key_2"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckKms(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKmsV1KeyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKmsKeyWithTags(keyAlias),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKmsV1KeyExists(resourceName, &key),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKmsKeyV1_WithEpsId(t *testing.T) {
 	var key keys.Key
 	var keyAlias = fmt.Sprintf("kms_%s", acctest.RandString(5))
@@ -182,6 +205,19 @@ resource "huaweicloud_kms_key" "key_2" {
   region       = "%s"
 }
 `, keyAlias, HW_REGION_NAME)
+}
+
+func testAccKmsKeyWithTags(keyAlias string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "key_2" {
+  key_alias    = "%s"
+  pending_days = "7"
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, keyAlias)
 }
 
 func testAccKmsV1Key_epsId(keyAlias string) string {
