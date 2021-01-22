@@ -112,8 +112,44 @@ func DataSourceCCENodeV3() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"spec_extend_param": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeList,
 				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"extend_param_charging_mode": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"ecs_performance_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"order_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"product_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"public_key": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"max_pods": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"preinstall": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"postinstall": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
 			},
 			"eip_count": {
 				Type:     schema.TypeInt,
@@ -201,7 +237,20 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("server_id", Node.Status.ServerID)
 	d.Set("public_ip", Node.Status.PublicIP)
 	d.Set("private_ip", Node.Status.PrivateIP)
-	d.Set("spec_extend_param", Node.Spec.ExtendParam)
+
+	var paramSet []map[string]interface{}
+	specExtendParam := map[string]interface{}{
+		"extend_param_charging_mode": Node.Spec.ExtendParam.ChargingMode,
+		"ecs_performance_type":       Node.Spec.ExtendParam.EcsPerformanceType,
+		"order_id":                   Node.Spec.ExtendParam.OrderID,
+		"product_id":                 Node.Spec.ExtendParam.ProductID,
+		"public_key":                 Node.Spec.ExtendParam.PublicKey,
+		"max_pods":                   Node.Spec.ExtendParam.MaxPods,
+		"preinstall":                 Node.Spec.ExtendParam.PreInstall,
+		"postinstall":                Node.Spec.ExtendParam.PostInstall,
+	}
+	paramSet = append(paramSet, specExtendParam)
+	d.Set("spec_extend_param", paramSet)
 	d.Set("eip_count", Node.Spec.PublicIP.Count)
 	d.Set("eip_ids", PublicIDs)
 
