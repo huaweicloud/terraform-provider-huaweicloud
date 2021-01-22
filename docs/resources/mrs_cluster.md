@@ -94,7 +94,7 @@ The following arguments are supported:
 
 * `subnet_id` - (Required, String, ForceNew) Specifies the network id of a subnet. Changing this parameter will create a new resource.
 
-* `volume_type` - (Required, String, ForceNew) Type of disks SATA and SSD are supported. SATA: common I/O;
+* `volume_type` - (Required, String, ForceNew) Type of disks SATA and SSD are supported. SATA: common I/O; SAS high-speed I/O;
     SSD: super high-speed I/O.
 
 * `volume_size` - (Required, Int, ForceNew) Data disk storage space of a Core node. Value range: 100 GB to 32000 GB
