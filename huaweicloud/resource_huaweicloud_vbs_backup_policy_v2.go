@@ -260,6 +260,7 @@ func resourceVBSBackupPolicyV2Update(d *schema.ResourceData, meta interface{}) e
 		updateOpts.ScheduledPolicy.WeekFrequency = weeks
 	}
 
+	//lintignore:R019
 	if d.HasChanges("name", "start_time", "retain_first_backup", "rentention_num",
 		"rentention_day", "status", "frequency", "week_frequency") {
 		if d.HasChange("name") {
