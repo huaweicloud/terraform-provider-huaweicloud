@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/endpoints"
 )
 
-func TestAccVPCEndpointBasic(t *testing.T) {
+func TestAccVPCEndpoint_Basic(t *testing.T) {
 	var endpoint endpoints.Endpoint
 
 	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
@@ -22,7 +22,7 @@ func TestAccVPCEndpointBasic(t *testing.T) {
 		CheckDestroy: testAccCheckVPCEndpointDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVPCEndpointBasic(rName),
+				Config: testAccVPCEndpoint_Basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCEndpointExists(resourceName, &endpoint),
 					resource.TestCheckResourceAttr(resourceName, "status", "accepted"),
@@ -34,7 +34,7 @@ func TestAccVPCEndpointBasic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccVPCEndpointUpdate(rName),
+				Config: testAccVPCEndpoint_Update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "status", "accepted"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc-update"),
@@ -50,7 +50,7 @@ func TestAccVPCEndpointBasic(t *testing.T) {
 	})
 }
 
-func TestAccVPCEndpointPublic(t *testing.T) {
+func TestAccVPCEndpoint_Public(t *testing.T) {
 	var endpoint endpoints.Endpoint
 	resourceName := "huaweicloud_vpcep_endpoint.myendpoint"
 
@@ -130,7 +130,7 @@ func testAccCheckVPCEndpointExists(n string, endpoint *endpoints.Endpoint) resou
 	}
 }
 
-func testAccVPCEndpointPrecondition(rName string) string {
+func testAccVPCEndpoint_Precondition(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -152,7 +152,7 @@ resource "huaweicloud_compute_instance" "ecs" {
 `, testAccCompute_data, rName)
 }
 
-func testAccVPCEndpointBasic(rName string) string {
+func testAccVPCEndpoint_Basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -182,10 +182,10 @@ resource "huaweicloud_vpcep_endpoint" "test" {
     owner = "tf-acc"
   }
 }
-`, testAccVPCEndpointPrecondition(rName), rName)
+`, testAccVPCEndpoint_Precondition(rName), rName)
 }
 
-func testAccVPCEndpointUpdate(rName string) string {
+func testAccVPCEndpoint_Update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -216,7 +216,7 @@ resource "huaweicloud_vpcep_endpoint" "test" {
     foo   = "bar"
   }
 }
-`, testAccVPCEndpointPrecondition(rName), rName)
+`, testAccVPCEndpoint_Precondition(rName), rName)
 }
 
 var testAccVPCEndpointPublic string = `

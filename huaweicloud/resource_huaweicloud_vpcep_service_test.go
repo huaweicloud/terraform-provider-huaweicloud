@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services"
 )
 
-func TestAccVPCEPServiceBasic(t *testing.T) {
+func TestAccVPCEPService_Basic(t *testing.T) {
 	var service services.Service
 
 	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
@@ -23,7 +23,7 @@ func TestAccVPCEPServiceBasic(t *testing.T) {
 		CheckDestroy: testAccCheckVPCEPServiceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVPCEPServiceBasic(rName),
+				Config: testAccVPCEPService_Basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCEPServiceExists(resourceName, &service),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -38,7 +38,7 @@ func TestAccVPCEPServiceBasic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccVPCEPServiceUpdate(rName),
+				Config: testAccVPCEPService_Update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "tf-"+rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
@@ -58,7 +58,7 @@ func TestAccVPCEPServiceBasic(t *testing.T) {
 	})
 }
 
-func TestAccVPCEPServicePermission(t *testing.T) {
+func TestAccVPCEPService_Permission(t *testing.T) {
 	var service services.Service
 
 	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
@@ -70,7 +70,7 @@ func TestAccVPCEPServicePermission(t *testing.T) {
 		CheckDestroy: testAccCheckVPCEPServiceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVPCEPServicePermission(rName),
+				Config: testAccVPCEPService_Permission(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCEPServiceExists(resourceName, &service),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -79,7 +79,7 @@ func TestAccVPCEPServicePermission(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccVPCEPServicePermissionUpdate(rName),
+				Config: testAccVPCEPService_PermissionUpdate(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
@@ -143,7 +143,7 @@ func testAccCheckVPCEPServiceExists(n string, service *services.Service) resourc
 	}
 }
 
-func testAccVPCEPServicePrecondition(rName string) string {
+func testAccVPCEPService_Precondition(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -165,7 +165,7 @@ resource "huaweicloud_compute_instance" "ecs" {
 `, testAccCompute_data, rName)
 }
 
-func testAccVPCEPServiceBasic(rName string) string {
+func testAccVPCEPService_Basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -184,10 +184,10 @@ resource "huaweicloud_vpcep_service" "test" {
     owner = "tf-acc"
   }
 }
-`, testAccVPCEPServicePrecondition(rName), rName)
+`, testAccVPCEPService_Precondition(rName), rName)
 }
 
-func testAccVPCEPServiceUpdate(rName string) string {
+func testAccVPCEPService_Update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -206,10 +206,10 @@ resource "huaweicloud_vpcep_service" "test" {
     owner = "tf-acc-update"
   }
 }
-`, testAccVPCEPServicePrecondition(rName), rName)
+`, testAccVPCEPService_Precondition(rName), rName)
 }
 
-func testAccVPCEPServicePermission(rName string) string {
+func testAccVPCEPService_Permission(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -226,10 +226,10 @@ resource "huaweicloud_vpcep_service" "test" {
     terminal_port = 80
   }
 }
-`, testAccVPCEPServicePrecondition(rName), rName)
+`, testAccVPCEPService_Precondition(rName), rName)
 }
 
-func testAccVPCEPServicePermissionUpdate(rName string) string {
+func testAccVPCEPService_PermissionUpdate(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -246,5 +246,5 @@ resource "huaweicloud_vpcep_service" "test" {
     terminal_port = 80
   }
 }
-`, testAccVPCEPServicePrecondition(rName), rName)
+`, testAccVPCEPService_Precondition(rName), rName)
 }

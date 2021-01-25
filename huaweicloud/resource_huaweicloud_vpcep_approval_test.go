@@ -23,7 +23,7 @@ func TestAccVPCEndpointApproval(t *testing.T) {
 		CheckDestroy: testAccCheckVPCEPServiceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVPCEndpointApprovalBasic(rName),
+				Config: testAccVPCEndpointApproval_Basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCEPServiceExists("huaweicloud_vpcep_service.test", &service),
 					testAccCheckVPCEndpointExists("huaweicloud_vpcep_endpoint.test", &endpoint),
@@ -33,7 +33,7 @@ func TestAccVPCEndpointApproval(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccVPCEndpointApprovalUpdate(rName),
+				Config: testAccVPCEndpointApproval_Update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPtr(resourceName, "connections.0.endpoint_id", &endpoint.ID),
 					resource.TestCheckResourceAttr(resourceName, "connections.0.status", "rejected"),
@@ -43,7 +43,7 @@ func TestAccVPCEndpointApproval(t *testing.T) {
 	})
 }
 
-func testAccVPCEndpointApprovalBasic(rName string) string {
+func testAccVPCEndpointApproval_Basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -81,10 +81,10 @@ resource "huaweicloud_vpcep_approval" "approval" {
   service_id = huaweicloud_vpcep_service.test.id
   endpoints  = [huaweicloud_vpcep_endpoint.test.id]
 }
-`, testAccVPCEndpointPrecondition(rName), rName)
+`, testAccVPCEndpoint_Precondition(rName), rName)
 }
 
-func testAccVPCEndpointApprovalUpdate(rName string) string {
+func testAccVPCEndpointApproval_Update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -122,5 +122,5 @@ resource "huaweicloud_vpcep_approval" "approval" {
   service_id = huaweicloud_vpcep_service.test.id
   endpoints  = []
 }
-`, testAccVPCEndpointPrecondition(rName), rName)
+`, testAccVPCEndpoint_Precondition(rName), rName)
 }

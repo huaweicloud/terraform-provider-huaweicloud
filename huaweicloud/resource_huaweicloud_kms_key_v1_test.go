@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 )
 
-func TestAccKmsKeyV1Basic(t *testing.T) {
+func TestAccKmsKeyV1_Basic(t *testing.T) {
 	var key keys.Key
 	var keyAlias = fmt.Sprintf("kms_%s", acctest.RandString(5))
 	var keyAliasUpdate = fmt.Sprintf("kms_updated_%s", acctest.RandString(5))
@@ -23,7 +23,7 @@ func TestAccKmsKeyV1Basic(t *testing.T) {
 		CheckDestroy: testAccCheckKmsV1KeyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKmsV1KeyBasic(keyAlias),
+				Config: testAccKmsV1Key_Basic(keyAlias),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKmsV1KeyExists(resourceName, &key),
 					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
@@ -52,7 +52,7 @@ func TestAccKmsKeyV1Basic(t *testing.T) {
 	})
 }
 
-func TestAccKmsKeyWithTags(t *testing.T) {
+func TestAccKmsKey_WithTags(t *testing.T) {
 	var key keys.Key
 	var keyAlias = fmt.Sprintf("kms_%s", acctest.RandString(5))
 	var resourceName = "huaweicloud_kms_key.key_2"
@@ -63,7 +63,7 @@ func TestAccKmsKeyWithTags(t *testing.T) {
 		CheckDestroy: testAccCheckKmsV1KeyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKmsKeyWithTags(keyAlias),
+				Config: testAccKmsKey_WithTags(keyAlias),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKmsV1KeyExists(resourceName, &key),
 					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
@@ -197,7 +197,7 @@ func testAccCheckKmsKeyIsEnabled(key *keys.Key, isEnabled bool) resource.TestChe
 	}
 }
 
-func testAccKmsV1KeyBasic(keyAlias string) string {
+func testAccKmsV1Key_Basic(keyAlias string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_kms_key" "key_2" {
   key_alias    = "%s"
@@ -207,7 +207,7 @@ resource "huaweicloud_kms_key" "key_2" {
 `, keyAlias, HW_REGION_NAME)
 }
 
-func testAccKmsKeyWithTags(keyAlias string) string {
+func testAccKmsKey_WithTags(keyAlias string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_kms_key" "key_2" {
   key_alias    = "%s"
