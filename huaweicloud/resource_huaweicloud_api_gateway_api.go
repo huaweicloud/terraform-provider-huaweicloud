@@ -3,7 +3,6 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -322,7 +321,11 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 		parameters["name"] = val.Name
 		parameters["location"] = val.Location
 		parameters["type"] = val.Type
-		parameters["required"], _ = strconv.ParseBool(strconv.Itoa(val.Required))
+		if val.Required == 1 {
+			parameters["required"] = true
+		} else if val.Required == 2 {
+			parameters["required"] = false
+		}
 		parameters["default"] = val.DefaultValue
 		parameters["description"] = val.Remark
 		requestParameters = append(requestParameters, parameters)
@@ -331,12 +334,12 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Saving request parameters failed: %s", err)
 	}
 	var backendParameters []map[string]interface{}
-	for _, val := range v.ReqParams {
+	for _, val := range v.BackendParams {
 		parameters := make(map[string]interface{})
 		parameters["name"] = val.Name
 		parameters["location"] = val.Location
-		parameters["value"] = val.SampleValue
-		parameters["type"] = val.Type
+		parameters["value"] = val.Value
+		parameters["type"] = val.Origin
 		parameters["description"] = val.Remark
 		backendParameters = append(backendParameters, parameters)
 	}
