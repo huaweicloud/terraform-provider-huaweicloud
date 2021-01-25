@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services"
 )
 
-func TestAccVPCEndpointApproval(t *testing.T) {
+func TestAccVPCEndpointApproval_Basic(t *testing.T) {
 	var service services.Service
 	var endpoint endpoints.Endpoint
 
