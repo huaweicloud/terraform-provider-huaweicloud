@@ -367,6 +367,7 @@ func flattenDliQueueV1CreateTime(d interface{}, arrayIndex map[string]int) (inte
 
 func setDliQueueV1States(d *schema.ResourceData, opts map[string]interface{}) error {
 	for k, v := range opts {
+		//lintignore:R001
 		if err := d.Set(k, v); err != nil {
 			return fmt.Errorf("Error setting DliQueueV1:%s, err: %s", k, err)
 		}
