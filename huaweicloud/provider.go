@@ -269,6 +269,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_gaussdb_mysql_configuration": dataSourceGaussdbMysqlConfigurations(),
 			"huaweicloud_gaussdb_mysql_flavors":       dataSourceGaussdbMysqlFlavors(),
 			"huaweicloud_gaussdb_mysql_instance":      dataSourceGaussDBMysqlInstance(),
+			"huaweicloud_gaussdb_mysql_instances":     dataSourceGaussDBMysqlInstances(),
 			"huaweicloud_iam_role":                    dataSourceIAMRoleV3(),
 			"huaweicloud_identity_role":               DataSourceIdentityRoleV3(),
 			"huaweicloud_identity_custom_role":        DataSourceIdentityCustomRole(),
