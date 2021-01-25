@@ -236,6 +236,7 @@ func resourceListenerV2Update(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
+	//lintignore:R019
 	if d.HasChanges("name", "description", "admin_state_up", "connection_limit",
 		"default_tls_container_ref", "sni_container_refs", "http2_enable") {
 		var updateOpts listeners.UpdateOpts

@@ -300,6 +300,7 @@ func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 func resourceDmsInstancesV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	//lintignore:R019
 	if d.HasChanges("name", "description", "maintain_begin", "maintain_end", "security_group_id") {
 		dmsV1Client, err := config.dmsV1Client(GetRegion(d, config))
 		if err != nil {
