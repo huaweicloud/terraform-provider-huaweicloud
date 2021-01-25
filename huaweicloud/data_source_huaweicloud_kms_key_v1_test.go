@@ -12,14 +12,14 @@ import (
 var keyAlias = fmt.Sprintf("key_alias_%s", acctest.RandString(5))
 var keyAlias_epsId = fmt.Sprintf("key_alias_%s", acctest.RandString(5))
 
-func TestAccKmsKeyV1DataSourceBasic(t *testing.T) {
+func TestAccKmsKeyV1DataSource_Basic(t *testing.T) {
 	var datasourceName = "data.huaweicloud_kms_key.key_2"
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheckKms(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKmsKeyV1DataSourceBasic(keyAlias),
+				Config: testAccKmsKeyV1DataSource_Basic(keyAlias),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKmsKeyV1DataSourceID(datasourceName),
 					resource.TestCheckResourceAttr(datasourceName, "key_alias", keyAlias),
@@ -30,14 +30,14 @@ func TestAccKmsKeyV1DataSourceBasic(t *testing.T) {
 	})
 }
 
-func TestAccKmsKeyDataSourceWithTags(t *testing.T) {
+func TestAccKmsKeyDataSource_WithTags(t *testing.T) {
 	var datasourceName = "data.huaweicloud_kms_key.key_2"
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheckKms(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKmsKeyDataSourceWithTags(keyAlias),
+				Config: testAccKmsKeyDataSource_WithTags(keyAlias),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKmsKeyV1DataSourceID(datasourceName),
 					resource.TestCheckResourceAttr(datasourceName, "key_alias", keyAlias),
@@ -83,19 +83,18 @@ func testAccCheckKmsKeyV1DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccKmsKeyV1DataSourceBasic(keyAlias string) string {
+func testAccKmsKeyV1DataSource_Basic(keyAlias string) string {
 	return fmt.Sprintf(`
 %s
 data "huaweicloud_kms_key" "key_2" {
   key_alias       = huaweicloud_kms_key.key_2.key_alias
   key_id          = huaweicloud_kms_key.key_2.id
-  key_description = "test description"
   key_state       = "2"
 }
-`, testAccKmsV1KeyBasic(keyAlias))
+`, testAccKmsV1Key_Basic(keyAlias))
 }
 
-func testAccKmsKeyDataSourceWithTags(keyAlias string) string {
+func testAccKmsKeyDataSource_WithTags(keyAlias string) string {
 	return fmt.Sprintf(`
 %s
 data "huaweicloud_kms_key" "key_2" {
@@ -103,7 +102,7 @@ data "huaweicloud_kms_key" "key_2" {
   key_id    = huaweicloud_kms_key.key_2.id
   key_state = "2"
 }
-`, testAccKmsKeyWithTags(keyAlias))
+`, testAccKmsKey_WithTags(keyAlias))
 }
 
 var testAccKmsKeyV1DataSource_epsId = fmt.Sprintf(`

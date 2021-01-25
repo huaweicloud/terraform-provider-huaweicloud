@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-func TestAccVPCEPPublicServicesDataSourceBasic(t *testing.T) {
+func TestAccVPCEPPublicServicesDataSource_Basic(t *testing.T) {
 	resourceName := "data.huaweicloud_vpcep_public_services.services"
 
 	resource.ParallelTest(t, resource.TestCase{
