@@ -483,6 +483,7 @@ func updateNetworkACLPolicyRules(d *schema.ResourceData, client *golangsdk.Servi
 			return fmt.Errorf("Error creating firewall policy: %s", err)
 		}
 
+		//lintignore:R001
 		d.Set(policyKey, policy.ID)
 	}
 
