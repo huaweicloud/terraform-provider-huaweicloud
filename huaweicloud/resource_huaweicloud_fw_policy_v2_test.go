@@ -129,6 +129,7 @@ func testAccCheckFWPolicyV2Exists(n, name, description string, ruleCount int) re
 			found, err = policies.Get(fwClient, rs.Primary.ID).Extract()
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
+					//lintignore:R018
 					time.Sleep(time.Second)
 					continue
 				}
