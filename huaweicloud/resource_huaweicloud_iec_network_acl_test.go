@@ -49,8 +49,9 @@ func TestAccIecNetworkACLResource_no_subnets(t *testing.T) {
 	var fwGroup firewalls.Firewall
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckIecNetworkACLDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIecNetworkACL_no_subnets(rName),
