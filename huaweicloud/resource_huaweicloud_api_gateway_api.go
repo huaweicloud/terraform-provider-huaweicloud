@@ -314,8 +314,38 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("backend_type", v.BackendType)
 	d.Set("example_success_response", v.ResultNormalSample)
 	d.Set("example_failure_response", v.ResultFailureSample)
-	d.Set("request_parameter", v.ReqParams)
-	d.Set("backend_parameter", v.BackendParams)
+
+	var requestParameters []map[string]interface{}
+	for _, val := range v.ReqParams {
+		parameters := make(map[string]interface{})
+		parameters["name"] = val.Name
+		parameters["location"] = val.Location
+		parameters["type"] = val.Type
+		if val.Required == 1 {
+			parameters["required"] = true
+		} else if val.Required == 2 {
+			parameters["required"] = false
+		}
+		parameters["default"] = val.DefaultValue
+		parameters["description"] = val.Remark
+		requestParameters = append(requestParameters, parameters)
+	}
+	if err = d.Set("request_parameter", requestParameters); err != nil {
+		return fmt.Errorf("Saving request parameters failed: %s", err)
+	}
+	var backendParameters []map[string]interface{}
+	for _, val := range v.BackendParams {
+		parameters := make(map[string]interface{})
+		parameters["name"] = val.Name
+		parameters["location"] = val.Location
+		parameters["value"] = val.Value
+		parameters["type"] = val.Origin
+		parameters["description"] = val.Remark
+		backendParameters = append(backendParameters, parameters)
+	}
+	if err = d.Set("backend_parameter", backendParameters); err != nil {
+		return fmt.Errorf("Saving backend parameters failed: %s", err)
+	}
 
 	backend := make([]map[string]interface{}, 0, 1)
 	switch v.BackendType {
