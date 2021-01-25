@@ -129,7 +129,6 @@ func resourceFWPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
-	time.Sleep(2 * time.Second)
 	policy, err := policies.Get(fwClient, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "FW policy")

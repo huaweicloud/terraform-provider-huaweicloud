@@ -167,7 +167,6 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	time.Sleep(2 * time.Second)
 	n, err := recordsets.Get(dnsClient, zoneID, recordsetID).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "record_set")
