@@ -3,7 +3,6 @@ package huaweicloud
 import (
 	"fmt"
 	"testing"
-
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
