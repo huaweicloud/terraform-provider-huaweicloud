@@ -201,6 +201,7 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("server_id", Node.Status.ServerID)
 	d.Set("public_ip", Node.Status.PublicIP)
 	d.Set("private_ip", Node.Status.PrivateIP)
+	// lintignore:R004
 	d.Set("spec_extend_param", Node.Spec.ExtendParam)
 	d.Set("eip_count", Node.Spec.PublicIP.Count)
 	d.Set("eip_ids", PublicIDs)

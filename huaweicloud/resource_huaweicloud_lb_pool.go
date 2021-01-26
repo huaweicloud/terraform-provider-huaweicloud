@@ -245,6 +245,7 @@ func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("tenant_id", pool.TenantID)
 	d.Set("admin_state_up", pool.AdminStateUp)
 	d.Set("name", pool.Name)
+	// lintignore:R004
 	d.Set("persistence", pool.Persistence)
 	d.Set("region", GetRegion(d, config))
 

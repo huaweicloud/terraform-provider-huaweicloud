@@ -473,7 +473,7 @@ func resourceDcsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 	if err := resourceDcsInstancesCheck(d); err != nil {
 		return err
 	}
-
+	// lintignore:R019
 	if d.HasChanges("name", "description", "security_group_id", "maintain_begin", "maintain_end") {
 		dcsV1Client, err := config.dcsV1Client(GetRegion(d, config))
 		if err != nil {

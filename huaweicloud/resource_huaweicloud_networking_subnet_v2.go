@@ -226,6 +226,7 @@ func resourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("name", s.Name)
 	d.Set("tenant_id", s.TenantID)
 	d.Set("dns_nameservers", s.DNSNameservers)
+	// lintignore:R004
 	d.Set("host_routes", s.HostRoutes)
 	d.Set("enable_dhcp", s.EnableDHCP)
 	d.Set("network_id", s.NetworkID)

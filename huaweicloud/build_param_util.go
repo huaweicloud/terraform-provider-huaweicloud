@@ -188,13 +188,14 @@ func (e *exchangeParam) BuildResourceData(resp interface{}, d *schema.ResourceDa
 
 		switch v.Kind() {
 		default:
+			// lintignore:R001
 			err := d.Set(optn, optv)
 			if err != nil {
 				return err
 			}
 		case reflect.Struct:
 			//The corresponding schema of Struct is TypeList in Terrafrom
-			err := d.Set(optn, []interface{}{optv})
+			err := d.Set(optn, []interface{}{optv}) // lintignore:R001
 			if err != nil {
 				return err
 			}

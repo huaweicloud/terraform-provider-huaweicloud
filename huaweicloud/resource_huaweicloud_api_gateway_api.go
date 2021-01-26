@@ -314,7 +314,9 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("backend_type", v.BackendType)
 	d.Set("example_success_response", v.ResultNormalSample)
 	d.Set("example_failure_response", v.ResultFailureSample)
+	// lintignore:R004
 	d.Set("request_parameter", v.ReqParams)
+	// lintignore:R004
 	d.Set("backend_parameter", v.BackendParams)
 
 	backend := make([]map[string]interface{}, 0, 1)

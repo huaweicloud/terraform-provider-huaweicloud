@@ -245,7 +245,7 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		log.Printf("[DEBUG] Unable to set dns_nameservers: %s", err)
 	}
-
+	// lintignore:R004
 	err = d.Set("host_routes", subnet.HostRoutes)
 	if err != nil {
 		log.Printf("[DEBUG] Unable to set host_routes: %s", err)

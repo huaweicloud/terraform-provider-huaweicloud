@@ -151,6 +151,7 @@ func testAccCheckKmsV1KeyExists(n string, key *keys.Key) resource.TestCheckFunc 
 
 func TestAccKmsKey_isEnabled(t *testing.T) {
 	var key1, key2, key3 keys.Key
+	// lintignore:AT009
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.ParallelTest(t, resource.TestCase{

@@ -38,6 +38,7 @@ func resourceS3BucketImportState(
 	pData.SetId(d.Id())
 	pData.SetType("huaweicloud_s3_bucket_policy")
 	pData.Set("bucket", d.Id())
+	// lintignore:R004
 	pData.Set("policy", pol)
 	results = append(results, pData)
 
