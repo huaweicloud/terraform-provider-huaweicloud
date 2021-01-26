@@ -18,8 +18,10 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 )
@@ -32,6 +34,11 @@ func resourceNatDnatRuleV2() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(3 * time.Minute),
+			Delete: schema.DefaultTimeout(3 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -239,8 +246,17 @@ func resourceNatDnatRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id.(string))
 
-	// wait for a while to become ACTIVE
-	time.Sleep(3 * time.Second)
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING_CREATE", "DELETED"},
+		Target:  []string{"ACTIVE"},
+		Refresh: resourceDnatStateRefreshFunc(client, url, r),
+		Delay:   3 * time.Second,
+		Timeout: d.Timeout(schema.TimeoutCreate),
+	}
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf("Error waiting for nat dnat (%s) to create: %s", d.Id(), err)
+	}
 
 	return resourceNatDnatRuleRead(d, meta)
 }
@@ -438,7 +454,64 @@ func resourceNatDnatRuleDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error deleting Dnat %q: %s", d.Id(), r.Err)
 	}
 
-	// wait for a while to become DELETED
-	time.Sleep(3 * time.Second)
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING_DELETED", "ACTIVE"},
+		Target:  []string{"DELETED"},
+		Refresh: resourceDnatStateRefreshFunc(client, url, r),
+		Delay:   3 * time.Second,
+		Timeout: d.Timeout(schema.TimeoutDelete),
+	}
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf("Error waiting for nat dnat (%s) to delete: %s", d.Id(), err)
+	}
+
 	return nil
+}
+
+func resourceDnatStateRefreshFunc(client *golangsdk.ServiceClient, url string, r golangsdk.Result) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		nat, err := client.Get(url, &r.Body,
+			&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Accept": "application/json"},
+				OkCodes: []int{200}})
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return nat, "DELETED", nil
+			}
+			return nil, "", err
+		}
+		v, ok := r.Body.(map[string]interface{})
+		if !ok {
+			return nil, "", fmt.Errorf("Error getting dnat resource params")
+		}
+		res := map[string]interface{}{"read": v}
+		log.Printf("[Lance Log] read params map: %s", res)
+		statusProp, err := navigateNatDnatValue(res, []string{"read", "dnat_rules", "status"}, nil)
+		if err != nil {
+			return nil, "", fmt.Errorf("Error reading Dnat:status, err: %s", err)
+		}
+		return nat, statusProp.(string), nil
+	}
+}
+
+func navigateNatDnatValue(d interface{}, index []string, arrayIndex map[string]int) (interface{}, error) {
+	for _, val := range index {
+		if d == nil {
+			return nil, nil
+		}
+		if d1, ok := d.([]interface{}); ok {
+			d = d1[0]
+		}
+		if d1, ok := d.(map[string]interface{}); ok {
+			d, ok = d1[val]
+			if !ok {
+				msg := fmt.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
+				return nil, fmt.Errorf("%s: '%s' may not exist", msg, val)
+			}
+		} else {
+			msg := fmt.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
+			return nil, fmt.Errorf("%s: Can not convert (%s) to map", msg, reflect.TypeOf(d))
+		}
+	}
+	return d, nil
 }
