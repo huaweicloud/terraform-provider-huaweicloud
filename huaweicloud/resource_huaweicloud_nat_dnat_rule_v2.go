@@ -485,7 +485,6 @@ func resourceDnatStateRefreshFunc(client *golangsdk.ServiceClient, url string, r
 			return nil, "", fmt.Errorf("Error getting dnat resource params")
 		}
 		res := map[string]interface{}{"read": v}
-		log.Printf("[Lance Log] read params map: %s", res)
 		statusProp, err := navigateNatDnatValue(res, []string{"read", "dnat_rules", "status"}, nil)
 		if err != nil {
 			return nil, "", fmt.Errorf("Error reading Dnat:status, err: %s", err)
