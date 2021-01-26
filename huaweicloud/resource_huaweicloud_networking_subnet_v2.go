@@ -226,11 +226,23 @@ func resourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("name", s.Name)
 	d.Set("tenant_id", s.TenantID)
 	d.Set("dns_nameservers", s.DNSNameservers)
-	d.Set("host_routes", s.HostRoutes)
 	d.Set("enable_dhcp", s.EnableDHCP)
 	d.Set("network_id", s.NetworkID)
 	d.Set("ipv6_address_mode", s.IPv6AddressMode)
 	d.Set("ipv6_ra_mode", s.IPv6RAMode)
+
+	// Set the host_routes
+	var hostRoutes []map[string]interface{}
+	for _, v := range s.HostRoutes {
+		routes := make(map[string]interface{})
+		routes["destination_cidr"] = v.DestinationCIDR
+		routes["next_hop"] = v.NextHop
+		hostRoutes = append(hostRoutes, routes)
+	}
+	err = d.Set("host_routes", hostRoutes)
+	if err != nil {
+		log.Printf("[DEBUG] Unable to set host_routes: %s", err)
+	}
 
 	// Set the allocation_pools
 	var allocationPools []map[string]interface{}

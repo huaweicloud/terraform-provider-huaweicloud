@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -245,8 +246,12 @@ func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("tenant_id", pool.TenantID)
 	d.Set("admin_state_up", pool.AdminStateUp)
 	d.Set("name", pool.Name)
-	d.Set("persistence", pool.Persistence)
 	d.Set("region", GetRegion(d, config))
+	if byte, err := json.Marshal(pool.Persistence); err == nil {
+		d.Set("persistence", string(byte))
+	} else {
+		return fmt.Errorf("Spec extend param translate ERROR[lance] : %s", err)
+	}
 
 	return nil
 }

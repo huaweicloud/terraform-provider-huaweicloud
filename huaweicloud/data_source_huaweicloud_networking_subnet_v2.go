@@ -246,7 +246,15 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 		log.Printf("[DEBUG] Unable to set dns_nameservers: %s", err)
 	}
 
-	err = d.Set("host_routes", subnet.HostRoutes)
+	// Set the host_routes
+	var hostRoutes []map[string]interface{}
+	for _, v := range subnet.HostRoutes {
+		routes := make(map[string]interface{})
+		routes["destination_cidr"] = v.DestinationCIDR
+		routes["next_hop"] = v.NextHop
+		hostRoutes = append(hostRoutes, routes)
+	}
+	err = d.Set("host_routes", hostRoutes)
 	if err != nil {
 		log.Printf("[DEBUG] Unable to set host_routes: %s", err)
 	}
