@@ -21,8 +21,8 @@ resource "huaweicloud_iec_vip" "vip_test" {
 The following arguments are supported:
 
 * `subnet_id` - (Required, String, ForceNew) Specifies the subnet network id 
-    of vip binding in which to allocate IP address for this vip. Changing this 
-    parameter creates a new vip resource.
+    of vip binding in which to allocate IP address for this vip.
+    Changing this parameter creates a new vip resource.
 
 ## Attributes Reference
 
@@ -32,13 +32,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `mac_address` - The MAC address of the vip.
 
-* `fixed_ips` - An subnet Array of the vip binding. The fixed_ips object 
-    structure is documented below.
-
-The `fixed_ips` block supports:
-
-* `subnet_id` - The subnet id of the vip binding.
-* `ip_address` - The ip address of the subnet network.
+* `fixed_ips` - An array of IP addresses binding to the vip.
 
 ## Timeouts
 

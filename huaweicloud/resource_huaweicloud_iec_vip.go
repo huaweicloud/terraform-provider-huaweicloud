@@ -39,20 +39,9 @@ func resourceIecVipV1() *schema.Resource {
 				Computed: true,
 			},
 			"fixed_ips": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"subnet_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"ip_address": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -107,14 +96,11 @@ func resourceIecVIPV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("subnet_id", n.NetworkID)
 	d.Set("mac_address", n.MacAddress)
 
-	ipsSet := make([]map[string]interface{}, len(n.FixedIPs))
-	for index, ipObj := range n.FixedIPs {
-		ipsSet[index] = map[string]interface{}{
-			"subnet_id":  ipObj.SubnetId,
-			"ip_address": ipObj.IpAddress,
-		}
+	allIPs := make([]string, len(n.FixedIPs))
+	for i, ipObj := range n.FixedIPs {
+		allIPs[i] = ipObj.IpAddress
 	}
-	d.Set("fixed_ips", ipsSet)
+	d.Set("fixed_ips", allIPs)
 
 	return nil
 }
