@@ -1,3 +1,13 @@
+## 1.20.4 (January 26, 2021)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_gaussdb_mysql_instances` ([#855](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/855))
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_node: Set subnet_id attribute ([#841](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/841))
+
 ## 1.20.3 (January 19, 2021)
 
 ENHANCEMENTS:
