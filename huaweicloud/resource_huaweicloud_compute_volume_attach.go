@@ -126,7 +126,6 @@ func resourceComputeVolumeAttachV2Read(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	time.Sleep(2 * time.Second)
 	attachment, err := volumeattach.Get(computeClient, instanceId, attachmentId).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "compute_volume_attach")
