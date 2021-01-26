@@ -14,10 +14,10 @@ type ListOptsBuilder interface {
 // ListOpts to list site
 type ListOpts struct {
 	//SiteIDS query by site ids
-	SiteIDS string `json:"site_ids"`
+	SiteIDS string `q:"site_ids"`
 
 	//Name query by name
-	Name string `json:"name"`
+	Name string `q:"name"`
 
 	//Limit query limit
 	Limit string `q:"limit"`
@@ -52,7 +52,8 @@ func List(client *golangsdk.ServiceClient, listOpts ListOptsBuilder) (r GetResul
 	if listOpts != nil {
 		query, err := listOpts.ToListQuery()
 		if err != nil {
-			//return pagination.Pager{Err: err}
+			r.Err = err
+			return
 		}
 		url += query
 	}
