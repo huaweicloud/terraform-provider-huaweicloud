@@ -151,6 +151,7 @@ func testAccCheckFWRuleV2Exists(n string, expected *rules.Rule) resource.TestChe
 			found, err = rules.Get(fwClient, rs.Primary.ID).Extract()
 			if err != nil {
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
+					//lintignore:R018
 					time.Sleep(time.Second)
 					continue
 				}

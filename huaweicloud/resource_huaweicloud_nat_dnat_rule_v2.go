@@ -240,7 +240,7 @@ func resourceNatDnatRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(id.(string))
 
 	// wait for a while to become ACTIVE
-	time.Sleep(3 * time.Second)
+	time.Sleep(3 * time.Second) // lintignore:R018
 
 	return resourceNatDnatRuleRead(d, meta)
 }
@@ -439,6 +439,6 @@ func resourceNatDnatRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// wait for a while to become DELETED
-	time.Sleep(3 * time.Second)
+	time.Sleep(3 * time.Second) // lintignore:R018
 	return nil
 }

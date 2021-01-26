@@ -85,6 +85,7 @@ func testAccCheckMRSV1ClusterExists(n string, clusterGet *cluster.Cluster) resou
 		}
 
 		*clusterGet = *found
+		//lintignore:R018
 		time.Sleep(5 * time.Second)
 
 		return nil

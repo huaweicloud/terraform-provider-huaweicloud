@@ -112,7 +112,7 @@ func resourceCTSTrackerCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(trackers.TrackerName)
-
+	//lintignore:R018
 	time.Sleep(20 * time.Second)
 	return resourceCTSTrackerRead(d, meta)
 }
@@ -153,6 +153,7 @@ func resourceCTSTrackerRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("need_notify_user_list", ctsTracker.SimpleMessageNotification.NeedNotifyUserList)
 
 	d.Set("region", GetRegion(d, config))
+	//lintignore:R018
 	time.Sleep(20 * time.Second)
 
 	return nil
@@ -191,6 +192,7 @@ func resourceCTSTrackerUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error updating cts tracker: %s", err)
 	}
+	//lintignore:R018
 	time.Sleep(20 * time.Second)
 	return resourceCTSTrackerRead(d, meta)
 }
@@ -206,7 +208,7 @@ func resourceCTSTrackerDelete(d *schema.ResourceData, meta interface{}) error {
 	if result.Err != nil {
 		return err
 	}
-
+	//lintignore:R018
 	time.Sleep(20 * time.Second)
 	log.Printf("[DEBUG] Successfully deleted cts tracker %s", d.Id())
 

@@ -457,6 +457,7 @@ func resourceInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 			"Error waiting for instance (%s) to be deleted: %s ",
 			id, err)
 	}
+	// lintignore:R018
 	time.Sleep(80 * time.Second)
 	log.Printf("[DEBUG] Successfully deleted instance %s", id)
 	return nil

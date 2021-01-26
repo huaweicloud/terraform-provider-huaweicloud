@@ -78,6 +78,7 @@ func testAccCheckRDSV1InstanceExists(n string, instance *instances.Instance) res
 		}
 
 		*instance = *found
+		//lintignore:R018
 		time.Sleep(30 * time.Second)
 
 		return nil
