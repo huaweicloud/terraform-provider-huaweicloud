@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
-
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/publicips"
 )
 
@@ -118,7 +117,9 @@ func resourceIecEipV1Create(d *schema.ResourceData, meta interface{}) error {
 	newPort := d.Get("port_id").(string)
 	if newPort != "" {
 		log.Printf("[DEBUG] bind public ip %s to port %s", d.Id(), newPort)
-		return operateOnPort(d, eipClient, newPort)
+		if err := operateOnPort(d, eipClient, newPort); err != nil {
+			return err
+		}
 	}
 
 	log.Printf("[DEBUG] Waiting for public ip (%s) to become active", d.Id())
@@ -192,21 +193,24 @@ func resourceIecEipV1Update(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if d.HasChange("port_id") {
+		var opErr error
 		oPort, nPort := d.GetChange("port_id")
 		if oldPort := oPort.(string); oldPort != "" {
 			log.Printf("[DEBUG] unbind public ip %s from port %s", d.Id(), oldPort)
-			return operateOnPort(d, eipClient, "")
+			opErr = operateOnPort(d, eipClient, "")
 		}
 
 		if newPort := nPort.(string); newPort != "" {
 			log.Printf("[DEBUG] bind public ip %s to port %s", d.Id(), newPort)
-			return operateOnPort(d, eipClient, newPort)
+			opErr = operateOnPort(d, eipClient, newPort)
 		}
 
-		return resourceIecEipV1Read(d, meta)
+		if opErr != nil {
+			return opErr
+		}
 	}
 
-	return nil
+	return resourceIecEipV1Read(d, meta)
 }
 
 func resourceIecEipV1Delete(d *schema.ResourceData, meta interface{}) error {
@@ -219,7 +223,9 @@ func resourceIecEipV1Delete(d *schema.ResourceData, meta interface{}) error {
 	// unbound the port before deleting the publicips
 	if port := d.Get("port_id").(string); port != "" {
 		log.Printf("[DEBUG] unbind public ip %s from port %s", d.Id(), port)
-		return operateOnPort(d, eipClient, "")
+		if err := operateOnPort(d, eipClient, ""); err != nil {
+			return err
+		}
 	}
 
 	err = publicips.Delete(eipClient, d.Id()).ExtractErr()

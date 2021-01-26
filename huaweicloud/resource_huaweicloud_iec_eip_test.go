@@ -99,8 +99,6 @@ func testAccIecEIP_basic() string {
 	return fmt.Sprintf(`
 data "huaweicloud_iec_sites" "sites_test" {
   region = "%s"
-  area   = "east"
-  city   = "hangzhou"
 }
 
 resource "huaweicloud_iec_eip" "eip_test" {
