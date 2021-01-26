@@ -63,10 +63,12 @@ func ResourceCCEAddonV3() *schema.Resource {
 						"basic": {
 							Type:     schema.TypeMap,
 							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 						"custom": {
 							Type:     schema.TypeMap,
 							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
