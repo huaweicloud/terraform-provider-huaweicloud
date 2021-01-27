@@ -19,6 +19,8 @@ resource "huaweicloud_iec_keypair" "test_keypair" {
 The following arguments are supported:
 
 * `name` - (Required, String, ForceNew) Specifies a unique name for the keypair. 
+    This parameter can contain a maximum of 64 characters, which may consist of
+    letters, digits, underscores (_), and hyphens (-).
     Changing this parameter creates a new keypair resource.
 
 * `public_key` - (Optional, String, ForceNew) Specifies a pregenerated OpenSSH-formatted 
