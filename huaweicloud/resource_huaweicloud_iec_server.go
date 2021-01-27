@@ -319,6 +319,8 @@ func resourceIecServerV1Create(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(serverID)
 
 	// Wait for the servers to become running
+	log.Printf("[DEBUG] waiting for IEC server (%s) to become running", serverID)
+
 	// Pending state "DELETED" means the instance has not be ready
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"DELETED", "BUILD"},

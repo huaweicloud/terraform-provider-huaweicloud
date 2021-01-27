@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"time"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
@@ -87,8 +85,6 @@ func testAccCheckMRSV1JobExists(n string, jobGet *job.Job) resource.TestCheckFun
 		}
 
 		*jobGet = *found
-		//lintignore:R018
-		time.Sleep(5 * time.Second)
 
 		return nil
 	}
