@@ -203,7 +203,9 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("public_ip", Node.Status.PublicIP)
 	d.Set("private_ip", Node.Status.PrivateIP)
 	if byte, err := json.Marshal(Node.Spec.ExtendParam); err == nil {
-		d.Set("spec_extend_param", string(byte))
+		if err = d.Set("spec_extend_param", string(byte)); err != nil {
+			return fmt.Errorf("Saving spec extend param ERROR: %s", err)
+		}
 	} else {
 		return fmt.Errorf("Spec extend param translate ERROR: %s", err)
 	}

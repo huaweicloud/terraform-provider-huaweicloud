@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -247,10 +246,14 @@ func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("admin_state_up", pool.AdminStateUp)
 	d.Set("name", pool.Name)
 	d.Set("region", GetRegion(d, config))
-	if byte, err := json.Marshal(pool.Persistence); err == nil {
-		d.Set("persistence", string(byte))
-	} else {
-		return fmt.Errorf("Spec extend param translate ERROR[lance] : %s", err)
+
+	var persistence []map[string]interface{}
+	params := make(map[string]interface{})
+	params["cookie_name"] = pool.Persistence.CookieName
+	params["type"] = pool.Persistence.Type
+	persistence = append(persistence, params)
+	if err = d.Set("persistence", persistence); err != nil {
+		return fmt.Errorf("Load balance persistence set error: %s", err)
 	}
 
 	return nil
