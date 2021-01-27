@@ -135,6 +135,16 @@ func resourceIecNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("description", fwGroup.Description)
 	d.Set("inbound_rules", getFirewallRuleIDs(fwGroup.IngressFWPolicy))
 	d.Set("outbound_rules", getFirewallRuleIDs(fwGroup.EgressFWPolicy))
+	var networkSet []map[string]interface{}
+	for _, val := range fwGroup.Subnets {
+		subnet := make(map[string]interface{})
+		subnet["vpc_id"] = val.VpcID
+		subnet["subnet_id"] = val.ID
+		networkSet = append(networkSet, subnet)
+	}
+	if err = d.Set("networks", networkSet); err != nil {
+		return fmt.Errorf("Saving iec networks failed: %s", err)
+	}
 
 	return nil
 }
