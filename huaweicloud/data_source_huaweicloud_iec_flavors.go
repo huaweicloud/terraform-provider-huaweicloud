@@ -87,6 +87,8 @@ func dataSourceIecFlavorsV1Read(d *schema.ResourceData, meta interface{}) error 
 		City:     d.Get("city").(string),
 		Operator: d.Get("operator").(string),
 	}
+
+	log.Printf("[DEBUG] fetching IEC flavors by filter: %#v", listOpts)
 	allFlavors, err := flavors.List(iecClient, listOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Unable to extract iec flavors: %s", err)
