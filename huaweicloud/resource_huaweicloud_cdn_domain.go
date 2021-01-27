@@ -292,7 +292,8 @@ func resourceCdnDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error deleting CDN Domain %s: %s", id, err)
 	}
 
-	// lintignore:R018
+	// an API issue will be raised in ForceNew scene, so wait for a while
+	//lintignore:R018
 	time.Sleep(3 * time.Second)
 	d.SetId("")
 	return nil

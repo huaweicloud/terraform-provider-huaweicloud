@@ -206,11 +206,6 @@ func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Unable to retrieve instances: %s", err)
 	}
 
-	if allInstances.TotalCount < 1 {
-		return fmt.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
-	}
-
 	var instancesToSet []map[string]interface{}
 	var instancesIds []string
 

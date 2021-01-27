@@ -31,6 +31,11 @@ func TestAccIecNetworkACLResource_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      resourceKey,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccIecNetworkACL_basic_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIecNetworkACLExists(resourceKey, &fwGroup),

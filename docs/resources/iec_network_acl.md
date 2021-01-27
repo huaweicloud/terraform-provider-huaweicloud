@@ -28,7 +28,7 @@ The following arguments are supported:
 
 * `name` - (Required, String) Specifies the iec network ACL name. This 
     parameter can contain a maximum of 64 characters, which may consist of 
-    letters, digits, underscores (_), and hyphens (-).
+    letters, digits, dot (.), underscores (_), and hyphens (-).
 
 * `description` - (Optional, String) Specifies the supplementary information 
     about the iec network ACL. This parameter can contain a maximum of 255 

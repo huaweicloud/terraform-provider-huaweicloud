@@ -3,7 +3,6 @@ package huaweicloud
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -78,8 +77,6 @@ func testAccCheckRDSV1InstanceExists(n string, instance *instances.Instance) res
 		}
 
 		*instance = *found
-		//lintignore:R018
-		time.Sleep(30 * time.Second)
 
 		return nil
 	}

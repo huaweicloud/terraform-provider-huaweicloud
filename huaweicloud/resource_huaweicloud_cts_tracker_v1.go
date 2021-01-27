@@ -153,8 +153,6 @@ func resourceCTSTrackerRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("need_notify_user_list", ctsTracker.SimpleMessageNotification.NeedNotifyUserList)
 
 	d.Set("region", GetRegion(d, config))
-	//lintignore:R018
-	time.Sleep(20 * time.Second)
 
 	return nil
 }
