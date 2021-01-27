@@ -20,10 +20,10 @@ resource "huaweicloud_iec_security_group" "secgroup_test" {
 
 The following arguments are supported:
 
-* `name` - (Required, String) Specifies the name for the security group.
+* `name` - (Required, String, ForceNew) Specifies the name for the security group.
     The iec security group allowed to have the same name.
 
-* `description` - (Optional, String) Specifies the description of the iec
+* `description` - (Optional, String, ForceNew) Specifies the description of the iec
     security group.
 
 ## Attributes Reference
