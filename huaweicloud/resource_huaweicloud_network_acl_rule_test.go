@@ -3,7 +3,6 @@ package huaweicloud
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -131,24 +130,13 @@ func testAccCheckNetworkACLRuleExists(key string) resource.TestCheckFunc {
 			return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
 		}
 
-		var found *rules.Rule
-		for i := 0; i < 5; i++ {
-			// Network ACL rule creation is asynchronous. Retry some times
-			// if we get a 404 error. Fail on any other error.
-			found, err = rules.Get(fwClient, rs.Primary.ID).Extract()
-			if err != nil {
-				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					//lintignore:R018
-					time.Sleep(time.Second)
-					continue
-				}
-				return err
-			}
-			break
+		found, err := rules.Get(fwClient, rs.Primary.ID).Extract()
+		if err != nil {
+			return err
 		}
 
-		if found == nil {
-			return fmt.Errorf("Network ACL rule (%s) is not found", rs.Primary.ID)
+		if found.ID != rs.Primary.ID {
+			return fmt.Errorf("Network ACL rule not found")
 		}
 
 		return nil

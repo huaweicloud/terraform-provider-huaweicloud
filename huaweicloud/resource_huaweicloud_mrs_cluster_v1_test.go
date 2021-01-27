@@ -3,7 +3,6 @@ package huaweicloud
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -85,8 +84,6 @@ func testAccCheckMRSV1ClusterExists(n string, clusterGet *cluster.Cluster) resou
 		}
 
 		*clusterGet = *found
-		//lintignore:R018
-		time.Sleep(5 * time.Second)
 
 		return nil
 	}
