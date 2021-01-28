@@ -59,16 +59,16 @@ type UpdateOpts struct {
 	// characters. This parameter is left blank by default.
 	Name string `json:"name,omitempty"`
 
-	// Specifies the UUID of the security group. This attribute is
-	// extended.
-	SecurityGroups []string `json:"security_groups,omitempty"`
+	// Specifies the UUID of the security group.
+	// This attribute is extended.
+	SecurityGroups *[]string `json:"security_groups,omitempty"`
 
 	// 1. Specifies a set of zero or more allowed address pairs. An
 	// address pair consists of an IP address and MAC address. This attribute is extended.
 	// For details, see parameter?allow_address_pair. 2. The IP address cannot be?0.0.0.0.
 	// 3. Configure an independent security group for the port if a large CIDR block (subnet
 	// mask less than 24) is configured for parameter?allowed_address_pairs.
-	AllowedAddressPairs []common.AllowedAddressPair `json:"allowed_address_pairs,omitempty"`
+	AllowedAddressPairs *[]common.AllowedAddressPair `json:"allowed_address_pairs,omitempty"`
 
 	// Specifies a set of zero or more extra DHCP option pairs. An
 	// option pair consists of an option value and name. This attribute is extended.
