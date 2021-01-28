@@ -419,8 +419,7 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// This is a workaround to avoid db connection issue
-	//lintignore:R018
-	time.Sleep(360 * time.Second)
+	time.Sleep(360 * time.Second) //lintignore:R018
 
 	return resourceOpenGaussInstanceRead(d, meta)
 }
