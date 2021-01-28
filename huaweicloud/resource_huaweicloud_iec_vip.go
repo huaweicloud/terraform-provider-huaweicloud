@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/huaweicloud/golangsdk"
+	iec_common "github.com/huaweicloud/golangsdk/openstack/iec/v1/common"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/ports"
 )
 
@@ -16,6 +17,7 @@ func resourceIecVipV1() *schema.Resource {
 
 	return &schema.Resource{
 		Create: resourceIecVIPV1Create,
+		Update: resourceIecVIPV1Update,
 		Read:   resourceIecVIPV1Read,
 		Delete: resourceIecVIPV1Delete,
 
@@ -34,6 +36,11 @@ func resourceIecVipV1() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"port_ids": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"mac_address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -43,12 +50,25 @@ func resourceIecVipV1() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"allowed_addresses": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
 
-func resourceIecVIPV1Create(d *schema.ResourceData, meta interface{}) error {
+func getIecVipPortIDs(d *schema.ResourceData) []string {
+	rawPortIDs := d.Get("port_ids").([]interface{})
+	portids := make([]string, len(rawPortIDs))
+	for i, raw := range rawPortIDs {
+		portids[i] = raw.(string)
+	}
+	return portids
+}
 
+func resourceIecVIPV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
@@ -64,9 +84,8 @@ func resourceIecVIPV1Create(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC port: %s", err)
 	}
-	log.Printf("[INFO] Network ID: %s", p.ID)
-	log.Printf("[DEBUG] Waiting for HuaweiCloud IEC Port (%s) to become available.", p.ID)
 
+	log.Printf("[DEBUG] Waiting for HuaweiCloud IEC Port (%s) to become available.", p.ID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitingForIECVIPActive(iecClient, p.ID),
@@ -76,41 +95,76 @@ func resourceIecVIPV1Create(d *schema.ResourceData, meta interface{}) error {
 	}
 	_, err = stateConf.WaitForState()
 	d.SetId(p.ID)
+
+	// associate ports with the vip
+	portids := getIecVipPortIDs(d)
+	if len(portids) > 0 {
+		if err = updateIecVipAssociate(iecClient, p.ID, portids); err != nil {
+			return err
+		}
+	}
+
 	return resourceIecVIPV1Read(d, meta)
 }
 
 func resourceIecVIPV1Read(d *schema.ResourceData, meta interface{}) error {
-
 	config := meta.(*Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
-	n, err := ports.Get(iecClient, d.Id()).Extract()
+	vip, err := ports.Get(iecClient, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "Error retrieving Huaweicloud IEC VPC")
 	}
 
-	d.Set("name", n.Name)
-	d.Set("subnet_id", n.NetworkID)
-	d.Set("mac_address", n.MacAddress)
+	d.Set("name", vip.Name)
+	d.Set("subnet_id", vip.NetworkID)
+	d.Set("mac_address", vip.MacAddress)
 
-	allIPs := make([]string, len(n.FixedIPs))
-	for i, ipObj := range n.FixedIPs {
+	allIPs := make([]string, len(vip.FixedIPs))
+	for i, ipObj := range vip.FixedIPs {
 		allIPs[i] = ipObj.IpAddress
 	}
 	d.Set("fixed_ips", allIPs)
 
+	allPortAddrs := make([]string, len(vip.AllowedAddressPairs))
+	for i, pair := range vip.AllowedAddressPairs {
+		allPortAddrs[i] = pair.IpAddress
+	}
+	d.Set("allowed_addresses", allPortAddrs)
+
 	return nil
 }
 
-func resourceIecVIPV1Delete(d *schema.ResourceData, meta interface{}) error {
-
+func resourceIecVIPV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+	}
+
+	portids := getIecVipPortIDs(d)
+	if err = updateIecVipAssociate(iecClient, d.Id(), portids); err != nil {
+		return err
+	}
+
+	return resourceIecVIPV1Read(d, meta)
+}
+
+func resourceIecVIPV1Delete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	iecClient, err := config.IECV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+	}
+
+	if len(getIecVipPortIDs(d)) > 0 {
+		// disassociate ports
+		if err := updateIecVipAssociate(iecClient, d.Id(), []string{}); err != nil {
+			return err
+		}
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -169,4 +223,62 @@ func waitingForIECVIPDelete(client *golangsdk.ServiceClient, portID string) reso
 		log.Printf("[DEBUG] HuaweiCloud IEC Port %s still active.\n", portID)
 		return port, "ACTIVE", nil
 	}
+}
+
+func updateIecVipAssociate(client *golangsdk.ServiceClient, vipID string, portIDs []string) error {
+	allAddrs := make([]string, len(portIDs))
+	action := "associate"
+	if len(portIDs) == 0 {
+		action = "disassociate"
+	}
+
+	// check the port id and get ip address
+	for i, portid := range portIDs {
+		port, err := ports.Get(client, portid).Extract()
+		if err != nil {
+			return fmt.Errorf("Error fetching port %s: %s", portid, err)
+		}
+
+		if len(port.FixedIPs) > 0 {
+			allAddrs[i] = port.FixedIPs[0].IpAddress
+		} else {
+			return fmt.Errorf("port %s has no ip address, Error associate it", portid)
+		}
+	}
+
+	// construct allowed address pairs
+	allowedPairs := make([]iec_common.AllowedAddressPair, len(allAddrs))
+	for i, addr := range allAddrs {
+		allowedPairs[i] = iec_common.AllowedAddressPair{
+			IpAddress: addr,
+		}
+	}
+	// associate/disassociate ports with the vip
+	associateOpts := ports.UpdateOpts{
+		AllowedAddressPairs: &allowedPairs,
+	}
+	log.Printf("[DEBUG] VIP %s %s with options: %#v", action, vipID, associateOpts)
+	_, err := ports.Update(client, vipID, associateOpts).Extract()
+	if err != nil {
+		return fmt.Errorf("Error %s vip: %s", action, err)
+	}
+
+	// Update the allowed-address-pairs of the port to 1.1.1.1/0
+	// to disable the source/destination check
+	portpairs := make([]iec_common.AllowedAddressPair, 1)
+	portpairs[0] = iec_common.AllowedAddressPair{
+		IpAddress: "1.1.1.1/0",
+	}
+	portUpdateOpts := ports.UpdateOpts{
+		AllowedAddressPairs: &portpairs,
+	}
+
+	for _, portid := range portIDs {
+		_, err = ports.Update(client, portid, portUpdateOpts).Extract()
+		if err != nil {
+			return fmt.Errorf("Error update port %s: %s", portid, err)
+		}
+	}
+
+	return nil
 }
