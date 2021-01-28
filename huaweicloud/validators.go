@@ -126,6 +126,7 @@ func validateName(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
+//lintignore:V001
 func validateString64WithChinese(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 {

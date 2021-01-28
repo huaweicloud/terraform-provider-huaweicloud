@@ -1234,6 +1234,7 @@ func resourceAwsS3BucketLifecycleUpdate(s3conn *s3.S3, d *schema.ResourceData) e
 			Bucket: aws.String(bucket),
 		}
 
+		//lintignore:R006
 		err := resource.Retry(1*time.Minute, func() *resource.RetryError {
 			if _, err := s3conn.DeleteBucketLifecycle(i); err != nil {
 				return resource.NonRetryableError(err)
@@ -1321,6 +1322,7 @@ func resourceAwsS3BucketLifecycleUpdate(s3conn *s3.S3, d *schema.ResourceData) e
 	}
 	//fmt.Printf("PutBucketLifecycleConfigurationInput=%+v.\n", i)
 
+	//lintignore:R006
 	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
 		if _, err := s3conn.PutBucketLifecycleConfiguration(i); err != nil {
 			return resource.NonRetryableError(err)
