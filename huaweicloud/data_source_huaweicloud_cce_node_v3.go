@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -201,7 +202,13 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("server_id", Node.Status.ServerID)
 	d.Set("public_ip", Node.Status.PublicIP)
 	d.Set("private_ip", Node.Status.PrivateIP)
-	d.Set("spec_extend_param", Node.Spec.ExtendParam)
+	if byte, err := json.Marshal(Node.Spec.ExtendParam); err == nil {
+		if err = d.Set("spec_extend_param", string(byte)); err != nil {
+			return fmt.Errorf("Saving spec extend param ERROR: %s", err)
+		}
+	} else {
+		return fmt.Errorf("Spec extend param translate ERROR: %s", err)
+	}
 	d.Set("eip_count", Node.Spec.PublicIP.Count)
 	d.Set("eip_ids", PublicIDs)
 
