@@ -247,11 +247,11 @@ func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", pool.Name)
 	d.Set("region", GetRegion(d, config))
 
-	var persistence []map[string]interface{}
+	var persistence []map[string]interface{} = make([]map[string]interface{}, 1)
 	params := make(map[string]interface{})
 	params["cookie_name"] = pool.Persistence.CookieName
 	params["type"] = pool.Persistence.Type
-	persistence = append(persistence, params)
+	persistence[0] = params
 	if err = d.Set("persistence", persistence); err != nil {
 		return fmt.Errorf("Load balance persistence set error: %s", err)
 	}

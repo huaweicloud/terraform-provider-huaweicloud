@@ -247,16 +247,15 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// Set the host_routes
-	var hostRoutes []map[string]interface{}
-	for _, v := range subnet.HostRoutes {
+	var hostRoutes []map[string]interface{} = make([]map[string]interface{}, len(subnet.HostRoutes))
+	for i, v := range subnet.HostRoutes {
 		routes := make(map[string]interface{})
 		routes["destination_cidr"] = v.DestinationCIDR
 		routes["next_hop"] = v.NextHop
-		hostRoutes = append(hostRoutes, routes)
+		hostRoutes[i] = routes
 	}
-	err = d.Set("host_routes", hostRoutes)
-	if err != nil {
-		log.Printf("[DEBUG] Unable to set host_routes: %s", err)
+	if err = d.Set("host_routes", hostRoutes); err != nil {
+		return fmt.Errorf("Saving host_routes failed: %s", err)
 	}
 
 	// Set the allocation_pools
