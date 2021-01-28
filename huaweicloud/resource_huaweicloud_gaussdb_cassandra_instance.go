@@ -388,8 +388,7 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 	}
 
 	// This is a workaround to avoid db connection issue
-	//lintignore:R018
-	time.Sleep(360 * time.Second)
+	time.Sleep(360 * time.Second) //lintignore:R018
 
 	return resourceGeminiDBInstanceV3Read(d, meta)
 }
