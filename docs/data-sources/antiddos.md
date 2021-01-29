@@ -4,6 +4,8 @@ subcategory: "Deprecated"
 
 # huaweicloud\_antiddos
 
+!> **Warning:** It has been deprecated.
+
 Query the Anti-DDos resource.
 This is an alternative to `huaweicloud_antiddos_v1`
 

@@ -27,7 +27,7 @@ func ResourceComputeSecGroupV2() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
-		DeprecationMessage: "use huaweicloud_networking_secgroup_v2 resource instead",
+		DeprecationMessage: "use huaweicloud_networking_secgroup resource instead",
 
 		Schema: map[string]*schema.Schema{
 			"region": {
