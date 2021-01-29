@@ -10,7 +10,8 @@ import (
 
 func dataSourceAntiDdosV1() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAntiDdosV1Read,
+		Read:               dataSourceAntiDdosV1Read,
+		DeprecationMessage: "this is deprecated",
 
 		Schema: map[string]*schema.Schema{
 			"region": {

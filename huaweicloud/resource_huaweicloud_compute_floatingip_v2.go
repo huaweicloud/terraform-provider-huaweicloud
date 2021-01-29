@@ -20,7 +20,7 @@ func ResourceComputeFloatingIPV2() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
-		DeprecationMessage: "use huaweicloud_vpc_eip_v1 resource instead",
+		DeprecationMessage: "use huaweicloud_vpc_eip resource instead",
 
 		Schema: map[string]*schema.Schema{
 			"region": {
