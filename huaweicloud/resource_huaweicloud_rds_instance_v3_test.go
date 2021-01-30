@@ -25,7 +25,8 @@ import (
 )
 
 func TestAccRdsInstanceV3_basic(t *testing.T) {
-	name := acctest.RandString(10)
+	basicName := fmt.Sprintf("terraform_test_rds_instance_%s", acctest.RandString(5))
+	updateName := fmt.Sprintf("terraform_test_rds_instance_update_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_rds_instance.instance"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -34,16 +35,17 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 		CheckDestroy: testAccCheckRdsInstanceV3Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsInstanceV3_basic(name),
+				Config: testAccRdsInstanceV3_basic(basicName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceV3Exists(),
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_rds_instance%s", name)),
+					resource.TestCheckResourceAttr(resourceName, "name", basicName),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "1"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+10:00"),
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c2.large"),
 				),
 			},
 			{
@@ -55,14 +57,15 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 				},
 			},
 			{
-				Config: testAccRdsInstanceV3_update(name),
+				Config: testAccRdsInstanceV3_update(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceV3Exists(),
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_rds_instance%s", name)),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "2"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_updated"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c2.xlarge"),
 				),
 			},
 		},
@@ -109,7 +112,7 @@ resource "huaweicloud_networking_secgroup" "secgroup_1" {
 }
 
 resource "huaweicloud_rds_instance" "instance" {
-  name = "terraform_test_rds_instance%s"
+  name = "%s"
   flavor = "rds.pg.c2.large"
   availability_zone = ["%s"]
   security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
@@ -163,8 +166,8 @@ resource "huaweicloud_networking_secgroup" "secgroup_1" {
 }
 
 resource "huaweicloud_rds_instance" "instance" {
-  name = "terraform_test_rds_instance%s"
-  flavor = "rds.pg.c2.large"
+  name = "%s"
+  flavor = "rds.pg.c2.xlarge"
   availability_zone = ["%s"]
   security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
   subnet_id = huaweicloud_vpc_subnet.test.id
