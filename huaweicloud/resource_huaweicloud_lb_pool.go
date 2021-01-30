@@ -246,7 +246,7 @@ func resourcePoolV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("admin_state_up", pool.AdminStateUp)
 	d.Set("name", pool.Name)
 	d.Set("region", GetRegion(d, config))
-	
+
 	if pool.Persistence.Type != "" {
 		var persistence []map[string]interface{} = make([]map[string]interface{}, 1)
 		params := make(map[string]interface{})
