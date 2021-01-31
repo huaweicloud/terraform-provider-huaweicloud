@@ -51,6 +51,32 @@ func TestAccNatDnat_basic(t *testing.T) {
 	})
 }
 
+func TestAccNatDnat_protocol(t *testing.T) {
+	randSuffix := acctest.RandString(5)
+	resourceName := "huaweicloud_nat_dnat_rule.dnat"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNatDnatDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNatV2DnatRule_protocol(randSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNatDnatExists(),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "any"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckNatDnatDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	client, err := config.natV2Client(HW_REGION_NAME)
@@ -112,10 +138,8 @@ func testAccCheckNatDnatExists() resource.TestCheckFunc {
 	}
 }
 
-func testAccNatV2DnatRule_basic(suffix string) string {
+func testAccNatV2DnatRule_base(suffix string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_vpc_eip" "eip_1" {
   publicip {
     type = "5_bgp"
@@ -126,14 +150,6 @@ resource "huaweicloud_vpc_eip" "eip_1" {
     share_type  = "PER"
     charge_mode = "traffic"
   }
-}
-
-resource "huaweicloud_nat_gateway" "nat_1" {
-  name                = "nat-gateway-basic-%s"
-  description         = "test for terraform"
-  spec                = "1"
-  internal_network_id = huaweicloud_vpc_subnet.subnet_1.id
-  router_id           = huaweicloud_vpc.vpc_1.id
 }
 
 resource "huaweicloud_compute_instance" "instance_1" {
@@ -148,6 +164,14 @@ resource "huaweicloud_compute_instance" "instance_1" {
     foo = "bar"
   }
 }
+`, suffix, HW_AVAILABILITY_ZONE)
+}
+
+func testAccNatV2DnatRule_basic(suffix string) string {
+	return fmt.Sprintf(`
+%s
+
+%s
 
 resource "huaweicloud_nat_dnat_rule" "dnat" {
   nat_gateway_id = huaweicloud_nat_gateway.nat_1.id
@@ -157,5 +181,22 @@ resource "huaweicloud_nat_dnat_rule" "dnat" {
   internal_service_port = 993
   external_service_port = 242
 }
-	`, testAccNatPreCondition(suffix), suffix, suffix, HW_AVAILABILITY_ZONE)
+`, testAccNatV2Gateway_basic(suffix), testAccNatV2DnatRule_base(suffix))
+}
+
+func testAccNatV2DnatRule_protocol(suffix string) string {
+	return fmt.Sprintf(`
+%s
+
+%s
+
+resource "huaweicloud_nat_dnat_rule" "dnat" {
+  nat_gateway_id = huaweicloud_nat_gateway.nat_1.id
+  floating_ip_id = huaweicloud_vpc_eip.eip_1.id
+  private_ip     = huaweicloud_compute_instance.instance_1.network.0.fixed_ip_v4
+  protocol       = "any"
+  internal_service_port = 0
+  external_service_port = 0
+}
+`, testAccNatV2Gateway_basic(suffix), testAccNatV2DnatRule_base(suffix))
 }

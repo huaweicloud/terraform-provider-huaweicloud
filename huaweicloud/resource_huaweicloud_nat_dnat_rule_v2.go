@@ -147,25 +147,13 @@ func resourceNatDnatRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	e, err = isEmptyValue(reflect.ValueOf(internalServicePortProp))
-	if err != nil {
-		return err
-	}
-	if !e {
-		params["internal_service_port"] = internalServicePortProp
-	}
+	params["internal_service_port"] = internalServicePortProp
 
 	externalServicePortProp, err := navigateValue(opts, []string{"external_service_port"}, nil)
 	if err != nil {
 		return err
 	}
-	e, err = isEmptyValue(reflect.ValueOf(externalServicePortProp))
-	if err != nil {
-		return err
-	}
-	if !e {
-		params["external_service_port"] = externalServicePortProp
-	}
+	params["external_service_port"] = externalServicePortProp
 
 	natGatewayIDProp, err := navigateValue(opts, []string{"nat_gateway_id"}, nil)
 	if err != nil {
