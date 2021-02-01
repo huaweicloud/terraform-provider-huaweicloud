@@ -62,6 +62,8 @@ type Spec struct {
 	BillingMode int `json:"billingMode,omitempty"`
 	//Extended parameter for a cluster
 	ExtendParam map[string]string `json:"extendParam,omitempty"`
+	//Advanced configuration of master node
+	Masters []MasterSpec `json:"masters,omitempty"`
 }
 
 // Node network parameters
@@ -90,6 +92,11 @@ type AuthenticationSpec struct {
 	//Authentication mode: rbac , x509 or authenticating_proxy
 	Mode                string            `json:"mode" required:"true"`
 	AuthenticatingProxy map[string]string `json:"authenticatingProxy" required:"true"`
+}
+
+type MasterSpec struct {
+	// AZ of master node
+	MasterAZ string `json:"availabilityZone,omitempty"`
 }
 
 type Status struct {

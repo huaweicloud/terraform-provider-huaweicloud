@@ -134,7 +134,11 @@ versions are available, choose Dashboard > Buy Cluster on the CCE console. Chang
 * `authenticating_proxy_ca` - (Optional, String, ForceNew) CA root certificate provided in the authenticating_proxy mode. The CA root certificate
 	is encoded to the Base64 format. Changing this parameter will create a new cluster resource.
 
-* `multi_az` - (Optional, Bool, ForceNew) Enable multiple AZs for the cluster, only when using HA flavors. Changing this parameter will create a new cluster resource.
+* `multi_az` - (Optional, Bool, ForceNew) Enable multiple AZs for the cluster, only when using HA flavors. 
+  Changing this parameter will create a new cluster resource. This parameter and `masters` are alternative
+
+* `masters` - (Optional, List, ForceNew) Advanced configuration of master nodes. Changing this creates a new cluster.
+  This parameter and `multi_az` are alternative.
 
 * `eip` - (Optional, String, ForceNew) EIP address of the cluster. Changing this parameter will create a new cluster resource.
 
@@ -145,6 +149,9 @@ versions are available, choose Dashboard > Buy Cluster on the CCE console. Chang
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the cce cluster. Changing this creates a new cluster.
 
+The `masters` block supports:
+
+* `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone of the master node. Changing this creates a new cluster.
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

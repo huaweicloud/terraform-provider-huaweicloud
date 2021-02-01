@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -124,9 +125,28 @@ func ResourceCCEClusterV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"multi_az": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
+				Type:          schema.TypeBool,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"masters"},
+			},
+			"masters": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				ForceNew:      true,
+				Computed:      true,
+				MaxItems:      3,
+				ConflictsWith: []string{"multi_az"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"availability_zone": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
+					},
+				},
 			},
 			"eip": {
 				Type:         schema.TypeString,
@@ -238,6 +258,27 @@ func resourceClusterExtendParamV3(d *schema.ResourceData, config *Config) map[st
 	return m
 }
 
+func resourceClusterMastersV3(d *schema.ResourceData) ([]clusters.MasterSpec, error) {
+	flavorId := d.Get("flavor_id").(string)
+	mastersRaw := d.Get("masters").([]interface{})
+	if strings.Contains(flavorId, "s1") && len(mastersRaw) != 1 {
+		return nil, fmt.Errorf("Error creating HuaweiCloud Cluster: "+
+			"single-master cluster need 1 az for master node, but got %d", len(mastersRaw))
+	}
+	if strings.Contains(flavorId, "s2") && len(mastersRaw) != 3 {
+		return nil, fmt.Errorf("Error creating HuaweiCloud Cluster: "+
+			"high-availability cluster need 3 az for master nodes, but got %d", len(mastersRaw))
+	}
+	masters := make([]clusters.MasterSpec, len(mastersRaw))
+	for i, raw := range mastersRaw {
+		rawMap := raw.(map[string]interface{})
+		masters[i] = clusters.MasterSpec{
+			MasterAZ: rawMap["availability_zone"].(string),
+		}
+	}
+	return masters, nil
+}
+
 func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
@@ -278,6 +319,12 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 			ExtendParam: resourceClusterExtendParamV3(d, config),
 		},
 	}
+
+	masters, err := resourceClusterMastersV3(d)
+	if err != nil {
+		return err
+	}
+	createOpts.Spec.Masters = masters
 
 	create, err := clusters.Create(cceClient, createOpts).Extract()
 
@@ -377,6 +424,15 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 		userList = append(userList, userCert)
 	}
 	d.Set("certificate_users", userList)
+
+	// Set masters
+	var masterList []map[string]interface{}
+	for _, masterObj := range n.Spec.Masters {
+		master := make(map[string]interface{})
+		master["availability_zone"] = masterObj.MasterAZ
+		masterList = append(masterList, master)
+	}
+	d.Set("masters", masterList)
 
 	return nil
 }
