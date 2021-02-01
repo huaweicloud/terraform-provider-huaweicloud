@@ -166,8 +166,36 @@ func Restart(client *golangsdk.ServiceClient, opts RestartRdsInstanceBuilder, in
 		return
 	}
 	fmt.Println("restart Rds instance body = ", b)
-	_, r.Err = client.Post(restartURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, instanceId, "action"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{202},
+	})
+	return
+}
+
+type RenameRdsInstanceOpts struct {
+	Name string `json:"name" required:"true"`
+}
+
+type RenameRdsInstanceBuilder interface {
+	ToRenameRdsInstanceMap() (map[string]interface{}, error)
+}
+
+func (opts RenameRdsInstanceOpts) ToRenameRdsInstanceMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(&opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func Rename(client *golangsdk.ServiceClient, opts RenameRdsInstanceBuilder, instanceId string) (r golangsdk.Result) {
+	b, err := opts.ToRenameRdsInstanceMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Put(updateURL(client, instanceId, "name"), b, nil, &golangsdk.RequestOpts{
+		OkCodes: []int{200, 202},
 	})
 	return
 }
@@ -242,7 +270,7 @@ func SingleToHa(client *golangsdk.ServiceClient, opts SingleToRdsHaBuilder, inst
 		r.Err = err
 		return
 	}
-	_, r.Err = client.Post(singletohaURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, instanceId, "action"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{202},
 	})
 
@@ -275,7 +303,7 @@ func Resize(client *golangsdk.ServiceClient, opts ResizeFlavorBuilder, instanceI
 		r.Err = err
 		return
 	}
-	_, r.Err = client.Post(resizeURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, instanceId, "action"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{202},
 	})
 
@@ -308,7 +336,7 @@ func EnlargeVolume(client *golangsdk.ServiceClient, opts EnlargeVolumeBuilder, i
 		r.Err = err
 		return
 	}
-	_, r.Err = client.Post(enlargeURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, instanceId, "action"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{202},
 	})
 
@@ -336,7 +364,7 @@ func (opts DbErrorlogOpts) DbErrorlogQuery() (string, error) {
 }
 
 func ListErrorLog(client *golangsdk.ServiceClient, opts DbErrorlogBuilder, instanceID string) pagination.Pager {
-	url := listerrorlogURL(client, instanceID)
+	url := updateURL(client, instanceID, "errorlog")
 	if opts != nil {
 		query, err := opts.DbErrorlogQuery()
 
@@ -376,7 +404,7 @@ func (opts DbSlowLogOpts) ToDbSlowLogListQuery() (string, error) {
 }
 
 func ListSlowLog(client *golangsdk.ServiceClient, opts DbSlowLogBuilder, instanceID string) pagination.Pager {
-	url := listslowlogURL(client, instanceID)
+	url := updateURL(client, instanceID, "slowlog")
 	if opts != nil {
 		query, err := opts.ToDbSlowLogListQuery()
 

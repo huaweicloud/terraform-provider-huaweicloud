@@ -39,6 +39,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 					testAccCheckRdsInstanceV3Exists(),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_rds_instance%s", name)),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "1"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c2.large"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -60,6 +61,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 					testAccCheckRdsInstanceV3Exists(),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_rds_instance%s", name)),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "2"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c2.xlarge"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_updated"),
@@ -88,13 +90,13 @@ func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
 	})
 }
 
-func testAccRdsInstanceV3_basic(val string) string {
+func testAccRdsInstanceV3_base(val string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "vpc-rds-test-%s"
   cidr = "192.168.0.0/16"
 }
-	
+
 resource "huaweicloud_vpc_subnet" "test" {
   name          = "subnet-rds-test-%s"
   cidr          = "192.168.0.0/16"
@@ -107,6 +109,12 @@ resource "huaweicloud_vpc_subnet" "test" {
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name = "sg-rds-test-%s"
 }
+`, val, val, val)
+}
+
+func testAccRdsInstanceV3_basic(val string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_rds_instance" "instance" {
   name = "terraform_test_rds_instance%s"
@@ -138,33 +146,17 @@ resource "huaweicloud_rds_instance" "instance" {
     foo = "bar"
   }
 }
-	`, val, val, val, val, HW_AVAILABILITY_ZONE)
+	`, testAccRdsInstanceV3_base(val), val, HW_AVAILABILITY_ZONE)
 }
 
-// volume.size, backup_strategy and tags will be updated
+// volume.size, backup_strategy, flavor and tags will be updated
 func testAccRdsInstanceV3_update(val string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "vpc-rds-test-%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name          = "subnet-rds-test-%s"
-  cidr          = "192.168.0.0/16"
-  gateway_ip    = "192.168.0.1"
-  primary_dns   = "100.125.1.250"
-  secondary_dns = "100.125.21.250"
-  vpc_id        = huaweicloud_vpc.test.id
-}
-
-resource "huaweicloud_networking_secgroup" "secgroup_1" {
-  name = "sg-rds-test-%s"
-}
+%s
 
 resource "huaweicloud_rds_instance" "instance" {
   name = "terraform_test_rds_instance%s"
-  flavor = "rds.pg.c2.large"
+  flavor = "rds.pg.c2.xlarge"
   availability_zone = ["%s"]
   security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
   subnet_id = huaweicloud_vpc_subnet.test.id
@@ -191,7 +183,7 @@ resource "huaweicloud_rds_instance" "instance" {
     foo = "bar_updated"
   }
 }
-	`, val, val, val, val, HW_AVAILABILITY_ZONE)
+	`, testAccRdsInstanceV3_base(val), val, HW_AVAILABILITY_ZONE)
 }
 
 func testAccRdsInstanceV3_epsId(val string) string {
