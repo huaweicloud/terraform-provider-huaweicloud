@@ -125,11 +125,11 @@ The following arguments are supported:
 
 * `flavor` - (Required, String) Specifies the specification code.
 
-* `name` - (Required, String, ForceNew) Specifies the DB instance name. The DB instance name of the same type
+* `name` - (Required, String) Specifies the DB instance name. The DB instance name of the same type
   must be unique for the same tenant. The value must be 4 to 64
   characters in length and start with a letter. It is case-sensitive
   and can contain only letters, digits, hyphens (-), and underscores
-  (_).  Changing this parameter will create a new resource.
+  (_).
 
 * `security_group_id` - (Required, String, ForceNew) Specifies the security group which the RDS DB instance belongs to.
   Changing this parameter will create a new resource.

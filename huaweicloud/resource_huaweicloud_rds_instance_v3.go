@@ -107,7 +107,6 @@ func resourceRdsInstanceV3() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"security_group_id": {
@@ -341,6 +340,18 @@ func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud RDS Client: %s", err)
 	}
+
+	if d.HasChange("name") {
+		var renameRdsInstanceOpts instances.RenameRdsInstanceOpts
+		renameRdsInstanceOpts.Name = d.Get("name").(string)
+		r := golangsdk.ErrResult{}
+		log.Printf("[DEBUG] Renaming Instance %s", d.Id())
+		r.Result = instances.Rename(rdsClient, renameRdsInstanceOpts, d.Id())
+		if r.ExtractErr() != nil {
+			return fmt.Errorf("HuaweiCloud Rds instance (%s) renamed Error: %s", d.Id(), r.Err)
+		}
+	}
+
 	var updateOpts backups.UpdateOpts
 
 	if d.HasChange("backup_strategy") {

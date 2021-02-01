@@ -59,7 +59,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 				Config: testAccRdsInstanceV3_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceV3Exists(),
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_rds_instance%s", name)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_rds_instance_update%s", name)),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "2"),
 					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c2.xlarge"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "100"),
@@ -149,13 +149,13 @@ resource "huaweicloud_rds_instance" "instance" {
 	`, testAccRdsInstanceV3_base(val), val, HW_AVAILABILITY_ZONE)
 }
 
-// volume.size, backup_strategy, flavor and tags will be updated
+// name, volume.size, backup_strategy, flavor and tags will be updated
 func testAccRdsInstanceV3_update(val string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_rds_instance" "instance" {
-  name = "terraform_test_rds_instance%s"
+  name = "terraform_test_rds_instance_update%s"
   flavor = "rds.pg.c2.xlarge"
   availability_zone = ["%s"]
   security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
