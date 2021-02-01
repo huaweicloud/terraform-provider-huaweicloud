@@ -1,3 +1,27 @@
+## 1.21.0 (February 1, 2021)
+
+ENHANCEMENTS:
+
+* data/huaweicloud_gaussdb_mysql_instances: Allow to get no instances with a search criteria ([#872](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/872))
+
+* resource/huaweicloud_iec_vip: Support to associate ports ([#876](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/876))
+
+* resource/huaweicloud_cce_cluster: Support `masters` parm ([#885](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/885))
+
+* resource/huaweicloud_rds_instance: Support to update `name` ([#888](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/888))
+
+BUG FIXES:
+
+* data/huaweicloud_iec_flavors: Support to query iec flavors with name and site_ids ([#859](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/859))
+
+* resource/huaweicloud_iec_eip: Fix the resource can't be destroyed when bind with port ([#857](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/857))
+
+* reousrce/huaweicloud_iec_network_acl: Fix `networks` attribute can't be importted ([#871](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/871))
+
+* reousrce/huaweicloud_compute_eip_associate: Fix API response code 202 ([#878](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/878))
+
+* resource/huaweicloud_nat_dnat_rule: Fix `internal_service_port` and `internal_service_port` can't be 0 issue ([#880](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/880))
+
 ## 1.20.4 (January 26, 2021)
 
 FEATURES:
