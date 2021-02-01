@@ -39,20 +39,9 @@ func resourceNatGatewayV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": {
+			"internal_network_id": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"spec": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: resourceNatGatewayV2ValidateSpec,
-			},
-			"tenant_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Required: true,
 				ForceNew: true,
 			},
 			"router_id": {
@@ -60,9 +49,20 @@ func resourceNatGatewayV2() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"internal_network_id": {
+			"spec": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: resourceNatGatewayV2ValidateSpec,
+			},
+			"description": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
+			},
+			"tenant_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"enterprise_project_id": {
