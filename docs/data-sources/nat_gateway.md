@@ -38,6 +38,8 @@ data "huaweicloud_nat_gateway" "natgateway" {
 
 * `status` - (Optional, String) The status of the NAT gateway.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project
+    ID of the NAT gateway.
 
 ## Attributes Reference
 

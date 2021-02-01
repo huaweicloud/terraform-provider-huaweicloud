@@ -21,10 +21,13 @@ func TestAccNatGatewayDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNatGatewayV2DataSourceID("data.huaweicloud_nat_gateway.nat_by_name"),
 					testAccCheckNatGatewayV2DataSourceID("data.huaweicloud_nat_gateway.nat_by_id"),
+					testAccCheckNatGatewayV2DataSourceID("data.huaweicloud_nat_gateway.nat_by_epsId"),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_nat_gateway.nat_by_name", "name", natgateway),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_nat_gateway.nat_by_id", "name", natgateway),
+					resource.TestCheckResourceAttr(
+						"data.huaweicloud_nat_gateway.nat_by_epsId", "name", natgateway),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_nat_gateway.nat_by_name", "admin_state_up", "true"),
 					resource.TestCheckResourceAttr(
@@ -52,32 +55,42 @@ func testAccCheckNatGatewayV2DataSourceID(n string) resource.TestCheckFunc {
 
 func testAccNatGatewayV2DataSource_basic(name string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_enterprise_project" "enterprise_project_demo" {
+  name = "terraform"
+}
+
 resource "huaweicloud_vpc" "vpc_1" {
-	name = "%s"
-	cidr = "192.168.0.0/16"
-	}
+  name = "%s"
+  cidr = "192.168.0.0/16"
+}
 
 resource "huaweicloud_vpc_subnet" "subnet_1" {
-	name       = "%s"
-	cidr       = "192.168.199.0/24"
-	gateway_ip = "192.168.199.1"
-	vpc_id     = huaweicloud_vpc.vpc_1.id
-	}
+  name       = "%s"
+  cidr       = "192.168.199.0/24"
+  gateway_ip = "192.168.199.1"
+  vpc_id     = huaweicloud_vpc.vpc_1.id
+}
 
 resource "huaweicloud_nat_gateway" "nat_1" {
-	name   = "%s"
-	description = "test for terraform"
-	spec = "1"
-	internal_network_id = huaweicloud_vpc_subnet.subnet_1.id
-	router_id = huaweicloud_vpc.vpc_1.id
-	}
+  name                  = "%s"
+  description           = "test for terraform"
+  spec                  = "1"
+  internal_network_id   = huaweicloud_vpc_subnet.subnet_1.id
+  router_id             = huaweicloud_vpc.vpc_1.id
+  enterprise_project_id = data.huaweicloud_enterprise_project.enterprise_project_demo.id
+}
 
 data "huaweicloud_nat_gateway" "nat_by_name" {
-	name = huaweicloud_nat_gateway.nat_1.name
+  name = huaweicloud_nat_gateway.nat_1.name
 }
 
 data "huaweicloud_nat_gateway" "nat_by_id" {
-	id = huaweicloud_nat_gateway.nat_1.id
+  id = huaweicloud_nat_gateway.nat_1.id
+}
+
+data "huaweicloud_nat_gateway" "nat_by_epsId" {
+  id = huaweicloud_nat_gateway.nat_1.id
+  enterprise_project_id = data.huaweicloud_enterprise_project.enterprise_project_demo.id
 }
 `, name, name, name)
 }

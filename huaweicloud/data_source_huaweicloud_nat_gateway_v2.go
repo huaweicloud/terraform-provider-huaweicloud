@@ -50,25 +50,30 @@ func dataSourceNatGatewayV2() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
 
 func dataSourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	natClient, err := config.natV2Client(GetRegion(d, config))
+	natClient, err := config.natGatewayV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
 	listOpts := natgateways.ListOpts{
-		ID:                d.Get("id").(string),
-		Name:              d.Get("name").(string),
-		Description:       d.Get("description").(string),
-		Spec:              d.Get("spec").(string),
-		RouterID:          d.Get("router_id").(string),
-		InternalNetworkID: d.Get("internal_network_id").(string),
-		Status:            d.Get("status").(string),
+		ID:                  d.Get("id").(string),
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		Spec:                d.Get("spec").(string),
+		RouterID:            d.Get("router_id").(string),
+		InternalNetworkID:   d.Get("internal_network_id").(string),
+		Status:              d.Get("status").(string),
+		EnterpriseProjectID: d.Get("enterprise_project_id").(string),
 	}
 
 	pages, err := natgateways.List(natClient, listOpts).AllPages()
@@ -104,6 +109,7 @@ func dataSourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("spec", natgateway.Spec)
 	d.Set("status", natgateway.Status)
 	d.Set("admin_state_up", natgateway.AdminStateUp)
+	d.Set("enterprise_project_id", natgateway.EnterpriseProjectID)
 
 	return nil
 }
