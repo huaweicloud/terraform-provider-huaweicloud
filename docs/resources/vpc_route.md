@@ -32,8 +32,6 @@ The following arguments are supported:
 
 * `vpc_id` (Required, String, ForceNew) - Specifies the VPC for which a route is to be added. Changing this creates a new Route.
 
-* `tenant_id` (Optional, String, ForceNew) - Specifies the tenant ID. Only the administrator can specify the tenant ID of other tenant. Changing this creates a new Route.
-
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
