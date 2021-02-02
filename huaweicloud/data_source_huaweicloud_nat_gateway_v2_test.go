@@ -28,10 +28,6 @@ func TestAccNatGatewayDataSource_basic(t *testing.T) {
 						"data.huaweicloud_nat_gateway.nat_by_id", "name", natgateway),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_nat_gateway.nat_by_epsId", "name", natgateway),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_nat_gateway.nat_by_name", "admin_state_up", "true"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_nat_gateway.nat_by_id", "admin_state_up", "true"),
 				),
 			},
 		},

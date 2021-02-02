@@ -259,24 +259,28 @@ func resourceClusterExtendParamV3(d *schema.ResourceData, config *Config) map[st
 }
 
 func resourceClusterMastersV3(d *schema.ResourceData) ([]clusters.MasterSpec, error) {
-	flavorId := d.Get("flavor_id").(string)
-	mastersRaw := d.Get("masters").([]interface{})
-	if strings.Contains(flavorId, "s1") && len(mastersRaw) != 1 {
-		return nil, fmt.Errorf("Error creating HuaweiCloud Cluster: "+
-			"single-master cluster need 1 az for master node, but got %d", len(mastersRaw))
-	}
-	if strings.Contains(flavorId, "s2") && len(mastersRaw) != 3 {
-		return nil, fmt.Errorf("Error creating HuaweiCloud Cluster: "+
-			"high-availability cluster need 3 az for master nodes, but got %d", len(mastersRaw))
-	}
-	masters := make([]clusters.MasterSpec, len(mastersRaw))
-	for i, raw := range mastersRaw {
-		rawMap := raw.(map[string]interface{})
-		masters[i] = clusters.MasterSpec{
-			MasterAZ: rawMap["availability_zone"].(string),
+	if v, ok := d.GetOk("masters"); ok {
+		flavorId := d.Get("flavor_id").(string)
+		mastersRaw := v.([]interface{})
+		if strings.Contains(flavorId, "s1") && len(mastersRaw) != 1 {
+			return nil, fmt.Errorf("Error creating HuaweiCloud Cluster: "+
+				"single-master cluster need 1 az for master node, but got %d", len(mastersRaw))
 		}
+		if strings.Contains(flavorId, "s2") && len(mastersRaw) != 3 {
+			return nil, fmt.Errorf("Error creating HuaweiCloud Cluster: "+
+				"high-availability cluster need 3 az for master nodes, but got %d", len(mastersRaw))
+		}
+		masters := make([]clusters.MasterSpec, len(mastersRaw))
+		for i, raw := range mastersRaw {
+			rawMap := raw.(map[string]interface{})
+			masters[i] = clusters.MasterSpec{
+				MasterAZ: rawMap["availability_zone"].(string),
+			}
+		}
+		return masters, nil
 	}
-	return masters, nil
+
+	return nil, nil
 }
 
 func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error {
