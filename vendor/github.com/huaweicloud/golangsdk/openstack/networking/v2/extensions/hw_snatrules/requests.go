@@ -47,7 +47,7 @@ func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
 }
 
 // Delete is a method by which can be able to delete a snat rule
-func Delete(c *golangsdk.ServiceClient, id string) (r DeleteResult) {
-	_, r.Err = c.Delete(resourceURL(c, id), nil)
+func Delete(c *golangsdk.ServiceClient, id, natGatewayID string) (r DeleteResult) {
+	_, r.Err = c.Delete(resourceURLDelete(c, id, natGatewayID), nil)
 	return
 }

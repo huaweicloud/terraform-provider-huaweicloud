@@ -79,7 +79,7 @@ func TestAccNatDnat_protocol(t *testing.T) {
 
 func testAccCheckNatDnatDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.natV2Client(HW_REGION_NAME)
+	client, err := config.natGatewayV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -109,7 +109,7 @@ func testAccCheckNatDnatDestroy(s *terraform.State) error {
 func testAccCheckNatDnatExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.natV2Client(HW_REGION_NAME)
+		client, err := config.natGatewayV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}
@@ -152,19 +152,36 @@ resource "huaweicloud_vpc_eip" "eip_1" {
   }
 }
 
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_images_image" "test" {
+  name        = "Ubuntu 18.04 server 64bit"
+  most_recent = true
+}
+
 resource "huaweicloud_compute_instance" "instance_1" {
-  name            = "instance-acc-test-%s"
-  security_groups = ["default"]
-  availability_zone = "%s"
+  name              = "instance-acc-test-%s"
+  image_id          = data.huaweicloud_images_image.test.id
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
+  security_groups   = ["default"]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
   network {
     uuid = huaweicloud_vpc_subnet.subnet_1.id
   }
-  metadata = {
+  
+  tags = {
     foo = "bar"
   }
 }
-`, suffix, HW_AVAILABILITY_ZONE)
+`, suffix)
 }
 
 func testAccNatV2DnatRule_basic(suffix string) string {
