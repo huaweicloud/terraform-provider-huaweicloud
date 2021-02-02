@@ -9,13 +9,15 @@ on:
   #  branches: [ master ]
   pull_request:
     branches: [ master ]
+    paths:
+    - 'huaweicloud/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "tfproviderlint"
+  # This workflow contains a job called "tfproviderlint"
   tfproviderlint:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -30,3 +32,31 @@ jobs:
         with:
           args: ./...
 
+  # This workflow contains a job called "acc-test"
+  acc-test:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      #  run acceptance test
+      - name: Run acceptance test
+        run: |
+          git fetch --no-tags --prune --depth=1 origin +refs/heads/master:refs/remotes/origin/master
+          all_files=$(git diff origin/master HEAD --stat huaweicloud | grep huaweicloud | grep -v "test.go" | awk -F '.' '{print $1}' | awk -F '/' '{print $2}')
+          echo "the following files have changed: $all_files"
+
+          for f in $all_files; do
+            if [ -f "./huaweicloud/${f}_test.go" ]; then
+              all_cases=$(grep "^func TestAcc" ./huaweicloud/${f}_test.go | awk '{print $2}' | awk -F '(' '{print $1}')
+              echo "run acceptance tests: $all_cases"
+              for acc in $all_cases; do
+                make testacc TEST="./huaweicloud" TESTARGS="-run ${acc}"
+              done
+            else
+              echo "[skipped] --- ./huaweicloud/${f}_test.go does not exist"
+            fi
+          done
