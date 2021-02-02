@@ -49,12 +49,6 @@ func ResourceVPCRouteV2() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateCIDR,
 			},
-			"tenant_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -76,7 +70,6 @@ func resourceVpcRouteV2Create(d *schema.ResourceData, meta interface{}) error {
 		Type:        d.Get("type").(string),
 		NextHop:     d.Get("nexthop").(string),
 		Destination: d.Get("destination").(string),
-		Tenant_Id:   d.Get("tenant_id").(string),
 		VPC_ID:      d.Get("vpc_id").(string),
 	}
 
@@ -115,7 +108,6 @@ func resourceVpcRouteV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("type", n.Type)
 	d.Set("nexthop", n.NextHop)
 	d.Set("destination", n.Destination)
-	d.Set("tenant_id", n.Tenant_Id)
 	d.Set("vpc_id", n.VPC_ID)
 	d.Set("region", GetRegion(d, config))
 
