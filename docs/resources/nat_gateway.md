@@ -23,32 +23,44 @@ resource "huaweicloud_nat_gateway" "nat_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the Nat gateway resource. If omitted, the provider-level region will be used. Changing this creates a new Nat gateway resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to
+    create the Nat gateway resource. If omitted, the provider-level region will
+    be used. Changing this creates a new nat gateway.
 
-* `name` - (Required, String) The name of the nat gateway.
+* `name` - (Required, String) Specifies the nat gateway name. The name can
+    contain only digits, letters, underscores (_), and hyphens(-).
 
-* `description` - (Optional, String) The description of the nat gateway.
-
-* `spec` - (Required, String) The specification of the nat gateway, valid values are "1",
-    "2", "3", "4".
-
-* `tenant_id` - (Optional, String, ForceNew) The target tenant ID in which to allocate the nat
-    gateway. Changing this creates a new nat gateway.
-
-* `router_id` - (Required, String, ForceNew) ID of the router this nat gateway belongs to. Changing
-    this creates a new nat gateway.
-
-* `internal_network_id` - (Required, String, ForceNew) ID of the network this nat gateway connects to.
+* `internal_network_id` - (Required, String, ForceNew) Specifies the network ID
+    of the downstream interface (the next hop of the DVR) of the NAT gateway.
     Changing this creates a new nat gateway.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the nat gateway. 
+* `router_id` - (Required, String, ForceNew) Specifies the ID of the router
+    this nat gateway belongs to. Changing this creates a new nat gateway.
+
+* `spec` - (Required, String) Specifies the nat gateway type.
+    The value can be:
+    * `1`: small type, which supports up to 10,000 SNAT connections.
+    * `2`: medium type, which supports up to 50,000 SNAT connections.
+    * `3`: large type, which supports up to 200,000 SNAT connections.
+    * `4`: extra-large type, which supports up to 1,000,000 SNAT connections.
+
+* `description` - (Optional, String) Specifies the description of the nat
+   gateway. The value contains 0 to 255 characters, and angle brackets (<)
+   and (>) are not allowed.
+
+* `tenant_id` - (Optional, String, ForceNew) Specifies the target tenant ID in
+    which to allocate the nat gateway. Changing this creates a new nat gateway.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the
+    enterprise project id of the nat gateway. The value can contains maximum of
+    36 characters which it is string "0" or in UUID format with hyphens (-).
     Changing this creates a new nat gateway.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - The resource ID in UUID format.
 
 * `status` - The status of the nat gateway.
 

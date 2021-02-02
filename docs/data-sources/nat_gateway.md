@@ -17,33 +17,29 @@ data "huaweicloud_nat_gateway" "natgateway" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the gateways. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) Specifies the region in which to create the Nat
+    gateway resource. If omitted, the provider-level region will be used.
 
-* `id` - (Optional, String) The ID of the NAT gateway.
+* `id` - (Optional, String) Specifies the ID of the NAT gateway.
 
-* `name` - (Optional, String) The name of the NAT gateway.
+* `name` - (Optional, String) Specifies the nat gateway name. The name can
+    contain only digits, letters, underscores (_), and hyphens(-).
 
-* `description` - (Optional, String) The information about the NAT gateway..
+* `internal_network_id` - (Optional, String) Specifies the network ID of the
+    downstream interface (the next hop of the DVR) of the NAT gateway.
+
+* `router_id` - (Optional, String) Specifies the ID of the router this nat
+    gateway belongs to.
 
 * `spec` - (Optional, String) The NAT gateway type.
-              The value can be:
-              1: small type, which supports up to 10,000 SNAT connections.
-              2: medium type, which supports up to 50,000 SNAT connections.
-              3: large type, which supports up to 200,000 SNAT connections.
-              4: extra-large type, which supports up to 1,000,000 SNAT connections.
+    The value can be:
+    * `1`: small type, which supports up to 10,000 SNAT connections.
+    * `2`: medium type, which supports up to 50,000 SNAT connections.
+    * `3`: large type, which supports up to 200,000 SNAT connections.
+    * `4`: extra-large type, which supports up to 1,000,000 SNAT connections.
 
-* `router_id` - (Optional, String) The router ID.
+* `description` - (Optional, String) Specifies the description of the nat
+   gateway. The value contains 0 to 255 characters, and angle brackets (<)
+   and (>) are not allowed.
 
-* `internal_network_id` - (Optional, String) The network ID of the downstream interface (the next hop of the DVR) of the NAT gateway.
-
-* `status` - (Optional, String) The status of the NAT gateway.
-
-
-## Attributes Reference
-
-In addition to all arguments above, the following attributes are exported:
-
-* `admin_state_up` - The unfrozen or frozen state.
-                        The value can be:
-                          true: indicates the unfrozen state.
-                          false: indicates the frozen state.
+* `status` - (Optional, String) Specifies the status of the NAT gateway.
