@@ -78,3 +78,7 @@ jobs:
               echo "[skipped] --- ./huaweicloud/${f}_test.go does not exist"
             fi
           done
+        env:
+          HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
+          HW_SECRET_KEY: ${{ secrets.HW_ACCESS_KEY }}
+          HW_REGION_NAME: cn-north-4
