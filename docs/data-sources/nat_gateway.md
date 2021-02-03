@@ -31,6 +31,9 @@ data "huaweicloud_nat_gateway" "natgateway" {
 * `router_id` - (Optional, String) Specifies the ID of the router this nat
     gateway belongs to.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project
+    ID of the NAT gateway.
+
 * `spec` - (Optional, String) The NAT gateway type.
     The value can be:
     * `1`: small type, which supports up to 10,000 SNAT connections.
