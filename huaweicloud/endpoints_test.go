@@ -550,7 +550,6 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 }
 
 // TestAccServiceEndpoints_Network test for the endpoints of the clients used in network
-// include networkingV1Client, networkingV2Client, natV2Client, loadElasticLoadBalancerClient and FwV2Client
 func TestAccServiceEndpoints_Network(t *testing.T) {
 
 	testAccPreCheckServiceEndpoints(t)
@@ -585,21 +584,11 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "networking", "v2.0", t)
 
-	// test endpoint of nat v2
+	// test endpoint of nat gateway
 	serviceClient, err = nil, nil
-	serviceClient, err = config.natV2Client(HW_REGION_NAME)
+	serviceClient, err = config.NatGatewayClient(HW_REGION_NAME)
 	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud nat v2 client: %s", err)
-	}
-	expectedURL = fmt.Sprintf("https://nat.%s.%s/v2.0/", HW_REGION_NAME, config.Cloud)
-	actualURL = serviceClient.ResourceBaseURL()
-	compareURL(expectedURL, actualURL, "nat", "v2.0", t)
-
-	// test endpoint of nat_gateway v2
-	serviceClient, err = nil, nil
-	serviceClient, err = config.natGatewayV2Client(HW_REGION_NAME)
-	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud nat_gateway v2 client: %s", err)
+		t.Fatalf("Error creating HuaweiCloud nat gateway client: %s", err)
 	}
 	expectedURL = fmt.Sprintf("https://nat.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()

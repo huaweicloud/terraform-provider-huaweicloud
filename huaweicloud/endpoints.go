@@ -138,12 +138,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "vpc",
 		Version: "v1",
 	},
-	"natv2": ServiceCatalog{
-		Name:             "nat",
-		Version:          "v2.0",
-		WithOutProjectID: true,
-	},
-	"nat_gatewayv2": ServiceCatalog{
+	"nat": ServiceCatalog{
 		Name:    "nat",
 		Version: "v2",
 	},
