@@ -52,10 +52,10 @@ jobs:
 
   # This workflow contains a job called "acc-test"
   acc-test:
-    env:
-      HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
-      HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
-      HW_REGION_NAME: cn-north-4
+    # env:
+    #   HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
+    #   HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
+    #   HW_REGION_NAME: cn-north-4
 
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -68,8 +68,9 @@ jobs:
       #  run acceptance test
       - name: Run acceptance basic test
         # run the step only when HW_ACCESS_KEY is setted
-        if: ${{ env.HW_ACCESS_KEY }}
+        # if: ${{ env.HW_ACCESS_KEY }}
         run: |
+          echo "$HW_REGION_NAME, $HW_ACCESS_KEY, $PASSPHRASE"
           git fetch --no-tags --prune --depth=1 origin +refs/heads/master:refs/remotes/origin/master
           all_files=$(git diff origin/master HEAD --stat huaweicloud | grep huaweicloud | grep -v "test.go" | awk -F '.' '{print $1}' | awk -F '/' '{print $2}')
           echo "the following files have changed: $all_files"
@@ -85,3 +86,9 @@ jobs:
               echo "[skipped] --- ./huaweicloud/${f}_test.go does not exist"
             fi
           done
+        env:
+          HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
+          HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.PASSPHRASE }}
+          HW_REGION_NAME: cn-north-4
