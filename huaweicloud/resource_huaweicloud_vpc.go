@@ -102,7 +102,7 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(n.ID)
 
-	log.Printf("[INFO] Vpc ID: %s", n.ID)
+	log.Printf("[INFO] Vpc ID: %s", d.Id())
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"CREATING"},
