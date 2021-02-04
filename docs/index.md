@@ -110,7 +110,7 @@ The following arguments are supported:
   If omitted, the `HW_ENTERPRISE_PROJECT_ID` environment variable is used.
 
 * `endpoints` - (Optional) Configuration block in key/value pairs for customizing service endpoints.
-  The following endpoints support to be customized: autoscaling, ecs, ims, vpc, evs, obs, sfs, cce, rds, dds, iam.
+  The following endpoints support to be customized: autoscaling, ecs, ims, vpc, nat, evs, obs, sfs, cce, rds, dds, iam.
   An example provider configuration:
 
 ```hcl
