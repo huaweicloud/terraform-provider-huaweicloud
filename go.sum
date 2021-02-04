@@ -129,8 +129,12 @@ github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb h1:b5rjCoWHc7eqmAS
 github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d h1:kJCB4vdITiW1eC1vq2e6IsrXKrZit1bv/TDYFGMp4BQ=
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
-github.com/huaweicloud/golangsdk v0.0.0-20210203063806-fb00aaa2f808 h1:VutIOJU3qNKI8kuXqksk2SB2LfIOwv7Awo7+hWAv6f4=
-github.com/huaweicloud/golangsdk v0.0.0-20210203063806-fb00aaa2f808/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
+github.com/huaweicloud/golangsdk v0.0.0-20210130015616-a15f013de8ca h1:ucLVgXpwEIbvBZn6OeEz9/gtIxBWDYRHgef44HkYp5o=
+github.com/huaweicloud/golangsdk v0.0.0-20210130015616-a15f013de8ca/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
+github.com/huaweicloud/golangsdk v0.0.0-20210130071727-0e4040f46efd h1:tgbXiqSIM86dGQD7tLgeV/LEX7CysuuoHfUKLKoIIRs=
+github.com/huaweicloud/golangsdk v0.0.0-20210130071727-0e4040f46efd/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
+github.com/huaweicloud/golangsdk v0.0.0-20210204093702-72f4a36890cf h1:ryENjP8rFvurzCIcEGIlZdcG3FZ0L6GwTs96BXNQ/+o=
+github.com/huaweicloud/golangsdk v0.0.0-20210204093702-72f4a36890cf/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
 github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a h1:FyS/ubzBR5xJlnJGRTwe7GUHpJOR4ukYK3y+LFNffuA=
 github.com/jen20/awspolicyequivalence v0.0.0-20170831201602-3d48364a137a/go.mod h1:uoIMjNxUfXi48Ci40IXkPRbghZ1vbti6v9LCbNqRgHY=
 github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=

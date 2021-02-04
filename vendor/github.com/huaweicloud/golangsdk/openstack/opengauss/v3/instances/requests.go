@@ -104,7 +104,7 @@ func UpdateVolume(client *golangsdk.ServiceClient, opts UpdateVolumeOptsBuilder,
 		return
 	}
 
-	_, r.Err = client.Post(actionURL(client, id), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, id, "action"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{202},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
@@ -139,7 +139,7 @@ func UpdateCluster(client *golangsdk.ServiceClient, opts UpdateClusterOptsBuilde
 		return
 	}
 
-	_, r.Err = client.Post(actionURL(client, id), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(updateURL(client, id, "action"), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{202},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
@@ -246,4 +246,56 @@ func GetInstanceByName(client *golangsdk.ServiceClient, name string) (GaussDBIns
 
 	instance = all.Instances[0]
 	return instance, nil
+}
+
+type RenameOptsBuilder interface {
+	ToRenameMap() (map[string]interface{}, error)
+}
+
+type RenameOpts struct {
+	Name string `json:"name" required:"true"`
+}
+
+func (opts RenameOpts) ToRenameMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+func Rename(client *golangsdk.ServiceClient, opts RenameOptsBuilder, id string) (r RenameResult) {
+	b, err := opts.ToRenameMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Put(updateURL(client, id, "name"), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
+}
+
+type RestorePasswordOptsBuilder interface {
+	ToRestorePasswordMap() (map[string]interface{}, error)
+}
+
+type RestorePasswordOpts struct {
+	Password string `json:"password" required:"true"`
+}
+
+func (opts RestorePasswordOpts) ToRestorePasswordMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+func RestorePassword(client *golangsdk.ServiceClient, opts RestorePasswordOptsBuilder, id string) (r golangsdk.Result) {
+	b, err := opts.ToRestorePasswordMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(updateURL(client, id, "password"), b, nil, &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
 }

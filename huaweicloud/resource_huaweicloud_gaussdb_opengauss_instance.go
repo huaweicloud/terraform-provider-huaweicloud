@@ -47,7 +47,6 @@ func resourceOpenGaussInstance() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"flavor": {
 				Type:     schema.TypeString,
@@ -63,7 +62,6 @@ func resourceOpenGaussInstance() *schema.Resource {
 				Type:      schema.TypeString,
 				Sensitive: true,
 				Required:  true,
-				ForceNew:  true,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -703,6 +701,27 @@ func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
 		if err != nil {
 			return fmt.Errorf("Error updating backup_strategy: %s", err)
+		}
+	}
+
+	if d.HasChange("name") {
+		renameOpts := instances.RenameOpts{
+			Name: d.Get("name").(string),
+		}
+		_, err = instances.Rename(client, renameOpts, instanceId).Extract()
+		if err != nil {
+			return fmt.Errorf("Error updating name for instance (%s): %s ", instanceId, err)
+		}
+	}
+
+	if d.HasChange("password") {
+		restorePasswordOpts := instances.RestorePasswordOpts{
+			Password: d.Get("password").(string),
+		}
+		r := golangsdk.ErrResult{}
+		r.Result = instances.RestorePassword(client, restorePasswordOpts, instanceId)
+		if r.ExtractErr() != nil {
+			return fmt.Errorf("Error updating password for instance (%s): %s ", instanceId, r.Err)
 		}
 	}
 
