@@ -122,7 +122,7 @@ func resourceNatDnatUserInputParams(d *schema.ResourceData) map[string]interface
 
 func resourceNatDnatRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.natV2Client(GetRegion(d, config))
+	client, err := config.natGatewayV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -235,7 +235,7 @@ func resourceNatDnatRuleCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceNatDnatRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.natV2Client(GetRegion(d, config))
+	client, err := config.natGatewayV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -404,7 +404,7 @@ func resourceNatDnatRuleRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceNatDnatRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.natV2Client(GetRegion(d, config))
+	client, err := config.natGatewayV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -413,7 +413,8 @@ func resourceNatDnatRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	url = client.ServiceURL(url)
+	natGatewayID := d.Get("nat_gateway_id").(string)
+	url = client.ServiceURL("nat_gateways", natGatewayID, url)
 
 	log.Printf("[DEBUG] Deleting Dnat %q", d.Id())
 	r := golangsdk.Result{}

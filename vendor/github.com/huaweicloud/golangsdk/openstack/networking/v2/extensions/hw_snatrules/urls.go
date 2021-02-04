@@ -11,3 +11,7 @@ func rootURL(c *golangsdk.ServiceClient) string {
 func resourceURL(c *golangsdk.ServiceClient, id string) string {
 	return c.ServiceURL(resourcePath, id)
 }
+
+func resourceURLDelete(c *golangsdk.ServiceClient, id, natGatewayID string) string {
+	return c.ServiceURL("nat_gateways", natGatewayID, resourcePath, id)
+}

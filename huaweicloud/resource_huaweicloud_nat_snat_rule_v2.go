@@ -77,7 +77,7 @@ func resourceNatSnatRuleV2() *schema.Resource {
 
 func resourceNatSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	natV2Client, err := config.natV2Client(GetRegion(d, config))
+	natV2Client, err := config.natGatewayV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
@@ -125,7 +125,7 @@ func resourceNatSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error
 
 func resourceNatSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	natV2Client, err := config.natV2Client(GetRegion(d, config))
+	natV2Client, err := config.natGatewayV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
@@ -149,15 +149,17 @@ func resourceNatSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceNatSnatRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	natV2Client, err := config.natV2Client(GetRegion(d, config))
+	natV2Client, err := config.natGatewayV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
+	natGatewayID := d.Get("nat_gateway_id").(string)
+
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
-		Refresh:    waitForSnatRuleDelete(natV2Client, d.Id()),
+		Refresh:    waitForSnatRuleDelete(natV2Client, d.Id(), natGatewayID),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -188,7 +190,7 @@ func waitForSnatRuleActive(natV2Client *golangsdk.ServiceClient, nId string) res
 	}
 }
 
-func waitForSnatRuleDelete(natV2Client *golangsdk.ServiceClient, nId string) resource.StateRefreshFunc {
+func waitForSnatRuleDelete(natV2Client *golangsdk.ServiceClient, nId, natGatewayID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Snat Rule %s.\n", nId)
 
@@ -201,7 +203,7 @@ func waitForSnatRuleDelete(natV2Client *golangsdk.ServiceClient, nId string) res
 			return n, "ACTIVE", err
 		}
 
-		err = hw_snatrules.Delete(natV2Client, nId).ExtractErr()
+		err = hw_snatrules.Delete(natV2Client, nId, natGatewayID).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Snat Rule %s", nId)
