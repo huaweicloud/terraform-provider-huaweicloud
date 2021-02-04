@@ -135,7 +135,7 @@ type VolumeSpec struct {
 	// Disk type
 	VolumeType string `json:"volumetype" required:"true"`
 	// Disk extension parameter
-	ExtendParam string `json:"extendParam,omitempty"`
+	ExtendParam map[string]interface{} `json:"extendParam,omitempty"`
 }
 
 type ExtendParam struct {
