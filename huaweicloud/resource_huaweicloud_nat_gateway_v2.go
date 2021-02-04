@@ -81,7 +81,7 @@ func resourceNatGatewayV2() *schema.Resource {
 
 func resourceNatGatewayV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	natV2Client, err := config.natGatewayV2Client(GetRegion(d, config))
+	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
@@ -97,7 +97,7 @@ func resourceNatGatewayV2Create(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	natGateway, err := natgateways.Create(natV2Client, createOpts).Extract()
+	natGateway, err := natgateways.Create(natClient, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creatting Nat Gateway: %s", err)
 	}
@@ -106,7 +106,7 @@ func resourceNatGatewayV2Create(d *schema.ResourceData, meta interface{}) error 
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
-		Refresh:    waitForNatGatewayActive(natV2Client, natGateway.ID),
+		Refresh:    waitForNatGatewayActive(natClient, natGateway.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -124,12 +124,12 @@ func resourceNatGatewayV2Create(d *schema.ResourceData, meta interface{}) error 
 
 func resourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	natV2Client, err := config.natGatewayV2Client(GetRegion(d, config))
+	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
-	natGateway, err := natgateways.Get(natV2Client, d.Id()).Extract()
+	natGateway, err := natgateways.Get(natClient, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "Nat Gateway")
 	}
@@ -149,7 +149,7 @@ func resourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceNatGatewayV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	natV2Client, err := config.natGatewayV2Client(GetRegion(d, config))
+	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
@@ -168,7 +168,7 @@ func resourceNatGatewayV2Update(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[DEBUG] Update Options: %#v", updateOpts)
 
-	_, err = natgateways.Update(natV2Client, d.Id(), updateOpts).Extract()
+	_, err = natgateways.Update(natClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error updating Nat Gateway: %s", err)
 	}
@@ -178,7 +178,7 @@ func resourceNatGatewayV2Update(d *schema.ResourceData, meta interface{}) error 
 
 func resourceNatGatewayV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	natV2Client, err := config.natGatewayV2Client(GetRegion(d, config))
+	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
@@ -186,7 +186,7 @@ func resourceNatGatewayV2Delete(d *schema.ResourceData, meta interface{}) error 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
-		Refresh:    waitForNatGatewayDelete(natV2Client, d.Id()),
+		Refresh:    waitForNatGatewayDelete(natClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -201,9 +201,9 @@ func resourceNatGatewayV2Delete(d *schema.ResourceData, meta interface{}) error 
 	return nil
 }
 
-func waitForNatGatewayActive(natV2Client *golangsdk.ServiceClient, nId string) resource.StateRefreshFunc {
+func waitForNatGatewayActive(client *golangsdk.ServiceClient, nId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		n, err := natgateways.Get(natV2Client, nId).Extract()
+		n, err := natgateways.Get(client, nId).Extract()
 		if err != nil {
 			return nil, "", err
 		}
@@ -217,11 +217,11 @@ func waitForNatGatewayActive(natV2Client *golangsdk.ServiceClient, nId string) r
 	}
 }
 
-func waitForNatGatewayDelete(natV2Client *golangsdk.ServiceClient, nId string) resource.StateRefreshFunc {
+func waitForNatGatewayDelete(client *golangsdk.ServiceClient, nId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Nat Gateway %s.\n", nId)
 
-		n, err := natgateways.Get(natV2Client, nId).Extract()
+		n, err := natgateways.Get(client, nId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Nat gateway %s", nId)
@@ -230,7 +230,7 @@ func waitForNatGatewayDelete(natV2Client *golangsdk.ServiceClient, nId string) r
 			return n, "ACTIVE", err
 		}
 
-		err = natgateways.Delete(natV2Client, nId).ExtractErr()
+		err = natgateways.Delete(client, nId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Nat Gateway %s", nId)
