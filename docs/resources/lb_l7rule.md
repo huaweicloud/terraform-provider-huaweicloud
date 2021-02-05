@@ -30,12 +30,12 @@ resource "huaweicloud_lb_pool" "pool_1" {
 }
 
 resource "huaweicloud_lb_l7policy" "l7policy_1" {
-  name         = "test"
-  action       = "REDIRECT_TO_URL"
-  description  = "test description"
-  position     = 1
-  listener_id  = huaweicloud_lb_listener.listener_1.id
-  redirect_url = "http://www.example.com"
+  name             = "test"
+  action           = "REDIRECT_TO_POOL"
+  description      = "test l7 policy"
+  position         = 1
+  listener_id      = huaweicloud_lb_listener.listener_1.id
+  redirect_pool_id = huaweicloud_lb_pool.pool_1.id
 }
 
 resource "huaweicloud_lb_l7rule" "l7rule_1" {
