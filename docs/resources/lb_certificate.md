@@ -68,12 +68,6 @@ i34R7EQDtFeiSvBdeKRsPp8c0KT8H1B4lXNkkCQs2WX5p4lm99+ZtLD4glw8x6Ic
 i1YhgnQbn5E0hz55OLu5jvOkKQjPCW+8Kg==
 -----END CERTIFICATE-----
 EOT
-
-  timeouts {
-    create = "5m"
-    update = "5m"
-    delete = "5m"
-  }
 }
 ```
 
