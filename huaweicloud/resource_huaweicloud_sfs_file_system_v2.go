@@ -72,10 +72,12 @@ func resourceSFSFileSystemV2() *schema.Resource {
 			"access_level": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"access_type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"access_to": {
 				Type:     schema.TypeString,
@@ -336,9 +338,8 @@ func resourceSFSFileSystemV2Update(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChanges("access_to", "access_level", "access_type") {
-		ruleID := d.Get("share_access_id").(string)
-		if ruleID != "" {
-			deleteAccessOpts := shares.DeleteAccessOpts{AccessID: ruleID}
+		if ruleID, ok := d.GetOk("share_access_id"); ok {
+			deleteAccessOpts := shares.DeleteAccessOpts{AccessID: ruleID.(string)}
 			deny := shares.DeleteAccess(sfsClient, d.Id(), deleteAccessOpts)
 			if deny.Err != nil {
 				return fmt.Errorf("Error changing access rules for share file : %s", deny.Err)
