@@ -64,6 +64,8 @@ type Spec struct {
 	ExtendParam map[string]string `json:"extendParam,omitempty"`
 	//Advanced configuration of master node
 	Masters []MasterSpec `json:"masters,omitempty"`
+	//Range of kubernetes clusterIp
+	KubernetesSvcIPRange string `json:"kubernetesSvcIpRange,omitempty"`
 }
 
 // Node network parameters

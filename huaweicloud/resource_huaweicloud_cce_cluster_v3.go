@@ -154,6 +154,12 @@ func ResourceCCEClusterV3() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateIP,
 			},
+			"service_network_cidr": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"kube_proxy_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -319,8 +325,9 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 				Mode:                d.Get("authentication_mode").(string),
 				AuthenticatingProxy: authenticating_proxy,
 			},
-			BillingMode: d.Get("billing_mode").(int),
-			ExtendParam: resourceClusterExtendParamV3(d, config),
+			BillingMode:          d.Get("billing_mode").(int),
+			ExtendParam:          resourceClusterExtendParamV3(d, config),
+			KubernetesSvcIPRange: d.Get("service_network_cidr").(string),
 		},
 	}
 
@@ -390,6 +397,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("security_group_id", n.Spec.HostNetwork.SecurityGroup)
 	d.Set("region", GetRegion(d, config))
 	d.Set("enterprise_project_id", n.Spec.ExtendParam["enterpriseProjectId"])
+	d.Set("service_network_cidr", n.Spec.KubernetesSvcIPRange)
 
 	r := clusters.GetCert(cceClient, d.Id())
 

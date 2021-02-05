@@ -120,6 +120,8 @@ versions are available, choose Dashboard > Buy Cluster on the CCE console. Chang
 
 * `highway_subnet_id` - (Optional, String, ForceNew) The ID of the high speed network used to create bare metal nodes. Changing this parameter will create a new cluster resource.
 
+* `service_network_cidr` - (Optional, String, ForceNew) Service network segment. Changing this parameter will create a new cluster resource.
+
 * `container_network_type` - (Required, String, ForceNew) Container network parameters. Possible values:
 
 	* `overlay_l2` - An overlay_l2 network built for containers by using Open vSwitch(OVS)

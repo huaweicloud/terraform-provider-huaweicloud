@@ -10,8 +10,8 @@ func deleteURL(c *golangsdk.ServiceClient, instanceID string) string {
 	return c.ServiceURL("instances", instanceID)
 }
 
-func actionURL(c *golangsdk.ServiceClient, instanceID string) string {
-	return c.ServiceURL("instances", instanceID, "action")
+func updateURL(c *golangsdk.ServiceClient, instanceID, updata string) string {
+	return c.ServiceURL("instances", instanceID, updata)
 }
 
 func listURL(c *golangsdk.ServiceClient) string {

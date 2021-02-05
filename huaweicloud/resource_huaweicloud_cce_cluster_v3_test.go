@@ -32,6 +32,7 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "flavor_id", "cce.s1.small"),
 					resource.TestCheckResourceAttr(resourceName, "container_network_type", "overlay_l2"),
 					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
+					resource.TestCheckResourceAttr(resourceName, "service_network_cidr", "10.248.0.0/16"),
 				),
 			},
 			{
@@ -184,6 +185,7 @@ resource "huaweicloud_cce_cluster_v3" "test" {
   vpc_id                 = huaweicloud_vpc_v1.test.id
   subnet_id              = huaweicloud_vpc_subnet_v1.test.id
   container_network_type = "overlay_l2"
+  service_network_cidr = "10.248.0.0/16"
 }
 `, testAccCCEClusterV3_Base(rName), rName)
 }
@@ -198,6 +200,7 @@ resource "huaweicloud_cce_cluster_v3" "test" {
   vpc_id                 = huaweicloud_vpc_v1.test.id
   subnet_id              = huaweicloud_vpc_subnet_v1.test.id
   container_network_type = "overlay_l2"
+  service_network_cidr = "10.248.0.0/16"
   description            = "new description"
 }
 `, testAccCCEClusterV3_Base(rName), rName)

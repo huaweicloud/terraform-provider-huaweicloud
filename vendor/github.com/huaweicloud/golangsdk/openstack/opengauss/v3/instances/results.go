@@ -110,3 +110,18 @@ func ExtractGaussDBInstances(r pagination.Page) (ListGaussDBResponse, error) {
 	err := (r.(GaussDBPage)).ExtractInto(&s)
 	return s, err
 }
+
+type RenameResponse struct {
+	Instance GaussDBResponse `json:"instance"`
+	JobId    string          `json:"job_id"`
+}
+
+type RenameResult struct {
+	commonResult
+}
+
+func (r RenameResult) Extract() (*RenameResponse, error) {
+	var response RenameResponse
+	err := r.ExtractInto(&response)
+	return &response, err
+}
