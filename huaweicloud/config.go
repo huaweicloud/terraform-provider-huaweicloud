@@ -647,12 +647,8 @@ func (c *Config) VPCEPClient(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("vpcep", region)
 }
 
-func (c *Config) natV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("natv2", region)
-}
-
-func (c *Config) natGatewayV2Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("nat_gatewayv2", region)
+func (c *Config) NatGatewayClient(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("nat", region)
 }
 
 func (c *Config) elasticLBClient(region string) (*golangsdk.ServiceClient, error) {

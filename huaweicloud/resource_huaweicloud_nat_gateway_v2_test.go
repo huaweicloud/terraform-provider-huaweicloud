@@ -69,7 +69,7 @@ func TestAccNatGateway_withEpsId(t *testing.T) {
 
 func testAccCheckNatV2GatewayDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	natClient, err := config.natGatewayV2Client(HW_REGION_NAME)
+	natClient, err := config.NatGatewayClient(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
@@ -100,7 +100,7 @@ func testAccCheckNatV2GatewayExists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		natClient, err := config.natGatewayV2Client(HW_REGION_NAME)
+		natClient, err := config.NatGatewayClient(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 		}

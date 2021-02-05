@@ -60,7 +60,7 @@ func dataSourceNatGatewayV2() *schema.Resource {
 
 func dataSourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	natClient, err := config.natGatewayV2Client(GetRegion(d, config))
+	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
