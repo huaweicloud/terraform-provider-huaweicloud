@@ -14,6 +14,8 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 	var instance instances.GaussDBInstance
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	password := fmt.Sprintf("%s@123", acctest.RandString(5))
+	newPassword := fmt.Sprintf("%sUpdate@123", acctest.RandString(5))
 	resourceName := "huaweicloud_gaussdb_opengauss_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -22,16 +24,19 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 		CheckDestroy: testAccCheckOpenGaussInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccOpenGaussInstanceConfig_basic(rName),
+				Config: testAccOpenGaussInstanceConfig_basic(rName, password),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckOpenGaussInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "password", password),
 				),
 			},
 			{
-				Config: testAccOpenGaussInstanceConfig_back_strategy_update(rName),
+				Config: testAccOpenGaussInstanceConfig_update(rName, newPassword),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckOpenGaussInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
+					resource.TestCheckResourceAttr(resourceName, "password", newPassword),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:30-09:30"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
 				),
@@ -91,22 +96,30 @@ func testAccCheckOpenGaussInstanceExists(n string, instance *instances.GaussDBIn
 	}
 }
 
-func testAccOpenGaussInstanceConfig_basic(rName string) string {
+func testAccOpenGaussInstanceConfig_base(rName string) string {
 	return fmt.Sprintf(`
 %s
+
+data "huaweicloud_availability_zones" "myaz" {}
 
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
+`, testAccVpcConfig_Base(rName))
+}
+
+func testAccOpenGaussInstanceConfig_basic(rName, password string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   name        = "%s"
-  password    = "Test@123"
+  password    = "%s"
   flavor      = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
   vpc_id      = huaweicloud_vpc.test.id
   subnet_id   = huaweicloud_vpc_subnet.test.id
 
-  availability_zone = "cn-north-4a,cn-north-4a,cn-north-4a"
+  availability_zone = "${data.huaweicloud_availability_zones.myaz.names[0]},${data.huaweicloud_availability_zones.myaz.names[0]},${data.huaweicloud_availability_zones.myaz.names[0]}"
   security_group_id = data.huaweicloud_networking_secgroup.test.id
 
   ha {
@@ -122,25 +135,21 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   sharding_num = 1
   coordinator_num = 2
 }
-`, testAccVpcConfig_Base(rName), rName)
+`, testAccOpenGaussInstanceConfig_base(rName), rName, password)
 }
 
-func testAccOpenGaussInstanceConfig_back_strategy_update(rName string) string {
+func testAccOpenGaussInstanceConfig_update(rName, password string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_networking_secgroup" "test" {
-  name = "default"
-}
-
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
-  name        = "%s"
-  password    = "Test@123"
+  name        = "%s-update"
+  password    = "%s"
   flavor      = "gaussdb.opengauss.ee.dn.m6.2xlarge.8.in"
   vpc_id      = huaweicloud_vpc.test.id
   subnet_id   = huaweicloud_vpc_subnet.test.id
 
-  availability_zone = "cn-north-4a,cn-north-4a,cn-north-4a"
+  availability_zone = "${data.huaweicloud_availability_zones.myaz.names[0]},${data.huaweicloud_availability_zones.myaz.names[0]},${data.huaweicloud_availability_zones.myaz.names[0]}"
   security_group_id = data.huaweicloud_networking_secgroup.test.id
 
   ha {
@@ -160,5 +169,5 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
   sharding_num = 1
   coordinator_num = 2
 }
-`, testAccVpcConfig_Base(rName), rName)
+`, testAccOpenGaussInstanceConfig_base(rName), rName, password)
 }

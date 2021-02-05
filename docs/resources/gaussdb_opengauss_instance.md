@@ -41,20 +41,18 @@ The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) The region in which to create the instance. If omitted, the provider-level region will be used. Changing this creates a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the instance name, which can be the same
+* `name` - (Required, String) Specifies the instance name, which can be the same
   as an existing instance name. The value must be 4 to 64 characters in
   length and start with a letter. It is case-sensitive and can contain
   only letters, digits, hyphens (-), and underscores (_).
-  Changing this parameter will create a new resource.
 
 * `flavor` - (Required, String, ForceNew) Specifies the instance specifications. Please reference
   the API docs for valid options. Changing this parameter will create a new resource.
 
-* `password` - (Required, String, ForceNew) Specifies the database password. The value must be 8 to 32 characters
+* `password` - (Required, String) Specifies the database password. The value must be 8 to 32 characters
   in length, including uppercase and lowercase letters, digits, and special characters,
   such as ~!@#%^*-_=+? You are advised to enter a strong password to improve security, preventing security risks
   such as brute force cracking.
-  Changing this parameter will create a new resource.
 
 * `availability_zone` -  (Required, String, ForceNew) Specifies the Availability Zone information, can be three same or
   different az like "cn-north-4a,cn-north-4a,cn-north-4a".
