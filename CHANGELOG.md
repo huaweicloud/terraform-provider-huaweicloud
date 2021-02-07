@@ -1,3 +1,23 @@
+## 1.21.1 (February 7, 2021)
+
+ENHANCEMENTS:
+
+* provider: Support to customize nat service endpoint by `nat` key ([#899](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/899))
+
+* data/huaweicloud_nat_gateway: Support to query by enterprise_project_id ([#891](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/891))
+
+* resource/huaweicloud_gaussdb_opengauss_instance: Support to update name and password ([#898](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/898))
+
+* resource/huaweicloud_cce_cluster: Support `service_network_cidr` parm ([#901](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/901))
+
+* resource/huaweicloud_cce_node: change the type of volume/extend_param to map ([#904](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/904))
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_cluster: Fix validate bug when `masters` param is empty ([#892](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/892))
+
+* resource/huaweicloud_sfs_file_system: Make access_type and access_level to be computed ([#902](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/902))
+
 ## 1.21.0 (February 1, 2021)
 
 ENHANCEMENTS:
