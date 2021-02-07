@@ -171,7 +171,6 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
   name         = "%s"
   description  = "sfs_c2c_test-file"
   access_to    = huaweicloud_vpc.test.id
-  access_type  = "cert"
   access_level = "rw"
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
 
@@ -216,13 +215,12 @@ resource "huaweicloud_vpc" "test" {
 data "huaweicloud_availability_zones" "myaz" {}
 
 resource "huaweicloud_sfs_file_system" "sfs_1" {
-  share_proto  = "NFS"
-  size         = 20
-  name         = "%s"
-  description  = "sfs_c2c_test-file"
-  access_to    = huaweicloud_vpc.test.id
-  access_type  = "cert"
-  access_level = "rw"
+  share_proto = "NFS"
+  size        = 20
+  name        = "%s"
+  description = "sfs_c2c_test-file"
+  access_to   = huaweicloud_vpc.test.id
+  access_type = "cert"
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
 
   tags = {
