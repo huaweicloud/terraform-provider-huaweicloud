@@ -288,7 +288,8 @@ resource "huaweicloud_compute_instance" "test" {
   flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
   security_groups   = ["default"]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
- 
+  delete_disks_on_termination = true
+
   system_disk_type = "SAS"
   system_disk_size = 50
 
