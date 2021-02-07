@@ -102,8 +102,9 @@ func ResourceCCENodeV3() *schema.Resource {
 							Required: true,
 						},
 						"extend_param": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeMap,
 							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					}},
 			},
@@ -122,8 +123,9 @@ func ResourceCCENodeV3() *schema.Resource {
 							Required: true,
 						},
 						"extend_param": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeMap,
 							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					}},
 			},
@@ -318,7 +320,7 @@ func resourceCCEDataVolume(d *schema.ResourceData) []nodes.VolumeSpec {
 		volumes[i] = nodes.VolumeSpec{
 			Size:        rawMap["size"].(int),
 			VolumeType:  rawMap["volumetype"].(string),
-			ExtendParam: rawMap["extend_param"].(string),
+			ExtendParam: rawMap["extend_param"].(map[string]interface{}),
 		}
 	}
 	return volumes
@@ -344,7 +346,7 @@ func resourceCCERootVolume(d *schema.ResourceData) nodes.VolumeSpec {
 	if len(nicsRaw) == 1 {
 		nics.Size = nicsRaw[0].(map[string]interface{})["size"].(int)
 		nics.VolumeType = nicsRaw[0].(map[string]interface{})["volumetype"].(string)
-		nics.ExtendParam = nicsRaw[0].(map[string]interface{})["extend_param"].(string)
+		nics.ExtendParam = nicsRaw[0].(map[string]interface{})["extend_param"].(map[string]interface{})
 	}
 	return nics
 }
