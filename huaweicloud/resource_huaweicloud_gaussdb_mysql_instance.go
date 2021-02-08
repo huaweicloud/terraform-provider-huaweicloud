@@ -303,7 +303,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		ConfigurationId:     d.Get("configuration_id").(string),
-		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
+		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
 		TimeZone:            d.Get("time_zone").(string),
 		SlaveCount:          d.Get("read_replicas").(int),
 		Mode:                "Cluster",

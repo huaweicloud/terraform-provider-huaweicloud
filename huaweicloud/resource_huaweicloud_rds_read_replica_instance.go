@@ -185,7 +185,7 @@ func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface
 		AvailabilityZone:    d.Get("availability_zone").(string),
 		Volume:              resourceReplicaInstanceVolume(d),
 		DiskEncryptionId:    resourceDiskEncryptionID(d),
-		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
+		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
 	}
 	log.Printf("[DEBUG] Create replica instance Options: %#v", createOpts)
 

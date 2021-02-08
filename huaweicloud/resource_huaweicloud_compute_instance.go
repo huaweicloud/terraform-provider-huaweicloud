@@ -486,8 +486,9 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 			extendParam.IsAutoPay = "true"
 			extendParam.IsAutoRenew = d.Get("auto_renew").(string)
 		}
-		if hasFilledOpt(d, "enterprise_project_id") {
-			extendParam.EnterpriseProjectId = d.Get("enterprise_project_id").(string)
+		epsID := GetEnterpriseProjectID(d, config)
+		if epsID != "" {
+			extendParam.EnterpriseProjectId = epsID
 		}
 		if extendParam != (cloudservers.ServerExtendParam{}) {
 			createOpts.ExtendParam = &extendParam

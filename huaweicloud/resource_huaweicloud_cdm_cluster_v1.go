@@ -94,12 +94,9 @@ func resourceCdmClusterV1() *schema.Resource {
 			},
 
 			"enterprise_project_id": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
 			},
 
 			"is_auto_off": {
@@ -176,12 +173,12 @@ func resourceCdmClusterV1() *schema.Resource {
 	}
 }
 
-func resourceCdmClusterV1UserInputParams(d *schema.ResourceData) map[string]interface{} {
+func resourceCdmClusterV1UserInputParams(d *schema.ResourceData, config *Config) map[string]interface{} {
 	return map[string]interface{}{
 		"terraform_resource_data": d,
 		"availability_zone":       d.Get("availability_zone"),
 		"email":                   d.Get("email"),
-		"enterprise_project_id":   d.Get("enterprise_project_id"),
+		"enterprise_project_id":   GetEnterpriseProjectID(d, config),
 		"flavor_id":               d.Get("flavor_id"),
 		"is_auto_off":             d.Get("is_auto_off"),
 		"name":                    d.Get("name"),
@@ -202,8 +199,7 @@ func resourceCdmClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
 
-	opts := resourceCdmClusterV1UserInputParams(d)
-
+	opts := resourceCdmClusterV1UserInputParams(d, config)
 	params, err := buildCdmClusterV1CreateParameters(opts, nil)
 	if err != nil {
 		return fmt.Errorf("Error building the request body of api(create), err=%s", err)
@@ -242,7 +238,7 @@ func resourceCdmClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	res["read"] = fillCdmClusterV1ReadRespBody(v)
 
-	return setCdmClusterV1Properties(d, res)
+	return setCdmClusterV1Properties(d, config, res)
 }
 
 func resourceCdmClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
@@ -258,7 +254,7 @@ func resourceCdmClusterV1Delete(d *schema.ResourceData, meta interface{}) error 
 	}
 	url = client.ServiceURL(url)
 
-	opts := resourceCdmClusterV1UserInputParams(d)
+	opts := resourceCdmClusterV1UserInputParams(d, config)
 	params, err := buildCdmClusterV1DeleteParameters(opts, nil)
 	if err != nil {
 		return fmt.Errorf("Error building the request body of api(delete), err=%s", err)
@@ -560,17 +556,12 @@ func expandCdmClusterV1CreateClusterSysTags(d interface{}, arrayIndex map[string
 	if err != nil {
 		return nil, err
 	}
-	if v1, ok := v.([]interface{}); ok && len(v1) > 0 {
-		v2 := make([]interface{}, len(v1), len(v1))
-		for i, j := range v1 {
-			v2[i] = map[string]string{
-				"key":   "_sys_enterprise_project_id",
-				"value": j.(string),
-			}
-		}
-		return v2, nil
+	sysTags := make([]interface{}, 1, 1)
+	sysTags[0] = map[string]string{
+		"key":   "_sys_enterprise_project_id",
+		"value": v.(string),
 	}
-	return nil, nil
+	return sysTags, nil
 }
 
 func expandCdmClusterV1CreateEmail(d interface{}, arrayIndex map[string]int) (interface{}, error) {
@@ -1303,8 +1294,8 @@ func fillCdmClusterV1ReadRespTask(value interface{}) interface{} {
 	return result
 }
 
-func setCdmClusterV1Properties(d *schema.ResourceData, response map[string]interface{}) error {
-	opts := resourceCdmClusterV1UserInputParams(d)
+func setCdmClusterV1Properties(d *schema.ResourceData, config *Config, response map[string]interface{}) error {
+	opts := resourceCdmClusterV1UserInputParams(d, config)
 
 	v, err := navigateValue(response, []string{"read", "created"}, nil)
 	if err != nil {
