@@ -331,7 +331,7 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		ConfigurationId:     d.Get("configuration_id").(string),
-		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
+		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
 		Password:            d.Get("password").(string),
 		Mode:                "Cluster",
 		Flavor:              resourceGeminiDBFlavor(d),

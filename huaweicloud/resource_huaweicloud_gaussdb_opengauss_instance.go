@@ -356,7 +356,7 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		Port:                d.Get("port").(string),
-		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
+		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
 		TimeZone:            d.Get("time_zone").(string),
 		AvailabilityZone:    d.Get("availability_zone").(string),
 		ConfigurationId:     d.Get("configuration_id").(string),

@@ -50,7 +50,7 @@ The following arguments are supported:
 
 * `email` - (Optional, List, ForceNew) Notification email addresses. The max number is 5.  Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, List, ForceNew) The enterprise project id.  Changing this parameter will create a new resource.
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id.  Changing this parameter will create a new resource.
 
 * `is_auto_off` - (Optional, Bool, ForceNew) Whether to automatically shut down.  Changing this parameter will create a new resource.
 
