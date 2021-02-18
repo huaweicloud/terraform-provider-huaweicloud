@@ -56,6 +56,8 @@ type Volume struct {
 	Description string `json:"description"`
 	// The type of volume to create, either SATA or SSD.
 	VolumeType string `json:"volume_type"`
+	// The image ID of volume to create.
+	VolumeImageMetadata map[string]string `json:"volume_image_metadata"`
 	// The ID of the snapshot from which the volume was created
 	SnapshotID string `json:"snapshot_id"`
 	// The ID of another block storage volume from which the current volume was created
