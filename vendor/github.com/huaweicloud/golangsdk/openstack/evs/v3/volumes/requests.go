@@ -69,3 +69,11 @@ func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
 	_, r.Err = client.Get(getURL(client, id), &r.Body, nil)
 	return
 }
+
+// Delete will permanently delete a particular service stage based on its unique ID.
+func Delete(client *golangsdk.ServiceClient, id string) (r DeleteResult) {
+	_, r.Err = client.Delete(deleteURL(client, id), &golangsdk.RequestOpts{
+		OkCodes: []int{200},
+	})
+	return
+}

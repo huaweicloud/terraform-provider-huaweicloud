@@ -45,10 +45,12 @@ resource "huaweicloud_evs_volume" "volume" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the EVS volume resource. If omitted, the provider-level region will be used. Changing this creates a new EVS resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the EVS volume resource.
+    If omitted, the provider-level region will be used.
+    Changing this creates a new EVS volume resource.
 
-* `availability_zone` - (Required, String, ForceNew) The availability zone for the volume.
-    Changing this creates a new volume.
+* `availability_zone` - (Required, String, ForceNew) Specifies the availability zone for the volume.
+    Changing this creates a new EVS volume resource.
 
 * `volume_type` - (Required, String, ForceNew) Specifies the disk type.
     Currently, the value can be SSD, SAS, or SATA.
@@ -56,6 +58,7 @@ The following arguments are supported:
     - SAS: specifies the high I/O disk type.
     - SATA: specifies the common I/O disk type.
     If the specified disk type is not available in the AZ, the disk will fail to create.
+    Changing this creates a new EVS volume resource.
 
 * `name` - (Optional, String) Specifies the disk name.
     If you create disks one by one, the name value is the disk name. The value can contain a maximum of 255 bytes.
@@ -66,27 +69,31 @@ The following arguments are supported:
 * `size` - (Optional, Int) Specifies the disk size, in GB. Its value can be as follows:
     - System disk: 1 GB to 1024 GB
     - Data disk: 10 GB to 32768 GB
-    This parameter is mandatory when you create an empty disk. You can specify the parameter value as required within the value range.
-    This parameter is mandatory when you create the disk from a snapshot. Ensure that the disk size is greater than or equal to the snapshot size.
-    This parameter is mandatory when you create the disk from an image. Ensure that the disk size is greater than or equal to 
-    the minimum disk capacity required by min_disk in the image attributes.
-    This parameter is optional when you create the disk from a backup. If this parameter is not specified, the disk size is equal to the backup size.
-    Changing this parameter will update the disk. You can extend the disk by setting this parameter to a new value, which must be between current size
-    and the max size(System disk: 1024 GB; Data disk: 32768 GB). Shrinking the disk is not supported.
+    This parameter is mandatory when you create an empty disk. You can specify the parameter value as required within
+    the value range.
+    This parameter is mandatory when you create the disk from a snapshot. Ensure that the disk size is greater than or
+    equal to the snapshot size.
+    This parameter is mandatory when you create the disk from an image. Ensure that the disk size is greater than or
+    equal to the minimum disk capacity required by min_disk in the image attributes.
+    This parameter is optional when you create the disk from a backup. If this parameter is not specified, the disk
+    size is equal to the backup size.
+    You can extend the disk by setting this parameter to a new value, which must be between current size
+    and the max size (System disk: 1024 GB; Data disk: 32768 GB). Shrinking the disk is not supported.
 
 * `description` - (Optional, String) Specifies the disk description. The value can contain a maximum of 255 bytes.
 
-* `image_id` - (Optional, String, ForceNew) The image ID from which to create the volume.
-    Changing this creates a new volume.
+* `image_id` - (Optional, String, ForceNew) Specifies the image ID from which to create the volume.
+    Changing this creates a new EVS volume resource.
 
-* `backup_id` - (Optional, String, ForceNew) The backup ID from which to create the volume.
-    Changing this creates a new volume.
+* `backup_id` - (Optional, String, ForceNew) Specifies the backup ID from which to create the volume.
+    Changing this creates a new EVS volume resource.
 
-* `snapshot_id` - (Optional, String, ForceNew) The snapshot ID from which to create the volume.
-    Changing this creates a new volume.
+* `snapshot_id` - (Optional, String, ForceNew) Specifies the snapshot ID from which to create the volume.
+    Changing this creates a new EVS volume resource.
 
-* `tags` - (Optional, Map, String) A maximum of 10 tags can be created for a disk.
-    Tag keys of a tag must be unique. Deduplication will be performed for duplicate keys. 
+* `tags` - (Optional, Map, String) Specifies the key/value pairs to associate with the instance.
+    A maximum of 10 tags can be created for a disk. Tag keys of a tag must be unique.
+    Deduplication will be performed for duplicate keys. 
     Therefore, only one tag key in the duplicate keys is valid.
 
     - Tag key: A tag key is a string of no more than 36 characters.
@@ -95,25 +102,25 @@ The following arguments are supported:
     - Tag value: A tag value is a string of no more than 43 characters and can be an empty string.
     It consists of letters, digits, underscores (_), periods (.), hyphens (-), and Unicode characters (\u4E00-\u9FFF).
 	
-* `multiattach` - (Optional, String, ForceNew) Default:false. Specifies the shared EVS disk information.
-    Changing this creates a new volume.
+* `multiattach` - (Optional, String, ForceNew) Specifies the shared EVS disk information. Defaults to false. 
+    Changing this creates a new EVS volume resource.
 
-* `kms_id` - (Optional, String, ForceNew) The Encryption KMS ID to create the volume.
-    Changing this creates a new volume.
+* `kms_id` - (Optional, String, ForceNew) Specifies the Encryption KMS ID to create the volume.
+    Changing this creates a new EVS volume resource.
 
-* `device_type` - (Optional, String, ForceNew) The device type of volume to create. Valid options are VBD and SCSI.
-	Defaults to VBD. Changing this creates a new volume.
+* `device_type` - (Optional, String, ForceNew) Specifies the device type of volume to create.
+    Valid options are VBD and SCSI. Defaults to VBD.
+    Changing this creates a new EVS volume resource.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - A resource ID in UUID format.
 
-* `attachment` - If a volume is attached to an instance, this attribute will
-    display the Attachment ID, Instance ID, and the Device as the Instance
-    sees it.
-* `wwn` - Specifies the unique identifier used for mounting the EVS disk.
+* `attachment` - If a volume is attached to an instance, this attribute will display the Attachment ID, Instance ID,
+    and the Device as the Instance sees it.
+* `wwn` - The unique identifier used for mounting the EVS disk.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

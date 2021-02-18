@@ -13,6 +13,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions"
 	volumes_v2 "github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach"
 	"github.com/huaweicloud/golangsdk/openstack/evs/v3/volumes"
 )
 
@@ -21,7 +22,7 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 		Create: resourceEvsVolumeV3Create,
 		Read:   resourceEvsVolumeV3Read,
 		Update: resourceEvsVolumeV3Update,
-		Delete: resourceBlockStorageVolumeV2Delete,
+		Delete: resourceEvsVolumeV3Delete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -39,37 +40,9 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"backup_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"size": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"snapshot_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"image_id": {
-				Type:     schema.TypeString,
-				Optional: true,
 				ForceNew: true,
 			},
 			"volume_type": {
@@ -80,12 +53,51 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 					"SATA", "SAS", "SSD", "co-p1", "uh-l1",
 				}, true),
 			},
+			"backup_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"device_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				Default:      "VBD",
 				ValidateFunc: validation.StringInSlice([]string{"VBD", "SCSI"}, true),
+			},
+			"image_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"snapshot_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"kms_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"multiattach": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  false,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"size": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"tags": {
 				Type:     schema.TypeMap,
@@ -113,25 +125,9 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 				},
 				Set: resourceVolumeAttachmentHash,
 			},
-			"multiattach": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Default:  false,
-			},
-			"kms_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"wwn": {
 				Type:     schema.TypeString,
 				Computed: true,
-			},
-			"cascade": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
 			},
 		},
 	}
@@ -231,7 +227,12 @@ func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("source_vol_id", v.SourceVolID)
 	d.Set("volume_type", v.VolumeType)
 	d.Set("wwn", v.WWN)
-
+	if value, ok := v.Metadata["hw:passthrough"]; ok && value == "true" {
+		d.Set("device_type", "SCSI")
+	} else {
+		d.Set("device_type", "VBD")
+	}
+	d.Set("multiattach", v.Multiattach)
 	// set tags
 	tags := make(map[string]string)
 	for key, val := range v.Tags {
@@ -306,4 +307,78 @@ func resourceEvsVolumeV3Update(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return resourceEvsVolumeV3Read(d, meta)
+}
+
+func resourceEvsVolumeV3Delete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	blockStorageClient, err := config.BlockStorageV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
+	}
+
+	v, err := volumes.Get(blockStorageClient, d.Id()).Extract()
+	if err != nil {
+		return CheckDeleted(d, err, "volume")
+	}
+
+	// make sure this volume is detached from all instances before deleting
+	if len(v.Attachments) > 0 {
+		log.Printf("[DEBUG] detaching volumes")
+		if computeClient, err := config.ComputeV2Client(GetRegion(d, config)); err != nil {
+			return err
+		} else {
+			for _, volumeAttachment := range v.Attachments {
+				log.Printf("[DEBUG] Attachment: %v", volumeAttachment)
+				if err := volumeattach.Delete(computeClient, volumeAttachment.ServerID, volumeAttachment.ID).ExtractErr(); err != nil {
+					return err
+				}
+			}
+
+			stateConf := &resource.StateChangeConf{
+				Pending:    []string{"in-use", "attaching", "detaching"},
+				Target:     []string{"available"},
+				Refresh:    VolumeV2StateRefreshFunc(blockStorageClient, d.Id()),
+				Timeout:    10 * time.Minute,
+				Delay:      10 * time.Second,
+				MinTimeout: 3 * time.Second,
+			}
+
+			_, err = stateConf.WaitForState()
+			if err != nil {
+				return fmt.Errorf(
+					"Error waiting for volume (%s) to become available: %s",
+					d.Id(), err)
+			}
+		}
+	}
+	// It's possible that this volume was used as a boot device and is currently
+	// in a "deleting" state from when the instance was terminated.
+	// If this is true, just move on. It'll eventually delete.
+	if v.Status != "deleting" {
+		if err := volumes.Delete(blockStorageClient, d.Id()).ExtractErr(); err != nil {
+			return CheckDeleted(d, err, "volume")
+		}
+	}
+
+	// Wait for the volume to delete before moving on.
+	log.Printf("[DEBUG] Waiting for volume (%s) to delete", d.Id())
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"deleting", "downloading", "available"},
+		Target:     []string{"deleted"},
+		Refresh:    VolumeV2StateRefreshFunc(blockStorageClient, d.Id()),
+		Timeout:    d.Timeout(schema.TimeoutDelete),
+		Delay:      10 * time.Second,
+		MinTimeout: 3 * time.Second,
+	}
+
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf(
+			"Error waiting for volume (%s) to delete: %s",
+			d.Id(), err)
+	}
+
+	d.SetId("")
+	return nil
 }

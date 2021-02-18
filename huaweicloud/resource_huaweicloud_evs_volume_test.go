@@ -31,6 +31,11 @@ func TestAccEvsStorageV3Volume_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccEvsStorageV3Volume_basic(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEvsStorageV3VolumeExists(resourceName, &volume),
@@ -56,6 +61,11 @@ func TestAccEvsStorageV3Volume_tags(t *testing.T) {
 					testAccCheckEvsStorageV3VolumeTags(resourceName, "foo", "bar"),
 					testAccCheckEvsStorageV3VolumeTags(resourceName, "key", "value"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccEvsStorageV3Volume_tags_update(rName),

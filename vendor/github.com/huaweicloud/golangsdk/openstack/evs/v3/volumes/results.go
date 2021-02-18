@@ -123,3 +123,7 @@ func (r commonResult) ExtractInto(v interface{}) error {
 type GetResult struct {
 	commonResult
 }
+
+type DeleteResult struct {
+	golangsdk.ErrResult
+}
