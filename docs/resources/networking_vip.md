@@ -45,3 +45,11 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - The status of vip.
 * `tenant_id` - The tenant ID of the vip.
 * `device_owner` - The device owner of the vip.
+
+## Import
+
+Networking VIP can be imported using the `id`, e.g.
+
+```
+$ terraform import huaweicloud_networking_vip.myvip ce595799-da26-4015-8db5-7733c6db292e
+```

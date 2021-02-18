@@ -29,6 +29,11 @@ func TestAccNetworkingV2VIP_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccNetworkingV2VIPConfig_update(rand),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "acc-test-vip-updated"),
