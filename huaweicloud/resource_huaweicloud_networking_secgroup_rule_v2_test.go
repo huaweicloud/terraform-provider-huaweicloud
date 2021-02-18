@@ -26,6 +26,7 @@ func TestAccNetworkingV2SecGroupRule_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2SecGroupRuleExists(resourceRuleName, &secgroupRule),
 					resource.TestCheckResourceAttr(resourceRuleName, "direction", "ingress"),
+					resource.TestCheckResourceAttr(resourceRuleName, "description", "This is a basic acc test"),
 					resource.TestCheckResourceAttr(resourceRuleName, "port_range_min", "80"),
 					resource.TestCheckResourceAttr(resourceRuleName, "port_range_max", "80"),
 					resource.TestCheckResourceAttr(resourceRuleName, "ethertype", "IPv4"),
@@ -192,6 +193,7 @@ func testAccNetworkingV2SecGroupRule_basic(rName string) string {
 
 resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_test" {
   direction         = "ingress"
+  description       = "This is a basic acc test"
   ethertype         = "IPv4"
   port_range_max    = 80
   port_range_min    = 80
