@@ -38,7 +38,12 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Human-readable description for the pool.
 
-* `protocol` - (Required, String, ForceNew) The protocol - can either be TCP, HTTP or HTTPS.
+* `protocol` - (Required, String, ForceNew) The protocol - can either be TCP, UDP or HTTP.
+
+    - When the protocol used by the listener is UDP, the protocol of the backend pool must be UDP.
+    - When the protocol used by the listener is TCP, the protocol of the backend pool must be TCP.
+    - When the protocol used by the listener is HTTP or TERMINATED_HTTPS, the protocol of the backend pool must be HTTP.
+
     Changing this creates a new pool.
 
 * `loadbalancer_id` - (Optional, String, ForceNew) The load balancer on which to provision this

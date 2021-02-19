@@ -39,7 +39,7 @@ func ResourceListenerV2() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"TCP", "UDP", "HTTP", "HTTPS", "TERMINATED_HTTPS",
+					"TCP", "UDP", "HTTP", "TERMINATED_HTTPS",
 				}, false),
 			},
 

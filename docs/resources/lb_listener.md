@@ -29,7 +29,7 @@ The following arguments are supported:
     If omitted, the provider-level region will be used.
     Changing this creates a new listener.
 
-* `protocol` - (Required, String, ForceNew) The protocol can either be TCP, HTTP, HTTPS or TERMINATED_HTTPS.
+* `protocol` - (Required, String, ForceNew) The protocol can either be TCP, UDP, HTTP or TERMINATED_HTTPS.
     Changing this creates a new listener.
 
 * `protocol_port` - (Required, Int, ForceNew) The port on which to listen for client traffic.
