@@ -18,6 +18,9 @@ func resourceNetworkingVIPV2() *schema.Resource {
 		Read:   resourceNetworkingVIPV2Read,
 		Update: resourceNetworkingVIPV2Update,
 		Delete: resourceNetworkingVIPV2Delete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
