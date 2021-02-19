@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
 )
@@ -53,14 +54,9 @@ func ResourcePoolV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					if value != "TCP" && value != "HTTP" && value != "HTTPS" {
-						errors = append(errors, fmt.Errorf(
-							"Only 'TCP', 'HTTP', and 'HTTPS' are supported values for 'protocol'"))
-					}
-					return
-				},
+				ValidateFunc: validation.StringInSlice([]string{
+					"TCP", "UDP", "HTTP",
+				}, false),
 			},
 
 			// One of loadbalancer_id or listener_id must be provided
@@ -80,14 +76,9 @@ func ResourcePoolV2() *schema.Resource {
 			"lb_method": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					if value != "ROUND_ROBIN" && value != "LEAST_CONNECTIONS" && value != "SOURCE_IP" {
-						errors = append(errors, fmt.Errorf(
-							"Only 'ROUND_ROBIN', 'LEAST_CONNECTIONS', and 'SOURCE_IP' are supported values for 'lb_method'"))
-					}
-					return
-				},
+				ValidateFunc: validation.StringInSlice([]string{
+					"ROUND_ROBIN", "LEAST_CONNECTIONS", "SOURCE_IP",
+				}, false),
 			},
 
 			"persistence": {
@@ -100,14 +91,9 @@ func ResourcePoolV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								value := v.(string)
-								if value != "SOURCE_IP" && value != "HTTP_COOKIE" && value != "APP_COOKIE" {
-									errors = append(errors, fmt.Errorf(
-										"Only 'SOURCE_IP', 'HTTP_COOKIE', and 'APP_COOKIE' are supported values for 'persistence'"))
-								}
-								return
-							},
+							ValidateFunc: validation.StringInSlice([]string{
+								"SOURCE_IP", "HTTP_COOKIE", "APP_COOKIE",
+							}, false),
 						},
 
 						"cookie_name": {
@@ -147,14 +133,13 @@ func resourcePoolV2Create(d *schema.ResourceData, meta interface{}) error {
 		if persistence.Type == "APP_COOKIE" {
 			if pV["cookie_name"].(string) == "" {
 				return fmt.Errorf(
-					"Persistence cookie_name needs to be set if using 'APP_COOKIE' persistence type.")
-			} else {
-				persistence.CookieName = pV["cookie_name"].(string)
+					"Persistence cookie_name needs to be set if using 'APP_COOKIE' persistence type")
 			}
+			persistence.CookieName = pV["cookie_name"].(string)
 		} else {
 			if pV["cookie_name"].(string) != "" {
 				return fmt.Errorf(
-					"Persistence cookie_name can only be set if using 'APP_COOKIE' persistence type.")
+					"Persistence cookie_name can only be set if using 'APP_COOKIE' persistence type")
 			}
 		}
 	}
