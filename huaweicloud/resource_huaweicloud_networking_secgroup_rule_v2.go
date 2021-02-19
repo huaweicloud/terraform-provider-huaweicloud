@@ -51,6 +51,11 @@ func ResourceNetworkingSecGroupRuleV2() *schema.Resource {
 					"IPv4", "IPv6",
 				}, true),
 			},
+			"security_group_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
 			"port_range_min": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -84,9 +89,9 @@ func ResourceNetworkingSecGroupRuleV2() *schema.Resource {
 					return strings.ToLower(v.(string))
 				},
 			},
-			"security_group_id": {
+			"description": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"tenant_id": {
@@ -118,6 +123,7 @@ func resourceNetworkingSecGroupRuleV2Create(d *schema.ResourceData, meta interfa
 	}
 
 	opts := rules.CreateOpts{
+		Description:    d.Get("description").(string),
 		SecGroupID:     d.Get("security_group_id").(string),
 		PortRangeMin:   d.Get("port_range_min").(int),
 		PortRangeMax:   d.Get("port_range_max").(int),
@@ -171,6 +177,7 @@ func resourceNetworkingSecGroupRuleV2Read(d *schema.ResourceData, meta interface
 	}
 
 	d.Set("direction", security_group_rule.Direction)
+	d.Set("description", security_group_rule.Description)
 	d.Set("ethertype", security_group_rule.EtherType)
 	d.Set("protocol", security_group_rule.Protocol)
 	d.Set("port_range_min", security_group_rule.PortRangeMin)

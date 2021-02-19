@@ -43,6 +43,12 @@ The following arguments are supported:
     type, valid values are __IPv4__ or __IPv6__.
     Changing this creates a new security group rule.
 
+* `description` - (Optional, String, ForceNew) Specifies the supplementary
+    information about the networking security group rule. 
+    This parameter can contain a maximum of 255 characters and cannot contain
+    angle brackets (< or >).
+    Changing this creates a new security group rule.
+
 * `protocol` - (Optional, String, ForceNew) Specifies the layer 4 protocol
     type, valid values are following. This is required if you want to specify
     a port range.
