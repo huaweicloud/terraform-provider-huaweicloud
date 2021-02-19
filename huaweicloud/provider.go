@@ -709,7 +709,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 	if err != nil {
 		return nil, err
 	}
-	config.endpoints = endpoints
+	config.Endpoints = endpoints
 
 	return &config, nil
 }
