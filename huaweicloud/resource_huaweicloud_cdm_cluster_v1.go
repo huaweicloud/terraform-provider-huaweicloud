@@ -556,12 +556,17 @@ func expandCdmClusterV1CreateClusterSysTags(d interface{}, arrayIndex map[string
 	if err != nil {
 		return nil, err
 	}
-	sysTags := make([]interface{}, 1, 1)
-	sysTags[0] = map[string]string{
-		"key":   "_sys_enterprise_project_id",
-		"value": v.(string),
+	if e, err := isEmptyValue(reflect.ValueOf(v)); err != nil {
+		return nil, fmt.Errorf("Error sys_tags enterprise_project_id, err = %s", err)
+	} else if !e {
+		sysTags := make([]interface{}, 1, 1)
+		sysTags[0] = map[string]string{
+			"key":   "_sys_enterprise_project_id",
+			"value": v.(string),
+		}
+		return sysTags, nil
 	}
-	return sysTags, nil
+	return nil, nil
 }
 
 func expandCdmClusterV1CreateEmail(d interface{}, arrayIndex map[string]int) (interface{}, error) {
