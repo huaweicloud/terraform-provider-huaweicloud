@@ -1,3 +1,11 @@
+## 1.21.2 (February 19, 2021)
+
+BUG FIXES:
+
+* resource/huaweicloud_lb_pool: support UDP protocol and update docs ([#923](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/923))
+
+* Get `enterprise_project_id` form the config when it was empty in resources and data sources ([#910](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/910))
+
 ## 1.21.1 (February 7, 2021)
 
 ENHANCEMENTS:
