@@ -60,7 +60,7 @@ type Config struct {
 	DomainClient *golangsdk.ProviderClient
 
 	// the custom endpoints used to override the default endpoint URL
-	endpoints map[string]string
+	Endpoints map[string]string
 
 	// RegionProjectIDMap is a map which stores the region-projectId pairs,
 	// and region name will be the key and projectID will be the value in this map.
@@ -373,7 +373,7 @@ func (l sLogger) Log(args ...interface{}) {
 }
 
 func getObsEndpoint(c *Config, region string) string {
-	if endpoint, ok := c.endpoints["obs"]; ok {
+	if endpoint, ok := c.Endpoints["obs"]; ok {
 		return endpoint
 	}
 	return fmt.Sprintf("https://obs.%s.%s/", region, c.Cloud)
@@ -437,7 +437,7 @@ func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient,
 		client = c.DomainClient
 	}
 
-	if endpoint, ok := c.endpoints[srv]; ok {
+	if endpoint, ok := c.Endpoints[srv]; ok {
 		return c.newServiceClientByEndpoint(client, srv, endpoint)
 	}
 	return c.newServiceClientByName(client, serviceCatalog, region)
