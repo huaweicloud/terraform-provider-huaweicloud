@@ -65,23 +65,24 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      #  run acceptance test
+      # run acceptance test
       - name: Run acceptance basic test
         # run the step only when HW_ACCESS_KEY is setted
         if: ${{ env.HW_ACCESS_KEY }}
         run: |
           git fetch --no-tags --prune --depth=1 origin +refs/heads/master:refs/remotes/origin/master
-          all_files=$(git diff origin/master HEAD --stat huaweicloud | grep huaweicloud | grep -v "test.go" | awk -F '.' '{print $1}' | awk -F '/' '{print $2}')
+          all_files=$(git diff origin/master HEAD --name-only huaweicloud | grep -v "_test.go")
           echo "the following files have changed: $all_files"
 
           for f in $all_files; do
-            if [ -f "./huaweicloud/${f}_test.go" ]; then
-              all_cases=$(grep "^func TestAcc" ./huaweicloud/${f}_test.go | awk '{print $2}' | awk -F '(' '{print $1}' | grep basic)
-              echo "run acceptance tests: $all_cases"
-              for acc in $all_cases; do
-                make testacc TEST="./huaweicloud" TESTARGS="-run ${acc}"
-              done
+            test_file=${f/%.go/_test.go}
+            if [ -f "./${test_file}" ]; then
+              basic_cases=$(grep "^func TestAcc" ./${test_file} | grep _basic | awk '{print $2}' | awk -F '(' '{print $1}')
+              if [ "X$basic_cases" != "X" ]; then
+                echo "run acceptance basic tests: $basic_cases"
+                make testacc TEST="./huaweicloud" TESTARGS="-run ${basic_cases}"
+              fi
             else
-              echo "[skipped] --- ./huaweicloud/${f}_test.go does not exist"
+              echo "[skipped] --- ./${test_file} does not exist"
             fi
           done
