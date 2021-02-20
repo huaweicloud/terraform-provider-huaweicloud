@@ -28,13 +28,23 @@ func TestAccEvsStorageV3Volume_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEvsStorageV3VolumeExists(resourceName, &volume),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "size", "12"),
 				),
 			},
 			{
-				Config: testAccEvsStorageV3Volume_basic(rNameUpdate),
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"cascade",
+				},
+			},
+			{
+				Config: testAccEvsStorageV3Volume_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEvsStorageV3VolumeExists(resourceName, &volume),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "size", "20"),
 				),
 			},
 		},
@@ -197,6 +207,20 @@ resource "huaweicloud_evs_volume" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   volume_type       = "SAS"
   size              = 12
+}
+`, rName)
+}
+
+func testAccEvsStorageV3Volume_update(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_evs_volume" "test" {
+  name              = "%s"
+  description       = "test volume"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  volume_type       = "SAS"
+  size              = 20
 }
 `, rName)
 }

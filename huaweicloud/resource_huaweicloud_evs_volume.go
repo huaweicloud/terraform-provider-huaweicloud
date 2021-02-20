@@ -39,37 +39,9 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"backup_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"size": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"snapshot_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"image_id": {
-				Type:     schema.TypeString,
-				Optional: true,
 				ForceNew: true,
 			},
 			"volume_type": {
@@ -77,8 +49,13 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"SATA", "SAS", "SSD", "co-p1", "uh-l1",
+					"GPSSD", "SAS", "SSD",
 				}, true),
+			},
+			"backup_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"device_type": {
 				Type:         schema.TypeString,
@@ -86,6 +63,40 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 				ForceNew:     true,
 				Default:      "VBD",
 				ValidateFunc: validation.StringInSlice([]string{"VBD", "SCSI"}, true),
+			},
+			"image_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"snapshot_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"kms_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"multiattach": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  false,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"size": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"tags": {
 				Type:     schema.TypeMap,
@@ -112,17 +123,6 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 					},
 				},
 				Set: resourceVolumeAttachmentHash,
-			},
-			"multiattach": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Default:  false,
-			},
-			"kms_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
 			},
 			"wwn": {
 				Type:     schema.TypeString,
@@ -231,7 +231,15 @@ func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("source_vol_id", v.SourceVolID)
 	d.Set("volume_type", v.VolumeType)
 	d.Set("wwn", v.WWN)
-
+	if value, ok := v.Metadata["hw:passthrough"]; ok && value == "true" {
+		d.Set("device_type", "SCSI")
+	} else {
+		d.Set("device_type", "VBD")
+	}
+	if value, ok := v.VolumeImageMetadata["image_id"]; ok {
+		d.Set("image_id", value)
+	}
+	d.Set("multiattach", v.Multiattach)
 	// set tags
 	tags := make(map[string]string)
 	for key, val := range v.Tags {
