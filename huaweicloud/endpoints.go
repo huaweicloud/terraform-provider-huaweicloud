@@ -15,7 +15,7 @@ type ServiceCatalog struct {
 var allServiceCatalog = map[string]ServiceCatalog{
 	// catalog for global service
 	// identity is used for openstack keystone APIs
-	"identity": ServiceCatalog{
+	"identity": {
 		Name:             "iam",
 		Version:          "v3",
 		Scope:            "global",
@@ -23,33 +23,33 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 	},
 	// iam is used for huaweicloud IAM APIs
-	"iam": ServiceCatalog{
+	"iam": {
 		Name:             "iam",
 		Version:          "v3.0",
 		Scope:            "global",
 		Admin:            true,
 		WithOutProjectID: true,
 	},
-	"cdn": ServiceCatalog{
+	"cdn": {
 		Name:             "cdn",
 		Version:          "v1.0",
 		Scope:            "global",
 		WithOutProjectID: true,
 	},
-	"eps": ServiceCatalog{
+	"eps": {
 		Name:             "eps",
 		Version:          "v1.0",
 		Scope:            "global",
 		Admin:            true,
 		WithOutProjectID: true,
 	},
-	"bss": ServiceCatalog{
+	"bss": {
 		Name:             "bss",
 		Version:          "v1.0",
 		Scope:            "global",
 		WithOutProjectID: true,
 	},
-	"bssv2": ServiceCatalog{
+	"bssv2": {
 		Name:             "bss",
 		Version:          "v2",
 		Scope:            "global",
@@ -57,242 +57,242 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	},
 
 	// ******* catalog for Compute *******
-	"ecs": ServiceCatalog{
+	"ecs": {
 		Name:    "ecs",
 		Version: "v1",
 	},
-	"ecsv11": ServiceCatalog{
+	"ecsv11": {
 		Name:    "ecs",
 		Version: "v1.1",
 	},
-	"ecsv21": ServiceCatalog{
+	"ecsv21": {
 		Name:    "ecs",
 		Version: "v2.1",
 	},
-	"autoscaling": ServiceCatalog{
+	"autoscaling": {
 		Name:    "as",
 		Version: "autoscaling-api/v1",
 	},
-	"ims": ServiceCatalog{
+	"ims": {
 		Name:             "ims",
 		Version:          "v2",
 		WithOutProjectID: true,
 	},
-	"cce": ServiceCatalog{
+	"cce": {
 		Name:    "cce",
 		Version: "api/v3/projects",
 	},
-	"cce_addon": ServiceCatalog{
+	"cce_addon": {
 		Name:             "cce",
 		Version:          "api/v3",
 		WithOutProjectID: true,
 	},
-	"cciv1": ServiceCatalog{
+	"cciv1": {
 		Name:             "cci",
 		Version:          "apis/networking.cci.io/v1beta1",
 		WithOutProjectID: true,
 	},
-	"fgsv2": ServiceCatalog{
+	"fgsv2": {
 		Name:    "functiongraph",
 		Version: "v2",
 	},
 
 	// ******* catalog for storage ******
-	"volumev2": ServiceCatalog{
+	"volumev2": {
 		Name:    "evs",
 		Version: "v2",
 	},
-	"evs": ServiceCatalog{
+	"evs": {
 		Name:    "evs",
 		Version: "v3",
 	},
-	"sfs": ServiceCatalog{
+	"sfs": {
 		Name:    "sfs",
 		Version: "v2",
 	},
-	"sfs-turbo": ServiceCatalog{
+	"sfs-turbo": {
 		Name:    "sfs-turbo",
 		Version: "v1",
 	},
-	"csbs": ServiceCatalog{
+	"csbs": {
 		Name:    "csbs",
 		Version: "v1",
 	},
-	"vbs": ServiceCatalog{
+	"vbs": {
 		Name:    "vbs",
 		Version: "v2",
 	},
 
 	// ******* catalog for network ******
-	"vpc": ServiceCatalog{
+	"vpc": {
 		Name:             "vpc",
 		Version:          "v1",
 		WithOutProjectID: true,
 	},
-	"networkv2": ServiceCatalog{
+	"networkv2": {
 		Name:             "vpc",
 		Version:          "v2.0",
 		WithOutProjectID: true,
 	},
-	"security_group": ServiceCatalog{
+	"security_group": {
 		Name:    "vpc",
 		Version: "v1",
 	},
-	"nat": ServiceCatalog{
+	"nat": {
 		Name:    "nat",
 		Version: "v2",
 	},
-	"elb": ServiceCatalog{
+	"elb": {
 		Name:             "elb",
 		Version:          "v1.0",
 		WithOutProjectID: true,
 	},
-	"elbv2": ServiceCatalog{
+	"elbv2": {
 		Name:             "elb",
 		Version:          "v2.0",
 		WithOutProjectID: true,
 	},
-	"fwv2": ServiceCatalog{
+	"fwv2": {
 		Name:             "vpc",
 		Version:          "v2.0",
 		WithOutProjectID: true,
 	},
-	"vpcep": ServiceCatalog{
+	"vpcep": {
 		Name:    "vpcep",
 		Version: "v1",
 	},
-	"dns": ServiceCatalog{
+	"dns": {
 		Name:             "dns",
 		Version:          "v2",
 		Scope:            "global",
 		WithOutProjectID: true,
 	},
-	"dns_region": ServiceCatalog{
+	"dns_region": {
 		Name:             "dns",
 		Version:          "v2",
 		WithOutProjectID: true,
 	},
 
 	// catalog for database
-	"rdsv1": ServiceCatalog{
+	"rdsv1": {
 		Name:    "rds",
 		Version: "rds/v1",
 	},
-	"rds": ServiceCatalog{
+	"rds": {
 		Name:    "rds",
 		Version: "v3",
 	},
-	"dds": ServiceCatalog{
+	"dds": {
 		Name:    "dds",
 		Version: "v3",
 	},
-	"cassandra": ServiceCatalog{
+	"cassandra": {
 		Name:    "gaussdb-nosql",
 		Version: "v3",
 	},
-	"gaussdb": ServiceCatalog{
+	"gaussdb": {
 		Name:    "gaussdb",
 		Version: "mysql/v3",
 	},
-	"opengauss": ServiceCatalog{
+	"opengauss": {
 		Name:    "gaussdb",
 		Version: "opengauss/v3",
 	},
 
 	// catalog for management service
-	"ces": ServiceCatalog{
+	"ces": {
 		Name:    "ces",
 		Version: "V1.0",
 	},
-	"cts": ServiceCatalog{
+	"cts": {
 		Name:    "cts",
 		Version: "v1.0",
 	},
-	"lts": ServiceCatalog{
+	"lts": {
 		Name:    "lts",
 		Version: "v2",
 	},
-	"smn": ServiceCatalog{
+	"smn": {
 		Name:         "smn",
 		Version:      "v2",
 		ResourceBase: "notifications",
 	},
 
 	// catalog for Security service
-	"anti-ddos": ServiceCatalog{
+	"anti-ddos": {
 		Name:    "antiddos",
 		Version: "v1",
 	},
-	"kms": ServiceCatalog{
+	"kms": {
 		Name:             "kms",
 		Version:          "v1.0",
 		WithOutProjectID: true,
 	},
 
 	// catalog for Enterprise Intelligence
-	"mrs": ServiceCatalog{
+	"mrs": {
 		Name:    "mrs",
 		Version: "v1.1",
 	},
-	"dws": ServiceCatalog{
+	"dws": {
 		Name:    "dws",
 		Version: "v1.0",
 	},
-	"dli": ServiceCatalog{
+	"dli": {
 		Name:    "dli",
 		Version: "v1.0",
 	},
-	"disv2": ServiceCatalog{
+	"disv2": {
 		Name:    "dis",
 		Version: "v2",
 	},
-	"css": ServiceCatalog{
+	"css": {
 		Name:    "css",
 		Version: "v1.0",
 	},
-	"cs": ServiceCatalog{
+	"cs": {
 		Name:    "cs",
 		Version: "v1.0",
 	},
-	"ges": ServiceCatalog{
+	"ges": {
 		Name:    "ges",
 		Version: "v1.0",
 	},
-	"cloudtable": ServiceCatalog{
+	"cloudtable": {
 		Name:    "cloudtable",
 		Version: "v2",
 	},
-	"cdm": ServiceCatalog{
+	"cdm": {
 		Name:    "cdm",
 		Version: "v1.1",
 	},
 
 	// catalog for Application
-	"apig": ServiceCatalog{
+	"apig": {
 		Name:             "apig",
 		Version:          "v1.0",
 		ResourceBase:     "apigw",
 		WithOutProjectID: true,
 	},
-	"dcsv1": ServiceCatalog{
+	"dcsv1": {
 		Name:    "dcs",
 		Version: "v1.0",
 	},
-	"dcsv2": ServiceCatalog{
+	"dcsv2": {
 		Name:    "dcs",
 		Version: "v2",
 	},
-	"dms": ServiceCatalog{
+	"dms": {
 		Name:    "dms",
 		Version: "v1.0",
 	},
-	"dmsv2": ServiceCatalog{
+	"dmsv2": {
 		Name:    "dms",
 		Version: "v2",
 	},
 
 	// catalog for edge / IoT
-	"iec": ServiceCatalog{
+	"iec": {
 		Name:             "iecs",
 		Version:          "v1",
 		Scope:            "global",
@@ -300,15 +300,15 @@ var allServiceCatalog = map[string]ServiceCatalog{
 	},
 
 	// catalog for Others
-	"rts": ServiceCatalog{
+	"rts": {
 		Name:    "rts",
 		Version: "v1",
 	},
-	"oms": ServiceCatalog{
+	"oms": {
 		Name:    "oms",
 		Version: "v1",
 	},
-	"mls": ServiceCatalog{
+	"mls": {
 		Name:    "mls",
 		Version: "v1.0",
 	},
