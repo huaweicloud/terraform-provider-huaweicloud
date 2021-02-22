@@ -34,12 +34,6 @@ func resourceIAMAgencyV3() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -376,7 +370,6 @@ func resourceIAMAgencyV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	log.Printf("[DEBUG] Retrieved IAM-Agency %s: %#v", d.Id(), a)
 
-	d.Set("region", GetRegion(d, config))
 	d.Set("name", a.Name)
 	d.Set("delegated_domain_name", a.DelegatedDomainName)
 	d.Set("description", a.Description)

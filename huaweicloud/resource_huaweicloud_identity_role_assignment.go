@@ -96,7 +96,6 @@ func resourceIdentityRoleAssignmentV3Read(d *schema.ResourceData, meta interface
 	d.Set("project_id", projectID)
 	d.Set("group_id", groupID)
 	d.Set("role_id", roleAssignment.ID)
-	d.Set("region", GetRegion(d, config))
 
 	return nil
 }

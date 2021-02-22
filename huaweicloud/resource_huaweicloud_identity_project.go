@@ -40,13 +40,6 @@ func ResourceIdentityProjectV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
 		},
 	}
 }
@@ -96,7 +89,6 @@ func resourceIdentityProjectV3Read(d *schema.ResourceData, meta interface{}) err
 	d.Set("is_domain", project.IsDomain)
 	d.Set("name", project.Name)
 	d.Set("parent_id", project.ParentID)
-	d.Set("region", GetRegion(d, config))
 
 	return nil
 }
