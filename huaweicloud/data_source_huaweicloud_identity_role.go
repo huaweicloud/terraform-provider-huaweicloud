@@ -23,12 +23,6 @@ func DataSourceIdentityRoleV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -82,7 +76,6 @@ func dataSourceIdentityRoleV3Attributes(d *schema.ResourceData, config *Config, 
 	d.SetId(role.ID)
 	d.Set("name", role.Name)
 	d.Set("domain_id", role.DomainID)
-	d.Set("region", GetRegion(d, config))
 
 	return nil
 }

@@ -59,13 +59,6 @@ func ResourceIdentityUserV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
 		},
 	}
 }
@@ -120,7 +113,6 @@ func resourceIdentityUserV3Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("enabled", user.Enabled)
 	d.Set("name", user.Name)
 	d.Set("description", user.Description)
-	d.Set("region", GetRegion(d, config))
 
 	return nil
 }

@@ -34,13 +34,6 @@ func ResourceIdentityGroupV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
 		},
 	}
 }
@@ -87,7 +80,6 @@ func resourceIdentityGroupV3Read(d *schema.ResourceData, meta interface{}) error
 	d.Set("domain_id", group.DomainID)
 	d.Set("description", group.Description)
 	d.Set("name", group.Name)
-	d.Set("region", GetRegion(d, config))
 
 	return nil
 }
