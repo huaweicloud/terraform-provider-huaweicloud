@@ -233,3 +233,31 @@ In addition to all arguments above, the following attributes are exported:
 This resource provides the following timeouts configuration options:
 - `create` - Default is 20 minute.
 - `delete` - Default is 20 minute.
+
+## Import
+
+CCE node can be imported using the cluster ID and node ID
+separated by a slash, e.g.:
+
+```
+$ terraform import huaweicloud_cce_node.my_node 5c20fdad-7288-11eb-b817-0255ac10158b/e9287dff-7288-11eb-b817-0255ac10158b
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+API response, security or some other reason. The missing attributes include:
+`password`, `fixed_ip`, `eip_id`, `preinstall`, `postinstall`, `iptype`, `bandwidth_charge_mode`, `bandwidth_size`, 
+`share_type`, `max_pods`, `extend_param`, `labels`, `taints` and arguments for pre-paid.
+It is generally recommended running `terraform plan` after importing a node. 
+You can then decide if changes should be applied to the node, or the resource definition should be updated to align
+with the node. Also you can ignore changes as below.
+```
+resource "huaweicloud_cce_node" "my_node" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      extend_param, labels,
+    ]
+  }
+}
+```
