@@ -37,4 +37,3 @@ In addition to all arguments above, the following attributes are exported:
 * `policy` - Document of the custom policy.
 
 * `catalog` - The catalog of the custom policy.
-

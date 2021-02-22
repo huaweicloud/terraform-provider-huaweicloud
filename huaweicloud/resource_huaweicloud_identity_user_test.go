@@ -14,6 +14,7 @@ import (
 func TestAccIdentityV3User_basic(t *testing.T) {
 	var user users.User
 	var userName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_identity_user.user_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -26,21 +27,17 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 			{
 				Config: testAccIdentityV3User_basic(userName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3UserExists("huaweicloud_identity_user_v3.user_1", &user),
-					resource.TestCheckResourceAttrPtr(
-						"huaweicloud_identity_user_v3.user_1", "name", &user.Name),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_identity_user_v3.user_1", "enabled", "true"),
+					testAccCheckIdentityV3UserExists(resourceName, &user),
+					resource.TestCheckResourceAttrPtr(resourceName, "name", &user.Name),
+					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 				),
 			},
 			{
 				Config: testAccIdentityV3User_update(userName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3UserExists("huaweicloud_identity_user_v3.user_1", &user),
-					resource.TestCheckResourceAttrPtr(
-						"huaweicloud_identity_user_v3.user_1", "name", &user.Name),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_identity_user_v3.user_1", "enabled", "false"),
+					testAccCheckIdentityV3UserExists(resourceName, &user),
+					resource.TestCheckResourceAttrPtr(resourceName, "name", &user.Name),
+					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
 				),
 			},
 		},
@@ -55,7 +52,7 @@ func testAccCheckIdentityV3UserDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_user_v3" {
+		if rs.Type != "huaweicloud_identity_user" {
 			continue
 		}
 
@@ -102,22 +99,22 @@ func testAccCheckIdentityV3UserExists(n string, user *users.User) resource.TestC
 
 func testAccIdentityV3User_basic(userName string) string {
 	return fmt.Sprintf(`
-    resource "huaweicloud_identity_user_v3" "user_1" {
-      name = "%s"
-      password = "password123@!"
-      enabled = true
-      description = "tested by terraform"
-    }  
-  `, userName)
+resource "huaweicloud_identity_user" "user_1" {
+  name        = "%s"
+  password    = "password123@!"
+  enabled     = true
+  description = "tested by terraform"
+}
+`, userName)
 }
 
 func testAccIdentityV3User_update(userName string) string {
 	return fmt.Sprintf(`
-    resource "huaweicloud_identity_user_v3" "user_1" {
-      name = "%s"
-      enabled = false
-      password = "password123@!"
-      description = "tested by terraform"
-    }
-  `, userName)
+resource "huaweicloud_identity_user" "user_1" {
+  name        = "%s"
+  password    = "password123@!"
+  enabled     = false
+  description = "tested by terraform"
+}
+`, userName)
 }

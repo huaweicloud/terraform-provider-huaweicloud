@@ -14,6 +14,7 @@ import (
 func TestAccIdentityV3Group_basic(t *testing.T) {
 	var group groups.Group
 	var groupName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_identity_group.group_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -26,25 +27,19 @@ func TestAccIdentityV3Group_basic(t *testing.T) {
 			{
 				Config: testAccIdentityV3Group_basic(groupName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3GroupExists("huaweicloud_identity_group_v3.group_1", &group),
-					resource.TestCheckResourceAttrPtr(
-						"huaweicloud_identity_group_v3.group_1", "name", &group.Name),
-					resource.TestCheckResourceAttrPtr(
-						"huaweicloud_identity_group_v3.group_1", "description", &group.Description),
-					resource.TestCheckResourceAttrPtr(
-						"huaweicloud_identity_group_v3.group_1", "domain_id", &group.DomainID),
+					testAccCheckIdentityV3GroupExists(resourceName, &group),
+					resource.TestCheckResourceAttrPtr(resourceName, "name", &group.Name),
+					resource.TestCheckResourceAttrPtr(resourceName, "description", &group.Description),
+					resource.TestCheckResourceAttrPtr(resourceName, "domain_id", &group.DomainID),
 				),
 			},
 			{
 				Config: testAccIdentityV3Group_update(groupName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3GroupExists("huaweicloud_identity_group_v3.group_1", &group),
-					resource.TestCheckResourceAttrPtr(
-						"huaweicloud_identity_group_v3.group_1", "name", &group.Name),
-					resource.TestCheckResourceAttrPtr(
-						"huaweicloud_identity_group_v3.group_1", "description", &group.Description),
-					resource.TestCheckResourceAttrPtr(
-						"huaweicloud_identity_group_v3.group_1", "domain_id", &group.DomainID),
+					testAccCheckIdentityV3GroupExists(resourceName, &group),
+					resource.TestCheckResourceAttrPtr(resourceName, "name", &group.Name),
+					resource.TestCheckResourceAttrPtr(resourceName, "description", &group.Description),
+					resource.TestCheckResourceAttrPtr(resourceName, "domain_id", &group.DomainID),
 				),
 			},
 		},
@@ -59,7 +54,7 @@ func testAccCheckIdentityV3GroupDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_group_v3" {
+		if rs.Type != "huaweicloud_identity_group" {
 			continue
 		}
 
@@ -106,18 +101,18 @@ func testAccCheckIdentityV3GroupExists(n string, group *groups.Group) resource.T
 
 func testAccIdentityV3Group_basic(groupName string) string {
 	return fmt.Sprintf(`
-    resource "huaweicloud_identity_group_v3" "group_1" {
-      name = "%s"
-      description = "A ACC test group"
-    }
-  `, groupName)
+resource "huaweicloud_identity_group" "group_1" {
+  name = "%s"
+  description = "A ACC test group"
+}
+`, groupName)
 }
 
 func testAccIdentityV3Group_update(groupName string) string {
 	return fmt.Sprintf(`
-    resource "huaweicloud_identity_group_v3" "group_1" {
-      name = "%s"
-      description = "Some Group"
-    }
-  `, groupName)
+resource "huaweicloud_identity_group" "group_1" {
+  name = "%s"
+  description = "Some Group"
+}
+`, groupName)
 }

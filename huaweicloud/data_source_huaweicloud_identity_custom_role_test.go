@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccHuaweiCloudIdentityCustomRoleDataSource_basic(t *testing.T) {
+func TestAccIdentityCustomRoleDataSource_basic(t *testing.T) {
 	var rName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -20,7 +20,7 @@ func TestAccHuaweiCloudIdentityCustomRoleDataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccHuaweiCloudIdentityCustomRoleDataSource_basic(rName),
+				Config: testAccIdentityCustomRoleDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIdentityCustomDataSourceID("data.huaweicloud_identity_custom_role.role_1"),
 					resource.TestCheckResourceAttr(
@@ -46,7 +46,7 @@ func testAccCheckIdentityCustomDataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccHuaweiCloudIdentityCustomRoleDataSource_basic(rName string) string {
+func testAccIdentityCustomRoleDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_role" test {
   name        = "%s"

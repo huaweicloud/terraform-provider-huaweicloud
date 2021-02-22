@@ -125,7 +125,7 @@ resource "huaweicloud_identity_role" test {
 }
 EOF
 }
-  `, roleName)
+`, roleName)
 }
 
 func testAccIdentityRole_update(roleName string) string {
@@ -149,7 +149,7 @@ resource "huaweicloud_identity_role" test {
       "Condition": {
         "StringStartWith": {
           "g:ProjectName": [
-            "cn-north-4"
+            "%s"
           ]
         }
       }
@@ -158,5 +158,5 @@ resource "huaweicloud_identity_role" test {
 }
 EOF
 }
-  `, roleName)
+`, roleName, HW_REGION_NAME)
 }

@@ -27,9 +27,6 @@ resource "huaweicloud_identity_agency" "agency" {
 }
 ```
 
-**Note**: It can not set `tenant_name` in `provider "huaweicloud"` when
-   using this resource.
-
 ## Argument Reference
 
 The following arguments are supported:
