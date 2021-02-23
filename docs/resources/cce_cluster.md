@@ -127,8 +127,16 @@ versions are available, choose Dashboard > Buy Cluster on the CCE console. Chang
 	* `overlay_l2` - An overlay_l2 network built for containers by using Open vSwitch(OVS)
 	* `underlay_ipvlan` - An underlay_ipvlan network built for bare metal servers by using ipvlan.
 	* `vpc-router` - An vpc-router network built for containers by using ipvlan and custom VPC routes.
+	* `eni` - A Yangtse network built for cce turbo cluster. The container network deeply integrates the native ENI capability of VPC, 
+	uses the VPC CIDR block to allocate container addresses, and supports direct connections between ELB and containers to provide high performance.
 
 * `container_network_cidr` - (Optional, String, ForceNew) Container network segment. Changing this parameter will create a new cluster resource.
+
+* `eni_subnet_id` - (Optional, String, ForceNew) Eni subnet id. Specified when creating a CCE Turbo cluster.
+  Changing this parameter will create a new cluster resource.
+
+* `eni_subnet_cidr` - (Optional, String, ForceNew) Eni network segment. Specified when creating a CCE Turbo cluster.
+  Changing this parameter will create a new cluster resource.
 
 * `authentication_mode` - (Optional, String, ForceNew) Authentication mode of the cluster, possible values are x509 and rbac. Defaults to *rbac*.
     Changing this parameter will create a new cluster resource.
