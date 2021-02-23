@@ -23,17 +23,17 @@ resource "huaweicloud_identity_group" "group_1" {
 
 The following arguments are supported:
 
-* `name` - (Required, String) The name of the group.The length is less than or equal to 64 bytes. 
+* `name` - (Required, String) Specifies the name of the group.The length is less than or equal to 64 bytes.
 
-* `description` - (Optional, String) A description of the group.
-
-* `domain_id` - (Optional, String) The domain this group belongs to.
+* `description` - (Optional, String) Specifies the description of the group.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - A resource ID in UUID format.
+
+* `domain_id` - Indicates the domain which group belongs to.
 
 ## Import
 

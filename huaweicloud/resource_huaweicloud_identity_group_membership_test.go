@@ -15,6 +15,7 @@ func TestAccIdentityV3GroupMembership_basic(t *testing.T) {
 	var groupName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
 	var userName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
 	var userName2 = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_identity_group_membership.membership_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -27,19 +28,19 @@ func TestAccIdentityV3GroupMembership_basic(t *testing.T) {
 			{
 				Config: testAccIdentityV3GroupMembership_basic(groupName, userName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3GroupMembershipExists("huaweicloud_identity_group_membership_v3.membership_1", []string{userName}),
+					testAccCheckIdentityV3GroupMembershipExists(resourceName, []string{userName}),
 				),
 			},
 			{
 				Config: testAccIdentityV3GroupMembership_update(groupName, userName, userName2),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3GroupMembershipExists("huaweicloud_identity_group_membership_v3.membership_1", []string{userName, userName2}),
+					testAccCheckIdentityV3GroupMembershipExists(resourceName, []string{userName, userName2}),
 				),
 			},
 			{
 				Config: testAccIdentityV3GroupMembership_updatedown(groupName, userName2),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3GroupMembershipExists("huaweicloud_identity_group_membership_v3.membership_1", []string{userName2}),
+					testAccCheckIdentityV3GroupMembershipExists(resourceName, []string{userName2}),
 				),
 			},
 		},
@@ -54,7 +55,7 @@ func testAccCheckIdentityV3GroupMembershipDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_group_membership_v3" {
+		if rs.Type != "huaweicloud_identity_group_membership" {
 			continue
 		}
 
@@ -118,66 +119,64 @@ func testAccCheckIdentityV3GroupMembershipExists(n string, us []string) resource
 
 func testAccIdentityV3GroupMembership_basic(groupName, userName string) string {
 	return fmt.Sprintf(`
-    resource "huaweicloud_identity_group_v3" "group_1" {
-      name = "%s"
-    }
+resource "huaweicloud_identity_group" "group_1" {
+  name = "%s"
+}
 
-    resource "huaweicloud_identity_user_v3" "user_1" {
-      name = "%s"
-      password = "password123@#"
-      enabled = true
-    }
+resource "huaweicloud_identity_user" "user_1" {
+  name     = "%s"
+  password = "password123@#"
+  enabled  = true
+}
    
-    resource "huaweicloud_identity_group_membership_v3" "membership_1" {
-        group = "${huaweicloud_identity_group_v3.group_1.id}"
-        users = ["${huaweicloud_identity_user_v3.user_1.id}"]
-    }
-  `, groupName, userName)
+resource "huaweicloud_identity_group_membership" "membership_1" {
+  group = huaweicloud_identity_group.group_1.id
+  users = [huaweicloud_identity_user.user_1.id]
+}
+`, groupName, userName)
 }
 
 func testAccIdentityV3GroupMembership_update(groupName, userName string, userName2 string) string {
 	return fmt.Sprintf(`
-    resource "huaweicloud_identity_group_v3" "group_1" {
-      name = "%s"
-    }
+resource "huaweicloud_identity_group" "group_1" {
+  name = "%s"
+}
 
-    resource "huaweicloud_identity_user_v3" "user_1" {
-      name = "%s"
-      password = "password123@#"
-      enabled = true
-    }
+resource "huaweicloud_identity_user" "user_1" {
+  name     = "%s"
+  password = "password123@#"
+  enabled  = true
+}
 
-    resource "huaweicloud_identity_user_v3" "user_2" {
-      name = "%s"
-      password = "password123@#"
-      enabled = true
-    }
+resource "huaweicloud_identity_user" "user_2" {
+  name     = "%s"
+  password = "password123@#"
+  enabled  = true
+}
 
    
-    resource "huaweicloud_identity_group_membership_v3" "membership_1" {
-        group = "${huaweicloud_identity_group_v3.group_1.id}"
-        users = ["${huaweicloud_identity_user_v3.user_1.id}",
-                "${huaweicloud_identity_user_v3.user_2.id}"]
-    }
-  `, groupName, userName, userName2)
+resource "huaweicloud_identity_group_membership" "membership_1" {
+  group = huaweicloud_identity_group.group_1.id
+  users = [huaweicloud_identity_user.user_1.id, huaweicloud_identity_user.user_2.id]
+}
+`, groupName, userName, userName2)
 }
 
 func testAccIdentityV3GroupMembership_updatedown(groupName, userName string) string {
 	return fmt.Sprintf(`
-    resource "huaweicloud_identity_group_v3" "group_1" {
-      name = "%s"
-    }
+resource "huaweicloud_identity_group" "group_1" {
+  name = "%s"
+}
 
-    resource "huaweicloud_identity_user_v3" "user_2" {
-      name = "%s"
-      password = "password123@#"
-      enabled = true
-    }
+resource "huaweicloud_identity_user" "user_2" {
+  name     = "%s"
+  password = "password123@#"
+  enabled  = true
+}
 
-   
-    resource "huaweicloud_identity_group_membership_v3" "membership_1" {
-        group = "${huaweicloud_identity_group_v3.group_1.id}"
-        users = ["${huaweicloud_identity_user_v3.user_2.id}"]
-    }
-  `, groupName, userName)
+resource "huaweicloud_identity_group_membership" "membership_1" {
+  group = huaweicloud_identity_group.group_1.id
+  users = [huaweicloud_identity_user.user_2.id]
+}
+`, groupName, userName)
 }

@@ -19,6 +19,8 @@ func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 	var role roles.Role
 	var group groups.Group
 	var project projects.Project
+	resourceName := "huaweicloud_identity_role_assignment.role_assignment_1"
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -30,13 +32,10 @@ func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 			{
 				Config: testAccIdentityV3RoleAssignment_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3RoleAssignmentExists("huaweicloud_identity_role_assignment_v3.role_assignment_1", &role, &group, &project),
-					resource.TestCheckResourceAttrPtr(
-						"huaweicloud_identity_role_assignment_v3.role_assignment_1", "project_id", &project.ID),
-					resource.TestCheckResourceAttrPtr(
-						"huaweicloud_identity_role_assignment_v3.role_assignment_1", "group_id", &group.ID),
-					resource.TestCheckResourceAttrPtr(
-						"huaweicloud_identity_role_assignment_v3.role_assignment_1", "role_id", &role.ID),
+					testAccCheckIdentityV3RoleAssignmentExists(resourceName, &role, &group, &project),
+					resource.TestCheckResourceAttrPtr(resourceName, "project_id", &project.ID),
+					resource.TestCheckResourceAttrPtr(resourceName, "group_id", &group.ID),
+					resource.TestCheckResourceAttrPtr(resourceName, "role_id", &role.ID),
 				),
 			},
 		},
@@ -51,7 +50,7 @@ func testAccCheckIdentityV3RoleAssignmentDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_role_assignment_v3" {
+		if rs.Type != "huaweicloud_identity_role_assignment" {
 			continue
 		}
 
@@ -132,22 +131,22 @@ func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, grou
 	}
 }
 
-const testAccIdentityV3RoleAssignment_basic = `
-resource "huaweicloud_identity_project_v3" "project_1" {
-  name = "project_1"
-}
-
-resource "huaweicloud_identity_group_v3" "group_1" {
-  name = "user_1"
-}
-
-data "huaweicloud_identity_role_v3" "role_1" {
+var testAccIdentityV3RoleAssignment_basic = fmt.Sprintf(`
+data "huaweicloud_identity_role" "role_1" {
   name = "secu_admin"
 }
 
-resource "huaweicloud_identity_role_assignment_v3" "role_assignment_1" {
-  group_id = "${huaweicloud_identity_group_v3.group_1.id}"
-  project_id = "${huaweicloud_identity_project_v3.project_1.id}"
-  role_id = "${data.huaweicloud_identity_role_v3.role_1.id}"
+resource "huaweicloud_identity_project" "project_1" {
+  name = "%s_project_1"
 }
-`
+
+resource "huaweicloud_identity_group" "group_1" {
+  name = "user_1"
+}
+
+resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
+  role_id    = data.huaweicloud_identity_role.role_1.id
+  group_id   = huaweicloud_identity_group.group_1.id
+  project_id = huaweicloud_identity_project.project_1.id
+}
+`, HW_REGION_NAME)

@@ -30,16 +30,16 @@ The following arguments are supported:
 
 * `description` - (Optional, String) A description of the user.
 
-* `default_project_id` - (Optional, String) The default project this user belongs to.
-
-* `domain_id` - (Optional, String) The domain this user belongs to.
-
 * `enabled` - (Optional, Bool) Whether the user is enabled or disabled. Valid
     values are `true` and `false`.
 
 * `password` - (Optional, String) The password for the user. It must contain at least 
      two of the following character types: uppercase letters, lowercase letters, 
      digits, and special characters.
+
+* `default_project_id` - (Optional, String) The default project this user belongs to.
+
+* `domain_id` - (Optional, String) The domain this user belongs to.
 
 ## Attributes Reference
 

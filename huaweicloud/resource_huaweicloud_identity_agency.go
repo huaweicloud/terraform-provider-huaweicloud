@@ -48,18 +48,6 @@ func resourceIAMAgencyV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"duration": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"expire_time": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"project_role": {
 				Type:         schema.TypeSet,
 				Optional:     true,
@@ -89,6 +77,19 @@ func resourceIAMAgencyV3() *schema.Resource {
 				MaxItems: 25,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
+			},
+
+			"duration": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"expire_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"create_time": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}

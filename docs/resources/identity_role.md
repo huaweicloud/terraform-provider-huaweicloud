@@ -16,7 +16,7 @@ resource "huaweicloud_identity_role" role1 {
   name = "test"
   description = "created by terraform"
   type = "AX"
-    policy = <<EOF
+  policy = <<EOF
 {
   "Version": "1.1",
   "Statement": [

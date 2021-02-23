@@ -26,38 +26,33 @@ func ResourceIdentityUserV3() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"default_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-
-			"domain_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-
-			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"password": {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Sensitive: true,
 			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+			"default_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"domain_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}

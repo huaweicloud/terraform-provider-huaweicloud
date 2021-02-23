@@ -74,4 +74,3 @@ data "huaweicloud_identity_role" "auth_admin" {
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a data source ID in UUID format.
-

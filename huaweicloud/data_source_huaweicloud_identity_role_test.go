@@ -8,7 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccHuaweiCloudIdentityV3RoleDataSource_basic(t *testing.T) {
+func TestAccIdentityRoleDataSource_basic(t *testing.T) {
+	resourceName := "data.huaweicloud_identity_role.role_1"
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -17,18 +19,17 @@ func TestAccHuaweiCloudIdentityV3RoleDataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccHuaweiCloudIdentityV3RoleDataSource_basic,
+				Config: testAccIdentityRoleDataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3DataSourceID("data.huaweicloud_identity_role_v3.role_1"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_identity_role_v3.role_1", "name", "admin"),
+					testAccCheckIdentityDataSourceID(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", "secu_admin"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckIdentityV3DataSourceID(n string) resource.TestCheckFunc {
+func testAccCheckIdentityDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -43,8 +44,8 @@ func testAccCheckIdentityV3DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-const testAccHuaweiCloudIdentityV3RoleDataSource_basic = `
-data "huaweicloud_identity_role_v3" "role_1" {
-    name = "admin"
+const testAccIdentityRoleDataSource_basic = `
+data "huaweicloud_identity_role" "role_1" {
+  name = "secu_admin"
 }
 `
