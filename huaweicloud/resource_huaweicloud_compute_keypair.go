@@ -24,7 +24,6 @@ func ResourceComputeKeypairV2() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -34,12 +33,6 @@ func ResourceComputeKeypairV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-			},
-			"value_specs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -52,12 +45,9 @@ func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
-	createOpts := KeyPairCreateOpts{
-		keypairs.CreateOpts{
-			Name:      d.Get("name").(string),
-			PublicKey: d.Get("public_key").(string),
-		},
-		MapValueSpecs(d),
+	createOpts := keypairs.CreateOpts{
+		Name:      d.Get("name").(string),
+		PublicKey: d.Get("public_key").(string),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
