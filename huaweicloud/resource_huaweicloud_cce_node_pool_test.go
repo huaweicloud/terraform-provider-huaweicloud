@@ -44,6 +44,16 @@ func TestAccCCENodePool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "priority", "1"),
 				),
 			},
+			{
+				Config: testAccCCENodePool_volume_extendParam(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "root_volume.0.extend_param.test_key", "test_val"),
+					resource.TestCheckResourceAttr(resourceName, "data_volumes.0.extend_param.test_key1", "test_val1"),
+					resource.TestCheckResourceAttr(resourceName, "data_volumes.1.extend_param.test_key2", "test_val2"),
+				),
+			},
 		},
 	})
 }
@@ -201,4 +211,50 @@ resource "huaweicloud_cce_node_pool" "test" {
   }
 }
 `, testAccCCENodePool_Base(rName), updateName)
+}
+
+func testAccCCENodePool_volume_extendParam(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id         = huaweicloud_cce_cluster.test.id
+  name               = "%s"
+  os                 = "EulerOS 2.5"
+  flavor_id          = "s6.large.2"
+  initial_node_count = 1
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  key_pair           = huaweicloud_compute_keypair.test.name
+  scall_enable      = false
+  min_node_count    = 0
+  max_node_count    = 0
+  scale_down_cooldown_time = 0
+  priority          = 0
+  type 				= "vm"
+
+  root_volume {
+    size       = 40
+	volumetype = "SSD"
+	extend_param = {
+	  test_key = "test_val"
+	}
+  }
+
+  data_volumes {
+    size       = 100
+	volumetype = "SSD"
+	extend_param = {
+	  test_key1 = "test_val1"
+	}
+  }
+
+  data_volumes {
+    size       = 100
+	volumetype = "SSD"
+	extend_param = {
+	  test_key2 = "test_val2"
+	}
+  }
+}
+`, testAccCCENodePool_Base(rName), rName)
 }

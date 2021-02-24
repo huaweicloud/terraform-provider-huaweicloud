@@ -77,8 +77,9 @@ func ResourceCCENodePool() *schema.Resource {
 							Required: true,
 						},
 						"extend_param": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeMap,
 							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					}},
 			},
@@ -97,8 +98,9 @@ func ResourceCCENodePool() *schema.Resource {
 							Required: true,
 						},
 						"extend_param": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeMap,
 							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					}},
 			},
