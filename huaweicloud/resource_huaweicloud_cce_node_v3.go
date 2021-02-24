@@ -198,6 +198,11 @@ func ResourceCCENodeV3() *schema.Resource {
 					"iptype", "bandwidth_size", "sharetype",
 				},
 			},
+			"ecs_group_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"billing_mode": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -429,6 +434,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 					SubnetId: d.Get("subnet_id").(string),
 				},
 			},
+			EcsGroupID: d.Get("ecs_group_id").(string),
 			ExtendParam: nodes.ExtendParam{
 				ChargingMode:       d.Get("extend_param_charging_mode").(int),
 				EcsPerformanceType: d.Get("ecs_performance_type").(string),
@@ -535,6 +541,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("billing_mode", s.Spec.BillingMode)
 	d.Set("key_pair", s.Spec.Login.SshKey)
 	d.Set("subnet_id", s.Spec.NodeNicSpec.PrimaryNic.SubnetId)
+	d.Set("ecs_group_id", s.Spec.EcsGroupID)
 
 	var volumes []map[string]interface{}
 	for _, pairObject := range s.Spec.DataVolumes {
