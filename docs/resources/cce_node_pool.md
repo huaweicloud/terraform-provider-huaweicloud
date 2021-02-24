@@ -99,7 +99,7 @@ The `root_volume` block supports:
     
 * `volumetype` - (Required, String) Disk type.
     
-* `extend_param` - (Optional, String) Disk expansion parameters. 
+* `extend_param` - (Optional, Map) Disk expansion parameters. 
 
 The `data_volumes` block supports:
     
@@ -107,7 +107,7 @@ The `data_volumes` block supports:
     
 * `volumetype` - (Required, String) Disk type.
     
-* `extend_param` - (Optional, String) Disk expansion parameters. 
+* `extend_param` - (Optional, Map) Disk expansion parameters. 
 
 The `taints` block supports:
     
