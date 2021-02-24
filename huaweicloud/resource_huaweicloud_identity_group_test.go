@@ -30,8 +30,12 @@ func TestAccIdentityV3Group_basic(t *testing.T) {
 					testAccCheckIdentityV3GroupExists(resourceName, &group),
 					resource.TestCheckResourceAttrPtr(resourceName, "name", &group.Name),
 					resource.TestCheckResourceAttrPtr(resourceName, "description", &group.Description),
-					resource.TestCheckResourceAttrPtr(resourceName, "domain_id", &group.DomainID),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccIdentityV3Group_update(groupName),
@@ -39,7 +43,6 @@ func TestAccIdentityV3Group_basic(t *testing.T) {
 					testAccCheckIdentityV3GroupExists(resourceName, &group),
 					resource.TestCheckResourceAttrPtr(resourceName, "name", &group.Name),
 					resource.TestCheckResourceAttrPtr(resourceName, "description", &group.Description),
-					resource.TestCheckResourceAttrPtr(resourceName, "domain_id", &group.DomainID),
 				),
 			},
 		},
@@ -102,7 +105,7 @@ func testAccCheckIdentityV3GroupExists(n string, group *groups.Group) resource.T
 func testAccIdentityV3Group_basic(groupName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
-  name = "%s"
+  name        = "%s"
   description = "A ACC test group"
 }
 `, groupName)
@@ -111,7 +114,7 @@ resource "huaweicloud_identity_group" "group_1" {
 func testAccIdentityV3Group_update(groupName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
-  name = "%s"
+  name        = "%s"
   description = "Some Group"
 }
 `, groupName)
