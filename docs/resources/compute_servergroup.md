@@ -33,13 +33,13 @@ The following arguments are supported:
 
 * `value_specs` - (Optional, Map, ForceNew) Map of additional options.
 
+* `members` - (Optional, Set) Specifies the IDs of the an server group.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
-
-* `members` - The instances that are part of this server group.
 
 ## Import
 

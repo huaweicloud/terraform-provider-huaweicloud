@@ -201,11 +201,13 @@ func ResourceComputeInstanceV2() *schema.Resource {
 			"scheduler_hints": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"group": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 						"fault_domain": {

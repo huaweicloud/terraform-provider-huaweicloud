@@ -20,6 +20,10 @@ func getURL(c *golangsdk.ServiceClient, id string) string {
 	return c.ServiceURL(resourcePath, id)
 }
 
+func actionURL(c *golangsdk.ServiceClient, id string) string {
+	return c.ServiceURL("cloudservers", resourcePath, id, "action")
+}
+
 func deleteURL(c *golangsdk.ServiceClient, id string) string {
 	return getURL(c, id)
 }
