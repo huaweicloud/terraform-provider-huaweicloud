@@ -125,7 +125,7 @@ resource "huaweicloud_compute_instance" "multi-disk" {
   system_disk_size = 40
 
   data_disks {
-    type = "SATA"
+    type = "SAS"
     size = "10"
   }
   data_disks {
@@ -185,126 +185,147 @@ function, or the `template_cloudinit_config` resource.
 
 ## Argument Reference
 
--> **NOTE:** If the `user_data` field is specified for a Linux ECS that is created using an image with Cloud-Init installed, the `admin_pass` field becomes invalid.
+-> **NOTE:** If the `user_data` field is specified for a Linux ECS that is created using an image with Cloud-Init
+installed, the `admin_pass` field becomes invalid.
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the instance. If omitted,
-	the provider-level region will be used. Changing this creates a new server.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the instance.
+    If omitted, the provider-level region will be used.
+    Changing this creates a new instance.
 
-* `name` - (Required, String) A unique name for the resource.
+* `name` - (Required, String) Specifies a unique name for the instance.
+    The name consists of 1 to 64 characters, including letters, digits, underscores (_), hyphens (-), and periods (.).
 
-* `image_id` - (Optional, String, ForceNew) Required if `image_name` is empty. The image ID of
-    the desired image for the server. Changing this creates a new server.
+* `image_id` - (Optional, String, ForceNew) Required if `image_name` is empty.
+    Specifies the image ID of the desired image for the instance.
+    Changing this creates a new instance.
 
-* `image_name` - (Optional, String, ForceNew) Required if `image_id` is empty. The name of the
-    desired image for the server. Changing this creates a new server.
+* `image_name` - (Optional, String, ForceNew) Required if `image_id` is empty.
+    Specifies the name of the desired image for the instance.
+    Changing this creates a new instance.
 
-* `flavor_id` - (Optional, String) Required if `flavor_name` is empty. The flavor ID of
-    the desired flavor for the server. Changing this resizes the existing server.
+* `flavor_id` - (Optional, String) Required if `flavor_name` is empty.
+    Specifies the flavor ID of the desired flavor for the instance.
 
-* `flavor_name` - (Optional, String) Required if `flavor_id` is empty. The name of the
-    desired flavor for the server. Changing this resizes the existing server.
+* `flavor_name` - (Optional, String) Required if `flavor_id` is empty.
+    Specifies the name of the desired flavor for the instance.
 
-* `user_data` - (Optional, String, ForceNew) The user data to provide when launching the instance.
+* `user_data` - (Optional, String, ForceNew) Specifies the user data to be injected during the instance creation.
+    Text and text files can be injected.
     Changing this creates a new server.
 
-* `security_groups` - (Optional, String) An array of one or more security group names
-    to associate with the server. Changing this results in adding/removing
-    security groups from the existing server.
+* `security_groups` - (Optional, String) Specifies a array of one or more security group names to associate with the
+    instance.
 
-* `availability_zone` - (Required, String, ForceNew) The availability zone in which to create
-    the server. Please following [reference](https://developer.huaweicloud.com/endpoint)
-    for the values. Changing this creates a new server.
+* `availability_zone` - (Required, String, ForceNew) Specifies the availability zone in which to create
+    the instance. Please following [reference](https://developer.huaweicloud.com/en-us/endpoint/?ECS)
+    for the values. Changing this creates a new instance.
 
-* `network` - (Required, List) An array of one or more networks to attach to the
-    instance. The network object structure is documented below. Changing this
-    creates a new server.
+* `network` - (Required, List, ForceNew) Specifies an array of one or more networks to attach to the instance.
+    The network object structure is documented below.
+    Changing this creates a new instance.
 
-* `admin_pass` - (Optional, String) The administrative password to assign to the server.
-    Changing this changes the root password on the existing server.
+* `admin_pass` - (Optional, String) Specifies the administrative password to assign to the instance.
 
-* `key_pair` - (Optional, String, ForceNew) The name of a key pair to put on the server. The key
-    pair must already be created and associated with the tenant's account.
-    Changing this creates a new server.
+* `key_pair` - (Optional, String, ForceNew) Specifies the name of a key pair to put on the instance.
+    The key pair must already be created and associated with the tenant's account.
+    Changing this creates a new instance.
 
-* `system_disk_type` - (Optional, String) The system disk type of the server. Defaults to `GPSSD`. For details about disk types,
-	see [Disk Types and Disk Performance](https://support.huaweicloud.com/en-us/productdesc-evs/en-us_topic_0014580744.html)
-    Changing this creates a new server. Available options are:
+* `system_disk_type` - (Optional, String, ForceNew) Specifies the system disk type of the instance.
+    Defaults to `GPSSD`. For details about disk types, see
+  [Disk Types and Disk Performance](https://support.huaweicloud.com/en-us/productdesc-evs/en-us_topic_0014580744.html)
+    Available options are:
 	* `SSD`: ultra-high I/O disk type.
 	* `GPSSD`: general purpose SSD disk type.
 	* `SAS`: high I/O disk type.
+    Changing this creates a new instance.
 
-* `system_disk_size` - (Optional, String) The system disk size in GB, The value range is 1 to 1024. Changing this parameter will update the disk. 
-    You can extend the disk by setting this parameter to a new value, which must be between current size and the max size(1024). 
+* `system_disk_size` - (Optional, String) Specifies the system disk size in GB, The value range is 1 to 1024.
     Shrinking the disk is not supported.
 
-* `data_disks` - (Optional, String) An array of one or more data disks to attach to the
-    instance. The data_disks object structure is documented below. Changing this
-    creates a new server.
+* `data_disks` - (Optional, String, ForceNew) Specifies an array of one or more data disks to attach to the instance.
+    The data_disks object structure is documented below.
+    Changing this creates a new instance.
 
-* `tags` - (Optional, Map) Tags key/value pairs to associate with the instance.
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 
-* `scheduler_hints` - (Optional, List) Provide the scheduler with hints on how
-    the instance should be launched. The available hints are described below.
+* `scheduler_hints` - (Optional, List) Specifies the scheduler with hints on how the instance should be launched.
+    The available hints are described below.
 
-* `stop_before_destroy` - (Optional, Bool) Whether to try stop instance gracefully
-    before destroying it, thus giving chance for guest OS daemons to stop correctly.
+* `stop_before_destroy` - (Optional, Bool) Whether to try stop instance gracefully before destroying it, thus giving
+    chance for guest OS daemons to stop correctly.
     If instance doesn't stop within timeout, it will be destroyed anyway.
 
-* `enterprise_project_id` - (Optional, String) The enterprise project id. Changing this creates a new server.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique id in UUID format of enterprise project .
+    Changing this creates a new instance.
 
 * `delete_disks_on_termination` - (Optional, Bool) Delete the data disks upon termination of the instance.
-    Defaults to false. Changing this creates a new server.
+    Defaults to false.
 
-* `charging_mode` - (Optional, String, ForceNew) The charging mode of the instance. Valid options are: prePaid and postPaid,
-    defaults to postPaid. Changing this creates a new server.
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance.
+    Valid value are prePaid and postPaid, defaults to postPaid.
+    Changing this creates a new instance.
 
-* `period_unit` - (Optional, String, ForceNew) The charging period unit of the instance. Valid options are: month and year,
-    defaults to month. Changing this creates a new server.
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.
+    Valid value are month and year, defaults to month.
+    Changing this creates a new instance.
 
-* `period` - (Optional, Int, ForceNew) The charging period of the instance. Changing this creates a new server.
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the instance.
+    Changing this creates a new instance.
 
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled. Changing this creates a new server.
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
+    Changing this creates a new instance.
 
-* `user_id` - (Optional, String, ForceNew) User ID, required when using key_pair in prePaid charging mode.
-    Changing this creates a new server.
+* `user_id` - (Optional, String, ForceNew) Specifies a user ID, required when using key_pair in prePaid charging mode.
+    Changing this creates a new instance.
 
 * `agency_name` - (Optional, String, ForceNew) Specifies the IAM agency name which is created on IAM to provide
-    temporary credentials for ECS to access cloud services. Changing this creates a new server.
+    temporary credentials for ECS to access cloud services. Changing this creates a new instance.
 
 
 The `network` block supports:
 
-* `uuid` - (Required, String, ForceNew) The network UUID to
-    attach to the server. Changing this creates a new server.
+* `uuid` - (Required, String, ForceNew) Specifies the network UUID to attach to the instance.
+  Changing this creates a new instance.
 
-* `fixed_ip_v4` - (Optional, String, ForceNew) Specifies a fixed IPv4 address to be used on this
-    network. Changing this creates a new server.
+* `fixed_ip_v4` - (Optional, String, ForceNew) Specifies a fixed IPv4 address to be used on this network.
+  Changing this creates a new instance.
 
-* `access_network` - (Optional, Bool) Specifies if this network should be used for
-    provisioning access. Accepts true or false. Defaults to false.
+* `access_network` - (Optional, Bool) Specifies if this network should be used for provisioning access.
+  Accepts true or false. Defaults to false.
+
+The `data_disks` block supports:
+
+* `type` - (Required, String, ForceNew) Specifies the ECS data disk type, which must be one of available disk types, contains of *SSD*, *GPSSD* and *SAS*.
+  Changing this creates a new instance.
+
+* `size` - (Required, Int, ForceNew) Specifies the data disk size, in GB. The value ranges form 10 to 32768.
+  Changing this creates a new instance.
+
+* `sanpshot_id` - (Optional, String, ForceNew) Specifies the snapshot id.
+  Changing this creates a new instance.
 
 The `scheduler_hints` block supports:
 
-* `group` - (Optional, String, ForceNew) A UUID of a Server Group. The instance will be placed
-	into that group.
+* `group` - (Optional, String, ForceNew) Specifies a UUID of a Server Group. The instance will be placed into that group.
+  Changing this creates a new instance.
 
-* `tenancy` - (Optional, String, ForceNew) The tenancy specifies whether the ECS is to be created on a Dedicated Host
-	(DeH) or in a shared pool.
+* `tenancy` - (Optional, String, ForceNew) Specifies the tenancy specifies whether the ECS is to be created on a Dedicated Host
+  (DeH) or in a shared pool. Changing this creates a new instance.
 
-* `deh_id` - (Optional, String, ForceNew) The ID of DeH. This parameter takes effect only when the value
-	of tenancy is dedicated.
+* `deh_id` - (Optional, String, ForceNew) Specifies the ID of DeH.
+  This parameter takes effect only when the value of tenancy is dedicated.
+  Changing this creates a new instance.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - A resource ID in UUID format.
 * `status` - The status of the instance.
 * `public_ip` - The EIP address that is associted to the instance.
-* `access_ip_v4` - The first detected Fixed IPv4 address _or_ the
-    Floating IP.
+* `access_ip_v4` - The first detected Fixed IPv4 address _or_ the Floating IP.
 * `network/fixed_ip_v4` - The Fixed IPv4 address of the Instance on that network.
 * `network/mac` - The MAC address of the NIC on that network.
 * `network/port` - The port ID corresponding to the IP address on that network.
@@ -322,13 +343,12 @@ Instances can be imported by their `id`. For example,
 ```
 terraform import huaweicloud_compute_instance.my_instance b11b407c-e604-4e8d-8bc4-92398320b847
 ```
-Note that the imported state may not be identical to your resource definition, due to some attrubutes
-missing from the API response, security or some other reason. The missing attributes include:
+Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+API response, security or some other reason. The missing attributes include:
 `admin_pass`, `user_data`, `data_disks`, `scheduler_hints`, `stop_before_destroy`, `delete_disks_on_termination`,
-`network/access_network` and arguments for pre-paid. It is generally recommended running
-`terraform plan` after importing an instance. You can then decide if changes should
-be applied to the instance, or the resource definition should be updated to align
-with the instance. Also you can ignore changes as below.
+`network/access_network` and arguments for pre-paid. It is generally recommended running `terraform plan` after
+importing an instance. You can then decide if changes should be applied to the instance, or the resource definition
+should be updated to align with the instance. Also you can ignore changes as below.
 ```
 resource "huaweicloud_compute_instance" "myinstance" {
     ...
