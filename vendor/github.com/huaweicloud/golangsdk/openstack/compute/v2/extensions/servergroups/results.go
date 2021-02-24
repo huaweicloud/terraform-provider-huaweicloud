@@ -93,3 +93,9 @@ type GetResult struct {
 type DeleteResult struct {
 	golangsdk.ErrResult
 }
+
+// MemberResult is the response from a Member update operation. Call its ExtractErr
+// method to determine if the call succeeded or failed.
+type MemberResult struct {
+	golangsdk.ErrResult
+}
