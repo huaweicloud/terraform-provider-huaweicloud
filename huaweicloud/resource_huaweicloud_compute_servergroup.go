@@ -49,12 +49,6 @@ func ResourceComputeServerGroupV2() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"value_specs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 		},
 	}
 }
@@ -66,12 +60,9 @@ func resourceComputeServerGroupV2Create(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
-	createOpts := ServerGroupCreateOpts{
-		servergroups.CreateOpts{
-			Name:     d.Get("name").(string),
-			Policies: resourceServerGroupPoliciesV2(d),
-		},
-		MapValueSpecs(d),
+	createOpts := servergroups.CreateOpts{
+		Name:     d.Get("name").(string),
+		Policies: resourceServerGroupPoliciesV2(d),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -112,20 +103,14 @@ func resourceComputeServerGroupV2Read(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[DEBUG] Retrieved ServerGroup %s: %+v", d.Id(), sg)
 
-	// Set the name
-	d.Set("name", sg.Name)
-
-	// Set the policies
-	policies := []string{}
-	for _, p := range sg.Policies {
-		policies = append(policies, p)
+	policies := make([]string, len(sg.Policies))
+	for i, p := range sg.Policies {
+		policies[i] = p
 	}
 	d.Set("policies", policies)
-
-	// Set the members & fault_domains
+	d.Set("name", sg.Name)
 	d.Set("members", sg.Members)
 	d.Set("fault_domains", sg.FaultDomain.Names)
-
 	d.Set("region", GetRegion(d, config))
 
 	return nil
