@@ -14,7 +14,7 @@ cloud to use this resource.
 
 ```hcl
 resource "huaweicloud_identity_project" "project_1" {
-  name        = "cn-north1_project1"
+  name        = "cn-north-1_project1"
   description = "This is a test project"
 }
 ```
@@ -23,23 +23,21 @@ resource "huaweicloud_identity_project" "project_1" {
 
 The following arguments are supported:
 
-* `name` - (Required, String) The name of the project. it must start with 
-    ID of an existing region_ and be less than or equal to 64 characters.
-    Example: eu-de_project1.
+* `name` - (Required, String) Specifies the name of the project. it must start with
+    an existing _region_ and be less than or equal to 64 characters.
+    Example: cn-north-1_project1.
 
-* `description` - (Optional, String) A description of the project.
-
-* `domain_id` - (Optional, String) The domain this project belongs to. Changing this
-    creates a new Project.
-
-* `parent_id` - (Optional, String) The parent of this project. Changing this creates
-    a new Project.
+* `description` - (Optional, String) Specifies the description of the project.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - A resource ID in UUID format.
+
+* `parent_id` - The parent of this project.
+
+* `enabled` - Enabling status of this project.
 
 ## Import
 
