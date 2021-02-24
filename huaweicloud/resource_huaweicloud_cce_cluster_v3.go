@@ -113,6 +113,20 @@ func ResourceCCEClusterV3() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"eni_subnet_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				RequiredWith: []string{"eni_subnet_cidr"},
+			},
+			"eni_subnet_cidr": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				RequiredWith: []string{"eni_subnet_id"},
+			},
 			"authentication_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -331,6 +345,14 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 		},
 	}
 
+	if _, ok := d.GetOk("eni_subnet_id"); ok {
+		eniNetwork := clusters.EniNetworkSpec{
+			SubnetId: d.Get("eni_subnet_id").(string),
+			Cidr:     d.Get("eni_subnet_cidr").(string),
+		}
+		createOpts.Spec.EniNetwork = &eniNetwork
+	}
+
 	masters, err := resourceClusterMastersV3(d)
 	if err != nil {
 		return err
@@ -393,6 +415,8 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("highway_subnet_id", n.Spec.HostNetwork.HighwaySubnet)
 	d.Set("container_network_type", n.Spec.ContainerNetwork.Mode)
 	d.Set("container_network_cidr", n.Spec.ContainerNetwork.Cidr)
+	d.Set("eni_subnet_id", n.Spec.EniNetwork.SubnetId)
+	d.Set("eni_subnet_cidr", n.Spec.EniNetwork.Cidr)
 	d.Set("authentication_mode", n.Spec.Authentication.Mode)
 	d.Set("security_group_id", n.Spec.HostNetwork.SecurityGroup)
 	d.Set("region", GetRegion(d, config))
