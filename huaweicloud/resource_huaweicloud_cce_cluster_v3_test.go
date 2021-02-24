@@ -102,6 +102,28 @@ func TestAccCCEClusterV3_withEpsId(t *testing.T) {
 	})
 }
 
+func TestAccCCEClusterV3_turbo(t *testing.T) {
+	var cluster clusters.Clusters
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCCEClusterV3Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCCEClusterV3_turbo(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "container_network_type", "eni"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckCCEClusterV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	cceClient, err := config.CceV3Client(HW_REGION_NAME)
@@ -249,4 +271,43 @@ resource "huaweicloud_cce_cluster" "test" {
 }
 
 `, testAccCCEClusterV3_Base(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccCCEClusterV3_turbo(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_v1" "test" {
+  name = "%s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet_v1" "test" {
+  name          = "%s"
+  cidr          = "192.168.1.0/24"
+  gateway_ip    = "192.168.1.1"
+
+  //dns is required for cce node installing
+  primary_dns   = "100.125.1.250"
+  secondary_dns = "100.125.21.250"
+  vpc_id        = huaweicloud_vpc_v1.test.id
+}
+
+resource "huaweicloud_vpc_subnet_v1" "eni_test" {
+  name          = "%s-eni"
+  cidr          = "192.168.2.0/24"
+  gateway_ip    = "192.168.2.1"
+  vpc_id        = huaweicloud_vpc_v1.test.id
+}
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%s"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc_v1.test.id
+  subnet_id              = huaweicloud_vpc_subnet_v1.test.id
+  container_network_type = "eni"
+  eni_subnet_id          = huaweicloud_vpc_subnet_v1.eni_test.id
+  eni_subnet_cidr        = huaweicloud_vpc_subnet_v1.eni_test.cidr
+
+}
+
+`, rName, rName, rName, rName)
 }
