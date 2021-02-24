@@ -24,11 +24,11 @@ data "huaweicloud_identity_custom_role" "role" {
 
 * `domain_id` - (Optional, String) The domain the policy belongs to.
 
-* `references` - (Optional, Int) The number of citations for the custom policy.
-
 * `description` - (Optional, String) Description of the custom policy.
 
-* `type` - (Optional, String) Display mode. Valid options are AX: Account level and XA: Project level.
+* `type` - (Optional, String) Display mode. Valid options are _AX_: Account level and _XA_: Project level.
+
+* `references` - (Optional, Int) The number of citations for the custom policy.
 
 ## Attributes Reference
 

@@ -4,21 +4,16 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/golangsdk/openstack/identity/v3/projects"
-
-	"github.com/huaweicloud/golangsdk/pagination"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/groups"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/roles"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 	var role roles.Role
 	var group groups.Group
-	var project projects.Project
 	resourceName := "huaweicloud_identity_role_assignment.role_assignment_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -30,12 +25,21 @@ func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 		CheckDestroy: testAccCheckIdentityV3RoleAssignmentDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityV3RoleAssignment_basic,
+				Config: testAccIdentityV3RoleAssignment_project,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3RoleAssignmentExists(resourceName, &role, &group, &project),
-					resource.TestCheckResourceAttrPtr(resourceName, "project_id", &project.ID),
+					testAccCheckIdentityV3RoleAssignmentExists(resourceName, &role, &group),
 					resource.TestCheckResourceAttrPtr(resourceName, "group_id", &group.ID),
 					resource.TestCheckResourceAttrPtr(resourceName, "role_id", &role.ID),
+					resource.TestCheckResourceAttr(resourceName, "project_id", HW_PROJECT_ID),
+				),
+			},
+			{
+				Config: testAccIdentityV3RoleAssignment_domain,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIdentityV3RoleAssignmentExists(resourceName, &role, &group),
+					resource.TestCheckResourceAttrPtr(resourceName, "group_id", &group.ID),
+					resource.TestCheckResourceAttrPtr(resourceName, "role_id", &role.ID),
+					resource.TestCheckResourceAttr(resourceName, "domain_id", HW_DOMAIN_ID),
 				),
 			},
 		},
@@ -63,7 +67,7 @@ func testAccCheckIdentityV3RoleAssignmentDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, group *groups.Group, project *projects.Project) resource.TestCheckFunc {
+func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, group *groups.Group) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -111,11 +115,6 @@ func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, grou
 			return err
 		}
 
-		p, err := projects.Get(identityClient, projectID).Extract()
-		if err != nil {
-			return fmt.Errorf("Project not found")
-		}
-		*project = *p
 		g, err := groups.Get(identityClient, groupID).Extract()
 		if err != nil {
 			return fmt.Errorf("Group not found")
@@ -131,22 +130,34 @@ func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, grou
 	}
 }
 
-var testAccIdentityV3RoleAssignment_basic = fmt.Sprintf(`
+var testAccIdentityV3RoleAssignment_project = fmt.Sprintf(`
 data "huaweicloud_identity_role" "role_1" {
-  name = "secu_admin"
-}
-
-resource "huaweicloud_identity_project" "project_1" {
-  name = "%s_project_1"
+  name = "rds_adm"
 }
 
 resource "huaweicloud_identity_group" "group_1" {
-  name = "user_1"
+  name = "group_1"
 }
 
 resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
   role_id    = data.huaweicloud_identity_role.role_1.id
   group_id   = huaweicloud_identity_group.group_1.id
-  project_id = huaweicloud_identity_project.project_1.id
+  project_id = "%s"
 }
-`, HW_REGION_NAME)
+`, HW_PROJECT_ID)
+
+var testAccIdentityV3RoleAssignment_domain = fmt.Sprintf(`
+data "huaweicloud_identity_role" "role_1" {
+  name = "secu_admin"
+}
+
+resource "huaweicloud_identity_group" "group_1" {
+  name = "group_1"
+}
+
+resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
+  role_id    = data.huaweicloud_identity_role.role_1.id
+  group_id   = huaweicloud_identity_group.group_1.id
+  domain_id = "%s"
+}
+`, HW_DOMAIN_ID)

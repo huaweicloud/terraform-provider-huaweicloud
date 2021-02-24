@@ -12,61 +12,53 @@ this resource.
 ## Example Usage: Assign Role On Project Level
 
 ```hcl
+data "huaweicloud_identity_role" "role_1" {
+  name = "rds_adm" #RDS Administrator
+}
+
 resource "huaweicloud_identity_group" "group_1" {
   name = "group_1"
 }
 
-data "huaweicloud_identity_role" "role_1" {
-  name = "system_all_4" #ECS admin
-}
-
 resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
+  role_id    = data.huaweicloud_identity_role.role_1.id
   group_id   = huaweicloud_identity_group.group_1.id
   project_id = var.project_id
-  role_id    = data.huaweicloud_identity_role.role_1.id
 }
 ```
 
 ## Example Usage: Assign Role On Domain Level
 
 ```hcl
-
-variable "domain_id" {
-  default     = "01aafcf63744d988ebef2b1e04c5c34"
-  description = "this is the domain id"
+data "huaweicloud_identity_role" "role_1" {
+  name = "secu_admin" #Security Administrator
 }
 
 resource "huaweicloud_identity_group" "group_1" {
   name = "group_1"
 }
 
-data "huaweicloud_identity_role" "role_1" {
-  name = "secu_admin" #security admin
-}
-
 resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
+  role_id   = data.huaweicloud_identity_role.role_1.id
   group_id  = huaweicloud_identity_group.group_1.id
   domain_id = var.domain_id
-  role_id   = data.huaweicloud_identity_role.role_1.id
 }
-
 ```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-* `role_id` - (Required, String, ForceNew) The role to assign.
+* `role_id` - (Required, String, ForceNew) Specifies the role to assign.
 
-* `group_id` - (Required, String, ForceNew) The group to assign the role to.
+* `group_id` - (Required, String, ForceNew) Specifies the group to assign the role to.
 
-* `domain_id` - (Optional, String, ForceNew; Required if `project_id` is empty) The domain to assign the role in.
+* `domain_id` - (Optional, String, ForceNew; Required if `project_id` is empty) Specifies the domain to assign the role in.
 
-* `project_id` - (Optional, String, ForceNew; Required if `domain_id` is empty) The project to assign the role in.
+* `project_id` - (Optional, String, ForceNew; Required if `domain_id` is empty) Specifies the project to assign the role in.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
-
+* `id` - The resource ID in UUID format.
