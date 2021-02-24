@@ -19,25 +19,20 @@ func ResourceIdentityProjectV3() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"domain_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
-			"parent_id": {
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"parent_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"enabled": {
+				Type:     schema.TypeBool,
 				Computed: true,
 			},
 		},
@@ -52,10 +47,8 @@ func resourceIdentityProjectV3Create(d *schema.ResourceData, meta interface{}) e
 	}
 
 	createOpts := projects.CreateOpts{
-		Description: d.Get("description").(string),
-		DomainID:    d.Get("domain_id").(string),
 		Name:        d.Get("name").(string),
-		ParentID:    d.Get("parent_id").(string),
+		Description: d.Get("description").(string),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -83,12 +76,10 @@ func resourceIdentityProjectV3Read(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[DEBUG] Retrieved Huaweicloud project: %#v", project)
 
-	d.Set("description", project.Description)
-	d.Set("domain_id", project.DomainID)
-	d.Set("enabled", project.Enabled)
-	d.Set("is_domain", project.IsDomain)
 	d.Set("name", project.Name)
+	d.Set("description", project.Description)
 	d.Set("parent_id", project.ParentID)
+	d.Set("enabled", project.Enabled)
 
 	return nil
 }
