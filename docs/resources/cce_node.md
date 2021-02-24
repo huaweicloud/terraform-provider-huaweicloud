@@ -140,6 +140,9 @@ The following arguments are supported:
 
 * `iptype` - (Optional, String, ForceNew) Elastic IP type. Changing this parameter will create a new resource.
 
+* `esc_group_id` - (Optional, String, ForceNew) Ecs group id. If specified, the node will be created under the cloud server group.
+    Changing this parameter will create a new resource.
+
 * `bandwidth_charge_mode` - (Optional, String, ForceNew) Bandwidth billing type. Changing this parameter will create a new resource.
 
 * `sharetype` - (Optional, String, ForceNew) Bandwidth sharing type. Changing this parameter will create a new resource.
