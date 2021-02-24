@@ -29,20 +29,23 @@ func TestAccIdentityRole_basic(t *testing.T) {
 				Config: testAccIdentityRole_basic(roleName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIdentityRoleExists(resourceName, &role),
-					resource.TestCheckResourceAttrPtr(
-						resourceName, "name", &role.Name),
-					resource.TestCheckResourceAttrPtr(
-						resourceName, "description", &role.Description),
+					resource.TestCheckResourceAttrPtr(resourceName, "name", &role.Name),
+					resource.TestCheckResourceAttrPtr(resourceName, "description", &role.Description),
+					resource.TestCheckResourceAttr(resourceName, "type", "AX"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccIdentityRole_update(roleNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIdentityRoleExists(resourceName, &role),
-					resource.TestCheckResourceAttrPtr(
-						resourceName, "name", &role.Name),
-					resource.TestCheckResourceAttrPtr(
-						resourceName, "description", &role.Description),
+					resource.TestCheckResourceAttrPtr(resourceName, "name", &role.Name),
+					resource.TestCheckResourceAttrPtr(resourceName, "description", &role.Description),
+					resource.TestCheckResourceAttr(resourceName, "type", "AX"),
 				),
 			},
 		},
@@ -105,10 +108,10 @@ func testAccCheckIdentityRoleExists(n string, role *policies.Role) resource.Test
 func testAccIdentityRole_basic(roleName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_role" test {
-  name = "%s"
+  name        = "%s"
   description = "created by terraform"
-  type = "AX"
-    policy = <<EOF
+  type        = "AX"
+  policy      = <<EOF
 {
   "Version": "1.1",
   "Statement": [
@@ -131,10 +134,10 @@ EOF
 func testAccIdentityRole_update(roleName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_identity_role" test {
-  name = "%s"
+  name        = "%s"
   description = "created by terraform"
-  type = "AX"
-    policy = <<EOF
+  type        = "AX"
+  policy      = <<EOF
 {
   "Version": "1.1",
   "Statement": [

@@ -46,10 +46,6 @@ func resourceIdentityRole() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"domain_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -104,7 +100,6 @@ func resourceIdentityRoleRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("description", role.Description)
 	d.Set("type", role.Type)
 	d.Set("references", role.References)
-	d.Set("domain_id", role.DomainId)
 
 	policy, err := json.Marshal(role.Policy)
 	if err != nil {

@@ -17,11 +17,6 @@ func DataSourceIdentityRoleV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"domain_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -35,8 +30,7 @@ func dataSourceIdentityRoleV3Read(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	listOpts := roles.ListOpts{
-		DomainID: d.Get("domain_id").(string),
-		Name:     d.Get("name").(string),
+		Name: d.Get("name").(string),
 	}
 
 	log.Printf("[DEBUG] List Options: %#v", listOpts)
@@ -74,7 +68,6 @@ func dataSourceIdentityRoleV3Attributes(d *schema.ResourceData, config *Config, 
 
 	d.SetId(role.ID)
 	d.Set("name", role.Name)
-	d.Set("domain_id", role.DomainID)
 
 	return nil
 }

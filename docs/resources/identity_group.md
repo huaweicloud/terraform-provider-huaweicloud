@@ -33,8 +33,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - A resource ID in UUID format.
 
-* `domain_id` - Indicates the domain which group belongs to.
-
 ## Import
 
 Groups can be imported using the `id`, e.g.

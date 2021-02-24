@@ -13,10 +13,10 @@ this resource.
 
 ```hcl
 resource "huaweicloud_identity_role" role1 {
-  name = "test"
+  name        = "test"
   description = "created by terraform"
-  type = "AX"
-  policy = <<EOF
+  type        = "AX"
+  policy      = <<EOF
 {
   "Version": "1.1",
   "Statement": [
@@ -59,8 +59,6 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The role id.
-
-* `domain_id` - The account id.
 
 * `references` - The number of references.
 
