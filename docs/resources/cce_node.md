@@ -132,6 +132,8 @@ The following arguments are supported:
 
 * `subnet_id` - (Optional, String, ForceNew) The ID of the subnet to which the NIC belongs. Changing this parameter will create a new resource.
 
+* `fixed_ip` - (Optional, String, ForceNew) The fixed IP of the NIC. Changing this parameter will create a new resource.
+
 * `eip_id` - (Optional, String, ForceNew) The ID of the EIP. Changing this parameter will create a new resource.
 
 
@@ -156,6 +158,18 @@ The following arguments are supported:
 
 * `postinstall` - (Optional, String, ForceNew) Script required after installation. The input value can be a Base64 encoded string or not.
    Changing this parameter will create a new resource.
+
+* `extend_param` - (Optional, Map, ForceNew) Extended parameter. Changing this parameter will create a new resource. Availiable keys :
+
+  * `alpha.cce/NodeImageID` - This parameter is required when a custom image is used to create a BMS node.
+  * `dockerBaseSize` - The available disk space of a single docker container on the node in device mapper mode.
+  * `DockerLVMConfigOverride` - Docker data disk configurations. The following is an example default configuration:
+  
+```hcl
+  extend_param = {
+    DockerLVMConfigOverride = "dockerThinpool=vgpaas/90%VG;kubernetesLV=vgpaas/10%VG;diskType=evs;lvType=linear"
+  }
+```
 
 * `labels` - (Optional, Map, ForceNew) Tags of a Kubernetes node, key/value pair format. Changing this parameter will create a new resource.
 
