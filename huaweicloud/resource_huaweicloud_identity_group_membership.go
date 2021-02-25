@@ -15,9 +15,6 @@ func ResourceIdentityGroupMembershipV3() *schema.Resource {
 		Read:   resourceIdentityGroupMembershipV3Read,
 		Update: resourceIdentityGroupMembershipV3Update,
 		Delete: resourceIdentityGroupMembershipV3Delete,
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
 
 		Schema: map[string]*schema.Schema{
 			"group": {

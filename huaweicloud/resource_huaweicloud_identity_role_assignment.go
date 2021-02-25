@@ -17,9 +17,6 @@ func ResourceIdentityRoleAssignmentV3() *schema.Resource {
 		Create: resourceIdentityRoleAssignmentV3Create,
 		Read:   resourceIdentityRoleAssignmentV3Read,
 		Delete: resourceIdentityRoleAssignmentV3Delete,
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
 
 		Schema: map[string]*schema.Schema{
 			"role_id": {
@@ -55,13 +52,14 @@ func resourceIdentityRoleAssignmentV3Create(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
-	domainID := d.Get("domain_id").(string)
-	groupID := d.Get("group_id").(string)
-	projectID := d.Get("project_id").(string)
 	roleID := d.Get("role_id").(string)
+	groupID := d.Get("group_id").(string)
+	domainID := d.Get("domain_id").(string)
+	projectID := d.Get("project_id").(string)
+
 	opts := roles.AssignOpts{
-		DomainID:  domainID,
 		GroupID:   groupID,
+		DomainID:  domainID,
 		ProjectID: projectID,
 	}
 
@@ -107,8 +105,8 @@ func resourceIdentityRoleAssignmentV3Delete(d *schema.ResourceData, meta interfa
 	domainID, projectID, groupID, roleID := extractRoleAssignmentID(d.Id())
 	var opts roles.UnassignOpts
 	opts = roles.UnassignOpts{
-		DomainID:  domainID,
 		GroupID:   groupID,
+		DomainID:  domainID,
 		ProjectID: projectID,
 	}
 	roles.Unassign(identityClient, roleID, opts).ExtractErr()
