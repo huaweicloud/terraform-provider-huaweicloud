@@ -32,6 +32,7 @@ var (
 	HW_VPC_ID                     = os.Getenv("HW_VPC_ID")
 	HW_PROJECT_ID                 = os.Getenv("HW_PROJECT_ID")
 	HW_DOMAIN_ID                  = os.Getenv("HW_DOMAIN_ID")
+	HW_DOMAIN_NAME                = os.Getenv("HW_DOMAIN_NAME")
 	HW_DWS_ENVIRONMENT            = os.Getenv("HW_DWS_ENVIRONMENT")
 	HW_MRS_ENVIRONMENT            = os.Getenv("HW_MRS_ENVIRONMENT")
 	HW_DMS_ENVIRONMENT            = os.Getenv("HW_DMS_ENVIRONMENT")

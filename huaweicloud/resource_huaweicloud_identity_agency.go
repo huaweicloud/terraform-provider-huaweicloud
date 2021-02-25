@@ -81,7 +81,8 @@ func resourceIAMAgencyV3() *schema.Resource {
 
 			"duration": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
+				Default:  "FOREVER",
 			},
 			"expire_time": {
 				Type:     schema.TypeString,
@@ -291,6 +292,7 @@ func resourceIAMAgencyV3Create(d *schema.ResourceData, meta interface{}) error {
 		DomainID:        domainID,
 		DelegatedDomain: d.Get("delegated_domain_name").(string),
 		Description:     d.Get("description").(string),
+		Duration:        d.Get("duration").(string),
 	}
 	log.Printf("[DEBUG] Create IAM-Agency Options: %#v", opts)
 	a, err := agency.Create(iamClient, opts).Extract()
@@ -437,10 +439,11 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 
 	agencyID := d.Id()
 
-	if d.HasChanges("delegated_domain_name", "description") {
+	if d.HasChanges("delegated_domain_name", "description", "duration") {
 		updateOpts := agency.UpdateOpts{
 			DelegatedDomain: d.Get("delegated_domain_name").(string),
 			Description:     d.Get("description").(string),
+			Duration:        d.Get("duration").(string),
 		}
 		log.Printf("[DEBUG] Updating IAM-Agency %s with options: %#v", agencyID, updateOpts)
 		timeout := d.Timeout(schema.TimeoutUpdate)

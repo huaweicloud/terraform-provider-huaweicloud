@@ -39,6 +39,9 @@ The following arguments are supported:
 
 * `delegated_domain_name` - (Required, String) The name of delegated domain.
 
+* `duration` - (Optional, String) Specifies the validity period of an agency.
+    The valid value are *ONEDAY* and *FOREVER*, defaults to *FOREVER*.
+
 * `project_role` - (Optional, List) An array of roles and projects which are used to
     grant permissions to agency on project. The structure is documented below.
 
@@ -60,8 +63,6 @@ creating an agency.
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The agency ID.
-* `duration` - Validity period of an agency. The default value is null,
-    indicating that the agency is permanently valid.
 * `expire_time` - The expiration time of agency.
 * `create_time` - The time when the agency was created.
 
