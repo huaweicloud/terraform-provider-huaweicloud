@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
 	"github.com/huaweicloud/golangsdk"
 	huaweisdk "github.com/huaweicloud/golangsdk/openstack"
+	"github.com/huaweicloud/golangsdk/openstack/identity/v3/domains"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/projects"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
 )
@@ -94,6 +95,15 @@ func (c *Config) LoadAndValidate() error {
 	}
 	if err != nil {
 		return err
+	}
+
+	// set DomainID for IAM resource
+	if c.DomainID == "" {
+		if domainID, err := c.getDomainID(); err == nil {
+			c.DomainID = domainID
+		} else {
+			log.Printf("[WARN] get domain id failed: %s", err)
+		}
 	}
 
 	return c.newS3Session(logging.IsDebugOrHigher())
@@ -512,6 +522,34 @@ func (c *Config) newServiceClientByEndpoint(client *golangsdk.ProviderClient, sr
 		sc.ResourceBase = sc.ResourceBase + catalog.ResourceBase + "/"
 	}
 	return sc, nil
+}
+
+func (c *Config) getDomainID() (string, error) {
+	identityClient, err := c.IdentityV3Client(c.Region)
+	if err != nil {
+		return "", fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+	}
+	// ResourceBase: https://iam.{CLOUD}/v3/auth/
+	identityClient.ResourceBase += "auth/"
+
+	opts := domains.ListOpts{
+		Name: c.DomainName,
+	}
+	allPages, err := domains.List(identityClient, &opts).AllPages()
+	if err != nil {
+		return "", fmt.Errorf("List domains failed, err=%s", err)
+	}
+
+	all, err := domains.ExtractDomains(allPages)
+	if err != nil {
+		return "", fmt.Errorf("Extract domains failed, err=%s", err)
+	}
+
+	if len(all) == 0 {
+		return "", fmt.Errorf("domain was not found")
+	}
+
+	return all[0].ID, nil
 }
 
 // loadUserProjects will query the region-projectId pair and store it into RegionProjectIDMap
