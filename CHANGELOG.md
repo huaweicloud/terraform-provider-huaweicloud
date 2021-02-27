@@ -1,3 +1,27 @@
+## 1.22.0 (February 27, 2021)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_networking_secgroup_rule: Support `description` field ([#905](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/905))
+
+* resource/huaweicloud_compute_servergroup: Support attach ECS to server group ([#913](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/913))
+
+* resource/huaweicloud_networking_vip: Support import of virtual IP ([#915](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/915))
+
+* resource/huaweicloud_cce_cluster: Support eni network for turbo cluster ([#934](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/934))
+
+* resource/huaweicloud_cce_node:
+    - Support ECS group_id param ([#936](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/936))
+    - Support `extend_param`, `fixed_ip` and `hw_passthrough` ([#947](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/947))
+
+* resource/huaweicloud_identity_agency: Support `duration` param ([#946](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/946))
+
+* resource/huaweicloud_identity_user: Support `email` and `phone` param (([#949](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/949)))
+
+BUG FIXES:
+
+* resource/huaweicloud_evs_volume: Fix missing fields when importing volume ([#916](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/916))
+
 ## 1.21.2 (February 19, 2021)
 
 BUG FIXES:
