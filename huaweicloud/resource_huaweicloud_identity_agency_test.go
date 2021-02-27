@@ -52,6 +52,48 @@ func TestAccIdentityAgency_basic(t *testing.T) {
 	})
 }
 
+func TestAccIdentityAgency_service(t *testing.T) {
+	var agency agency.Agency
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_identity_agency.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckIdentityAgencyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIdentityAgency_service(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIdentityAgencyExists(resourceName, &agency),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "This is a test agency"),
+					resource.TestCheckResourceAttr(resourceName, "delegated_service_name", "op_svc_obs"),
+					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
+					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "1"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccIdentityAgency_serviceUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIdentityAgencyExists(resourceName, &agency),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "This is a test agency"),
+					resource.TestCheckResourceAttr(resourceName, "delegated_service_name", "op_svc_evs"),
+					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
+					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "1"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckIdentityAgencyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	client, err := config.IAMV3Client(HW_REGION_NAME)
@@ -131,4 +173,32 @@ resource "huaweicloud_identity_agency" "test" {
   ]
 }
 `, rName, HW_DOMAIN_NAME)
+}
+
+func testAccIdentityAgency_service(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_agency" "test" {
+  name                   = "%s"
+  description            = "This is a test agency"
+  delegated_service_name = "op_svc_obs"
+
+  domain_roles = [
+    "OBS OperateAccess",
+  ]
+}
+`, rName)
+}
+
+func testAccIdentityAgency_serviceUpdate(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_agency" "test" {
+  name                   = "%s"
+  description            = "This is a test agency"
+  delegated_service_name = "op_svc_evs"
+
+  domain_roles = [
+    "Anti-DDoS Administrator",
+  ]
+}
+`, rName)
 }
