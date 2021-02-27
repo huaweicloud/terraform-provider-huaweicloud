@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -101,6 +102,10 @@ func ResourceCCENodeV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+						"hw_passthrough": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
 						"extend_param": {
 							Type:     schema.TypeMap,
 							Optional: true,
@@ -121,6 +126,10 @@ func ResourceCCENodeV3() *schema.Resource {
 						"volumetype": {
 							Type:     schema.TypeString,
 							Required: true,
+						},
+						"hw_passthrough": {
+							Type:     schema.TypeBool,
+							Optional: true,
 						},
 						"extend_param": {
 							Type:     schema.TypeMap,
@@ -265,11 +274,22 @@ func ResourceCCENodeV3() *schema.Resource {
 					}
 				},
 			},
+			"extend_param": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
+			},
+			"fixed_ip": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"tags": {
 				Type:     schema.TypeMap,
@@ -323,9 +343,10 @@ func resourceCCEDataVolume(d *schema.ResourceData) []nodes.VolumeSpec {
 	for i, raw := range volumeRaw {
 		rawMap := raw.(map[string]interface{})
 		volumes[i] = nodes.VolumeSpec{
-			Size:        rawMap["size"].(int),
-			VolumeType:  rawMap["volumetype"].(string),
-			ExtendParam: rawMap["extend_param"].(map[string]interface{}),
+			Size:          rawMap["size"].(int),
+			VolumeType:    rawMap["volumetype"].(string),
+			HwPassthrough: rawMap["hw_passthrough"].(bool),
+			ExtendParam:   rawMap["extend_param"].(map[string]interface{}),
 		}
 	}
 	return volumes
@@ -351,6 +372,7 @@ func resourceCCERootVolume(d *schema.ResourceData) nodes.VolumeSpec {
 	if len(nicsRaw) == 1 {
 		nics.Size = nicsRaw[0].(map[string]interface{})["size"].(int)
 		nics.VolumeType = nicsRaw[0].(map[string]interface{})["volumetype"].(string)
+		nics.HwPassthrough = nicsRaw[0].(map[string]interface{})["hw_passthrough"].(bool)
 		nics.ExtendParam = nicsRaw[0].(map[string]interface{})["extend_param"].(map[string]interface{})
 	}
 	return nics
@@ -366,6 +388,48 @@ func resourceCCEEipIDs(d *schema.ResourceData) []string {
 		id[i] = raw.(string)
 	}
 	return id
+}
+
+func resourceCCEExtendParam(d *schema.ResourceData) map[string]interface{} {
+	extendParam := make(map[string]interface{})
+	if v, ok := d.GetOk("extend_param"); ok {
+		for key, val := range v.(map[string]interface{}) {
+			extendParam[key] = val.(string)
+		}
+		if v, ok := extendParam["periodNum"]; ok {
+			periodNum, err := strconv.Atoi(v.(string))
+			if err != nil {
+				log.Printf("[WARNING] PeriodNum %s invalid, Type conversion error: %s", v.(string), err)
+			}
+			extendParam["periodNum"] = periodNum
+		}
+	}
+	if v, ok := d.GetOk("extend_param_charging_mode"); ok {
+		extendParam["chargingMode"] = v.(int)
+	}
+	if v, ok := d.GetOk("ecs_performance_type"); ok {
+		extendParam["ecs:performancetype"] = v.(string)
+	}
+	if v, ok := d.GetOk("max_pods"); ok {
+		extendParam["maxPods"] = v.(int)
+	}
+	if v, ok := d.GetOk("order_id"); ok {
+		extendParam["orderID"] = v.(string)
+	}
+	if v, ok := d.GetOk("product_id"); ok {
+		extendParam["productID"] = v.(string)
+	}
+	if v, ok := d.GetOk("public_key"); ok {
+		extendParam["publicKey"] = v.(string)
+	}
+	if v, ok := d.GetOk("preinstall"); ok {
+		extendParam["alpha.cce/preInstall"] = installScriptEncode(v.(string))
+	}
+	if v, ok := d.GetOk("postinstall"); ok {
+		extendParam["alpha.cce/postInstall"] = installScriptEncode(v.(string))
+	}
+
+	return extendParam
 }
 
 func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
@@ -385,14 +449,6 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 				Password: d.Get("password").(string),
 			},
 		}
-	}
-
-	var base64PreInstall, base64PostInstall string
-	if v, ok := d.GetOk("preinstall"); ok {
-		base64PreInstall = installScriptEncode(v.(string))
-	}
-	if v, ok := d.GetOk("postinstall"); ok {
-		base64PostInstall = installScriptEncode(v.(string))
 	}
 
 	// eipCount must be specified when bandwidth_size parameters was set
@@ -434,21 +490,16 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 					SubnetId: d.Get("subnet_id").(string),
 				},
 			},
-			EcsGroupID: d.Get("ecs_group_id").(string),
-			ExtendParam: nodes.ExtendParam{
-				ChargingMode:       d.Get("extend_param_charging_mode").(int),
-				EcsPerformanceType: d.Get("ecs_performance_type").(string),
-				MaxPods:            d.Get("max_pods").(int),
-				OrderID:            d.Get("order_id").(string),
-				ProductID:          d.Get("product_id").(string),
-				PublicKey:          d.Get("public_key").(string),
-				PreInstall:         base64PreInstall,
-				PostInstall:        base64PostInstall,
-			},
-			Taints:   resourceCCETaint(d),
-			K8sTags:  resourceCCENodeK8sTags(d),
-			UserTags: resourceCCENodeTags(d),
+			EcsGroupID:  d.Get("ecs_group_id").(string),
+			ExtendParam: resourceCCEExtendParam(d),
+			Taints:      resourceCCETaint(d),
+			K8sTags:     resourceCCENodeK8sTags(d),
+			UserTags:    resourceCCENodeTags(d),
 		},
+	}
+
+	if v, ok := d.GetOk("fixed_ip"); ok {
+		createOpts.Spec.NodeNicSpec.PrimaryNic.FixedIps = []string{v.(string)}
 	}
 
 	clusterid := d.Get("cluster_id").(string)
@@ -548,6 +599,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 		volume := make(map[string]interface{})
 		volume["size"] = pairObject.Size
 		volume["volumetype"] = pairObject.VolumeType
+		volume["hw_passthrough"] = pairObject.HwPassthrough
 		volume["extend_param"] = pairObject.ExtendParam
 		volumes = append(volumes, volume)
 	}
@@ -557,9 +609,10 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 
 	rootVolume := []map[string]interface{}{
 		{
-			"size":         s.Spec.RootVolume.Size,
-			"volumetype":   s.Spec.RootVolume.VolumeType,
-			"extend_param": s.Spec.RootVolume.ExtendParam,
+			"size":           s.Spec.RootVolume.Size,
+			"volumetype":     s.Spec.RootVolume.VolumeType,
+			"hw_passthrough": s.Spec.RootVolume.HwPassthrough,
+			"extend_param":   s.Spec.RootVolume.ExtendParam,
 		},
 	}
 	if err := d.Set("root_volume", rootVolume); err != nil {
