@@ -66,7 +66,7 @@ type Spec struct {
 	// The node nic spec
 	NodeNicSpec NodeNicSpec `json:"nodeNicSpec,omitempty"`
 	// Extended parameter
-	ExtendParam ExtendParam `json:"extendParam,omitempty"`
+	ExtendParam map[string]interface{} `json:"extendParam,omitempty"`
 	// UUID of an ECS group
 	EcsGroupID string `json:"ecsGroupId,omitempty"`
 	// Tag of a VM, key value pair format
@@ -87,6 +87,8 @@ type NodeNicSpec struct {
 type PrimaryNic struct {
 	// The Subnet ID of the primary Nic
 	SubnetId string `json:"subnetId,omitempty"`
+	// Fixed ips of the primary Nic
+	FixedIps []string `json:"fixedIps,omitempty"`
 }
 
 // TaintSpec to created nodes to configure anti-affinity
@@ -134,27 +136,10 @@ type VolumeSpec struct {
 	Size int `json:"size" required:"true"`
 	// Disk type
 	VolumeType string `json:"volumetype" required:"true"`
+	//hw:passthrough
+	HwPassthrough bool `json:"hw:passthrough,omitempty"`
 	// Disk extension parameter
 	ExtendParam map[string]interface{} `json:"extendParam,omitempty"`
-}
-
-type ExtendParam struct {
-	// Node charging mode, 0 is on-demand charging.
-	ChargingMode int `json:"chargingMode,omitempty"`
-	// Classification of cloud server specifications.
-	EcsPerformanceType string `json:"ecs:performancetype,omitempty"`
-	// Order ID, mandatory when the node payment type is the automatic payment package period type.
-	OrderID string `json:"orderID,omitempty"`
-	// The Product ID.
-	ProductID string `json:"productID,omitempty"`
-	// The Public Key.
-	PublicKey string `json:"publicKey,omitempty"`
-	// The maximum number of instances a node is allowed to create.
-	MaxPods int `json:"maxPods,omitempty"`
-	// Script required before the installation.
-	PreInstall string `json:"alpha.cce/preInstall,omitempty"`
-	// Script required after the installation.
-	PostInstall string `json:"alpha.cce/postInstall,omitempty"`
 }
 
 type PublicIPSpec struct {
