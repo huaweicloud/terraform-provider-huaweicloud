@@ -8,12 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
-	"github.com/huaweicloud/golangsdk/openstack/identity/v3/users"
+	"github.com/huaweicloud/golangsdk/openstack/identity/v3.0/users"
 )
 
 func TestAccIdentityV3User_basic(t *testing.T) {
 	var user users.User
-	var userName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
+	var userName = fmt.Sprintf("acc-user-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_user.user_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -28,15 +28,25 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 				Config: testAccIdentityV3User_basic(userName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIdentityV3UserExists(resourceName, &user),
-					resource.TestCheckResourceAttrPtr(resourceName, "name", &user.Name),
+					resource.TestCheckResourceAttr(resourceName, "name", userName),
+					resource.TestCheckResourceAttr(resourceName, "description", "tested by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"password",
+				},
 			},
 			{
 				Config: testAccIdentityV3User_update(userName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIdentityV3UserExists(resourceName, &user),
-					resource.TestCheckResourceAttrPtr(resourceName, "name", &user.Name),
+					resource.TestCheckResourceAttr(resourceName, "name", userName),
+					resource.TestCheckResourceAttr(resourceName, "description", "tested by terraform update"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
 				),
 			},
@@ -46,7 +56,7 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 
 func testAccCheckIdentityV3UserDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	identityClient, err := config.IdentityV3Client(HW_REGION_NAME)
+	iamClient, err := config.IAMV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -56,7 +66,7 @@ func testAccCheckIdentityV3UserDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := users.Get(identityClient, rs.Primary.ID).Extract()
+		_, err := users.Get(iamClient, rs.Primary.ID).Extract()
 		if err == nil {
 			return fmt.Errorf("User still exists")
 		}
@@ -77,12 +87,12 @@ func testAccCheckIdentityV3UserExists(n string, user *users.User) resource.TestC
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		identityClient, err := config.IdentityV3Client(HW_REGION_NAME)
+		iamClient, err := config.IAMV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}
 
-		found, err := users.Get(identityClient, rs.Primary.ID).Extract()
+		found, err := users.Get(iamClient, rs.Primary.ID).Extract()
 		if err != nil {
 			return err
 		}
@@ -114,7 +124,7 @@ resource "huaweicloud_identity_user" "user_1" {
   name        = "%s"
   password    = "password123@!"
   enabled     = false
-  description = "tested by terraform"
+  description = "tested by terraform update"
 }
 `, userName)
 }
