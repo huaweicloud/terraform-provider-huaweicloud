@@ -52,9 +52,6 @@ The following arguments are supported:
     has to be set in order to set this property. Changing this updates the
     external fixed IPs of the router.
 
-* `tenant_id` - (Optional, String, ForceNew) The owner of the floating IP. Required if admin wants
-    to create a router for another tenant. Changing this creates a new router.
-
 * `value_specs` - (Optional, Map, ForceNew) Map of additional driver-specific options.
 
 The `external_fixed_ip` block supports:

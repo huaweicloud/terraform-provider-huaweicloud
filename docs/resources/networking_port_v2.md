@@ -40,9 +40,6 @@ The following arguments are supported:
 * `mac_address` - (Optional, String, ForceNew) Specify a specific MAC address for the port. Changing
     this creates a new port.
 
-* `tenant_id` - (Optional, String, ForceNew) The owner of the Port. Required if admin wants
-    to create a port for another tenant. Changing this creates a new port.
-
 * `device_owner` - (Optional, String, ForceNew) The device owner of the Port. Changing this creates
     a new port.
 

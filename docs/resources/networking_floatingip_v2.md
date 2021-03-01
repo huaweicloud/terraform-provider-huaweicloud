@@ -31,11 +31,6 @@ The following arguments are supported:
 * `port_id` - (Optional, String) ID of an existing port with at least one IP address to
     associate with this floating IP.
 
-* `tenant_id` - (Optional, String, ForceNew) The target tenant ID in which to allocate the floating
-    IP, if you specify this together with a port_id, make sure the target port
-    belongs to the same tenant. Changing this creates a new floating IP (which
-    may or may not have a different address)
-
 * `fixed_ip` - (Optional, String) Fixed IP of the port to associate with this floating IP. Required if
 the port has multiple fixed IPs.
 

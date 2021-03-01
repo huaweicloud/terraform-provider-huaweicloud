@@ -30,9 +30,6 @@ data "huaweicloud_networking_network_v2" "network" {
 
 * `matching_subnet_cidr` - (Optional, String) The CIDR of a subnet within the network.
 
-* `tenant_id` - (Optional, String) The owner of the network.
-
-
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

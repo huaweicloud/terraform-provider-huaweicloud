@@ -58,10 +58,11 @@ func ResourceNetworkingPortV2() *schema.Resource {
 				Computed: true,
 			},
 			"tenant_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Computed:   true,
+				Deprecated: "tenant_id is deprecated",
 			},
 			"device_owner": {
 				Type:     schema.TypeString,

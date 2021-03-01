@@ -80,11 +80,6 @@ The following arguments are supported:
     of a security group in the same tenant.
     Changing this creates a new security group rule.
 
-* `tenant_id` - (Optional, String, ForceNew) Specifies the owner of the
-    security group. Required if admin wants to create a port for another
-    tenant.
-    Changing this creates a new security group rule.
-
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
