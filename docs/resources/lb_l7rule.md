@@ -54,10 +54,6 @@ The following arguments are supported:
     If omitted, the provider-level region will be used.
     Changing this creates a new L7 Rule.
 
-* `tenant_id` - (Optional, String, ForceNew) Required for admins. The UUID of the tenant who owns
-    the L7 Rule.  Only administrative users can specify a tenant UUID
-    other than their own. Changing this creates a new L7 Rule.
-
 * `description` - (Optional, String) Human-readable description for the L7 Rule.
 
 * `type` - (Required, String, ForceNew) The L7 Rule type - can either be HOST\_NAME or PATH. Changing this creates a new L7 Rule.

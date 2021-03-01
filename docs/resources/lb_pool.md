@@ -30,10 +30,6 @@ The following arguments are supported:
     If omitted, the the provider-level region will be used.
     Changing this creates a new pool.
 
-* `tenant_id` - (Optional, String, ForceNew) Required for admins. The UUID of the tenant who owns
-    the pool.  Only administrative users can specify a tenant UUID
-    other than their own. Changing this creates a new pool.
-
 * `name` - (Optional, String) Human-readable name for the pool.
 
 * `description` - (Optional, String) Human-readable description for the pool.

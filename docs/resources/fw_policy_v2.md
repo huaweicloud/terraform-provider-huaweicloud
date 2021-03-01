@@ -69,10 +69,6 @@ The following arguments are supported:
     `shared` status of an existing firewall policy. Only administrative users
     can specify if the policy should be shared.
 
-* `tenant_id` - (Optional, String, ForceNew) The owner of the firewall policy. Required if admin wants
-    to create a firewall policy for another tenant. Changing this creates a new
-    firewall policy.
-
 * `value_specs` - (Optional, Map, ForceNew) Map of additional options.
 
 ## Attributes Reference

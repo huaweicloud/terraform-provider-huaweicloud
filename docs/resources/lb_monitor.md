@@ -31,10 +31,6 @@ The following arguments are supported:
 
 * `name` - (Optional, String) The Name of the Monitor.
 
-* `tenant_id` - (Optional, String, ForceNew) Required for admins. The UUID of the tenant who owns
-    the monitor.  Only administrative users can specify a tenant UUID
-    other than their own. Changing this creates a new monitor.
-
 * `type` - (Required, String, ForceNew) The type of probe, which is PING, TCP, HTTP, or HTTPS,
     that is sent by the load balancer to verify the member state. Changing this
     creates a new monitor.

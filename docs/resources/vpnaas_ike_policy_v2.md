@@ -26,9 +26,6 @@ The following arguments are supported:
 * `name` - (Optional) The name of the policy. Changing this updates the name of
     the existing policy.
 
-* `tenant_id` - (Optional) The owner of the policy. Required if admin wants to
-    create a service for another policy. Changing this creates a new policy.
-
 * `description` - (Optional) The human-readable description for the policy.
     Changing this updates the description of the existing policy.
 

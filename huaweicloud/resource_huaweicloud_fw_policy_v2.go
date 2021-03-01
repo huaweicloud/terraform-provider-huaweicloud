@@ -51,10 +51,11 @@ func resourceFWPolicyV2() *schema.Resource {
 				Optional: true,
 			},
 			"tenant_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Computed:   true,
+				Deprecated: "tenant_id is deprecated",
 			},
 			"rules": {
 				Type:     schema.TypeList,
