@@ -49,8 +49,8 @@ type CreateGaussDBOpts struct {
 	ConfigurationId     string             `json:"configuration_id,omitempty"`
 	DsspoolId           string             `json:"dsspool_id,omitempty"`
 	ReplicaOfId         string             `json:"replica_of_id,omitempty"`
-	ShardingNum         int                `json:"sharding_num,omitempty"`
-	CoordinatorNum      int                `json:"coordinator_num,omitempty"`
+	ShardingNum         int                `json:"sharding_num" required:"true"`
+	CoordinatorNum      int                `json:"coordinator_num" required:"true"`
 	EnterpriseProjectId string             `json:"enterprise_project_id,omitempty"`
 	DataStore           DataStoreOpt       `json:"datastore" required:"true"`
 	Volume              VolumeOpt          `json:"volume" required:"true"`
