@@ -48,9 +48,6 @@ The following arguments are supported:
    gateway. The value contains 0 to 255 characters, and angle brackets (<)
    and (>) are not allowed.
 
-* `tenant_id` - (Optional, String, ForceNew) Specifies the target tenant ID in
-    which to allocate the nat gateway. Changing this creates a new nat gateway.
-
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the
     enterprise project id of the nat gateway. The value can contains maximum of
     36 characters which it is string "0" or in UUID format with hyphens (-).

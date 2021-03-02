@@ -68,10 +68,6 @@ The following arguments are supported:
     (must be "true" or "false" if provided - defaults to "true").
     Changing this updates the `admin_state_up` of an existing firewall group.
 
-* `tenant_id` - (Optional, String, ForceNew) The owner of the floating IP. Required if admin wants
-    to create a firewall group for another tenant. Changing this creates a new
-    firewall group.
-
 * `ports` - (Optional, String) Port(s) to associate this firewall group instance
     with. Must be a list of strings. Changing this updates the associated routers
     of an existing firewall group.

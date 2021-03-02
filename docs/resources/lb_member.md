@@ -33,10 +33,6 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Human-readable name for the member.
 
-* `tenant_id` - (Optional, String, ForceNew) Required for admins. The UUID of the tenant who owns
-    the member.  Only administrative users can specify a tenant UUID
-    other than their own. Changing this creates a new member.
-
 * `address` - (Required, String, ForceNew) The IP address of the member to receive traffic from
     the load balancer. Changing this creates a new member.
 

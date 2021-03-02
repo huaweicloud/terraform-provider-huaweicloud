@@ -47,10 +47,6 @@ The following arguments are supported:
     If omitted, the provider-level region will be used.
     Changing this creates a new L7 Policy.
 
-* `tenant_id` - (Optional, String, ForceNew) Required for admins. The UUID of the tenant who owns
-    the L7 Policy.  Only administrative users can specify a tenant UUID
-    other than their own. Changing this creates a new L7 Policy.
-
 * `name` - (Optional, String) Human-readable name for the L7 Policy. Does not have
     to be unique.
 

@@ -30,10 +30,11 @@ func ResourceWhitelistV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"tenant_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				Computed:   true,
+				ForceNew:   true,
+				Deprecated: "tenant_id is deprecated",
 			},
 
 			"listener_id": {

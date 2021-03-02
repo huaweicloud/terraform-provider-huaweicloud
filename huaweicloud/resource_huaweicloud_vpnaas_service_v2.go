@@ -48,10 +48,11 @@ func resourceVpnServiceV2() *schema.Resource {
 				Default:  true,
 			},
 			"tenant_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Computed:   true,
+				Deprecated: "tenant_id is deprecated",
 			},
 			"subnet_id": {
 				Type:     schema.TypeString,

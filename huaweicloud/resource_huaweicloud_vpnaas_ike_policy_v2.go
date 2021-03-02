@@ -85,10 +85,11 @@ func resourceVpnIKEPolicyV2() *schema.Resource {
 				},
 			},
 			"tenant_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Computed:   true,
+				Deprecated: "tenant_id is deprecated",
 			},
 			"value_specs": {
 				Type:     schema.TypeMap,

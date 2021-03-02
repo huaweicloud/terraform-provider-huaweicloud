@@ -35,10 +35,6 @@ The following arguments are supported:
 * `protocol_port` - (Required, Int, ForceNew) The port on which to listen for client traffic.
     Changing this creates a new listener.
 
-* `tenant_id` - (Optional, String, ForceNew) Required for admins. The UUID of the tenant who owns
-    the listener.  Only administrative users can specify a tenant UUID
-    other than their own. Changing this creates a new listener.
-
 * `loadbalancer_id` - (Required, String, ForceNew) The load balancer on which to provision this
     listener. Changing this creates a new listener.
 

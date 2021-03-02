@@ -28,9 +28,6 @@ The following arguments are supported:
 * `name` - (Optional) The name of the service. Changing this updates the name of
     the existing service.
 
-* `tenant_id` - (Optional) The owner of the service. Required if admin wants to
-    create a service for another project. Changing this creates a new service.
-
 * `description` - (Optional) The human-readable description for the service.
     Changing this updates the description of the existing service.
 

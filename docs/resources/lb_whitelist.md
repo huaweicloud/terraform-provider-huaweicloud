@@ -32,10 +32,6 @@ The following arguments are supported:
     If omitted, the provider-level region will be used.
     Changing this creates a new whitelist.
 
-* `tenant_id` - (Optional, String, ForceNew) Required for admins. The UUID of the tenant who owns
-    the whitelist. Only administrative users can specify a tenant UUID
-    other than their own. Changing this creates a new whitelist.
-
 * `listener_id` - (Required, String, ForceNew) The Listener ID that the whitelist will be associated with. Changing this creates a new whitelist.
 
 * `enable_whitelist` - (Optional, Bool) Specify whether to enable access control.
