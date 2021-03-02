@@ -25,8 +25,6 @@ data "huaweicloud_networking_secgroup" "secgroup" {
 
 * `name` - (Optional, String) The name of the security group.
 
-* `tenant_id` - (Optional, String) The owner of the security group.
-
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

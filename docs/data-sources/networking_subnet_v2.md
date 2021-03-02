@@ -38,8 +38,6 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 
 * `network_id` - (Optional, String) The ID of the network the subnet belongs to.
 
-* `tenant_id` - (Optional, String) The owner of the subnet.
-
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

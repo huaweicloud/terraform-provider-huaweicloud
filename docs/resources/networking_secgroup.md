@@ -26,10 +26,6 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Description for the security group.
 
-* `tenant_id` - (Optional, String, ForceNew) The owner of the security group. Required if admin
-    wants to create a port for another tenant. Changing this creates a new
-    security group.
-
 * `delete_default_rules` - (Optional, Bool, ForceNew) Whether or not to delete the default
     egress security rules. This is `false` by default. See the below note
     for more information.

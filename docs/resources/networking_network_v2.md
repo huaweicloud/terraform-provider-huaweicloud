@@ -76,9 +76,6 @@ The following arguments are supported:
     by any tenant or not. Changing this updates the sharing capabalities of the
     existing network.
 
-* `tenant_id` - (Optional, String, ForceNew) The owner of the network. Required if admin wants to
-    create a network for another tenant. Changing this creates a new network.
-
 * `admin_state_up` - (Optional, String) The administrative state of the network.
     Acceptable values are "true" and "false". Changing this value updates the
     state of the existing network.

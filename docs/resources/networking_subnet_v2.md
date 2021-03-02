@@ -43,9 +43,6 @@ The following arguments are supported:
 * `name` - (Optional, String) The name of the subnet. Changing this updates the name of
     the existing subnet.
 
-* `tenant_id` - (Optional, String, ForceNew) The owner of the subnet. Required if admin wants to
-    create a subnet for another tenant. Changing this creates a new subnet.
-
 * `allocation_pools` - (Optional, List) An array of sub-ranges of CIDR available for
     dynamic allocation to ports. The allocation_pool object structure is
     documented below. Changing this creates a new subnet.

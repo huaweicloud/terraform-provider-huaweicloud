@@ -95,10 +95,11 @@ func ResourceNetworkingSecGroupRuleV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"tenant_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Computed:   true,
+				Deprecated: "tenant_id is deprecated",
 			},
 		},
 	}
