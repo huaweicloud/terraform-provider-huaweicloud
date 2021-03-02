@@ -20,6 +20,9 @@ func resourceDdsInstanceV3() *schema.Resource {
 		Update: resourceDdsInstanceV3Update,
 		Delete: resourceDdsInstanceV3Delete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),

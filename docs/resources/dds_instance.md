@@ -192,8 +192,30 @@ The `nodes` block contains:
      and single node instances.
   - `status` - Indicates the node status.
 
+## Import
+
+Instances can be imported by their `id`. For example,
+```
+terraform import huaweicloud_dds_instance.instance 4d512930164a47ac84752394a0613e7fin02
+```
+Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+API response, security or some other reason. The missing attributes include: `availability_zone`, `password` and
+`flavor`. It is generally recommended running `terraform plan` after importing an instance. You can then decide if
+changes should be applied to the instance, or the resource definition should be updated to align with the instance.
+Also you can ignore changes as below.
+```
+resource "huaweicloud_dds_instance" "instance" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      availability_zone, flavor,
+    ]
+  }
+}
+```
+
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `create` - Default is 30 minute.
 - `delete` - Default is 30 minute.
-
