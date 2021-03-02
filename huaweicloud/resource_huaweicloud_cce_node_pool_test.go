@@ -45,13 +45,13 @@ func TestAccCCENodePool_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCCENodePool_volume_extendParam(rName),
+				Config: testAccCCENodePool_volume_extendParams(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "root_volume.0.extend_param.test_key", "test_val"),
-					resource.TestCheckResourceAttr(resourceName, "data_volumes.0.extend_param.test_key1", "test_val1"),
-					resource.TestCheckResourceAttr(resourceName, "data_volumes.1.extend_param.test_key2", "test_val2"),
+					resource.TestCheckResourceAttr(resourceName, "root_volume.0.extend_params.test_key", "test_val"),
+					resource.TestCheckResourceAttr(resourceName, "data_volumes.0.extend_params.test_key1", "test_val1"),
+					resource.TestCheckResourceAttr(resourceName, "data_volumes.1.extend_params.test_key2", "test_val2"),
 				),
 			},
 		},
@@ -213,7 +213,7 @@ resource "huaweicloud_cce_node_pool" "test" {
 `, testAccCCENodePool_Base(rName), updateName)
 }
 
-func testAccCCENodePool_volume_extendParam(rName string) string {
+func testAccCCENodePool_volume_extendParams(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -235,7 +235,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   root_volume {
     size       = 40
 	volumetype = "SSD"
-	extend_param = {
+	extend_params = {
 	  test_key = "test_val"
 	}
   }
@@ -243,7 +243,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   data_volumes {
     size       = 100
 	volumetype = "SSD"
-	extend_param = {
+	extend_params = {
 	  test_key1 = "test_val1"
 	}
   }
@@ -251,7 +251,7 @@ resource "huaweicloud_cce_node_pool" "test" {
   data_volumes {
     size       = 100
 	volumetype = "SSD"
-	extend_param = {
+	extend_params = {
 	  test_key2 = "test_val2"
 	}
   }
