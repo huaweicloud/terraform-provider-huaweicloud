@@ -417,7 +417,7 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("region", region)
-	d.Set("bucket_domain_name", bucketDomainName(d.Get("bucket").(string), region))
+	d.Set("bucket_domain_name", bucketDomainNameWithCloud(d.Get("bucket").(string), region, config.Cloud))
 
 	// Read storage class
 	if err := setObsBucketStorageClass(obsClient, d); err != nil {
@@ -1324,6 +1324,10 @@ func normalizeWebsiteRoutingRules(w []obs.RoutingRule) (string, error) {
 	}
 
 	return string(withoutNulls), nil
+}
+
+func bucketDomainNameWithCloud(bucket, region, cloud string) string {
+	return fmt.Sprintf("%s.obs.%s.%s", bucket, region, cloud)
 }
 
 type Condition struct {
