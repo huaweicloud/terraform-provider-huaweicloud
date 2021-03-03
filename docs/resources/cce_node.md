@@ -179,13 +179,13 @@ The following arguments are supported:
 
   * `size` - (Required, Int) Disk size in GB.
   * `volumetype` - (Required, String) Disk type.
-  * `extend_param` - (Optional, Map) Disk expansion parameters.
+  * `extend_params` - (Optional, Map) Disk expansion parameters.
 
 * `data_volumes` - (Required, List, ForceNew) Represents the data disk to be created. Changing this parameter will create a new resource.
 
   * `size` - (Required, Int) Disk size in GB.
   * `volumetype` - (Required, String) Disk type.
-  * `extend_param` - (Optional, Map) Disk expansion parameters.
+  * `extend_params` - (Optional, Map) Disk expansion parameters.
 
 * `taints` - (Optional, List, ForceNew) You can add taints to created nodes to configure anti-affinity. Each taint contains the following parameters:
 

@@ -106,7 +106,7 @@ func ResourceCCENodeV3() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						"extend_param": {
+						"extend_params": {
 							Type:     schema.TypeMap,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
@@ -131,7 +131,7 @@ func ResourceCCENodeV3() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						"extend_param": {
+						"extend_params": {
 							Type:     schema.TypeMap,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
@@ -346,7 +346,7 @@ func resourceCCEDataVolume(d *schema.ResourceData) []nodes.VolumeSpec {
 			Size:          rawMap["size"].(int),
 			VolumeType:    rawMap["volumetype"].(string),
 			HwPassthrough: rawMap["hw_passthrough"].(bool),
-			ExtendParam:   rawMap["extend_param"].(map[string]interface{}),
+			ExtendParam:   rawMap["extend_params"].(map[string]interface{}),
 		}
 	}
 	return volumes
@@ -373,7 +373,7 @@ func resourceCCERootVolume(d *schema.ResourceData) nodes.VolumeSpec {
 		nics.Size = nicsRaw[0].(map[string]interface{})["size"].(int)
 		nics.VolumeType = nicsRaw[0].(map[string]interface{})["volumetype"].(string)
 		nics.HwPassthrough = nicsRaw[0].(map[string]interface{})["hw_passthrough"].(bool)
-		nics.ExtendParam = nicsRaw[0].(map[string]interface{})["extend_param"].(map[string]interface{})
+		nics.ExtendParam = nicsRaw[0].(map[string]interface{})["extend_params"].(map[string]interface{})
 	}
 	return nics
 }
@@ -600,7 +600,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 		volume["size"] = pairObject.Size
 		volume["volumetype"] = pairObject.VolumeType
 		volume["hw_passthrough"] = pairObject.HwPassthrough
-		volume["extend_param"] = pairObject.ExtendParam
+		volume["extend_params"] = pairObject.ExtendParam
 		volumes = append(volumes, volume)
 	}
 	if err := d.Set("data_volumes", volumes); err != nil {
@@ -612,7 +612,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 			"size":           s.Spec.RootVolume.Size,
 			"volumetype":     s.Spec.RootVolume.VolumeType,
 			"hw_passthrough": s.Spec.RootVolume.HwPassthrough,
-			"extend_param":   s.Spec.RootVolume.ExtendParam,
+			"extend_params":  s.Spec.RootVolume.ExtendParam,
 		},
 	}
 	if err := d.Set("root_volume", rootVolume); err != nil {
