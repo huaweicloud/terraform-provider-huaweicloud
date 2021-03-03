@@ -110,7 +110,8 @@ resource "huaweicloud_cce_node" "mynode" {
 ## Argument Reference
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the cce node resource. If omitted, the provider-level region will be used. Changing this creates a new cce node resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the cce node resource.
+    If omitted, the provider-level region will be used. Changing this creates a new cce node resource.
 
 * `cluster_id` - (Required, String, ForceNew) ID of the cluster. Changing this parameter will create a new resource.
 
@@ -118,19 +119,21 @@ The following arguments are supported:
 
 * `flavor_id` - (Required, String, ForceNew) Specifies the flavor id. Changing this parameter will create a new resource.
 
-* `availability_zone` - (Required, String, ForceNew) specify the name of the available partition (AZ). Changing this parameter will create a new resource.
+* `availability_zone` - (Required, String, ForceNew) specify the name of the available partition (AZ).
+    Changing this parameter will create a new resource.
 
 * `os` - (Optional, String, ForceNew) Operating System of the node. Changing this parameter will create a new resource.
     - For VM nodes, clusters of v1.13 and later support *EulerOS 2.5* and *CentOS 7.6*.
     - For BMS nodes purchased in the yearly/monthly billing mode, only *EulerOS 2.3* is supported.
 
-* `key_pair` - (Optional, String, ForceNew) Key pair name when logging in to select the key pair mode. This parameter and `password` are alternative.
-    Changing this parameter will create a new resource.
+* `key_pair` - (Optional, String, ForceNew) Key pair name when logging in to select the key pair mode.
+    This parameter and `password` are alternative. Changing this parameter will create a new resource.
 
-* `password` - (Optional, String, ForceNew) root password when logging in to select the password mode. This parameter must be salted and alternative to `key_pair`.
-    Changing this parameter will create a new resource.
+* `password` - (Optional, String, ForceNew) root password when logging in to select the password mode.
+    This parameter must be salted and alternative to `key_pair`. Changing this parameter will create a new resource.
 
-* `subnet_id` - (Optional, String, ForceNew) The ID of the subnet to which the NIC belongs. Changing this parameter will create a new resource.
+* `subnet_id` - (Optional, String, ForceNew) The ID of the subnet to which the NIC belongs.
+    Changing this parameter will create a new resource.
 
 * `fixed_ip` - (Optional, String, ForceNew) The fixed IP of the NIC. Changing this parameter will create a new resource.
 
@@ -142,16 +145,17 @@ The following arguments are supported:
 
 * `iptype` - (Optional, String, ForceNew) Elastic IP type. Changing this parameter will create a new resource.
 
-* `esc_group_id` - (Optional, String, ForceNew) Ecs group id. If specified, the node will be created under the cloud server group.
-    Changing this parameter will create a new resource.
-
 * `bandwidth_charge_mode` - (Optional, String, ForceNew) Bandwidth billing type. Changing this parameter will create a new resource.
 
 * `sharetype` - (Optional, String, ForceNew) Bandwidth sharing type. Changing this parameter will create a new resource.
 
 * `bandwidth_size` - (Optional, Int, ForceNew) Bandwidth size. Changing this parameter will create a new resource.
 
-* `max_pods` - (Optional, Int, ForceNew) The maximum number of instances a node is allowed to create. Changing this parameter will create a new cluster resource.
+* `max_pods` - (Optional, Int, ForceNew) The maximum number of instances a node is allowed to create.
+    Changing this parameter will create a new resource.
+
+* `esc_group_id` - (Optional, String, ForceNew) Ecs group id. If specified, the node will be created under the cloud server group.
+    Changing this parameter will create a new resource.
 
 * `preinstall` - (Optional, String, ForceNew) Script required before installation. The input value can be a Base64 encoded string or not.
     Changing this parameter will create a new resource.
@@ -161,10 +165,11 @@ The following arguments are supported:
 
 * `extend_param` - (Optional, Map, ForceNew) Extended parameter. Changing this parameter will create a new resource. Availiable keys :
 
+  * `agency_name` - Specifies the agency name to provide temporary credentials for CCE node to access other cloud services.
   * `alpha.cce/NodeImageID` - This parameter is required when a custom image is used to create a BMS node.
   * `dockerBaseSize` - The available disk space of a single docker container on the node in device mapper mode.
   * `DockerLVMConfigOverride` - Docker data disk configurations. The following is an example default configuration:
-  
+
 ```hcl
   extend_param = {
     DockerLVMConfigOverride = "dockerThinpool=vgpaas/90%VG;kubernetesLV=vgpaas/10%VG;diskType=evs;lvType=linear"
@@ -200,17 +205,12 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
-
- * `status` -  Node status information.
-
- * `server_id` - ID of the ECS instance associated with the node.
-
- * `private_ip` - Private IP of the CCE node.
-
- * `public_ip` - Public IP of the CCE node.
+* `status` -  Node status information.
+* `server_id` - ID of the ECS instance associated with the node.
+* `private_ip` - Private IP of the CCE node.
+* `public_ip` - Public IP of the CCE node.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `create` - Default is 20 minute.
 - `delete` - Default is 20 minute.
-
