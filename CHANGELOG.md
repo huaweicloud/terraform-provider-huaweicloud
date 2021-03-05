@@ -1,3 +1,19 @@
+## 1.22.1 (March 5, 2021)
+
+BUG FIXES:
+
+* resource/huaweicloud_obs_bucket: Fix wrong bucket domain name in customizing cloud scene ([#957](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/957))
+
+* resource/huaweicloud_gaussdb_opengauss_instance: Set sharding_num and coordinator_num default to 3 ([#959](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/959))
+
+* resource/huaweicloud_cce_node & huaweicloud_cce_node_pool: revoke `extend_param` and set to deprecated  ([#966](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/966))
+
+* resource/huaweicloud_vpc & data/huaweicloud_vpc: revoke `shared` attribute  ([#967](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/967))
+
+DEPRECATE:
+
+* the `tenant_id` is marked as deprecated in resources ([#952][#954])
+
 ## 1.22.0 (February 27, 2021)
 
 ENHANCEMENTS:
