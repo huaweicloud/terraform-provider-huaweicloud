@@ -170,6 +170,11 @@ func ResourceCCENodePool() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"max_pods": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+			},
 			"preinstall": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -195,6 +200,12 @@ func ResourceCCENodePool() *schema.Resource {
 						return ""
 					}
 				},
+			},
+			"extend_param": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"subnet_id": {
 				Type:     schema.TypeString,

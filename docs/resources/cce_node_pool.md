@@ -68,11 +68,27 @@ The following arguments are supported:
 
 * `subnet_id` - (Optional, String, ForceNew) The ID of the subnet to which the NIC belongs. Changing this parameter will create a new resource.
 
+* `max_pods` - (Optional, Int, ForceNew) The maximum number of instances a node is allowed to create.
+    Changing this parameter will create a new resource.
+
 * `preinstall` - (Optional, String, ForceNew) Script required before installation. The input value can be a Base64 encoded string or not.
     Changing this parameter will create a new resource.
 
 * `postinstall` - (Optional, String, ForceNew) Script required after the installation. The input value can be a Base64 encoded string or not.
     Changing this parameter will create a new resource.
+
+* `extend_param` - (Optional, Map, ForceNew) Extended parameter. Changing this parameter will create a new resource. Availiable keys :
+
+  * `agency_name` - Specifies the agency name to provide temporary credentials for CCE node to access other cloud services.
+  * `alpha.cce/NodeImageID` - This parameter is required when a custom image is used to create a BMS node.
+  * `dockerBaseSize` - The available disk space of a single docker container on the node in device mapper mode.
+  * `DockerLVMConfigOverride` - Docker data disk configurations. The following is an example default configuration:
+
+```hcl
+  extend_param = {
+    DockerLVMConfigOverride = "dockerThinpool=vgpaas/90%VG;kubernetesLV=vgpaas/10%VG;diskType=evs;lvType=linear"
+  }
+```
 
 * `scall_enable` - (Optional, Bool) Whether to enable auto scaling. If Autoscaler is enabled, install the autoscaler add-on to use the auto scaling feature.
 
