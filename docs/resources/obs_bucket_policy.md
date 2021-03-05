@@ -36,7 +36,7 @@ POLICY
 ### Policy with S3 format
 
 ```hcl
-resource "huaweicloud_obs_bucket" "b" {
+resource "huaweicloud_obs_bucket" "bucket" {
   bucket = "my-test-bucket"
 }
 
@@ -68,7 +68,8 @@ POLICY
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the OBS bucket policy resource. If omitted, the provider-level region will be used. Changing this creates a new OBS bucket policy resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the OBS bucket policy resource.
+  If omitted, the provider-level region will be used. Changing this creates a new OBS bucket policy resource.
 
 * `bucket` - (Required, String, ForceNew) Specifies the name of the bucket to which to apply the policy.
 * `policy` - (Required, String) Specifies the text of the bucket policy in JSON format. For more information about

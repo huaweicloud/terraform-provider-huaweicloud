@@ -331,7 +331,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dis_partition_v2":          dataSourceDisPartitionV2(),
 			// Deprecated
 			"huaweicloud_compute_availability_zones_v2": dataSourceComputeAvailabilityZonesV2(),
-			"huaweicloud_s3_bucket_object":              dataSourceS3BucketObject(),
 			"huaweicloud_networking_network_v2":         dataSourceNetworkingNetworkV2(),
 			"huaweicloud_networking_subnet_v2":          dataSourceNetworkingSubnetV2(),
 			"huaweicloud_rts_stack_v1":                  dataSourceRTSStackV1(),
@@ -549,9 +548,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_cdn_domain_v1":                      resourceCdnDomainV1(),
 			// Deprecated
 			"huaweicloud_blockstorage_volume_v2":             resourceBlockStorageVolumeV2(),
-			"huaweicloud_s3_bucket":                          resourceS3Bucket(),
-			"huaweicloud_s3_bucket_policy":                   resourceS3BucketPolicy(),
-			"huaweicloud_s3_bucket_object":                   resourceS3BucketObject(),
 			"huaweicloud_networking_network_v2":              resourceNetworkingNetworkV2(),
 			"huaweicloud_networking_subnet_v2":               resourceNetworkingSubnetV2(),
 			"huaweicloud_networking_floatingip_v2":           resourceNetworkingFloatingIPV2(),

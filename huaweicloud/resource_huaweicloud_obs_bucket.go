@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/url"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
@@ -1261,6 +1262,19 @@ func deleteAllBucketObjects(obsClient *obs.ObsClient, bucket string) error {
 		return fmt.Errorf("Error some objects are still exist in %s: %#v", bucket, output.Errors)
 	}
 	return nil
+}
+
+func expirationHash(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+
+	if v, ok := m["days"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
+	}
+	if v, ok := m["storage_class"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+	return hashcode.String(buf.String())
 }
 
 func getObsError(action string, bucket string, err error) error {

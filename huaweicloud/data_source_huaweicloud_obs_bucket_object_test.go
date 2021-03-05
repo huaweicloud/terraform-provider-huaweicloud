@@ -17,7 +17,7 @@ func TestAccHuaweiCloudObsBucketObjectDataSource_content(t *testing.T) {
 	resourceConf, dataSourceConf := testAccHuaweiCloudObsBucketObjectDataSource_content(rInt)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                  func() { testAccPreCheckS3(t) },
+		PreCheck:                  func() { testAccPreCheckOBS(t) },
 		Providers:                 testAccProviders,
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
@@ -60,7 +60,7 @@ func TestAccHuaweiCloudObsBucketObjectDataSource_source(t *testing.T) {
 	resourceConf, dataSourceConf := testAccHuaweiCloudObsBucketObjectDataSource_source(rInt, tmpFile.Name())
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                  func() { testAccPreCheckS3(t) },
+		PreCheck:                  func() { testAccPreCheckOBS(t) },
 		Providers:                 testAccProviders,
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
@@ -87,7 +87,7 @@ func TestAccHuaweiCloudObsBucketObjectDataSource_allParams(t *testing.T) {
 	resourceConf, dataSourceConf := testAccHuaweiCloudObsBucketObjectDataSource_allParams(rInt)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:                  func() { testAccPreCheckS3(t) },
+		PreCheck:                  func() { testAccPreCheckOBS(t) },
 		Providers:                 testAccProviders,
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
