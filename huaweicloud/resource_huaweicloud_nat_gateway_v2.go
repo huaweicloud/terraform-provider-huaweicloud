@@ -59,13 +59,6 @@ func resourceNatGatewayV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"tenant_id": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Computed:   true,
-				ForceNew:   true,
-				Deprecated: "tenant_id is deprecated",
-			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,

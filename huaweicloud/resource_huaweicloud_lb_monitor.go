@@ -43,14 +43,6 @@ func ResourceMonitorV2() *schema.Resource {
 				Optional: true,
 			},
 
-			"tenant_id": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Computed:   true,
-				ForceNew:   true,
-				Deprecated: "tenant_id is deprecated",
-			},
-
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,

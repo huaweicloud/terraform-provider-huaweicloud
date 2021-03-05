@@ -49,14 +49,6 @@ func ResourceListenerV2() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"tenant_id": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Computed:   true,
-				ForceNew:   true,
-				Deprecated: "tenant_id is deprecated",
-			},
-
 			"loadbalancer_id": {
 				Type:     schema.TypeString,
 				Required: true,

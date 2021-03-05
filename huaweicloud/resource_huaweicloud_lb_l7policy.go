@@ -38,14 +38,6 @@ func ResourceL7PolicyV2() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"tenant_id": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Computed:   true,
-				ForceNew:   true,
-				Deprecated: "tenant_id is deprecated",
-			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
