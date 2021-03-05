@@ -106,6 +106,11 @@ func ResourceCCENodeV3() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
+						"extend_param": {
+							Type:       schema.TypeString,
+							Optional:   true,
+							Deprecated: "use extend_params instead",
+						},
 						"extend_params": {
 							Type:     schema.TypeMap,
 							Optional: true,
@@ -130,6 +135,11 @@ func ResourceCCENodeV3() *schema.Resource {
 						"hw_passthrough": {
 							Type:     schema.TypeBool,
 							Optional: true,
+						},
+						"extend_param": {
+							Type:       schema.TypeString,
+							Optional:   true,
+							Deprecated: "use extend_params instead",
 						},
 						"extend_params": {
 							Type:     schema.TypeMap,
@@ -601,6 +611,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 		volume["volumetype"] = pairObject.VolumeType
 		volume["hw_passthrough"] = pairObject.HwPassthrough
 		volume["extend_params"] = pairObject.ExtendParam
+		volume["extend_param"] = ""
 		volumes = append(volumes, volume)
 	}
 	if err := d.Set("data_volumes", volumes); err != nil {
@@ -613,6 +624,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 			"volumetype":     s.Spec.RootVolume.VolumeType,
 			"hw_passthrough": s.Spec.RootVolume.HwPassthrough,
 			"extend_params":  s.Spec.RootVolume.ExtendParam,
+			"extend_param":   "",
 		},
 	}
 	if err := d.Set("root_volume", rootVolume); err != nil {
