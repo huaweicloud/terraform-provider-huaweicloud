@@ -39,6 +39,10 @@ func DataSourceVirtualPrivateCloudVpcV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"shared": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"routes": {
 				Type:     schema.TypeList,
 				Computed: true,

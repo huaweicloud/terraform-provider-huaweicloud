@@ -55,6 +55,10 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"shared": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 			"routes": {
 				Type:     schema.TypeList,
 				Computed: true,
