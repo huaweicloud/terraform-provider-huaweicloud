@@ -1,0 +1,86 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vpcep_endpoint": {
+          "block": {
+            "attributes": {
+              "enable_dns": {
+                "type": "bool",
+                "optional": true
+              },
+              "enable_whitelist": {
+                "type": "bool",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_address": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "network_id": {
+                "type": "string",
+                "required": true
+              },
+              "packet_id": {
+                "type": "number",
+                "computed": true
+              },
+              "private_domain_name": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "service_id": {
+                "type": "string",
+                "required": true
+              },
+              "service_name": {
+                "type": "string",
+                "computed": true
+              },
+              "service_type": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true
+              },
+              "whitelist": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "VPC Endpoint",
+            "short": "VPCEP"
+          }
+        }
+      }
+    }
+  }
+}

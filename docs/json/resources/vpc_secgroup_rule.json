@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_networking_secgroup_rule": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "direction": {
+                "type": "string",
+                "required": true
+              },
+              "ethertype": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "port_range_max": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "port_range_min": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "protocol": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "remote_group_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "remote_ip_prefix": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "Virtual Private Cloud",
+            "short": "VPC"
+          }
+        }
+      }
+    }
+  }
+}

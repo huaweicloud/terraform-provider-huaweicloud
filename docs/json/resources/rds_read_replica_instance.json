@@ -1,0 +1,128 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_read_replica_instance": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "required": true
+              },
+              "db": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "port": "number",
+                      "type": "string",
+                      "user_name": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "flavor": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "primary_instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "private_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "public_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "volume": {
+                "nesting_mode": "list",
+                "block": {
+                  "attributes": {
+                    "disk_encryption_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "catalog": "Database",
+            "name": "Relational Database Service",
+            "short": "RDS"
+          }
+        }
+      }
+    }
+  }
+}

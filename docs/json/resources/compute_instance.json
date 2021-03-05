@@ -1,0 +1,254 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_compute_instance": {
+          "block": {
+            "attributes": {
+              "access_ip_v4": {
+                "type": "string",
+                "computed": true
+              },
+              "access_ip_v6": {
+                "type": "string",
+                "computed": true
+              },
+              "admin_pass": {
+                "type": "string",
+                "optional": true,
+                "sensitive": true
+              },
+              "agency_name": {
+                "type": "string",
+                "optional": true
+              },
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "required": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "delete_disks_on_termination": {
+                "type": "bool",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "flavor_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "image_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "key_pair": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true
+              },
+              "public_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_groups": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "stop_before_destroy": {
+                "type": "bool",
+                "optional": true
+              },
+              "system_disk_id": {
+                "type": "string",
+                "computed": true
+              },
+              "system_disk_size": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "system_disk_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "user_data": {
+                "type": "string",
+                "optional": true
+              },
+              "user_id": {
+                "type": "string",
+                "optional": true
+              },
+              "volume_attached": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "boot_index": "number",
+                      "pci_address": "string",
+                      "size": "number",
+                      "type": "string",
+                      "volume_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "data_disks": {
+                "nesting_mode": "list",
+                "block": {
+                  "attributes": {
+                    "size": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "snapshot_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "max_items": 23
+              },
+              "network": {
+                "nesting_mode": "list",
+                "block": {
+                  "attributes": {
+                    "access_network": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "fixed_ip_v4": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "fixed_ip_v6": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "mac": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "port": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "uuid": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "min_items": 1,
+                "max_items": 12
+              },
+              "scheduler_hints": {
+                "nesting_mode": "set",
+                "block": {
+                  "attributes": {
+                    "deh_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "fault_domain": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "group": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "tenancy": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "product": {
+            "catalog": "Compute",
+            "name": "Elastic Cloud Server",
+            "short": "ECS"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_obs_bucket": {
+          "block": {
+            "attributes": {
+              "acl": {
+                "type": "string",
+                "optional": true
+              },
+              "bucket": {
+                "type": "string",
+                "required": true
+              },
+              "bucket_domain_name": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "force_destroy": {
+                "type": "bool",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "policy_format": {
+                "type": "string",
+                "optional": true
+              },
+              "quota": {
+                "type": "number",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "storage_class": {
+                "type": "string",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "versioning": {
+                "type": "bool",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "cors_rule": {
+                "nesting_mode": "list",
+                "block": {
+                  "attributes": {
+                    "allowed_headers": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    },
+                    "allowed_methods": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "allowed_origins": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "expose_headers": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    },
+                    "max_age_seconds": {
+                      "type": "number",
+                      "optional": true
+                    }
+                  }
+                }
+              },
+              "lifecycle_rule": {
+                "nesting_mode": "list",
+                "block": {
+                  "attributes": {
+                    "enabled": {
+                      "type": "bool",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "prefix": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "expiration": {
+                      "nesting_mode": "set",
+                      "block": {
+                        "attributes": {
+                          "days": {
+                            "type": "number",
+                            "required": true
+                          }
+                        }
+                      }
+                    },
+                    "noncurrent_version_expiration": {
+                      "nesting_mode": "set",
+                      "block": {
+                        "attributes": {
+                          "days": {
+                            "type": "number",
+                            "required": true
+                          }
+                        }
+                      }
+                    },
+                    "noncurrent_version_transition": {
+                      "nesting_mode": "list",
+                      "block": {
+                        "attributes": {
+                          "days": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "storage_class": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      }
+                    },
+                    "transition": {
+                      "nesting_mode": "list",
+                      "block": {
+                        "attributes": {
+                          "days": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "storage_class": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "logging": {
+                "nesting_mode": "set",
+                "block": {
+                  "attributes": {
+                    "target_bucket": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "target_prefix": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                }
+              },
+              "website": {
+                "nesting_mode": "list",
+                "block": {
+                  "attributes": {
+                    "error_document": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "index_document": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "redirect_all_requests_to": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "routing_rules": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "catalog": "Storage",
+            "name": "Object Storage Service",
+            "short": "OBS"
+          }
+        }
+      }
+    }
+  }
+}

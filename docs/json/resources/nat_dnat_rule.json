@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_nat_dnat_rule": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "external_service_port": {
+                "type": "number",
+                "required": true
+              },
+              "floating_ip_address": {
+                "type": "string",
+                "computed": true
+              },
+              "floating_ip_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "internal_service_port": {
+                "type": "number",
+                "required": true
+              },
+              "nat_gateway_id": {
+                "type": "string",
+                "required": true
+              },
+              "port_id": {
+                "type": "string",
+                "optional": true
+              },
+              "private_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "protocol": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "NAT Gateway",
+            "short": "NAT"
+          }
+        }
+      }
+    }
+  }
+}
