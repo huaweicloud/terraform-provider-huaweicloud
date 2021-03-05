@@ -145,10 +145,9 @@ versions are available, choose Dashboard > Buy Cluster on the CCE console. Chang
 	is encoded to the Base64 format. Changing this parameter will create a new cluster resource.
 
 * `multi_az` - (Optional, Bool, ForceNew) Enable multiple AZs for the cluster, only when using HA flavors. 
-  Changing this parameter will create a new cluster resource. This parameter and `masters` are alternative
+  Changing this parameter will create a new cluster resource.
 
 * `masters` - (Optional, List, ForceNew) Advanced configuration of master nodes. Changing this creates a new cluster.
-  This parameter and `multi_az` are alternative.
 
 * `eip` - (Optional, String, ForceNew) EIP address of the cluster. Changing this parameter will create a new cluster resource.
 

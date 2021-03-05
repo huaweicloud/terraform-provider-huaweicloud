@@ -139,18 +139,16 @@ func ResourceCCEClusterV3() *schema.Resource {
 				ForceNew: true,
 			},
 			"multi_az": {
-				Type:          schema.TypeBool,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"masters"},
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
 			},
 			"masters": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				ForceNew:      true,
-				Computed:      true,
-				MaxItems:      3,
-				ConflictsWith: []string{"multi_az"},
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				MaxItems: 3,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"availability_zone": {
