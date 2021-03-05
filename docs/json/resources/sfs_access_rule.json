@@ -1,0 +1,47 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sfs_access_rule": {
+          "block": {
+            "attributes": {
+              "access_level": {
+                "type": "string",
+                "optional": true
+              },
+              "access_to": {
+                "type": "string",
+                "required": true
+              },
+              "access_type": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sfs_id": {
+                "type": "string",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Storage",
+            "name": "Scalable File Service",
+            "short": "SFS"
+          }
+        }
+      }
+    }
+  }
+}

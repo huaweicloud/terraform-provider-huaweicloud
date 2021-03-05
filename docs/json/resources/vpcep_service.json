@@ -1,0 +1,111 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vpcep_service": {
+          "block": {
+            "attributes": {
+              "approval": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "domain_id": "string",
+                      "endpoint_id": "string",
+                      "packet_id": "number",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "permissions": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "port_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "server_type": {
+                "type": "string",
+                "required": true
+              },
+              "service_name": {
+                "type": "string",
+                "computed": true
+              },
+              "service_type": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "port_mapping": {
+                "nesting_mode": "list",
+                "block": {
+                  "attributes": {
+                    "protocol": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "service_port": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "terminal_port": {
+                      "type": "number",
+                      "optional": true
+                    }
+                  }
+                },
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "VPC Endpoint",
+            "short": "VPCEP"
+          }
+        }
+      }
+    }
+  }
+}

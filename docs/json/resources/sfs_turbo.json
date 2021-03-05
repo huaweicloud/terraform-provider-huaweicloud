@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sfs_turbo": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "required": true
+              },
+              "available_capacity": {
+                "type": "string",
+                "computed": true
+              },
+              "crypt_key_id": {
+                "type": "string",
+                "optional": true
+              },
+              "enhanced": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "export_location": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "required": true
+              },
+              "share_proto": {
+                "type": "string",
+                "optional": true
+              },
+              "share_type": {
+                "type": "string",
+                "optional": true
+              },
+              "size": {
+                "type": "number",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "required": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Storage",
+            "name": "Scalable File Service",
+            "short": "SFS"
+          }
+        }
+      }
+    }
+  }
+}

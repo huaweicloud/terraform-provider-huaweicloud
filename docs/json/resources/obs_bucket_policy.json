@@ -1,0 +1,39 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_obs_bucket_policy": {
+          "block": {
+            "attributes": {
+              "bucket": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy": {
+                "type": "string",
+                "required": true
+              },
+              "policy_format": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Storage",
+            "name": "Object Storage Service",
+            "short": "OBS"
+          }
+        }
+      }
+    }
+  }
+}

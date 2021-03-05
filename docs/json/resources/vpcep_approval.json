@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vpcep_approval": {
+          "block": {
+            "attributes": {
+              "connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "domain_id": "string",
+                      "endpoint_id": "string",
+                      "packet_id": "number",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "endpoints": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "service_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Network",
+            "name": "VPC Endpoint",
+            "short": "VPCEP"
+          }
+        }
+      }
+    }
+  }
+}

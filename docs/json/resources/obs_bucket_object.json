@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_obs_bucket_object": {
+          "block": {
+            "attributes": {
+              "acl": {
+                "type": "string",
+                "optional": true
+              },
+              "bucket": {
+                "type": "string",
+                "required": true
+              },
+              "content": {
+                "type": "string",
+                "optional": true
+              },
+              "content_type": {
+                "type": "string",
+                "optional": true
+              },
+              "encryption": {
+                "type": "bool",
+                "optional": true
+              },
+              "etag": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key": {
+                "type": "string",
+                "required": true
+              },
+              "kms_key_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "computed": true
+              },
+              "source": {
+                "type": "string",
+                "optional": true
+              },
+              "storage_class": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "version_id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "catalog": "Storage",
+            "name": "Object Storage Service",
+            "short": "OBS"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_as_group": {
+          "block": {
+            "attributes": {
+              "available_zones": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "cool_down_time": {
+                "type": "number",
+                "description": "The cooling duration, in seconds.",
+                "optional": true
+              },
+              "current_instance_number": {
+                "type": "number",
+                "computed": true
+              },
+              "delete_instances": {
+                "type": "string",
+                "description": "Whether to delete instances when they are removed from the AS group.",
+                "optional": true
+              },
+              "delete_publicip": {
+                "type": "bool",
+                "optional": true
+              },
+              "desire_instance_number": {
+                "type": "number",
+                "optional": true
+              },
+              "enable": {
+                "type": "bool",
+                "optional": true
+              },
+              "health_periodic_audit_method": {
+                "type": "string",
+                "optional": true
+              },
+              "health_periodic_audit_time": {
+                "type": "number",
+                "description": "The health check period for instances, in minutes.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_terminate_policy": {
+                "type": "string",
+                "optional": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The instances id list in the as group.",
+                "computed": true
+              },
+              "max_instance_number": {
+                "type": "number",
+                "optional": true
+              },
+              "min_instance_number": {
+                "type": "number",
+                "optional": true
+              },
+              "notifications": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scaling_configuration_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "scaling_group_name": {
+                "type": "string",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "lbaas_listeners": {
+                "nesting_mode": "list",
+                "block": {
+                  "attributes": {
+                    "pool_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "protocol_port": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "optional": true
+                    }
+                  }
+                },
+                "max_items": 6
+              },
+              "networks": {
+                "nesting_mode": "list",
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "min_items": 1,
+                "max_items": 5
+              },
+              "security_groups": {
+                "nesting_mode": "list",
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "catalog": "Compute",
+            "name": "Auto Scaling",
+            "short": "AS"
+          }
+        }
+      }
+    }
+  }
+}
