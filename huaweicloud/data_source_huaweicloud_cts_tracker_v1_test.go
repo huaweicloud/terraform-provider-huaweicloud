@@ -9,6 +9,8 @@ import (
 )
 
 func TestAccCTSTrackerV1DataSource_basic(t *testing.T) {
+	dataName := "data.huaweicloud_cts_tracker.tracker"
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -16,9 +18,9 @@ func TestAccCTSTrackerV1DataSource_basic(t *testing.T) {
 			{
 				Config: testAccCTSTrackerV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCTSTrackerV1DataSourceID("data.huaweicloud_cts_tracker_v1.tracker_v1"),
-					resource.TestCheckResourceAttr("data.huaweicloud_cts_tracker_v1.tracker_v1", "bucket_name", "tf-test-bucket"),
-					resource.TestCheckResourceAttr("data.huaweicloud_cts_tracker_v1.tracker_v1", "status", "enabled"),
+					testAccCheckCTSTrackerV1DataSourceID(dataName),
+					resource.TestCheckResourceAttr(dataName, "bucket_name", "tf-test-bucket"),
+					resource.TestCheckResourceAttr(dataName, "status", "enabled"),
 				),
 			},
 		},
@@ -41,27 +43,28 @@ func testAccCheckCTSTrackerV1DataSourceID(n string) resource.TestCheckFunc {
 }
 
 const testAccCTSTrackerV1DataSource_basic = `
-resource "huaweicloud_s3_bucket" "bucket" {
-  bucket		= "tf-test-bucket"
-  acl			= "public-read"
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket        = "tf-test-bucket"
+  acl           = "public-read"
   force_destroy = true
 }
-resource "huaweicloud_smn_topic_v2" "topic_1" {
-  name			= "tf-test-topic"
-  display_name	= "The display name of tf-test-topic"
+
+resource "huaweicloud_smn_topic" "topic_1" {
+  name         = "tf-test-topic"
+  display_name = "The display name of tf-test-topic"
 }
 
-resource "huaweicloud_cts_tracker_v1" "tracker_v1" {
-  bucket_name		= "${huaweicloud_s3_bucket.bucket.bucket}"
-  file_prefix_name  = "yO8Q"
-  is_support_smn 	= true
-  topic_id 			= "${huaweicloud_smn_topic_v2.topic_1.id}"
+resource "huaweicloud_cts_tracker" "tracker" {
+  bucket_name               = huaweicloud_obs_bucket.bucket.bucket
+  file_prefix_name          = "yO8Q"
+  is_support_smn            = true
+  topic_id                  = huaweicloud_smn_topic.topic_1.id
   is_send_all_key_operation = false
-  operations 		= ["login"]
-  need_notify_user_list = ["user1"]
+  operations                = ["login"]
+  need_notify_user_list     = ["user1"]
 }
 
-data "huaweicloud_cts_tracker_v1" "tracker_v1" {  
-  tracker_name = "${huaweicloud_cts_tracker_v1.tracker_v1.id}"
+data "huaweicloud_cts_tracker" "tracker" {
+  tracker_name = huaweicloud_cts_tracker.tracker.id
 }
 `
