@@ -97,9 +97,9 @@ func testAccPreCheckMaas(t *testing.T) {
 	}
 }
 
-func testAccPreCheckS3(t *testing.T) {
+func testAccPreCheckOBS(t *testing.T) {
 	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" {
-		t.Skip("HW_ACCESS_KEY and HW_SECRET_KEY  must be set for S3 acceptance tests")
+		t.Skip("HW_ACCESS_KEY and HW_SECRET_KEY must be set for OBS acceptance tests")
 	}
 }
 

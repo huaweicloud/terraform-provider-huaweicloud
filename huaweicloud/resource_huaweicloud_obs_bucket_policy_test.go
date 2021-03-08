@@ -20,7 +20,7 @@ func TestAccObsBucketPolicy_basic(t *testing.T) {
 		name)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckOBS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
@@ -55,7 +55,7 @@ func TestAccObsBucketPolicy_update(t *testing.T) {
 		name)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckOBS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
@@ -89,7 +89,7 @@ func TestAccObsBucketPolicy_s3(t *testing.T) {
 		name, name)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckOBS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{

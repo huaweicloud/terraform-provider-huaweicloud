@@ -14,7 +14,7 @@ func TestAccObsBucket_basic(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckOBS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
@@ -76,7 +76,7 @@ func TestAccObsBucket_tags(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckOBS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
@@ -100,7 +100,7 @@ func TestAccObsBucket_versioning(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckOBS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
@@ -130,7 +130,7 @@ func TestAccObsBucket_logging(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckOBS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
@@ -150,7 +150,7 @@ func TestAccObsBucket_quota(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckOBS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
@@ -171,7 +171,7 @@ func TestAccObsBucket_lifecycle(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckOBS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
@@ -218,7 +218,7 @@ func TestAccObsBucket_website(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckOBS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
@@ -241,7 +241,7 @@ func TestAccObsBucket_cors(t *testing.T) {
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckS3(t) },
+		PreCheck:     func() { testAccPreCheckOBS(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{

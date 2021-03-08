@@ -211,3 +211,22 @@ func removeDuplicateElem(s []string) []string {
 	}
 	return result
 }
+
+func removeNil(data map[string]interface{}) map[string]interface{} {
+	withoutNil := make(map[string]interface{})
+
+	for k, v := range data {
+		if v == nil {
+			continue
+		}
+
+		switch v.(type) {
+		case map[string]interface{}:
+			withoutNil[k] = removeNil(v.(map[string]interface{}))
+		default:
+			withoutNil[k] = v
+		}
+	}
+
+	return withoutNil
+}

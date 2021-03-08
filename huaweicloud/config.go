@@ -6,15 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"sync"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/hashicorp/errwrap"
-	cleanhttp "github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
 	"github.com/huaweicloud/golangsdk"
@@ -55,9 +48,7 @@ type Config struct {
 	RegionClient        bool
 	EnterpriseProjectID string
 
-	HwClient *golangsdk.ProviderClient
-	s3sess   *session.Session
-
+	HwClient     *golangsdk.ProviderClient
 	DomainClient *golangsdk.ProviderClient
 
 	// the custom endpoints used to override the default endpoint URL
@@ -106,7 +97,7 @@ func (c *Config) LoadAndValidate() error {
 		}
 	}
 
-	return c.newS3Session(logging.IsDebugOrHigher())
+	return nil
 }
 
 func generateTLSConfig(c *Config) (*tls.Config, error) {
@@ -187,56 +178,6 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 	}
 
 	return client, nil
-}
-
-func (c *Config) newS3Session(osDebug bool) error {
-
-	if c.AccessKey != "" && c.SecretKey != "" {
-		// Setup S3 client/config information for Swift S3 buckets
-		log.Println("[INFO] Building Swift S3 auth structure")
-		creds, err := GetCredentials(c)
-		if err != nil {
-			return err
-		}
-		// Call Get to check for credential provider. If nothing found, we'll get an
-		// error, and we can present it nicely to the user
-		cp, err := creds.Get()
-		if err != nil {
-			if sErr, ok := err.(awserr.Error); ok && sErr.Code() == "NoCredentialProviders" {
-				return fmt.Errorf("No valid credential sources found for S3 Provider.")
-			}
-
-			return fmt.Errorf("Error loading credentials for S3 Provider: %s", err)
-		}
-
-		log.Printf("[INFO] S3 Auth provider used: %q", cp.ProviderName)
-
-		sConfig := &aws.Config{
-			Credentials: creds,
-			Region:      aws.String(c.Region),
-			HTTPClient:  cleanhttp.DefaultClient(),
-		}
-
-		if osDebug {
-			sConfig.LogLevel = aws.LogLevel(aws.LogDebugWithHTTPBody | aws.LogDebugWithRequestRetries | aws.LogDebugWithRequestErrors)
-			sConfig.Logger = sLogger{}
-		}
-
-		if c.Insecure {
-			transport := sConfig.HTTPClient.Transport.(*http.Transport)
-			transport.TLSClientConfig = &tls.Config{
-				InsecureSkipVerify: true,
-			}
-		}
-
-		// Set up base session for S3
-		c.s3sess, err = session.NewSession(sConfig)
-		if err != nil {
-			return errwrap.Wrapf("Error creating Swift S3 session: {{err}}", err)
-		}
-	}
-
-	return nil
 }
 
 func buildClientByToken(c *Config) error {
@@ -370,35 +311,11 @@ func genClients(c *Config, pao, dao golangsdk.AuthOptionsProvider) error {
 	return err
 }
 
-type sLogger struct{}
-
-func (l sLogger) Log(args ...interface{}) {
-	tokens := make([]string, 0, len(args))
-	for _, arg := range args {
-		if token, ok := arg.(string); ok {
-			tokens = append(tokens, token)
-		}
-	}
-	log.Printf("[DEBUG] [aws-sdk-go] %s", strings.Join(tokens, " "))
-}
-
 func getObsEndpoint(c *Config, region string) string {
 	if endpoint, ok := c.Endpoints["obs"]; ok {
 		return endpoint
 	}
 	return fmt.Sprintf("https://obs.%s.%s/", region, c.Cloud)
-}
-
-func (c *Config) computeS3conn(region string) (*s3.S3, error) {
-	if c.s3sess == nil {
-		return nil, fmt.Errorf("missing credentials for Swift S3 Provider, need access_key and secret_key values for provider")
-	}
-
-	obsEndpoint := getObsEndpoint(c, region)
-	S3Sess := c.s3sess.Copy(&aws.Config{Endpoint: aws.String(obsEndpoint)})
-	s3conn := s3.New(S3Sess)
-
-	return s3conn, nil
 }
 
 func (c *Config) NewObjectStorageClientWithSignature(region string) (*obs.ObsClient, error) {
