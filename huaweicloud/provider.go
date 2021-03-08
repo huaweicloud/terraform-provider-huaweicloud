@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
+const defaultCloud string = "myhuaweicloud.com"
+
 // This is a global MutexKV for use within this plugin.
 var osMutexKV = mutexkv.NewMutexKV()
 
@@ -211,15 +213,14 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"HW_AUTH_URL",
 					"OS_AUTH_URL",
-				}, "https://iam.myhuaweicloud.com:443/v3"),
+				}, fmt.Sprintf("https://iam.%s:443/v3", defaultCloud)),
 			},
 
 			"cloud": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: descriptions["cloud"],
-				DefaultFunc: schema.EnvDefaultFunc(
-					"HW_CLOUD", "myhuaweicloud.com"),
+				DefaultFunc: schema.EnvDefaultFunc("HW_CLOUD", defaultCloud),
 			},
 
 			"endpoints": {
@@ -690,6 +691,13 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		RPLock:              new(sync.Mutex),
 	}
 
+	// get custom endpoints
+	endpoints, err := flattenProviderEndpoints(d)
+	if err != nil {
+		return nil, err
+	}
+	config.Endpoints = endpoints
+
 	if err := config.LoadAndValidate(); err != nil {
 		return nil, err
 	}
@@ -697,13 +705,6 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 	if config.HwClient != nil && config.HwClient.ProjectID != "" {
 		config.RegionProjectIDMap[config.Region] = config.HwClient.ProjectID
 	}
-
-	// get custom endpoints
-	endpoints, err := flattenProviderEndpoints(d)
-	if err != nil {
-		return nil, err
-	}
-	config.Endpoints = endpoints
 
 	return &config, nil
 }
