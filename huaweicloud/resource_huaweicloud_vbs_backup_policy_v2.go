@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/vbs/v2/policies"
 	"github.com/huaweicloud/golangsdk/openstack/vbs/v2/tags"
@@ -54,7 +55,7 @@ func resourceVBSBackupPolicyV2() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				ConflictsWith: []string{"week_frequency"},
-				ValidateFunc:  validateVBSPolicyFrequency,
+				ValidateFunc:  validation.IntBetween(1, 14),
 			},
 			"week_frequency": {
 				Type:     schema.TypeList,
@@ -66,23 +67,27 @@ func resourceVBSBackupPolicyV2() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				ConflictsWith: []string{"rentention_day"},
-				ValidateFunc:  validateVBSPolicyRetentionNum,
+				ValidateFunc:  validation.IntAtLeast(2),
 			},
 			"rentention_day": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ValidateFunc: validateVBSPolicyRetentionNum,
+				ValidateFunc: validation.IntAtLeast(2),
 			},
 			"retain_first_backup": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validateVBSPolicyRetainBackup,
+				Type:     schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"Y", "N",
+				}, false),
 			},
 			"status": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "ON",
-				ValidateFunc: validateVBSPolicyStatus,
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "ON",
+				ValidateFunc: validation.StringInSlice([]string{
+					"ON", "OFF",
+				}, false),
 			},
 			"tags": {
 				Type:     schema.TypeSet,

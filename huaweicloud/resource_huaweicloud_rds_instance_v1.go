@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v1/instances"
 )
@@ -51,9 +52,9 @@ func resourceRdsInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								return ValidateStringList(v, k, []string{"PostgreSQL", "SQLServer", "MySQL"})
-							},
+							ValidateFunc: validation.StringInSlice([]string{
+								"PostgreSQL", "SQLServer", "MySQL",
+							}, false),
 						},
 						"version": {
 							Type:     schema.TypeString,
@@ -170,9 +171,9 @@ func resourceRdsInstance() *schema.Resource {
 						"replicationmode": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-								return ValidateStringList(v, k, []string{"async", "sync", "semisync"})
-							},
+							ValidateFunc: validation.StringInSlice([]string{
+								"async", "sync", "semisync",
+							}, false),
 						},
 					}},
 			},

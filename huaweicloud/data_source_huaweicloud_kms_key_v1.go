@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/kms/v1/keys"
 )
@@ -38,10 +39,12 @@ func dataSourceKmsKeyV1() *schema.Resource {
 				Computed: true,
 			},
 			"key_state": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validateKmsKeyStatus,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					EnabledState, DisabledState, PendingDeletionState,
+				}, false),
 			},
 			"default_key_flag": {
 				Type:     schema.TypeString,

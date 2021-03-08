@@ -39,9 +39,9 @@ func resourceELBHealthCheck() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					return ValidateStringList(v, k, []string{"HTTP", "TCP"})
-				},
+				ValidateFunc: validation.StringInSlice([]string{
+					"HTTP", "TCP",
+				}, false),
 			},
 
 			"healthcheck_uri": {
@@ -53,48 +53,38 @@ func resourceELBHealthCheck() *schema.Resource {
 			},
 
 			"healthcheck_connect_port": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					return ValidateIntRange(v, k, 1, 65535)
-				},
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntBetween(1, 65535),
 			},
 
 			"healthy_threshold": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					return ValidateIntRange(v, k, 1, 10)
-				},
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntBetween(1, 10),
 			},
 
 			"unhealthy_threshold": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					return ValidateIntRange(v, k, 1, 10)
-				},
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntBetween(1, 10),
 			},
 
 			"healthcheck_timeout": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					return ValidateIntRange(v, k, 1, 50)
-				},
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntBetween(1, 50),
 			},
 
 			"healthcheck_interval": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					return ValidateIntRange(v, k, 1, 5)
-				},
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntBetween(1, 5),
 			},
 
 			"update_time": {

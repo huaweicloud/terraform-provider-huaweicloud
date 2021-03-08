@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func ResourceVpcBandWidthV2() *schema.Resource {
@@ -43,7 +44,7 @@ func ResourceVpcBandWidthV2() *schema.Resource {
 			"size": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ValidateFunc: validateIntegerInRange(5, 2000),
+				ValidateFunc: validation.IntBetween(5, 2000),
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
