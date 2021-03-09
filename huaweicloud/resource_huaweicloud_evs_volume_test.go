@@ -100,6 +100,29 @@ func TestAccEvsStorageV3Volume_image(t *testing.T) {
 	})
 }
 
+func TestAccEvsVolume_withEpsId(t *testing.T) {
+	var volume volumes.Volume
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_evs_volume.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckEvsStorageV3VolumeDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEvsVolume_epsID(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckEvsStorageV3VolumeExists(resourceName, &volume),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckEvsStorageV3VolumeDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	blockStorageClient, err := config.BlockStorageV3Client(HW_REGION_NAME)
@@ -280,4 +303,19 @@ resource "huaweicloud_evs_volume" "test" {
   image_id          = data.huaweicloud_images_image_v2.test.id
 }
 `, rName)
+}
+
+func testAccEvsVolume_epsID(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_evs_volume" "test" {
+  name                  = "%s"
+  description           = "test volume for epsID"
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  volume_type           = "SSD"
+  size                  = 20
+  enterprise_project_id = "%s"
+}
+`, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
