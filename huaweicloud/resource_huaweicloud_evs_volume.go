@@ -52,17 +52,31 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 					"GPSSD", "SAS", "SSD",
 				}, true),
 			},
-			"backup_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"device_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				Default:      "VBD",
 				ValidateFunc: validation.StringInSlice([]string{"VBD", "SCSI"}, true),
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"size", "backup_id"},
+			},
+			"backup_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"image_id": {
 				Type:     schema.TypeString,
@@ -84,19 +98,6 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Default:  false,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"size": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -158,10 +159,9 @@ func resourceEvsVolumeV3Create(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
+	// compatiable with job
 	blockStorageClient.Endpoint = blockStorageClient.ResourceBase
-	if !hasFilledOpt(d, "backup_id") && !hasFilledOpt(d, "size") {
-		return fmt.Errorf("Missing required argument: 'size' is required, but no definition was found.")
-	}
+
 	tags := resourceContainerTags(d)
 	epsID := GetEnterpriseProjectID(d, config)
 	createOpts := &volumes.CreateOpts{
@@ -207,14 +207,13 @@ func resourceEvsVolumeV3Create(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-
-	if id, ok := entity.(string); ok {
-		log.Printf("[INFO] Volume ID: %s", id)
-		// Store the ID now
-		d.SetId(id)
-		return resourceEvsVolumeV3Read(d, meta)
+	if _, ok := entity.(string); !ok {
+		return fmt.Errorf("error retrieving volume ID from job entity")
 	}
-	return fmt.Errorf("Unexpected conversion error in resourceEvsVolumeV3Create.")
+
+	// Store the ID now
+	d.SetId(entity.(string))
+	return resourceEvsVolumeV3Read(d, meta)
 }
 
 func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
@@ -231,14 +230,15 @@ func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), v)
 
+	d.Set("name", v.Name)
 	d.Set("size", v.Size)
 	d.Set("description", v.Description)
 	d.Set("availability_zone", v.AvailabilityZone)
-	d.Set("name", v.Name)
 	d.Set("snapshot_id", v.SnapshotID)
 	d.Set("source_vol_id", v.SourceVolID)
 	d.Set("volume_type", v.VolumeType)
 	d.Set("enterprise_project_id", v.EnterpriseProjectID)
+	d.Set("region", GetRegion(d, config))
 	d.Set("wwn", v.WWN)
 	if value, ok := v.Metadata["hw:passthrough"]; ok && value == "true" {
 		d.Set("device_type", "SCSI")
@@ -282,9 +282,15 @@ func resourceEvsVolumeV3Update(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}
 
-	updateOpts := volumes_v2.UpdateOpts{
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
+	if d.HasChanges("name", "description") {
+		updateOpts := volumes_v2.UpdateOpts{
+			Name:        d.Get("name").(string),
+			Description: d.Get("description").(string),
+		}
+		_, err = volumes_v2.Update(blockStorageClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return fmt.Errorf("Error updating HuaweiCloud volume: %s", err)
+		}
 	}
 
 	if d.HasChange("tags") {
@@ -315,11 +321,6 @@ func resourceEvsVolumeV3Update(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf(
 				"Error waiting for huaweicloud_evs_volume %s to become ready: %s", d.Id(), err)
 		}
-	}
-
-	_, err = volumes_v2.Update(blockStorageClient, d.Id(), updateOpts).Extract()
-	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud volume: %s", err)
 	}
 
 	return resourceEvsVolumeV3Read(d, meta)
