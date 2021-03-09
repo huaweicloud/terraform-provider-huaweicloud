@@ -5,33 +5,7 @@ import (
 	"net"
 	"regexp"
 	"strings"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
-
-func ValidateStringList(v interface{}, k string, l []string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range l {
-		if value == l[i] {
-			return
-		}
-	}
-	errors = append(errors, fmt.Errorf("%q must be one of %v", k, l))
-	return
-}
-
-func ValidateIntRange(v interface{}, k string, l int, h int) (ws []string, errors []error) {
-	i, ok := v.(int)
-	if !ok {
-		errors = append(errors, fmt.Errorf("%q must be an integer", k))
-		return
-	}
-	if i < l || i > h {
-		errors = append(errors, fmt.Errorf("%q must be between %d and %d", k, l, h))
-		return
-	}
-	return
-}
 
 func validateTrueOnly(v interface{}, k string) (ws []string, errors []error) {
 	if b, ok := v.(bool); ok && b {
@@ -47,16 +21,6 @@ func validateTrueOnly(v interface{}, k string) (ws []string, errors []error) {
 func validateJsonString(v interface{}, k string) (ws []string, errors []error) {
 	if _, err := normalizeJsonString(v); err != nil {
 		errors = append(errors, fmt.Errorf("%q contains an invalid JSON: %s", k, err))
-	}
-	return
-}
-
-func validateKmsKeyStatus(v interface{}, k string) (ws []string, errors []error) {
-	status := v.(string)
-	if status != EnabledState && status != DisabledState && status != PendingDeletionState {
-		errors = append(errors, fmt.Errorf(
-			"%q must contain a valid status, expected %s or %s or %s, got %s.",
-			k, EnabledState, DisabledState, PendingDeletionState, status))
 	}
 	return
 }
@@ -164,42 +128,6 @@ func validateVBSPolicyName(v interface{}, k string) (ws []string, errors []error
 	return
 }
 
-func validateVBSPolicyFrequency(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(int)
-	if value < 1 || value > 14 {
-		errors = append(errors, fmt.Errorf(
-			"%q should be in the range of 1-14: %d", k, value))
-	}
-	return
-}
-
-func validateVBSPolicyStatus(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if value != "ON" && value != "OFF" {
-		errors = append(errors, fmt.Errorf(
-			"%q should be either ON or OFF: %q", k, value))
-	}
-	return
-}
-
-func validateVBSPolicyRetentionNum(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(int)
-	if value < 2 {
-		errors = append(errors, fmt.Errorf(
-			"%q cannot be less than 2: %d", k, value))
-	}
-	return
-}
-
-func validateVBSPolicyRetainBackup(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if value != "Y" && value != "N" {
-		errors = append(errors, fmt.Errorf(
-			"%q should be either N or Y: %q", k, value))
-	}
-	return
-}
-
 //lintignore:V001
 func validateVBSTagKey(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
@@ -283,15 +211,4 @@ func validateECSTagValue(v interface{}, k string) (ws []string, errors []error) 
 		}
 	}
 	return
-}
-
-func validateIntegerInRange(min, max int) schema.SchemaValidateFunc {
-	return func(v interface{}, k string) (ws []string, errors []error) {
-		value := v.(int)
-		if value < min || value > max {
-			errors = append(errors, fmt.Errorf(
-				"%q cannot be lower than %d and larger than %d. Current value is %d.", k, min, max, value))
-		}
-		return
-	}
 }

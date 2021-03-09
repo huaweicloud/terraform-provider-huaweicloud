@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/huaweicloud/golangsdk/openstack/smn/v2/subscriptions"
 )
@@ -36,9 +37,9 @@ func resourceSubscription() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					return ValidateStringList(v, k, []string{"email", "sms", "http", "https"})
-				},
+				ValidateFunc: validation.StringInSlice([]string{
+					"email", "sms", "http", "https",
+				}, false),
 			},
 			"remark": {
 				Type:     schema.TypeString,
