@@ -20,10 +20,12 @@ Service Name | Resource Name | Sub Resource Name
 VPC | huaweicloud_vpc<br>huaweicloud_networking_secgroup | huaweicloud_vpc_subnet<br>huaweicloud_vpc_route<br>huaweicloud_networking_secgroup_rule
 EIP | huaweicloud_vpc_eip<br>huaweicloud_vpc_bandwidth |
 ECS | huaweicloud_compute_instance |
+EVS | huaweicloud_evs_volume |
 CCE | huaweicloud_cce_cluster | huaweicloud_cce_node<br>huaweicloud_cce_node_pool<br>huaweicloud_cce_addon
-RDS | huaweicloud_rds_instance |
+RDS | huaweicloud_rds_instance<br>huaweicloud_rds_read_replica_instance |
 OBS | huaweicloud_obs_bucket | huaweicloud_obs_bucket_object<br>huaweicloud_obs_bucket_policy
 SFS | huaweicloud_sfs_file_system | huaweicloud_sfs_access_rule
+KMS | huaweicloud_kms_key |
 DCS | huaweicloud_dcs_instance |
 NAT | huaweicloud_nat_gateway | huaweicloud_nat_snat_rule<br>huaweicloud_nat_dnat_rule
 CDM | huaweicloud_cdm_cluster |

@@ -100,6 +100,9 @@ The following arguments are supported:
     Valid options are VBD and SCSI. Defaults to VBD.
     Changing this creates a new disk.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the disk.
+    Changing this creates a new disk.
+
 * `cascade` - (Optional, Bool) Specifies the delete mode of snapshot. The default value is false.
     All snapshot associated with the disk will also be deleted when the parameter is set to true.
 

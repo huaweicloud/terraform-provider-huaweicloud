@@ -98,6 +98,12 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -157,17 +163,19 @@ func resourceEvsVolumeV3Create(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Missing required argument: 'size' is required, but no definition was found.")
 	}
 	tags := resourceContainerTags(d)
+	epsID := GetEnterpriseProjectID(d, config)
 	createOpts := &volumes.CreateOpts{
-		BackupID:         d.Get("backup_id").(string),
-		AvailabilityZone: d.Get("availability_zone").(string),
-		Description:      d.Get("description").(string),
-		Size:             d.Get("size").(int),
-		Name:             d.Get("name").(string),
-		SnapshotID:       d.Get("snapshot_id").(string),
-		ImageRef:         d.Get("image_id").(string),
-		VolumeType:       d.Get("volume_type").(string),
-		Multiattach:      d.Get("multiattach").(bool),
-		Tags:             tags,
+		BackupID:            d.Get("backup_id").(string),
+		AvailabilityZone:    d.Get("availability_zone").(string),
+		Description:         d.Get("description").(string),
+		Size:                d.Get("size").(int),
+		Name:                d.Get("name").(string),
+		SnapshotID:          d.Get("snapshot_id").(string),
+		ImageRef:            d.Get("image_id").(string),
+		VolumeType:          d.Get("volume_type").(string),
+		Multiattach:         d.Get("multiattach").(bool),
+		EnterpriseProjectID: epsID,
+		Tags:                tags,
 	}
 	m := make(map[string]string)
 	if v, ok := d.GetOk("kms_id"); ok {
@@ -230,6 +238,7 @@ func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("snapshot_id", v.SnapshotID)
 	d.Set("source_vol_id", v.SourceVolID)
 	d.Set("volume_type", v.VolumeType)
+	d.Set("enterprise_project_id", v.EnterpriseProjectID)
 	d.Set("wwn", v.WWN)
 	if value, ok := v.Metadata["hw:passthrough"]; ok && value == "true" {
 		d.Set("device_type", "SCSI")
