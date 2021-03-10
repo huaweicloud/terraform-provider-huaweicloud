@@ -131,6 +131,8 @@ github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d h1:kJCB4vdITiW1eC1
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/huaweicloud/golangsdk v0.0.0-20210302113304-41351a12edfc h1:CBrAHWGyqIEEh6xvoplHpCX28EE50yApRC1AwqOvc2s=
 github.com/huaweicloud/golangsdk v0.0.0-20210302113304-41351a12edfc/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
+github.com/huaweicloud/golangsdk v0.0.0-20210310091354-6e2f74a11d0f h1:AFZM6Vdn8dS764DaaiRKGP26iM7ta2zlQqM+SR1svGk=
+github.com/huaweicloud/golangsdk v0.0.0-20210310091354-6e2f74a11d0f/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
 github.com/jen20/awspolicyequivalence v1.1.0 h1:cn37D6o0lXLwqx2neCokGfaB3LLNSo5CrLMLGjY609g=
 github.com/jen20/awspolicyequivalence v1.1.0/go.mod h1:PV1fS2xyHhCLp83vbgSMFr2drM4GzG61wkz+k4pOG3E=
 github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
