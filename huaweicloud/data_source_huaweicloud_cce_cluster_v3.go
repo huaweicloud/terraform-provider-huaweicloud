@@ -66,6 +66,42 @@ func DataSourceCCEClusterV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"eni_subnet_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"eni_subnet_cidr": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"authentication_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"security_group_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"service_network_cidr": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"masters": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"availability_zone": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -181,17 +217,24 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(Cluster.Metadata.Id)
 
 	d.Set("name", Cluster.Metadata.Name)
+	d.Set("status", Cluster.Status.Phase)
 	d.Set("flavor_id", Cluster.Spec.Flavor)
-	d.Set("description", Cluster.Spec.Description)
 	d.Set("cluster_version", Cluster.Spec.Version)
 	d.Set("cluster_type", Cluster.Spec.Type)
+	d.Set("description", Cluster.Spec.Description)
 	d.Set("billing_mode", Cluster.Spec.BillingMode)
 	d.Set("vpc_id", Cluster.Spec.HostNetwork.VpcId)
 	d.Set("subnet_id", Cluster.Spec.HostNetwork.SubnetId)
 	d.Set("highway_subnet_id", Cluster.Spec.HostNetwork.HighwaySubnet)
 	d.Set("container_network_cidr", Cluster.Spec.ContainerNetwork.Cidr)
 	d.Set("container_network_type", Cluster.Spec.ContainerNetwork.Mode)
-	d.Set("status", Cluster.Status.Phase)
+	d.Set("eni_subnet_id", Cluster.Spec.EniNetwork.SubnetId)
+	d.Set("eni_subnet_cidr", Cluster.Spec.EniNetwork.Cidr)
+	d.Set("authentication_mode", Cluster.Spec.Authentication.Mode)
+	d.Set("security_group_id", Cluster.Spec.HostNetwork.SecurityGroup)
+	d.Set("enterprise_project_id", Cluster.Spec.ExtendParam["enterpriseProjectId"])
+	d.Set("service_network_cidr", Cluster.Spec.KubernetesSvcIPRange)
+
 	if err := d.Set("endpoints", v); err != nil {
 		return err
 	}
@@ -234,6 +277,15 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 		userList = append(userList, userCert)
 	}
 	d.Set("certificate_users", userList)
+
+	// Set masters
+	var masterList []map[string]interface{}
+	for _, masterObj := range Cluster.Spec.Masters {
+		master := make(map[string]interface{})
+		master["availability_zone"] = masterObj.MasterAZ
+		masterList = append(masterList, master)
+	}
+	d.Set("masters", masterList)
 
 	return nil
 }

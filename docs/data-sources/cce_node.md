@@ -41,19 +41,17 @@ In addition to all arguments above, the following attributes are exported:
 
 * `availability_zone` - Available partitions where the node is located. 
 
+* `os` - Operating System of the node.
+
+* `subnet_id` - The ID of the subnet which the NIC belongs to.
+
+* `esc_group_id` - The ID of Ecs group which the node belongs to.
+
+* `tags` - Tags of a VM node, key/value pair format.
+
 * `key_pair` - Key pair name when logging in to select the key pair mode.
 
 * `billing_mode` - Node's billing mode: The value is 0 (on demand).
-
-* `charge_mode` - Bandwidth billing type.
-
-* `bandwidth_size` - Bandwidth (Mbit/s), in the range of [1, 2000].
-
-* `extendparam` - 	Extended parameters. 
-    
-* `node_count` - The number of nodes in batch creation.
-
-* `eip_ids` - List of existing elastic IP IDs.
  
 * `server_id` - The node's virtual machine ID in ECS.
 
@@ -61,24 +59,15 @@ In addition to all arguments above, the following attributes are exported:
 
 * `private_ip` - Private IP of the node
 
-* `ip_type` - Elastic IP address type.
+* `root_volume` - It corresponds to the system disk related configuration.
 
-* `share_type` - The bandwidth sharing type.
+  * `size` - Disk size in GB.
+  * `volumetype` - Disk type.
+  * `extend_params` - Disk expansion parameters.
 
-NOTE:
-This parameter is mandatory when share_type is set to PER and is optional when share_type is set to WHOLE with an ID specified.
+* `data_volumes` - Represents the data disk to be created.
 
-Enumerated values: PER (indicates exclusive bandwidth) and WHOLE (indicates sharing)
+  * `size` - Disk size in GB.
+  * `volumetype` - Disk type.
+  * `extend_params` - Disk expansion parameters.
 
-
-**root_volumes**
-
-* `disk_size` - Disk size in GB.
-
-* `volumetype` - Disk type.
-
-**data_volumes**
-
-* `disk_size` - Disk size in GB.
-
-* `volumetype` - Disk type.
