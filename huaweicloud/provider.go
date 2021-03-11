@@ -387,6 +387,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_gaussdb_mysql_instance":          resourceGaussDBInstance(),
 			"huaweicloud_gaussdb_opengauss_instance":      resourceOpenGaussInstance(),
 			"huaweicloud_ges_graph":                       resourceGesGraphV1(),
+			"huaweicloud_identity_acl":                    resourceIdentityACL(),
 			"huaweicloud_identity_agency":                 resourceIAMAgencyV3(),
 			"huaweicloud_identity_group":                  ResourceIdentityGroupV3(),
 			"huaweicloud_identity_group_membership":       ResourceIdentityGroupMembershipV3(),
