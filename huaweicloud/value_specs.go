@@ -36,17 +36,18 @@ type FirewallGroupCreateOpts struct {
 	ValueSpecs map[string]string `json:"value_specs,omitempty"`
 }
 
-// ToFirewallCreateMap casts a CreateOptsExt struct to a map.
+// ToFirewallCreateMap casts a FirewallGroupCreateOpts struct to a map.
 // It overrides firewalls.ToFirewallCreateMap to add the ValueSpecs field.
 func (opts FirewallGroupCreateOpts) ToFirewallCreateMap() (map[string]interface{}, error) {
 	return BuildRequest(opts, "firewall_group")
 }
 
-//FirewallUpdateOpts
+// FirewallGroupUpdateOpts represents the attributes used when updating a firewall
 type FirewallGroupUpdateOpts struct {
 	firewall_groups.UpdateOptsBuilder
 }
 
+// ToFirewallUpdateMap casts a FirewallGroupUpdateOpts struct to a map.
 func (opts FirewallGroupUpdateOpts) ToFirewallUpdateMap() (map[string]interface{}, error) {
 	return BuildRequest(opts, "firewall")
 }
@@ -81,7 +82,7 @@ type PolicyCreateOpts struct {
 	ValueSpecs map[string]string `json:"value_specs,omitempty"`
 }
 
-// ToPolicyCreateMap casts a CreateOpts struct to a map.
+// ToFirewallPolicyCreateMap casts a PolicyCreateOpts struct to a map.
 // It overrides policies.ToFirewallPolicyCreateMap to add the ValueSpecs field.
 func (opts PolicyCreateOpts) ToFirewallPolicyCreateMap() (map[string]interface{}, error) {
 	return BuildRequest(opts, "firewall_policy")

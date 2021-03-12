@@ -184,7 +184,8 @@ func dataSourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) er
 		portsList = allPorts
 	}
 
-	securityGroups := expandToStringSlice(d.Get("security_group_ids").(*schema.Set).List())
+	sgRaw := d.Get("security_group_ids").(*schema.Set).List()
+	securityGroups := expandToStringList(sgRaw)
 	if len(securityGroups) > 0 {
 		var sgPorts []ports.Port
 		for _, p := range portsList {
