@@ -4,9 +4,10 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/jen20/awspolicyequivalence"
+	awspolicy "github.com/jen20/awspolicyequivalence"
 )
 
 func suppressEquivalentAwsPolicyDiffs(k, old, new string, d *schema.ResourceData) bool {
@@ -63,4 +64,18 @@ func suppressSnatFiplistDiffs(k, old, new string, d *schema.ResourceData) bool {
 // Suppress changes if we get a string with or without new line
 func suppressNewLineDiffs(k, old, new string, d *schema.ResourceData) bool {
 	return strings.Trim(old, "\n") == strings.Trim(new, "\n")
+}
+
+func suppressEquivilentTimeDiffs(k, old, new string, d *schema.ResourceData) bool {
+	oldTime, err := time.Parse(time.RFC3339, old)
+	if err != nil {
+		return false
+	}
+
+	newTime, err := time.Parse(time.RFC3339, new)
+	if err != nil {
+		return false
+	}
+
+	return oldTime.Equal(newTime)
 }
