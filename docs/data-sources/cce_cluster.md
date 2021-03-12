@@ -48,11 +48,25 @@ In addition to all arguments above, the following attributes are exported:
 
 * `container_network_cidr` - The container network segment.
 
-* `container_network_type` - The container network type: overlay_l2 , underlay_ipvlan or vpc-router.
+* `container_network_type` - The container network type: overlay_l2 , underlay_ipvlan, vpc-router or eni.
+
+* `eni_subnet_id` - Eni subnet id. Specified when creating a CCE Turbo cluster.
+
+* `eni_subnet_cidr` - Eni network segment. Specified when creating a CCE Turbo cluster.
+
+* `service_network_cidr` - The service network segment.
+
+* `authentication_mode` - Authentication mode of the cluster, possible values are x509 and rbac. Defaults to *rbac*.
+
+* `masters` - Advanced configuration of master nodes.
+
+* `security_group_id` - Security group ID of the cluster.
   
 * `subnet_id` - The ID of the subnet used to create the node.
 
 * `highway_subnet_id` - The ID of the high speed network used to create bare metal nodes.
+
+* `enterprise_project_id` - The enterprise project id of the cce cluster.
 
 **endpoints**
 
