@@ -107,6 +107,15 @@ func validateIP(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
+func validateSubnetV2IPv6Mode(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "slaac" && value != "dhcpv6-stateful" && value != "dhcpv6-stateless" {
+		err := fmt.Errorf("%s must be one of slaac, dhcpv6-stateful or dhcpv6-stateless", k)
+		errors = append(errors, err)
+	}
+	return
+}
+
 //lintignore:V001
 func validateVBSPolicyName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)

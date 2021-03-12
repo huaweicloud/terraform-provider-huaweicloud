@@ -7,6 +7,10 @@ import (
 	"log"
 	"regexp"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
+	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
+	"gopkg.in/yaml.v2"
 )
 
 // convertStructToMap converts an instance of struct to a map object, and
@@ -68,4 +72,185 @@ func compareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 			canonicalJson1, canonicalJson2)
 	}
 	return equal, nil
+}
+
+func expandToStringSlice(v []interface{}) []string {
+	s := make([]string, len(v))
+	for i, val := range v {
+		if strVal, ok := val.(string); ok {
+			s[i] = strVal
+		}
+	}
+
+	return s
+}
+
+// Takes the result of flatmap.Expand for an array of strings
+// and returns a []string
+func expandStringList(configured []interface{}) []string {
+	vs := make([]string, 0, len(configured))
+	for _, v := range configured {
+		val, ok := v.(string)
+		if ok && val != "" {
+			vs = append(vs, v.(string))
+		}
+	}
+	return vs
+}
+
+// Takes list of pointers to strings. Expand to an array
+// of raw strings and returns a []interface{}
+// to keep compatibility w/ schema.NewSetschema.NewSet
+func flattenStringList(list []*string) []interface{} {
+	vs := make([]interface{}, 0, len(list))
+	for _, v := range list {
+		vs = append(vs, *v)
+	}
+	return vs
+}
+
+func pointersMapToStringList(pointers map[string]*string) map[string]interface{} {
+	list := make(map[string]interface{}, len(pointers))
+	for i, v := range pointers {
+		list[i] = *v
+	}
+	return list
+}
+
+// Takes a value containing JSON string and passes it through
+// the JSON parser to normalize it, returns either a parsing
+// error or normalized JSON string.
+func normalizeJsonString(jsonString interface{}) (string, error) {
+	var j interface{}
+
+	if jsonString == nil || jsonString.(string) == "" {
+		return "", nil
+	}
+
+	s := jsonString.(string)
+
+	err := json.Unmarshal([]byte(s), &j)
+	if err != nil {
+		return s, err
+	}
+
+	// The error is intentionally ignored here to allow empty policies to passthrough validation.
+	// This covers any interpolated values
+	bytes, _ := json.Marshal(j)
+
+	return string(bytes[:]), nil
+}
+
+// Takes a value containing YAML string and passes it through
+// the YAML parser. Returns either a parsing
+// error or original YAML string.
+func checkYamlString(yamlString interface{}) (string, error) {
+	var y interface{}
+
+	if yamlString == nil || yamlString.(string) == "" {
+		return "", nil
+	}
+
+	s := yamlString.(string)
+
+	err := yaml.Unmarshal([]byte(s), &y)
+	if err != nil {
+		return s, err
+	}
+
+	return s, nil
+}
+
+func normalizeStackTemplate(templateString interface{}) (string, error) {
+	if looksLikeJsonString(templateString) {
+		return normalizeJsonString(templateString.(string))
+	}
+
+	return checkYamlString(templateString)
+}
+
+func flattenStackOutputs(stackOutputs []*stacks.Output) map[string]string {
+	outputs := make(map[string]string, len(stackOutputs))
+	for _, o := range stackOutputs {
+		outputs[*o.OutputKey] = *o.OutputValue
+	}
+	return outputs
+}
+
+// flattenStackParameters is flattening list of
+//  stack Parameters and only returning existing
+// parameters to avoid clash with default values
+func flattenStackParameters(stackParams map[string]string,
+	originalParams map[string]interface{}) map[string]string {
+	params := make(map[string]string, len(stackParams))
+	for key, value := range stackParams {
+		_, isConfigured := originalParams[key]
+		if isConfigured {
+			params[key] = value
+		}
+	}
+	return params
+}
+
+// strSliceContains checks if a given string is contained in a slice
+// When anybody asks why Go needs generics, here you go.
+func strSliceContains(haystack []string, needle string) bool {
+	for _, s := range haystack {
+		if s == needle {
+			return true
+		}
+	}
+	return false
+}
+
+func jsonMarshal(t interface{}) ([]byte, error) {
+	buffer := &bytes.Buffer{}
+	enc := json.NewEncoder(buffer)
+	enc.SetEscapeHTML(false)
+	err := enc.Encode(t)
+	return buffer.Bytes(), err
+}
+
+// Generates a hash for the set hash function used by the ID
+func dataResourceIdHash(ids []string) string {
+	var buf bytes.Buffer
+
+	for _, id := range ids {
+		buf.WriteString(fmt.Sprintf("%s-", id))
+	}
+
+	return fmt.Sprintf("%d", hashcode.String(buf.String()))
+}
+
+// Remove duplicate elements from slice
+func removeDuplicateElem(s []string) []string {
+	result := []string{}
+	tmpMap := map[string]byte{}
+	for _, e := range s {
+		l := len(tmpMap)
+		tmpMap[e] = 0
+		if len(tmpMap) != l {
+			result = append(result, e)
+		}
+	}
+	return result
+}
+
+func removeNil(data map[string]interface{}) map[string]interface{} {
+	withoutNil := make(map[string]interface{})
+
+	for k, v := range data {
+		if v == nil {
+			continue
+		}
+
+		switch v.(type) {
+		case map[string]interface{}:
+			withoutNil[k] = removeNil(v.(map[string]interface{}))
+		default:
+			withoutNil[k] = v
+		}
+	}
+
+	return withoutNil
 }
