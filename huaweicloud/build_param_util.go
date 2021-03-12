@@ -229,13 +229,6 @@ func (e *exchangeParam) convertToMap(resp interface{}) (map[string]interface{}, 
 	return p, nil
 }
 
-// The result may be not correct when the type of param is string and user config it to 'param=""'
-// but, there is no other way.
-func hasFilledOpt(d *schema.ResourceData, param string) bool {
-	_, b := d.GetOkExists(param)
-	return b
-}
-
 func getParamTag(key string, tag reflect.StructTag) string {
 	if v, ok := tag.Lookup(key); ok {
 		return v

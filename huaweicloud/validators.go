@@ -5,7 +5,13 @@ import (
 	"net"
 	"regexp"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
+
+var validateSubnetV2IPv6Mode = validation.StringInSlice([]string{
+	"slaac", "dhcpv6-stateful", "dhcpv6-stateless",
+}, false)
 
 func validateTrueOnly(v interface{}, k string) (ws []string, errors []error) {
 	if b, ok := v.(bool); ok && b {
@@ -104,15 +110,6 @@ func validateIP(v interface{}, k string) (ws []string, errors []error) {
 			"%q must contain a valid network IP address, got %q", k, value))
 	}
 
-	return
-}
-
-func validateSubnetV2IPv6Mode(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if value != "slaac" && value != "dhcpv6-stateful" && value != "dhcpv6-stateless" {
-		err := fmt.Errorf("%s must be one of slaac, dhcpv6-stateful or dhcpv6-stateless", k)
-		errors = append(errors, err)
-	}
 	return
 }
 

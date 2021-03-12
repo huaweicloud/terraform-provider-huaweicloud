@@ -19,6 +19,9 @@ func GetRegion(d *schema.ResourceData, config *Config) string {
 	return config.Region
 }
 
+// GetEnterpriseProjectID returns the enterprise_project_id that was specified in the resource.
+// If it was not set, the provider-level value is checked. The provider-level value can
+// either be set by the `enterprise_project_id` argument or by HW_ENTERPRISE_PROJECT_ID.
 func GetEnterpriseProjectID(d *schema.ResourceData, config *Config) string {
 	if v, ok := d.GetOk("enterprise_project_id"); ok {
 		return v.(string)
@@ -52,4 +55,9 @@ func checkForRetryableError(err error) *resource.RetryError {
 	default:
 		return resource.NonRetryableError(err)
 	}
+}
+
+func hasFilledOpt(d *schema.ResourceData, param string) bool {
+	_, b := d.GetOk(param)
+	return b
 }

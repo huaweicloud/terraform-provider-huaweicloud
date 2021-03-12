@@ -40,7 +40,7 @@ func resourceIdentityGroupMembershipV3Create(d *schema.ResourceData, meta interf
 	}
 
 	group := d.Get("group").(string)
-	userList := expandStringList(d.Get("users").(*schema.Set).List())
+	userList := expandToStringList(d.Get("users").(*schema.Set).List())
 
 	if err := addUsersToGroup(identityClient, group, userList); err != nil {
 		return err
@@ -110,8 +110,8 @@ func resourceIdentityGroupMembershipV3Update(d *schema.ResourceData, meta interf
 
 		os := o.(*schema.Set)
 		ns := n.(*schema.Set)
-		remove := expandStringList(os.Difference(ns).List())
-		add := expandStringList(ns.Difference(os).List())
+		remove := expandToStringList(os.Difference(ns).List())
+		add := expandToStringList(ns.Difference(os).List())
 
 		if err := removeUsersFromGroup(identityClient, group, remove); err != nil {
 			return fmt.Errorf("Error update user-group-membership: %s", err)
@@ -133,7 +133,7 @@ func resourceIdentityGroupMembershipV3Delete(d *schema.ResourceData, meta interf
 	}
 
 	group := d.Get("group").(string)
-	users := expandStringList(d.Get("users").(*schema.Set).List())
+	users := expandToStringList(d.Get("users").(*schema.Set).List())
 
 	if err := removeUsersFromGroup(identityClient, group, users); err != nil {
 		return fmt.Errorf("Error delete user-group-membership: %s", err)
@@ -160,5 +160,3 @@ func removeUsersFromGroup(identityClient *golangsdk.ServiceClient, group string,
 	}
 	return nil
 }
-
-//func checkMembership(identityClient *golangsdk.ServiceClient, group string, user string)  error {
