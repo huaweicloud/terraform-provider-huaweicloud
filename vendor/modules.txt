@@ -331,6 +331,7 @@ github.com/huaweicloud/golangsdk/openstack/geminidb/v3/configurations
 github.com/huaweicloud/golangsdk/openstack/geminidb/v3/instances
 github.com/huaweicloud/golangsdk/openstack/identity/v2/tenants
 github.com/huaweicloud/golangsdk/openstack/identity/v2/tokens
+github.com/huaweicloud/golangsdk/openstack/identity/v3.0/acl
 github.com/huaweicloud/golangsdk/openstack/identity/v3.0/policies
 github.com/huaweicloud/golangsdk/openstack/identity/v3.0/users
 github.com/huaweicloud/golangsdk/openstack/identity/v3/agency
