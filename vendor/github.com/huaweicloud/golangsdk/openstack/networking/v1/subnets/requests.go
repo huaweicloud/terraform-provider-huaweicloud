@@ -139,6 +139,7 @@ type CreateOpts struct {
 	CIDR             string         `json:"cidr" required:"true"`
 	DnsList          []string       `json:"dnsList,omitempty"`
 	GatewayIP        string         `json:"gateway_ip" required:"true"`
+	EnableIPv6       *bool          `json:"ipv6_enable,omitempty"`
 	EnableDHCP       bool           `json:"dhcp_enable" no_default:"y"`
 	PRIMARY_DNS      string         `json:"primary_dns,omitempty"`
 	SECONDARY_DNS    string         `json:"secondary_dns,omitempty"`
@@ -188,6 +189,7 @@ type UpdateOptsBuilder interface {
 // UpdateOpts contains the values used when updating a subnets.
 type UpdateOpts struct {
 	Name          string         `json:"name,omitempty"`
+	EnableIPv6    *bool          `json:"ipv6_enable,omitempty"`
 	EnableDHCP    bool           `json:"dhcp_enable"`
 	PRIMARY_DNS   string         `json:"primary_dns,omitempty"`
 	SECONDARY_DNS string         `json:"secondary_dns,omitempty"`

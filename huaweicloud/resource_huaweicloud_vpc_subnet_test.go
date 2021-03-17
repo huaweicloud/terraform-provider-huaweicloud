@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -39,6 +40,52 @@ func TestAccVpcSubnetV1_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_updated"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccVpcSubnetV1_ipv6(t *testing.T) {
+	var subnet subnets.Subnet
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_vpc_subnet.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVpcSubnetV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVpcSubnetV1_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcSubnetV1Exists(resourceName, &subnet),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "gateway_ip", "192.168.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+				),
+			},
+			{
+				Config: testAccVpcSubnetV1_ipv6(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "gateway_ip", "192.168.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "ipv6_enable", "true"),
+					resource.TestMatchResourceAttr(resourceName, "ipv6_cidr",
+						regexp.MustCompile("([[:xdigit:]]*):([[:xdigit:]]*:){1,6}[[:xdigit:]]*/\\d{1,3}")),
+					resource.TestMatchResourceAttr(resourceName, "ipv6_gateway",
+						regexp.MustCompile("([[:xdigit:]]*):([[:xdigit:]]*:){1,6}([[:xdigit:]]){1,4}")),
 				),
 			},
 			{
@@ -147,6 +194,31 @@ resource "huaweicloud_vpc_subnet" "test" {
   tags = {
     foo = "bar"
     key = "value_updated"
+  }
+}
+`, rName, rName)
+}
+
+func testAccVpcSubnetV1_ipv6(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name              = "%s"
+  cidr              = "192.168.0.0/16"
+  gateway_ip        = "192.168.0.1"
+  vpc_id            = huaweicloud_vpc.test.id
+  ipv6_enable       = true
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+
+  tags = {
+    foo = "bar"
+    key = "value"
   }
 }
 `, rName, rName)
