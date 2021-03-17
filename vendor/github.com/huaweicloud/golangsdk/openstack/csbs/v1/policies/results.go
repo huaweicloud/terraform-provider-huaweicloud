@@ -10,20 +10,6 @@ import (
 	"github.com/huaweicloud/golangsdk/pagination"
 )
 
-type CreateBackupPolicy struct {
-	CreatedAt           time.Time                      `json:"-"`
-	Description         string                         `json:"description"`
-	ID                  string                         `json:"id"`
-	Name                string                         `json:"name"`
-	Parameters          PolicyParam                    `json:"parameters"`
-	ProjectId           string                         `json:"project_id"`
-	ProviderId          string                         `json:"provider_id"`
-	Resources           []Resource                     `json:"resources"`
-	ScheduledOperations []CreateScheduledOperationResp `json:"scheduled_operations"`
-	Status              string                         `json:"status"`
-	Tags                []ResourceTag                  `json:"tags"`
-}
-
 type BackupPolicy struct {
 	CreatedAt           time.Time                `json:"-"`
 	Description         string                   `json:"description"`
@@ -49,26 +35,7 @@ type ScheduledOperationResp struct {
 	TriggerID           string                  `json:"trigger_id"`
 }
 
-type CreateScheduledOperationResp struct {
-	Description         string                        `json:"description"`
-	Enabled             bool                          `json:"enabled"`
-	Name                string                        `json:"name"`
-	OperationType       string                        `json:"operation_type"`
-	OperationDefinition CreateOperationDefinitionResp `json:"operation_definition"`
-	Trigger             TriggerResp                   `json:"trigger"`
-	ID                  string                        `json:"id"`
-	TriggerID           string                        `json:"trigger_id"`
-}
-
 type OperationDefinitionResp struct {
-	MaxBackups            int    `json:"max_backups"`
-	RetentionDurationDays int    `json:"retention_duration_days"`
-	Permanent             bool   `json:"permanent"`
-	PlanId                string `json:"plan_id"`
-	ProviderId            string `json:"provider_id"`
-}
-
-type CreateOperationDefinitionResp struct {
 	MaxBackups            int    `json:"-"`
 	RetentionDurationDays int    `json:"-"`
 	Permanent             bool   `json:"-"`
@@ -125,8 +92,8 @@ func (r *TriggerPropertiesResp) UnmarshalJSON(b []byte) error {
 }
 
 // UnmarshalJSON helps to unmarshal OperationDefinitionResp fields into needed values.
-func (r *CreateOperationDefinitionResp) UnmarshalJSON(b []byte) error {
-	type tmp CreateOperationDefinitionResp
+func (r *OperationDefinitionResp) UnmarshalJSON(b []byte) error {
+	type tmp OperationDefinitionResp
 	var s struct {
 		tmp
 		MaxBackups            string `json:"max_backups"`
@@ -138,8 +105,8 @@ func (r *CreateOperationDefinitionResp) UnmarshalJSON(b []byte) error {
 
 	if err != nil {
 		switch err.(type) {
-		case *json.UnmarshalTypeError: //check if type error occurred (handles if no type conversion is required for cloud like Huawei)
-
+		case *json.UnmarshalTypeError:
+			// handle type error to keep compatible with multi types
 			var s struct {
 				tmp
 				MaxBackups            int  `json:"max_backups"`
@@ -150,7 +117,7 @@ func (r *CreateOperationDefinitionResp) UnmarshalJSON(b []byte) error {
 			if err != nil {
 				return err
 			}
-			*r = CreateOperationDefinitionResp(s.tmp)
+			*r = OperationDefinitionResp(s.tmp)
 			r.MaxBackups = s.MaxBackups
 			r.RetentionDurationDays = s.RetentionDurationDays
 			r.Permanent = s.Permanent
@@ -160,7 +127,7 @@ func (r *CreateOperationDefinitionResp) UnmarshalJSON(b []byte) error {
 		}
 	}
 
-	*r = CreateOperationDefinitionResp(s.tmp)
+	*r = OperationDefinitionResp(s.tmp)
 
 	switch s.MaxBackups {
 	case "":
@@ -199,15 +166,6 @@ func (r *CreateOperationDefinitionResp) UnmarshalJSON(b []byte) error {
 func (r commonResult) Extract() (*BackupPolicy, error) {
 	var s struct {
 		BackupPolicy *BackupPolicy `json:"policy"`
-	}
-
-	err := r.ExtractInto(&s)
-	return s.BackupPolicy, err
-}
-
-func (r cuResult) Extract() (*CreateBackupPolicy, error) {
-	var s struct {
-		BackupPolicy *CreateBackupPolicy `json:"policy"`
 	}
 
 	err := r.ExtractInto(&s)
@@ -255,12 +213,8 @@ type commonResult struct {
 	golangsdk.Result
 }
 
-type cuResult struct {
-	golangsdk.Result
-}
-
 type CreateResult struct {
-	cuResult
+	commonResult
 }
 
 type GetResult struct {
@@ -272,7 +226,7 @@ type DeleteResult struct {
 }
 
 type UpdateResult struct {
-	cuResult
+	commonResult
 }
 
 type ListResult struct {

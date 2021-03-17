@@ -872,6 +872,18 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 		t.Fatalf("RTS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("RTS endpoint:\t %s", actualURL)
+
+	// test the endpoint of AOM service
+	serviceClient, err = config.AomV1Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud AOM client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://aom.%s.%s/svcstg/icmgr/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("AOM endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("AOM endpoint:\t %s", actualURL)
 }
 
 func compareURL(expectedURL, actualURL, client, version string, t *testing.T) {

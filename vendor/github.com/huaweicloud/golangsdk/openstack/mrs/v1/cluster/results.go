@@ -7,12 +7,12 @@ type Cluster struct {
 	Clustername           string       `json:"clusterName"`
 	Masternodenum         string       `json:"masterNodeNum"`
 	Corenodenum           string       `json:"coreNodeNum"`
+	Totalnodenum          string       `json:"totalNodeNum"`
 	Clusterstate          string       `json:"clusterState"`
 	Createat              string       `json:"createAt"`
 	Updateat              string       `json:"updateAt"`
 	Billingtype           string       `json:"billingType"`
 	Datacenter            string       `json:"dataCenter"`
-	Vpc                   string       `json:"vpc"`
 	Duration              string       `json:"duration"`
 	Fee                   string       `json:"fee"`
 	Hadoopversion         string       `json:"hadoopVersion"`
@@ -26,18 +26,22 @@ type Cluster struct {
 	Remark                string       `json:"remark"`
 	Orderid               string       `json:"orderId"`
 	Azid                  string       `json:"azId"`
+	Azname                string       `json:"azName"`
 	Masternodeproductid   string       `json:"masterNodeProductId"`
 	Masternodespecid      string       `json:"masterNodeSpecId"`
 	Corenodeproductid     string       `json:"coreNodeProductId"`
 	Corenodespecid        string       `json:"coreNodeSpecId"`
-	Azname                string       `json:"azName"`
 	Instanceid            string       `json:"instanceId"`
 	Vnc                   string       `json:"vnc"`
 	Tenantid              string       `json:"tenantId"`
 	Volumesize            int          `json:"volumeSize"`
+	Vpc                   string       `json:"vpc"`
+	Vpcid                 string       `json:"vpcId"`
+	Subnetid              string       `json:"subnetId"`
 	Subnetname            string       `json:"subnetName"`
 	Securitygroupsid      string       `json:"securityGroupsId"`
 	Slavesecuritygroupsid string       `json:"slaveSecurityGroupsId"`
+	Stagedesc             string       `json:"stageDesc"`
 	Safemode              int          `json:"safeMode"`
 	Clusterversion        string       `json:"clusterVersion"`
 	Nodepubliccertname    string       `json:"nodePublicCertName"`
@@ -45,7 +49,9 @@ type Cluster struct {
 	Privateipfirst        string       `json:"privateIpFirst"`
 	Errorinfo             string       `json:"errorInfo"`
 	Chargingstarttime     string       `json:"chargingStartTime"`
-	LogCollection         int          `json:"log_collection"`
+	LogCollection         int          `json:"logCollection"`
+	TaskNodeGroups        []NodeGroup  `json:"taskNodeGroups"`
+	NodeGroups            []NodeGroup  `json:"nodeGroups"`
 	MasterDataVolumeType  string       `json:"masterDataVolumeType"`
 	MasterDataVolumeSize  int          `json:"masterDataVolumeSize"`
 	MasterDataVolumeCount int          `json:"masterDataVolumeCount"`
@@ -60,6 +66,21 @@ type Component struct {
 	Componentname    string `json:"componentName"`
 	Componentversion string `json:"componentVersion"`
 	Componentdesc    string `json:"componentDesc"`
+}
+
+type NodeGroup struct {
+	GroupName       string `json:"groupName"`
+	NodeNum         int    `json:"nodeNum"`
+	NodeSize        string `json:"nodeSize"`
+	NodeSpecId      string `json:"nodeSpecId"`
+	NodeProductId   string `json:"nodeProductId"`
+	VMProductId     string `json:"vmProductId"`
+	VMSpecCode      string `json:"vmSpecCode"`
+	RootVolumeSize  int    `json:"rootVolumeSize"`
+	RootVolumeType  string `json:"rootVolumeType"`
+	DataVolumeType  string `json:"dataVolumeType"`
+	DataVolumeSize  int    `json:"dataVolumeSize"`
+	DataVolumeCount int    `json:"dataVolumeCount"`
 }
 
 type ClusterResult struct {

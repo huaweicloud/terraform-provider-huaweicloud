@@ -547,6 +547,10 @@ func (c *Config) CceAddonV3Client(region string) (*golangsdk.ServiceClient, erro
 	return c.NewServiceClient("cce_addon", region)
 }
 
+func (c *Config) AomV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("aom", region)
+}
+
 func (c *Config) CciV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cciv1", region)
 }

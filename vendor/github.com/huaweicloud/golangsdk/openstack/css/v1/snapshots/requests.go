@@ -48,7 +48,8 @@ func PolicyGet(client *golangsdk.ServiceClient, clusterId string) (r PolicyResul
 
 // Enable will enable the Snapshot function with the provided ID.
 func Enable(client *golangsdk.ServiceClient, clusterId string) (r ErrorResult) {
-	_, r.Err = client.Post(enableURL(client, clusterId), nil, nil, &golangsdk.RequestOpts{
+	body := make(map[string]interface{})
+	_, r.Err = client.Post(enableURL(client, clusterId), body, nil, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})

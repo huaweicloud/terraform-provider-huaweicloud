@@ -9,10 +9,6 @@ var requestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
 type CreateOpts struct {
 	BillingType           int             `json:"billing_type" required:"true"`
 	DataCenter            string          `json:"data_center" required:"true"`
-	MasterNodeNum         int             `json:"master_node_num" required:"true"`
-	MasterNodeSize        string          `json:"master_node_size" required:"true"`
-	CoreNodeNum           int             `json:"core_node_num" required:"true"`
-	CoreNodeSize          string          `json:"core_node_size" required:"true"`
 	AvailableZoneID       string          `json:"available_zone_id" required:"true"`
 	ClusterName           string          `json:"cluster_name" required:"true"`
 	Vpc                   string          `json:"vpc" required:"true"`
@@ -22,6 +18,10 @@ type CreateOpts struct {
 	SecurityGroupsID      string          `json:"security_groups_id,omitempty"`
 	ClusterVersion        string          `json:"cluster_version" required:"true"`
 	ClusterType           int             `json:"cluster_type"`
+	MasterNodeNum         int             `json:"master_node_num,omitempty"`
+	MasterNodeSize        string          `json:"master_node_size,omitempty"`
+	CoreNodeNum           int             `json:"core_node_num,omitempty"`
+	CoreNodeSize          string          `json:"core_node_size,omitempty"`
 	MasterDataVolumeType  string          `json:"master_data_volume_type,omitempty"`
 	MasterDataVolumeSize  int             `json:"master_data_volume_size,omitempty"`
 	MasterDataVolumeCount int             `json:"master_data_volume_count,omitempty"`
@@ -36,9 +36,21 @@ type CreateOpts struct {
 	ClusterMasterSecret   string          `json:"cluster_master_secret,omitempty"`
 	NodePublicCertName    string          `json:"node_public_cert_name,omitempty"`
 	LogCollection         int             `json:"log_collection,omitempty"`
+	NodeGroups            []NodeGroupOpts `json:"node_groups,omitempty"`
 	ComponentList         []ComponentOpts `json:"component_list" required:"true"`
 	AddJobs               []JobOpts       `json:"add_jobs,omitempty"`
 	BootstrapScripts      []ScriptOpts    `json:"bootstrap_scripts,omitempty"`
+}
+
+type NodeGroupOpts struct {
+	GroupName       string `json:"group_name" required:"true"`
+	NodeSize        string `json:"node_size" required:"true"`
+	NodeNum         int    `json:"node_num" required:"true"`
+	RootVolumeType  string `json:"root_volume_type" required:"true"`
+	RootVolumeSize  int    `json:"root_volume_size" required:"true"`
+	DataVolumeType  string `json:"data_volume_type" required:"true"`
+	DataVolumeSize  int    `json:"data_volume_size" required:"true"`
+	DataVolumeCount int    `json:"data_volume_count" required:"true"`
 }
 
 type ComponentOpts struct {
