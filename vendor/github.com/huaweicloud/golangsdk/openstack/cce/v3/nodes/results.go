@@ -73,6 +73,8 @@ type Spec struct {
 	UserTags []tags.ResourceTag `json:"userTags,omitempty"`
 	// Tag of a Kubernetes node, key value pair format
 	K8sTags map[string]string `json:"k8sTags,omitempty"`
+	// The runtime spec
+	RunTime *RunTimeSpec `json:"runtime,omitempty"`
 	// taints to created nodes to configure anti-affinity
 	Taints []TaintSpec `json:"taints,omitempty"`
 }
@@ -156,6 +158,11 @@ type EipSpec struct {
 	IpType string `json:"iptype,omitempty"`
 	// Elastic IP bandwidth parameters
 	Bandwidth BandwidthOpts `json:"bandwidth,omitempty"`
+}
+
+type RunTimeSpec struct {
+	// the name of runtime: docker or containerd
+	Name string `json:"name,omitempty"`
 }
 
 type BandwidthOpts struct {

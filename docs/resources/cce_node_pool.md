@@ -102,6 +102,8 @@ The following arguments are supported:
 
 * `labels` - (Optional, Map, ForceNew) Tags of a Kubernetes node, key/value pair format. Changing this parameter will create a new resource.
 
+* `tags` - (Optional, Map) Tags of a VM node, key/value pair format.
+
 * `root_volume` - (Required, List, ForceNew) It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
 
 * `data_volumes` - (Required, List, ForceNew) Represents the data disk to be created. Changing this parameter will create a new resource.

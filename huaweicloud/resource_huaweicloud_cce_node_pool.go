@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodepools"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 )
 
 func ResourceCCENodePool() *schema.Resource {
@@ -166,6 +167,7 @@ func ResourceCCENodePool() *schema.Resource {
 						},
 					}},
 			},
+			"tags": tagsSchema(),
 			"billing_mode": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -240,6 +242,11 @@ func ResourceCCENodePool() *schema.Resource {
 	}
 }
 
+func resourceCCENodePoolTags(d *schema.ResourceData) []tags.ResourceTag {
+	tagRaw := d.Get("tags").(map[string]interface{})
+	return expandResourceTags(tagRaw)
+}
+
 func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
@@ -286,6 +293,7 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 				},
 				ExtendParam: resourceCCEExtendParam(d),
 				Taints:      resourceCCETaint(d),
+				UserTags:    resourceCCENodePoolTags(d),
 			},
 			Autoscaling: nodepools.AutoscalingSpec{
 				Enable:                d.Get("scall_enable").(bool),
@@ -412,6 +420,13 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node Pool (%s): %s", d.Id(), err)
 	}
 
+	tagmap := tagsToMap(s.Spec.NodeTemplate.UserTags)
+	// ignore "CCE-Dynamic-Provisioning-Node"
+	delete(tagmap, "CCE-Dynamic-Provisioning-Node")
+	if err := d.Set("tags", tagmap); err != nil {
+		return fmt.Errorf("Error saving tags to state for CCE Node Pool(%s): %s", d.Id(), err)
+	}
+
 	d.Set("status", s.Status.Phase)
 
 	return nil
@@ -425,6 +440,17 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	initialNodeCount := d.Get("initial_node_count").(int)
+	var loginSpec nodes.LoginSpec
+	if hasFilledOpt(d, "key_pair") {
+		loginSpec = nodes.LoginSpec{SshKey: d.Get("key_pair").(string)}
+	} else if hasFilledOpt(d, "password") {
+		loginSpec = nodes.LoginSpec{
+			UserPassword: nodes.UserPassword{
+				Username: "root",
+				Password: d.Get("password").(string),
+			},
+		}
+	}
 
 	updateOpts := nodepools.UpdateOpts{
 		Kind:       "NodePool",
@@ -440,6 +466,15 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 				MaxNodeCount:          d.Get("max_node_count").(int),
 				ScaleDownCooldownTime: d.Get("scale_down_cooldown_time").(int),
 				Priority:              d.Get("priority").(int),
+			},
+			NodeTemplate: nodes.Spec{
+				Flavor:      d.Get("flavor_id").(string),
+				Az:          d.Get("availability_zone").(string),
+				Login:       loginSpec,
+				RootVolume:  resourceCCERootVolume(d),
+				DataVolumes: resourceCCEDataVolume(d),
+				Count:       1,
+				UserTags:    resourceCCENodePoolTags(d),
 			},
 			Type: d.Get("type").(string),
 		},

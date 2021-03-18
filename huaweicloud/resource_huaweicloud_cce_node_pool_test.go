@@ -58,6 +58,41 @@ func TestAccCCENodePool_basic(t *testing.T) {
 	})
 }
 
+func TestAccCCENodePool_tags(t *testing.T) {
+	var nodePool nodepools.NodePool
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_node_pool.test"
+	//clusterName here is used to provide the cluster id to fetch cce node pool.
+	clusterName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCCENodePoolDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCCENodePool_tags(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "tags.test1", "val1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.test2", "val2"),
+				),
+			},
+			{
+				Config: testAccCCENodePool_tags_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "tags.test1", "val1_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.test2_update", "val2_update"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckCCENodePoolDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	cceClient, err := config.CceV3Client(HW_REGION_NAME)
@@ -254,6 +289,78 @@ resource "huaweicloud_cce_node_pool" "test" {
 	extend_params = {
 	  test_key2 = "test_val2"
 	}
+  }
+}
+`, testAccCCENodePool_Base(rName), rName)
+}
+
+func testAccCCENodePool_tags(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%s"
+  os                       = "EulerOS 2.5"
+  flavor_id                = "s6.large.2"
+  initial_node_count       = 1
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_compute_keypair.test.name
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
+  scale_down_cooldown_time = 0
+  priority                 = 0
+  type                     = "vm"
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+
+  tags = {
+	test1 = "val1"
+	test2 = "val2"
+  }
+}
+`, testAccCCENodePool_Base(rName), rName)
+}
+
+func testAccCCENodePool_tags_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = "%s"
+  os                       = "EulerOS 2.5"
+  flavor_id                = "s6.large.2"
+  initial_node_count       = 1
+  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                 = huaweicloud_compute_keypair.test.name
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
+  scale_down_cooldown_time = 0
+  priority                 = 0
+  type                     = "vm"
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+
+  tags = {
+	test1        = "val1_update"
+	test2_update = "val2_update"
   }
 }
 `, testAccCCENodePool_Base(rName), rName)
