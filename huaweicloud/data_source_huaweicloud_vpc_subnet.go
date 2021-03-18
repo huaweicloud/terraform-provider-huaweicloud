@@ -70,6 +70,18 @@ func DataSourceVpcSubnetV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"ipv6_enable": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"ipv6_cidr": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"ipv6_gateway": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -117,12 +129,15 @@ func dataSourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("dns_list", Subnets.DnsList)
 	d.Set("status", Subnets.Status)
 	d.Set("gateway_ip", Subnets.GatewayIP)
+	d.Set("ipv6_enable", Subnets.EnableIPv6)
 	d.Set("dhcp_enable", Subnets.EnableDHCP)
 	d.Set("primary_dns", Subnets.PRIMARY_DNS)
 	d.Set("secondary_dns", Subnets.SECONDARY_DNS)
 	d.Set("availability_zone", Subnets.AvailabilityZone)
 	d.Set("vpc_id", Subnets.VPC_ID)
 	d.Set("subnet_id", Subnets.SubnetId)
+	d.Set("ipv6_cidr", Subnets.IPv6CIDR)
+	d.Set("ipv6_gateway", Subnets.IPv6Gateway)
 	d.Set("region", GetRegion(d, config))
 
 	return nil
