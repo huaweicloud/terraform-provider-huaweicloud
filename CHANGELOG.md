@@ -1,3 +1,9 @@
+## 1.22.2 (March 19, 2021)
+
+ENHANCEMENTS:
+
+Do not fetch twice the first page in AllPages request ([#981](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/981))
+
 ## 1.22.1 (March 5, 2021)
 
 BUG FIXES:
