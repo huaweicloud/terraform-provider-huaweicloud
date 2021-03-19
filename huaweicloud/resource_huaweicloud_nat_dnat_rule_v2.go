@@ -24,7 +24,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 )
 
-func resourceNatDnatRuleV2() *schema.Resource {
+func ResourceNatDnatRuleV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNatDnatRuleCreate,
 		Read:   resourceNatDnatRuleRead,

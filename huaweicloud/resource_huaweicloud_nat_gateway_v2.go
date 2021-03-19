@@ -12,7 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/natgateways"
 )
 
-func resourceNatGatewayV2() *schema.Resource {
+func ResourceNatGatewayV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNatGatewayV2Create,
 		Read:   resourceNatGatewayV2Read,
