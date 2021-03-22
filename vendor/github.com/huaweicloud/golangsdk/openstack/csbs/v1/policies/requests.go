@@ -8,9 +8,10 @@ import (
 )
 
 type ListOpts struct {
+	// id and status are not supported in API, will filtered by FilterPolicies
 	ID         string `json:"id"`
-	Name       string `q:"name"`
 	Status     string `json:"status"`
+	Name       string `q:"name"`
 	Sort       string `q:"sort"`
 	Limit      int    `q:"limit"`
 	Marker     string `q:"marker"`

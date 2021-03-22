@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/aom/v1/icagents"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
 )
 
@@ -382,6 +383,17 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.SetId(create.Metadata.Id)
 
+	icAgentClient, err := config.AomV1Client(GetRegion(d, config))
+
+	installParam := icagents.InstallParam{
+		ClusterId: d.Id(),
+		NameSpace: "default",
+	}
+
+	result := icagents.Create(icAgentClient, installParam)
+	if result.Err != nil {
+		log.Printf("Error installing ci agent in CCE cluster: %s", result.Err)
+	}
 	return resourceCCEClusterV3Read(d, meta)
 
 }

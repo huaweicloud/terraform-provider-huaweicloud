@@ -87,6 +87,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "api/v3",
 		WithOutProjectID: true,
 	},
+	"aom": {
+		Name:    "aom",
+		Version: "svcstg/icmgr/v1",
+	},
 	"cciv1": {
 		Name:             "cci",
 		Version:          "apis/networking.cci.io/v1beta1",
