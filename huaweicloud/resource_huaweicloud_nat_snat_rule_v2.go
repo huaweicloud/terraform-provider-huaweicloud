@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/hw_snatrules"
 )
 
-func resourceNatSnatRuleV2() *schema.Resource {
+func ResourceNatSnatRuleV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNatSnatRuleV2Create,
 		Read:   resourceNatSnatRuleV2Read,

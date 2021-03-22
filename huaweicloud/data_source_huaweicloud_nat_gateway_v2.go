@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/natgateways"
 )
 
-func dataSourceNatGatewayV2() *schema.Resource {
+func DataSourceNatGatewayV2() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceNatGatewayV2Read,
 
