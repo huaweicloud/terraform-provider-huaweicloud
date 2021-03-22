@@ -16,7 +16,7 @@ func TestAccNatSnatRule_basic(t *testing.T) {
 	resourceName := "huaweicloud_nat_snat_rule.snat_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckNat(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNatV2SnatRuleDestroy,
 		Steps: []resource.TestStep{

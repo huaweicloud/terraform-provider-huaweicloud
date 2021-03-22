@@ -121,12 +121,6 @@ func testAccPreCheckDms(t *testing.T) {
 	}
 }
 
-func testAccPreCheckNat(t *testing.T) {
-	if HW_NAT_ENVIRONMENT == "" {
-		t.Skip("This environment does not support NAT tests")
-	}
-}
-
 func testAccPreCheckKms(t *testing.T) {
 	if HW_KMS_ENVIRONMENT == "" {
 		t.Skip("This environment does not support KMS tests")
