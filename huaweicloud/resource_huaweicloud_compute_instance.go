@@ -15,7 +15,6 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions"
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
-	"github.com/huaweicloud/golangsdk/openstack/bss/v2/orders"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/bootfromvolume"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs"
@@ -268,7 +267,7 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"prePaid", "postPaid",
-				}, true),
+				}, false),
 				ConflictsWith: []string{"block_device", "metadata"},
 			},
 			"period_unit": {
@@ -277,7 +276,7 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"month", "year",
-				}, true),
+				}, false),
 				ConflictsWith: []string{"block_device", "metadata"},
 			},
 			"period": {
@@ -1012,18 +1011,7 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if d.Get("charging_mode") == "prePaid" {
-		bssV2Client, err := config.BssV2Client(GetRegion(d, config))
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
-		}
-
-		resourceIds := []string{d.Id()}
-		unsubscribeOpts := orders.UnsubscribeOpts{
-			ResourceIds:     resourceIds,
-			UnsubscribeType: 1,
-		}
-		_, err = orders.Unsubscribe(bssV2Client, unsubscribeOpts).Extract()
-		if err != nil {
+		if err := UnsubscribePrePaidResource(d, config); err != nil {
 			return fmt.Errorf("Error unsubscribe HuaweiCloud server: %s", err)
 		}
 	} else {
