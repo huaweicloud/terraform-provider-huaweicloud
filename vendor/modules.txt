@@ -249,8 +249,6 @@ github.com/hashicorp/terraform-plugin-sdk/internal/version
 github.com/hashicorp/terraform-plugin-sdk/meta
 github.com/hashicorp/terraform-plugin-sdk/plugin
 github.com/hashicorp/terraform-plugin-sdk/terraform
-# github.com/hashicorp/terraform-plugin-test v1.3.0
-## explicit
 # github.com/hashicorp/terraform-plugin-test/v2 v2.1.2
 github.com/hashicorp/terraform-plugin-test/v2
 # github.com/hashicorp/terraform-svchost v0.0.0-20191011084731-65d371908596
@@ -259,7 +257,7 @@ github.com/hashicorp/terraform-svchost/auth
 github.com/hashicorp/terraform-svchost/disco
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20210318062012-78ebc939936a
+# github.com/huaweicloud/golangsdk v0.0.0-20210323020602-6d5ee0030244
 ## explicit
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/internal
