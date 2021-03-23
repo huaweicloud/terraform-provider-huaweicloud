@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/bss/v2/orders"
 )
 
 // GetRegion returns the region that was specified in the resource. If a
@@ -60,4 +61,20 @@ func checkForRetryableError(err error) *resource.RetryError {
 func hasFilledOpt(d *schema.ResourceData, param string) bool {
 	_, b := d.GetOk(param)
 	return b
+}
+
+// UnsubscribePrePaidResource impl the action of unsubscribe resource
+func UnsubscribePrePaidResource(d *schema.ResourceData, config *Config) error {
+	bssV2Client, err := config.BssV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
+	}
+
+	resourceIds := []string{d.Id()}
+	unsubscribeOpts := orders.UnsubscribeOpts{
+		ResourceIds:     resourceIds,
+		UnsubscribeType: 1,
+	}
+	_, err = orders.Unsubscribe(bssV2Client, unsubscribeOpts).Extract()
+	return err
 }
