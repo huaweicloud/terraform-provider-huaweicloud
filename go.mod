@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/hashicorp/errwrap v1.0.0
 	github.com/hashicorp/terraform-plugin-sdk v1.16.0
-	github.com/huaweicloud/golangsdk v0.0.0-20210323075108-95a9f6c7bc44
+	github.com/huaweicloud/golangsdk v0.0.0-20210329032419-ca58cc68faa7
 	github.com/jen20/awspolicyequivalence v1.1.0
 	github.com/smartystreets/goconvey v0.0.0-20190222223459-a17d461953aa // indirect
 	github.com/stretchr/testify v1.4.0
