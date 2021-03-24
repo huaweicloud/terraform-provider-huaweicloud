@@ -1011,7 +1011,7 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if d.Get("charging_mode") == "prePaid" {
-		if err := UnsubscribePrePaidResource(d, config); err != nil {
+		if err := UnsubscribePrePaidResource(d, config, []string{d.Id()}); err != nil {
 			return fmt.Errorf("Error unsubscribe HuaweiCloud server: %s", err)
 		}
 	} else {

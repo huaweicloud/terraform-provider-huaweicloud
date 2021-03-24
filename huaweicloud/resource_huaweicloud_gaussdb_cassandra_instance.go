@@ -500,7 +500,7 @@ func resourceGeminiDBInstanceV3Delete(d *schema.ResourceData, meta interface{}) 
 
 	instanceId := d.Id()
 	if d.Get("charging_mode") == "prePaid" {
-		if err := UnsubscribePrePaidResource(d, config); err != nil {
+		if err := UnsubscribePrePaidResource(d, config, []string{instanceId}); err != nil {
 			return fmt.Errorf("Error unsubscribe HuaweiCloud GaussDB instance: %s", err)
 		}
 	} else {
