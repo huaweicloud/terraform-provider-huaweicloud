@@ -3,7 +3,7 @@ subcategory: "Cloud Container Engine (CCE)"
 ---
 
 # huaweicloud\_cce\_node
-Add a node to a container cluster.
+Add a node to a CCE cluster.
 This is an alternative to `huaweicloud_cce_node_v3`
 
 ## Basic Usage
@@ -162,6 +162,19 @@ The following arguments are supported:
 
 * `postinstall` - (Optional, String, ForceNew) Script required after installation. The input value can be a Base64 encoded string or not.
    Changing this parameter will create a new resource.
+
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the CCE node.
+    Valid values are *prePaid* and *postPaid*, defaults to *postPaid*.
+    Changing this creates a new resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the CCE node.
+    Valid values are *month* and *year*. Changing this creates a new resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the CCE node.
+    Changing this creates a new resource.
+
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
+    Valid values are "true" and "false". Changing this creates a new resource.
 
 * `extend_param` - (Optional, Map, ForceNew) Extended parameter. Changing this parameter will create a new resource. Availiable keys :
 
