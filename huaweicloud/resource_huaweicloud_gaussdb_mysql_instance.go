@@ -77,6 +77,10 @@ func resourceGaussDBInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"table_name_case_sensitivity": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"read_replicas": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -308,6 +312,12 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		Mode:                "Cluster",
 		DataStore:           resourceGaussDBDataStore(d),
 	}
+
+	if d.Get("table_name_case_sensitivity").(bool) {
+		lowerCaseTableNames := 0
+		createOpts.LowerCaseTableNames = &lowerCaseTableNames
+	}
+
 	azMode := d.Get("availability_zone_mode").(string)
 	createOpts.AZMode = azMode
 	if azMode == "multi" {

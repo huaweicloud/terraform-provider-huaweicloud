@@ -73,6 +73,10 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id. Required if EPS enabled.
   Changing this parameter will create a new resource.
 
+* `table_name_case_sensitivity` - (Optional, Bool) Whether the kernel table name is case sensitive. 
+  The value can be `true` (case sensitive) and `false` (case insensitive). Defaults to `false`. 
+  This parameter only works during creation.
+
 * `read_replicas` - (Optional, Int) Specifies the count of read replicas. Defaults to 1.
 
 * `time_zone` - (Optional, String, ForceNew) Specifies the time zone. Defaults to "UTC+08:00".
