@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/evs/v3/volumes"
 )
 
-func TestAccEvsStorageV3Volume_basic(t *testing.T) {
+func TestAccEvsVolume_basic(t *testing.T) {
 	var volume volumes.Volume
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -21,12 +21,12 @@ func TestAccEvsStorageV3Volume_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckEvsStorageV3VolumeDestroy,
+		CheckDestroy: testAccCheckEvsVolumeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEvsStorageV3Volume_basic(rName),
+				Config: testAccEvsVolume_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsStorageV3VolumeExists(resourceName, &volume),
+					testAccCheckEvsVolumeExists(resourceName, &volume),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "size", "12"),
 				),
@@ -40,9 +40,9 @@ func TestAccEvsStorageV3Volume_basic(t *testing.T) {
 				},
 			},
 			{
-				Config: testAccEvsStorageV3Volume_update(rNameUpdate),
+				Config: testAccEvsVolume_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsStorageV3VolumeExists(resourceName, &volume),
+					testAccCheckEvsVolumeExists(resourceName, &volume),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "size", "20"),
 				),
@@ -51,34 +51,34 @@ func TestAccEvsStorageV3Volume_basic(t *testing.T) {
 	})
 }
 
-func TestAccEvsStorageV3Volume_tags(t *testing.T) {
+func TestAccEvsVolume_tags(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_volume.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckEvsStorageV3VolumeDestroy,
+		CheckDestroy: testAccCheckEvsVolumeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEvsStorageV3Volume_tags(rName),
+				Config: testAccEvsVolume_tags(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsStorageV3VolumeTags(resourceName, "foo", "bar"),
-					testAccCheckEvsStorageV3VolumeTags(resourceName, "key", "value"),
+					testAccCheckEvsVolumeTags(resourceName, "foo", "bar"),
+					testAccCheckEvsVolumeTags(resourceName, "key", "value"),
 				),
 			},
 			{
-				Config: testAccEvsStorageV3Volume_tags_update(rName),
+				Config: testAccEvsVolume_tags_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsStorageV3VolumeTags(resourceName, "foo2", "bar2"),
-					testAccCheckEvsStorageV3VolumeTags(resourceName, "key2", "value2"),
+					testAccCheckEvsVolumeTags(resourceName, "foo2", "bar2"),
+					testAccCheckEvsVolumeTags(resourceName, "key2", "value2"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccEvsStorageV3Volume_image(t *testing.T) {
+func TestAccEvsVolume_image(t *testing.T) {
 	var volume volumes.Volume
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -87,12 +87,12 @@ func TestAccEvsStorageV3Volume_image(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckEvsStorageV3VolumeDestroy,
+		CheckDestroy: testAccCheckEvsVolumeDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEvsStorageV3Volume_image(rName),
+				Config: testAccEvsVolume_image(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsStorageV3VolumeExists(resourceName, &volume),
+					testAccCheckEvsVolumeExists(resourceName, &volume),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
@@ -109,12 +109,12 @@ func TestAccEvsVolume_withEpsId(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckEvsStorageV3VolumeDestroy,
+		CheckDestroy: testAccCheckEvsVolumeDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEvsVolume_epsID(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsStorageV3VolumeExists(resourceName, &volume),
+					testAccCheckEvsVolumeExists(resourceName, &volume),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
@@ -123,7 +123,7 @@ func TestAccEvsVolume_withEpsId(t *testing.T) {
 	})
 }
 
-func testAccCheckEvsStorageV3VolumeDestroy(s *terraform.State) error {
+func testAccCheckEvsVolumeDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	blockStorageClient, err := config.BlockStorageV3Client(HW_REGION_NAME)
 	if err != nil {
@@ -144,7 +144,7 @@ func testAccCheckEvsStorageV3VolumeDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckEvsStorageV3VolumeExists(n string, volume *volumes.Volume) resource.TestCheckFunc {
+func testAccCheckEvsVolumeExists(n string, volume *volumes.Volume) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -176,7 +176,7 @@ func testAccCheckEvsStorageV3VolumeExists(n string, volume *volumes.Volume) reso
 	}
 }
 
-func testAccCheckEvsStorageV3VolumeTags(n string, k string, v string) resource.TestCheckFunc {
+func testAccCheckEvsVolumeTags(n string, k string, v string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -220,7 +220,7 @@ func testAccCheckEvsStorageV3VolumeTags(n string, k string, v string) resource.T
 	}
 }
 
-func testAccEvsStorageV3Volume_basic(rName string) string {
+func testAccEvsVolume_basic(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -234,7 +234,7 @@ resource "huaweicloud_evs_volume" "test" {
 `, rName)
 }
 
-func testAccEvsStorageV3Volume_update(rName string) string {
+func testAccEvsVolume_update(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -248,7 +248,7 @@ resource "huaweicloud_evs_volume" "test" {
 `, rName)
 }
 
-func testAccEvsStorageV3Volume_tags(rName string) string {
+func testAccEvsVolume_tags(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -267,7 +267,7 @@ resource "huaweicloud_evs_volume" "test" {
 `, rName)
 }
 
-func testAccEvsStorageV3Volume_tags_update(rName string) string {
+func testAccEvsVolume_tags_update(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -286,7 +286,7 @@ resource "huaweicloud_evs_volume" "test" {
 `, rName)
 }
 
-func testAccEvsStorageV3Volume_image(rName string) string {
+func testAccEvsVolume_image(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
