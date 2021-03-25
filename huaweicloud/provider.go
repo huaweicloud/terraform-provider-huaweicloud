@@ -441,7 +441,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_rds_read_replica_instance":       resourceRdsReadReplicaInstance(),
 			"huaweicloud_sfs_access_rule":                 resourceSFSAccessRuleV2(),
 			"huaweicloud_sfs_file_system":                 resourceSFSFileSystemV2(),
-			"huaweicloud_sfs_turbo":                       resourceSFSTurbo(),
+			"huaweicloud_sfs_turbo":                       ResourceSFSTurbo(),
 			"huaweicloud_smn_topic":                       resourceTopic(),
 			"huaweicloud_smn_subscription":                resourceSubscription(),
 			"huaweicloud_vbs_backup":                      resourceVBSBackupV2(),
