@@ -97,5 +97,5 @@ resource "huaweicloud_evs_snapshot" "test" {
   name        = "%s"
   description = "Daily backup"
 }
-`, testAccEvsStorageV3Volume_basic(rName), rName)
+`, testAccEvsVolume_basic(rName), rName)
 }
