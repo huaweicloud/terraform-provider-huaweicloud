@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/sfs_turbo/v1/shares"
 )
 
-func resourceSFSTurbo() *schema.Resource {
+func ResourceSFSTurbo() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSFSTurboCreate,
 		Read:   resourceSFSTurboRead,
