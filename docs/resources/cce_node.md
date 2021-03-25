@@ -132,6 +132,18 @@ The following arguments are supported:
 * `password` - (Optional, String, ForceNew) root password when logging in to select the password mode.
     This parameter must be salted and alternative to `key_pair`. Changing this parameter will create a new resource.
 
+* `root_volume` - (Required, List, ForceNew) It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
+
+  * `size` - (Required, Int) Disk size in GB.
+  * `volumetype` - (Required, String) Disk type.
+  * `extend_params` - (Optional, Map) Disk expansion parameters.
+
+* `data_volumes` - (Required, List, ForceNew) Represents the data disk to be created. Changing this parameter will create a new resource.
+
+  * `size` - (Required, Int) Disk size in GB.
+  * `volumetype` - (Required, String) Disk type.
+  * `extend_params` - (Optional, Map) Disk expansion parameters.
+
 * `subnet_id` - (Optional, String, ForceNew) The ID of the subnet to which the NIC belongs.
     Changing this parameter will create a new resource.
 
@@ -192,18 +204,6 @@ The following arguments are supported:
 * `labels` - (Optional, Map, ForceNew) Tags of a Kubernetes node, key/value pair format. Changing this parameter will create a new resource.
 
 * `tags` - (Optional, Map) Tags of a VM node, key/value pair format.
-
-* `root_volume` - (Required, List, ForceNew) It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
-
-  * `size` - (Required, Int) Disk size in GB.
-  * `volumetype` - (Required, String) Disk type.
-  * `extend_params` - (Optional, Map) Disk expansion parameters.
-
-* `data_volumes` - (Required, List, ForceNew) Represents the data disk to be created. Changing this parameter will create a new resource.
-
-  * `size` - (Required, Int) Disk size in GB.
-  * `volumetype` - (Required, String) Disk type.
-  * `extend_params` - (Optional, Map) Disk expansion parameters.
 
 * `taints` - (Optional, List, ForceNew) You can add taints to created nodes to configure anti-affinity. Each taint contains the following parameters:
 
