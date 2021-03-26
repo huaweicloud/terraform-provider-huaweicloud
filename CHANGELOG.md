@@ -1,3 +1,9 @@
+## 1.22.3 (March 26, 2021)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_gaussdb_mysql_instance: Add table_name_case_sensitivity support ([#998](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/998))
+
 ## 1.22.2 (March 19, 2021)
 
 ENHANCEMENTS:
