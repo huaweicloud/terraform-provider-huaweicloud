@@ -153,32 +153,6 @@ func resourceGaussDBInstance() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"charging_mode": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid", "postPaid",
-				}, false),
-			},
-			"period_unit": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"month", "year",
-				}, false),
-			},
-			"period": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-			},
-			"auto_renew": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -231,6 +205,12 @@ func resourceGaussDBInstance() *schema.Resource {
 					},
 				},
 			},
+
+			// charge info: charging_mode, period_unit, period, auto_renew
+			"charging_mode": schemeChargingMode(nil),
+			"period_unit":   schemaPeriodUnit(nil),
+			"period":        schemaPeriod(nil),
+			"auto_renew":    schemaAutoRenew(nil),
 		},
 	}
 }
@@ -330,6 +310,10 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	// PrePaid
 	if d.Get("charging_mode") == "prePaid" {
+		if err := validatePrePaidChargeInfo(d); err != nil {
+			return err
+		}
+
 		chargeInfo := &instances.ChargeInfoOpt{
 			ChargingMode: d.Get("charging_mode").(string),
 			PeriodType:   d.Get("period_unit").(string),

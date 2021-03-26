@@ -180,10 +180,13 @@ The following arguments are supported:
     Changing this creates a new resource.
 
 * `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the CCE node.
-    Valid values are *month* and *year*. Changing this creates a new resource.
+    Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
+    Changing this creates a new resource.
 
 * `period` - (Optional, Int, ForceNew) Specifies the charging period of the CCE node.
-    Changing this creates a new resource.
+    If `period_unit` is set to *month*, the value ranges from 1 to 9.
+    If `period_unit` is set to *year*, the value ranges from 1 to 3.
+    This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new resource.
 
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
     Valid values are "true" and "false". Changing this creates a new resource.

@@ -30,6 +30,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
 )
 
+var novaConflicts = []string{"block_device", "metadata"}
+
 func ResourceComputeInstanceV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInstanceV2Create,
@@ -159,7 +161,7 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				Computed:      true,
-				ConflictsWith: []string{"block_device", "metadata"},
+				ConflictsWith: novaConflicts,
 				ValidateFunc: validation.StringInSlice([]string{
 					"SATA", "SAS", "SSD", "GPSSD",
 				}, true),
@@ -168,14 +170,13 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				Computed:      true,
-				ConflictsWith: []string{"block_device", "metadata"},
+				ConflictsWith: novaConflicts,
 			},
 			"data_disks": {
 				Type:          schema.TypeList,
 				Optional:      true,
 				ForceNew:      true,
-				ConflictsWith: []string{"block_device", "metadata"},
-				MinItems:      1,
+				ConflictsWith: novaConflicts,
 				MaxItems:      23,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -253,44 +254,20 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Optional:      true,
 				ForceNew:      true,
 				Computed:      true,
-				ConflictsWith: []string{"block_device", "metadata"},
+				ConflictsWith: novaConflicts,
 			},
 			"delete_disks_on_termination": {
 				Type:          schema.TypeBool,
 				Optional:      true,
-				ConflictsWith: []string{"block_device", "metadata"},
+				ConflictsWith: novaConflicts,
 			},
-			"charging_mode": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid", "postPaid",
-				}, false),
-				ConflictsWith: []string{"block_device", "metadata"},
-			},
-			"period_unit": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"month", "year",
-				}, false),
-				ConflictsWith: []string{"block_device", "metadata"},
-			},
-			"period": {
-				Type:          schema.TypeInt,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"block_device", "metadata"},
-			},
-			"auto_renew": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"block_device", "metadata"},
-			},
+
+			// charge info: charging_mode, period_unit, period, auto_renew
+			"charging_mode": schemeChargingMode(novaConflicts),
+			"period_unit":   schemaPeriodUnit(novaConflicts),
+			"period":        schemaPeriod(novaConflicts),
+			"auto_renew":    schemaAutoRenew(novaConflicts),
+
 			"user_id": { // required if in prePaid charging mode with key_pair.
 				Type:     schema.TypeString,
 				Optional: true,
@@ -481,12 +458,17 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 
 		var extendParam cloudservers.ServerExtendParam
 		if d.Get("charging_mode") == "prePaid" {
+			if err := validatePrePaidChargeInfo(d); err != nil {
+				return err
+			}
+
 			extendParam.ChargingMode = d.Get("charging_mode").(string)
 			extendParam.PeriodType = d.Get("period_unit").(string)
 			extendParam.PeriodNum = d.Get("period").(int)
 			extendParam.IsAutoPay = "true"
 			extendParam.IsAutoRenew = d.Get("auto_renew").(string)
 		}
+
 		epsID := GetEnterpriseProjectID(d, config)
 		if epsID != "" {
 			extendParam.EnterpriseProjectId = epsID

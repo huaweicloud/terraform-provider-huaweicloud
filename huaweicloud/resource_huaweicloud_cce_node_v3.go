@@ -11,7 +11,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
@@ -267,38 +266,10 @@ func ResourceCCENodeV3() *schema.Resource {
 			},
 
 			// charge info: charging_mode, period_unit, period, auto_renew
-			"charging_mode": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid", "postPaid",
-				}, false),
-			},
-			"period_unit": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				RequiredWith: []string{"period"},
-				ValidateFunc: validation.StringInSlice([]string{
-					"month", "year",
-				}, false),
-			},
-			"period": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				RequiredWith: []string{"period_unit"},
-				ValidateFunc: validation.IntBetween(1, 9),
-			},
-			"auto_renew": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"true", "false",
-				}, false),
-			},
+			"charging_mode": schemeChargingMode(nil),
+			"period_unit":   schemaPeriodUnit(nil),
+			"period":        schemaPeriod(nil),
+			"auto_renew":    schemaAutoRenew(nil),
 
 			"extend_param": {
 				Type:     schema.TypeMap,
@@ -529,9 +500,9 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	billingMode := 0
 	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 2 {
 		billingMode = 2
-	}
-	if _, ok := d.GetOk("period_unit"); !ok && billingMode == 2 {
-		return fmt.Errorf("period_unit and period must be required for prePaid charging mode")
+		if err := validatePrePaidChargeInfo(d); err != nil {
+			return err
+		}
 	}
 
 	createOpts := nodes.CreateOpts{
