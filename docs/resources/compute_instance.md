@@ -264,18 +264,20 @@ The following arguments are supported:
     Defaults to false.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance.
-    Valid value are prePaid and postPaid, defaults to postPaid.
+    Valid values are *prePaid* and *postPaid*, defaults to *postPaid*.
     Changing this creates a new instance.
 
 * `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.
-    Valid value are month and year, defaults to month.
+    Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
     Changing this creates a new instance.
 
 * `period` - (Optional, Int, ForceNew) Specifies the charging period of the instance.
-    Changing this creates a new instance.
+    If `period_unit` is set to *month*, the value ranges from 1 to 9.
+    If `period_unit` is set to *year*, the value ranges from 1 to 3.
+    This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new resource.
 
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
-    Changing this creates a new instance.
+    Valid values are "true" and "false". Changing this creates a new resource.
 
 * `user_id` - (Optional, String, ForceNew) Specifies a user ID, required when using key_pair in prePaid charging mode.
     Changing this creates a new instance.
