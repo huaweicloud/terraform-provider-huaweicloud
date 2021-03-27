@@ -12,6 +12,7 @@ func schemeChargingMode(conflicts []string) *schema.Schema {
 		Type:     schema.TypeString,
 		Optional: true,
 		ForceNew: true,
+		Computed: true,
 		ValidateFunc: validation.StringInSlice([]string{
 			"prePaid", "postPaid",
 		}, false),
