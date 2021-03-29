@@ -181,7 +181,7 @@ resource "huaweicloud_rds_instance" "test" {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
     version  = "10"
-    port     = "8635"
+    port     = 8635
   }
   volume {
     type = "ULTRAHIGH"
@@ -218,7 +218,7 @@ resource "huaweicloud_rds_instance" "test" {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
     version  = "10"
-    port     = "8635"
+    port     = 8635
   }
   volume {
     type = "ULTRAHIGH"
@@ -254,7 +254,7 @@ resource "huaweicloud_rds_instance" "test" {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
     version  = "10"
-    port     = "8635"
+    port     = 8635
   }
   volume {
     type = "ULTRAHIGH"

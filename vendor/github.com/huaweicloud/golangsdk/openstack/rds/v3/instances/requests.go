@@ -26,6 +26,7 @@ type CreateRdsOpts struct {
 	SecurityGroupId     string          `json:"security_group_id" required:"true"`
 	ChargeInfo          *ChargeInfo     `json:"charge_info,omitempty"`
 	TimeZone            string          `json:"time_zone,omitempty"`
+	FixedIp             string          `json:"data_vip,omitempty"`
 }
 
 type CreateReplicaOpts struct {
@@ -188,7 +189,7 @@ func (opts RenameRdsInstanceOpts) ToRenameRdsInstanceMap() (map[string]interface
 	return b, nil
 }
 
-func Rename(client *golangsdk.ServiceClient, opts RenameRdsInstanceBuilder, instanceId string) (r golangsdk.Result) {
+func Rename(client *golangsdk.ServiceClient, opts RenameRdsInstanceBuilder, instanceId string) (r RenameResult) {
 	b, err := opts.ToRenameRdsInstanceMap()
 	if err != nil {
 		r.Err = err

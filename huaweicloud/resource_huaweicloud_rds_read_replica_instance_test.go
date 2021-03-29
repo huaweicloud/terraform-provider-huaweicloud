@@ -6,28 +6,42 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/instances"
 )
 
 func TestAccRdsReadReplicaInstance_basic(t *testing.T) {
-	var resourceName string = "huaweicloud_rds_read_replica_instance.replica_instance"
 	var replica instances.RdsInstanceResponse
-	nameSuffix := acctest.RandString(10)
+	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceLabel := "huaweicloud_rds_read_replica_instance"
+	resourceName := "huaweicloud_rds_read_replica_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsReplicaInstanceV3Destroy,
+		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceLabel),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccReadRdsReplicaInstanceBasic(nameSuffix),
+				Config: testAccReadRdsReplicaInstance_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsReplicaInstanceV3Exists(resourceName, &replica),
-					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					testAccCheckRdsInstanceV3Exists(resourceName, &replica),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c6.large.2.rr"),
 					resource.TestCheckResourceAttr(resourceName, "type", "Replica"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "ULTRAHIGH"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+				),
+			},
+			{
+				Config: testAccReadRdsReplicaInstance_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceV3Exists(resourceName, &replica),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c6.xlarge.2.rr"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "ULTRAHIGH"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "120"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar2"),
 				),
 			},
 			{
@@ -38,185 +52,116 @@ func TestAccRdsReadReplicaInstance_basic(t *testing.T) {
 					"db",
 				},
 			},
+		},
+	})
+}
+
+func TestAccRdsReadReplicaInstance_withEpsId(t *testing.T) {
+	var replica instances.RdsInstanceResponse
+	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceLabel := "huaweicloud_rds_read_replica_instance"
+	resourceName := "huaweicloud_rds_read_replica_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceLabel),
+		Steps: []resource.TestStep{
 			{
-				Config: testAccReadRdsReplicaInstanceUpdate(nameSuffix),
+				Config: testAccReadRdsReplicaInstance_withEpsId(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsReplicaInstanceV3Exists(resourceName, &replica),
-					// check modification of flavor
-					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c2.large.rr"),
-					// check modification of volume
-					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "ULTRAHIGH"),
-					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "120"),
-					// check modification of tags
-					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar2"),
+					testAccCheckRdsInstanceV3Exists(resourceName, &replica),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckRdsReplicaInstanceV3Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-	client, err := config.RdsV3Client(HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud rds client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_rds_read_replica_instance" {
-			continue
-		}
-
-		id := rs.Primary.ID
-		instance, err := getRdsInstanceByID(client, id)
-		if err != nil {
-			return err
-		}
-		if instance.Id != "" {
-			return fmt.Errorf("huaweicloud_rds_read_replica_instance (%s) still exists", id)
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckRdsReplicaInstanceV3Exists(n string, instance *instances.RdsInstanceResponse) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s. ", n)
-		}
-
-		id := rs.Primary.ID
-		if id == "" {
-			return fmt.Errorf("No ID is set. ")
-		}
-
-		config := testAccProvider.Meta().(*Config)
-		client, err := config.RdsV3Client(HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud rds client: %s", err)
-		}
-
-		found, err := getRdsInstanceByID(client, id)
-		if err != nil {
-			return fmt.Errorf("Error checking %s exist, err=%s", n, err)
-		}
-		if found.Id == "" {
-			return fmt.Errorf("resource %s does not exist", n)
-		}
-
-		instance = found
-		return nil
-	}
-}
-
-func testAccReadRdsReplicaInstanceBasic(val string) string {
+func testAccReadRdsReplicaInstanceV3_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name         = "acctest_sg_rds"
-  description  = "security group for rds read replica instance test"
-}
+%s
 
-resource "huaweicloud_rds_instance" "instance" {
-  name                  = "rds_instance_%s"
-  flavor                = "rds.pg.c2.medium"
-  availability_zone     = ["%s"]
-  security_group_id     = huaweicloud_networking_secgroup.secgroup.id
-  vpc_id                = "%s"
-  subnet_id             = "%s"
-  enterprise_project_id = "%s"
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%s"
+  flavor            = "rds.pg.c6.large.2"
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
 
   db {
-    password    = "Huangwei!120521"
-    type        = "PostgreSQL"
-    version     = "10"
-    port        = "8635"
+    password = "Huangwei!120521"
+    type     = "PostgreSQL"
+    version  = "10"
+    port     = 8635
   }
   volume {
     type = "ULTRAHIGH"
     size = 50
   }
-  backup_strategy {
-    start_time  = "08:00-09:00"
-    keep_days   = 1
-  }
-  tags = {
-    key = "value"
-    foo = "bar"
-  }
+}
+`, testAccRdsInstanceV3_base(name), name)
 }
 
-resource "huaweicloud_rds_read_replica_instance" "replica_instance" {
-  name                  = "replica_instance_%s"
-  flavor                = "rds.pg.c2.medium.rr"
-  primary_instance_id   = huaweicloud_rds_instance.instance.id
-  availability_zone     = "%s"
-  enterprise_project_id = "%s"
-  volume {
-    type = "ULTRAHIGH"
-  }
-
-  tags = {
-    key = "value"
-    foo = "bar"
-  }
-}
-`, val, HW_AVAILABILITY_ZONE, HW_VPC_ID, HW_NETWORK_ID, HW_ENTERPRISE_PROJECT_ID_TEST, val, HW_AVAILABILITY_ZONE, HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccReadRdsReplicaInstanceUpdate(val string) string {
+func testAccReadRdsReplicaInstance_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name          = "acctest_sg_rds"
-  description   = "security group for rds read replica instance test"
-}
+%s
 
-resource "huaweicloud_rds_instance" "instance" {
-  name                  = "rds_instance_%s"
-  flavor                = "rds.pg.c2.medium"
-  availability_zone     = ["%s"]
-  security_group_id     = huaweicloud_networking_secgroup.secgroup.id
-  vpc_id                = "%s"
-  subnet_id             = "%s"
-  enterprise_project_id = "%s"
+resource "huaweicloud_rds_read_replica_instance" "test" {
+  name                = "%s"
+  flavor              = "rds.pg.c6.large.2.rr"
+  primary_instance_id = huaweicloud_rds_instance.test.id
+  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
 
-  db {
-    password    = "Huangwei!120521"
-    type        = "PostgreSQL"
-    version     = "10"
-    port        = "8635"
-  }
   volume {
     type = "ULTRAHIGH"
-    size = 50
   }
-  backup_strategy {
-    start_time  = "08:00-09:00"
-    keep_days   = 1
-  }
+
   tags = {
     key = "value"
     foo = "bar"
   }
 }
+`, testAccReadRdsReplicaInstanceV3_base(name), name)
+}
 
-resource "huaweicloud_rds_read_replica_instance" "replica_instance" {
-  name                  = "replica_instance_%s"
-  flavor                = "rds.pg.c2.large.rr"
-  primary_instance_id   = huaweicloud_rds_instance.instance.id
-  availability_zone     = "%s"
-  enterprise_project_id = "%s"
+func testAccReadRdsReplicaInstance_update(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_rds_read_replica_instance" "test" {
+  name                = "%s"
+  flavor              = "rds.pg.c6.xlarge.2.rr"
+  primary_instance_id = huaweicloud_rds_instance.test.id
+  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
+
   volume {
 	type = "ULTRAHIGH"
 	size = 120
   }
 
   tags = {
-    key = "value1"
+    key1 = "value"
     foo = "bar2"
   }
 }
-`, val, HW_AVAILABILITY_ZONE, HW_VPC_ID, HW_NETWORK_ID, HW_ENTERPRISE_PROJECT_ID_TEST, val, HW_AVAILABILITY_ZONE, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccReadRdsReplicaInstanceV3_base(name), name)
+}
+
+func testAccReadRdsReplicaInstance_withEpsId(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_rds_read_replica_instance" "test" {
+  name                  = "%s"
+  flavor                = "rds.pg.c6.large.2.rr"
+  primary_instance_id   = huaweicloud_rds_instance.test.id
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  enterprise_project_id = "%s"
+  volume {
+    type = "ULTRAHIGH"
+  }
+}
+`, testAccReadRdsReplicaInstanceV3_base(name), name, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
