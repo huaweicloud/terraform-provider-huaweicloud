@@ -431,10 +431,20 @@ func resourceCCEExtendParam(d *schema.ResourceData) map[string]interface{} {
 	}
 
 	// assemble the charge info
-	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 2 {
+	var isPrePaid bool
+	var billingMode int
+
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		isPrePaid = true
+	}
+	if v, ok := d.GetOk("billing_mode"); ok {
+		billingMode = v.(int)
+	}
+	if isPrePaid || billingMode == 2 {
 		extendParam["chargingMode"] = 2
 		extendParam["isAutoPay"] = "true"
 	}
+
 	if v, ok := d.GetOk("period_unit"); ok {
 		extendParam["periodType"] = v.(string)
 	}
