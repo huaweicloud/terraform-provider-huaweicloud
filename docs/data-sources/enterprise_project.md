@@ -17,6 +17,7 @@ data "huaweicloud_enterprise_project" "test" {
 ## Resources Supported Currently:
 Service Name | Resource Name | Sub Resource Name
 ---- | --- | ---
+AS  | huaweicloud_as_group |
 VPC | huaweicloud_vpc<br>huaweicloud_networking_secgroup | huaweicloud_vpc_subnet<br>huaweicloud_vpc_route<br>huaweicloud_networking_secgroup_rule
 EIP | huaweicloud_vpc_eip<br>huaweicloud_vpc_bandwidth |
 ECS | huaweicloud_compute_instance |

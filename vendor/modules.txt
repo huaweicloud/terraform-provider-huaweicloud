@@ -407,9 +407,6 @@ github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets
 github.com/huaweicloud/golangsdk/openstack/obs
 github.com/huaweicloud/golangsdk/openstack/opengauss/v3/backups
 github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances
-github.com/huaweicloud/golangsdk/openstack/rds/v1/datastores
-github.com/huaweicloud/golangsdk/openstack/rds/v1/flavors
-github.com/huaweicloud/golangsdk/openstack/rds/v1/instances
 github.com/huaweicloud/golangsdk/openstack/rds/v3/backups
 github.com/huaweicloud/golangsdk/openstack/rds/v3/configurations
 github.com/huaweicloud/golangsdk/openstack/rds/v3/datastores
