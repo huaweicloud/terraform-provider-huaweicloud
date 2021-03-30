@@ -314,6 +314,7 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("backend_type", v.BackendType)
 	d.Set("example_success_response", v.ResultNormalSample)
 	d.Set("example_failure_response", v.ResultFailureSample)
+	d.Set("cors", v.Cors)
 
 	var requestParameters []map[string]interface{}
 	for _, val := range v.ReqParams {
@@ -442,6 +443,7 @@ func buildApiParameter(d *schema.ResourceData) (*apis.CreateOpts, error) {
 		Tags:                apiTags,
 		ResultNormalSample:  d.Get("example_success_response").(string),
 		ResultFailureSample: d.Get("example_failure_response").(string),
+		Cors:                d.Get("cors").(bool),
 	}
 
 	switch backendType {

@@ -25,6 +25,7 @@ func TestAccApiGatewayAPI_basic(t *testing.T) {
 					testAccCheckApiGatewayApiExists(resName),
 					resource.TestCheckResourceAttr(resName, "name", rName),
 					resource.TestCheckResourceAttr(resName, "group_name", rName),
+					resource.TestCheckResourceAttr(resName, "cors", "false"),
 					resource.TestCheckResourceAttr(resName, "auth_type", "NONE"),
 					resource.TestCheckResourceAttr(resName, "backend_type", "HTTP"),
 					resource.TestCheckResourceAttr(resName, "request_protocol", "HTTPS"),
@@ -42,6 +43,7 @@ func TestAccApiGatewayAPI_basic(t *testing.T) {
 					testAccCheckApiGatewayApiExists(resName),
 					resource.TestCheckResourceAttr(resName, "description", "updated by acc test"),
 					resource.TestCheckResourceAttr(resName, "auth_type", "IAM"),
+					resource.TestCheckResourceAttr(resName, "cors", "true"),
 					resource.TestCheckResourceAttr(resName, "request_protocol", "BOTH"),
 					resource.TestCheckResourceAttr(resName, "request_uri", "/test/path2"),
 				),
@@ -142,6 +144,7 @@ resource "huaweicloud_api_gateway_group" "acc_apigw_group" {
 resource "huaweicloud_api_gateway_api" "acc_apigw_api" {
   group_id = huaweicloud_api_gateway_group.acc_apigw_group.id
   name   = "%s"
+  cors   = true
   description  = "updated by acc test"
   tags = ["tag1","tag2"]
   visibility = 2
