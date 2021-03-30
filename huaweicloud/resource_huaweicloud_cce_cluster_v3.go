@@ -8,10 +8,21 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/aom/v1/icagents"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
 )
+
+var associateDeleteSchema *schema.Schema = &schema.Schema{
+	Type:     schema.TypeString,
+	Optional: true,
+	Default:  "false",
+	ValidateFunc: validation.StringInSlice([]string{
+		"true", "try", "false",
+	}, true),
+	ConflictsWith: []string{"delete_all"},
+}
 
 func ResourceCCEClusterV3() *schema.Resource {
 	return &schema.Resource{
@@ -185,6 +196,16 @@ func ResourceCCEClusterV3() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
+			},
+			"delete_efs": associateDeleteSchema,
+			"delete_eni": associateDeleteSchema,
+			"delete_evs": associateDeleteSchema,
+			"delete_net": associateDeleteSchema,
+			"delete_obs": associateDeleteSchema,
+			"delete_sfs": associateDeleteSchema,
+			"delete_all": {
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -512,7 +533,23 @@ func resourceCCEClusterV3Delete(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Client: %s", err)
 	}
-	err = clusters.Delete(cceClient, d.Id()).ExtractErr()
+	deleteOpts := clusters.DeleteOpts{}
+	if v, ok := d.GetOk("delete_all"); ok && v.(bool) {
+		deleteOpts.DeleteEfs = "true"
+		deleteOpts.DeleteENI = "true"
+		deleteOpts.DeleteEvs = "true"
+		deleteOpts.DeleteNet = "true"
+		deleteOpts.DeleteObs = "true"
+		deleteOpts.DeleteSfs = "true"
+	} else {
+		deleteOpts.DeleteEfs = d.Get("delete_efs").(string)
+		deleteOpts.DeleteENI = d.Get("delete_eni").(string)
+		deleteOpts.DeleteEvs = d.Get("delete_evs").(string)
+		deleteOpts.DeleteNet = d.Get("delete_net").(string)
+		deleteOpts.DeleteObs = d.Get("delete_obs").(string)
+		deleteOpts.DeleteSfs = d.Get("delete_sfs").(string)
+	}
+	err = clusters.DeleteWithOpts(cceClient, d.Id(), deleteOpts).ExtractErr()
 	if err != nil {
 		return fmt.Errorf("Error deleting HuaweiCloud CCE Cluster: %s", err)
 	}

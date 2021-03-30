@@ -191,6 +191,44 @@ func Update(c *golangsdk.ServiceClient, id string, opts UpdateOptsBuilder) (r Up
 	return
 }
 
+type DeleteOpts struct {
+	ErrorStatus string `q:"errorStatus"`
+	DeleteEfs   string `q:"delete_efs"`
+	DeleteENI   string `q:"delete_eni"`
+	DeleteEvs   string `q:"delete_evs"`
+	DeleteNet   string `q:"delete_net"`
+	DeleteObs   string `q:"delete_obs"`
+	DeleteSfs   string `q:"delete_sfs"`
+}
+
+type DeleteOptsBuilder interface {
+	ToDeleteQuery() (string, error)
+}
+
+func (opts DeleteOpts) ToDeleteQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	return q.String(), err
+}
+
+// DeleteWithOpts will permanently delete a particular cluster based on its unique ID,
+// and can delete associated resources based on DeleteOpts.
+func DeleteWithOpts(c *golangsdk.ServiceClient, id string, opts DeleteOptsBuilder) (r DeleteResult) {
+	url := resourceURL(c, id)
+	if opts != nil {
+		var query string
+		query, r.Err = opts.ToDeleteQuery()
+		if r.Err != nil {
+			return
+		}
+		url += query
+	}
+	_, r.Err = c.Delete(url, &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: RequestOpts.MoreHeaders, JSONBody: nil,
+	})
+	return
+}
+
 // Delete will permanently delete a particular cluster based on its unique ID.
 func Delete(c *golangsdk.ServiceClient, id string) (r DeleteResult) {
 	_, r.Err = c.Delete(resourceURL(c, id), &golangsdk.RequestOpts{
