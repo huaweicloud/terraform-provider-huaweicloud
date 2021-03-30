@@ -57,6 +57,9 @@ The following arguments are supported:
 * `crypt_key_id` - (Optional, String, ForceNew) Specifies the ID of a KMS key to encrypt the file system.
   Changing this will create a new resource.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the file system.
+  Changing this will create a new resource.
+
 -> **NOTE:**
   SFS Turbo will create two private IP addresses and one virtual IP address under the subnet you specified.
   To ensure normal use, SFS Turbo will enable the inbound rules for ports *111*, *445*, *2049*, *2051*, *2052*,

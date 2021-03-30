@@ -78,6 +78,29 @@ func TestAccSFSTurbo_crypt(t *testing.T) {
 	})
 }
 
+func TestAccSFSTurbo_withEpsId(t *testing.T) {
+	randSuffix := acctest.RandString(5)
+	turboName := fmt.Sprintf("sfs-turbo-acc-%s", randSuffix)
+	resourceName := "huaweicloud_sfs_turbo.sfs-turbo1"
+	var turbo shares.Turbo
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSFSTurboDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSFSTurbo_withEpsId(randSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSFSTurboExists(resourceName, &turbo),
+					resource.TestCheckResourceAttr(resourceName, "name", turboName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckSFSTurboDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	sfsClient, err := config.SfsV1Client(HW_REGION_NAME)
@@ -206,4 +229,22 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
   crypt_key_id      = huaweicloud_kms_key.key_1.id
 }
 `, testAccNetworkPreConditions(suffix), suffix, suffix)
+}
+
+func testAccSFSTurbo_withEpsId(suffix string) string {
+	return fmt.Sprintf(`
+%s
+data "huaweicloud_availability_zones" "myaz" {}
+
+resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
+  name                   = "sfs-turbo-acc-%s"
+  size                   = 500
+  share_proto            = "NFS"
+  vpc_id                 = huaweicloud_vpc_v1.test.id
+  subnet_id              = huaweicloud_vpc_subnet_v1.test.id
+  security_group_id      = huaweicloud_networking_secgroup_v2.secgroup.id
+  availability_zone      = data.huaweicloud_availability_zones.myaz.names[0]
+  enterprise_project_id  = "%s"
+}
+`, testAccNetworkPreConditions(suffix), suffix, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
