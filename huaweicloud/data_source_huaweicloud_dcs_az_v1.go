@@ -67,6 +67,11 @@ func dataSourceDcsAZV1Read(d *schema.ResourceData, meta interface{}) error {
 			if port != "" && newAZ.Port != port {
 				continue
 			}
+
+			code := d.Get("code").(string)
+			if code != "" && newAZ.Code != code {
+				continue
+			}
 			filteredAZs = append(filteredAZs, newAZ)
 		}
 	}
