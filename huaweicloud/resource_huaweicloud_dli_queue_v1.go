@@ -95,7 +95,7 @@ func resourceDliQueueV1UserInputParams(d *schema.ResourceData) map[string]interf
 
 func resourceDliQueueV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.dliV1Client(GetRegion(d, config))
+	client, err := config.DliV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -122,7 +122,7 @@ func resourceDliQueueV1Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDliQueueV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.dliV1Client(GetRegion(d, config))
+	client, err := config.DliV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -145,7 +145,7 @@ func resourceDliQueueV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDliQueueV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.dliV1Client(GetRegion(d, config))
+	client, err := config.DliV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}

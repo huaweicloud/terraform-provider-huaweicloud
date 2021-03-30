@@ -111,7 +111,7 @@ func TestAccDcsInstancesV1_tiny(t *testing.T) {
 
 func testAccCheckDcsV1InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	dcsClient, err := config.dcsV1Client(HW_REGION_NAME)
+	dcsClient, err := config.DcsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud instance client: %s", err)
 	}
@@ -141,7 +141,7 @@ func testAccCheckDcsV1InstanceExists(n string, instance instances.Instance) reso
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		dcsClient, err := config.dcsV1Client(HW_REGION_NAME)
+		dcsClient, err := config.DcsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud instance client: %s", err)
 		}

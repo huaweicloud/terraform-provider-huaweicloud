@@ -156,7 +156,7 @@ func resourceRTSStackV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	stackName := d.Get("name").(string)
 
-	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
+	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating RTS client: %s", err)
 	}
@@ -202,7 +202,7 @@ func resourceRTSStackV1Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
+	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating RTS Client: %s", err)
 	}
@@ -265,7 +265,7 @@ func resourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceRTSStackV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
+	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating RTS Client: %s", err)
 	}
@@ -316,7 +316,7 @@ func resourceRTSStackV1Update(d *schema.ResourceData, meta interface{}) error {
 func resourceRTSStackV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*Config)
-	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
+	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating RTS Client: %s", err)
 	}

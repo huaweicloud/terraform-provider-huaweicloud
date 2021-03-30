@@ -187,7 +187,7 @@ func dataSourceOpenGaussInstance() *schema.Resource {
 func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	region := GetRegion(d, config)
-	client, err := config.openGaussV3Client(region)
+	client, err := config.OpenGaussV3Client(region)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}

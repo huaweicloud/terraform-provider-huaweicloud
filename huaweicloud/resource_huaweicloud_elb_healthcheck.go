@@ -102,7 +102,7 @@ func resourceELBHealthCheck() *schema.Resource {
 
 func resourceELBHealthCheckCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -128,7 +128,7 @@ func resourceELBHealthCheckCreate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceELBHealthCheckRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -144,7 +144,7 @@ func resourceELBHealthCheckRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceELBHealthCheckUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -184,7 +184,7 @@ func resourceELBHealthCheckUpdate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceELBHealthCheckDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

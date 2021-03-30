@@ -87,7 +87,7 @@ func getIObyIOtype(d *schema.ResourceData, IOs []products.IO) []products.IO {
 
 func dataSourceDmsProductV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	dmsV1Client, err := config.dmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error get HuaweiCloud dms product client: %s", err)
 	}

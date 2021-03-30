@@ -49,7 +49,7 @@ func TestAccLogTankGroupV2_basic(t *testing.T) {
 
 func testAccCheckLogTankGroupV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	ltsclient, err := config.ltsV2Client(HW_REGION_NAME)
+	ltsclient, err := config.LtsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -85,7 +85,7 @@ func testAccCheckLogTankGroupV2Exists(n string, group *loggroups.LogGroup) resou
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		ltsclient, err := config.ltsV2Client(HW_REGION_NAME)
+		ltsclient, err := config.LtsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 		}

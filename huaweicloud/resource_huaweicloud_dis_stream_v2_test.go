@@ -51,7 +51,7 @@ resource "huaweicloud_dis_stream_v2" "stream" {
 
 func testAccCheckDisStreamV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.disV2Client(HW_REGION_NAME)
+	client, err := config.DisV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -80,7 +80,7 @@ func testAccCheckDisStreamV2Destroy(s *terraform.State) error {
 func testAccCheckDisStreamV2Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.disV2Client(HW_REGION_NAME)
+		client, err := config.DisV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}

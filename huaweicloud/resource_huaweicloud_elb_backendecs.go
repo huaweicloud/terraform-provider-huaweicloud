@@ -94,7 +94,7 @@ func resourceELBBackendECS() *schema.Resource {
 
 func resourceELBBackendECSCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -149,7 +149,7 @@ func resourceELBBackendECSCreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceELBBackendECSRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -166,7 +166,7 @@ func resourceELBBackendECSRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceELBBackendECSDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

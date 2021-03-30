@@ -252,7 +252,7 @@ func getAlarmAction(d *schema.ResourceData, name string) []alarmrule.ActionOpts 
 
 func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.newCESClient(GetRegion(d, config))
+	client, err := config.CesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Cloud Eye Service client: %s", err)
 	}
@@ -296,7 +296,7 @@ func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.newCESClient(GetRegion(d, config))
+	client, err := config.CesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Cloud Eye Service client: %s", err)
 	}
@@ -327,7 +327,7 @@ func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.newCESClient(GetRegion(d, config))
+	client, err := config.CesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Cloud Eye Service client: %s", err)
 	}
@@ -359,7 +359,7 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceAlarmRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.newCESClient(GetRegion(d, config))
+	client, err := config.CesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Cloud Eye Service client: %s", err)
 	}

@@ -35,7 +35,7 @@ func TestAccCssSnapshot_basic(t *testing.T) {
 
 func testAccCheckCssSnapshotDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	client, err := config.cssV1Client(HW_REGION_NAME)
+	client, err := config.CssV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating css client, err=%s", err)
 	}
@@ -68,7 +68,7 @@ func testAccCheckCssSnapshotDestroy(s *terraform.State) error {
 func testAccCheckCssSnapshotExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		client, err := config.cssV1Client(HW_REGION_NAME)
+		client, err := config.CssV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating css client, err=%s", err)
 		}

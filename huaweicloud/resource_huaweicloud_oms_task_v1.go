@@ -220,7 +220,7 @@ func getSmnInfo(d *schema.ResourceData) task.SmnInfoOpts {
 
 func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	maasClient, err := config.maasV1Client(GetRegion(d, config))
+	maasClient, err := config.MaasV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating maas client: %s", err)
 	}
@@ -268,7 +268,7 @@ func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMaasTaskV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	maasClient, err := config.maasV1Client(GetRegion(d, config))
+	maasClient, err := config.MaasV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating maas client: %s", err)
 	}
@@ -310,7 +310,7 @@ func resourceMaasTaskV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceMaasTaskV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	maasClient, err := config.maasV1Client(GetRegion(d, config))
+	maasClient, err := config.MaasV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating maas client: %s", err)
 	}

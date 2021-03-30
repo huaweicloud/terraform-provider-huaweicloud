@@ -61,7 +61,7 @@ func DataSourceObsBucketObject() *schema.Resource {
 // Two interfaces need to be called to get all parameters.
 func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	obsClient, err := config.NewObjectStorageClient(GetRegion(d, config))
+	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}

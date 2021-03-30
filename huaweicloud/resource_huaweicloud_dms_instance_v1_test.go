@@ -70,7 +70,7 @@ func TestAccDmsInstancesV1_Kafka(t *testing.T) {
 
 func testAccCheckDmsV1InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	dmsClient, err := config.dmsV1Client(HW_REGION_NAME)
+	dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud instance client: %s", err)
 	}
@@ -100,7 +100,7 @@ func testAccCheckDmsV1InstanceExists(n string, instance instances.Instance) reso
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		dmsClient, err := config.dmsV1Client(HW_REGION_NAME)
+		dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud instance client: %s", err)
 		}

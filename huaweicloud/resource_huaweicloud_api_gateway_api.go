@@ -264,7 +264,7 @@ func resourceAPIGatewayAPI() *schema.Resource {
 
 func resourceAPIGatewayAPICreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	apigwClient, err := config.apiGatewayV1Client(GetRegion(d, config))
+	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 	}
@@ -288,7 +288,7 @@ func resourceAPIGatewayAPICreate(d *schema.ResourceData, meta interface{}) error
 
 func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	apigwClient, err := config.apiGatewayV1Client(GetRegion(d, config))
+	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 	}
@@ -391,7 +391,7 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceAPIGatewayAPIUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	apigwClient, err := config.apiGatewayV1Client(GetRegion(d, config))
+	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 	}
@@ -412,7 +412,7 @@ func resourceAPIGatewayAPIUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceAPIGatewayAPIDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	apigwClient, err := config.apiGatewayV1Client(GetRegion(d, config))
+	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 	}

@@ -109,7 +109,7 @@ func dataSourceAntiDdosV1() *schema.Resource {
 
 func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	antiddosClient, err := config.antiddosV1Client(GetRegion(d, config))
+	antiddosClient, err := config.AntiDDosV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating antiddos client: %s", err)
 	}

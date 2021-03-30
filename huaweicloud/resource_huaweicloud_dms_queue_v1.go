@@ -85,7 +85,7 @@ func resourceDmsQueuesV1() *schema.Resource {
 
 func resourceDmsQueuesV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	dmsV1Client, err := config.dmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
 	}
@@ -115,7 +115,7 @@ func resourceDmsQueuesV1Create(d *schema.ResourceData, meta interface{}) error {
 func resourceDmsQueuesV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	dmsV1Client, err := config.dmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
 	}
@@ -143,7 +143,7 @@ func resourceDmsQueuesV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDmsQueuesV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	dmsV1Client, err := config.dmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
 	}

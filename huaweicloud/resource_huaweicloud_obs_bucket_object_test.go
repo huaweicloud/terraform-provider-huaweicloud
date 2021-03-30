@@ -80,7 +80,7 @@ func TestAccObsBucketObject_content(t *testing.T) {
 
 func testAccCheckObsBucketObjectDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	obsClient, err := config.NewObjectStorageClient(HW_REGION_NAME)
+	obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
@@ -131,7 +131,7 @@ func testAccCheckObsBucketObjectExists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		obsClient, err := config.NewObjectStorageClient(HW_REGION_NAME)
+		obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}

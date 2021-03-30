@@ -122,9 +122,9 @@ func testAccCheckObsBucketHasPolicy(n string, expectedPolicyText string) resourc
 		config := testAccProvider.Meta().(*Config)
 		format := rs.Primary.Attributes["policy_format"]
 		if format == "obs" {
-			obsClient, err = config.NewObjectStorageClientWithSignature(HW_REGION_NAME)
+			obsClient, err = config.ObjectStorageClientWithSignature(HW_REGION_NAME)
 		} else {
-			obsClient, err = config.NewObjectStorageClient(HW_REGION_NAME)
+			obsClient, err = config.ObjectStorageClient(HW_REGION_NAME)
 		}
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)

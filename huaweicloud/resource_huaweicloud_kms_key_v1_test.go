@@ -140,7 +140,7 @@ func TestAccKmsKey_WithEpsId(t *testing.T) {
 
 func testAccCheckKmsKeyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	kmsClient, err := config.kmsKeyV1Client(HW_REGION_NAME)
+	kmsClient, err := config.KmsKeyV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud kms client: %s", err)
 	}
@@ -172,7 +172,7 @@ func testAccCheckKmsKeyExists(n string, key *keys.Key) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		kmsClient, err := config.kmsKeyV1Client(HW_REGION_NAME)
+		kmsClient, err := config.KmsKeyV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud kms client: %s", err)
 		}

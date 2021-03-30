@@ -40,7 +40,7 @@ func resourceLTSGroupV2() *schema.Resource {
 
 func resourceGroupV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.ltsV2Client(GetRegion(d, config))
+	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -63,7 +63,7 @@ func resourceGroupV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceGroupV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.ltsV2Client(GetRegion(d, config))
+	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -86,7 +86,7 @@ func resourceGroupV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceGroupV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.ltsV2Client(GetRegion(d, config))
+	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -107,7 +107,7 @@ func resourceGroupV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.ltsV2Client(GetRegion(d, config))
+	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}

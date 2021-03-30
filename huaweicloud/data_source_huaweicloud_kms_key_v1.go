@@ -76,7 +76,7 @@ func dataSourceKmsKeyV1() *schema.Resource {
 func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	kmsRegion := GetRegion(d, config)
-	kmsKeyV1Client, err := config.kmsKeyV1Client(kmsRegion)
+	kmsKeyV1Client, err := config.KmsKeyV1Client(kmsRegion)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}

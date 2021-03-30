@@ -323,7 +323,7 @@ func OpenGaussInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instance
 
 func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.openGaussV3Client(GetRegion(d, config))
+	client, err := config.OpenGaussV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}
@@ -429,7 +429,7 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	region := GetRegion(d, config)
-	client, err := config.openGaussV3Client(GetRegion(d, config))
+	client, err := config.OpenGaussV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -533,7 +533,7 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceOpenGaussInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.openGaussV3Client(GetRegion(d, config))
+	client, err := config.OpenGaussV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}
@@ -565,7 +565,7 @@ func resourceOpenGaussInstanceDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.openGaussV3Client(GetRegion(d, config))
+	client, err := config.OpenGaussV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}

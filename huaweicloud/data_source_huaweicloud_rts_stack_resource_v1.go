@@ -57,7 +57,7 @@ func dataSourceRTSStackResourcesV1() *schema.Resource {
 
 func dataSourceRTSStackResourcesV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
+	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud rts client: %s", err)
 	}

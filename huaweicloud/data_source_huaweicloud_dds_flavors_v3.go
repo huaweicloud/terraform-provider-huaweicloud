@@ -71,7 +71,7 @@ func dataSourceDDSFlavorV3() *schema.Resource {
 
 func dataSourceDDSFlavorV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ddsClient, err := config.ddsV3Client(GetRegion(d, config))
+	ddsClient, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s", err)
 	}

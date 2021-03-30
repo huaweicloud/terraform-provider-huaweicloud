@@ -67,7 +67,7 @@ func resourceCssSnapshot() *schema.Resource {
 
 func resourceCssSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	cssClient, err := config.cssV1Client(GetRegion(d, config))
+	cssClient, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CSS client: %s", err)
 	}
@@ -110,7 +110,7 @@ func resourceCssSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCssSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	cssClient, err := config.cssV1Client(GetRegion(d, config))
+	cssClient, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CSS client: %s", err)
 	}
@@ -151,7 +151,7 @@ func resourceCssSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCssSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	cssClient, err := config.cssV1Client(GetRegion(d, config))
+	cssClient, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CSS storage client: %s", err)
 	}
@@ -201,7 +201,7 @@ func resourceCssSnapshotImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	snapshotID := parts[1]
 
 	config := meta.(*Config)
-	client, err := config.cssV1Client(GetRegion(d, config))
+	client, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
 		return nil, fmt.Errorf("Error creating css client, err=%s", err)
 	}

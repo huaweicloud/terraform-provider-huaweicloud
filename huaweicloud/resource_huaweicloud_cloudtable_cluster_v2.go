@@ -186,7 +186,7 @@ func resourceCloudtableClusterV2UserInputParams(d *schema.ResourceData) map[stri
 
 func resourceCloudtableClusterV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.cloudtableV2Client(GetRegion(d, config))
+	client, err := config.CloudtableV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -218,7 +218,7 @@ func resourceCloudtableClusterV2Create(d *schema.ResourceData, meta interface{})
 
 func resourceCloudtableClusterV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.cloudtableV2Client(GetRegion(d, config))
+	client, err := config.CloudtableV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -236,7 +236,7 @@ func resourceCloudtableClusterV2Read(d *schema.ResourceData, meta interface{}) e
 
 func resourceCloudtableClusterV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	client, err := config.cloudtableV2Client(GetRegion(d, config))
+	client, err := config.CloudtableV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}

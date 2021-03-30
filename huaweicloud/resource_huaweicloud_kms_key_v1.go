@@ -94,7 +94,7 @@ func resourceKmsKeyV1() *schema.Resource {
 
 func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	kmsKeyV1Client, err := config.kmsKeyV1Client(GetRegion(d, config))
+	kmsKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
@@ -162,7 +162,7 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	kmsRegion := GetRegion(d, config)
-	kmsKeyV1Client, err := config.kmsKeyV1Client(kmsRegion)
+	kmsKeyV1Client, err := config.KmsKeyV1Client(kmsRegion)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
@@ -206,7 +206,7 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	kmsKeyV1Client, err := config.kmsKeyV1Client(GetRegion(d, config))
+	kmsKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
@@ -272,7 +272,7 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKmsKeyV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	kmsKeyV1Client, err := config.kmsKeyV1Client(GetRegion(d, config))
+	kmsKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}

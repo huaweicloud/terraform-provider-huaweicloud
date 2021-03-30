@@ -163,7 +163,7 @@ func resourceELBLoadBalancer() *schema.Resource {
 
 func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -227,7 +227,7 @@ func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourceELBLoadBalancerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -243,7 +243,7 @@ func resourceELBLoadBalancerRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -289,7 +289,7 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceELBLoadBalancerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

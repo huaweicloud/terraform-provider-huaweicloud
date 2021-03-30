@@ -30,7 +30,7 @@ func TestAccMaasTask_basic(t *testing.T) {
 
 func testAccCheckMaasTaskV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	maasClient, err := config.maasV1Client(HW_REGION_NAME)
+	maasClient, err := config.MaasV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud maas client: %s", err)
 	}
@@ -61,7 +61,7 @@ func testAccCheckMaasTaskV1Exists(n string) resource.TestCheckFunc {
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		maasClient, err := config.maasV1Client(HW_REGION_NAME)
+		maasClient, err := config.MaasV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud maas client: %s", err)
 		}

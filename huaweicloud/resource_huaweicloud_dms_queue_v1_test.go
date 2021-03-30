@@ -65,7 +65,7 @@ func TestAccDmsQueuesV1_FIFOmode(t *testing.T) {
 
 func testAccCheckDmsV1QueueDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	dmsClient, err := config.dmsV1Client(HW_REGION_NAME)
+	dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud queue client: %s", err)
 	}
@@ -95,7 +95,7 @@ func testAccCheckDmsV1QueueExists(n string, queue queues.Queue) resource.TestChe
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		dmsClient, err := config.dmsV1Client(HW_REGION_NAME)
+		dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud queue client: %s", err)
 		}

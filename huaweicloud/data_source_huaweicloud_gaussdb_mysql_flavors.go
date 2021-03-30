@@ -67,7 +67,7 @@ func dataSourceGaussdbMysqlFlavors() *schema.Resource {
 func dataSourceGaussdbMysqlFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	client, err := config.gaussdbV3Client(GetRegion(d, config))
+	client, err := config.GaussdbV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}

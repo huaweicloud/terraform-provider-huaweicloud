@@ -283,7 +283,7 @@ func resourceELBListener() *schema.Resource {
 
 func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -320,7 +320,7 @@ func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceELBListenerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -340,7 +340,7 @@ func resourceELBListenerRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -383,7 +383,7 @@ func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceELBListenerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
