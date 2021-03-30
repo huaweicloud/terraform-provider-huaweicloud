@@ -163,6 +163,27 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the cce cluster.
   Changing this creates a new cluster.
 
+* `delete_efs` - (Optional, String) Specified whether to delete the associated EFS resources when deleting CCE cluster.
+  valid values are "true", "try" and "false". Default is false.
+
+* `delete_eni` - (Optional, String) Specified whether to delete the associated ENI resources when deleting CCE cluster.
+  valid values are "true", "try" and "false". Default is false.
+
+* `delete_evs` - (Optional, String) Specified whether to delete the associated EVS resources when deleting CCE cluster.
+  valid values are "true", "try" and "false". Default is false.
+
+* `delete_net` - (Optional, String) Specified whether to delete the associated NET resources when deleting CCE cluster.
+  valid values are "true", "try" and "false". Default is false.
+
+* `delete_obs` - (Optional, String) Specified whether to delete the associated OBS resources when deleting CCE cluster.
+  valid values are "true", "try" and "false". Default is false.
+
+* `delete_sfs` - (Optional, String) Specified whether to delete the associated SFS resources when deleting CCE cluster.
+  valid values are "true", "try" and "false". Default is false.
+
+* `delete_all` - (Optional, Bool) Specified whether to delete all associated resources when deleting CCE cluster.
+  Default is false.
+
 The `masters` block supports:
 
 * `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone of the master node. Changing this creates a new cluster.
@@ -201,4 +222,21 @@ This resource provides the following timeouts configuration options:
  Cluster can be imported using the cluster id, e.g.
  ```
  $ terraform import huaweicloud_cce_cluster.cluster_1 4779ab1c-7c1a-44b1-a02e-93dfc361b32d  
+```
+Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+API response, security or some other reason. The missing attributes include:
+`delete_efs`, `delete_eni`, `delete_evs`, `delete_net`, `delete_obs`, `delete_sfs` and `delete_all`.
+It is generally recommended running `terraform plan` after importing an cce cluster. You can then decide if changes
+should be applied to the cluster, or the resource definition should be updated to align with the cluster. Also you can
+ignore changes as below.
+```
+resource "huaweicloud_cce_cluster" "cluster_1" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      delete_efs, delete_obs,
+    ]
+  }
+}
 ```
