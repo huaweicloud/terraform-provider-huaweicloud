@@ -227,8 +227,8 @@ github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d h1:kJCB4vdITiW1eC1
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/huaweicloud/golangsdk v0.0.0-20210323020602-6d5ee0030244 h1:Jzq3828aWxaRquRxPqv8aG1A6B+LatrIHiD3SMlHpFM=
 github.com/huaweicloud/golangsdk v0.0.0-20210323020602-6d5ee0030244/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
-github.com/huaweicloud/golangsdk v0.0.0-20210323075108-95a9f6c7bc44 h1:8M/ok74wZvWL2RKjR9HUJ3JgBR6AmIC0NkNOWBEGlKU=
-github.com/huaweicloud/golangsdk v0.0.0-20210323075108-95a9f6c7bc44/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
+github.com/huaweicloud/golangsdk v0.0.0-20210329082007-ee3a1fd6c542 h1:rA1o0dd7F2cR/zBe9Fyk7DjjgSv85MM6PdToMabNXq4=
+github.com/huaweicloud/golangsdk v0.0.0-20210329082007-ee3a1fd6c542/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/imdario/mergo v0.3.9 h1:UauaLniWCFHWd+Jp9oCEkTBj8VO/9DKg3PV3VCNMDIg=
 github.com/imdario/mergo v0.3.9/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=

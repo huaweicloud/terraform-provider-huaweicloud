@@ -26,6 +26,10 @@ type ResizeFlavorResult struct {
 	commonResult
 }
 
+type RenameResult struct {
+	commonResult
+}
+
 type Instance struct {
 	Id                  string         `json:"id"`
 	Name                string         `json:"name"`
