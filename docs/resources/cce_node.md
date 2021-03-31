@@ -191,6 +191,9 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
     Valid values are "true" and "false". Changing this creates a new resource.
 
+* `runtime` - (Optional, String, ForceNew) Specifies the runtime of the CCE node. Valid values are *docker* and *containerd*.
+    Changing this creates a new resource.
+
 * `extend_param` - (Optional, Map, ForceNew) Extended parameter. Changing this parameter will create a new resource. Availiable keys :
 
   * `agency_name` - Specifies the agency name to provide temporary credentials for CCE node to access other cloud services.

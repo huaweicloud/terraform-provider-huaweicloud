@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodepools"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
@@ -201,6 +202,15 @@ func ResourceCCENodePool() *schema.Resource {
 					}
 				},
 			},
+			"runtime": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"docker", "containerd",
+				}, false),
+			},
 			"extend_param": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -298,6 +308,12 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 		},
 	}
 
+	if v, ok := d.GetOk("runtime"); ok {
+		createOpts.Spec.NodeTemplate.RunTime = &nodes.RunTimeSpec{
+			Name: v.(string),
+		}
+	}
+
 	clusterid := d.Get("cluster_id").(string)
 	stateCluster := &resource.StateChangeConf{
 		Target:     []string{"Available"},
@@ -369,6 +385,7 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("os", s.Spec.NodeTemplate.Os)
 	d.Set("billing_mode", s.Spec.NodeTemplate.BillingMode)
 	d.Set("key_pair", s.Spec.NodeTemplate.Login.SshKey)
+	d.Set("runtime", s.Spec.NodeTemplate.RunTime.Name)
 	d.Set("initial_node_count", s.Spec.InitialNodeCount)
 	d.Set("scall_enable", s.Spec.Autoscaling.Enable)
 	d.Set("min_node_count", s.Spec.Autoscaling.MinNodeCount)
