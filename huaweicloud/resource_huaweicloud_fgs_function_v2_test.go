@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/fgs/v2/function"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccFgsV2Function_basic(t *testing.T) {
@@ -29,7 +30,7 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 }
 
 func testAccCheckFgsV2FunctionDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	fgsClient, err := config.FgsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
@@ -60,7 +61,7 @@ func testAccCheckFgsV2FunctionExists(n string, ft *function.Function) resource.T
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		fgsClient, err := config.FgsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)

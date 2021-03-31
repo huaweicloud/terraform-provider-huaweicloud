@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceNatDnatRuleV2() *schema.Resource {
@@ -121,7 +122,7 @@ func resourceNatDnatUserInputParams(d *schema.ResourceData) map[string]interface
 }
 
 func resourceNatDnatRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -234,7 +235,7 @@ func resourceNatDnatRuleCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceNatDnatRuleRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -403,7 +404,7 @@ func resourceNatDnatRuleRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceNatDnatRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)

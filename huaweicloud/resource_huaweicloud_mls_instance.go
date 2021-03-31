@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceMlsInstance() *schema.Resource {
@@ -183,7 +184,7 @@ func resourceMlsInstance() *schema.Resource {
 }
 
 func resourceMlsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.MlsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -319,7 +320,7 @@ func resourceMlsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMlsInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.MlsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -394,7 +395,7 @@ func resourceMlsInstanceRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMlsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.MlsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)

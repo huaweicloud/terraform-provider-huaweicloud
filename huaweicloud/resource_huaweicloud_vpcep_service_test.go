@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccVPCEPService_Basic(t *testing.T) {
@@ -91,7 +92,7 @@ func TestAccVPCEPService_Permission(t *testing.T) {
 }
 
 func testAccCheckVPCEPServiceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	vpcepClient, err := config.VPCEPClient(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating VPC endpoint client: %s", err)
@@ -122,7 +123,7 @@ func testAccCheckVPCEPServiceExists(n string, service *services.Service) resourc
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		vpcepClient, err := config.VPCEPClient(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating VPC endpoint client: %s", err)

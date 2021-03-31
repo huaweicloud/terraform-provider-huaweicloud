@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/natgateways"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccNatGateway_basic(t *testing.T) {
@@ -68,7 +69,7 @@ func TestAccNatGateway_withEpsId(t *testing.T) {
 }
 
 func testAccCheckNatV2GatewayDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	natClient, err := config.NatGatewayClient(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
@@ -99,7 +100,7 @@ func testAccCheckNatV2GatewayExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		natClient, err := config.NatGatewayClient(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)

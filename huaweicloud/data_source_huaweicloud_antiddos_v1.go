@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/antiddos/v1/antiddos"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceAntiDdosV1() *schema.Resource {
@@ -108,7 +109,7 @@ func dataSourceAntiDdosV1() *schema.Resource {
 }
 
 func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	antiddosClient, err := config.AntiDDosV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating antiddos client: %s", err)

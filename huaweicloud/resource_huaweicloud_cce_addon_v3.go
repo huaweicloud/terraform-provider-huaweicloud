@@ -7,6 +7,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/addons"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -98,7 +99,7 @@ func getValuesValues(d *schema.ResourceData) (basic, custom map[string]interface
 }
 
 func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cceClient, err := config.CceAddonV3Client(GetRegion(d, config))
 
 	if err != nil {
@@ -160,7 +161,7 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCEAddonV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cceClient, err := config.CceAddonV3Client(GetRegion(d, config))
 
 	if err != nil {
@@ -189,7 +190,7 @@ func resourceCCEAddonV3Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCEAddonV3Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cceClient, err := config.CceAddonV3Client(GetRegion(d, config))
 
 	if err != nil {

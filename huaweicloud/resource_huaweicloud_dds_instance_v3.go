@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/dds/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceDdsInstanceV3() *schema.Resource {
@@ -301,7 +302,7 @@ func DdsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID str
 }
 
 func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
@@ -364,7 +365,7 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s", err)
@@ -446,7 +447,7 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
@@ -541,7 +542,7 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceDdsInstanceV3Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)

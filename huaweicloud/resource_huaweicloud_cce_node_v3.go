@@ -17,6 +17,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceCCENodeV3() *schema.Resource {
@@ -493,7 +494,7 @@ func resourceCCEExtendParam(d *schema.ResourceData) map[string]interface{} {
 }
 
 func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node client: %s", err)
@@ -623,7 +624,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node client: %s", err)
@@ -711,7 +712,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCENodeV3Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
@@ -746,7 +747,7 @@ func resourceCCENodeV3Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCENodeV3Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)

@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/configurations"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceRdsConfigurationV3() *schema.Resource {
@@ -125,7 +126,7 @@ func getDatastore(d *schema.ResourceData) configurations.DataStore {
 }
 
 func resourceRdsConfigurationV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	rdsClient, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
@@ -153,7 +154,7 @@ func resourceRdsConfigurationV3Create(d *schema.ResourceData, meta interface{}) 
 
 func resourceRdsConfigurationV3Read(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	rdsClient, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud RDS client: %s", err)
@@ -197,7 +198,7 @@ func resourceRdsConfigurationV3Read(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceRdsConfigurationV3Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	rdsClient, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud RDS Client: %s", err)
@@ -223,7 +224,7 @@ func resourceRdsConfigurationV3Update(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceRdsConfigurationV3Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	rdsClient, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud RDS client: %s", err)

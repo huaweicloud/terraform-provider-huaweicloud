@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/imagedata"
 	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -169,7 +170,7 @@ func resourceImagesImageV2() *schema.Resource {
 }
 
 func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	imageClient, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
@@ -242,7 +243,7 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	imageClient, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
@@ -284,7 +285,7 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceImagesImageV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	imageClient, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
@@ -322,7 +323,7 @@ func resourceImagesImageV2Update(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceImagesImageV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	imageClient, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)

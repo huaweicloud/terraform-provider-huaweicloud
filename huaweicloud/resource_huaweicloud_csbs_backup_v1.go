@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/csbs/v1/backup"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceCSBSBackupV1() *schema.Resource {
@@ -177,7 +178,7 @@ func resourceCSBSBackupV1() *schema.Resource {
 }
 
 func resourceCSBSBackupV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	backupClient, err := config.CsbsV1Client(GetRegion(d, config))
 
 	if err != nil {
@@ -256,7 +257,7 @@ func resourceCSBSBackupV1Create(d *schema.ResourceData, meta interface{}) error 
 
 func resourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	backupClient, err := config.CsbsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating csbs client: %s", err)
@@ -293,7 +294,7 @@ func resourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCSBSBackupV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	backupClient, err := config.CsbsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating csbs client: %s", err)

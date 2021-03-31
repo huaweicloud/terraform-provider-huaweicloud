@@ -1,4 +1,4 @@
-package huaweicloud
+package config
 
 import (
 	"fmt"
@@ -33,7 +33,7 @@ func testRequestRetry(t *testing.T, count int) {
 		}
 		if info.retries < retryCount {
 			info.mut.RLock()
-			info.retries += 1
+			info.retries++
 			info.mut.RUnlock()
 			//lintignore:R009
 			panic(err) // simulate EOF

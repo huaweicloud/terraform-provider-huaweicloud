@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/recordsets"
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/zones"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceDNSRecordSetV2() *schema.Resource {
@@ -155,7 +156,7 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	// Obtain relevant info from parsing the ID
 	zoneID, recordsetID, err := parseDNSV2RecordSetID(d.Id())
 	if err != nil {
@@ -342,7 +343,7 @@ func parseDNSV2RecordSetID(id string) (string, string, error) {
 }
 
 func chooseDNSClientbyZoneID(d *schema.ResourceData, zoneID string, meta interface{}) (*golangsdk.ServiceClient, string, error) {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 
 	var client *golangsdk.ServiceClient

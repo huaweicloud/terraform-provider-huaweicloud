@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cts/v1/tracker"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceCTSTrackerV1() *schema.Resource {
@@ -83,7 +84,7 @@ func resourceCTSTrackerV1() *schema.Resource {
 }
 
 func resourceCTSTrackerCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	ctsClient, err := config.CtsV1Client(GetRegion(d, config))
 
 	if err != nil {
@@ -118,7 +119,7 @@ func resourceCTSTrackerCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCTSTrackerRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	ctsClient, err := config.CtsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating cts Client: %s", err)
@@ -158,7 +159,7 @@ func resourceCTSTrackerRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCTSTrackerUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	ctsClient, err := config.CtsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating cts Client: %s", err)
@@ -196,7 +197,7 @@ func resourceCTSTrackerUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCTSTrackerDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	ctsClient, err := config.CtsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating cts Client: %s", err)

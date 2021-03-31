@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/sfs_turbo/v1/shares"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceSFSTurbo() *schema.Resource {
@@ -116,7 +117,7 @@ func ResourceSFSTurbo() *schema.Resource {
 }
 
 func resourceSFSTurboCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SFS Turbo client: %s", err)
@@ -167,7 +168,7 @@ func resourceSFSTurboCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSFSTurboRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SFS Turbo client: %s", err)
@@ -216,7 +217,7 @@ func resourceSFSTurboRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSFSTurboUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error updating HuaweiCloud SFS Turbo client: %s", err)
@@ -255,7 +256,7 @@ func resourceSFSTurboUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSFSTurboDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SFS Turbo client: %s", err)

@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/apigw/groups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceAPIGatewayGroup() *schema.Resource {
@@ -48,7 +49,7 @@ func resourceAPIGatewayGroup() *schema.Resource {
 }
 
 func resourceAPIGatewayGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
@@ -72,7 +73,7 @@ func resourceAPIGatewayGroupCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAPIGatewayGroupRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
@@ -93,7 +94,7 @@ func resourceAPIGatewayGroupRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAPIGatewayGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
@@ -113,7 +114,7 @@ func resourceAPIGatewayGroupUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAPIGatewayGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)

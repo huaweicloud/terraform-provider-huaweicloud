@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3.0/acl"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceIdentityACL() *schema.Resource {
@@ -78,7 +79,7 @@ func resourceIdentityACL() *schema.Resource {
 }
 
 func resourceIdentityACLCreate(d *schema.ResourceData, meta interface{}) error {
-	id := meta.(*Config).DomainID
+	id := meta.(*config.Config).DomainID
 	if err := updateACLPolicy(d, meta, id); err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud iam acl: %s", err)
 	}
@@ -88,7 +89,7 @@ func resourceIdentityACLCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIdentityACLRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud iam client: %s", err)
@@ -148,7 +149,7 @@ func resourceIdentityACLUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIdentityACLDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud iam client: %s", err)
@@ -181,7 +182,7 @@ func resourceIdentityACLDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func updateACLPolicy(d *schema.ResourceData, meta interface{}, id string) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud iam client: %s", err)

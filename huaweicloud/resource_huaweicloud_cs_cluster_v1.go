@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceCsClusterV1() *schema.Resource {
@@ -112,7 +113,7 @@ func resourceCsClusterV1UserInputParams(d *schema.ResourceData) map[string]inter
 }
 
 func resourceCsClusterV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -145,7 +146,7 @@ func resourceCsClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCsClusterV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -168,7 +169,7 @@ func resourceCsClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCsClusterV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
@@ -192,7 +193,7 @@ func resourceCsClusterV1Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCsClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -300,7 +301,7 @@ func sendCsClusterV1CreateRequest(d *schema.ResourceData, params interface{},
 	return r.Body, nil
 }
 
-func asyncWaitCsClusterV1Create(d *schema.ResourceData, config *Config, result interface{},
+func asyncWaitCsClusterV1Create(d *schema.ResourceData, config *config.Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	data := make(map[string]interface{})
@@ -396,7 +397,7 @@ func sendCsClusterV1UpdateRequest(d *schema.ResourceData, params interface{},
 	return r.Body, nil
 }
 
-func asyncWaitCsClusterV1Delete(d *schema.ResourceData, config *Config, result interface{},
+func asyncWaitCsClusterV1Delete(d *schema.ResourceData, config *config.Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	url, err := replaceVars(d, "reserved_cluster/{id}", nil)

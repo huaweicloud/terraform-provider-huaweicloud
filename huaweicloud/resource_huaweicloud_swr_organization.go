@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/swr/v2/namespaces"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceSWROrganization() *schema.Resource {
@@ -53,7 +54,7 @@ func resourceSWROrganization() *schema.Resource {
 }
 
 func resourceSWROrganizationCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	swrClient, err := config.SwrV2Client(GetRegion(d, config))
 
 	if err != nil {
@@ -77,7 +78,7 @@ func resourceSWROrganizationCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSWROrganizationRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	swrClient, err := config.SwrV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SWR client: %s", err)
@@ -115,7 +116,7 @@ func resourceSWROrganizationRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceSWROrganizationDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	swrClient, err := config.SwrV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SWR Client: %s", err)

@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/lts/huawei/loggroups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccLogTankGroupV2_basic(t *testing.T) {
@@ -48,7 +49,7 @@ func TestAccLogTankGroupV2_basic(t *testing.T) {
 }
 
 func testAccCheckLogTankGroupV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	ltsclient, err := config.LtsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
@@ -84,7 +85,7 @@ func testAccCheckLogTankGroupV2Exists(n string, group *loggroups.LogGroup) resou
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		ltsclient, err := config.LtsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)

@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions"
 	volumes_v2 "github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/huaweicloud/golangsdk/openstack/evs/v3/volumes"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceEvsStorageVolumeV3() *schema.Resource {
@@ -154,7 +155,7 @@ func resourceVolumeAttachmentHash(v interface{}) int {
 }
 
 func resourceEvsVolumeV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
@@ -217,7 +218,7 @@ func resourceEvsVolumeV3Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
@@ -276,7 +277,7 @@ func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
 
 // using OpenStack Cinder API v2 to update volume resource
 func resourceEvsVolumeV3Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	blockStorageClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)

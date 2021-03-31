@@ -18,6 +18,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 // InstanceNIC is a structured representation of a servers.Server virtual NIC
@@ -66,7 +67,7 @@ func expandInstanceNetworks(d *schema.ResourceData) ([]servers.Network, error) {
 // getInstanceAddresses parses a server.Server's Address field into a structured
 // InstanceNIC list struct.
 func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *cloudservers.CloudServer) ([]InstanceNIC, error) {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return nil, fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)

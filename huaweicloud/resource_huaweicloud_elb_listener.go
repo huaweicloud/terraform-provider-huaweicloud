@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/listeners"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 const nameELBListener = "ELB-Listener"
@@ -282,7 +283,7 @@ func resourceELBListener() *schema.Resource {
 }
 
 func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -319,7 +320,7 @@ func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceELBListenerRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -339,7 +340,7 @@ func resourceELBListenerRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -382,7 +383,7 @@ func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceELBListenerDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)

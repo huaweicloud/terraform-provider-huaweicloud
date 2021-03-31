@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/addons"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccCCEAddonV3_basic(t *testing.T) {
@@ -35,7 +36,7 @@ func TestAccCCEAddonV3_basic(t *testing.T) {
 }
 
 func testAccCheckCCEAddonV3Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceAddonV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Addon client: %s", err)
@@ -80,7 +81,7 @@ func testAccCheckCCEAddonV3Exists(n string, cluster string, addon *addons.Addon)
 			return fmt.Errorf("Cluster id is not set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		cceClient, err := config.CceAddonV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud CCE Addon client: %s", err)

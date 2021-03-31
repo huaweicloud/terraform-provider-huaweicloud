@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccVpcBandWidthV2_basic(t *testing.T) {
@@ -69,7 +70,7 @@ func TestAccVpcBandWidthV2_WithEpsId(t *testing.T) {
 }
 
 func testAccCheckVpcBandWidthV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud networking client: %s", err)
@@ -100,7 +101,7 @@ func testAccCheckVpcBandWidthV2Exists(n string, bandwidth *bandwidths.BandWidth)
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud networking client: %s", err)

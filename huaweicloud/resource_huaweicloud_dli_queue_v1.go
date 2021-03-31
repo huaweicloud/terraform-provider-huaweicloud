@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceDliQueueV1() *schema.Resource {
@@ -94,7 +95,7 @@ func resourceDliQueueV1UserInputParams(d *schema.ResourceData) map[string]interf
 }
 
 func resourceDliQueueV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.DliV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -121,7 +122,7 @@ func resourceDliQueueV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDliQueueV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.DliV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -144,7 +145,7 @@ func resourceDliQueueV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDliQueueV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.DliV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)

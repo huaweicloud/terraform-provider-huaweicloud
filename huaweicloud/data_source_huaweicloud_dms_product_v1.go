@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/products"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceDmsProductV1() *schema.Resource {
@@ -86,7 +87,7 @@ func getIObyIOtype(d *schema.ResourceData, IOs []products.IO) []products.IO {
 }
 
 func dataSourceDmsProductV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error get HuaweiCloud dms product client: %s", err)

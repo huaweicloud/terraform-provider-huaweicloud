@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceObsBucketPolicy() *schema.Resource {
@@ -50,7 +51,7 @@ func ResourceObsBucketPolicy() *schema.Resource {
 func resourceObsBucketPolicyPut(d *schema.ResourceData, meta interface{}) error {
 	var err error
 	var obsClient *obs.ObsClient
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	format := d.Get("policy_format").(string)
 	if format == "obs" {
@@ -82,7 +83,7 @@ func resourceObsBucketPolicyPut(d *schema.ResourceData, meta interface{}) error 
 func resourceObsBucketPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	var err error
 	var obsClient *obs.ObsClient
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	format := d.Get("policy_format").(string)
 	log.Printf("[DEBUG] obs bucket policy format: %s", format)
@@ -115,7 +116,7 @@ func resourceObsBucketPolicyRead(d *schema.ResourceData, meta interface{}) error
 func resourceObsBucketPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	var err error
 	var obsClient *obs.ObsClient
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	format := d.Get("policy_format").(string)
 	if format == "obs" {

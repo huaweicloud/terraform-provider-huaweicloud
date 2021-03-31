@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/floatingips"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceComputeFloatingIPV2() *schema.Resource {
@@ -56,7 +57,7 @@ func ResourceComputeFloatingIPV2() *schema.Resource {
 }
 
 func resourceComputeFloatingIPV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
@@ -77,7 +78,7 @@ func resourceComputeFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 }
 
 func resourceComputeFloatingIPV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
@@ -118,7 +119,7 @@ func FloatingIPV2StateRefreshFunc(computeClient *golangsdk.ServiceClient, d *sch
 }
 
 func resourceComputeFloatingIPV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)

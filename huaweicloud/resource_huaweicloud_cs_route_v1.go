@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceCsRouteV1() *schema.Resource {
@@ -67,7 +68,7 @@ func resourceCsRouteV1UserInputParams(d *schema.ResourceData) map[string]interfa
 }
 
 func resourceCsRouteV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -94,7 +95,7 @@ func resourceCsRouteV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCsRouteV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -117,7 +118,7 @@ func resourceCsRouteV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCsRouteV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)

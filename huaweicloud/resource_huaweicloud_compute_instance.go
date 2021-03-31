@@ -28,6 +28,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 var novaConflicts = []string{"block_device", "metadata"}
@@ -392,7 +393,7 @@ func ResourceComputeInstanceV2() *schema.Resource {
 }
 
 func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
@@ -632,7 +633,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
@@ -782,7 +783,7 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	ecsV11Client, err := config.ComputeV11Client(GetRegion(d, config))
@@ -964,7 +965,7 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
@@ -1040,7 +1041,7 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceComputeInstanceV2ImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return nil, fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)

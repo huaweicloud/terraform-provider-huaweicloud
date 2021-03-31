@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/queues"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceDmsQueuesV1() *schema.Resource {
@@ -84,7 +85,7 @@ func resourceDmsQueuesV1() *schema.Resource {
 }
 
 func resourceDmsQueuesV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
@@ -113,7 +114,7 @@ func resourceDmsQueuesV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDmsQueuesV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
@@ -142,7 +143,7 @@ func resourceDmsQueuesV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDmsQueuesV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dms queue client: %s", err)

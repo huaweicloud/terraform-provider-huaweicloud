@@ -8,10 +8,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/auto_recovery"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceECSAutoRecoveryV1Read(d *schema.ResourceData, meta interface{}, instanceID string) (bool, error) {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return false, fmt.Errorf("Error creating HuaweiCloud client: %s", err)
@@ -28,7 +29,7 @@ func resourceECSAutoRecoveryV1Read(d *schema.ResourceData, meta interface{}, ins
 }
 
 func setAutoRecoveryForInstance(d *schema.ResourceData, meta interface{}, instanceID string, ar bool) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud client: %s", err)

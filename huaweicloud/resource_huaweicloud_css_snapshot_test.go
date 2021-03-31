@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/css/v1/snapshots"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccCssSnapshot_basic(t *testing.T) {
@@ -34,7 +35,7 @@ func TestAccCssSnapshot_basic(t *testing.T) {
 }
 
 func testAccCheckCssSnapshotDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.CssV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating css client, err=%s", err)
@@ -67,7 +68,7 @@ func testAccCheckCssSnapshotDestroy(s *terraform.State) error {
 
 func testAccCheckCssSnapshotExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.CssV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating css client, err=%s", err)

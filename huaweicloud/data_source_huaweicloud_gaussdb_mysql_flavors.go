@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceGaussdbMysqlFlavors() *schema.Resource {
@@ -65,7 +66,7 @@ func dataSourceGaussdbMysqlFlavors() *schema.Resource {
 }
 
 func dataSourceGaussdbMysqlFlavorsRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	client, err := config.GaussdbV3Client(GetRegion(d, config))
 	if err != nil {

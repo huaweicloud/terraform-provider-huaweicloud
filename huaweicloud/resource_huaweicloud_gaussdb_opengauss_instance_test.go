@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccOpenGaussInstance_basic(t *testing.T) {
@@ -46,7 +47,7 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 }
 
 func testAccCheckOpenGaussInstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.OpenGaussV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
@@ -77,7 +78,7 @@ func testAccCheckOpenGaussInstanceExists(n string, instance *instances.GaussDBIn
 			return fmt.Errorf("No ID is set.")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.OpenGaussV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)

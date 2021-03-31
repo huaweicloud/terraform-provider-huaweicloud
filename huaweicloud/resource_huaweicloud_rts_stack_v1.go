@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacktemplates"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/errwrap"
 )
@@ -152,7 +153,7 @@ func resourceParametersV1(d *schema.ResourceData) map[string]string {
 	return m
 }
 func resourceRTSStackV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	stackName := d.Get("name").(string)
 
@@ -201,7 +202,7 @@ func resourceRTSStackV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating RTS Client: %s", err)
@@ -264,7 +265,7 @@ func resourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceRTSStackV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating RTS Client: %s", err)
@@ -315,7 +316,7 @@ func resourceRTSStackV1Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceRTSStackV1Delete(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating RTS Client: %s", err)

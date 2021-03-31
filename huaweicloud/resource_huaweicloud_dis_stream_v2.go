@@ -21,6 +21,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceDisStreamV2() *schema.Resource {
@@ -162,7 +163,7 @@ func resourceDisStreamV2UserInputParams(d *schema.ResourceData) map[string]inter
 }
 
 func resourceDisStreamV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.DisV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -185,7 +186,7 @@ func resourceDisStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDisStreamV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.DisV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -203,7 +204,7 @@ func resourceDisStreamV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDisStreamV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.DisV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -226,7 +227,7 @@ func resourceDisStreamV2Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDisStreamV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.DisV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)

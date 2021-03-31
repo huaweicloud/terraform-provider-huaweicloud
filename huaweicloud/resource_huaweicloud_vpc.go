@@ -5,12 +5,12 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceVirtualPrivateCloudV1() *schema.Resource {
@@ -81,7 +81,7 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 }
 
 func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 
 	if err != nil {
@@ -141,7 +141,7 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 }
 
 func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
@@ -192,7 +192,7 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 }
 
 func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc: %s", err)
@@ -230,7 +230,7 @@ func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{
 
 func resourceVirtualPrivateCloudV1Delete(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud vpc: %s", err)

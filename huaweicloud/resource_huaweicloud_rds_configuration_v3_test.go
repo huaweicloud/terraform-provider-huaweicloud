@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/configurations"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccRdsConfigurationV3_basic(t *testing.T) {
@@ -43,7 +44,7 @@ func TestAccRdsConfigurationV3_basic(t *testing.T) {
 }
 
 func testAccCheckRdsConfigV3Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	rdsClient, err := config.RdsV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud RDS client: %s", err)
@@ -74,7 +75,7 @@ func testAccCheckRdsConfigV3Exists(n string, configuration *configurations.Confi
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		rdsClient, err := config.RdsV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud RDS client: %s", err)

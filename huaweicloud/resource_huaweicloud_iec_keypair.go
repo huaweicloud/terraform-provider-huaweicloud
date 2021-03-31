@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/keypairs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceIecKeypair() *schema.Resource {
@@ -44,7 +45,7 @@ func resourceIecKeypair() *schema.Resource {
 }
 
 func resourceIecKeypairCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
@@ -67,7 +68,7 @@ func resourceIecKeypairCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIecKeypairRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
@@ -86,7 +87,7 @@ func resourceIecKeypairRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIecKeypairDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)

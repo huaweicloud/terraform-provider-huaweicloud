@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/maas/v1/task"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccMaasTask_basic(t *testing.T) {
@@ -29,7 +30,7 @@ func TestAccMaasTask_basic(t *testing.T) {
 }
 
 func testAccCheckMaasTaskV1Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	maasClient, err := config.MaasV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud maas client: %s", err)
@@ -60,7 +61,7 @@ func testAccCheckMaasTaskV1Exists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		maasClient, err := config.MaasV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud maas client: %s", err)

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceVpcPeeringConnectionV2() *schema.Resource {
@@ -62,7 +63,7 @@ func ResourceVpcPeeringConnectionV2() *schema.Resource {
 }
 
 func resourceVPCPeeringV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(GetRegion(d, config))
 
 	if err != nil {
@@ -111,7 +112,7 @@ func resourceVPCPeeringV2Create(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceVPCPeeringV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud   Vpc Peering Connection Client: %s", err)
@@ -138,7 +139,7 @@ func resourceVPCPeeringV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVPCPeeringV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud  Vpc Peering Connection Client: %s", err)
@@ -158,7 +159,7 @@ func resourceVPCPeeringV2Update(d *schema.ResourceData, meta interface{}) error 
 
 func resourceVPCPeeringV2Delete(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud  Vpc Peering Connection Client: %s", err)

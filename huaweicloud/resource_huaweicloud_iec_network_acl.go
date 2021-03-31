@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/firewalls"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceIecNetworkACL() *schema.Resource {
@@ -83,7 +84,7 @@ func resourceIecNetworkACLNetworks(d *schema.ResourceData) []firewalls.ReqSubnet
 }
 
 func resourceIecNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
@@ -118,7 +119,7 @@ func resourceIecNetworkACLCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceIecNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
@@ -150,7 +151,7 @@ func resourceIecNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIecNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
@@ -182,7 +183,7 @@ func resourceIecNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceIecNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)

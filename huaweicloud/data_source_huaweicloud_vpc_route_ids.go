@@ -1,11 +1,11 @@
 package huaweicloud
 
 import (
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/routes"
-
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/routes"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceVPCRouteIdsV2() *schema.Resource {
@@ -33,7 +33,7 @@ func dataSourceVPCRouteIdsV2() *schema.Resource {
 }
 
 func dataSourceVpcRouteIdsV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcRouteClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)

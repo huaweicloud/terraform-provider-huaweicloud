@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccDmsInstancesV1_Rabbitmq(t *testing.T) {
@@ -69,7 +70,7 @@ func TestAccDmsInstancesV1_Kafka(t *testing.T) {
 }
 
 func testAccCheckDmsV1InstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud instance client: %s", err)
@@ -99,7 +100,7 @@ func testAccCheckDmsV1InstanceExists(n string, instance instances.Instance) reso
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud instance client: %s", err)

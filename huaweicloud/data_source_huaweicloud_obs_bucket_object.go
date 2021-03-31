@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func DataSourceObsBucketObject() *schema.Resource {
@@ -60,7 +61,7 @@ func DataSourceObsBucketObject() *schema.Resource {
 // Attribute parameters are not returned in one interface.
 // Two interfaces need to be called to get all parameters.
 func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)

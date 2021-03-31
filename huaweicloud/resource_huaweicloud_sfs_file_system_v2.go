@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceSFSFileSystemV2() *schema.Resource {
@@ -139,7 +140,7 @@ func resourceSFSFileSystemV2() *schema.Resource {
 }
 
 func resourceSFSFileSystemV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
 
 	if err != nil {
@@ -219,7 +220,7 @@ func resourceSFSFileSystemV2Create(d *schema.ResourceData, meta interface{}) err
 
 func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud File Share Client: %s", err)
@@ -320,7 +321,7 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceSFSFileSystemV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error updating Huaweicloud Share File Client: %s", err)
@@ -402,7 +403,7 @@ func resourceSFSFileSystemV2Update(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSFSFileSystemV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Shared File Client: %s", err)
@@ -472,7 +473,7 @@ func waitForSFSFileDelete(sfsClient *golangsdk.ServiceClient, shareId string) re
 	}
 }
 
-func resourceSFSMetadataV2(d *schema.ResourceData, config *Config) map[string]string {
+func resourceSFSMetadataV2(d *schema.ResourceData, config *config.Config) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("metadata").(map[string]interface{}) {
 		m[key] = val.(string)

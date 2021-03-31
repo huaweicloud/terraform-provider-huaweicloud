@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 const (
@@ -47,7 +48,7 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of IAM service
 	serviceClient, err = config.IAMV3Client(HW_REGION_NAME)
@@ -122,7 +123,7 @@ func TestAccServiceEndpoints_Management(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of CTS service
 	serviceClient, err = config.CtsV1Client(HW_REGION_NAME)
@@ -173,7 +174,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of RDS v1 service
 	serviceClient, err = config.RdsV1Client(HW_REGION_NAME)
@@ -260,7 +261,7 @@ func TestAccServiceEndpoints_Security(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of anti-ddos service
 	serviceClient, err = config.AntiDDosV1Client(HW_REGION_NAME)
@@ -299,7 +300,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of API-GW service
 	serviceClient, err = config.ApiGatewayV1Client(HW_REGION_NAME)
@@ -376,7 +377,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
 	}
 
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
 
@@ -494,7 +495,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
 	}
 
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
 
@@ -571,7 +572,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
 	}
 
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
 
@@ -702,7 +703,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of MRS service
 	serviceClient, err = config.MrsV1Client(HW_REGION_NAME)
@@ -840,7 +841,7 @@ func TestAccServiceEndpoints_Edge(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of iec service
 	serviceClient, err = config.IECV1Client(HW_REGION_NAME)
@@ -867,7 +868,7 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of MAAS service
 	serviceClient, err = config.MaasV1Client(HW_REGION_NAME)

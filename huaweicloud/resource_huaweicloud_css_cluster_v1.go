@@ -24,6 +24,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/css/v1/snapshots"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceCssClusterV1() *schema.Resource {
@@ -219,7 +220,7 @@ func resourceCssClusterV1UserInputParams(d *schema.ResourceData) map[string]inte
 }
 
 func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -277,7 +278,7 @@ func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceCssClusterV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -329,7 +330,7 @@ func resourceCssClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -407,7 +408,7 @@ func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceCssClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
@@ -660,7 +661,7 @@ func sendCssClusterV1CreateRequest(d *schema.ResourceData, params interface{},
 	return r.Body, nil
 }
 
-func asyncWaitCssClusterV1Create(d *schema.ResourceData, config *Config, result interface{},
+func asyncWaitCssClusterV1Create(d *schema.ResourceData, config *config.Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	data := make(map[string]interface{})
@@ -751,7 +752,7 @@ func sendCssClusterV1ExtendClusterRequest(d *schema.ResourceData, params interfa
 	return r.Body, nil
 }
 
-func asyncWaitCssClusterV1ExtendCluster(d *schema.ResourceData, config *Config, result interface{},
+func asyncWaitCssClusterV1ExtendCluster(d *schema.ResourceData, config *config.Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	url, err := replaceVars(d, "clusters/{id}", nil)

@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/vpcs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceIecVpc() *schema.Resource {
@@ -53,7 +54,7 @@ func ResourceIecVpc() *schema.Resource {
 }
 
 func resourceIecVpcV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecV1Client, err := config.IECV1Client(GetRegion(d, config))
 
 	if err != nil {
@@ -78,7 +79,7 @@ func resourceIecVpcV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIecVpcV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecV1Client, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
@@ -98,7 +99,7 @@ func resourceIecVpcV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIecVpcV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecV1Client, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
@@ -122,7 +123,7 @@ func resourceIecVpcV1Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIecVpcV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecV1Client, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)

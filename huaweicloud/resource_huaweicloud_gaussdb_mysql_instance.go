@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceGaussDBInstance() *schema.Resource {
@@ -248,7 +249,7 @@ func GaussDBInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID
 }
 
 func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.GaussdbV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
@@ -375,7 +376,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 	client, err := config.GaussdbV3Client(region)
 	if err != nil {
@@ -473,7 +474,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.GaussdbV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
@@ -608,7 +609,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceGaussDBInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.GaussdbV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)

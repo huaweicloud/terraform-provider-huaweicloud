@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/cloudeyeservice/alarmrule"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 const nameCESAR = "CES-AlarmRule"
@@ -251,7 +252,7 @@ func getAlarmAction(d *schema.ResourceData, name string) []alarmrule.ActionOpts 
 }
 
 func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Cloud Eye Service client: %s", err)
@@ -295,7 +296,7 @@ func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Cloud Eye Service client: %s", err)
@@ -326,7 +327,7 @@ func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Cloud Eye Service client: %s", err)
@@ -358,7 +359,7 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAlarmRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.CesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Cloud Eye Service client: %s", err)

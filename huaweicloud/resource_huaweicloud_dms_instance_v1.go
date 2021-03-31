@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceDmsInstancesV1() *schema.Resource {
@@ -163,7 +164,7 @@ func resourceDmsInstancesV1() *schema.Resource {
 }
 
 func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dms instance client: %s", err)
@@ -238,7 +239,7 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
@@ -298,7 +299,7 @@ func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceDmsInstancesV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	//lintignore:R019
 	if d.HasChanges("name", "description", "maintain_begin", "maintain_end", "security_group_id") {
@@ -351,7 +352,7 @@ func resourceDmsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDmsInstancesV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dms instance client: %s", err)

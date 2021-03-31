@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/datastores"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/flavors"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceRdsReadReplicaInstance() *schema.Resource {
@@ -170,7 +171,7 @@ func resourceRdsReadReplicaInstance() *schema.Resource {
 
 func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud rds client: %s ", err)
@@ -214,7 +215,7 @@ func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface
 
 func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud rds client: %s", err)
@@ -282,7 +283,7 @@ func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}
 
 func resourceRdsReadReplicaInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud rds v3 client: %s ", err)
@@ -309,7 +310,7 @@ func resourceRdsReadReplicaInstanceUpdate(d *schema.ResourceData, meta interface
 
 func resourceRdsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud rds client: %s ", err)

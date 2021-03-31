@@ -10,6 +10,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/natgateways"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceNatGatewayV2() *schema.Resource {
@@ -81,7 +82,7 @@ func ResourceNatGatewayV2() *schema.Resource {
 }
 
 func resourceNatGatewayV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
@@ -124,7 +125,7 @@ func resourceNatGatewayV2Create(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
@@ -149,7 +150,7 @@ func resourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceNatGatewayV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
@@ -178,7 +179,7 @@ func resourceNatGatewayV2Update(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceNatGatewayV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceVpcPeeringConnectionAccepterV2() *schema.Resource {
@@ -67,7 +68,7 @@ func resourceVpcPeeringConnectionAccepterV2() *schema.Resource {
 }
 
 func resourceVPCPeeringAccepterV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(GetRegion(d, config))
 
 	if err != nil {
@@ -124,7 +125,7 @@ func resourceVPCPeeringAccepterV2Create(d *schema.ResourceData, meta interface{}
 }
 
 func resourceVpcPeeringAccepterRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	peeringclient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud peering client: %s", err)

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccASV1Group_basic(t *testing.T) {
@@ -79,7 +80,7 @@ func TestAccASV1Group_withEpsId(t *testing.T) {
 }
 
 func testAccCheckASV1GroupDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud autoscaling client: %s", err)
@@ -112,7 +113,7 @@ func testAccCheckASV1GroupExists(n string, group *groups.Group) resource.TestChe
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud autoscaling client: %s", err)

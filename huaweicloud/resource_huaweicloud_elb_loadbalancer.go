@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/loadbalancers"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 const nameELBLB = "ELB-LoadBalancer"
@@ -162,7 +163,7 @@ func resourceELBLoadBalancer() *schema.Resource {
 }
 
 func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -226,7 +227,7 @@ func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceELBLoadBalancerRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -242,7 +243,7 @@ func resourceELBLoadBalancerRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -288,7 +289,7 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceELBLoadBalancerDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)

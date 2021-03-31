@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/kms/v1/keys"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceKmsKeyV1() *schema.Resource {
@@ -74,7 +75,7 @@ func dataSourceKmsKeyV1() *schema.Resource {
 }
 
 func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	kmsRegion := GetRegion(d, config)
 	kmsKeyV1Client, err := config.KmsKeyV1Client(kmsRegion)
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/eps/v1/enterpriseprojects"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func DataSourceEnterpriseProject() *schema.Resource {
@@ -43,7 +44,7 @@ func DataSourceEnterpriseProject() *schema.Resource {
 }
 
 func dataSourceEnterpriseProjectRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 	epsClient, err := config.EnterpriseProjectClient(region)
 	if err != nil {

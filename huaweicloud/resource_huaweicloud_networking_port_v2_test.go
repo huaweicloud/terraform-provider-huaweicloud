@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccNetworkingV2Port_basic(t *testing.T) {
@@ -182,7 +183,7 @@ func TestAccNetworkingV2Port_updateExtraDHCPOpts(t *testing.T) {
 }
 
 func testAccCheckNetworkingV2PortDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -213,7 +214,7 @@ func testAccCheckNetworkingV2PortExists(n string, port *ports.Port) resource.Tes
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)

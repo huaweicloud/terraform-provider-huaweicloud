@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/elb/v2/loadbalancers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceLoadBalancerV2() *schema.Resource {
@@ -109,7 +110,7 @@ func ResourceLoadBalancerV2() *schema.Resource {
 }
 
 func resourceLoadBalancerV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	elbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
@@ -181,7 +182,7 @@ func resourceLoadBalancerV2Create(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceLoadBalancerV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	elbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
@@ -239,7 +240,7 @@ func resourceLoadBalancerV2Read(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceLoadBalancerV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	elbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
@@ -313,7 +314,7 @@ func resourceLoadBalancerV2Update(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceLoadBalancerV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	elbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)

@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/configurations"
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceGeminiDBInstanceV3() *schema.Resource {
@@ -275,7 +276,7 @@ func GeminiDBInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceI
 }
 
 func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.GeminiDBV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GeminiDB client: %s ", err)
@@ -379,7 +380,7 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.GeminiDBV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
@@ -478,7 +479,7 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceGeminiDBInstanceV3Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.GeminiDBV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GeminiDB client: %s ", err)
@@ -517,7 +518,7 @@ func resourceGeminiDBInstanceV3Delete(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.GeminiDBV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc: %s", err)

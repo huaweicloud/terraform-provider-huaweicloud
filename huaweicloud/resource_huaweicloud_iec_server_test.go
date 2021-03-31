@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccIecServerResource_basic(t *testing.T) {
@@ -49,7 +50,7 @@ func testAccCheckIecServerExists(n string, cloudserver *cloudservers.CloudServer
 			return fmt.Errorf("No ID has been seted")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		iecClient, err := config.IECV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
@@ -71,7 +72,7 @@ func testAccCheckIecServerExists(n string, cloudserver *cloudservers.CloudServer
 
 func testAccCheckIecServerDestory(s *terraform.State) error {
 
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	iecClient, err := config.IECV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)

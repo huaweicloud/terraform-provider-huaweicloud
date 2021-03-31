@@ -10,6 +10,7 @@ import (
 
 	iec_common "github.com/huaweicloud/golangsdk/openstack/iec/v1/common"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/vpcs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccIecVpcV1_basic(t *testing.T) {
@@ -88,7 +89,7 @@ func TestAccIecVpcV1_customer(t *testing.T) {
 }
 
 func testAccCheckIecVpcV1Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
@@ -119,7 +120,7 @@ func testAccCheckIecVpcV1Exists(n string, resource *iec_common.VPC) resource.Tes
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)

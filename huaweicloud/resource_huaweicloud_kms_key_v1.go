@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/kms/v1/keys"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 const WaitingForEnableState = "1"
@@ -93,7 +94,7 @@ func resourceKmsKeyV1() *schema.Resource {
 }
 
 func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	kmsKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
@@ -159,7 +160,7 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	kmsRegion := GetRegion(d, config)
 	kmsKeyV1Client, err := config.KmsKeyV1Client(kmsRegion)
@@ -205,7 +206,7 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	kmsKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
@@ -271,7 +272,7 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceKmsKeyV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	kmsKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)

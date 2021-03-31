@@ -5,12 +5,12 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceSubnetDNSListV1(d *schema.ResourceData) []string {
@@ -124,7 +124,7 @@ func ResourceVpcSubnetV1() *schema.Resource {
 }
 
 func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
 
 	if err != nil {
@@ -187,7 +187,7 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud networking client: %s", err)
@@ -237,7 +237,7 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud networking client: %s", err)
@@ -297,7 +297,7 @@ func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVpcSubnetV1Delete(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud networking client: %s", err)

@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v1/instances"
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v2/whitelists"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceDcsInstanceV1() *schema.Resource {
@@ -298,7 +299,7 @@ func flattenDcsInstanceWhitelist(object *whitelists.Whitelist) interface{} {
 }
 
 func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dcs instance v1 client: %s", err)
@@ -386,7 +387,7 @@ func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
 	if err != nil {
@@ -468,7 +469,7 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceDcsInstancesV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	if err := resourceDcsInstancesCheck(d); err != nil {
 		return err
@@ -523,7 +524,7 @@ func resourceDcsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDcsInstancesV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dcs instance v1 client: %s", err)

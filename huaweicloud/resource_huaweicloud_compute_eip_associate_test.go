@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccComputeV2EIPAssociate_basic(t *testing.T) {
@@ -72,7 +73,7 @@ func TestAccComputeV2EIPAssociate_fixedIP(t *testing.T) {
 }
 
 func testAccCheckComputeV2EIPAssociateDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
@@ -116,7 +117,7 @@ func testAccCheckComputeV2EIPAssociateDestroy(s *terraform.State) error {
 func testAccCheckComputeV2EIPAssociateAssociated(
 	eip *eips.PublicIp, instance *servers.Server, n int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 
 		newInstance, err := servers.Get(computeClient, instance.ID).Extract()

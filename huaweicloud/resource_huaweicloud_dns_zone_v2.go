@@ -8,6 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/zones"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -124,7 +125,7 @@ func resourceDNSRouter(d *schema.ResourceData, region string) map[string]string 
 }
 
 func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 	var dnsClient *golangsdk.ServiceClient
 
@@ -242,7 +243,7 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 
 	// we can not get the corresponding client by zone type in import scene
@@ -297,7 +298,7 @@ func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 	var dnsClient *golangsdk.ServiceClient
 
@@ -430,7 +431,7 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDNSZoneV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	var dnsClient *golangsdk.ServiceClient
 	var err error
 

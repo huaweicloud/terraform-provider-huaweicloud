@@ -16,6 +16,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/agency"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/projects"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/roles"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceIAMAgencyV3() *schema.Resource {
@@ -232,7 +233,7 @@ func diffChangeOfProjectRole(old, newv *schema.Set) (delete, add []string) {
 }
 
 func resourceIAMAgencyV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IAM client: %s", err)
@@ -322,7 +323,7 @@ func resourceIAMAgencyV3Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIAMAgencyV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud client: %s", err)
@@ -399,7 +400,7 @@ func resourceIAMAgencyV3Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud client: %s", err)
@@ -528,7 +529,7 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIAMAgencyV3Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud client: %s", err)

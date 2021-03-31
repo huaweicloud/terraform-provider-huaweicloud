@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/routerinsertion"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceNetworkACL() *schema.Resource {
@@ -87,7 +88,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 	var portIds []string
 	var inboundPolicyID, outboundPolicyID string
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
@@ -217,7 +218,7 @@ func resourceNetworkACLCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
@@ -244,7 +245,7 @@ func resourceNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
@@ -327,7 +328,7 @@ func resourceNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy firewall group: %s", d.Id())
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
@@ -374,7 +375,7 @@ func resourceNetworkACLDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func getGWPortFromSubnet(config *Config, subnetID string) (string, error) {
+func getGWPortFromSubnet(config *config.Config, subnetID string) (string, error) {
 	var gatewayIP string
 	var gatewayPort string
 

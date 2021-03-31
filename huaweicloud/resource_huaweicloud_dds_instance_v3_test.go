@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/dds/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccDDSV3Instance_basic(t *testing.T) {
@@ -46,7 +47,7 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 }
 
 func testAccCheckDDSV3InstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.DdsV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s", err)
@@ -88,7 +89,7 @@ func testAccCheckDDSV3InstanceExists(n string, instance *instances.Instance) res
 			return fmt.Errorf("No ID is set. ")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.DdsV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/projects"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceIdentityProjectV3() *schema.Resource {
@@ -40,7 +41,7 @@ func ResourceIdentityProjectV3() *schema.Resource {
 }
 
 func resourceIdentityProjectV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud identity client: %s", err)
@@ -63,7 +64,7 @@ func resourceIdentityProjectV3Create(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceIdentityProjectV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud identity client: %s", err)
@@ -85,7 +86,7 @@ func resourceIdentityProjectV3Read(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceIdentityProjectV3Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud identity client: %s", err)
@@ -116,7 +117,7 @@ func resourceIdentityProjectV3Update(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceIdentityProjectV3Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud identity client: %s", err)

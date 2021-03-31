@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 var iamgeValidSortKeys = []string{
@@ -144,7 +145,7 @@ func DataSourceImagesImageV2() *schema.Resource {
 
 // dataSourceImagesImageV2Read performs the image lookup.
 func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	imageClient, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)

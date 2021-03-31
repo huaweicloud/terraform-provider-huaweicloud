@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v1/maintainwindows"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceDcsMaintainWindowV1() *schema.Resource {
@@ -44,7 +45,7 @@ func dataSourceDcsMaintainWindowV1() *schema.Resource {
 }
 
 func dataSourceDcsMaintainWindowV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating dcs key client: %s", err)

@@ -1,4 +1,4 @@
-package huaweicloud
+package config
 
 import (
 	"crypto/tls"

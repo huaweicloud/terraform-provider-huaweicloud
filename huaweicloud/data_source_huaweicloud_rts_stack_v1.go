@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacktemplates"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceRTSStackV1() *schema.Resource {
@@ -73,7 +74,7 @@ func dataSourceRTSStackV1() *schema.Resource {
 }
 
 func dataSourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud rts client: %s", err)

@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccObsBucketPolicy_basic(t *testing.T) {
@@ -119,7 +120,7 @@ func testAccCheckObsBucketHasPolicy(n string, expectedPolicyText string) resourc
 		var err error
 		var obsClient *obs.ObsClient
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		format := rs.Primary.Attributes["policy_format"]
 		if format == "obs" {
 			obsClient, err = config.ObjectStorageClientWithSignature(HW_REGION_NAME)

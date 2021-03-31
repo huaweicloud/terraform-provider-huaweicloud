@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceNetworkingVIPV2() *schema.Resource {
@@ -72,7 +73,7 @@ func resourceNetworkingVIPV2() *schema.Resource {
 }
 
 func resourceNetworkingVIPV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 	networkingClient, err := config.NetworkingV2Client(region)
 	if err != nil {
@@ -135,7 +136,7 @@ func resourceNetworkingVIPV2Create(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceNetworkingVIPV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -169,7 +170,7 @@ func resourceNetworkingVIPV2Read(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceNetworkingVIPV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -191,7 +192,7 @@ func resourceNetworkingVIPV2Update(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceNetworkingVIPV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)

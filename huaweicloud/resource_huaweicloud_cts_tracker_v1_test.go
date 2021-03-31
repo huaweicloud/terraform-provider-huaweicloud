@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cts/v1/tracker"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccCTSTrackerV1_basic(t *testing.T) {
@@ -44,7 +45,7 @@ func TestAccCTSTrackerV1_basic(t *testing.T) {
 }
 
 func testAccCheckCTSTrackerV1Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	ctsClient, err := config.CtsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating cts client: %s", err)
@@ -78,7 +79,7 @@ func testAccCheckCTSTrackerV1Exists(n string, trackers *tracker.Tracker) resourc
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		ctsClient, err := config.CtsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating cts client: %s", err)

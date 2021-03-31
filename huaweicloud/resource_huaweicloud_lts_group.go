@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/lts/huawei/loggroups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceLTSGroupV2() *schema.Resource {
@@ -39,7 +40,7 @@ func resourceLTSGroupV2() *schema.Resource {
 }
 
 func resourceGroupV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
@@ -62,7 +63,7 @@ func resourceGroupV2Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceGroupV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
@@ -85,7 +86,7 @@ func resourceGroupV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceGroupV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
@@ -106,7 +107,7 @@ func resourceGroupV2Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)

@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/huaweicloud/golangsdk/openstack/smn/v2/subscriptions"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceSubscription() *schema.Resource {
@@ -63,7 +64,7 @@ func resourceSubscription() *schema.Resource {
 }
 
 func resourceSubscriptionCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.SmnV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud smn client: %s", err)
@@ -91,7 +92,7 @@ func resourceSubscriptionCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceSubscriptionDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.SmnV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud smn client: %s", err)
@@ -110,7 +111,7 @@ func resourceSubscriptionDelete(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.SmnV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud smn client: %s", err)

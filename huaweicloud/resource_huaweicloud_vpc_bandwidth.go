@@ -8,6 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	bandwidthsv1 "github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/bandwidths"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -74,7 +75,7 @@ func ResourceVpcBandWidthV2() *schema.Resource {
 }
 
 func resourceVpcBandWidthV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	NetworkingV1Client, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
@@ -121,7 +122,7 @@ func resourceVpcBandWidthV2Create(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceVpcBandWidthV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating networking client: %s", err)
@@ -150,7 +151,7 @@ func resourceVpcBandWidthV2Update(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceVpcBandWidthV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating networking client: %s", err)
@@ -173,7 +174,7 @@ func resourceVpcBandWidthV2Read(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceVpcBandWidthV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	NetworkingV1Client, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {

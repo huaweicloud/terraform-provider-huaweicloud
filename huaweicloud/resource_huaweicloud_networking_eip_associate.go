@@ -8,6 +8,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceNetworkingFloatingIPAssociateV2() *schema.Resource {
@@ -52,7 +53,7 @@ func resourceNetworkingFloatingIPAssociateV2() *schema.Resource {
 }
 
 func resourceNetworkingFloatingIPAssociateV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
@@ -96,7 +97,7 @@ func resourceNetworkingFloatingIPAssociateV2Create(d *schema.ResourceData, meta 
 }
 
 func resourceNetworkingFloatingIPAssociateV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
@@ -119,7 +120,7 @@ func resourceNetworkingFloatingIPAssociateV2Read(d *schema.ResourceData, meta in
 }
 
 func resourceNetworkingFloatingIPAssociateV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)

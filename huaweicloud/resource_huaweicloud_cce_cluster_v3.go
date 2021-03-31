@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/aom/v1/icagents"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 var associateDeleteSchema *schema.Schema = &schema.Schema{
@@ -290,7 +291,8 @@ func resourceClusterAnnotationsV3(d *schema.ResourceData) map[string]string {
 	}
 	return m
 }
-func resourceClusterExtendParamV3(d *schema.ResourceData, config *Config) map[string]interface{} {
+
+func resourceClusterExtendParamV3(d *schema.ResourceData, config *config.Config) map[string]interface{} {
 	extendParam := make(map[string]interface{})
 	if v, ok := d.GetOk("extend_param"); ok {
 		for key, val := range v.(map[string]interface{}) {
@@ -366,7 +368,7 @@ func resourceClusterMastersV3(d *schema.ResourceData) ([]clusters.MasterSpec, er
 }
 
 func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
@@ -480,7 +482,7 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
@@ -570,7 +572,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCEClusterV3Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Client: %s", err)
@@ -591,7 +593,7 @@ func resourceCCEClusterV3Update(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceCCEClusterV3Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Client: %s", err)

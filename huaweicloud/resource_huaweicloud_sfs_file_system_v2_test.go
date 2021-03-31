@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccSFSFileSystemV2_basic(t *testing.T) {
@@ -104,7 +105,7 @@ func TestAccSFSFileSystemV2_withoutRule(t *testing.T) {
 }
 
 func testAccCheckSFSFileSystemV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	sfsClient, err := config.SfsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud sfs client: %s", err)
@@ -135,7 +136,7 @@ func testAccCheckSFSFileSystemV2Exists(n string, share *shares.Share) resource.T
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		sfsClient, err := config.SfsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud sfs client: %s", err)

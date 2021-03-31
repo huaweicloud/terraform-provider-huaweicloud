@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceOpenGaussInstance() *schema.Resource {
@@ -185,7 +186,7 @@ func dataSourceOpenGaussInstance() *schema.Resource {
 }
 
 func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 	client, err := config.OpenGaussV3Client(region)
 	if err != nil {
