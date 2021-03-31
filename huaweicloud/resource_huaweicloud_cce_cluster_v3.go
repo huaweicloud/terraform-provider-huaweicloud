@@ -18,7 +18,6 @@ import (
 var associateDeleteSchema *schema.Schema = &schema.Schema{
 	Type:     schema.TypeString,
 	Optional: true,
-	Default:  "false",
 	ValidateFunc: validation.StringInSlice([]string{
 		"true", "try", "false",
 	}, true),
@@ -206,8 +205,11 @@ func ResourceCCEClusterV3() *schema.Resource {
 			"delete_obs": associateDeleteSchema,
 			"delete_sfs": associateDeleteSchema,
 			"delete_all": {
-				Type:     schema.TypeBool,
+				Type:     schema.TypeString,
 				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "try", "false",
+				}, true),
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -602,13 +604,14 @@ func resourceCCEClusterV3Delete(d *schema.ResourceData, meta interface{}) error 
 		}
 	} else {
 		deleteOpts := clusters.DeleteOpts{}
-		if v, ok := d.GetOk("delete_all"); ok && v.(bool) {
-			deleteOpts.DeleteEfs = "true"
-			deleteOpts.DeleteENI = "true"
-			deleteOpts.DeleteEvs = "true"
-			deleteOpts.DeleteNet = "true"
-			deleteOpts.DeleteObs = "true"
-			deleteOpts.DeleteSfs = "true"
+		if v, ok := d.GetOk("delete_all"); ok && v.(string) != "false" {
+			deleteOpt := d.Get("delete_all").(string)
+			deleteOpts.DeleteEfs = deleteOpt
+			deleteOpts.DeleteENI = deleteOpt
+			deleteOpts.DeleteEvs = deleteOpt
+			deleteOpts.DeleteNet = deleteOpt
+			deleteOpts.DeleteObs = deleteOpt
+			deleteOpts.DeleteSfs = deleteOpt
 		} else {
 			deleteOpts.DeleteEfs = d.Get("delete_efs").(string)
 			deleteOpts.DeleteENI = d.Get("delete_eni").(string)
