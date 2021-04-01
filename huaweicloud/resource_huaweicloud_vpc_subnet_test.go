@@ -86,6 +86,7 @@ func TestAccVpcSubnetV1_ipv6(t *testing.T) {
 						regexp.MustCompile("([[:xdigit:]]*):([[:xdigit:]]*:){1,6}[[:xdigit:]]*/\\d{1,3}")),
 					resource.TestMatchResourceAttr(resourceName, "ipv6_gateway",
 						regexp.MustCompile("([[:xdigit:]]*):([[:xdigit:]]*:){1,6}([[:xdigit:]]){1,4}")),
+					resource.TestCheckResourceAttrSet(resourceName, "ipv6_subnet_id"),
 				),
 			},
 			{

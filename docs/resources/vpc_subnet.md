@@ -74,6 +74,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `subnet_id` - Specifies the subnet (Native OpenStack API) ID.
 
+* `ipv6_subnet_id` - The ID of the IPv6 subnet.
+
 * `ipv6_cidr` - The IPv6 subnet CIDR block. If the subnet is an IPv4 subnet, this parameter is not returned.
 
 * `ipv6_gateway` - The IPv6 subnet gateway. If the subnet is an IPv4 subnet, this parameter is not returned.
