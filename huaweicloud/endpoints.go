@@ -156,6 +156,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v2.0",
 		WithOutProjectID: true,
 	},
+	"loadbalancer": {
+		Name:    "elb",
+		Version: "v2",
+	},
 	"fwv2": {
 		Name:             "vpc",
 		Version:          "v2.0",
