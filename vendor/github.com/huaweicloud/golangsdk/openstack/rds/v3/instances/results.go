@@ -262,3 +262,27 @@ func ExtractSlowLog(r pagination.Page) (SlowLogResp, error) {
 	err := (r.(SlowLogPage)).ExtractInto(&s)
 	return s, err
 }
+
+type RDSJobResult struct {
+	commonResult
+}
+
+type ListJob struct {
+	Job Job `json:"job"`
+}
+
+type Job struct {
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Status     string `json:"status"`
+	Created    string `json:"created"`
+	Ended      string `json:"ended"`
+	Process    string `json:"process"`
+	FailReason string `json:"fail_reason"`
+}
+
+func (r RDSJobResult) Extract() (ListJob, error) {
+	var s ListJob
+	err := r.ExtractInto(&s)
+	return s, err
+}

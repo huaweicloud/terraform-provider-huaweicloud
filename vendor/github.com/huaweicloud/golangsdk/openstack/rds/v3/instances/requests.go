@@ -423,3 +423,35 @@ func ListSlowLog(client *golangsdk.ServiceClient, opts DbSlowLogBuilder, instanc
 	pageRdsList.Headers = rdsheader
 	return pageRdsList
 }
+
+type RDSJobOpts struct {
+	JobID string `q:"id"`
+}
+
+type RDSJobBuilder interface {
+	ToRDSJobQuery() (string, error)
+}
+
+func (opts RDSJobOpts) ToRDSJobQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return "", err
+	}
+	return q.String(), err
+}
+
+func GetRDSJob(client *golangsdk.ServiceClient, opts RDSJobBuilder) (r RDSJobResult) {
+	url := jobURL(client)
+	if opts != nil {
+		query, err := opts.ToRDSJobQuery()
+		if err != nil {
+			r.Err = err
+			return
+		}
+		url += query
+	}
+	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
+	return
+}

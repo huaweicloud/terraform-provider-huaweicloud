@@ -196,17 +196,8 @@ func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface
 	instance := resp.Instance
 	d.SetId(instance.Id)
 	instanceID := d.Id()
-	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"BUILD", "RESTORING"},
-		Target:     []string{"ACTIVE"},
-		Refresh:    rdsInstanceStateRefreshFunc(client, instanceID),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      15 * time.Second,
-		MinTimeout: 5 * time.Second,
-	}
-	_, err = stateConf.WaitForState()
-	if err != nil {
-		return fmt.Errorf("Error waiting for read replica instance (%s) to become ready: %s ", instanceID, err)
+	if err := checkRDSInstanceJobFinish(client, resp.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return fmt.Errorf("Error creating instance (%s): %s", instanceID, err)
 	}
 
 	tagRaw := d.Get("tags").(map[string]interface{})
@@ -406,22 +397,24 @@ func updateRdsInstanceFlavor(d *schema.ResourceData, client *golangsdk.ServiceCl
 		resizeFlavor.Speccode = rdsFlavor.Speccode
 		resizeFlavorOpts.ResizeFlavor = &resizeFlavor
 
+		// instance, err := instances.Resize(client, resizeFlavorOpts, instanceID).Extract()
 		_, err = instances.Resize(client, resizeFlavorOpts, instanceID).Extract()
 		if err != nil {
 			return fmt.Errorf("Error updating instance Flavor from result: %s ", err)
 		}
 
 		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"MODIFYING"},
-			Target:     []string{"ACTIVE"},
-			Refresh:    rdsInstanceStateRefreshFunc(client, instanceID),
-			Timeout:    d.Timeout(schema.TimeoutUpdate),
-			Delay:      15 * time.Second,
-			MinTimeout: 3 * time.Second,
+			Pending:      []string{"MODIFYING"},
+			Target:       []string{"ACTIVE"},
+			Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
+			Timeout:      d.Timeout(schema.TimeoutCreate),
+			Delay:        15 * time.Second,
+			PollInterval: 15 * time.Second,
 		}
 		if _, err = stateConf.WaitForState(); err != nil {
 			return fmt.Errorf("Error waiting for instance (%s) flavor to be Updated: %s ", instanceID, err)
 		}
+		return nil
 	}
 	return nil
 }
@@ -438,22 +431,14 @@ func updateRdsInstanceVolume(d *schema.ResourceData, client *golangsdk.ServiceCl
 			enlargeVolumeRdsOpts.EnlargeVolume = &enlargeVolumeSize
 		}
 	}
-	_, err := instances.EnlargeVolume(client, enlargeVolumeRdsOpts, instanceID).Extract()
+	instance, err := instances.EnlargeVolume(client, enlargeVolumeRdsOpts, instanceID).Extract()
 	if err != nil {
 		return fmt.Errorf("Error updating instance volume from result: %s ", err)
 	}
-	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"MODIFYING"},
-		Target:     []string{"ACTIVE"},
-		Refresh:    rdsInstanceStateRefreshFunc(client, instanceID),
-		Timeout:    d.Timeout(schema.TimeoutUpdate),
-		Delay:      15 * time.Second,
-		MinTimeout: 3 * time.Second,
+	if err := checkRDSInstanceJobFinish(client, instance.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return fmt.Errorf("Error updating instance (%s): %s", instanceID, err)
 	}
 
-	if _, err = stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("Error waiting for instance (%s) volume to be Updated: %s ", instanceID, err)
-	}
 	return nil
 }
 

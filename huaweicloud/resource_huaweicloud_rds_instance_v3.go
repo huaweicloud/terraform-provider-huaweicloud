@@ -290,18 +290,8 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 	d.SetId(res.Instance.Id)
 	instanceID := d.Id()
 
-	// The instance will go through four stages (BUILD, ACTIVE, BACKING UP, ACTIVE) during the creation process, and
-	// there is a certain probability of reaching the BACKING UP state in the state detection of the creation process.
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"BUILD"},
-		Target:       []string{"ACTIVE", "BACKING UP"},
-		Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        10 * time.Second,
-		PollInterval: 15 * time.Second,
-	}
-	if _, err = stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("Error waiting for RDS instance (%s) creation completed: %s", instanceID, err)
+	if err := checkRDSInstanceJobFinish(client, res.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return fmt.Errorf("Error creating instance (%s): %s", instanceID, err)
 	}
 
 	tagRaw := d.Get("tags").(map[string]interface{})
@@ -585,4 +575,33 @@ func updateRdsInstanceName(d *schema.ResourceData, client *golangsdk.ServiceClie
 		}
 	}
 	return nil
+}
+
+func checkRDSInstanceJobFinish(client *golangsdk.ServiceClient, jobID string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"Running"},
+		Target:       []string{"Completed", "Failed"},
+		Refresh:      rdsInstanceJobRefreshFunc(client, jobID),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	if _, err := stateConf.WaitForState(); err != nil {
+		return fmt.Errorf("Error waiting for RDS instance (%s) job to be completed: %s ", jobID, err)
+	}
+	return nil
+}
+
+func rdsInstanceJobRefreshFunc(client *golangsdk.ServiceClient, jobID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		jobOpts := instances.RDSJobOpts{
+			JobID: jobID,
+		}
+		jobList, err := instances.GetRDSJob(client, jobOpts).Extract()
+		if err != nil {
+			return nil, "FOUND ERROR", err
+		}
+
+		return jobList.Job, jobList.Job.Status, nil
+	}
 }

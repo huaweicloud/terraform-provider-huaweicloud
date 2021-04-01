@@ -17,3 +17,7 @@ func listURL(c *golangsdk.ServiceClient) string {
 func updateURL(c *golangsdk.ServiceClient, instancesId string, updata string) string {
 	return c.ServiceURL("instances", instancesId, updata)
 }
+
+func jobURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL("jobs")
+}
