@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceSFSFileSystemV2() *schema.Resource {
@@ -209,7 +210,7 @@ func resourceSFSFileSystemV2Create(d *schema.ResourceData, meta interface{}) err
 	// create tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(sfsClient, "sfs", d.Id(), taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of sfs %s: %s", d.Id(), tagErr)
 		}
@@ -309,7 +310,7 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 
 	// set tags
 	if resourceTags, err := tags.Get(sfsClient, "sfs", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmt.Errorf("Error saving tags to state for SFS file system (%s): %s", d.Id(), err)
 		}
@@ -393,7 +394,7 @@ func resourceSFSFileSystemV2Update(d *schema.ResourceData, meta interface{}) err
 
 	// update tags
 	if d.HasChange("tags") {
-		tagErr := UpdateResourceTags(sfsClient, d, "sfs", d.Id())
+		tagErr := utils.UpdateResourceTags(sfsClient, d, "sfs", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of sfs:%s, err:%s", d.Id(), tagErr)
 		}

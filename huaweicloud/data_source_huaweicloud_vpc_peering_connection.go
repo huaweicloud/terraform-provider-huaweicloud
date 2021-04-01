@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func dataSourceVpcPeeringConnectionV2() *schema.Resource {
@@ -26,7 +27,7 @@ func dataSourceVpcPeeringConnectionV2() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateString64WithChinese,
+				ValidateFunc: utils.ValidateString64WithChinese,
 			},
 			"status": {
 				Type:     schema.TypeString,

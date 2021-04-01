@@ -11,6 +11,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/certificates"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceCertificateV2() *schema.Resource {
@@ -62,13 +63,13 @@ func ResourceCertificateV2() *schema.Resource {
 			"private_key": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				DiffSuppressFunc: suppressNewLineDiffs,
+				DiffSuppressFunc: utils.SuppressNewLineDiffs,
 			},
 
 			"certificate": {
 				Type:             schema.TypeString,
 				Required:         true,
-				DiffSuppressFunc: suppressNewLineDiffs,
+				DiffSuppressFunc: utils.SuppressNewLineDiffs,
 			},
 
 			"update_time": {

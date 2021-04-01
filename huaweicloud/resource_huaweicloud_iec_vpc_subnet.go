@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceIecSubnetDNSListV1(d *schema.ResourceData) []string {
@@ -65,7 +66,7 @@ func resourceIecSubnet() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateIP,
+				ValidateFunc: utils.ValidateIP,
 			},
 			"dhcp_enable": {
 				Type:     schema.TypeBool,

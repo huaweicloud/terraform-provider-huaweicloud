@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/whitelists"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceWhitelistV2() *schema.Resource {
@@ -52,7 +53,7 @@ func ResourceWhitelistV2() *schema.Resource {
 			"whitelist": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				DiffSuppressFunc: suppressLBWhitelistDiffs,
+				DiffSuppressFunc: utils.SuppressLBWhitelistDiffs,
 			},
 		},
 	}

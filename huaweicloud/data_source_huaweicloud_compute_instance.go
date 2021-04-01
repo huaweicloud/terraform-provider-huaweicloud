@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func DataSourceComputeInstance() *schema.Resource {
@@ -290,7 +291,7 @@ func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) err
 	// Set instance tags
 	resourceTags, err := tags.Get(ecsClient, "cloudservers", d.Id()).Extract()
 	if err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		d.Set("tags", tagmap)
 	} else {
 		log.Printf("[WARN] Error fetching tags of ecs instance %s: %s", d.Id(), err)

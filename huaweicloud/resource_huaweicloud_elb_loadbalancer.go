@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/loadbalancers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const nameELBLB = "ELB-LoadBalancer"
@@ -170,7 +171,7 @@ func resourceELBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	var opts loadbalancers.CreateOpts
-	_, err = buildCreateParam(&opts, d, nil)
+	_, err = utils.BuildCreateParam(&opts, d, nil)
 	if err != nil {
 		return fmt.Errorf("Error creating %s: building parameter failed:%s", nameELBLB, err)
 	}
@@ -239,7 +240,7 @@ func resourceELBLoadBalancerRead(d *schema.ResourceData, meta interface{}) error
 	}
 	log.Printf("[DEBUG] Retrieved %s %s: %#v", nameELBLB, d.Id(), lb)
 
-	return refreshResourceData(lb, d, nil)
+	return utils.RefreshResourceData(lb, d, nil)
 }
 
 func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -252,7 +253,7 @@ func resourceELBLoadBalancerUpdate(d *schema.ResourceData, meta interface{}) err
 	lbId := d.Id()
 
 	var updateOpts loadbalancers.UpdateOpts
-	not_pass_param, err := buildUpdateParam(&updateOpts, d, nil)
+	not_pass_param, err := utils.BuildUpdateParam(&updateOpts, d, nil)
 	if err != nil {
 		return fmt.Errorf("Error updating %s %s: building parameter failed:%s", nameELBLB, lbId, err)
 	}

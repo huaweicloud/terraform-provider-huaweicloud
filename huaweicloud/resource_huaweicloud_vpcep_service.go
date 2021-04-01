@@ -13,6 +13,12 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+)
+
+const (
+	tagVPCEP        string = "endpoint"
+	tagVPCEPService string = "endpoint_service"
 )
 
 func ResourceVPCEndpointService() *schema.Resource {
@@ -186,7 +192,7 @@ func resourceVPCEndpointServiceCreate(d *schema.ResourceData, meta interface{}) 
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		createOpts.Tags = taglist
 	}
 
@@ -313,7 +319,7 @@ func resourceVPCEndpointServiceUpdate(d *schema.ResourceData, meta interface{}) 
 
 	//update tags
 	if d.HasChange("tags") {
-		tagErr := UpdateResourceTags(vpcepClient, d, tagVPCEPService, d.Id())
+		tagErr := utils.UpdateResourceTags(vpcepClient, d, tagVPCEPService, d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of VPC endpoint service %s: %s", d.Id(), tagErr)
 		}

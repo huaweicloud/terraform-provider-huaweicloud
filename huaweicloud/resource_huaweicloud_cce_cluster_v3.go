@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 var associateDeleteSchema *schema.Schema = &schema.Schema{
@@ -167,7 +168,7 @@ func ResourceCCEClusterV3() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateIP,
+				ValidateFunc: utils.ValidateIP,
 			},
 			"service_network_cidr": {
 				Type:     schema.TypeString,
@@ -523,7 +524,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 
 	r := clusters.GetCert(cceClient, d.Id())
 
-	kubeConfigRaw, err := jsonMarshal(r.Body)
+	kubeConfigRaw, err := utils.JsonMarshal(r.Body)
 
 	if err != nil {
 		log.Printf("Error marshaling r.Body: %s", err)

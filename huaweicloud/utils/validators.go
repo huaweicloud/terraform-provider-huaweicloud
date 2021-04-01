@@ -1,4 +1,4 @@
-package huaweicloud
+package utils
 
 import (
 	"fmt"
@@ -9,11 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
-var validateSubnetV2IPv6Mode = validation.StringInSlice([]string{
+var ValidateSubnetV2IPv6Mode = validation.StringInSlice([]string{
 	"slaac", "dhcpv6-stateful", "dhcpv6-stateless",
 }, false)
 
-func validateTrueOnly(v interface{}, k string) (ws []string, errors []error) {
+func ValidateTrueOnly(v interface{}, k string) (ws []string, errors []error) {
 	if b, ok := v.(bool); ok && b {
 		return
 	}
@@ -24,8 +24,8 @@ func validateTrueOnly(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
-func validateJsonString(v interface{}, k string) (ws []string, errors []error) {
-	if _, err := normalizeJsonString(v); err != nil {
+func ValidateJsonString(v interface{}, k string) (ws []string, errors []error) {
+	if _, err := NormalizeJsonString(v); err != nil {
 		errors = append(errors, fmt.Errorf("%q contains an invalid JSON: %s", k, err))
 	}
 	return
@@ -35,9 +35,9 @@ func looksLikeJsonString(s interface{}) bool {
 	return regexp.MustCompile(`^\s*{`).MatchString(s.(string))
 }
 
-func validateStackTemplate(v interface{}, k string) (ws []string, errors []error) {
+func ValidateStackTemplate(v interface{}, k string) (ws []string, errors []error) {
 	if looksLikeJsonString(v) {
-		if _, err := normalizeJsonString(v); err != nil {
+		if _, err := NormalizeJsonString(v); err != nil {
 			errors = append(errors, fmt.Errorf("%q contains an invalid JSON: %s", k, err))
 		}
 	} else {
@@ -49,7 +49,7 @@ func validateStackTemplate(v interface{}, k string) (ws []string, errors []error
 }
 
 //lintignore:V001
-func validateName(v interface{}, k string) (ws []string, errors []error) {
+func ValidateName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 {
 		errors = append(errors, fmt.Errorf(
@@ -67,7 +67,7 @@ func validateName(v interface{}, k string) (ws []string, errors []error) {
 }
 
 //lintignore:V001
-func validateString64WithChinese(v interface{}, k string) (ws []string, errors []error) {
+func ValidateString64WithChinese(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 {
 		errors = append(errors, fmt.Errorf(
@@ -84,7 +84,7 @@ func validateString64WithChinese(v interface{}, k string) (ws []string, errors [
 	return
 }
 
-func validateCIDR(v interface{}, k string) (ws []string, errors []error) {
+func ValidateCIDR(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	_, ipnet, err := net.ParseCIDR(value)
 	if err != nil {
@@ -101,7 +101,7 @@ func validateCIDR(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
-func validateIPRange(v interface{}, k string) (ws []string, errors []error) {
+func ValidateIPRange(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	ipAddresses := strings.Split(value, "-")
 	if len(ipAddresses) != 2 {
@@ -138,7 +138,7 @@ func validateIPRange(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
-func validateIP(v interface{}, k string) (ws []string, errors []error) {
+func ValidateIP(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	ipnet := net.ParseIP(value)
 
@@ -151,7 +151,7 @@ func validateIP(v interface{}, k string) (ws []string, errors []error) {
 }
 
 //lintignore:V001
-func validateVBSPolicyName(v interface{}, k string) (ws []string, errors []error) {
+func ValidateVBSPolicyName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if strings.HasPrefix(strings.ToLower(value), "default") {
 		errors = append(errors, fmt.Errorf(
@@ -172,7 +172,7 @@ func validateVBSPolicyName(v interface{}, k string) (ws []string, errors []error
 }
 
 //lintignore:V001
-func validateVBSTagKey(v interface{}, k string) (ws []string, errors []error) {
+func ValidateVBSTagKey(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 
 	if len(value) > 36 {
@@ -189,7 +189,7 @@ func validateVBSTagKey(v interface{}, k string) (ws []string, errors []error) {
 }
 
 //lintignore:V001
-func validateVBSTagValue(v interface{}, k string) (ws []string, errors []error) {
+func ValidateVBSTagValue(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 
 	if len(value) > 43 {
@@ -206,7 +206,7 @@ func validateVBSTagValue(v interface{}, k string) (ws []string, errors []error) 
 }
 
 //lintignore:V001
-func validateVBSBackupName(v interface{}, k string) (ws []string, errors []error) {
+func ValidateVBSBackupName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if strings.HasPrefix(strings.ToLower(value), "autobk") {
 		errors = append(errors, fmt.Errorf(
@@ -227,7 +227,7 @@ func validateVBSBackupName(v interface{}, k string) (ws []string, errors []error
 }
 
 //lintignore:V001
-func validateVBSBackupDescription(v interface{}, k string) (ws []string, errors []error) {
+func ValidateVBSBackupDescription(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 {
 		errors = append(errors, fmt.Errorf(
@@ -243,7 +243,7 @@ func validateVBSBackupDescription(v interface{}, k string) (ws []string, errors 
 }
 
 //lintignore:V001
-func validateECSTagValue(v interface{}, k string) (ws []string, errors []error) {
+func ValidateECSTagValue(v interface{}, k string) (ws []string, errors []error) {
 	tagmap := v.(map[string]interface{})
 	vv := regexp.MustCompile(`^[0-9a-zA-Z-_]+$`)
 	for k, v := range tagmap {

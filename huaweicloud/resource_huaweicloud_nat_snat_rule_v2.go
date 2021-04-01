@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/hw_snatrules"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceNatSnatRuleV2() *schema.Resource {
@@ -62,7 +63,7 @@ func ResourceNatSnatRuleV2() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: suppressSnatFiplistDiffs,
+				DiffSuppressFunc: utils.SuppressSnatFiplistDiffs,
 			},
 			"floating_ip_address": {
 				Type:     schema.TypeString,

@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cts/v1/tracker"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceCTSTrackerV1() *schema.Resource {
@@ -51,7 +52,7 @@ func resourceCTSTrackerV1() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validateName,
+				ValidateFunc: utils.ValidateName,
 			},
 			"is_support_smn": {
 				Type:     schema.TypeBool,

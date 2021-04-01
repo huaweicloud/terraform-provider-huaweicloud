@@ -10,6 +10,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func dataSourceOpenGaussInstance() *schema.Resource {
@@ -285,7 +286,7 @@ func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("sharding_num", dn_num)
 
 	//remove duplicate az
-	azList = removeDuplicateElem(azList)
+	azList = utils.RemoveDuplicateElem(azList)
 	sort.Strings(azList)
 	d.Set("availability_zone", strings.Join(azList, ","))
 

@@ -8,6 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/users"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceIdentityGroupMembershipV3() *schema.Resource {
@@ -41,7 +42,7 @@ func resourceIdentityGroupMembershipV3Create(d *schema.ResourceData, meta interf
 	}
 
 	group := d.Get("group").(string)
-	userList := expandToStringList(d.Get("users").(*schema.Set).List())
+	userList := utils.ExpandToStringList(d.Get("users").(*schema.Set).List())
 
 	if err := addUsersToGroup(identityClient, group, userList); err != nil {
 		return err
@@ -111,8 +112,8 @@ func resourceIdentityGroupMembershipV3Update(d *schema.ResourceData, meta interf
 
 		os := o.(*schema.Set)
 		ns := n.(*schema.Set)
-		remove := expandToStringList(os.Difference(ns).List())
-		add := expandToStringList(ns.Difference(os).List())
+		remove := utils.ExpandToStringList(os.Difference(ns).List())
+		add := utils.ExpandToStringList(ns.Difference(os).List())
 
 		if err := removeUsersFromGroup(identityClient, group, remove); err != nil {
 			return fmt.Errorf("Error update user-group-membership: %s", err)
@@ -134,7 +135,7 @@ func resourceIdentityGroupMembershipV3Delete(d *schema.ResourceData, meta interf
 	}
 
 	group := d.Get("group").(string)
-	users := expandToStringList(d.Get("users").(*schema.Set).List())
+	users := utils.ExpandToStringList(d.Get("users").(*schema.Set).List())
 
 	if err := removeUsersFromGroup(identityClient, group, users); err != nil {
 		return fmt.Errorf("Error delete user-group-membership: %s", err)

@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3.0/acl"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceIdentityACL() *schema.Resource {
@@ -45,7 +46,7 @@ func resourceIdentityACL() *schema.Resource {
 						"cidr": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateCIDR,
+							ValidateFunc: utils.ValidateCIDR,
 						},
 						"description": {
 							Type:     schema.TypeString,
@@ -64,7 +65,7 @@ func resourceIdentityACL() *schema.Resource {
 						"range": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validateIPRange,
+							ValidateFunc: utils.ValidateIPRange,
 						},
 						"description": {
 							Type:     schema.TypeString,

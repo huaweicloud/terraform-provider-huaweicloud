@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceSubnetDNSListV1(d *schema.ResourceData) []string {
@@ -47,20 +48,20 @@ func ResourceVpcSubnetV1() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateString64WithChinese,
+				ValidateFunc: utils.ValidateString64WithChinese,
 			},
 			"cidr": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateCIDR,
+				ValidateFunc: utils.ValidateCIDR,
 			},
 			"dns_list": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validateIP,
+					ValidateFunc: utils.ValidateIP,
 				},
 				Computed: true,
 			},
@@ -68,7 +69,7 @@ func ResourceVpcSubnetV1() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateIP,
+				ValidateFunc: utils.ValidateIP,
 			},
 			"ipv6_enable": {
 				Type:     schema.TypeBool,
@@ -82,13 +83,13 @@ func ResourceVpcSubnetV1() *schema.Resource {
 			"primary_dns": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateIP,
+				ValidateFunc: utils.ValidateIP,
 				Computed:     true,
 			},
 			"secondary_dns": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateIP,
+				ValidateFunc: utils.ValidateIP,
 				Computed:     true,
 			},
 			"availability_zone": {
@@ -176,7 +177,7 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(vpcSubnetV2Client, "subnets", n.ID, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of VpcSubnet %q: %s", n.ID, tagErr)
 		}
@@ -222,7 +223,7 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	// save VpcSubnet tags
 	if vpcSubnetV2Client, err := config.NetworkingV2Client(GetRegion(d, config)); err == nil {
 		if resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract(); err == nil {
-			tagmap := tagsToMap(resourceTags.Tags)
+			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
 				return fmt.Errorf("Error saving tags to state for Subnet (%s): %s", d.Id(), err)
 			}
@@ -286,7 +287,7 @@ func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
 
-		tagErr := UpdateResourceTags(vpcSubnetV2Client, d, "subnets", d.Id())
+		tagErr := utils.UpdateResourceTags(vpcSubnetV2Client, d, "subnets", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of VPC subnet %s: %s", d.Id(), tagErr)
 		}

@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v1/instances"
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v2/whitelists"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceDcsInstanceV1() *schema.Resource {
@@ -377,7 +378,7 @@ func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(dcsV2Client, "dcs", v.InstanceID, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of DCS instance %s: %s", v.InstanceID, tagErr)
 		}
@@ -457,7 +458,7 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 
 	// set tags
 	if resourceTags, err := tags.Get(dcsV2Client, "instances", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmt.Errorf("[DEBUG] Error saving tag to state for DCS instance (%s): %s", d.Id(), err)
 		}
@@ -514,7 +515,7 @@ func resourceDcsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		// update tags
-		tagErr := UpdateResourceTags(dcsV2Client, d, "dcs", d.Id())
+		tagErr := utils.UpdateResourceTags(dcsV2Client, d, "dcs", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of DCS instance:%s, err:%s", d.Id(), tagErr)
 		}

@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/loadbalancers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/monitors"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // lbPendingStatuses are the valid statuses a LoadBalancer will be in while
@@ -306,7 +307,7 @@ func resourceLBV2LoadBalancerStatusRefreshFuncNeutron(lbClient *golangsdk.Servic
 			return nil, "", fmt.Errorf("Unable to get statuses from the Load Balancer %s statuses tree: %s", lbID, err)
 		}
 
-		if !strSliceContains(lbSkipLBStatuses, statuses.Loadbalancer.ProvisioningStatus) {
+		if !utils.StrSliceContains(lbSkipLBStatuses, statuses.Loadbalancer.ProvisioningStatus) {
 			return statuses.Loadbalancer, statuses.Loadbalancer.ProvisioningStatus, nil
 		}
 
@@ -395,7 +396,7 @@ func resourceLBV2L7PolicyRefreshFunc(lbClient *golangsdk.ServiceClient, lbID str
 			if err != nil {
 				return lb, status, err
 			}
-			if !strSliceContains(lbSkipLBStatuses, status) {
+			if !utils.StrSliceContains(lbSkipLBStatuses, status) {
 				return lb, status, nil
 			}
 
@@ -479,7 +480,7 @@ func resourceLBV2L7RuleRefreshFunc(lbClient *golangsdk.ServiceClient, lbID strin
 			if err != nil {
 				return lb, status, err
 			}
-			if !strSliceContains(lbSkipLBStatuses, status) {
+			if !utils.StrSliceContains(lbSkipLBStatuses, status) {
 				return lb, status, nil
 			}
 

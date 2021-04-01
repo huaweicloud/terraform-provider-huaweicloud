@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/healthcheck"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const nameELBHC = "ELB-HealthCheck"
@@ -109,7 +110,7 @@ func resourceELBHealthCheckCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	var createOpts healthcheck.CreateOpts
-	_, err = buildCreateParam(&createOpts, d, nil)
+	_, err = utils.BuildCreateParam(&createOpts, d, nil)
 	if err != nil {
 		return fmt.Errorf("Error creating %s: building parameter failed:%s", nameELBHC, err)
 	}
@@ -140,7 +141,7 @@ func resourceELBHealthCheckRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	log.Printf("[DEBUG] Retrieved %s %s: %#v", nameELBHC, d.Id(), hc)
 
-	return refreshResourceData(hc, d, nil)
+	return utils.RefreshResourceData(hc, d, nil)
 }
 
 func resourceELBHealthCheckUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -153,7 +154,7 @@ func resourceELBHealthCheckUpdate(d *schema.ResourceData, meta interface{}) erro
 	hcId := d.Id()
 
 	var updateOpts healthcheck.UpdateOpts
-	_, err = buildUpdateParam(&updateOpts, d, nil)
+	_, err = utils.BuildUpdateParam(&updateOpts, d, nil)
 	if err != nil {
 		return fmt.Errorf("Error updating %s(%s): building parameter failed:%s", nameELBHC, hcId, err)
 	}

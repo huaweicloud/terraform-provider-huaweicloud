@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceL7PolicyV2() *schema.Resource {
@@ -95,7 +96,7 @@ func ResourceL7PolicyV2() *schema.Resource {
 				Type:         schema.TypeBool,
 				Default:      true,
 				Optional:     true,
-				ValidateFunc: validateTrueOnly,
+				ValidateFunc: utils.ValidateTrueOnly,
 			},
 		},
 	}

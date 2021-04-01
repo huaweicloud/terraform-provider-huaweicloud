@@ -8,6 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func DataSourceCCENodeV3() *schema.Resource {
@@ -232,7 +233,7 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	serverId := Node.Status.ServerID
 
 	if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		// ignore "CCE-Dynamic-Provisioning-Node"
 		delete(tagmap, "CCE-Dynamic-Provisioning-Node")
 		if err := d.Set("tags", tagmap); err != nil {

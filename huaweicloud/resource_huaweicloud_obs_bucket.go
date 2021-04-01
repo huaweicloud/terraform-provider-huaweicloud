@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceObsBucket() *schema.Resource {
@@ -53,8 +54,8 @@ func ResourceObsBucket() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				Computed:         true,
-				ValidateFunc:     validateJsonString,
-				DiffSuppressFunc: suppressEquivalentAwsPolicyDiffs,
+				ValidateFunc:     utils.ValidateJsonString,
+				DiffSuppressFunc: utils.SuppressEquivalentAwsPolicyDiffs,
 			},
 
 			"policy_format": {
@@ -206,9 +207,9 @@ func ResourceObsBucket() *schema.Resource {
 						"routing_rules": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validateJsonString,
+							ValidateFunc: utils.ValidateJsonString,
 							StateFunc: func(v interface{}) string {
-								json, _ := normalizeJsonString(v)
+								json, _ := utils.NormalizeJsonString(v)
 								return json
 							},
 						},
@@ -1330,7 +1331,7 @@ func normalizeWebsiteRoutingRules(w []obs.RoutingRule) (string, error) {
 
 	var cleanRules []map[string]interface{}
 	for _, rule := range rules {
-		cleanRules = append(cleanRules, removeNil(rule))
+		cleanRules = append(cleanRules, utils.RemoveNil(rule))
 	}
 
 	withoutNulls, err := json.Marshal(cleanRules)

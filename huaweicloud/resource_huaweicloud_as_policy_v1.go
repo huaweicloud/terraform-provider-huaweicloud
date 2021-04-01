@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceASPolicy() *schema.Resource {
@@ -68,7 +69,7 @@ func ResourceASPolicy() *schema.Resource {
 							Type:             schema.TypeString,
 							Optional:         true,
 							Default:          getCurrentUTCwithoutSec(),
-							DiffSuppressFunc: suppressDiffAll,
+							DiffSuppressFunc: utils.SuppressDiffAll,
 						},
 						"end_time": {
 							Type:     schema.TypeString,

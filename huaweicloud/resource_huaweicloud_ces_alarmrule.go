@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/cloudeyeservice/alarmrule"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const nameCESAR = "CES-AlarmRule"
@@ -308,7 +309,7 @@ func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	log.Printf("[DEBUG] Retrieved %s %s: %#v", nameCESAR, d.Id(), r)
 
-	m, err := convertStructToMap(r, map[string]string{"notificationList": "notification_list"})
+	m, err := utils.ConvertStructToMap(r, map[string]string{"notificationList": "notification_list"})
 	if err != nil {
 		return err
 	}

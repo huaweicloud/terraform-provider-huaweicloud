@@ -8,6 +8,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func dataSourceNetworkingSubnetV2() *schema.Resource {
@@ -139,13 +140,13 @@ func dataSourceNetworkingSubnetV2() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validateSubnetV2IPv6Mode,
+				ValidateFunc: utils.ValidateSubnetV2IPv6Mode,
 			},
 			"ipv6_ra_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validateSubnetV2IPv6Mode,
+				ValidateFunc: utils.ValidateSubnetV2IPv6Mode,
 			},
 		},
 	}

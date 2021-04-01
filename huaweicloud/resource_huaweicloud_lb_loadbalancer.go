@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/elb/v2/loadbalancers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceLoadBalancerV2() *schema.Resource {
@@ -172,7 +173,7 @@ func resourceLoadBalancerV2Create(d *schema.ResourceData, meta interface{}) erro
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(elbV2Client, "loadbalancers", lb.ID, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of load balancer %s: %s", lb.ID, tagErr)
 		}
@@ -230,7 +231,7 @@ func resourceLoadBalancerV2Read(d *schema.ResourceData, meta interface{}) error 
 
 	// fetch tags
 	if resourceTags, err := tags.Get(elbV2Client, "loadbalancers", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		d.Set("tags", tagmap)
 	} else {
 		log.Printf("[WARN] fetching tags of elb loadbalancer failed: %s", err)
@@ -304,7 +305,7 @@ func resourceLoadBalancerV2Update(d *schema.ResourceData, meta interface{}) erro
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud elb 2.0 client: %s", err)
 		}
-		tagErr := UpdateResourceTags(elbV2Client, d, "loadbalancers", d.Id())
+		tagErr := utils.UpdateResourceTags(elbV2Client, d, "loadbalancers", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of load balancer:%s, err:%s", d.Id(), tagErr)
 		}

@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacktemplates"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func dataSourceRTSStackV1() *schema.Resource {
@@ -94,7 +95,7 @@ func dataSourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("parameters", stack.Parameters)
 	d.Set("status_reason", stack.StatusReason)
 	d.Set("name", stack.Name)
-	d.Set("outputs", flattenStackOutputs(stack.Outputs))
+	d.Set("outputs", utils.FlattenStackOutputs(stack.Outputs))
 	d.Set("capabilities", stack.Capabilities)
 	d.Set("notification_topics", stack.NotificationTopics)
 	d.Set("timeout_mins", stack.Timeout)
@@ -107,7 +108,7 @@ func dataSourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	sTemplate := BytesToString(out)
-	template, error := normalizeStackTemplate(sTemplate)
+	template, error := utils.NormalizeStackTemplate(sTemplate)
 	if error != nil {
 		return errwrap.Wrapf("template body contains an invalid JSON or YAML: {{err}}", err)
 	}

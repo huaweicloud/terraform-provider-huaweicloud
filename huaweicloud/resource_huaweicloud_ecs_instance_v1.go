@@ -17,6 +17,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceEcsInstanceV1() *schema.Resource {
@@ -191,7 +192,7 @@ func resourceEcsInstanceV1() *schema.Resource {
 			"tags": {
 				Type:         schema.TypeMap,
 				Optional:     true,
-				ValidateFunc: validateECSTagValue,
+				ValidateFunc: utils.ValidateECSTagValue,
 				Elem:         &schema.Schema{Type: schema.TypeString},
 			},
 			"auto_recovery": {
@@ -310,7 +311,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 
 		if hasFilledOpt(d, "tags") {
 			tagRaw := d.Get("tags").(map[string]interface{})
-			taglist := expandResourceTags(tagRaw)
+			taglist := utils.ExpandResourceTags(tagRaw)
 			tagErr := tags.Create(computeV1Client, "cloudservers", instance_id, taglist).ExtractErr()
 			if tagErr != nil {
 				log.Printf("[WARN] Error setting tags of instance:%s, err=%s", instance_id, err)
@@ -363,7 +364,7 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	// Set instance tags
 	if resourceTags, err := tags.Get(computeClient, "cloudservers", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmt.Errorf("Error saving tags to state for ECS instance (%s): %s", d.Id(), err)
 		}
@@ -489,7 +490,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 		}
 
-		tagErr := UpdateResourceTags(ecsClient, d, "cloudservers", d.Id())
+		tagErr := utils.UpdateResourceTags(ecsClient, d, "cloudservers", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of instance:%s, err:%s", d.Id(), err)
 		}

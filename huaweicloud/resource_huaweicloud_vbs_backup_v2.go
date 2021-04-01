@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/vbs/v2/backups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceVBSBackupV2() *schema.Resource {
@@ -38,7 +39,7 @@ func resourceVBSBackupV2() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateVBSBackupName,
+				ValidateFunc: utils.ValidateVBSBackupName,
 			},
 			"volume_id": {
 				Type:     schema.TypeString,
@@ -55,7 +56,7 @@ func resourceVBSBackupV2() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateVBSBackupDescription,
+				ValidateFunc: utils.ValidateVBSBackupDescription,
 			},
 			"container": {
 				Type:     schema.TypeString,
@@ -95,13 +96,13 @@ func resourceVBSBackupV2() *schema.Resource {
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
-							ValidateFunc: validateVBSTagKey,
+							ValidateFunc: utils.ValidateVBSTagKey,
 						},
 						"value": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
-							ValidateFunc: validateVBSTagValue,
+							ValidateFunc: utils.ValidateVBSTagValue,
 						},
 					},
 				},

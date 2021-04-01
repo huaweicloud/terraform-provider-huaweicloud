@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceComputeFloatingIPAssociateV2() *schema.Resource {
@@ -58,7 +59,7 @@ func ResourceComputeFloatingIPAssociateV2() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				Computed:         true,
-				DiffSuppressFunc: suppressComputedFixedWhenFloatingIp,
+				DiffSuppressFunc: utils.SuppressComputedFixedWhenFloatingIp,
 			},
 		},
 	}

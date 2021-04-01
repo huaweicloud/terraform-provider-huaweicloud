@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/recordsets"
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/zones"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceDNSRecordSetV2() *schema.Resource {
@@ -140,12 +141,12 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		resourceType, err := getDNSRecordSetTagType(zoneType)
+		resourceType, err := utils.GetDNSRecordSetTagType(zoneType)
 		if err != nil {
 			return fmt.Errorf("Error getting resource type of DNS record set %s: %s", n.ID, err)
 		}
 
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(dnsClient, resourceType, n.ID, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of DNS record set %s: %s", n.ID, tagErr)
 		}
@@ -186,12 +187,12 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("zone_id", zoneID)
 
 	// save tags
-	resourceType, err := getDNSRecordSetTagType(zoneType)
+	resourceType, err := utils.GetDNSRecordSetTagType(zoneType)
 	if err != nil {
 		return fmt.Errorf("Error getting resource type of DNS record set %s: %s", recordsetID, err)
 	}
 	if resourceTags, err := tags.Get(dnsClient, resourceType, recordsetID).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmt.Errorf("Error saving tags to state for DNS record set (%s): %s", recordsetID, err)
 		}
@@ -257,12 +258,12 @@ func resourceDNSRecordSetV2Update(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// update tags
-	resourceType, err := getDNSRecordSetTagType(zoneType)
+	resourceType, err := utils.GetDNSRecordSetTagType(zoneType)
 	if err != nil {
 		return fmt.Errorf("Error getting resource type of DNS record set %s: %s", d.Id(), err)
 	}
 
-	tagErr := UpdateResourceTags(dnsClient, d, resourceType, recordsetID)
+	tagErr := utils.UpdateResourceTags(dnsClient, d, resourceType, recordsetID)
 	if tagErr != nil {
 		return fmt.Errorf("Error updating tags of DNS record set %s: %s", d.Id(), tagErr)
 	}

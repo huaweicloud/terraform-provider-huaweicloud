@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/listeners"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const nameELBListener = "ELB-Listener"
@@ -290,7 +291,7 @@ func resourceELBListenerCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var opts listeners.CreateOpts
-	not_pass_params, err := buildCreateParam(&opts, d, nil)
+	not_pass_params, err := utils.BuildCreateParam(&opts, d, nil)
 	if err != nil {
 		return fmt.Errorf("Error creating %s: building parameter failed:%s", nameELBListener, err)
 	}
@@ -336,7 +337,7 @@ func resourceELBListenerRead(d *schema.ResourceData, meta interface{}) error {
 	if l.SslProtocols == "" && sp != nil {
 		l.SslProtocols = sp.(string)
 	}
-	return refreshResourceData(l, d, nil)
+	return utils.RefreshResourceData(l, d, nil)
 }
 
 func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -349,7 +350,7 @@ func resourceELBListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 	lId := d.Id()
 
 	var opts listeners.UpdateOpts
-	not_pass_params, err := buildUpdateParam(&opts, d, nil)
+	not_pass_params, err := utils.BuildUpdateParam(&opts, d, nil)
 	if err != nil {
 		return fmt.Errorf("Error updating %s %s: building parameter failed:%s", nameELBListener, lId, err)
 	}

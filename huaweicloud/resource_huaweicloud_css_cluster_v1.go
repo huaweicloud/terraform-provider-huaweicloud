@@ -25,6 +25,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/css/v1/snapshots"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceCssClusterV1() *schema.Resource {
@@ -318,7 +319,7 @@ func resourceCssClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	// set tags
 	if resourceTags, err := tags.Get(client, "css-cluster", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmt.Errorf("Error saving tags to state for CSS cluster (%s): %s", d.Id(), err)
 		}
@@ -398,7 +399,7 @@ func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if d.HasChange("tags") {
-		tagErr := UpdateResourceTags(client, d, "css-cluster", d.Id())
+		tagErr := utils.UpdateResourceTags(client, d, "css-cluster", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of CSS cluster:%s, err:%s", d.Id(), tagErr)
 		}
@@ -500,7 +501,7 @@ func buildCssClusterV1CreateParameters(opts map[string]interface{}, arrayIndex m
 	// build tags parameter
 	tagOpts := opts["tags"].(map[string]interface{})
 	if len(tagOpts) > 0 {
-		tags := expandResourceTags(tagOpts)
+		tags := utils.ExpandResourceTags(tagOpts)
 		params["tags"] = tags
 	}
 

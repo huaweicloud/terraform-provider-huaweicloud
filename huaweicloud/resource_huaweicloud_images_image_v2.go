@@ -11,13 +11,13 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/imagedata"
 	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceImagesImageV2() *schema.Resource {
@@ -64,7 +64,7 @@ func resourceImagesImageV2() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				ValidateFunc:     resourceImagesImageV2ValidateDiskFormat,
-				DiffSuppressFunc: suppressDiffAll, // NOTE: HEC appears broken here, so hack work-around...
+				DiffSuppressFunc: utils.SuppressDiffAll, // NOTE: HEC appears broken here, so hack work-around...
 			},
 
 			"file": {
@@ -104,7 +104,7 @@ func resourceImagesImageV2() *schema.Resource {
 				ForceNew:         true,
 				ValidateFunc:     validatePositiveInt,
 				Default:          0,
-				DiffSuppressFunc: suppressMinDisk,
+				DiffSuppressFunc: utils.SuppressMinDisk,
 			},
 
 			"min_ram_mb": {

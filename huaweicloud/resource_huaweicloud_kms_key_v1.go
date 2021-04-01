@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/kms/v1/keys"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const WaitingForEnableState = "1"
@@ -62,7 +63,7 @@ func resourceKmsKeyV1() *schema.Resource {
 			"tags": {
 				Type:         schema.TypeMap,
 				Optional:     true,
-				ValidateFunc: validateECSTagValue,
+				ValidateFunc: utils.ValidateECSTagValue,
 				Elem:         &schema.Schema{Type: schema.TypeString},
 			},
 			"key_id": {
@@ -145,7 +146,7 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		tagErr := tags.Create(kmsKeyV1Client, "kms", v.KeyID, taglist).ExtractErr()
 		if tagErr != nil {
 			log.Printf("Error creating tags for kms key(%s): %s", v.KeyID, err)
@@ -194,7 +195,7 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	// Set kms tags
 	if resourceTags, err := tags.Get(kmsKeyV1Client, "kms", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmt.Errorf("Error saving tags to state for kms key(%s): %s", d.Id(), err)
 		}
@@ -262,7 +263,7 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if d.HasChange("tags") {
-		tagErr := UpdateResourceTags(kmsKeyV1Client, d, "kms", d.Id())
+		tagErr := utils.UpdateResourceTags(kmsKeyV1Client, d, "kms", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of kms:%s, err:%s", d.Id(), err)
 		}

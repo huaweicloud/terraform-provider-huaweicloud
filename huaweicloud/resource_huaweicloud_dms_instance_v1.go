@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceDmsInstancesV1() *schema.Resource {
@@ -228,7 +229,7 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 			return fmt.Errorf("Error creating HuaweiCloud dms instance v2 client: %s", err)
 		}
 
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		engine := d.Get("engine").(string)
 		if tagErr := tags.Create(dmsV2Client, engine, v.InstanceID, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of dms instance %s: %s", v.InstanceID, tagErr)
@@ -287,7 +288,7 @@ func resourceDmsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 
 	engine := d.Get("engine").(string)
 	if resourceTags, err := tags.Get(dmsV2Client, engine, d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmt.Errorf("Error saving tags to state for dms instance (%s): %s", d.Id(), err)
 		}
@@ -342,7 +343,7 @@ func resourceDmsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 		}
 		// update tags
 		engine := d.Get("engine").(string)
-		tagErr := UpdateResourceTags(dmsV2Client, d, engine, d.Id())
+		tagErr := utils.UpdateResourceTags(dmsV2Client, d, engine, d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of dms instance:%s, err:%s", d.Id(), tagErr)
 		}

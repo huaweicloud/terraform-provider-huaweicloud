@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/siteconnections"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceVpnSiteConnectionV2() *schema.Resource {
@@ -215,7 +216,7 @@ func resourceVpnSiteConnectionV2Create(d *schema.ResourceData, meta interface{})
 	// create tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(networkingClient, "ipsec-site-connections", d.Id(), taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of VPN site connection %s: %s", d.Id(), tagErr)
 		}
@@ -277,7 +278,7 @@ func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error fetching VPN site connection tags: %s", err)
 	}
 
-	tagmap := tagsToMap(resourceTags.Tags)
+	tagmap := utils.TagsToMap(resourceTags.Tags)
 	if err := d.Set("tags", tagmap); err != nil {
 		return fmt.Errorf("Error saving tags for VPN site connection %s: %s", d.Id(), err)
 	}
@@ -395,7 +396,7 @@ func resourceVpnSiteConnectionV2Update(d *schema.ResourceData, meta interface{})
 	}
 
 	// update tags
-	tagErr := UpdateResourceTags(networkingClient, d, "ipsec-site-connections", d.Id())
+	tagErr := utils.UpdateResourceTags(networkingClient, d, "ipsec-site-connections", d.Id())
 	if tagErr != nil {
 		return fmt.Errorf("Error updating tags of VPN site connection %s: %s", d.Id(), tagErr)
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/routes"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceVPCRouteV2() *schema.Resource {
@@ -47,7 +48,7 @@ func ResourceVPCRouteV2() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateCIDR,
+				ValidateFunc: utils.ValidateCIDR,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,

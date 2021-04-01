@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceListenerV2() *schema.Resource {
@@ -184,7 +185,7 @@ func resourceListenerV2Create(d *schema.ResourceData, meta interface{}) error {
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(lbClient, "listeners", listener.ID, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of elb listener %s: %s", listener.ID, tagErr)
 		}
@@ -222,7 +223,7 @@ func resourceListenerV2Read(d *schema.ResourceData, meta interface{}) error {
 
 	// fetch tags
 	if resourceTags, err := tags.Get(lbClient, "listeners", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		d.Set("tags", tagmap)
 	} else {
 		log.Printf("[WARN] fetching tags of elb listener failed: %s", err)
@@ -304,7 +305,7 @@ func resourceListenerV2Update(d *schema.ResourceData, meta interface{}) error {
 
 	// update tags
 	if d.HasChange("tags") {
-		tagErr := UpdateResourceTags(lbClient, d, "listeners", d.Id())
+		tagErr := utils.UpdateResourceTags(lbClient, d, "listeners", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of elb listener:%s, err:%s", d.Id(), tagErr)
 		}

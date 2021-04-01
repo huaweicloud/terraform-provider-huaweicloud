@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceCCENodePool() *schema.Resource {
@@ -255,7 +256,7 @@ func ResourceCCENodePool() *schema.Resource {
 
 func resourceCCENodePoolTags(d *schema.ResourceData) []tags.ResourceTag {
 	tagRaw := d.Get("tags").(map[string]interface{})
-	return expandResourceTags(tagRaw)
+	return utils.ExpandResourceTags(tagRaw)
 }
 
 func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
@@ -440,7 +441,7 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node Pool (%s): %s", d.Id(), err)
 	}
 
-	tagmap := tagsToMap(s.Spec.NodeTemplate.UserTags)
+	tagmap := utils.TagsToMap(s.Spec.NodeTemplate.UserTags)
 	// ignore "CCE-Dynamic-Provisioning-Node"
 	delete(tagmap, "CCE-Dynamic-Provisioning-Node")
 	if err := d.Set("tags", tagmap); err != nil {

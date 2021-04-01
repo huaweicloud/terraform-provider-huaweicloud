@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/l7policies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceL7RuleV2() *schema.Resource {
@@ -96,7 +97,7 @@ func ResourceL7RuleV2() *schema.Resource {
 				Type:         schema.TypeBool,
 				Default:      true,
 				Optional:     true,
-				ValidateFunc: validateTrueOnly,
+				ValidateFunc: utils.ValidateTrueOnly,
 			},
 		},
 	}
@@ -408,9 +409,9 @@ func resourceL7RuleV2Import(d *schema.ResourceData, meta interface{}) ([]*schema
 
 func checkL7RuleType(ruleType, key string) error {
 	keyRequired := []string{"COOKIE", "HEADER"}
-	if strSliceContains(keyRequired, ruleType) && key == "" {
+	if utils.StrSliceContains(keyRequired, ruleType) && key == "" {
 		return fmt.Errorf("key attribute is required, when the L7 Rule type is %s", strings.Join(keyRequired, " or "))
-	} else if !strSliceContains(keyRequired, ruleType) && key != "" {
+	} else if !utils.StrSliceContains(keyRequired, ruleType) && key != "" {
 		return fmt.Errorf("key attribute must not be used, when the L7 Rule type is not %s", strings.Join(keyRequired, " or "))
 	}
 	return nil

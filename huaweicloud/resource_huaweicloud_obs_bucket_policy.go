@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceObsBucketPolicy() *schema.Resource {
@@ -36,8 +37,8 @@ func ResourceObsBucketPolicy() *schema.Resource {
 			"policy": {
 				Type:             schema.TypeString,
 				Required:         true,
-				ValidateFunc:     validateJsonString,
-				DiffSuppressFunc: suppressEquivalentAwsPolicyDiffs,
+				ValidateFunc:     utils.ValidateJsonString,
+				DiffSuppressFunc: utils.SuppressEquivalentAwsPolicyDiffs,
 			},
 			"policy_format": {
 				Type:     schema.TypeString,

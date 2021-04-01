@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/flavors"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceRdsReadReplicaInstance() *schema.Resource {
@@ -203,7 +204,7 @@ func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface
 
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		tagList := expandResourceTags(tagRaw)
+		tagList := utils.ExpandResourceTags(tagRaw)
 		err := tags.Create(client, "instances", instanceID, tagList).ExtractErr()
 		if err != nil {
 			return fmt.Errorf("Error setting tags of Rds read replica instance %s: %s", instanceID, err)
@@ -253,7 +254,7 @@ func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}
 	}
 	d.Set("primary_instance_id", primaryInstanceID)
 
-	d.Set("tags", tagsToMap(instance.Tags))
+	d.Set("tags", utils.TagsToMap(instance.Tags))
 
 	volumeList := make([]map[string]interface{}, 0, 1)
 	volume := map[string]interface{}{
@@ -299,7 +300,7 @@ func resourceRdsReadReplicaInstanceUpdate(d *schema.ResourceData, meta interface
 	}
 
 	if d.HasChange("tags") {
-		tagErr := UpdateResourceTags(client, d, "instances", instanceID)
+		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceID)
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of RDS read replica instance: %s, err: %s", instanceID, tagErr)
 		}
