@@ -337,7 +337,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_rts_stack_v1":                  dataSourceRTSStackV1(),
 			"huaweicloud_rts_stack_resource_v1":         dataSourceRTSStackResourcesV1(),
 			"huaweicloud_rts_software_config_v1":        dataSourceRtsSoftwareConfigV1(),
-			"huaweicloud_rds_flavors_v1":                dataSourceRdsFlavorV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -565,7 +564,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_elb_listener":                       resourceELBListener(),
 			"huaweicloud_elb_healthcheck":                    resourceELBHealthCheck(),
 			"huaweicloud_elb_backendecs":                     resourceELBBackendECS(),
-			"huaweicloud_rds_instance_v1":                    resourceRdsInstance(),
 			"huaweicloud_rts_stack_v1":                       resourceRTSStackV1(),
 			"huaweicloud_rts_software_config_v1":             resourceSoftwareConfigV1(),
 		},
