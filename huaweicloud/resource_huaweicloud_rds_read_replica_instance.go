@@ -10,9 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
-	"github.com/huaweicloud/golangsdk/openstack/rds/v1/datastores"
-	"github.com/huaweicloud/golangsdk/openstack/rds/v1/flavors"
-	instanceV1 "github.com/huaweicloud/golangsdk/openstack/rds/v1/instances"
+	"github.com/huaweicloud/golangsdk/openstack/rds/v3/datastores"
+	"github.com/huaweicloud/golangsdk/openstack/rds/v3/flavors"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/instances"
 )
 
@@ -23,7 +22,7 @@ func resourceRdsReadReplicaInstance() *schema.Resource {
 		Create: resourceRdsReadReplicaInstanceCreate,
 		Read:   resourceRdsReadReplicaInstanceRead,
 		Update: resourceRdsReadReplicaInstanceUpdate,
-		Delete: resourceRdsReadReplicaInstanceDelete,
+		Delete: resourceRdsInstanceDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -184,7 +183,7 @@ func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface
 		Region:              GetRegion(d, config),
 		AvailabilityZone:    d.Get("availability_zone").(string),
 		Volume:              resourceReplicaInstanceVolume(d),
-		DiskEncryptionId:    resourceDiskEncryptionID(d),
+		DiskEncryptionId:    d.Get("volume.0.disk_encryption_id").(string),
 		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
 	}
 	log.Printf("[DEBUG] Create replica instance Options: %#v", createOpts)
@@ -196,27 +195,26 @@ func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface
 
 	instance := resp.Instance
 	d.SetId(instance.Id)
+	instanceID := d.Id()
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"BUILD", "RESTORING"},
 		Target:     []string{"ACTIVE"},
-		Refresh:    rdsInstanceStateRefreshFunc(client, instance.Id),
+		Refresh:    rdsInstanceStateRefreshFunc(client, instanceID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      15 * time.Second,
 		MinTimeout: 5 * time.Second,
 	}
-
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for read replica instance (%s) to become ready: %s ", instance.Id, err)
+		return fmt.Errorf("Error waiting for read replica instance (%s) to become ready: %s ", instanceID, err)
 	}
 
-	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		tagList := expandResourceTags(tagRaw)
-		err := tags.Create(client, "instances", instance.Id, tagList).ExtractErr()
+		err := tags.Create(client, "instances", instanceID, tagList).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error setting tags of Rds read replica instance %s: %s", instance.Id, err)
+			return fmt.Errorf("Error setting tags of Rds read replica instance %s: %s", instanceID, err)
 		}
 	}
 
@@ -263,14 +261,8 @@ func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}
 	}
 	d.Set("primary_instance_id", primaryInstanceID)
 
-	// set tags
-	tagsMap := make(map[string]interface{})
-	for _, tag := range instance.Tags {
-		tagsMap[tag.Key] = tag.Value
-	}
-	d.Set("tags", tagsMap)
+	d.Set("tags", tagsToMap(instance.Tags))
 
-	// save volume
 	volumeList := make([]map[string]interface{}, 0, 1)
 	volume := map[string]interface{}{
 		"type":               instance.Volume.Type,
@@ -279,10 +271,9 @@ func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}
 	}
 	volumeList = append(volumeList, volume)
 	if err := d.Set("volume", volumeList); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving volume to RDS read replica instance (%s): %s", d.Id(), err)
+		return fmt.Errorf("[DEBUG] Error saving volume to RDS read replica instance (%s): %s", instanceID, err)
 	}
 
-	// save database
 	dbList := make([]map[string]interface{}, 0, 1)
 	database := map[string]interface{}{
 		"type":      instance.DataStore.Type,
@@ -292,7 +283,7 @@ func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}
 	}
 	dbList = append(dbList, database)
 	if err := d.Set("db", dbList); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving data base to RDS read replica instance (%s): %s", d.Id(), err)
+		return fmt.Errorf("[DEBUG] Error saving data base to RDS read replica instance (%s): %s", instanceID, err)
 	}
 
 	return nil
@@ -301,138 +292,31 @@ func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}
 func resourceRdsReadReplicaInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*Config)
-	clientV3, err := config.RdsV3Client(GetRegion(d, config))
+	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud rds v3 client: %s ", err)
 	}
-	clientV1, err := config.RdsV1Client(GetRegion(d, config))
-	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud rds v1 client: %s ", err)
+	instanceID := d.Id()
+
+	if err := updateRdsInstanceFlavor(d, client, instanceID); err != nil {
+		return fmt.Errorf("[ERROR] %s", err)
 	}
 
-	// Fetching node id
-	instance, err := getRdsInstanceByID(clientV3, d.Id())
-	if err != nil {
-		return err
-	}
-	if instance.Id == "" {
-		d.SetId("")
-		return nil
-	}
-	nodeID := instance.Nodes[0].Id
-	log.Printf("[DEBUG] primary instance node id: %s", nodeID)
-
-	// update flavor
-	if d.HasChange("flavor") {
-		newFlavor := d.Get("flavor")
-
-		// Fetch flavor id
-		db := d.Get("db").([]interface{})
-		datastoreName := db[0].(map[string]interface{})["type"].(string)
-		datastoreVersion := db[0].(map[string]interface{})["version"].(string)
-		datastoresList, err := datastores.List(clientV1, datastoreName).Extract()
-		if err != nil {
-			return fmt.Errorf("Unable to retrieve datastores: %s ", err)
-		}
-		if len(datastoresList) < 1 {
-			return fmt.Errorf("Returned no datastore result. ")
-		}
-		var datastoreID string
-		for _, datastore := range datastoresList {
-			if strings.HasPrefix(datastore.Name, datastoreVersion) {
-				datastoreID = datastore.ID
-				break
-			}
-		}
-		if datastoreID == "" {
-			return fmt.Errorf("Returned no datastore ID. ")
-		}
-		log.Printf("[DEBUG] Received datastore Id: %s", datastoreID)
-		flavorsList, err := flavors.List(clientV1, datastoreID, GetRegion(d, config)).Extract()
-		if err != nil {
-			return fmt.Errorf("Unable to retrieve flavors: %s", err)
-		}
-		if len(flavorsList) < 1 {
-			return fmt.Errorf("Returned no flavor result. ")
-		}
-		var rdsFlavor flavors.Flavor
-		for _, flavor := range flavorsList {
-			if flavor.SpecCode == newFlavor.(string) {
-				rdsFlavor = flavor
-				break
-			}
-		}
-
-		log.Printf("[DEBUG] Update flavor: %s", newFlavor.(string))
-		var updateFlavorOpts instanceV1.UpdateFlavorOps
-		updateFlavorOpts.FlavorRef = rdsFlavor.ID
-		_, err = instanceV1.UpdateFlavorRef(clientV1, updateFlavorOpts, nodeID).Extract()
-		if err != nil {
-			return fmt.Errorf("Error updating replica instance Flavor from result: %s ", err)
-		}
-
-		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"MODIFYING"},
-			Target:     []string{"ACTIVE"},
-			Refresh:    replicaInstanceStateFlavorUpdateRefreshFunc(clientV1, nodeID, d.Get("flavor").(string)),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
-			Delay:      15 * time.Second,
-			MinTimeout: 3 * time.Second,
-		}
-
-		_, err = stateConf.WaitForState()
-		if err != nil {
-			return fmt.Errorf("Error waiting for replica instance (%s) flavor to be Updated: %s ", d.Id(), err)
-		}
-		log.Printf("[DEBUG] Successfully updated replica instance %s flavor: %s", d.Id(), d.Get("flavor").(string))
-
+	if err := updateRdsInstanceVolume(d, client, instanceID); err != nil {
+		return fmt.Errorf("[ERROR] %s", err)
 	}
 
-	// update volume
-	if d.HasChange("volume") {
-		newVolume := d.Get("volume")
-		var updateOpts instanceV1.UpdateOps
-		volume := make(map[string]interface{})
-		volumeRaw := newVolume.([]interface{})
-		if len(volumeRaw) == 1 {
-			if m, ok := volumeRaw[0].(map[string]interface{}); ok {
-				volume["size"] = m["size"].(int)
-			}
-		}
-
-		updateOpts.Volume = volume
-		_, err := instanceV1.UpdateVolumeSize(clientV1, updateOpts, nodeID).Extract()
-		if err != nil {
-			return fmt.Errorf("Error updating read replica volume from result: %s ", err)
-		}
-
-		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"MODIFYING"},
-			Target:     []string{"UPDATED"},
-			Refresh:    replicaInstanceStateUpdateRefreshFunc(clientV1, nodeID, updateOpts.Volume["size"].(int)),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
-			Delay:      15 * time.Second,
-			MinTimeout: 3 * time.Second,
-		}
-		_, err = stateConf.WaitForState()
-		if err != nil {
-			return fmt.Errorf("Error waiting for read replica (%s) volume to be Updated: %s ", d.Id(), err)
-		}
-		log.Printf("[DEBUG] Successfully updated read replica %s volume: %+v", d.Id(), volume)
-	}
-
-	// update tags
 	if d.HasChange("tags") {
-		tagErr := UpdateResourceTags(clientV3, d, "instances", d.Id())
+		tagErr := UpdateResourceTags(client, d, "instances", instanceID)
 		if tagErr != nil {
-			return fmt.Errorf("Error updating tags of RDS read replica instance: %s, err: %s", d.Id(), tagErr)
+			return fmt.Errorf("Error updating tags of RDS read replica instance: %s, err: %s", instanceID, tagErr)
 		}
 	}
 
 	return resourceRdsReadReplicaInstanceRead(d, meta)
 }
 
-func resourceRdsReadReplicaInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceRdsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
@@ -459,11 +343,117 @@ func resourceRdsReadReplicaInstanceDelete(d *schema.ResourceData, meta interface
 	_, err = stateConf.WaitForState()
 	if err != nil {
 		return fmt.Errorf(
-			"Error waiting for read replica instance (%s) to be deleted: %s ",
+			"Error waiting for rds instance (%s) to be deleted: %s ",
 			id, err)
 	}
 
-	log.Printf("[DEBUG] Successfully deleted rds read replica instance %s", id)
+	log.Printf("[DEBUG] Successfully deleted rds instance %s", id)
+	return nil
+}
+
+func updateRdsInstanceFlavor(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+	if d.HasChange("flavor") {
+		nflavor := d.Get("flavor")
+		datastoreName := d.Get("db.0.type").(string)
+		datastoreVersion := d.Get("db.0.version").(string)
+
+		datastoreAllPages, err := datastores.List(client, datastoreName).AllPages()
+		if err != nil {
+			return fmt.Errorf("Unable to retrieve datastores pages: %s ", err)
+		}
+		dataStores, err := datastores.ExtractDataStores(datastoreAllPages)
+		if err != nil {
+			return fmt.Errorf("Unable to analyse datastores: %s ", err)
+		}
+		if len(dataStores.DataStores) < 1 {
+			return fmt.Errorf("Returned no datastore result. ")
+		}
+		for _, datastore := range dataStores.DataStores {
+			if strings.HasPrefix(datastore.Name, datastoreVersion) {
+				datastoreVersion = datastore.Name
+				break
+			}
+		}
+		if datastoreVersion == "" {
+			return fmt.Errorf("Returned no datastore Name. ")
+		}
+		log.Printf("[DEBUG] Received datastore Version: %s", datastoreVersion)
+
+		var dbFlavorsOpts flavors.DbFlavorsOpts
+		dbFlavorsOpts.Versionname = datastoreVersion
+
+		flavorAllPages, err := flavors.List(client, dbFlavorsOpts, datastoreName).AllPages()
+		if err != nil {
+			return fmt.Errorf("Unable to retrieve flavors pages: %s", err)
+		}
+		dbFlavorsResp, err := flavors.ExtractDbFlavors(flavorAllPages)
+		if err != nil {
+			return fmt.Errorf("Unable to analyse flavors Resp: %s", err)
+		}
+		if len(dbFlavorsResp.Flavorslist) < 1 {
+			return fmt.Errorf("Returned no datastore result. ")
+		}
+		var rdsFlavor flavors.Flavors
+		for _, flavor := range dbFlavorsResp.Flavorslist {
+			if flavor.Speccode == nflavor.(string) {
+				rdsFlavor = flavor
+				break
+			}
+		}
+
+		var resizeFlavorOpts instances.ResizeFlavorOpts
+		var resizeFlavor instances.SpecCode
+		resizeFlavor.Speccode = rdsFlavor.Speccode
+		resizeFlavorOpts.ResizeFlavor = &resizeFlavor
+
+		_, err = instances.Resize(client, resizeFlavorOpts, instanceID).Extract()
+		if err != nil {
+			return fmt.Errorf("Error updating instance Flavor from result: %s ", err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:    []string{"MODIFYING"},
+			Target:     []string{"ACTIVE"},
+			Refresh:    rdsInstanceStateRefreshFunc(client, instanceID),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			Delay:      15 * time.Second,
+			MinTimeout: 3 * time.Second,
+		}
+		if _, err = stateConf.WaitForState(); err != nil {
+			return fmt.Errorf("Error waiting for instance (%s) flavor to be Updated: %s ", instanceID, err)
+		}
+	}
+	return nil
+}
+
+func updateRdsInstanceVolume(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+	var enlargeVolumeRdsOpts instances.EnlargeVolumeRdsOpts
+
+	volumeRaw := d.Get("volume").([]interface{})
+	log.Printf("[DEBUG] Enlarge Volume : %+v", volumeRaw)
+	if len(volumeRaw) == 1 {
+		if m, ok := volumeRaw[0].(map[string]interface{}); ok {
+			var enlargeVolumeSize instances.EnlargeVolumeSize
+			enlargeVolumeSize.Size = m["size"].(int)
+			enlargeVolumeRdsOpts.EnlargeVolume = &enlargeVolumeSize
+		}
+	}
+	_, err := instances.EnlargeVolume(client, enlargeVolumeRdsOpts, instanceID).Extract()
+	if err != nil {
+		return fmt.Errorf("Error updating instance volume from result: %s ", err)
+	}
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"MODIFYING"},
+		Target:     []string{"ACTIVE"},
+		Refresh:    rdsInstanceStateRefreshFunc(client, instanceID),
+		Timeout:    d.Timeout(schema.TimeoutUpdate),
+		Delay:      15 * time.Second,
+		MinTimeout: 3 * time.Second,
+	}
+
+	if _, err = stateConf.WaitForState(); err != nil {
+		return fmt.Errorf("Error waiting for instance (%s) volume to be Updated: %s ", instanceID, err)
+	}
 	return nil
 }
 
@@ -473,7 +463,7 @@ func getRdsInstanceByID(client *golangsdk.ServiceClient, instanceID string) (*in
 	}
 	pages, err := instances.List(client, listOpts).AllPages()
 	if err != nil {
-		return nil, fmt.Errorf("An error occured while querying rds read replica instance %s: %s", instanceID, err)
+		return nil, fmt.Errorf("An error occured while querying rds instance %s: %s", instanceID, err)
 	}
 
 	resp, err := instances.ExtractRdsInstances(pages)
@@ -484,16 +474,16 @@ func getRdsInstanceByID(client *golangsdk.ServiceClient, instanceID string) (*in
 	instanceList := resp.Instances
 	if len(instanceList) == 0 {
 		// return an empty rds instance
-		log.Printf("[WARN] can not find the specified rds read replica instance %s", instanceID)
+		log.Printf("[WARN] can not find the specified rds instance %s", instanceID)
 		instance := new(instances.RdsInstanceResponse)
 		return instance, nil
 	}
 
 	if len(instanceList) > 1 {
-		return nil, fmt.Errorf("retrieving more than one rds read replica instance by %s", instanceID)
+		return nil, fmt.Errorf("retrieving more than one rds instance by %s", instanceID)
 	}
 	if instanceList[0].Id != instanceID {
-		return nil, fmt.Errorf("the id of rds read replica instance was expected %s, but got %s",
+		return nil, fmt.Errorf("the id of rds instance was expected %s, but got %s",
 			instanceID, instanceList[0].Id)
 	}
 
@@ -513,17 +503,6 @@ func readPrimaryInstanceID(resp *instances.RdsInstanceResponse) (string, error) 
 		}
 	}
 	return "", fmt.Errorf("Error when get primary instance id for replica %s", resp.Id)
-}
-
-func resourceDiskEncryptionID(d *schema.ResourceData) string {
-	var encryptionID string
-	volumeRaw := d.Get("volume").([]interface{})
-
-	if len(volumeRaw) == 1 {
-		encryptionID = volumeRaw[0].(map[string]interface{})["disk_encryption_id"].(string)
-	}
-
-	return encryptionID
 }
 
 func resourceReplicaInstanceVolume(d *schema.ResourceData) *instances.Volume {
@@ -552,38 +531,6 @@ func rdsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID str
 		}
 		if instance.Id == "" {
 			return instance, "DELETED", nil
-		}
-
-		return instance, instance.Status, nil
-	}
-}
-
-func replicaInstanceStateUpdateRefreshFunc(client *golangsdk.ServiceClient, instanceID string, size int) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		instance, err := instanceV1.Get(client, instanceID).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return instance, "DELETED", nil
-			}
-			return nil, "", err
-		}
-		log.Printf("[DEBUG] Updating read replica instance.Volume : %+v", instance.Volume)
-		if instance.Volume.Size == size {
-			return instance, "UPDATED", nil
-		}
-
-		return instance, instance.Status, nil
-	}
-}
-
-func replicaInstanceStateFlavorUpdateRefreshFunc(client *golangsdk.ServiceClient, instanceID string, flavorID string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		instance, err := instanceV1.Get(client, instanceID).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return instance, "DELETED", nil
-			}
-			return nil, "", err
 		}
 
 		return instance, instance.Status, nil
