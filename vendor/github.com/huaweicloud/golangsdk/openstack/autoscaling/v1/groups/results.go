@@ -64,6 +64,7 @@ type Group struct {
 	Notifications             []string        `json:"notifications"`
 	DeletePublicip            bool            `json:"delete_publicip"`
 	CloudLocationID           string          `json:"cloud_location_id"`
+	EnterpriseProjectID       string          `json:"enterprise_project_id"`
 }
 
 type Network struct {

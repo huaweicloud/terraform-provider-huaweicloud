@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/aom/v1/icagents"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
+	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
 )
 
 var associateDeleteSchema *schema.Schema = &schema.Schema{
@@ -52,18 +53,6 @@ func ResourceCCEClusterV3() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"annotations": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 			"flavor_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -86,11 +75,17 @@ func ResourceCCEClusterV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"billing_mode": {
-				Type:     schema.TypeInt,
+			"labels": {
+				Type:     schema.TypeMap,
 				Optional: true,
-				Computed: true,
 				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"annotations": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -107,12 +102,6 @@ func ResourceCCEClusterV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
-			},
-			"extend_param": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"container_network_type": {
 				Type:     schema.TypeString,
@@ -197,6 +186,19 @@ func ResourceCCEClusterV3() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"extend_param": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
+			// charge info: charging_mode, period_unit, period, auto_renew
+			"charging_mode": schemeChargingMode(nil),
+			"period_unit":   schemaPeriodUnit(nil),
+			"period":        schemaPeriod(nil),
+			"auto_renew":    schemaAutoRenew(nil),
+
 			"delete_efs": associateDeleteSchema,
 			"delete_eni": associateDeleteSchema,
 			"delete_evs": associateDeleteSchema,
@@ -259,6 +261,15 @@ func ResourceCCEClusterV3() *schema.Resource {
 					},
 				},
 			},
+
+			// Deprecated
+			"billing_mode": {
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Computed:   true,
+				ForceNew:   true,
+				Deprecated: "use charging_mode instead",
+			},
 		},
 	}
 }
@@ -277,27 +288,54 @@ func resourceClusterAnnotationsV3(d *schema.ResourceData) map[string]string {
 	}
 	return m
 }
-func resourceClusterExtendParamV3(d *schema.ResourceData, config *Config) map[string]string {
-	m := make(map[string]string)
-	for key, val := range d.Get("extend_param").(map[string]interface{}) {
-		m[key] = val.(string)
+func resourceClusterExtendParamV3(d *schema.ResourceData, config *Config) map[string]interface{} {
+	extendParam := make(map[string]interface{})
+	if v, ok := d.GetOk("extend_param"); ok {
+		for key, val := range v.(map[string]interface{}) {
+			extendParam[key] = val.(string)
+		}
 	}
+
+	// assemble the charge info
+	var isPrePaid bool
+	var billingMode int
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		isPrePaid = true
+	}
+	if v, ok := d.GetOk("billing_mode"); ok {
+		billingMode = v.(int)
+	}
+	if isPrePaid || billingMode == 1 {
+		extendParam["isAutoPay"] = "true"
+		extendParam["isAutoRenew"] = "false"
+	}
+
+	if v, ok := d.GetOk("period_unit"); ok {
+		extendParam["periodType"] = v.(string)
+	}
+	if v, ok := d.GetOk("period"); ok {
+		extendParam["periodNum"] = v.(int)
+	}
+	if v, ok := d.GetOk("auto_renew"); ok {
+		extendParam["isAutoRenew"] = v.(string)
+	}
+
 	if multi_az, ok := d.GetOk("multi_az"); ok && multi_az == true {
-		m["clusterAZ"] = "multi_az"
+		extendParam["clusterAZ"] = "multi_az"
 	}
 	if kube_proxy_mode, ok := d.GetOk("kube_proxy_mode"); ok {
-		m["kubeProxyMode"] = kube_proxy_mode.(string)
+		extendParam["kubeProxyMode"] = kube_proxy_mode.(string)
 	}
 	if eip, ok := d.GetOk("eip"); ok {
-		m["clusterExternalIP"] = eip.(string)
+		extendParam["clusterExternalIP"] = eip.(string)
 	}
 
 	epsID := GetEnterpriseProjectID(d, config)
-
 	if epsID != "" {
-		m["enterpriseProjectId"] = epsID
+		extendParam["enterpriseProjectId"] = epsID
 	}
-	return m
+
+	return extendParam
 }
 
 func resourceClusterMastersV3(d *schema.ResourceData) ([]clusters.MasterSpec, error) {
@@ -328,19 +366,33 @@ func resourceClusterMastersV3(d *schema.ResourceData) ([]clusters.MasterSpec, er
 func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
-
 	if err != nil {
 		return fmt.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
+	}
+	icAgentClient, err := config.AomV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Unable to create HuaweiCloud AOM client : %s", err)
 	}
 
 	authenticating_proxy := make(map[string]string)
 	if hasFilledOpt(d, "authenticating_proxy_ca") {
 		authenticating_proxy["ca"] = d.Get("authenticating_proxy_ca").(string)
 	}
+
+	billingMode := 0
+	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 1 {
+		billingMode = 1
+		if err := validatePrePaidChargeInfo(d); err != nil {
+			return err
+		}
+	}
+
+	clusterName := d.Get("name").(string)
 	createOpts := clusters.CreateOpts{
 		Kind:       "Cluster",
 		ApiVersion: "v3",
-		Metadata: clusters.CreateMetaData{Name: d.Get("name").(string),
+		Metadata: clusters.CreateMetaData{
+			Name:        clusterName,
 			Labels:      resourceClusterLabelsV3(d),
 			Annotations: resourceClusterAnnotationsV3(d)},
 		Spec: clusters.Spec{
@@ -361,7 +413,7 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 				Mode:                d.Get("authentication_mode").(string),
 				AuthenticatingProxy: authenticating_proxy,
 			},
-			BillingMode:          d.Get("billing_mode").(int),
+			BillingMode:          billingMode,
 			ExtendParam:          resourceClusterExtendParamV3(d, config),
 			KubernetesSvcIPRange: d.Get("service_network_cidr").(string),
 		},
@@ -381,18 +433,27 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 	}
 	createOpts.Spec.Masters = masters
 
-	create, err := clusters.Create(cceClient, createOpts).Extract()
-
+	s, err := clusters.Create(cceClient, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud Cluster: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for HuaweiCloud CCE cluster (%s) to become available", create.Metadata.Id)
+	jobID := s.Status.JobID
+	if jobID == "" {
+		return fmt.Errorf("Error fetching job id after creating cce cluster: %s", clusterName)
+	}
 
+	clusterID, err := getCCEClusterIDFromJob(cceClient, jobID)
+	if err != nil {
+		return err
+	}
+	d.SetId(clusterID)
+
+	log.Printf("[DEBUG] Waiting for HuaweiCloud CCE cluster (%s) to become available", clusterID)
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Creating"},
 		Target:       []string{"Available"},
-		Refresh:      waitForCCEClusterActive(cceClient, create.Metadata.Id),
+		Refresh:      waitForCCEClusterActive(cceClient, clusterID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        150 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -402,21 +463,18 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE cluster: %s", err)
 	}
-	d.SetId(create.Metadata.Id)
 
-	icAgentClient, err := config.AomV1Client(GetRegion(d, config))
-
+	log.Printf("[DEBUG] installing ICAgent for CCE cluster (%s)", d.Id())
 	installParam := icagents.InstallParam{
 		ClusterId: d.Id(),
 		NameSpace: "default",
 	}
-
 	result := icagents.Create(icAgentClient, installParam)
 	if result.Err != nil {
-		log.Printf("Error installing ci agent in CCE cluster: %s", result.Err)
+		log.Printf("Error installing ICAgent in CCE cluster: %s", result.Err)
 	}
-	return resourceCCEClusterV3Read(d, meta)
 
+	return resourceCCEClusterV3Read(d, meta)
 }
 
 func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
@@ -442,7 +500,6 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("cluster_version", n.Spec.Version)
 	d.Set("cluster_type", n.Spec.Type)
 	d.Set("description", n.Spec.Description)
-	d.Set("billing_mode", n.Spec.BillingMode)
 	d.Set("vpc_id", n.Spec.HostNetwork.VpcId)
 	d.Set("subnet_id", n.Spec.HostNetwork.SubnetId)
 	d.Set("highway_subnet_id", n.Spec.HostNetwork.HighwaySubnet)
@@ -455,6 +512,10 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("region", GetRegion(d, config))
 	d.Set("enterprise_project_id", n.Spec.ExtendParam["enterpriseProjectId"])
 	d.Set("service_network_cidr", n.Spec.KubernetesSvcIPRange)
+	d.Set("billing_mode", n.Spec.BillingMode)
+	if n.Spec.BillingMode != 0 {
+		d.Set("charging_mode", "prePaid")
+	}
 
 	r := clusters.GetCert(cceClient, d.Id())
 
@@ -533,26 +594,35 @@ func resourceCCEClusterV3Delete(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Client: %s", err)
 	}
-	deleteOpts := clusters.DeleteOpts{}
-	if v, ok := d.GetOk("delete_all"); ok && v.(bool) {
-		deleteOpts.DeleteEfs = "true"
-		deleteOpts.DeleteENI = "true"
-		deleteOpts.DeleteEvs = "true"
-		deleteOpts.DeleteNet = "true"
-		deleteOpts.DeleteObs = "true"
-		deleteOpts.DeleteSfs = "true"
+
+	// for prePaid mode, we should unsubscribe the resource
+	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 1 {
+		if err := UnsubscribePrePaidResource(d, config, []string{d.Id()}); err != nil {
+			return fmt.Errorf("Error unsubscribing HuaweiCloud CCE cluster: %s", err)
+		}
 	} else {
-		deleteOpts.DeleteEfs = d.Get("delete_efs").(string)
-		deleteOpts.DeleteENI = d.Get("delete_eni").(string)
-		deleteOpts.DeleteEvs = d.Get("delete_evs").(string)
-		deleteOpts.DeleteNet = d.Get("delete_net").(string)
-		deleteOpts.DeleteObs = d.Get("delete_obs").(string)
-		deleteOpts.DeleteSfs = d.Get("delete_sfs").(string)
+		deleteOpts := clusters.DeleteOpts{}
+		if v, ok := d.GetOk("delete_all"); ok && v.(bool) {
+			deleteOpts.DeleteEfs = "true"
+			deleteOpts.DeleteENI = "true"
+			deleteOpts.DeleteEvs = "true"
+			deleteOpts.DeleteNet = "true"
+			deleteOpts.DeleteObs = "true"
+			deleteOpts.DeleteSfs = "true"
+		} else {
+			deleteOpts.DeleteEfs = d.Get("delete_efs").(string)
+			deleteOpts.DeleteENI = d.Get("delete_eni").(string)
+			deleteOpts.DeleteEvs = d.Get("delete_evs").(string)
+			deleteOpts.DeleteNet = d.Get("delete_net").(string)
+			deleteOpts.DeleteObs = d.Get("delete_obs").(string)
+			deleteOpts.DeleteSfs = d.Get("delete_sfs").(string)
+		}
+		err = clusters.DeleteWithOpts(cceClient, d.Id(), deleteOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error deleting HuaweiCloud CCE Cluster: %s", err)
+		}
 	}
-	err = clusters.DeleteWithOpts(cceClient, d.Id(), deleteOpts).ExtractErr()
-	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud CCE Cluster: %s", err)
-	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Deleting", "Available", "Unavailable"},
 		Target:       []string{"Deleted"},
@@ -601,4 +671,30 @@ func waitForCCEClusterDelete(cceClient *golangsdk.ServiceClient, clusterId strin
 		log.Printf("[DEBUG] HuaweiCloud CCE cluster %s still available.\n", clusterId)
 		return r, "Available", nil
 	}
+}
+
+func getCCEClusterIDFromJob(client *golangsdk.ServiceClient, jobID string) (string, error) {
+	// waiting for 30 seconds to avoid 401 response code
+	time.Sleep(30 * time.Second)
+
+	stateJob := &resource.StateChangeConf{
+		Pending:      []string{"Initializing"},
+		Target:       []string{"Running"},
+		Refresh:      waitForJobStatus(client, jobID),
+		Timeout:      5 * time.Minute,
+		Delay:        5 * time.Second,
+		PollInterval: 3 * time.Second,
+	}
+
+	v, err := stateJob.WaitForState()
+	if err != nil {
+		return "", fmt.Errorf("Error waiting for job (%s) to become running: %s", jobID, err)
+	}
+
+	job := v.(*nodes.Job)
+	clusterID := job.Spec.ClusterID
+	if clusterID == "" {
+		return "", fmt.Errorf("Error fetching CCE cluster id")
+	}
+	return clusterID, nil
 }
