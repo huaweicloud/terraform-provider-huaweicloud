@@ -89,7 +89,12 @@ func ResourceSFSTurbo() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -118,14 +123,15 @@ func resourceSFSTurboCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	createOpts := shares.CreateOpts{
-		Name:             d.Get("name").(string),
-		Size:             d.Get("size").(int),
-		ShareProto:       d.Get("share_proto").(string),
-		ShareType:        d.Get("share_type").(string),
-		VpcID:            d.Get("vpc_id").(string),
-		SubnetID:         d.Get("subnet_id").(string),
-		SecurityGroupID:  d.Get("security_group_id").(string),
-		AvailabilityZone: d.Get("availability_zone").(string),
+		Name:                d.Get("name").(string),
+		Size:                d.Get("size").(int),
+		ShareProto:          d.Get("share_proto").(string),
+		ShareType:           d.Get("share_type").(string),
+		VpcID:               d.Get("vpc_id").(string),
+		SubnetID:            d.Get("subnet_id").(string),
+		SecurityGroupID:     d.Get("security_group_id").(string),
+		AvailabilityZone:    d.Get("availability_zone").(string),
+		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
 	}
 
 	metaOpts := shares.Metadata{}
@@ -184,6 +190,7 @@ func resourceSFSTurboRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("available_capacity", n.AvailCapacity)
 	d.Set("export_location", n.ExportLocation)
 	d.Set("crypt_key_id", n.CryptKeyID)
+	d.Set("enterprise_project_id", n.EnterpriseProjectId)
 
 	// n.Size is a string of float64, should convert it to int
 	if fsize, err := strconv.ParseFloat(n.Size, 64); err == nil {
