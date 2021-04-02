@@ -63,7 +63,7 @@ type Spec struct {
 	// Charging mode of the cluster, which is 0 (on demand)
 	BillingMode int `json:"billingMode,omitempty"`
 	//Extended parameter for a cluster
-	ExtendParam map[string]string `json:"extendParam,omitempty"`
+	ExtendParam map[string]interface{} `json:"extendParam,omitempty"`
 	//Advanced configuration of master node
 	Masters []MasterSpec `json:"masters,omitempty"`
 	//Range of kubernetes clusterIp

@@ -59,6 +59,8 @@ type Turbo struct {
 	PayModel string `json:"pay_model"`
 	// Timestamp when the share was created
 	CreatedAt time.Time `json:"-"`
+	// The enterprise project ID
+	EnterpriseProjectId string `json:"enterprise_project_id"`
 }
 
 func (r *Turbo) UnmarshalJSON(b []byte) error {
