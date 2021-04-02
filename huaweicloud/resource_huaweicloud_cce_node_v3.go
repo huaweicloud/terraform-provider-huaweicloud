@@ -646,11 +646,13 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("os", s.Spec.Os)
 	d.Set("key_pair", s.Spec.Login.SshKey)
 	d.Set("subnet_id", s.Spec.NodeNicSpec.PrimaryNic.SubnetId)
-	d.Set("runtime", s.Spec.RunTime.Name)
 	d.Set("ecs_group_id", s.Spec.EcsGroupID)
 	d.Set("billing_mode", s.Spec.BillingMode)
 	if s.Spec.BillingMode != 0 {
 		d.Set("charging_mode", "prePaid")
+	}
+	if s.Spec.RunTime != nil {
+		d.Set("runtime", s.Spec.RunTime.Name)
 	}
 
 	var volumes []map[string]interface{}
