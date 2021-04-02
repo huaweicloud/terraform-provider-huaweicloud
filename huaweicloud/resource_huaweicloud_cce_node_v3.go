@@ -453,6 +453,7 @@ func resourceCCEExtendParam(d *schema.ResourceData) map[string]interface{} {
 	if isPrePaid || billingMode == 2 {
 		extendParam["chargingMode"] = 2
 		extendParam["isAutoPay"] = "true"
+		extendParam["isAutoRenew"] = "false"
 	}
 
 	if v, ok := d.GetOk("period_unit"); ok {
@@ -463,8 +464,6 @@ func resourceCCEExtendParam(d *schema.ResourceData) map[string]interface{} {
 	}
 	if v, ok := d.GetOk("auto_renew"); ok {
 		extendParam["isAutoRenew"] = v.(string)
-	} else if extendParam["chargingMode"] == 2 {
-		extendParam["isAutoRenew"] = "false"
 	}
 
 	if v, ok := d.GetOk("ecs_performance_type"); ok {
