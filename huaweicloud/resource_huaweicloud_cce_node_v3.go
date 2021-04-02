@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
@@ -195,6 +196,15 @@ func ResourceCCENodeV3() *schema.Resource {
 				RequiredWith: []string{
 					"iptype", "bandwidth_size", "sharetype",
 				},
+			},
+			"runtime": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"docker", "containerd",
+				}, false),
 			},
 			"ecs_group_id": {
 				Type:     schema.TypeString,
@@ -559,6 +569,11 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	if v, ok := d.GetOk("fixed_ip"); ok {
 		createOpts.Spec.NodeNicSpec.PrimaryNic.FixedIps = []string{v.(string)}
 	}
+	if v, ok := d.GetOk("runtime"); ok {
+		createOpts.Spec.RunTime = &nodes.RunTimeSpec{
+			Name: v.(string),
+		}
+	}
 
 	clusterid := d.Get("cluster_id").(string)
 	stateCluster := &resource.StateChangeConf{
@@ -632,6 +647,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("os", s.Spec.Os)
 	d.Set("key_pair", s.Spec.Login.SshKey)
 	d.Set("subnet_id", s.Spec.NodeNicSpec.PrimaryNic.SubnetId)
+	d.Set("runtime", s.Spec.RunTime.Name)
 	d.Set("ecs_group_id", s.Spec.EcsGroupID)
 	d.Set("billing_mode", s.Spec.BillingMode)
 	if s.Spec.BillingMode != 0 {
