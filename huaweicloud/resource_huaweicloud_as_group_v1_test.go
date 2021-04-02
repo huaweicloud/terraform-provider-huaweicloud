@@ -57,6 +57,27 @@ func TestAccASV1Group_basic(t *testing.T) {
 	})
 }
 
+func TestAccASV1Group_withEpsId(t *testing.T) {
+	var asGroup groups.Group
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_as_group.hth_as_group"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckASV1GroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testASV1Group_withEpsId(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckASV1GroupExists(resourceName, &asGroup),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckASV1GroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
@@ -261,4 +282,32 @@ resource "huaweicloud_as_group" "hth_as_group"{
   }
 }
 `, testASV1Group_Base(rName), rName)
+}
+
+func testASV1Group_withEpsId(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_group" "hth_as_group"{
+  scaling_group_name       = "%s"
+  scaling_configuration_id = huaweicloud_as_configuration.hth_as_config.id
+  vpc_id                   = data.huaweicloud_vpc.test.id
+  enterprise_project_id    = "%s"
+
+  networks {
+    id = data.huaweicloud_vpc_subnet.test.id
+  }
+  security_groups {
+    id = huaweicloud_networking_secgroup.secgroup.id
+  }
+  lbaas_listeners {
+    pool_id       = huaweicloud_lb_pool.pool_1.id
+    protocol_port = huaweicloud_lb_listener.listener_1.protocol_port
+  }
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, testASV1Group_Base(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
