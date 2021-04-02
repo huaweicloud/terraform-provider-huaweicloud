@@ -1,3 +1,44 @@
+## 1.23.0 (April 2, 2021)
+
+FEATURES:
+
+* **New Resource:** `huaweicloud_identity_acl` ([#982](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/982))
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc & huaweicloud_vpc_subent: Support IPv6 ([#989](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/989))
+
+* resource/huaweicloud_cce_node_pool: Support `tags` field ([#980](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/980))
+
+* resource/huaweicloud_cce_node:
+    - Support prePaid charging mode ([#1001](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1001))
+    - Add possibility to set `runtime` ([#1026](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1026))
+
+* resource/huaweicloud_cce_cluster:
+    - Support prePaid charging mode ([#1027](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1027))
+    - Add `delete_*` parameters to delete associated resources ([#1007](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1007))
+
+* resource/huaweicloud_api_gateway_api: Support `CORS` field ([#1015](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1015))
+
+* resource/huaweicloud_as_group: Support `enterprise_project_id` field ([#1028](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1028))
+
+* resource/huaweicloud_sfs_turbo: Support `enterprise_project_id` field ([#1030](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1030))
+
+BUG FIXES:
+
+* data/huaweicloud_dcs_az: Filter avaliable zones by code ([#990](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/990))
+
+* resource/huaweicloud_vpcep_approval: Make vpcep approval can work cross-project ([#1010](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1010))
+
+Removed:
+
+* data/huaweicloud_s3_bucket_object: ([#973](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/973))
+* data/huaweicloud_rds_flavors_v1: ([#1032](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1032))
+* resource/huaweicloud_rds_instance_v1: ([#1032](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1032))
+* resource/huaweicloud_s3_bucket: ([#973](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/973))
+* resource/huaweicloud_s3_bucket_policy: ([#973](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/973))
+* resource/huaweicloud_s3_bucket_object: ([#973](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/973))
+
 ## 1.22.3 (March 26, 2021)
 
 ENHANCEMENTS:
