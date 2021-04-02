@@ -393,13 +393,15 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("os", s.Spec.NodeTemplate.Os)
 	d.Set("billing_mode", s.Spec.NodeTemplate.BillingMode)
 	d.Set("key_pair", s.Spec.NodeTemplate.Login.SshKey)
-	d.Set("runtime", s.Spec.NodeTemplate.RunTime.Name)
 	d.Set("initial_node_count", s.Spec.InitialNodeCount)
 	d.Set("scall_enable", s.Spec.Autoscaling.Enable)
 	d.Set("min_node_count", s.Spec.Autoscaling.MinNodeCount)
 	d.Set("max_node_count", s.Spec.Autoscaling.MaxNodeCount)
 	d.Set("scale_down_cooldown_time", s.Spec.Autoscaling.ScaleDownCooldownTime)
 	d.Set("priority", s.Spec.Autoscaling.Priority)
+	if s.Spec.NodeTemplate.RunTime != nil {
+		d.Set("runtime", s.Spec.NodeTemplate.RunTime.Name)
+	}
 
 	labels := map[string]string{}
 	for key, val := range s.Spec.NodeTemplate.K8sTags {
