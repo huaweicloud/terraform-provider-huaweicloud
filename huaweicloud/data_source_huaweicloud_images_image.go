@@ -6,10 +6,17 @@ import (
 	"sort"
 	"time"
 
-	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images"
 )
+
+var iamgeValidSortKeys = []string{
+	"name", "container_format", "disk_format", "status", "id", "size",
+}
+var imageValidVisibilities = []string{
+	"public", "private", "community", "shared",
+}
 
 func DataSourceImagesImageV2() *schema.Resource {
 	return &schema.Resource{
@@ -30,7 +37,7 @@ func DataSourceImagesImageV2() *schema.Resource {
 			"visibility": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: dataSourceImagesImageV2Visibility,
+				ValidateFunc: validation.StringInSlice(imageValidVisibilities, false),
 			},
 
 			"owner": {
@@ -52,14 +59,16 @@ func DataSourceImagesImageV2() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "name",
-				ValidateFunc: dataSourceImagesImageV2SortKey,
+				ValidateFunc: validation.StringInSlice(iamgeValidSortKeys, false),
 			},
 
 			"sort_direction": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "asc",
-				ValidateFunc: dataSourceImagesImageV2SortDirection,
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "asc",
+				ValidateFunc: validation.StringInSlice([]string{
+					"asc", "desc",
+				}, false),
 			},
 
 			"tag": {
@@ -233,43 +242,4 @@ func mostRecentImage(images []images.Image) images.Image {
 	sortedImages := images
 	sort.Sort(imageSort(sortedImages))
 	return sortedImages[len(sortedImages)-1]
-}
-
-var sortkeys = [6]string{"name", "container_format", "disk_format", "status", "id", "size"}
-
-func dataSourceImagesImageV2SortKey(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for _, key := range sortkeys {
-		if value == key {
-			return
-		}
-	}
-
-	err := fmt.Errorf("%s must be one of %s", k, sortkeys)
-	errors = append(errors, err)
-	return
-}
-
-func dataSourceImagesImageV2SortDirection(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if value != "asc" && value != "desc" {
-		err := fmt.Errorf("%s must be either asc or desc", k)
-		errors = append(errors, err)
-	}
-	return
-}
-
-var visibilities = [4]string{"public", "private", "community", "shared"}
-
-func dataSourceImagesImageV2Visibility(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for _, key := range visibilities {
-		if value == key {
-			return
-		}
-	}
-
-	err := fmt.Errorf("%s must be one of %s", k, visibilities)
-	errors = append(errors, err)
-	return
 }

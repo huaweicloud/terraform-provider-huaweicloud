@@ -30,6 +30,7 @@ type CreateOpts struct {
 	InstanceTerminatePolicy   string              `json:"instance_terminate_policy,omitempty"`
 	Notifications             []string            `json:"notifications,omitempty"`
 	IsDeletePublicip          bool                `json:"delete_publicip,omitempty"`
+	EnterpriseProjectID       string              `json:"enterprise_project_id,omitempty"`
 }
 
 type NetworkOpts struct {
@@ -130,6 +131,7 @@ type UpdateOpts struct {
 	Notifications             []string            `json:"notifications,omitempty"`
 	IsDeletePublicip          bool                `json:"delete_publicip,omitempty"`
 	ConfigurationID           string              `json:"scaling_configuration_id,omitempty"`
+	EnterpriseProjectID       string              `json:"enterprise_project_id,omitempty"`
 }
 
 func (opts UpdateOpts) ToGroupUpdateMap() (map[string]interface{}, error) {

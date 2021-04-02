@@ -52,6 +52,9 @@ type Subnet struct {
 	//Specifies the subnet ID.
 	SubnetId string `json:"neutron_subnet_id"`
 
+	//Specifies the subnet ID of the IPv6 subnet.
+	IPv6SubnetId string `json:"neutron_subnet_id_v6"`
+
 	//Specifies the extra dhcp opts.
 	ExtraDhcpOpts []ExtraDhcp `json:"extra_dhcp_opts"`
 }

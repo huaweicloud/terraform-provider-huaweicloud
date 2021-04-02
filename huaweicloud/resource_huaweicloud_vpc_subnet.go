@@ -106,6 +106,10 @@ func ResourceVpcSubnetV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"ipv6_subnet_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"ipv6_cidr": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -210,6 +214,7 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("availability_zone", n.AvailabilityZone)
 	d.Set("vpc_id", n.VPC_ID)
 	d.Set("subnet_id", n.SubnetId)
+	d.Set("ipv6_subnet_id", n.IPv6SubnetId)
 	d.Set("ipv6_cidr", n.IPv6CIDR)
 	d.Set("ipv6_gateway", n.IPv6Gateway)
 	d.Set("region", GetRegion(d, config))

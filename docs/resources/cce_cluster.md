@@ -160,6 +160,22 @@ The following arguments are supported:
 
 * `extend_param` - (Optional, Map, ForceNew) Extended parameter. Changing this parameter will create a new cluster resource.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the CCE cluster.
+  Valid values are *prePaid* and *postPaid*, defaults to *postPaid*.
+  Changing this creates a new cluster.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the CCE cluster.
+  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
+  Changing this creates a new cluster.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the CCE cluster.
+  If `period_unit` is set to *month*, the value ranges from 1 to 9.
+  If `period_unit` is set to *year*, the value ranges from 1 to 3.
+  This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new cluster.
+
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
+  Valid values are "true" and "false". Changing this creates a new cluster.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the cce cluster.
   Changing this creates a new cluster.
 

@@ -181,7 +181,7 @@ type UpdateMetaData struct {
 // UpdateSpec describes Node pools update specification
 type UpdateSpec struct {
 	// Node type. Currently, only VM nodes are supported.
-	Type string `json:"type"`
+	Type string `json:"type,omitempty"`
 	// Node template
 	NodeTemplate nodes.Spec `json:"nodeTemplate"`
 	// Initial number of expected nodes

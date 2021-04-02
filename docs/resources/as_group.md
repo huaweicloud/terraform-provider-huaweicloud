@@ -192,6 +192,8 @@ The following arguments are supported:
 * `enable` - (Optional, Bool) Whether to enable the AS Group. The options are `true` and `false`.
     The default value is `true`.
 
+* `enterprise_project_id` - (Optional, String) The enterprise project id of the AS group.
+
 The `networks` block supports:
 
 * `id` - (Required, String) The network UUID.
