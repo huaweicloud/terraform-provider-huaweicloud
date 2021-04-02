@@ -197,8 +197,8 @@ The following arguments are supported:
 * `delete_sfs` - (Optional, String) Specified whether to delete the associated SFS resources when deleting CCE cluster.
   valid values are "true", "try" and "false". Default is false.
 
-* `delete_all` - (Optional, Bool) Specified whether to delete all associated resources when deleting CCE cluster.
-  Default is false.
+* `delete_all` - (Optional, String) Specified whether to delete all associated resources when deleting CCE cluster.
+  valid values are "true", "try" and "false". Default is false.
 
 The `masters` block supports:
 
