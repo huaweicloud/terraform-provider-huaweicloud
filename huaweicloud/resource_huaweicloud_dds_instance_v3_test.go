@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/dds/v3/instances"
@@ -11,6 +12,7 @@ import (
 
 func TestAccDDSV3Instance_basic(t *testing.T) {
 	var instance instances.Instance
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dds_instance.instance"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -19,13 +21,24 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 		CheckDestroy: testAccCheckDDSV3InstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: TestAccDDSInstanceV3Config_basic,
+				Config: testAccDDSInstanceV3Config_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDDSV3InstanceExists(resourceName, &instance),
-					resource.TestCheckResourceAttr(resourceName, "name", "dds-instance"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "ssl", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:00-09:00"),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
+				),
+			},
+			{
+				Config: testAccDDSInstanceV3Config_updateBackupStrategy(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDDSV3InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "00:00-01:00"),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
 				),
 			},
 		},
@@ -100,22 +113,32 @@ func testAccCheckDDSV3InstanceExists(n string, instance *instances.Instance) res
 	}
 }
 
-var TestAccDDSInstanceV3Config_basic = fmt.Sprintf(`
+func testAccDDSInstanceV3Config_basic(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
 resource "huaweicloud_networking_secgroup" "secgroup_acc" {
-  name = "secgroup_acc"
+  name = "%s"
 }
 
 resource "huaweicloud_dds_instance" "instance" {
-  name = "dds-instance"
+  name = "%s"
   datastore {
     type = "DDS-Community"
     version = "3.4"
     storage_engine = "wiredTiger"
   }
-  region = "%s"
-  availability_zone = "%s"
-  vpc_id = "%s"
-  subnet_id = "%s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id = data.huaweicloud_vpc.test.id
+  subnet_id = data.huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
   password = "Test@123"
   mode = "Sharding"
@@ -147,4 +170,65 @@ resource "huaweicloud_dds_instance" "instance" {
 	foo = "bar"
     owner = "terraform"
   }
-}`, HW_REGION_NAME, HW_AVAILABILITY_ZONE, HW_VPC_ID, HW_NETWORK_ID)
+}`, rName, rName)
+}
+
+func testAccDDSInstanceV3Config_updateBackupStrategy(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+resource "huaweicloud_networking_secgroup" "secgroup_acc" {
+  name = "%s"
+}
+
+resource "huaweicloud_dds_instance" "instance" {
+  name = "%s"
+  datastore {
+    type = "DDS-Community"
+    version = "3.4"
+    storage_engine = "wiredTiger"
+  }
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id = data.huaweicloud_vpc.test.id
+  subnet_id = data.huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  password = "Test@123"
+  mode = "Sharding"
+
+  flavor {
+    type = "mongos"
+    num = 2
+    spec_code = "dds.mongodb.c3.medium.4.mongos"
+  }
+  flavor {
+    type = "shard"
+    num = 2
+    storage = "ULTRAHIGH"
+    size = 20
+    spec_code = "dds.mongodb.c3.medium.4.shard"
+  }
+  flavor {
+    type = "config"
+    num = 1
+    storage = "ULTRAHIGH"
+    size = 20
+    spec_code = "dds.mongodb.c3.large.2.config"
+  }
+  backup_strategy {
+    start_time = "00:00-01:00"
+    keep_days = "7"
+  }
+  tags = {
+	foo = "bar"
+    owner = "terraform"
+  }
+}`, rName, rName)
+}
