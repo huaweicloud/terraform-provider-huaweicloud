@@ -130,7 +130,7 @@ func testAccCCEAddonV3_basic(rName string) string {
 
 resource "huaweicloud_cce_addon" "test" {
     cluster_id = huaweicloud_cce_cluster_v3.test.id
-    version = "1.0.3"
+    version = "1.1.0"
 	template_name = "metrics-server"
 	depends_on = [huaweicloud_cce_node_v3.test]
 }
