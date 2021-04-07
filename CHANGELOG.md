@@ -1,3 +1,10 @@
+## 1.23.1 (April 7, 2021)
+
+BUG FIXES:
+
+* resource/huaweicloud_dds_instance: Fix backup_strategy update issue ([#1041](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1041))
+* resource/huaweicloud_cce_node: Unsubscribe eip as well in prePaid mode ([#1043](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1043))
+
 ## 1.23.0 (April 2, 2021)
 
 FEATURES:
