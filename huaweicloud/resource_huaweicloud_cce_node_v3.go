@@ -16,6 +16,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
 )
 
 func ResourceCCENodeV3() *schema.Resource {
@@ -755,13 +756,35 @@ func resourceCCENodeV3Delete(d *schema.ResourceData, meta interface{}) error {
 	// for prePaid node, firstly, we should unsubscribe the ecs server, and then delete it
 	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 2 {
 		serverID := d.Get("server_id").(string)
+		publicIP := d.Get("public_ip").(string)
+
+		resourceIDs := make([]string, 0, 2)
 		if serverID != "" {
-			if err := UnsubscribePrePaidResource(d, config, []string{serverID}); err != nil {
+			resourceIDs = append(resourceIDs, serverID)
+		}
+
+		// unsubscribe the eip if necessary
+		if _, ok := d.GetOk("iptype"); ok && publicIP != "" {
+			eipClient, err := config.NetworkingV1Client(GetRegion(d, config))
+			if err != nil {
+				return fmt.Errorf("Error creating networking client: %s", err)
+			}
+
+			if eipID, err := getEipIDbyAddress(eipClient, publicIP); err == nil {
+				resourceIDs = append(resourceIDs, eipID)
+			} else {
+				log.Printf("[WARN] Error fetching EIP ID of CCE Node (%s): %s", d.Id(), err)
+			}
+		}
+
+		if len(resourceIDs) > 0 {
+			if err := UnsubscribePrePaidResource(d, config, resourceIDs); err != nil {
 				return fmt.Errorf("Error unsubscribing HuaweiCloud CCE node: %s", err)
 			}
 		}
 	}
 
+	time.Sleep(60 * time.Second) //lintignore:R018
 	err = nodes.Delete(nodeClient, clusterid, d.Id()).ExtractErr()
 	if err != nil {
 		return fmt.Errorf("Error deleting HuaweiCloud CCE node: %s", err)
@@ -937,4 +960,24 @@ func installScriptEncode(script string) string {
 		return base64.StdEncoding.EncodeToString([]byte(script))
 	}
 	return script
+}
+
+func getEipIDbyAddress(client *golangsdk.ServiceClient, address string) (string, error) {
+	listOpts := &eips.ListOpts{
+		PublicIp: address,
+	}
+	pages, err := eips.List(client, listOpts).AllPages()
+	if err != nil {
+		return "", err
+	}
+
+	allEips, err := eips.ExtractPublicIPs(pages)
+	if err != nil {
+		return "", fmt.Errorf("Unable to retrieve eips: %s ", err)
+	}
+	if len(allEips) != 1 {
+		return "", fmt.Errorf("queried none or more results")
+	}
+
+	return allEips[0].ID, nil
 }
