@@ -150,7 +150,6 @@ func resourceDdsInstanceV3() *schema.Resource {
 			"backup_strategy": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -260,13 +259,14 @@ func resourceDdsBackupStrategy(d *schema.ResourceData) instances.BackupStrategy 
 	var backupStrategy instances.BackupStrategy
 	backupStrategyRaw := d.Get("backup_strategy").([]interface{})
 	log.Printf("[DEBUG] backupStrategyRaw: %+v", backupStrategyRaw)
+	startTime := "00:00-01:00"
+	keepDays := 7
 	if len(backupStrategyRaw) == 1 {
-		backupStrategy.StartTime = backupStrategyRaw[0].(map[string]interface{})["start_time"].(string)
-		backupStrategy.KeepDays = backupStrategyRaw[0].(map[string]interface{})["keep_days"].(int)
-	} else {
-		backupStrategy.StartTime = "00:00-01:00"
-		backupStrategy.KeepDays = 7
+		startTime = backupStrategyRaw[0].(map[string]interface{})["start_time"].(string)
+		keepDays = backupStrategyRaw[0].(map[string]interface{})["keep_days"].(int)
 	}
+	backupStrategy.StartTime = startTime
+	backupStrategy.KeepDays = &keepDays
 	log.Printf("[DEBUG] backupStrategy: %+v", backupStrategy)
 	return backupStrategy
 }
@@ -493,6 +493,18 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 			Value:  d.Get("security_group_id").(string),
 			Action: "modify-security-group",
 			Method: "post",
+		}
+		opts = append(opts, opt)
+	}
+
+	if d.HasChange("backup_strategy") {
+		backupStrategy := resourceDdsBackupStrategy(d)
+		backupStrategy.Period = "1,2,3,4,5,6,7"
+		opt := instances.UpdateOpt{
+			Param:  "backup_policy",
+			Value:  backupStrategy,
+			Action: "backups/policy",
+			Method: "put",
 		}
 		opts = append(opts, opt)
 	}

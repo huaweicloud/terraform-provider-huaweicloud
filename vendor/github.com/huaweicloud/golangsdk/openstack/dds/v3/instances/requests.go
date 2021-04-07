@@ -39,7 +39,8 @@ type Flavor struct {
 
 type BackupStrategy struct {
 	StartTime string `json:"start_time" required:"true"`
-	KeepDays  int    `json:"keep_days,omitempty"`
+	KeepDays  *int   `json:"keep_days,omitempty"`
+	Period    string `json:"period,omitempty"`
 }
 
 type CreateInstanceBuilder interface {

@@ -109,8 +109,8 @@ The following arguments are supported:
 * `flavor` - (Required, List, ForceNew) Specifies the flavors information. The structure is described below.
 	Changing this creates a new instance.
 
-* `backup_strategy` - (Optional, List, ForceNew) Specifies the advanced backup policy. The structure is
-	described below. Changing this creates a new instance.
+* `backup_strategy` - (Optional, List) Specifies the advanced backup policy. The structure is
+	described below.
 
 * `ssl` - (Optional, Bool) Specifies whether to enable or disable SSL. Defaults to true.
 
