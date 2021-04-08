@@ -64,6 +64,9 @@ The following arguments are supported:
 * `value_specs` - (Optional, Map, ForceNew) Map of additional options. Changing this creates a
   new DNS zone.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the zone.
+  Changing this creates a new zone.
+
 The `router` block supports:
 
 * `router_id` - (Required, String) ID of the associated VPC.

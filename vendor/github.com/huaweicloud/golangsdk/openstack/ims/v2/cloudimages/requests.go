@@ -141,6 +141,8 @@ type CreateByServerOpts struct {
 	MaxRam int `json:"max_ram,omitempty"`
 	// the minimum memory of the image in the unit of MB
 	MinRam int `json:"min_ram,omitempty"`
+	// Enterprise project ID
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
 // CreateOpts represents options used to create an image.
@@ -169,6 +171,8 @@ type CreateByOBSOpts struct {
 	MaxRam int `json:"max_ram,omitempty"`
 	// the minimum memory of the image in the unit of MB
 	MinRam int `json:"min_ram,omitempty"`
+	// Enterprise project ID
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
 // CreateOpts represents options used to create an image.
@@ -191,6 +195,8 @@ type CreateDataImageByOBSOpts struct {
 	MinDisk int `json:"min_disk" required:"true"`
 	// the master key used for encrypting an image
 	CmkId string `json:"cmk_id,omitempty"`
+	// Enterprise project ID
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
 type DataImage struct {

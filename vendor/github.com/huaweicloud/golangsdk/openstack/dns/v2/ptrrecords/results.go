@@ -53,4 +53,7 @@ type Ptr struct {
 
 	// Status of the PTR.
 	Status string `json:"status"`
+
+	// Enterprise project id
+	EnterpriseProjectID string `json:"enterprise_project_id"`
 }
