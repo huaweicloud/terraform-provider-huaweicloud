@@ -257,7 +257,7 @@ github.com/hashicorp/terraform-svchost/auth
 github.com/hashicorp/terraform-svchost/disco
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20210406114125-0f07278d722c
+# github.com/huaweicloud/golangsdk v0.0.0-20210407074202-8678feadcd3b
 ## explicit
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/internal
@@ -420,6 +420,7 @@ github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares
 github.com/huaweicloud/golangsdk/openstack/sfs_turbo/v1/shares
 github.com/huaweicloud/golangsdk/openstack/smn/v2/subscriptions
 github.com/huaweicloud/golangsdk/openstack/smn/v2/topics
+github.com/huaweicloud/golangsdk/openstack/swr/v2/namespaces
 github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/backups
 github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/configurations
 github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/instances

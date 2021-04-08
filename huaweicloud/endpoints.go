@@ -100,6 +100,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "functiongraph",
 		Version: "v2",
 	},
+	"swr": {
+		Name:             "swr-api",
+		Version:          "v2",
+		WithOutProjectID: true,
+	},
 
 	// ******* catalog for storage ******
 	"volumev2": {

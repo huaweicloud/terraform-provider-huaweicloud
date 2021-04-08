@@ -468,6 +468,16 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	expectedURL = fmt.Sprintf("https://functiongraph.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "fgs", "v2", t)
+
+	// test for swrV2Client
+	serviceClient, err = nil, nil
+	serviceClient, err = config.SwrV2Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud swr v2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://swr-api.%s.%s/v2/", HW_REGION_NAME, config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	compareURL(expectedURL, actualURL, "swr", "v2", t)
 }
 
 // TestAccServiceEndpoints_Storage test for the endpoints of the clients used in storage

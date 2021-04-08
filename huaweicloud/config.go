@@ -559,6 +559,10 @@ func (c *Config) FgsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("fgsv2", region)
 }
 
+func (c *Config) SwrV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("swr", region)
+}
+
 // ********** client for Storage **********
 func (c *Config) BlockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("volumev2", region)
