@@ -11,7 +11,7 @@ import (
 
 func TestAccCCEClusterV3DataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "data.huaweicloud_cce_cluster_v3.test"
+	resourceName := "data.huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -49,8 +49,8 @@ func testAccCCEClusterV3DataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_cce_cluster_v3" "test" {
-  name = huaweicloud_cce_cluster_v3.test.name
+data "huaweicloud_cce_cluster" "test" {
+  name = huaweicloud_cce_cluster.test.name
 }
 `, testAccCCEClusterV3_basic(rName))
 }
