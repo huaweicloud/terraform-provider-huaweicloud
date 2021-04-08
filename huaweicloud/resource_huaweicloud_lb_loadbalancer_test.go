@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/loadbalancers"
+	"github.com/huaweicloud/golangsdk/openstack/elb/v2/loadbalancers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
@@ -102,9 +102,31 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 	})
 }
 
+func TestAccLBV2LoadBalancer_withEpsId(t *testing.T) {
+	var lb loadbalancers.LoadBalancer
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_lb_loadbalancer.loadbalancer_1"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLBV2LoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLBV2LoadBalancerConfig_withEpsId(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBV2LoadBalancerExists(resourceName, &lb),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckLBV2LoadBalancerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
-	elbClient, err := config.ElbV2Client(HW_REGION_NAME)
+	elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -136,7 +158,7 @@ func testAccCheckLBV2LoadBalancerExists(
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		elbClient, err := config.ElbV2Client(HW_REGION_NAME)
+		elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -306,4 +328,23 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
   ]
 }
 `, rNameSecg1, rNameSecg2, rName)
+}
+
+func testAccLBV2LoadBalancerConfig_withEpsId(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
+  name                  = "%s"
+  vip_subnet_id         = data.huaweicloud_vpc_subnet.test.subnet_id
+  enterprise_project_id = "%s"
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+`, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
