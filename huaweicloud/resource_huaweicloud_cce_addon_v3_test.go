@@ -16,7 +16,7 @@ func TestAccCCEAddonV3_basic(t *testing.T) {
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_addon.test"
-	clusterName := "huaweicloud_cce_cluster_v3.test"
+	clusterName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -44,7 +44,7 @@ func testAccCheckCCEAddonV3Destroy(s *terraform.State) error {
 	var clusterId string
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type == "huaweicloud_cce_cluster_v3" {
+		if rs.Type == "huaweicloud_cce_cluster" {
 			clusterId = rs.Primary.ID
 		}
 
@@ -105,21 +105,21 @@ func testAccCCEAddonV3_Base(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_cce_node_v3" "test" {
-	cluster_id        = huaweicloud_cce_cluster_v3.test.id
-	name              = "%s"
-	flavor_id         = "s6.large.2"
-	availability_zone = data.huaweicloud_availability_zones.test.names[0]
-	key_pair          = huaweicloud_compute_keypair_v2.test.name
+resource "huaweicloud_cce_node" "test" {
+  cluster_id        = huaweicloud_cce_cluster.test.id
+  name              = "%s"
+  flavor_id         = "s6.large.2"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  key_pair          = huaweicloud_compute_keypair.test.name
 
-	root_volume {
-	size       = 40
-	volumetype = "SSD"
-	}
-	data_volumes {
-	size       = 100
-	volumetype = "SSD"
-	}
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
 }
 `, testAccCCENodeV3_Base(rName), rName)
 }
@@ -129,10 +129,10 @@ func testAccCCEAddonV3_basic(rName string) string {
 %s
 
 resource "huaweicloud_cce_addon" "test" {
-    cluster_id = huaweicloud_cce_cluster_v3.test.id
-    version = "1.0.3"
-	template_name = "metrics-server"
-	depends_on = [huaweicloud_cce_node_v3.test]
+  cluster_id    = huaweicloud_cce_cluster.test.id
+  version       = "1.1.0"
+  template_name = "metrics-server"
+  depends_on    = [huaweicloud_cce_node.test]
 }
 `, testAccCCEAddonV3_Base(rName))
 }

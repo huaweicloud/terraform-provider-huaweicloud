@@ -87,6 +87,12 @@ func ResourceDNSZoneV2() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"masters": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -147,10 +153,11 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 	vs["router"] = resourceDNSRouter(d, region)
 	createOpts := ZoneCreateOpts{
 		zones.CreateOpts{
-			Name:        d.Get("name").(string),
-			TTL:         d.Get("ttl").(int),
-			Email:       d.Get("email").(string),
-			Description: d.Get("description").(string),
+			Name:                d.Get("name").(string),
+			TTL:                 d.Get("ttl").(int),
+			Email:               d.Get("email").(string),
+			Description:         d.Get("description").(string),
+			EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 		},
 		vs,
 	}
@@ -273,6 +280,7 @@ func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("region", region)
 	d.Set("zone_type", zoneInfo.ZoneType)
+	d.Set("enterprise_project_id", zoneInfo.EnterpriseProjectID)
 
 	// save tags
 	if resourceType, err := getDNSZoneTagType(zoneInfo.ZoneType); err == nil {

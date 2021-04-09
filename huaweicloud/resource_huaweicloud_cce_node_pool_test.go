@@ -179,8 +179,8 @@ resource "huaweicloud_cce_cluster" "test" {
   name                   = "%s"
   cluster_type           = "VirtualMachine"
   flavor_id              = "cce.s1.small"
-  vpc_id                 = huaweicloud_vpc_v1.test.id
-  subnet_id              = huaweicloud_vpc_subnet_v1.test.id
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
 }
 `, testAccCCEClusterV3_Base(rName), rName, rName)

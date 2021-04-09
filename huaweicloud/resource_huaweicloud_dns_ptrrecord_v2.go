@@ -56,6 +56,12 @@ func ResourceDNSPtrRecordV2() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.IntBetween(1, 2147483647),
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"tags": tagsSchema(),
 			"address": {
 				Type:     schema.TypeString,
@@ -84,10 +90,11 @@ func resourceDNSPtrRecordV2Create(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	createOpts := ptrrecords.CreateOpts{
-		PtrName:     d.Get("name").(string),
-		Description: d.Get("description").(string),
-		TTL:         d.Get("ttl").(int),
-		Tags:        taglist,
+		PtrName:             d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		TTL:                 d.Get("ttl").(int),
+		Tags:                taglist,
+		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -145,6 +152,7 @@ func resourceDNSPtrRecordV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("floatingip_id", fipID)
 	d.Set("ttl", n.TTL)
 	d.Set("address", n.Address)
+	d.Set("enterprise_project_id", n.EnterpriseProjectID)
 
 	// save tags
 	if resourceTags, err := tags.Get(dnsClient, "DNS-ptr_record", d.Id()).Extract(); err == nil {

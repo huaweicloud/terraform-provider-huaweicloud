@@ -15,7 +15,7 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 	var cluster clusters.Clusters
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_cluster_v3.test"
+	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -54,7 +54,7 @@ func TestAccCCEClusterV3_withEip(t *testing.T) {
 	var cluster clusters.Clusters
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_cce_cluster_v3.test"
+	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -132,7 +132,7 @@ func testAccCheckCCEClusterV3Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_cce_cluster_v3" {
+		if rs.Type != "huaweicloud_cce_cluster" {
 			continue
 		}
 
@@ -179,12 +179,12 @@ func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resour
 
 func testAccCCEClusterV3_Base(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc_v1" "test" {
+resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
 }
 
-resource "huaweicloud_vpc_subnet_v1" "test" {
+resource "huaweicloud_vpc_subnet" "test" {
   name          = "%s"
   cidr          = "192.168.0.0/16"
   gateway_ip    = "192.168.0.1"
@@ -192,7 +192,7 @@ resource "huaweicloud_vpc_subnet_v1" "test" {
   //dns is required for cce node installing
   primary_dns   = "100.125.1.250"
   secondary_dns = "100.125.21.250"
-  vpc_id        = huaweicloud_vpc_v1.test.id
+  vpc_id        = huaweicloud_vpc.test.id
 }
 `, rName, rName)
 }
@@ -201,11 +201,11 @@ func testAccCCEClusterV3_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_cce_cluster_v3" "test" {
+resource "huaweicloud_cce_cluster" "test" {
   name                   = "%s"
   flavor_id              = "cce.s1.small"
-  vpc_id                 = huaweicloud_vpc_v1.test.id
-  subnet_id              = huaweicloud_vpc_subnet_v1.test.id
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
   service_network_cidr = "10.248.0.0/16"
 }
@@ -216,11 +216,11 @@ func testAccCCEClusterV3_update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_cce_cluster_v3" "test" {
+resource "huaweicloud_cce_cluster" "test" {
   name                   = "%s"
   flavor_id              = "cce.s1.small"
-  vpc_id                 = huaweicloud_vpc_v1.test.id
-  subnet_id              = huaweicloud_vpc_subnet_v1.test.id
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
   service_network_cidr = "10.248.0.0/16"
   description            = "new description"
@@ -232,7 +232,7 @@ func testAccCCEClusterV3_withEip(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_vpc_eip_v1" "test" {
+resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type = "5_bgp"
   }
@@ -244,15 +244,15 @@ resource "huaweicloud_vpc_eip_v1" "test" {
   }
 }
 
-resource "huaweicloud_cce_cluster_v3" "test" {
+resource "huaweicloud_cce_cluster" "test" {
   name                   = "%s"
   cluster_type           = "VirtualMachine"
   flavor_id              = "cce.s1.small"
-  vpc_id                 = huaweicloud_vpc_v1.test.id
-  subnet_id              = huaweicloud_vpc_subnet_v1.test.id
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
   authentication_mode    = "rbac"
-  eip                    = huaweicloud_vpc_eip_v1.test.address
+  eip                    = huaweicloud_vpc_eip.test.address
 }
 `, testAccCCEClusterV3_Base(rName), rName)
 }
@@ -264,8 +264,8 @@ func testAccCCEClusterV3_withEpsId(rName string) string {
 resource "huaweicloud_cce_cluster" "test" {
   name                   = "%s"
   flavor_id              = "cce.s1.small"
-  vpc_id                 = huaweicloud_vpc_v1.test.id
-  subnet_id              = huaweicloud_vpc_subnet_v1.test.id
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
   enterprise_project_id  = "%s"
 }
@@ -275,39 +275,25 @@ resource "huaweicloud_cce_cluster" "test" {
 
 func testAccCCEClusterV3_turbo(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc_v1" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
+%s
 
-resource "huaweicloud_vpc_subnet_v1" "test" {
-  name          = "%s"
-  cidr          = "192.168.1.0/24"
-  gateway_ip    = "192.168.1.1"
-
-  //dns is required for cce node installing
-  primary_dns   = "100.125.1.250"
-  secondary_dns = "100.125.21.250"
-  vpc_id        = huaweicloud_vpc_v1.test.id
-}
-
-resource "huaweicloud_vpc_subnet_v1" "eni_test" {
+resource "huaweicloud_vpc_subnet" "eni_test" {
   name          = "%s-eni"
   cidr          = "192.168.2.0/24"
   gateway_ip    = "192.168.2.1"
-  vpc_id        = huaweicloud_vpc_v1.test.id
+  vpc_id        = huaweicloud_vpc.test.id
 }
 
 resource "huaweicloud_cce_cluster" "test" {
   name                   = "%s"
   flavor_id              = "cce.s1.small"
-  vpc_id                 = huaweicloud_vpc_v1.test.id
-  subnet_id              = huaweicloud_vpc_subnet_v1.test.id
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "eni"
-  eni_subnet_id          = huaweicloud_vpc_subnet_v1.eni_test.id
-  eni_subnet_cidr        = huaweicloud_vpc_subnet_v1.eni_test.cidr
+  eni_subnet_id          = huaweicloud_vpc_subnet.eni_test.id
+  eni_subnet_cidr        = huaweicloud_vpc_subnet.eni_test.cidr
 
 }
 
-`, rName, rName, rName, rName)
+`, testAccCCEClusterV3_Base(rName), rName, rName)
 }

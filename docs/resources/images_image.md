@@ -93,6 +93,9 @@ The following arguments are supported:
 
 * `type` - (Optional, String, ForceNew) The image type. Must be one of `ECS`, `FusionCompute`, `BMS`, or `Ironic`.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the image.
+  Changing this creates a new image.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

@@ -634,6 +634,16 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "elb", "v2.0", t)
 
+	// test endpoint of loadbalancer(elb v2)
+	serviceClient, err = nil, nil
+	serviceClient, err = config.LoadBalancerClient(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud ELB v2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://elb.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	compareURL(expectedURL, actualURL, "elb", "v2", t)
+
 	// test the endpoint of fw v2 service
 	serviceClient, err = config.FwV2Client(HW_REGION_NAME)
 	if err != nil {
