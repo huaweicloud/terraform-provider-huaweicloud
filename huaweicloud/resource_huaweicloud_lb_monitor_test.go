@@ -29,6 +29,7 @@ func TestAccLBV2Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "delay", "20"),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "10"),
+					resource.TestCheckResourceAttr(resourceName, "max_retries", "5"),
 				),
 			},
 			{
@@ -37,6 +38,8 @@ func TestAccLBV2Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "delay", "30"),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "15"),
+					resource.TestCheckResourceAttr(resourceName, "max_retries", "10"),
+					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
 				),
 			},
 		},
@@ -128,12 +131,6 @@ resource "huaweicloud_lb_monitor" "monitor_1" {
   timeout     = 10
   max_retries = 5
   pool_id     = huaweicloud_lb_pool.pool_1.id
-
-  timeouts {
-    create = "5m"
-    update = "5m"
-    delete = "5m"
-  }
 }
 `, rName, rName, rName, rName)
 }
@@ -169,14 +166,9 @@ resource "huaweicloud_lb_monitor" "monitor_1" {
   delay          = 30
   timeout        = 15
   max_retries    = 10
+  port           = 8888
   admin_state_up = "true"
   pool_id        = huaweicloud_lb_pool.pool_1.id
-
-  timeouts {
-    create = "5m"
-    update = "5m"
-    delete = "5m"
-  }
 }
 `, rName, rName, rName, rNameUpdate)
 }

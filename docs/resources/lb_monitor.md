@@ -45,6 +45,8 @@ The following arguments are supported:
     changing the member's status to INACTIVE. Must be a number between 1
     and 10.
 
+* `port` - (Optional, Int) Specifies the health check port. The value ranges from 1 to 65535.
+
 * `url_path` - (Optional, String) Required for HTTP(S) types. URI path that will be
     accessed if monitor type is HTTP or HTTPS.
 
