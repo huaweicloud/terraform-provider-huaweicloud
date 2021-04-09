@@ -607,9 +607,7 @@ func resourceCCEClusterV3Delete(d *schema.ResourceData, meta interface{}) error 
 		if v, ok := d.GetOk("delete_all"); ok && v.(string) != "false" {
 			deleteOpt := d.Get("delete_all").(string)
 			deleteOpts.DeleteEfs = deleteOpt
-			deleteOpts.DeleteENI = deleteOpt
 			deleteOpts.DeleteEvs = deleteOpt
-			deleteOpts.DeleteNet = deleteOpt
 			deleteOpts.DeleteObs = deleteOpt
 			deleteOpts.DeleteSfs = deleteOpt
 		} else {
