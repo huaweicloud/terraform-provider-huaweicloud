@@ -82,6 +82,36 @@ func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
 	})
 }
 
+func TestAccRdsInstanceV3_ha(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceLabel := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceLabel),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstanceV3_ha(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "1"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c6.large.2.ha"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+10:00"),
+					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
+					resource.TestCheckResourceAttr(resourceName, "ha_replication_mode", "async"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckRdsInstanceV3Destroy(providerRes string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -266,4 +296,45 @@ resource "huaweicloud_rds_instance" "test" {
   }
 }
 `, testAccRdsInstanceV3_base(name), name, HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccRdsInstanceV3_ha(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_rds_instance" "test" {
+  name                = "%s"
+  flavor              = "rds.pg.c6.large.2.ha"
+  security_group_id   = huaweicloud_networking_secgroup.test.id
+  subnet_id           = huaweicloud_vpc_subnet.test.id
+  vpc_id              = huaweicloud_vpc.test.id
+  time_zone           = "UTC+10:00"
+  fixed_ip            = "192.168.0.58"
+  ha_replication_mode = "async"
+  availability_zone   = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1],
+  ]
+
+  db {
+    password = "Huangwei!120521"
+    type     = "PostgreSQL"
+    version  = "10"
+    port     = 8635
+  }
+  volume {
+    type = "ULTRAHIGH"
+    size = 50
+  }
+  backup_strategy {
+    start_time = "08:00-09:00"
+    keep_days  = 1
+  }
+
+  tags = {
+    key = "value"
+    foo = "bar"
+  }
+}
+`, testAccRdsInstanceV3_base(name), name)
 }
