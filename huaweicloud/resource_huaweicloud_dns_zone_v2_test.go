@@ -102,6 +102,29 @@ func TestAccDNSV2Zone_readTTL(t *testing.T) {
 	})
 }
 
+func TestAccDNSV2Zone_withEpsId(t *testing.T) {
+	var zone zones.Zone
+	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
+	resourceName := "huaweicloud_dns_zone.zone_1"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckDNS(t); testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDNSV2ZoneDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSV2Zone_withEpsId(zoneName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSV2ZoneExists(resourceName, &zone),
+					resource.TestCheckResourceAttr(resourceName, "name", zoneName),
+					resource.TestCheckResourceAttr(resourceName, "zone_type", "private"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDNSV2ZoneDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
@@ -217,4 +240,28 @@ resource "huaweicloud_dns_zone" "zone_1" {
   }
 }
 	`, zoneName)
+}
+
+func testAccDNSV2Zone_withEpsId(zoneName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc" "default" {
+  name = "vpc-default"
+}
+
+resource "huaweicloud_dns_zone" "zone_1" {
+  name                  = "%s"
+  email                 = "email@example.com"
+  description           = "a private zone"
+  zone_type             = "private"
+  enterprise_project_id = "%s"
+
+  router {
+    router_id = data.huaweicloud_vpc.default.id
+  }
+  tags = {
+    zone_type = "private"
+    owner     = "terraform"
+  }
+}
+	`, zoneName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }

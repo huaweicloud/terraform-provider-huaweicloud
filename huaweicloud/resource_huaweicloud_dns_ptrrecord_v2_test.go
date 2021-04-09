@@ -44,6 +44,27 @@ func TestAccDNSV2PtrRecord_basic(t *testing.T) {
 	})
 }
 
+func TestAccDNSV2PtrRecord_withEpsId(t *testing.T) {
+	var ptrrecord ptrrecords.Ptr
+	ptrName := randomPtrName()
+	resourceName := "huaweicloud_dns_ptrrecord.ptr_1"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckDNS(t); testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDNSV2PtrRecordDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSV2PtrRecord_withEpsId(ptrName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSV2PtrRecordExists(resourceName, &ptrrecord),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDNSV2PtrRecordDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
@@ -145,4 +166,28 @@ resource "huaweicloud_dns_ptrrecord" "ptr_1" {
   }
 }
 `, ptrName)
+}
+
+func testAccDNSV2PtrRecord_withEpsId(ptrName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_eip" "eip_1" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    name        = "test"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_dns_ptrrecord" "ptr_1" {
+  name                  = "%s"
+  description           = "a ptr record"
+  floatingip_id         = huaweicloud_vpc_eip.eip_1.id
+  ttl                   = 6000
+  enterprise_project_id = "%s"
+}
+`, ptrName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }

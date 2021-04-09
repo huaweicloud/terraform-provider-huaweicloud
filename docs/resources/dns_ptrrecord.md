@@ -54,6 +54,9 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Tags key/value pairs to associate with the PTR record.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the PTR record.
+  Changing this creates a new PTR record.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

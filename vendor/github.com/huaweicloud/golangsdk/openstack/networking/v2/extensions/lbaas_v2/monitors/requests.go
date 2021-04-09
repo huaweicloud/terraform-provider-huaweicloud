@@ -112,12 +112,11 @@ type CreateOpts struct {
 	URLPath string `json:"url_path,omitempty"`
 
 	// The HTTP method used for requests by the Monitor. If this attribute
-	// is not specified, it defaults to "GET". Required for HTTP(S) types.
+	// is not specified, it defaults to "GET".
 	HTTPMethod string `json:"http_method,omitempty"`
 
 	// Expected HTTP codes for a passing HTTP(S) Monitor. You can either specify
-	// a single status like "200", or a range like "200-202". Required for HTTP(S)
-	// types.
+	// a single status like "200", or a range like "200-202".
 	ExpectedCodes string `json:"expected_codes,omitempty"`
 
 	// TenantID is the UUID of the project who owns the Monitor.
@@ -141,21 +140,15 @@ type CreateOpts struct {
 
 // ToMonitorCreateMap builds a request body from CreateOpts.
 func (opts CreateOpts) ToMonitorCreateMap() (map[string]interface{}, error) {
+	if opts.Type == TypeHTTP || opts.Type == TypeHTTPS {
+		if opts.URLPath == "" {
+			return nil, fmt.Errorf("url_path must be provided for HTTP and HTTPS")
+		}
+	}
+
 	b, err := golangsdk.BuildRequestBody(opts, "healthmonitor")
 	if err != nil {
 		return nil, err
-	}
-
-	switch opts.Type {
-	case TypeHTTP, TypeHTTPS:
-		switch opts.URLPath {
-		case "":
-			return nil, fmt.Errorf("URLPath must be provided for HTTP and HTTPS")
-		}
-		switch opts.ExpectedCodes {
-		case "":
-			return nil, fmt.Errorf("ExpectedCodes must be provided for HTTP and HTTPS")
-		}
 	}
 
 	return b, nil
