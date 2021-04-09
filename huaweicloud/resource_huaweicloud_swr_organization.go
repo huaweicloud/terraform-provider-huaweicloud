@@ -108,7 +108,7 @@ func resourceSWROrganizationRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("creator", n.CreatorName)
 	d.Set("permission", permission)
 
-	login := fmt.Sprintf("swr.%s.myhuaweicloud.com", GetRegion(d, config))
+	login := fmt.Sprintf("swr.%s.%s", GetRegion(d, config), config.Cloud)
 	d.Set("login_server", login)
 
 	return nil
