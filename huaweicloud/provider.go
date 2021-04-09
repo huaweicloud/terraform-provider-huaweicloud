@@ -443,6 +443,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_sfs_turbo":                       ResourceSFSTurbo(),
 			"huaweicloud_smn_topic":                       resourceTopic(),
 			"huaweicloud_smn_subscription":                resourceSubscription(),
+			"huaweicloud_swr_organization":                resourceSWROrganization(),
 			"huaweicloud_vbs_backup":                      resourceVBSBackupV2(),
 			"huaweicloud_vbs_backup_policy":               resourceVBSBackupPolicyV2(),
 			"huaweicloud_vpc":                             ResourceVirtualPrivateCloudV1(),

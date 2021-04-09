@@ -421,6 +421,7 @@ github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares
 github.com/huaweicloud/golangsdk/openstack/sfs_turbo/v1/shares
 github.com/huaweicloud/golangsdk/openstack/smn/v2/subscriptions
 github.com/huaweicloud/golangsdk/openstack/smn/v2/topics
+github.com/huaweicloud/golangsdk/openstack/swr/v2/namespaces
 github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/backups
 github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/configurations
 github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/instances
