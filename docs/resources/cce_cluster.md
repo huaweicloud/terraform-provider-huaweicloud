@@ -179,25 +179,19 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the cce cluster.
   Changing this creates a new cluster.
 
-* `delete_efs` - (Optional, String) Specified whether to delete the associated EFS resources when deleting CCE cluster.
+* `delete_evs` - (Optional, String) Specified whether to delete associated EVS disks when deleting the CCE cluster.
   valid values are "true", "try" and "false". Default is false.
 
-* `delete_eni` - (Optional, String) Specified whether to delete the associated ENI resources when deleting CCE cluster.
+* `delete_obs` - (Optional, String) Specified whether to delete associated OBS buckets when deleting the CCE cluster.
   valid values are "true", "try" and "false". Default is false.
 
-* `delete_evs` - (Optional, String) Specified whether to delete the associated EVS resources when deleting CCE cluster.
+* `delete_sfs` - (Optional, String) Specified whether to delete associated SFS file systems when deleting the CCE cluster.
   valid values are "true", "try" and "false". Default is false.
 
-* `delete_net` - (Optional, String) Specified whether to delete the associated NET resources when deleting CCE cluster.
+* `delete_efs` - (Optional, String) Specified whether to unbind associated SFS Turbo file systems when deleting the CCE cluster.
   valid values are "true", "try" and "false". Default is false.
 
-* `delete_obs` - (Optional, String) Specified whether to delete the associated OBS resources when deleting CCE cluster.
-  valid values are "true", "try" and "false". Default is false.
-
-* `delete_sfs` - (Optional, String) Specified whether to delete the associated SFS resources when deleting CCE cluster.
-  valid values are "true", "try" and "false". Default is false.
-
-* `delete_all` - (Optional, String) Specified whether to delete all associated resources when deleting CCE cluster.
+* `delete_all` - (Optional, String) Specified whether to delete all associated storage resources when deleting the CCE cluster.
   valid values are "true", "try" and "false". Default is false.
 
 The `masters` block supports:
