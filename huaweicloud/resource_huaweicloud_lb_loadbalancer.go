@@ -10,7 +10,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/loadbalancers"
+	"github.com/huaweicloud/golangsdk/openstack/elb/v2/loadbalancers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
@@ -98,15 +98,27 @@ func ResourceLoadBalancerV2() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 		},
 	}
 }
 
 func resourceLoadBalancerV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.ElbV2Client(GetRegion(d, config))
+	elbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+	}
+
+	// client for setting tags
+	elbV2Client, err := config.ElbV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud elb v2.0 client: %s", err)
 	}
 
 	var lbProvider string
@@ -116,14 +128,15 @@ func resourceLoadBalancerV2Create(d *schema.ResourceData, meta interface{}) erro
 
 	adminStateUp := d.Get("admin_state_up").(bool)
 	createOpts := loadbalancers.CreateOpts{
-		Name:         d.Get("name").(string),
-		Description:  d.Get("description").(string),
-		VipSubnetID:  d.Get("vip_subnet_id").(string),
-		TenantID:     d.Get("tenant_id").(string),
-		VipAddress:   d.Get("vip_address").(string),
-		AdminStateUp: &adminStateUp,
-		Flavor:       d.Get("flavor").(string),
-		Provider:     lbProvider,
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		VipSubnetID:         d.Get("vip_subnet_id").(string),
+		TenantID:            d.Get("tenant_id").(string),
+		VipAddress:          d.Get("vip_address").(string),
+		AdminStateUp:        &adminStateUp,
+		Flavor:              d.Get("flavor").(string),
+		Provider:            lbProvider,
+		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -134,7 +147,7 @@ func resourceLoadBalancerV2Create(d *schema.ResourceData, meta interface{}) erro
 
 	// Wait for LoadBalancer to become active before continuing
 	timeout := d.Timeout(schema.TimeoutCreate)
-	err = waitForLBV2LoadBalancer(elbClient, lb.ID, "ACTIVE", nil, timeout)
+	err = waitForLBV2LoadBalancer_v2(elbClient, lb.ID, "ACTIVE", nil, timeout)
 	if err != nil {
 		return err
 	}
@@ -159,7 +172,7 @@ func resourceLoadBalancerV2Create(d *schema.ResourceData, meta interface{}) erro
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := expandResourceTags(tagRaw)
-		if tagErr := tags.Create(elbClient, "loadbalancers", lb.ID, taglist).ExtractErr(); tagErr != nil {
+		if tagErr := tags.Create(elbV2Client, "loadbalancers", lb.ID, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of load balancer %s: %s", lb.ID, tagErr)
 		}
 	}
@@ -169,9 +182,15 @@ func resourceLoadBalancerV2Create(d *schema.ResourceData, meta interface{}) erro
 
 func resourceLoadBalancerV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.ElbV2Client(GetRegion(d, config))
+	elbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+	}
+
+	// client for fetching tags
+	elbV2Client, err := config.ElbV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud elb 2.0 client: %s", err)
 	}
 
 	lb, err := loadbalancers.Get(elbClient, d.Id()).Extract()
@@ -191,6 +210,7 @@ func resourceLoadBalancerV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("flavor", lb.Flavor)
 	d.Set("loadbalancer_provider", lb.Provider)
 	d.Set("region", GetRegion(d, config))
+	d.Set("enterprise_project_id", lb.EnterpriseProjectID)
 
 	// Get any security groups on the VIP Port
 	if lb.VipPortID != "" {
@@ -208,7 +228,7 @@ func resourceLoadBalancerV2Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	// fetch tags
-	if resourceTags, err := tags.Get(elbClient, "loadbalancers", d.Id()).Extract(); err == nil {
+	if resourceTags, err := tags.Get(elbV2Client, "loadbalancers", d.Id()).Extract(); err == nil {
 		tagmap := tagsToMap(resourceTags.Tags)
 		d.Set("tags", tagmap)
 	} else {
@@ -220,7 +240,7 @@ func resourceLoadBalancerV2Read(d *schema.ResourceData, meta interface{}) error 
 
 func resourceLoadBalancerV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.ElbV2Client(GetRegion(d, config))
+	elbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -240,7 +260,7 @@ func resourceLoadBalancerV2Update(d *schema.ResourceData, meta interface{}) erro
 
 		// Wait for LoadBalancer to become active before continuing
 		timeout := d.Timeout(schema.TimeoutUpdate)
-		err = waitForLBV2LoadBalancer(elbClient, d.Id(), "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer_v2(elbClient, d.Id(), "ACTIVE", nil, timeout)
 		if err != nil {
 			return err
 		}
@@ -256,7 +276,7 @@ func resourceLoadBalancerV2Update(d *schema.ResourceData, meta interface{}) erro
 		})
 
 		// Wait for LoadBalancer to become active before continuing
-		err = waitForLBV2LoadBalancer(elbClient, d.Id(), "ACTIVE", nil, timeout)
+		err = waitForLBV2LoadBalancer_v2(elbClient, d.Id(), "ACTIVE", nil, timeout)
 		if err != nil {
 			return err
 		}
@@ -279,7 +299,11 @@ func resourceLoadBalancerV2Update(d *schema.ResourceData, meta interface{}) erro
 
 	// update tags
 	if d.HasChange("tags") {
-		tagErr := UpdateResourceTags(elbClient, d, "loadbalancers", d.Id())
+		elbV2Client, err := config.ElbV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud elb 2.0 client: %s", err)
+		}
+		tagErr := UpdateResourceTags(elbV2Client, d, "loadbalancers", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of load balancer:%s, err:%s", d.Id(), tagErr)
 		}
@@ -290,7 +314,7 @@ func resourceLoadBalancerV2Update(d *schema.ResourceData, meta interface{}) erro
 
 func resourceLoadBalancerV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	elbClient, err := config.ElbV2Client(GetRegion(d, config))
+	elbClient, err := config.LoadBalancerClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
@@ -308,7 +332,7 @@ func resourceLoadBalancerV2Delete(d *schema.ResourceData, meta interface{}) erro
 
 	// Wait for LoadBalancer to become delete
 	pending := []string{"PENDING_UPDATE", "PENDING_DELETE", "ACTIVE"}
-	err = waitForLBV2LoadBalancer(elbClient, d.Id(), "DELETED", pending, timeout)
+	err = waitForLBV2LoadBalancer_v2(elbClient, d.Id(), "DELETED", pending, timeout)
 	if err != nil {
 		return err
 	}
