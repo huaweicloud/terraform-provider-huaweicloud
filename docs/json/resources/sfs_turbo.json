@@ -22,6 +22,11 @@
                 "optional": true,
                 "computed": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "export_location": {
                 "type": "string",
                 "computed": true

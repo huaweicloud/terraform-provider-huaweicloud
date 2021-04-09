@@ -12,6 +12,10 @@
                 ],
                 "optional": true
               },
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
               "availability_zone": {
                 "type": "string",
                 "required": true
@@ -24,8 +28,8 @@
                 "type": "number",
                 "optional": true
               },
-              "billing_mode": {
-                "type": "number",
+              "charging_mode": {
+                "type": "string",
                 "optional": true,
                 "computed": true
               },
@@ -50,10 +54,6 @@
                   "map",
                   "string"
                 ],
-                "optional": true
-              },
-              "extend_param_charging_mode": {
-                "type": "number",
                 "optional": true
               },
               "fixed_ip": {
@@ -92,10 +92,6 @@
                 "optional": true,
                 "computed": true
               },
-              "order_id": {
-                "type": "string",
-                "optional": true
-              },
               "os": {
                 "type": "string",
                 "optional": true,
@@ -105,6 +101,14 @@
                 "type": "string",
                 "optional": true,
                 "sensitive": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true
               },
               "postinstall": {
                 "type": "string",
@@ -132,6 +136,11 @@
               },
               "region": {
                 "type": "string",
+                "computed": true
+              },
+              "runtime": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               },
               "server_id": {
@@ -164,12 +173,13 @@
                 "nesting_mode": "list",
                 "block": {
                   "attributes": {
-                    "extend_param": {
+                    "extend_params": {
                       "type": [
                         "map",
                         "string"
                       ],
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "hw_passthrough": {
                       "type": "bool",
@@ -191,12 +201,13 @@
                 "nesting_mode": "list",
                 "block": {
                   "attributes": {
-                    "extend_param": {
+                    "extend_params": {
                       "type": [
                         "map",
                         "string"
                       ],
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "hw_passthrough": {
                       "type": "bool",
