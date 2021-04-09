@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func dataSourceOpenGaussInstance() *schema.Resource {
@@ -185,9 +187,9 @@ func dataSourceOpenGaussInstance() *schema.Resource {
 }
 
 func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
-	client, err := config.openGaussV3Client(region)
+	client, err := config.OpenGaussV3Client(region)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -284,7 +286,7 @@ func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("sharding_num", dn_num)
 
 	//remove duplicate az
-	azList = removeDuplicateElem(azList)
+	azList = utils.RemoveDuplicateElem(azList)
 	sort.Strings(azList)
 	d.Set("availability_zone", strings.Join(azList, ","))
 

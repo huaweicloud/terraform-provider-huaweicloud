@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func DataSourceVpcSubnetV1() *schema.Resource {
@@ -91,7 +91,7 @@ func DataSourceVpcSubnetV1() *schema.Resource {
 }
 
 func dataSourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)

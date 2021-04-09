@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccVpcPeeringConnectionV2_basic(t *testing.T) {
@@ -47,7 +48,7 @@ func TestAccVpcPeeringConnectionV2_basic(t *testing.T) {
 }
 
 func testAccCheckVpcPeeringConnectionV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud Peering client: %s", err)
@@ -78,7 +79,7 @@ func testAccCheckVpcPeeringConnectionV2Exists(n string, peering *peerings.Peerin
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		peeringClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud Peering client: %s", err)

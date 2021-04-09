@@ -13,6 +13,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodepools"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceCCENodePool() *schema.Resource {
@@ -254,11 +256,11 @@ func ResourceCCENodePool() *schema.Resource {
 
 func resourceCCENodePoolTags(d *schema.ResourceData) []tags.ResourceTag {
 	tagRaw := d.Get("tags").(map[string]interface{})
-	return expandResourceTags(tagRaw)
+	return utils.ExpandResourceTags(tagRaw)
 }
 
 func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
@@ -370,7 +372,7 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
@@ -439,7 +441,7 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node Pool (%s): %s", d.Id(), err)
 	}
 
-	tagmap := tagsToMap(s.Spec.NodeTemplate.UserTags)
+	tagmap := utils.TagsToMap(s.Spec.NodeTemplate.UserTags)
 	// ignore "CCE-Dynamic-Provisioning-Node"
 	delete(tagmap, "CCE-Dynamic-Provisioning-Node")
 	if err := d.Set("tags", tagmap); err != nil {
@@ -452,7 +454,7 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
@@ -522,7 +524,7 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCENodePoolDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)

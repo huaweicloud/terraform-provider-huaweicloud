@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/images"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceIecImages() *schema.Resource {
@@ -59,7 +60,7 @@ func dataSourceIecImages() *schema.Resource {
 }
 
 func dataSourceIecImagesV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3.0/policies"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func DataSourceIdentityCustomRole() *schema.Resource {
@@ -53,7 +54,7 @@ func DataSourceIdentityCustomRole() *schema.Resource {
 }
 
 func dataSourceIdentityCustomRoleRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	identityClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
@@ -111,7 +112,7 @@ func dataSourceIdentityCustomRoleRead(d *schema.ResourceData, meta interface{}) 
 }
 
 // dataSourceIdentityRoleV3Attributes populates the fields of an Role resource.
-func dataSourceIdentityCustomRoleAttributes(d *schema.ResourceData, config *Config, role *policies.Role) error {
+func dataSourceIdentityCustomRoleAttributes(d *schema.ResourceData, config *config.Config, role *policies.Role) error {
 	log.Printf("[DEBUG] huaweicloud_identity_role details: %#v", role)
 
 	d.SetId(role.ID)

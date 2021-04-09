@@ -9,6 +9,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules"
 	"github.com/huaweicloud/golangsdk/pagination"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceFWRuleV2() *schema.Resource {
@@ -88,7 +89,7 @@ func resourceFWRuleV2() *schema.Resource {
 
 func resourceFWRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
@@ -133,7 +134,7 @@ func resourceFWRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 func resourceFWRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Retrieve information about firewall rule: %s", d.Id())
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
@@ -168,7 +169,7 @@ func resourceFWRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceFWRuleV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
@@ -228,7 +229,7 @@ func resourceFWRuleV2Update(d *schema.ResourceData, meta interface{}) error {
 func resourceFWRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy firewall rule: %s", d.Id())
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)

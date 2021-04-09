@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceObsBucketObject() *schema.Resource {
@@ -106,8 +107,8 @@ func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error 
 	var resp *obs.PutObjectOutput
 	var err error
 
-	config := meta.(*Config)
-	obsClient, err := config.NewObjectStorageClient(GetRegion(d, config))
+	config := meta.(*config.Config)
+	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
@@ -226,8 +227,8 @@ func putFileToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.Put
 }
 
 func resourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	obsClient, err := config.NewObjectStorageClient(GetRegion(d, config))
+	config := meta.(*config.Config)
+	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
@@ -272,8 +273,8 @@ func resourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceObsBucketObjectDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	obsClient, err := config.NewObjectStorageClient(GetRegion(d, config))
+	config := meta.(*config.Config)
+	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}

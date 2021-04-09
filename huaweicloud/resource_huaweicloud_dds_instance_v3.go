@@ -11,6 +11,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/dds/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceDdsInstanceV3() *schema.Resource {
@@ -301,8 +303,8 @@ func DdsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID str
 }
 
 func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.ddsV3Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
 	}
@@ -354,7 +356,7 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(client, "instances", instance.Id, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of DDS instance %s: %s", instance.Id, tagErr)
 		}
@@ -364,8 +366,8 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.ddsV3Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s", err)
 	}
@@ -434,7 +436,7 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 
 	// save tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmt.Errorf("Error saving tags to state for DDS instance (%s): %s", d.Id(), err)
 		}
@@ -446,8 +448,8 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.ddsV3Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
 	}
@@ -531,7 +533,7 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("tags") {
-		tagErr := UpdateResourceTags(client, d, "instances", d.Id())
+		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of DDS instance:%s, err:%s", d.Id(), tagErr)
 		}
@@ -541,8 +543,8 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceDdsInstanceV3Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.ddsV3Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
 	}

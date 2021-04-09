@@ -5,12 +5,13 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceVirtualPrivateCloudV1() *schema.Resource {
@@ -38,12 +39,12 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateString64WithChinese,
+				ValidateFunc: utils.ValidateString64WithChinese,
 			},
 			"cidr": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateCIDR,
+				ValidateFunc: utils.ValidateCIDR,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -81,7 +82,7 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 }
 
 func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 
 	if err != nil {
@@ -131,7 +132,7 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
 		}
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(vpcV2Client, "vpcs", n.ID, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of VirtualPrivateCloud %q: %s", n.ID, tagErr)
 		}
@@ -141,7 +142,7 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 }
 
 func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
@@ -177,7 +178,7 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 	// save VirtualPrivateCloudV2 tags
 	if vpcV2Client, err := config.NetworkingV2Client(GetRegion(d, config)); err == nil {
 		if resourceTags, err := tags.Get(vpcV2Client, "vpcs", d.Id()).Extract(); err == nil {
-			tagmap := tagsToMap(resourceTags.Tags)
+			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
 				return fmt.Errorf("Error saving tags to state for VPC (%s): %s", d.Id(), err)
 			}
@@ -192,7 +193,7 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 }
 
 func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc: %s", err)
@@ -219,7 +220,7 @@ func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
 		}
 
-		tagErr := UpdateResourceTags(vpcV2Client, d, "vpcs", d.Id())
+		tagErr := utils.UpdateResourceTags(vpcV2Client, d, "vpcs", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of VPC %s: %s", d.Id(), tagErr)
 		}
@@ -230,7 +231,7 @@ func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{
 
 func resourceVirtualPrivateCloudV1Delete(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud vpc: %s", err)

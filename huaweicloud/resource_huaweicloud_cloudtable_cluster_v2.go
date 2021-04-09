@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceCloudtableClusterV2() *schema.Resource {
@@ -185,8 +186,8 @@ func resourceCloudtableClusterV2UserInputParams(d *schema.ResourceData) map[stri
 }
 
 func resourceCloudtableClusterV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.cloudtableV2Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.CloudtableV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -217,8 +218,8 @@ func resourceCloudtableClusterV2Create(d *schema.ResourceData, meta interface{})
 }
 
 func resourceCloudtableClusterV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.cloudtableV2Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.CloudtableV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -235,8 +236,8 @@ func resourceCloudtableClusterV2Read(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceCloudtableClusterV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.cloudtableV2Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.CloudtableV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -583,7 +584,7 @@ func sendCloudtableClusterV2CreateRequest(d *schema.ResourceData, params interfa
 	return r.Body, nil
 }
 
-func asyncWaitCloudtableClusterV2Create(d *schema.ResourceData, config *Config, result interface{},
+func asyncWaitCloudtableClusterV2Create(d *schema.ResourceData, config *config.Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	data := make(map[string]interface{})

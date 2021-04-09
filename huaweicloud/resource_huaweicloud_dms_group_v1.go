@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/groups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceDmsGroupsV1() *schema.Resource {
@@ -59,8 +60,8 @@ func resourceDmsGroupsV1() *schema.Resource {
 }
 
 func resourceDmsGroupsV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	dmsV1Client, err := config.dmsV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dms group client: %s", err)
 	}
@@ -92,9 +93,9 @@ func resourceDmsGroupsV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDmsGroupsV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
-	dmsV1Client, err := config.dmsV1Client(GetRegion(d, config))
+	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dms group client: %s", err)
 	}
@@ -128,8 +129,8 @@ func resourceDmsGroupsV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDmsGroupsV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	dmsV1Client, err := config.dmsV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dms group client: %s", err)
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/evs/v2/snapshots"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceEvsSnapshotV2() *schema.Resource {
@@ -64,7 +65,7 @@ func ResourceEvsSnapshotV2() *schema.Resource {
 }
 
 func resourceEvsSnapshotV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	evsClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
@@ -96,7 +97,7 @@ func resourceEvsSnapshotV2Create(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceEvsSnapshotV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	evsClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
@@ -119,7 +120,7 @@ func resourceEvsSnapshotV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceEvsSnapshotV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	evsClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
@@ -139,7 +140,7 @@ func resourceEvsSnapshotV2Update(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceEvsSnapshotV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	evsClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)

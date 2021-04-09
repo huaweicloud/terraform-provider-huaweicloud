@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodepools"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccCCENodePool_basic(t *testing.T) {
@@ -94,7 +95,7 @@ func TestAccCCENodePool_tags(t *testing.T) {
 }
 
 func testAccCheckCCENodePoolDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
@@ -143,7 +144,7 @@ func testAccCheckCCENodePoolExists(n string, cluster string, nodePool *nodepools
 			return fmt.Errorf("Cluster id is not set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		cceClient, err := config.CceV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)

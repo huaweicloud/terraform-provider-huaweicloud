@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/configurations"
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceASConfiguration() *schema.Resource {
@@ -283,7 +284,7 @@ func getInstanceConfig(configDataMap map[string]interface{}) (configurations.Ins
 }
 
 func resourceASConfigurationCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
@@ -312,7 +313,7 @@ func resourceASConfigurationCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceASConfigurationRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
@@ -329,7 +330,7 @@ func resourceASConfigurationRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceASConfigurationDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)

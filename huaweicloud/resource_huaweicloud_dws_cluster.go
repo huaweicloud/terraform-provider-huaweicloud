@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceDwsCluster() *schema.Resource {
@@ -206,8 +207,8 @@ func resourceDwsCluster() *schema.Resource {
 }
 
 func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.dwsV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.DwsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -395,8 +396,8 @@ func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDwsClusterRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.dwsV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.DwsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -508,8 +509,8 @@ func resourceDwsClusterRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceDwsClusterDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.dwsV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.DwsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}

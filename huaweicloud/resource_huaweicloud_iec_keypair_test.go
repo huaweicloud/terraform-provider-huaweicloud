@@ -10,6 +10,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/common"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/keypairs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccIECKeypairResource_basic(t *testing.T) {
@@ -40,7 +41,7 @@ func TestAccIECKeypairResource_basic(t *testing.T) {
 }
 
 func testAccCheckIECKeypairDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	iecClient, err := config.IECV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
@@ -71,7 +72,7 @@ func testAccCheckIECKeypairExists(n string, kp *common.KeyPair) resource.TestChe
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		iecClient, err := config.IECV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)

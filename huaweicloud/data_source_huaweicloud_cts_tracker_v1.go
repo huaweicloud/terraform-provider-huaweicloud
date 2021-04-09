@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/cts/v1/tracker"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceCTSTrackerV1() *schema.Resource {
@@ -67,8 +68,8 @@ func dataSourceCTSTrackerV1() *schema.Resource {
 }
 
 func dataSourceCTSTrackerV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	trackerClient, err := config.ctsV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	trackerClient, err := config.CtsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating cts Client: %s", err)
 	}

@@ -13,6 +13,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v1/instances"
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v2/whitelists"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceDcsInstanceV1() *schema.Resource {
@@ -298,8 +300,8 @@ func flattenDcsInstanceWhitelist(object *whitelists.Whitelist) interface{} {
 }
 
 func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	dcsV1Client, err := config.dcsV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dcs instance v1 client: %s", err)
 	}
@@ -359,7 +361,7 @@ func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(v.InstanceID)
 
 	// set whitelist
-	dcsV2Client, err := config.dcsV2Client(GetRegion(d, config))
+	dcsV2Client, err := config.DcsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dcs instance v2 client: %s", err)
 	}
@@ -376,7 +378,7 @@ func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(dcsV2Client, "dcs", v.InstanceID, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of DCS instance %s: %s", v.InstanceID, tagErr)
 		}
@@ -386,9 +388,9 @@ func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
-	dcsV1Client, err := config.dcsV1Client(GetRegion(d, config))
+	dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dcs instance v1 client: %s", err)
 	}
@@ -437,7 +439,7 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.Set("capacity", capacity)
 
-	dcsV2Client, err := config.dcsV2Client(GetRegion(d, config))
+	dcsV2Client, err := config.DcsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dcs instance v2 client: %s", err)
 	}
@@ -456,7 +458,7 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 
 	// set tags
 	if resourceTags, err := tags.Get(dcsV2Client, "instances", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmt.Errorf("[DEBUG] Error saving tag to state for DCS instance (%s): %s", d.Id(), err)
 		}
@@ -468,7 +470,7 @@ func resourceDcsInstancesV1Read(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceDcsInstancesV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	if err := resourceDcsInstancesCheck(d); err != nil {
 		return err
@@ -476,7 +478,7 @@ func resourceDcsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 
 	//lintignore:R019
 	if d.HasChanges("name", "description", "security_group_id", "maintain_begin", "maintain_end") {
-		dcsV1Client, err := config.dcsV1Client(GetRegion(d, config))
+		dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud dcs instance v1 client: %s", err)
 		}
@@ -497,7 +499,7 @@ func resourceDcsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if d.HasChanges("whitelists", "tags") {
-		dcsV2Client, err := config.dcsV2Client(GetRegion(d, config))
+		dcsV2Client, err := config.DcsV2Client(GetRegion(d, config))
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud dcs instance v2 client: %s", err)
 		}
@@ -513,7 +515,7 @@ func resourceDcsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		// update tags
-		tagErr := UpdateResourceTags(dcsV2Client, d, "dcs", d.Id())
+		tagErr := utils.UpdateResourceTags(dcsV2Client, d, "dcs", d.Id())
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of DCS instance:%s, err:%s", d.Id(), tagErr)
 		}
@@ -523,8 +525,8 @@ func resourceDcsInstancesV1Update(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceDcsInstancesV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	dcsV1Client, err := config.dcsV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud dcs instance v1 client: %s", err)
 	}

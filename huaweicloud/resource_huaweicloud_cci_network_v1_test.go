@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/cci/v1/networks"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccCCINetworkV1_basic(t *testing.T) {
@@ -31,7 +32,7 @@ func TestAccCCINetworkV1_basic(t *testing.T) {
 }
 
 func testAccCheckCCINetworkV1Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	cciClient, err := config.CciV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
@@ -62,7 +63,7 @@ func testAccCheckCCINetworkV1Exists(n string, network *networks.Network) resourc
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		cciClient, err := config.CciV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)

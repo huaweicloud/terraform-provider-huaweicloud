@@ -1,4 +1,4 @@
-package huaweicloud
+package config
 
 import (
 	"bytes"
@@ -86,7 +86,7 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 		//lintignore:R018
 		time.Sleep(retryTimeout(retry))
 		response, err = lrt.Rt.RoundTrip(request)
-		retry += 1
+		retry++
 	}
 
 	if lrt.OsDebug {

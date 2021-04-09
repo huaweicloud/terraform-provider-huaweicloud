@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/evs/v3/volumes"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccEvsVolume_basic(t *testing.T) {
@@ -124,7 +125,7 @@ func TestAccEvsVolume_withEpsId(t *testing.T) {
 }
 
 func testAccCheckEvsVolumeDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	blockStorageClient, err := config.BlockStorageV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud evs storage client: %s", err)
@@ -155,7 +156,7 @@ func testAccCheckEvsVolumeExists(n string, volume *volumes.Volume) resource.Test
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		blockStorageClient, err := config.BlockStorageV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud evs storage client: %s", err)
@@ -187,7 +188,7 @@ func testAccCheckEvsVolumeTags(n string, k string, v string) resource.TestCheckF
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		blockStorageClient, err := config.BlockStorageV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)

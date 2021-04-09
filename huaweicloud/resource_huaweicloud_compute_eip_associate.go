@@ -11,6 +11,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceComputeFloatingIPAssociateV2() *schema.Resource {
@@ -57,7 +59,7 @@ func ResourceComputeFloatingIPAssociateV2() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				Computed:         true,
-				DiffSuppressFunc: suppressComputedFixedWhenFloatingIp,
+				DiffSuppressFunc: utils.SuppressComputedFixedWhenFloatingIp,
 			},
 		},
 	}
@@ -79,7 +81,7 @@ func resourceComputeFloatingIPAssociateV2Create(d *schema.ResourceData, meta int
 		floatingIP = public_ip.(string)
 	}
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	// get port id
 	portId, err := resourceComputeFloatingIPAssociateV2GetPortId(d, config, instanceId, fixedIP)
@@ -136,7 +138,7 @@ func resourceComputeFloatingIPAssociateV2Create(d *schema.ResourceData, meta int
 }
 
 func resourceComputeFloatingIPAssociateV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	floatingIP, instanceId, fixedIP, err := parseComputeFloatingIPAssociateId(d.Id())
 	if err != nil {
@@ -179,7 +181,7 @@ func resourceComputeFloatingIPAssociateV2Read(d *schema.ResourceData, meta inter
 }
 
 func resourceComputeFloatingIPAssociateV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	var floatingIP string
 	if _, ok := d.GetOk("floating_ip"); ok {
@@ -211,7 +213,7 @@ func resourceComputeFloatingIPAssociateV2Delete(d *schema.ResourceData, meta int
 	return nil
 }
 
-func resourceComputeFloatingIPAssociateV2GetPortId(d *schema.ResourceData, config *Config, instanceId, fixedIP string) (string, error) {
+func resourceComputeFloatingIPAssociateV2GetPortId(d *schema.ResourceData, config *config.Config, instanceId, fixedIP string) (string, error) {
 	computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return "", fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
@@ -249,7 +251,7 @@ func resourceComputeFloatingIPAssociateV2GetPortId(d *schema.ResourceData, confi
 	return portId, nil
 }
 
-func resourceComputeFloatingIPAssociateV2GetEip(d *schema.ResourceData, config *Config, floatingIP string) (eips.PublicIp, error) {
+func resourceComputeFloatingIPAssociateV2GetEip(d *schema.ResourceData, config *config.Config, floatingIP string) (eips.PublicIp, error) {
 	networkingClientFloatingIp, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return eips.PublicIp{}, fmt.Errorf("Error creating networking client: %s", err)
@@ -282,7 +284,7 @@ func resourceComputeFloatingIPAssociateV2GetEip(d *schema.ResourceData, config *
 	return allEips[0], nil
 }
 
-func resourceComputeFloatingIPAssociateStateRefreshFunc(d *schema.ResourceData, config *Config, instanceId, floatingIP string) resource.StateRefreshFunc {
+func resourceComputeFloatingIPAssociateStateRefreshFunc(d *schema.ResourceData, config *config.Config, instanceId, floatingIP string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 		if err != nil {

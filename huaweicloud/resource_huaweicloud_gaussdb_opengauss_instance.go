@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceOpenGaussInstance() *schema.Resource {
@@ -322,8 +323,8 @@ func OpenGaussInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instance
 }
 
 func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.openGaussV3Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.OpenGaussV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}
@@ -427,9 +428,9 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
-	client, err := config.openGaussV3Client(GetRegion(d, config))
+	client, err := config.OpenGaussV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -532,8 +533,8 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceOpenGaussInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.openGaussV3Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.OpenGaussV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}
@@ -564,8 +565,8 @@ func resourceOpenGaussInstanceDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.openGaussV3Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.OpenGaussV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}

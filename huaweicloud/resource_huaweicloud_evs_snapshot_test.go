@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/evs/v2/snapshots"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccEvsSnapshotV2_basic(t *testing.T) {
@@ -36,7 +37,7 @@ func TestAccEvsSnapshotV2_basic(t *testing.T) {
 }
 
 func testAccCheckEvsSnapshotV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	evsClient, err := config.BlockStorageV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud EVS storage client: %s", err)
@@ -67,7 +68,7 @@ func testAccCheckEvsSnapshotV2Exists(n string, sp *snapshots.Snapshot) resource.
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		evsClient, err := config.BlockStorageV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud EVS storage client: %s", err)

@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccObsBucket_basic(t *testing.T) {
@@ -266,8 +267,8 @@ func TestAccObsBucket_cors(t *testing.T) {
 }
 
 func testAccCheckObsBucketDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-	obsClient, err := config.NewObjectStorageClient(HW_REGION_NAME)
+	config := testAccProvider.Meta().(*config.Config)
+	obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
@@ -296,8 +297,8 @@ func testAccCheckObsBucketExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
-		obsClient, err := config.NewObjectStorageClient(HW_REGION_NAME)
+		config := testAccProvider.Meta().(*config.Config)
+		obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}
@@ -317,8 +318,8 @@ func testAccCheckObsBucketLogging(name, target, prefix string) resource.TestChec
 			return fmt.Errorf("Not found: %s", name)
 		}
 
-		config := testAccProvider.Meta().(*Config)
-		obsClient, err := config.NewObjectStorageClient(HW_REGION_NAME)
+		config := testAccProvider.Meta().(*config.Config)
+		obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}

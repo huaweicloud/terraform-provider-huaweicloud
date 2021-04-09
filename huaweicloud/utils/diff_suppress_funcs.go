@@ -1,6 +1,9 @@
-package huaweicloud
+package utils
 
 import (
+	"bytes"
+	"encoding/json"
+	"log"
 	"reflect"
 	"sort"
 	"strings"
@@ -10,7 +13,7 @@ import (
 	awspolicy "github.com/jen20/awspolicyequivalence"
 )
 
-func suppressEquivalentAwsPolicyDiffs(k, old, new string, d *schema.ResourceData) bool {
+func SuppressEquivalentAwsPolicyDiffs(k, old, new string, d *schema.ResourceData) bool {
 	equivalent, err := awspolicy.PoliciesAreEquivalent(old, new)
 	if err != nil {
 		return false
@@ -19,25 +22,25 @@ func suppressEquivalentAwsPolicyDiffs(k, old, new string, d *schema.ResourceData
 	return equivalent
 }
 
-// Suppress all changes?
-func suppressDiffAll(k, old, new string, d *schema.ResourceData) bool {
+// Suppress all changes
+func SuppressDiffAll(k, old, new string, d *schema.ResourceData) bool {
 	return true
 }
 
 // Suppress changes if we get a computed min_disk_gb if value is unspecified (default 0)
-func suppressMinDisk(k, old, new string, d *schema.ResourceData) bool {
+func SuppressMinDisk(k, old, new string, d *schema.ResourceData) bool {
 	return new == "0" || old == new
 }
 
 // Suppress changes if we get a fixed ip when not expecting one, if we have a floating ip (generates fixed ip).
-func suppressComputedFixedWhenFloatingIp(k, old, new string, d *schema.ResourceData) bool {
+func SuppressComputedFixedWhenFloatingIp(k, old, new string, d *schema.ResourceData) bool {
 	if v, ok := d.GetOk("floating_ip"); ok && v != "" {
 		return new == "" || old == new
 	}
 	return false
 }
 
-func suppressLBWhitelistDiffs(k, old, new string, d *schema.ResourceData) bool {
+func SuppressLBWhitelistDiffs(k, old, new string, d *schema.ResourceData) bool {
 	if len(old) != len(new) {
 		return false
 	}
@@ -49,7 +52,7 @@ func suppressLBWhitelistDiffs(k, old, new string, d *schema.ResourceData) bool {
 	return reflect.DeepEqual(old_array, new_array)
 }
 
-func suppressSnatFiplistDiffs(k, old, new string, d *schema.ResourceData) bool {
+func SuppressSnatFiplistDiffs(k, old, new string, d *schema.ResourceData) bool {
 	if len(old) != len(new) {
 		return false
 	}
@@ -62,11 +65,11 @@ func suppressSnatFiplistDiffs(k, old, new string, d *schema.ResourceData) bool {
 }
 
 // Suppress changes if we get a string with or without new line
-func suppressNewLineDiffs(k, old, new string, d *schema.ResourceData) bool {
+func SuppressNewLineDiffs(k, old, new string, d *schema.ResourceData) bool {
 	return strings.Trim(old, "\n") == strings.Trim(new, "\n")
 }
 
-func suppressEquivilentTimeDiffs(k, old, new string, d *schema.ResourceData) bool {
+func SuppressEquivilentTimeDiffs(k, old, new string, d *schema.ResourceData) bool {
 	oldTime, err := time.Parse(time.RFC3339, old)
 	if err != nil {
 		return false
@@ -78,4 +81,29 @@ func suppressEquivilentTimeDiffs(k, old, new string, d *schema.ResourceData) boo
 	}
 
 	return oldTime.Equal(newTime)
+}
+
+func CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
+	var obj1 interface{}
+	err := json.Unmarshal([]byte(tem1), &obj1)
+	if err != nil {
+		return false, err
+	}
+
+	canonicalJson1, _ := json.Marshal(obj1)
+
+	var obj2 interface{}
+	err = json.Unmarshal([]byte(tem2), &obj2)
+	if err != nil {
+		return false, err
+	}
+
+	canonicalJson2, _ := json.Marshal(obj2)
+
+	equal := bytes.Compare(canonicalJson1, canonicalJson2) == 0
+	if !equal {
+		log.Printf("[DEBUG] Canonical template are not equal.\nFirst: %s\nSecond: %s\n",
+			canonicalJson1, canonicalJson2)
+	}
+	return equal, nil
 }

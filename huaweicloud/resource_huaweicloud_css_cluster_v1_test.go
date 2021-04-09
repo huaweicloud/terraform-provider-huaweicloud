@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccCssClusterV1_basic(t *testing.T) {
@@ -80,8 +81,8 @@ func TestAccCssClusterV1_security(t *testing.T) {
 }
 
 func testAccCheckCssClusterV1Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-	client, err := config.cssV1Client(HW_REGION_NAME)
+	config := testAccProvider.Meta().(*config.Config)
+	client, err := config.CssV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -109,8 +110,8 @@ func testAccCheckCssClusterV1Destroy(s *terraform.State) error {
 
 func testAccCheckCssClusterV1Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
-		client, err := config.cssV1Client(HW_REGION_NAME)
+		config := testAccProvider.Meta().(*config.Config)
+		client, err := config.CssV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}

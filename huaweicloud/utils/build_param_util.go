@@ -1,4 +1,4 @@
-package huaweicloud
+package utils
 
 import (
 	"encoding/json"
@@ -236,7 +236,12 @@ func getParamTag(key string, tag reflect.StructTag) string {
 	return "tag_not_set"
 }
 
-func buildCreateParam(opts interface{}, d *schema.ResourceData, nameMap *map[string]string) ([]string, error) {
+func hasFilledOpt(d *schema.ResourceData, param string) bool {
+	_, b := d.GetOk(param)
+	return b
+}
+
+func BuildCreateParam(opts interface{}, d *schema.ResourceData, nameMap *map[string]string) ([]string, error) {
 	var f funcSkipOpt
 
 	f = func(optn string, jsonTags []string, tag reflect.StructTag) bool {
@@ -263,7 +268,7 @@ func buildCreateParam(opts interface{}, d *schema.ResourceData, nameMap *map[str
 	return e.BuildCUParam(opts, d)
 }
 
-func buildUpdateParam(opts interface{}, d *schema.ResourceData, nameMap *map[string]string) ([]string, error) {
+func BuildUpdateParam(opts interface{}, d *schema.ResourceData, nameMap *map[string]string) ([]string, error) {
 	hasUpdatedItems := false
 
 	var f funcSkipOpt
@@ -291,7 +296,7 @@ func buildUpdateParam(opts interface{}, d *schema.ResourceData, nameMap *map[str
 	return notPassFileds, nil
 }
 
-func refreshResourceData(resource interface{}, d *schema.ResourceData, nameMap *map[string]string) error {
+func RefreshResourceData(resource interface{}, d *schema.ResourceData, nameMap *map[string]string) error {
 	e := &exchangeParam{
 		OptNameMap: nameMap,
 	}

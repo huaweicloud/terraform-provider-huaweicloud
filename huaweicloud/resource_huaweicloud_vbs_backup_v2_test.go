@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/vbs/v2/backups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccVBSBackupV2_basic(t *testing.T) {
@@ -59,7 +60,7 @@ func TestAccVBSBackupV2_timeout(t *testing.T) {
 }
 
 func testAccCheckVBSBackupV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud vbs client: %s", err)
@@ -90,7 +91,7 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud vbs client: %s", err)

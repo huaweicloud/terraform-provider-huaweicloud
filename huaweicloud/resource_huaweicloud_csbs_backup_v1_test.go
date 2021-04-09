@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/golangsdk/openstack/csbs/v1/backup"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccCSBSBackupV1_basic(t *testing.T) {
@@ -60,7 +61,7 @@ func TestAccCSBSBackupV1_timeout(t *testing.T) {
 }
 
 func testAccCSBSBackupV1Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	backupClient, err := config.CsbsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating csbs client: %s", err)
@@ -91,7 +92,7 @@ func testAccCSBSBackupV1Exists(n string, backups *backup.Backup) resource.TestCh
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		backupClient, err := config.CsbsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating csbs client: %s", err)

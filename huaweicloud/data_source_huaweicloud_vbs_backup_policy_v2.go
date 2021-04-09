@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/vbs/v2/policies"
 	"github.com/huaweicloud/golangsdk/openstack/vbs/v2/tags"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceVBSBackupPolicyV2() *schema.Resource {
@@ -90,7 +91,7 @@ func dataSourceVBSBackupPolicyV2() *schema.Resource {
 }
 
 func dataSourceVBSPolicyV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud vbs client: %s", err)

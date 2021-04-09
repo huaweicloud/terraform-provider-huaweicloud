@@ -13,6 +13,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceRdsInstanceV3() *schema.Resource {
@@ -171,7 +173,7 @@ func resourceRdsInstanceV3() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
-				ValidateFunc: validateIP,
+				ValidateFunc: utils.ValidateIP,
 			},
 
 			"ha_replication_mode": {
@@ -255,7 +257,7 @@ func resourceRdsInstanceV3() *schema.Resource {
 }
 
 func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 	client, err := config.RdsV3Client(region)
 	if err != nil {
@@ -296,7 +298,7 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(client, "instances", instanceID, taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of RDS instance (%s): %s", instanceID, tagErr)
 		}
@@ -306,7 +308,7 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud RDS client: %s", err)
@@ -399,7 +401,7 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("[DEBUG] Error saving nodes to RDS instance (%s): %s", instanceID, err)
 	}
 
-	d.Set("tags", tagsToMap(instance.Tags))
+	d.Set("tags", utils.TagsToMap(instance.Tags))
 
 	az1 := instance.Nodes[0].AvailabilityZone
 	if strings.HasSuffix(d.Get("flavor").(string), ".ha") {
@@ -421,7 +423,7 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud RDS Client: %s", err)
@@ -458,7 +460,7 @@ func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("tags") {
-		tagErr := UpdateResourceTags(client, d, "instances", instanceID)
+		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceID)
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of RDS instance (%s): %s", instanceID, tagErr)
 		}

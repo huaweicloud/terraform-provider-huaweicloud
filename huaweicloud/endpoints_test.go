@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 const (
@@ -47,7 +48,7 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of IAM service
 	serviceClient, err = config.IAMV3Client(HW_REGION_NAME)
@@ -122,10 +123,10 @@ func TestAccServiceEndpoints_Management(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of CTS service
-	serviceClient, err = config.ctsV1Client(HW_REGION_NAME)
+	serviceClient, err = config.CtsV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud CTS client: %s", err)
 	}
@@ -137,7 +138,7 @@ func TestAccServiceEndpoints_Management(t *testing.T) {
 	t.Logf("CTS endpoint:\t %s", actualURL)
 
 	// test the endpoint of LTS service
-	serviceClient, err = config.ltsV2Client(HW_REGION_NAME)
+	serviceClient, err = config.LtsV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud LTS client: %s", err)
 	}
@@ -149,7 +150,7 @@ func TestAccServiceEndpoints_Management(t *testing.T) {
 	t.Logf("LTS endpoint:\t %s", actualURL)
 
 	// test the endpoint of CES service
-	serviceClient, err = config.newCESClient(HW_REGION_NAME)
+	serviceClient, err = config.CesV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud CES client: %s", err)
 	}
@@ -173,7 +174,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of RDS v1 service
 	serviceClient, err = config.RdsV1Client(HW_REGION_NAME)
@@ -200,7 +201,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	t.Logf("RDS v3 endpoint:\t %s", actualURL)
 
 	// test the endpoint of DDS v3 service
-	serviceClient, err = config.ddsV3Client(HW_REGION_NAME)
+	serviceClient, err = config.DdsV3Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DDS v3 client: %s", err)
 	}
@@ -224,7 +225,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	t.Logf("GeminiDB/Cassandra endpoint:\t %s", actualURL)
 
 	// test the endpoint of gaussdb service
-	serviceClient, err = config.gaussdbV3Client(HW_REGION_NAME)
+	serviceClient, err = config.GaussdbV3Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud gaussdb client: %s", err)
 	}
@@ -236,7 +237,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	t.Logf("gaussdb endpoint:\t %s", actualURL)
 
 	// test the endpoint of openGauss service
-	serviceClient, err = config.openGaussV3Client(HW_REGION_NAME)
+	serviceClient, err = config.OpenGaussV3Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud openGauss client: %s", err)
 	}
@@ -260,10 +261,10 @@ func TestAccServiceEndpoints_Security(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of anti-ddos service
-	serviceClient, err = config.antiddosV1Client(HW_REGION_NAME)
+	serviceClient, err = config.AntiDDosV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud anti-ddos client: %s", err)
 	}
@@ -275,7 +276,7 @@ func TestAccServiceEndpoints_Security(t *testing.T) {
 	t.Logf("anti-ddos endpoint:\t %s", actualURL)
 
 	// test the endpoint of KMS service
-	serviceClient, err = config.kmsKeyV1Client(HW_REGION_NAME)
+	serviceClient, err = config.KmsKeyV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud KMS client: %s", err)
 	}
@@ -299,10 +300,10 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of API-GW service
-	serviceClient, err = config.apiGatewayV1Client(HW_REGION_NAME)
+	serviceClient, err = config.ApiGatewayV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud API-GW client: %s", err)
 	}
@@ -314,7 +315,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	t.Logf("API-GW endpoint:\t %s", actualURL)
 
 	// test the endpoint of DCS v1 service
-	serviceClient, err = config.dcsV1Client(HW_REGION_NAME)
+	serviceClient, err = config.DcsV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud dcs v1 client: %s", err)
 	}
@@ -326,7 +327,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	t.Logf("DCS v1 endpoint:\t %s", actualURL)
 
 	// test the endpoint of DCS v2 service
-	serviceClient, err = config.dcsV2Client(HW_REGION_NAME)
+	serviceClient, err = config.DcsV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud dcs v2 client: %s", err)
 	}
@@ -338,7 +339,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	t.Logf("DCS v2 endpoint:\t %s", actualURL)
 
 	// test the endpoint of DMS service
-	serviceClient, err = config.dmsV1Client(HW_REGION_NAME)
+	serviceClient, err = config.DmsV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DMS v1 client: %s", err)
 	}
@@ -350,7 +351,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	t.Logf("DMS v1 endpoint:\t %s", actualURL)
 
 	// test the endpoint of DMS v2 service
-	serviceClient, err = config.dmsV2Client(HW_REGION_NAME)
+	serviceClient, err = config.DmsV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DMS v2 client: %s", err)
 	}
@@ -376,7 +377,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
 	}
 
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
 
@@ -494,7 +495,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
 	}
 
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
 
@@ -571,7 +572,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
 	}
 
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
 
@@ -616,7 +617,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 
 	// test endpoint of elb v1.0
 	serviceClient, err = nil, nil
-	serviceClient, err = config.elasticLBClient(HW_REGION_NAME)
+	serviceClient, err = config.ElasticLBClient(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ELB v1.0 client: %s", err)
 	}
@@ -702,7 +703,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of MRS service
 	serviceClient, err = config.MrsV1Client(HW_REGION_NAME)
@@ -728,7 +729,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("SMN endpoint:\t %s", actualURL)
 
-	serviceClient, err = config.cdmV11Client(HW_REGION_NAME)
+	serviceClient, err = config.CdmV11Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cdm client: %s", err)
 	}
@@ -739,7 +740,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("cdm endpoint:\t %s", actualURL)
 
-	serviceClient, err = config.disV2Client(HW_REGION_NAME)
+	serviceClient, err = config.DisV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud dis client: %s", err)
 	}
@@ -750,7 +751,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("dis endpoint:\t %s", actualURL)
 
-	serviceClient, err = config.cloudtableV2Client(HW_REGION_NAME)
+	serviceClient, err = config.CloudtableV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cloudtable client: %s", err)
 	}
@@ -761,7 +762,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("cloudtable endpoint:\t %s", actualURL)
 
-	serviceClient, err = config.cloudStreamV1Client(HW_REGION_NAME)
+	serviceClient, err = config.CloudStreamV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cloudStream client: %s", err)
 	}
@@ -772,7 +773,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("cloudStream endpoint:\t %s", actualURL)
 
-	serviceClient, err = config.cssV1Client(HW_REGION_NAME)
+	serviceClient, err = config.CssV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud css client: %s", err)
 	}
@@ -783,7 +784,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("css endpoint:\t %s", actualURL)
 
-	serviceClient, err = config.dliV1Client(HW_REGION_NAME)
+	serviceClient, err = config.DliV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating dli css client: %s", err)
 	}
@@ -794,7 +795,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("dli endpoint:\t %s", actualURL)
 
-	serviceClient, err = config.dwsV1Client(HW_REGION_NAME)
+	serviceClient, err = config.DwsV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating dws css client: %s", err)
 	}
@@ -805,7 +806,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("dws endpoint:\t %s", actualURL)
 
-	serviceClient, err = config.gesV1Client(HW_REGION_NAME)
+	serviceClient, err = config.GesV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating ges css client: %s", err)
 	}
@@ -816,7 +817,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("ges endpoint:\t %s", actualURL)
 
-	serviceClient, err = config.mlsV1Client(HW_REGION_NAME)
+	serviceClient, err = config.MlsV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating mls css client: %s", err)
 	}
@@ -840,7 +841,7 @@ func TestAccServiceEndpoints_Edge(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of iec service
 	serviceClient, err = config.IECV1Client(HW_REGION_NAME)
@@ -867,10 +868,10 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
-	config := testProvider.Meta().(*Config)
+	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of MAAS service
-	serviceClient, err = config.maasV1Client(HW_REGION_NAME)
+	serviceClient, err = config.MaasV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud MAAS client: %s", err)
 	}
@@ -882,7 +883,7 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 	t.Logf("MAAS endpoint:\t %s", actualURL)
 
 	// test the endpoint of RTS service
-	serviceClient, err = config.orchestrationV1Client(HW_REGION_NAME)
+	serviceClient, err = config.OrchestrationV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud RTS client: %s", err)
 	}

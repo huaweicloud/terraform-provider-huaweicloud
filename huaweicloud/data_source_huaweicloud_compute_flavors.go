@@ -7,6 +7,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/flavors"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func DataSourceEcsFlavors() *schema.Resource {
@@ -49,7 +51,7 @@ func DataSourceEcsFlavors() *schema.Resource {
 }
 
 func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud ECS client: %s", err)
@@ -118,7 +120,7 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 			"Please change your search criteria and try again.")
 	}
 
-	d.SetId(dataResourceIdHash(ids))
+	d.SetId(utils.DataResourceIdHash(ids))
 	d.Set("ids", ids)
 	d.Set("region", GetRegion(d, config))
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceDisPartitionV2() *schema.Resource {
@@ -50,8 +51,8 @@ func dataSourceDisPartitionV2() *schema.Resource {
 }
 
 func dataSourceDisPartitionV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.disV2Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.DisV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}

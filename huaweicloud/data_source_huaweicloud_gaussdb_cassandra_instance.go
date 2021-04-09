@@ -11,6 +11,8 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func dataSourceGeminiDBInstance() *schema.Resource {
@@ -162,7 +164,7 @@ func dataSourceGeminiDBInstance() *schema.Resource {
 }
 
 func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 	client, err := config.GeminiDBV3Client(region)
 	if err != nil {
@@ -262,7 +264,7 @@ func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("private_ips", ipsList)
 
 	//remove duplicate az
-	azList = removeDuplicateElem(azList)
+	azList = utils.RemoveDuplicateElem(azList)
 	sort.Strings(azList)
 	d.Set("availability_zone", strings.Join(azList, ","))
 	d.Set("node_num", len(nodesList))
@@ -277,7 +279,7 @@ func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 
 	//save geminidb tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmt.Errorf("Error saving tags to state for geminidb (%s): %s", d.Id(), err)
 		}

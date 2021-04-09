@@ -14,6 +14,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/mrs/v1/cluster"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceMRSClusterV1() *schema.Resource {
@@ -413,7 +415,7 @@ func ClusterStateRefreshFunc(client *golangsdk.ServiceClient, clusterID string) 
 }
 
 func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 
 	client, err := config.MrsV1Client(region)
@@ -495,7 +497,7 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 	// create tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		taglist := expandResourceTags(tagRaw)
+		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(client, "clusters", d.Id(), taglist).ExtractErr(); tagErr != nil {
 			return fmt.Errorf("Error setting tags of MRS cluster %s: %s", d.Id(), tagErr)
 		}
@@ -505,7 +507,7 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.MrsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud MRS client: %s", err)
@@ -611,7 +613,7 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	// set tags
 	if resourceTags, err := tags.Get(client, "clusters", d.Id()).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		d.Set("tags", tagmap)
 	} else {
 		log.Printf("[WARN] fetching tags of MRS cluster failed: %s", err)
@@ -621,14 +623,14 @@ func resourceClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceClusterV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.MrsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud MRS client: %s", err)
 	}
 
 	// update tags
-	tagErr := UpdateResourceTags(client, d, "clusters", d.Id())
+	tagErr := utils.UpdateResourceTags(client, d, "clusters", d.Id())
 	if tagErr != nil {
 		return fmt.Errorf("Error updating tags of MRS cluster:%s, err:%s", d.Id(), tagErr)
 	}
@@ -637,7 +639,7 @@ func resourceClusterV1Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	client, err := config.MrsV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud MRS client: %s", err)

@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccMlsInstance_basic(t *testing.T) {
@@ -98,8 +99,8 @@ resource "huaweicloud_mls_instance" "instance" {
 }
 
 func testAccCheckMlsInstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-	client, err := config.mlsV1Client(HW_REGION_NAME)
+	config := testAccProvider.Meta().(*config.Config)
+	client, err := config.MlsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -128,8 +129,8 @@ func testAccCheckMlsInstanceDestroy(s *terraform.State) error {
 
 func testAccCheckMlsInstanceExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
-		client, err := config.mlsV1Client(HW_REGION_NAME)
+		config := testAccProvider.Meta().(*config.Config)
+		client, err := config.MlsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}

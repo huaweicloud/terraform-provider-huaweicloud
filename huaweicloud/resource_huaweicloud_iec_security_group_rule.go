@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/common"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/rules"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceIecSecurityGroupRule() *schema.Resource {
@@ -90,7 +91,7 @@ func resourceIecSecurityGroupRule() *schema.Resource {
 
 func resourceIecSecurityGroupRuleV1Create(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
@@ -130,7 +131,7 @@ func resourceIecSecurityGroupRuleV1Create(d *schema.ResourceData, meta interface
 
 func resourceIecSecurityGroupRuleV1Read(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
@@ -161,7 +162,7 @@ func resourceIecSecurityGroupRuleV1Read(d *schema.ResourceData, meta interface{}
 
 func resourceIecSecurityGroupRuleV1Delete(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)

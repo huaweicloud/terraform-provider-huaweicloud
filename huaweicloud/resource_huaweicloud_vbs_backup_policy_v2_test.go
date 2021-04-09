@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/golangsdk/openstack/vbs/v2/policies"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
@@ -79,7 +80,7 @@ func TestAccVBSBackupPolicyV2_rentention_day(t *testing.T) {
 }
 
 func testAccVBSBackupPolicyV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud sfs client: %s", err)
@@ -110,7 +111,7 @@ func testAccVBSBackupPolicyV2Exists(n string, policy *policies.Policy) resource.
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating huaweicloud vbs client: %s", err)

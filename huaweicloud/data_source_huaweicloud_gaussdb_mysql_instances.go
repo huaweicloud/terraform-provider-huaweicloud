@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/instances"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceGaussDBMysqlInstances() *schema.Resource {
@@ -182,9 +183,9 @@ func dataSourceGaussDBMysqlInstances() *schema.Resource {
 }
 
 func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
-	client, err := config.gaussdbV3Client(region)
+	client, err := config.GaussdbV3Client(region)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}

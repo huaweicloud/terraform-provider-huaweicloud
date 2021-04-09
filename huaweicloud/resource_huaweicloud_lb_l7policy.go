@@ -12,6 +12,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/l7policies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/listeners"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceL7PolicyV2() *schema.Resource {
@@ -94,14 +96,14 @@ func ResourceL7PolicyV2() *schema.Resource {
 				Type:         schema.TypeBool,
 				Default:      true,
 				Optional:     true,
-				ValidateFunc: validateTrueOnly,
+				ValidateFunc: utils.ValidateTrueOnly,
 			},
 		},
 	}
 }
 
 func resourceL7PolicyV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
@@ -191,7 +193,7 @@ func resourceL7PolicyV2Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceL7PolicyV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
@@ -218,7 +220,7 @@ func resourceL7PolicyV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceL7PolicyV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
@@ -318,7 +320,7 @@ func resourceL7PolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceL7PolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
@@ -368,7 +370,7 @@ func resourceL7PolicyV2Delete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceL7PolicyV2Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
 		return nil, fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)

@@ -6,6 +6,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/ims/v2/cloudimages"
 	"github.com/huaweicloud/golangsdk/openstack/ims/v2/tags"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -71,7 +72,7 @@ func TestAccImsImage_withEpsId(t *testing.T) {
 }
 
 func testAccCheckImsImageDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	imageClient, err := config.ImageV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
@@ -102,7 +103,7 @@ func testAccCheckImsImageExists(n string, image *cloudimages.Image) resource.Tes
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
@@ -129,7 +130,7 @@ func testAccCheckImsImageTags(n string, k string, v string) resource.TestCheckFu
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)

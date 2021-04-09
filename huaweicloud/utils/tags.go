@@ -1,4 +1,4 @@
-package huaweicloud
+package utils
 
 import (
 	"fmt"
@@ -7,20 +7,6 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 )
-
-const (
-	tagVPCEP        string = "endpoint"
-	tagVPCEPService string = "endpoint_service"
-)
-
-// tagsSchema returns the schema to use for tags.
-func tagsSchema() *schema.Schema {
-	return &schema.Schema{
-		Type:     schema.TypeMap,
-		Optional: true,
-		Elem:     &schema.Schema{Type: schema.TypeString},
-	}
-}
 
 // UpdateResourceTags is a helper to update the tags for a resource.
 // It expects the tags field to be named "tags"
@@ -32,7 +18,7 @@ func UpdateResourceTags(conn *golangsdk.ServiceClient, d *schema.ResourceData, r
 
 		// remove old tags
 		if len(oMap) > 0 {
-			taglist := expandResourceTags(oMap)
+			taglist := ExpandResourceTags(oMap)
 			err := tags.Delete(conn, resourceType, id, taglist).ExtractErr()
 			if err != nil {
 				return err
@@ -41,7 +27,7 @@ func UpdateResourceTags(conn *golangsdk.ServiceClient, d *schema.ResourceData, r
 
 		// set new tags
 		if len(nMap) > 0 {
-			taglist := expandResourceTags(nMap)
+			taglist := ExpandResourceTags(nMap)
 			err := tags.Create(conn, resourceType, id, taglist).ExtractErr()
 			if err != nil {
 				return err
@@ -52,8 +38,8 @@ func UpdateResourceTags(conn *golangsdk.ServiceClient, d *schema.ResourceData, r
 	return nil
 }
 
-// tagsToMap returns the list of tags into a map.
-func tagsToMap(tags []tags.ResourceTag) map[string]string {
+// TagsToMap returns the list of tags into a map.
+func TagsToMap(tags []tags.ResourceTag) map[string]string {
 	result := make(map[string]string)
 	for _, val := range tags {
 		result[val.Key] = val.Value
@@ -62,8 +48,8 @@ func tagsToMap(tags []tags.ResourceTag) map[string]string {
 	return result
 }
 
-// expandResourceTags returns the tags for the given map of data.
-func expandResourceTags(tagmap map[string]interface{}) []tags.ResourceTag {
+// ExpandResourceTags returns the tags for the given map of data.
+func ExpandResourceTags(tagmap map[string]interface{}) []tags.ResourceTag {
 	var taglist []tags.ResourceTag
 
 	for k, v := range tagmap {
@@ -77,8 +63,8 @@ func expandResourceTags(tagmap map[string]interface{}) []tags.ResourceTag {
 	return taglist
 }
 
-// get resource tag type of DNS zone by zoneType
-func getDNSZoneTagType(zoneType string) (string, error) {
+// GetDNSZoneTagType returns resource tag type of DNS zone by zoneType
+func GetDNSZoneTagType(zoneType string) (string, error) {
 	if zoneType == "public" {
 		return "DNS-public_zone", nil
 	} else if zoneType == "private" {
@@ -87,8 +73,8 @@ func getDNSZoneTagType(zoneType string) (string, error) {
 	return "", fmt.Errorf("invalid zone type: %s", zoneType)
 }
 
-// get resource tag type of DNS record set by zoneType
-func getDNSRecordSetTagType(zoneType string) (string, error) {
+// GetDNSRecordSetTagType returns resource tag type of DNS record set by zoneType
+func GetDNSRecordSetTagType(zoneType string) (string, error) {
 	if zoneType == "public" {
 		return "DNS-public_recordset", nil
 	} else if zoneType == "private" {

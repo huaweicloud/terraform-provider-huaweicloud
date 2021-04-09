@@ -11,6 +11,8 @@ import (
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/hw_snatrules"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceNatSnatRuleV2() *schema.Resource {
@@ -61,7 +63,7 @@ func ResourceNatSnatRuleV2() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: suppressSnatFiplistDiffs,
+				DiffSuppressFunc: utils.SuppressSnatFiplistDiffs,
 			},
 			"floating_ip_address": {
 				Type:     schema.TypeString,
@@ -76,7 +78,7 @@ func ResourceNatSnatRuleV2() *schema.Resource {
 }
 
 func resourceNatSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
@@ -124,7 +126,7 @@ func resourceNatSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceNatSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
@@ -148,7 +150,7 @@ func resourceNatSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceNatSnatRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)

@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/softwareconfig"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccRtsSoftwareConfigV1_basic(t *testing.T) {
@@ -58,8 +59,8 @@ func TestAccRtsSoftwareConfigV1_timeout(t *testing.T) {
 }
 
 func testAccCheckRtsSoftwareConfigV1Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-	orchestrationClient, err := config.orchestrationV1Client(HW_REGION_NAME)
+	config := testAccProvider.Meta().(*config.Config)
+	orchestrationClient, err := config.OrchestrationV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud orchestration client: %s", err)
 	}
@@ -89,8 +90,8 @@ func testAccCheckRtsSoftwareConfigV1Exists(n string, configs *softwareconfig.Sof
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
-		orchestrationClient, err := config.orchestrationV1Client(HW_REGION_NAME)
+		config := testAccProvider.Meta().(*config.Config)
+		orchestrationClient, err := config.OrchestrationV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud orchestration client: %s", err)
 		}

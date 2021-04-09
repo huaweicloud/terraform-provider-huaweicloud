@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceCsPeeringConnectV1() *schema.Resource {
@@ -90,8 +91,8 @@ func resourceCsPeeringConnectV1UserInputParams(d *schema.ResourceData) map[strin
 }
 
 func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	csClient, err := config.cloudStreamV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	csClient, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -137,8 +138,8 @@ func resourceCsPeeringConnectV1Create(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceCsPeeringConnectV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.cloudStreamV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -160,8 +161,8 @@ func resourceCsPeeringConnectV1Read(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceCsPeeringConnectV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.cloudStreamV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -242,7 +243,7 @@ func sendCsPeeringConnectV1CreateRequest(d *schema.ResourceData, params interfac
 	return r.Body, nil
 }
 
-func asyncWaitCsPeeringConnectV1Create(d *schema.ResourceData, config *Config, result interface{},
+func asyncWaitCsPeeringConnectV1Create(d *schema.ResourceData, config *config.Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	data := make(map[string]interface{})
@@ -284,7 +285,7 @@ func asyncWaitCsPeeringConnectV1Create(d *schema.ResourceData, config *Config, r
 	)
 }
 
-func asyncWaitCsPeeringConnectV1Delete(d *schema.ResourceData, config *Config, result interface{},
+func asyncWaitCsPeeringConnectV1Delete(d *schema.ResourceData, config *config.Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	url, err := replaceVars(d, "reserved_cluster/{cluster_id}/peering/{id}", nil)

@@ -17,6 +17,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceCCENodeV3() *schema.Resource {
@@ -369,7 +371,7 @@ func resourceCCENodeK8sTags(d *schema.ResourceData) map[string]string {
 
 func resourceCCENodeTags(d *schema.ResourceData) []tags.ResourceTag {
 	tagRaw := d.Get("tags").(map[string]interface{})
-	return expandResourceTags(tagRaw)
+	return utils.ExpandResourceTags(tagRaw)
 }
 
 func resourceCCERootVolume(d *schema.ResourceData) nodes.VolumeSpec {
@@ -493,7 +495,7 @@ func resourceCCEExtendParam(d *schema.ResourceData) map[string]interface{} {
 }
 
 func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node client: %s", err)
@@ -623,7 +625,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node client: %s", err)
@@ -697,7 +699,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		// ignore "CCE-Dynamic-Provisioning-Node"
 		delete(tagmap, "CCE-Dynamic-Provisioning-Node")
 		if err := d.Set("tags", tagmap); err != nil {
@@ -711,7 +713,7 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCENodeV3Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
@@ -736,7 +738,7 @@ func resourceCCENodeV3Update(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		serverId := d.Get("server_id").(string)
-		tagErr := UpdateResourceTags(computeClient, d, "cloudservers", serverId)
+		tagErr := utils.UpdateResourceTags(computeClient, d, "cloudservers", serverId)
 		if tagErr != nil {
 			return fmt.Errorf("Error updating tags of cce node %s: %s", d.Id(), tagErr)
 		}
@@ -746,7 +748,7 @@ func resourceCCENodeV3Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCENodeV3Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	nodeClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)

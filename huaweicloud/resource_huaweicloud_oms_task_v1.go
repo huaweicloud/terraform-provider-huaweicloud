@@ -8,6 +8,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/maas/v1/task"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -219,8 +220,8 @@ func getSmnInfo(d *schema.ResourceData) task.SmnInfoOpts {
 }
 
 func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	maasClient, err := config.maasV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	maasClient, err := config.MaasV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating maas client: %s", err)
 	}
@@ -267,8 +268,8 @@ func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMaasTaskV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	maasClient, err := config.maasV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	maasClient, err := config.MaasV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating maas client: %s", err)
 	}
@@ -309,8 +310,8 @@ func resourceMaasTaskV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMaasTaskV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	maasClient, err := config.maasV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	maasClient, err := config.MaasV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating maas client: %s", err)
 	}

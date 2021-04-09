@@ -10,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func DataSourceComputeInstance() *schema.Resource {
@@ -159,7 +161,7 @@ func DataSourceComputeInstance() *schema.Resource {
 }
 
 func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud ECS client: %s", err)
@@ -289,7 +291,7 @@ func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) err
 	// Set instance tags
 	resourceTags, err := tags.Get(ecsClient, "cloudservers", d.Id()).Extract()
 	if err == nil {
-		tagmap := tagsToMap(resourceTags.Tags)
+		tagmap := utils.TagsToMap(resourceTags.Tags)
 		d.Set("tags", tagmap)
 	} else {
 		log.Printf("[WARN] Error fetching tags of ecs instance %s: %s", d.Id(), err)
@@ -302,7 +304,7 @@ func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) err
 func flattenComputeNetworks(
 	d *schema.ResourceData, meta interface{}, server *cloudservers.CloudServer) ([]map[string]interface{}, string) {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		log.Printf("[ERROR] failed to create HuaweiCloud networking client: %s", err)

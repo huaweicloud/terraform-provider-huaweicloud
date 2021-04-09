@@ -8,6 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -114,7 +115,7 @@ func ResourceVpcEIPV1() *schema.Resource {
 }
 
 func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating networking client: %s", err)
@@ -161,7 +162,7 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating networking client: %s", err)
@@ -205,7 +206,7 @@ func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVpcEIPV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating networking client: %s", err)
@@ -252,7 +253,7 @@ func resourceVpcEIPV1Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVpcEIPV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating VPC client: %s", err)

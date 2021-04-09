@@ -5,11 +5,12 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/routes"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/routes"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func ResourceVPCRouteV2() *schema.Resource {
@@ -47,7 +48,7 @@ func ResourceVPCRouteV2() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateCIDR,
+				ValidateFunc: utils.ValidateCIDR,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
@@ -59,7 +60,7 @@ func ResourceVPCRouteV2() *schema.Resource {
 }
 
 func resourceVpcRouteV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcRouteClient, err := config.NetworkingV2Client(GetRegion(d, config))
 
 	if err != nil {
@@ -89,7 +90,7 @@ func resourceVpcRouteV2Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVpcRouteV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcRouteClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc route client: %s", err)
@@ -116,7 +117,7 @@ func resourceVpcRouteV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVpcRouteV2Delete(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcRouteClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud vpc route: %s", err)

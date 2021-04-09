@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/css/v1/snapshots"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceCssSnapshot() *schema.Resource {
@@ -66,8 +67,8 @@ func resourceCssSnapshot() *schema.Resource {
 }
 
 func resourceCssSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	cssClient, err := config.cssV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	cssClient, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CSS client: %s", err)
 	}
@@ -109,8 +110,8 @@ func resourceCssSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCssSnapshotRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	cssClient, err := config.cssV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	cssClient, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CSS client: %s", err)
 	}
@@ -150,8 +151,8 @@ func resourceCssSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCssSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	cssClient, err := config.cssV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	cssClient, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CSS storage client: %s", err)
 	}
@@ -200,8 +201,8 @@ func resourceCssSnapshotImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	clusterID := parts[0]
 	snapshotID := parts[1]
 
-	config := meta.(*Config)
-	client, err := config.cssV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
 		return nil, fmt.Errorf("Error creating css client, err=%s", err)
 	}

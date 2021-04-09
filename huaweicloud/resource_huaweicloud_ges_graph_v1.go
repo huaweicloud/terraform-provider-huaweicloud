@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceGesGraphV1() *schema.Resource {
@@ -181,8 +182,8 @@ func resourceGesGraphV1UserInputParams(d *schema.ResourceData) map[string]interf
 }
 
 func resourceGesGraphV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.gesV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.GesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -214,8 +215,8 @@ func resourceGesGraphV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceGesGraphV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.gesV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.GesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -232,8 +233,8 @@ func resourceGesGraphV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceGesGraphV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.gesV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.GesV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -411,7 +412,7 @@ func sendGesGraphV1CreateRequest(d *schema.ResourceData, params interface{},
 	return r.Body, nil
 }
 
-func asyncWaitGesGraphV1Create(d *schema.ResourceData, config *Config, result interface{},
+func asyncWaitGesGraphV1Create(d *schema.ResourceData, config *config.Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	data := make(map[string]interface{})
@@ -456,7 +457,7 @@ func asyncWaitGesGraphV1Create(d *schema.ResourceData, config *Config, result in
 	)
 }
 
-func asyncWaitGesGraphV1Delete(d *schema.ResourceData, config *Config, result interface{},
+func asyncWaitGesGraphV1Delete(d *schema.ResourceData, config *config.Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	data := make(map[string]interface{})

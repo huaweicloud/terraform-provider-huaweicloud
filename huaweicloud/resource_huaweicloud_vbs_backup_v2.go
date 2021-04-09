@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/vbs/v2/backups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceVBSBackupV2() *schema.Resource {
@@ -37,7 +39,7 @@ func resourceVBSBackupV2() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateVBSBackupName,
+				ValidateFunc: utils.ValidateVBSBackupName,
 			},
 			"volume_id": {
 				Type:     schema.TypeString,
@@ -54,7 +56,7 @@ func resourceVBSBackupV2() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateVBSBackupDescription,
+				ValidateFunc: utils.ValidateVBSBackupDescription,
 			},
 			"container": {
 				Type:     schema.TypeString,
@@ -94,13 +96,13 @@ func resourceVBSBackupV2() *schema.Resource {
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
-							ValidateFunc: validateVBSTagKey,
+							ValidateFunc: utils.ValidateVBSTagKey,
 						},
 						"value": {
 							Type:         schema.TypeString,
 							Required:     true,
 							ForceNew:     true,
-							ValidateFunc: validateVBSTagValue,
+							ValidateFunc: utils.ValidateVBSTagValue,
 						},
 					},
 				},
@@ -123,7 +125,7 @@ func resourceVBSBackupTagsV2(d *schema.ResourceData) []backups.Tag {
 }
 
 func resourceVBSBackupV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(GetRegion(d, config))
 
 	if err != nil {
@@ -159,7 +161,7 @@ func resourceVBSBackupV2Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud Vbs client: %s", err)
@@ -192,7 +194,7 @@ func resourceVBSBackupV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVBSBackupV2Delete(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vbsClient, err := config.VbsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud vbs: %s", err)

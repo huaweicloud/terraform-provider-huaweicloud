@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cci/v1/networks"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceCCINetworkV1() *schema.Resource {
@@ -95,7 +96,7 @@ func resourceNetworkAnnotationsV1(d *schema.ResourceData) map[string]string {
 }
 
 func resourceCCINetworkV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cciClient, err := config.CciV1Client(GetRegion(d, config))
 
 	if err != nil {
@@ -147,7 +148,7 @@ func resourceCCINetworkV1Create(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceCCINetworkV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cciClient, err := config.CciV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
@@ -175,7 +176,7 @@ func resourceCCINetworkV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCCINetworkV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cciClient, err := config.CciV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CCI Client: %s", err)

@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccRTSStackV1_basic(t *testing.T) {
@@ -74,8 +75,8 @@ func TestAccRTSStackV1_timeout(t *testing.T) {
 }
 
 func testAccCheckRTSStackV1Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-	orchestrationClient, err := config.orchestrationV1Client(HW_REGION_NAME)
+	config := testAccProvider.Meta().(*config.Config)
+	orchestrationClient, err := config.OrchestrationV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating RTS client: %s", err)
 	}
@@ -108,8 +109,8 @@ func testAccCheckRTSStackV1Exists(n string, stack *stacks.RetrievedStack) resour
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
-		orchestrationClient, err := config.orchestrationV1Client(HW_REGION_NAME)
+		config := testAccProvider.Meta().(*config.Config)
+		orchestrationClient, err := config.OrchestrationV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating RTS Client : %s", err)
 		}

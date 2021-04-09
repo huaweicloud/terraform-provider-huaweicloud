@@ -1,4 +1,4 @@
-package huaweicloud
+package utils
 
 import (
 	"bytes"
@@ -13,10 +13,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// convertStructToMap converts an instance of struct to a map object, and
+// ConvertStructToMap converts an instance of struct to a map object, and
 // changes each key of fileds to the value of 'nameMap' if the key in it
 // or to its corresponding lowercase.
-func convertStructToMap(obj interface{}, nameMap map[string]string) (map[string]interface{}, error) {
+func ConvertStructToMap(obj interface{}, nameMap map[string]string) (map[string]interface{}, error) {
 	b, err := json.Marshal(obj)
 	if err != nil {
 		return nil, fmt.Errorf("Error converting struct to map, marshal failed:%v", err)
@@ -49,33 +49,8 @@ func convertStructToMap(obj interface{}, nameMap map[string]string) (map[string]
 	return p, nil
 }
 
-func compareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
-	var obj1 interface{}
-	err := json.Unmarshal([]byte(tem1), &obj1)
-	if err != nil {
-		return false, err
-	}
-
-	canonicalJson1, _ := json.Marshal(obj1)
-
-	var obj2 interface{}
-	err = json.Unmarshal([]byte(tem2), &obj2)
-	if err != nil {
-		return false, err
-	}
-
-	canonicalJson2, _ := json.Marshal(obj2)
-
-	equal := bytes.Compare(canonicalJson1, canonicalJson2) == 0
-	if !equal {
-		log.Printf("[DEBUG] Canonical template are not equal.\nFirst: %s\nSecond: %s\n",
-			canonicalJson1, canonicalJson2)
-	}
-	return equal, nil
-}
-
-// Takes the result for an array of strings and returns a []string
-func expandToStringList(v []interface{}) []string {
+// ExpandToStringList takes the result for an array of strings and returns a []string
+func ExpandToStringList(v []interface{}) []string {
 	s := make([]string, 0, len(v))
 	for _, val := range v {
 		if strVal, ok := val.(string); ok && strVal != "" {
@@ -107,7 +82,7 @@ func pointersMapToStringList(pointers map[string]*string) map[string]interface{}
 // Takes a value containing JSON string and passes it through
 // the JSON parser to normalize it, returns either a parsing
 // error or normalized JSON string.
-func normalizeJsonString(jsonString interface{}) (string, error) {
+func NormalizeJsonString(jsonString interface{}) (string, error) {
 	var j interface{}
 
 	if jsonString == nil || jsonString.(string) == "" {
@@ -148,15 +123,15 @@ func checkYamlString(yamlString interface{}) (string, error) {
 	return s, nil
 }
 
-func normalizeStackTemplate(templateString interface{}) (string, error) {
+func NormalizeStackTemplate(templateString interface{}) (string, error) {
 	if looksLikeJsonString(templateString) {
-		return normalizeJsonString(templateString.(string))
+		return NormalizeJsonString(templateString.(string))
 	}
 
 	return checkYamlString(templateString)
 }
 
-func flattenStackOutputs(stackOutputs []*stacks.Output) map[string]string {
+func FlattenStackOutputs(stackOutputs []*stacks.Output) map[string]string {
 	outputs := make(map[string]string, len(stackOutputs))
 	for _, o := range stackOutputs {
 		outputs[*o.OutputKey] = *o.OutputValue
@@ -164,10 +139,10 @@ func flattenStackOutputs(stackOutputs []*stacks.Output) map[string]string {
 	return outputs
 }
 
-// flattenStackParameters is flattening list of
-//  stack Parameters and only returning existing
+// FlattenStackParameters is flattening list of
+// stack Parameters and only returning existing
 // parameters to avoid clash with default values
-func flattenStackParameters(stackParams map[string]string,
+func FlattenStackParameters(stackParams map[string]string,
 	originalParams map[string]interface{}) map[string]string {
 	params := make(map[string]string, len(stackParams))
 	for key, value := range stackParams {
@@ -179,9 +154,9 @@ func flattenStackParameters(stackParams map[string]string,
 	return params
 }
 
-// strSliceContains checks if a given string is contained in a slice
+// StrSliceContains checks if a given string is contained in a slice
 // When anybody asks why Go needs generics, here you go.
-func strSliceContains(haystack []string, needle string) bool {
+func StrSliceContains(haystack []string, needle string) bool {
 	for _, s := range haystack {
 		if s == needle {
 			return true
@@ -190,7 +165,7 @@ func strSliceContains(haystack []string, needle string) bool {
 	return false
 }
 
-func jsonMarshal(t interface{}) ([]byte, error) {
+func JsonMarshal(t interface{}) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	enc := json.NewEncoder(buffer)
 	enc.SetEscapeHTML(false)
@@ -198,8 +173,8 @@ func jsonMarshal(t interface{}) ([]byte, error) {
 	return buffer.Bytes(), err
 }
 
-// Generates a hash for the set hash function used by the ID
-func dataResourceIdHash(ids []string) string {
+// DataResourceIdHash generates a hash for the set hash function used by the ID
+func DataResourceIdHash(ids []string) string {
 	var buf bytes.Buffer
 
 	for _, id := range ids {
@@ -209,8 +184,8 @@ func dataResourceIdHash(ids []string) string {
 	return fmt.Sprintf("%d", hashcode.String(buf.String()))
 }
 
-// Remove duplicate elements from slice
-func removeDuplicateElem(s []string) []string {
+// RemoveDuplicateElem removes duplicate elements from slice
+func RemoveDuplicateElem(s []string) []string {
 	result := []string{}
 	tmpMap := map[string]byte{}
 	for _, e := range s {
@@ -223,7 +198,7 @@ func removeDuplicateElem(s []string) []string {
 	return result
 }
 
-func removeNil(data map[string]interface{}) map[string]interface{} {
+func RemoveNil(data map[string]interface{}) map[string]interface{} {
 	withoutNil := make(map[string]interface{})
 
 	for k, v := range data {
@@ -233,7 +208,7 @@ func removeNil(data map[string]interface{}) map[string]interface{} {
 
 		switch v.(type) {
 		case map[string]interface{}:
-			withoutNil[k] = removeNil(v.(map[string]interface{}))
+			withoutNil[k] = RemoveNil(v.(map[string]interface{}))
 		default:
 			withoutNil[k] = v
 		}

@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func dataSourceVpcPeeringConnectionV2() *schema.Resource {
@@ -26,7 +27,7 @@ func dataSourceVpcPeeringConnectionV2() *schema.Resource {
 			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateString64WithChinese,
+				ValidateFunc: utils.ValidateString64WithChinese,
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -49,7 +50,7 @@ func dataSourceVpcPeeringConnectionV2() *schema.Resource {
 }
 
 func dataSourceVpcPeeringConnectionV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)

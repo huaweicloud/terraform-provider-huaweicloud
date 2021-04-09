@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 const (
@@ -80,7 +81,7 @@ func ResourceVPCEndpointApproval() *schema.Resource {
 }
 
 func resourceVPCEndpointApprovalCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
@@ -107,7 +108,7 @@ func resourceVPCEndpointApprovalCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceVPCEndpointApprovalRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
@@ -122,7 +123,7 @@ func resourceVPCEndpointApprovalRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceVPCEndpointApprovalUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
@@ -150,7 +151,7 @@ func resourceVPCEndpointApprovalUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceVPCEndpointApprovalDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)

@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func dataSourceRdsFlavorV3() *schema.Resource {
@@ -58,7 +59,7 @@ func dataSourceRdsFlavorV3() *schema.Resource {
 }
 
 func dataSourceRdsFlavorV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -37,7 +38,7 @@ func DataSourceNetworkingSecGroupV2() *schema.Resource {
 }
 
 func dataSourceNetworkingSecGroupV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)

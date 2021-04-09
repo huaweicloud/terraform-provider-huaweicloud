@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/fgs/v2/function"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceFgsFunctionV2() *schema.Resource {
@@ -102,7 +103,7 @@ func resourceFgsFunctionV2() *schema.Resource {
 }
 
 func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	fgsClient, err := config.FgsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
@@ -140,7 +141,7 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	fgsClient, err := config.FgsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
@@ -170,7 +171,7 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceFgsFunctionV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	fgsClient, err := config.FgsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)

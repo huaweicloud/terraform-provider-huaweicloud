@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/groups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceIecSecurityGroup() *schema.Resource {
@@ -93,7 +94,7 @@ func resourceIecSecurityGroup() *schema.Resource {
 
 func resourceIecSecurityGroupV1Read(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 
 	if err != nil {
@@ -136,7 +137,7 @@ func resourceIecSecurityGroupV1Read(d *schema.ResourceData, meta interface{}) er
 
 func resourceIecSecurityGroupV1Create(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 
 	if err != nil {
@@ -159,7 +160,7 @@ func resourceIecSecurityGroupV1Create(d *schema.ResourceData, meta interface{}) 
 
 func resourceIecSecurityGroupV1Delete(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)

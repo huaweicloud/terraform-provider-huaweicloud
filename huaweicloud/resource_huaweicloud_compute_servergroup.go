@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/servergroups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceComputeServerGroupV2() *schema.Resource {
@@ -54,7 +55,7 @@ func ResourceComputeServerGroupV2() *schema.Resource {
 }
 
 func resourceComputeServerGroupV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
@@ -90,7 +91,7 @@ func resourceComputeServerGroupV2Create(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeServerGroupV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
@@ -117,7 +118,7 @@ func resourceComputeServerGroupV2Read(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceComputeServerGroupV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	clv1, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute V1 client: %s", err)
@@ -149,7 +150,7 @@ func resourceComputeServerGroupV2Update(d *schema.ResourceData, meta interface{}
 }
 
 func resourceComputeServerGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)

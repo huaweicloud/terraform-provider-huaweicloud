@@ -1,4 +1,4 @@
-package huaweicloud
+package config
 
 // ServiceCatalog defines a struct which was used to generate a service client for huaweicloud.
 // the endpoint likes https://{Name}.{Region}.myhuaweicloud.com/{Version}/{project_id}/{ResourceBase}

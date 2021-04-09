@@ -10,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacktemplates"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 
 	"github.com/hashicorp/errwrap"
 )
@@ -40,15 +42,15 @@ func resourceRTSStackV1() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateName,
+				ValidateFunc: utils.ValidateName,
 			},
 			"template_body": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validateStackTemplate,
+				ValidateFunc: utils.ValidateStackTemplate,
 				StateFunc: func(v interface{}) string {
-					template, _ := normalizeStackTemplate(v)
+					template, _ := utils.NormalizeStackTemplate(v)
 					return template
 				},
 			},
@@ -64,9 +66,9 @@ func resourceRTSStackV1() *schema.Resource {
 			"environment": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validateJsonString,
+				ValidateFunc: utils.ValidateJsonString,
 				StateFunc: func(v interface{}) string {
-					json, _ := normalizeJsonString(v)
+					json, _ := utils.NormalizeJsonString(v)
 					return json
 				},
 			},
@@ -152,11 +154,11 @@ func resourceParametersV1(d *schema.ResourceData) map[string]string {
 	return m
 }
 func resourceRTSStackV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	stackName := d.Get("name").(string)
 
-	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
+	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating RTS client: %s", err)
 	}
@@ -201,8 +203,8 @@ func resourceRTSStackV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating RTS Client: %s", err)
 	}
@@ -234,14 +236,14 @@ func resourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("disable_rollback", stack.DisableRollback)
 
 	originalParams := d.Get("parameters").(map[string]interface{})
-	err = d.Set("parameters", flattenStackParameters(stack.Parameters, originalParams))
+	err = d.Set("parameters", utils.FlattenStackParameters(stack.Parameters, originalParams))
 	if err != nil {
 		return err
 	}
 
 	d.Set("status_reason", stack.StatusReason)
 	d.Set("name", stack.Name)
-	d.Set("outputs", flattenStackOutputs(stack.Outputs))
+	d.Set("outputs", utils.FlattenStackOutputs(stack.Outputs))
 	d.Set("capabilities", stack.Capabilities)
 	d.Set("notification_topics", stack.NotificationTopics)
 	d.Set("timeout_mins", stack.Timeout)
@@ -254,7 +256,7 @@ func resourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	sTemplate := BytesToString(out)
-	template, error := normalizeStackTemplate(sTemplate)
+	template, error := utils.NormalizeStackTemplate(sTemplate)
 	if error != nil {
 		return errwrap.Wrapf("template body contains an invalid JSON or YAML: {{err}}", err)
 	}
@@ -264,8 +266,8 @@ func resourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceRTSStackV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating RTS Client: %s", err)
 	}
@@ -315,8 +317,8 @@ func resourceRTSStackV1Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceRTSStackV1Delete(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
-	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating RTS Client: %s", err)
 	}

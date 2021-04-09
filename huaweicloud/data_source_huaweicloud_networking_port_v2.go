@@ -8,6 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func DataSourceNetworkingPortV2() *schema.Resource {
@@ -100,7 +102,7 @@ func DataSourceNetworkingPortV2() *schema.Resource {
 }
 
 func dataSourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -185,12 +187,12 @@ func dataSourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) er
 	}
 
 	sgRaw := d.Get("security_group_ids").(*schema.Set).List()
-	securityGroups := expandToStringList(sgRaw)
+	securityGroups := utils.ExpandToStringList(sgRaw)
 	if len(securityGroups) > 0 {
 		var sgPorts []ports.Port
 		for _, p := range portsList {
 			for _, sg := range p.SecurityGroups {
-				if strSliceContains(securityGroups, sg) {
+				if utils.StrSliceContains(securityGroups, sg) {
 					sgPorts = append(sgPorts, p)
 				}
 			}

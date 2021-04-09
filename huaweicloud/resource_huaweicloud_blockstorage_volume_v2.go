@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions"
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceBlockStorageVolumeV2() *schema.Resource {
@@ -125,7 +126,7 @@ func resourceBlockStorageVolumeV2() *schema.Resource {
 }
 
 func resourceBlockStorageVolumeV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	blockStorageClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
@@ -180,7 +181,7 @@ func resourceBlockStorageVolumeV2Create(d *schema.ResourceData, meta interface{}
 }
 
 func resourceBlockStorageVolumeV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	blockStorageClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
@@ -231,7 +232,7 @@ OUTER:
 }
 
 func resourceBlockStorageVolumeV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	blockStorageClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
@@ -281,7 +282,7 @@ func resourceBlockStorageVolumeV2Update(d *schema.ResourceData, meta interface{}
 }
 
 func resourceBlockStorageVolumeV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	blockStorageClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)

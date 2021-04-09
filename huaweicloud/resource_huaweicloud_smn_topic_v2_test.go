@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/smn/v2/topics"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccSMNV2Topic_basic(t *testing.T) {
@@ -47,7 +48,7 @@ func TestAccSMNV2Topic_basic(t *testing.T) {
 }
 
 func testAccCheckSMNTopicV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	smnClient, err := config.SmnV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud smn: %s", err)
@@ -78,7 +79,7 @@ func testAccCheckSMNV2TopicExists(n string, topic *topics.TopicGet) resource.Tes
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		smnClient, err := config.SmnV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud smn client: %s", err)

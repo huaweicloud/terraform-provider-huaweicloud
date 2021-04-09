@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cdn/v1/domains"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceCdnDomainV1() *schema.Resource {
@@ -115,7 +116,7 @@ func getDomainSources(d *schema.ResourceData) []domains.SourcesOpts {
 }
 
 func resourceCdnDomainV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
@@ -185,7 +186,7 @@ func resourceCDNV1DomainRefreshFunc(c *golangsdk.ServiceClient, id string, opts 
 }
 
 func resourceCdnDomainV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
@@ -219,7 +220,7 @@ func resourceCdnDomainV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCdnDomainV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
@@ -255,7 +256,7 @@ func resourceCdnDomainV1Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCdnDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
@@ -299,7 +300,7 @@ func resourceCdnDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func getResourceExtensionOpts(d *schema.ResourceData, config *Config) *domains.ExtensionOpts {
+func getResourceExtensionOpts(d *schema.ResourceData, config *config.Config) *domains.ExtensionOpts {
 	epsID := GetEnterpriseProjectID(d, config)
 	if epsID != "" {
 		return &domains.ExtensionOpts{

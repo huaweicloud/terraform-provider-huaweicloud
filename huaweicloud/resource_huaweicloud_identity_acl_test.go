@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3.0/acl"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccIdentitACL_basic(t *testing.T) {
@@ -86,7 +87,7 @@ func testAccCheckIdentityACLExists(n string, ac *acl.ACLPolicy) resource.TestChe
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.IAMV3Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud IAM client: %s", err)
@@ -120,7 +121,7 @@ func testAccCheckIdentityACLExists(n string, ac *acl.ACLPolicy) resource.TestChe
 }
 
 func testAccCheckIdentityACLDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.IAMV3Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IAM client: %s", err)

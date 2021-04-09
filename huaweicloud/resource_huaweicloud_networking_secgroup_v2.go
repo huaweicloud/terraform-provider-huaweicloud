@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/security/securitygroups"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/rules"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func ResourceNetworkingSecGroupV2() *schema.Resource {
@@ -68,7 +69,7 @@ func ResourceNetworkingSecGroupV2() *schema.Resource {
 
 func resourceNetworkingSecGroupV2Create(d *schema.ResourceData, meta interface{}) error {
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.SecurityGroupV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -127,7 +128,7 @@ func resourceNetworkingSecGroupV2Create(d *schema.ResourceData, meta interface{}
 func resourceNetworkingSecGroupV2Read(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Retrieve information about security group: %s", d.Id())
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.SecurityGroupV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -148,7 +149,7 @@ func resourceNetworkingSecGroupV2Read(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceNetworkingSecGroupV2Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -182,7 +183,7 @@ func resourceNetworkingSecGroupV2Update(d *schema.ResourceData, meta interface{}
 func resourceNetworkingSecGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy security group: %s", d.Id())
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.SecurityGroupV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)

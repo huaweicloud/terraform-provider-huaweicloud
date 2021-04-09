@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func DataSourceVPCEPPublicServices() *schema.Resource {
@@ -58,7 +59,7 @@ func DataSourceVPCEPPublicServices() *schema.Resource {
 }
 
 func dataSourceVpcepPublicRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	region := GetRegion(d, config)
 	vpcepClient, err := config.VPCEPClient(region)
 	if err != nil {

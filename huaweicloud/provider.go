@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 const defaultCloud string = "myhuaweicloud.com"
@@ -663,7 +664,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		delegated_project = region
 	}
 
-	config := Config{
+	config := config.Config{
 		AccessKey:           d.Get("access_key").(string),
 		SecretKey:           d.Get("secret_key").(string),
 		CACertFile:          d.Get("cacert_file").(string),

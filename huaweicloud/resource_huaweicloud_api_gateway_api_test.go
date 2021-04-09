@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/apigw/apis"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccApiGatewayAPI_basic(t *testing.T) {
@@ -53,8 +54,8 @@ func TestAccApiGatewayAPI_basic(t *testing.T) {
 }
 
 func testAccCheckApiGatewayApiDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-	apigwClient, err := config.apiGatewayV1Client(HW_REGION_NAME)
+	config := testAccProvider.Meta().(*config.Config)
+	apigwClient, err := config.ApiGatewayV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 	}
@@ -84,8 +85,8 @@ func testAccCheckApiGatewayApiExists(n string) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
-		apigwClient, err := config.apiGatewayV1Client(HW_REGION_NAME)
+		config := testAccProvider.Meta().(*config.Config)
+		apigwClient, err := config.ApiGatewayV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 		}

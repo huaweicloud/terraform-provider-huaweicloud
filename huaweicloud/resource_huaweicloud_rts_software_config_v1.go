@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/softwareconfig"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceSoftwareConfigV1() *schema.Resource {
@@ -84,8 +85,8 @@ func resourceOptionsV1(d *schema.ResourceData) map[string]interface{} {
 }
 
 func resourceSoftwareConfigV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	orchastrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	orchastrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud RTS client: %s", err)
@@ -123,8 +124,8 @@ func resourceSoftwareConfigV1Create(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceSoftwareConfigV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	orchastrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	orchastrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud RTS client: %s", err)
 	}
@@ -154,8 +155,8 @@ func resourceSoftwareConfigV1Read(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceSoftwareConfigV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	orchastrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	orchastrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud vpc: %s", err)
 	}

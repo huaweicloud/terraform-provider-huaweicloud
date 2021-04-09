@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/kms/v1/keys"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 )
@@ -139,8 +140,8 @@ func TestAccKmsKey_WithEpsId(t *testing.T) {
 }
 
 func testAccCheckKmsKeyDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-	kmsClient, err := config.kmsKeyV1Client(HW_REGION_NAME)
+	config := testAccProvider.Meta().(*config.Config)
+	kmsClient, err := config.KmsKeyV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud kms client: %s", err)
 	}
@@ -171,8 +172,8 @@ func testAccCheckKmsKeyExists(n string, key *keys.Key) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
-		kmsClient, err := config.kmsKeyV1Client(HW_REGION_NAME)
+		config := testAccProvider.Meta().(*config.Config)
+		kmsClient, err := config.KmsKeyV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud kms client: %s", err)
 		}

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccNetworkingV2EIPAssociate_basic(t *testing.T) {
@@ -35,7 +36,7 @@ func TestAccNetworkingV2EIPAssociate_basic(t *testing.T) {
 }
 
 func testAccCheckNetworkingV2EIPAssociateDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating EIP Client: %s", err)

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/swr/v2/namespaces"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccSWROrganization_basic(t *testing.T) {
@@ -42,7 +43,7 @@ func TestAccSWROrganization_basic(t *testing.T) {
 }
 
 func testAccCheckSWROrganizationDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	swrClient, err := config.SwrV2Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SWR client: %s", err)
@@ -73,7 +74,7 @@ func testAccCheckSWROrganizationExists(n string, org *namespaces.Namespace) reso
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		swrClient, err := config.SwrV2Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud SWR client: %s", err)

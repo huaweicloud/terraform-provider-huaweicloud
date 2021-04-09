@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/groups"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 )
@@ -34,8 +35,8 @@ func TestAccDmsGroupsV1_basic(t *testing.T) {
 }
 
 func testAccCheckDmsV1GroupDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
-	dmsClient, err := config.dmsV1Client(HW_REGION_NAME)
+	config := testAccProvider.Meta().(*config.Config)
+	dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud group client: %s", err)
 	}
@@ -75,8 +76,8 @@ func testAccCheckDmsV1GroupExists(n string, group groups.Group) resource.TestChe
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*Config)
-		dmsClient, err := config.dmsV1Client(HW_REGION_NAME)
+		config := testAccProvider.Meta().(*config.Config)
+		dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud group client: %s", err)
 		}

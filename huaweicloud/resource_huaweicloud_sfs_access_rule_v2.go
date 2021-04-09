@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceSFSAccessRuleV2() *schema.Resource {
@@ -65,7 +66,7 @@ func resourceSFSAccessRuleV2() *schema.Resource {
 }
 
 func resourceSFSAccessRuleV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SFS Client: %s", err)
@@ -103,7 +104,7 @@ func resourceSFSAccessRuleV2Create(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceSFSAccessRuleV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SFS Client: %s", err)
@@ -132,7 +133,7 @@ func resourceSFSAccessRuleV2Read(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceSFSAccessRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SFS Client: %s", err)

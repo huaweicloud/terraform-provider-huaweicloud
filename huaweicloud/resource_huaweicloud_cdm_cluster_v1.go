@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceCdmClusterV1() *schema.Resource {
@@ -173,7 +174,7 @@ func resourceCdmClusterV1() *schema.Resource {
 	}
 }
 
-func resourceCdmClusterV1UserInputParams(d *schema.ResourceData, config *Config) map[string]interface{} {
+func resourceCdmClusterV1UserInputParams(d *schema.ResourceData, config *config.Config) map[string]interface{} {
 	return map[string]interface{}{
 		"terraform_resource_data": d,
 		"availability_zone":       d.Get("availability_zone"),
@@ -193,8 +194,8 @@ func resourceCdmClusterV1UserInputParams(d *schema.ResourceData, config *Config)
 }
 
 func resourceCdmClusterV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.cdmV11Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.CdmV11Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -224,8 +225,8 @@ func resourceCdmClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceCdmClusterV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.cdmV11Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.CdmV11Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -242,8 +243,8 @@ func resourceCdmClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCdmClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	client, err := config.cdmV11Client(GetRegion(d, config))
+	config := meta.(*config.Config)
+	client, err := config.CdmV11Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -616,7 +617,7 @@ func sendCdmClusterV1CreateRequest(d *schema.ResourceData, params interface{},
 	return r.Body, nil
 }
 
-func asyncWaitCdmClusterV1Create(d *schema.ResourceData, config *Config, result interface{},
+func asyncWaitCdmClusterV1Create(d *schema.ResourceData, config *config.Config, result interface{},
 	client *golangsdk.ServiceClient, timeout time.Duration) (interface{}, error) {
 
 	data := make(map[string]interface{})
@@ -1299,7 +1300,7 @@ func fillCdmClusterV1ReadRespTask(value interface{}) interface{} {
 	return result
 }
 
-func setCdmClusterV1Properties(d *schema.ResourceData, config *Config, response map[string]interface{}) error {
+func setCdmClusterV1Properties(d *schema.ResourceData, config *config.Config, response map[string]interface{}) error {
 	opts := resourceCdmClusterV1UserInputParams(d, config)
 
 	v, err := navigateValue(response, []string{"read", "created"}, nil)

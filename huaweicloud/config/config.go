@@ -1,4 +1,4 @@
-package huaweicloud
+package config
 
 import (
 	"crypto/tls"
@@ -318,7 +318,7 @@ func getObsEndpoint(c *Config, region string) string {
 	return fmt.Sprintf("https://obs.%s.%s/", region, c.Cloud)
 }
 
-func (c *Config) NewObjectStorageClientWithSignature(region string) (*obs.ObsClient, error) {
+func (c *Config) ObjectStorageClientWithSignature(region string) (*obs.ObsClient, error) {
 	if c.AccessKey == "" || c.SecretKey == "" {
 		return nil, fmt.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
 	}
@@ -334,7 +334,7 @@ func (c *Config) NewObjectStorageClientWithSignature(region string) (*obs.ObsCli
 	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"))
 }
 
-func (c *Config) NewObjectStorageClient(region string) (*obs.ObsClient, error) {
+func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 	if c.AccessKey == "" || c.SecretKey == "" {
 		return nil, fmt.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
 	}
@@ -585,7 +585,6 @@ func (c *Config) CsbsV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) VbsV2Client(region string) (*golangsdk.ServiceClient, error) {
-
 	return c.NewServiceClient("vbs", region)
 }
 
@@ -614,7 +613,7 @@ func (c *Config) NatGatewayClient(region string) (*golangsdk.ServiceClient, erro
 	return c.NewServiceClient("nat", region)
 }
 
-func (c *Config) elasticLBClient(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) ElasticLBClient(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("elb", region)
 }
 
@@ -641,15 +640,15 @@ func (c *Config) DnsWithRegionClient(region string) (*golangsdk.ServiceClient, e
 }
 
 // ********** client for Management **********
-func (c *Config) ctsV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CtsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cts", region)
 }
 
-func (c *Config) newCESClient(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CesV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ces", region)
 }
 
-func (c *Config) ltsV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) LtsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("lts", region)
 }
 
@@ -658,11 +657,11 @@ func (c *Config) SmnV2Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 // ********** client for Security **********
-func (c *Config) antiddosV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) AntiDDosV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("anti-ddos", region)
 }
 
-func (c *Config) kmsKeyV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) KmsKeyV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("kms", region)
 }
 
@@ -671,56 +670,56 @@ func (c *Config) MrsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("mrs", region)
 }
 
-func (c *Config) dwsV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) DwsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dws", region)
 }
 
-func (c *Config) dliV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) DliV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dli", region)
 }
 
-func (c *Config) disV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) DisV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("disv2", region)
 }
 
-func (c *Config) cssV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CssV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("css", region)
 }
 
-func (c *Config) cloudStreamV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CloudStreamV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cs", region)
 }
 
-func (c *Config) cloudtableV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CloudtableV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cloudtable", region)
 }
 
-func (c *Config) cdmV11Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) CdmV11Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cdm", region)
 }
 
-func (c *Config) gesV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) GesV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("ges", region)
 }
 
 // ********** client for Application **********
-func (c *Config) apiGatewayV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) ApiGatewayV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("apig", region)
 }
 
-func (c *Config) dcsV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) DcsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dcsv1", region)
 }
 
-func (c *Config) dcsV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) DcsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dcsv2", region)
 }
 
-func (c *Config) dmsV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) DmsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dms", region)
 }
 
-func (c *Config) dmsV2Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) DmsV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dmsv2", region)
 }
 
@@ -733,7 +732,7 @@ func (c *Config) RdsV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("rds", region)
 }
 
-func (c *Config) ddsV3Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) DdsV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dds", region)
 }
 
@@ -741,11 +740,11 @@ func (c *Config) GeminiDBV3Client(region string) (*golangsdk.ServiceClient, erro
 	return c.NewServiceClient("cassandra", region)
 }
 
-func (c *Config) openGaussV3Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) OpenGaussV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("opengauss", region)
 }
 
-func (c *Config) gaussdbV3Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) GaussdbV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("gaussdb", region)
 }
 
@@ -765,14 +764,14 @@ func (c *Config) BssV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("bssv2", region)
 }
 
-func (c *Config) maasV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) MaasV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("oms", region)
 }
 
-func (c *Config) orchestrationV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) OrchestrationV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("rts", region)
 }
 
-func (c *Config) mlsV1Client(region string) (*golangsdk.ServiceClient, error) {
+func (c *Config) MlsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("mls", region)
 }

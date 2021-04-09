@@ -9,6 +9,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/routers"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func resourceNetworkingRouterRouteV2() *schema.Resource {
@@ -56,7 +57,7 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 	var destCidr string = d.Get("destination_cidr").(string)
 	var nextHop string = d.Get("next_hop").(string)
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -114,7 +115,7 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 
 	routerId := d.Get("router_id").(string)
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
@@ -175,7 +176,7 @@ func resourceNetworkingRouterRouteV2Delete(d *schema.ResourceData, meta interfac
 	osMutexKV.Lock(routerId)
 	defer osMutexKV.Unlock(routerId)
 
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {

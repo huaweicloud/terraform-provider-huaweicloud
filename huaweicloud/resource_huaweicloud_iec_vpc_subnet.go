@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/subnets"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceIecSubnetDNSListV1(d *schema.ResourceData) []string {
@@ -64,7 +66,7 @@ func resourceIecSubnet() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateIP,
+				ValidateFunc: utils.ValidateIP,
 			},
 			"dhcp_enable": {
 				Type:     schema.TypeBool,
@@ -92,7 +94,7 @@ func resourceIecSubnet() *schema.Resource {
 }
 
 func resourceIecSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	subnetClient, err := config.IECV1Client(GetRegion(d, config))
 
 	if err != nil {
@@ -139,7 +141,7 @@ func resourceIecSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIecSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	subnetClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
@@ -166,7 +168,7 @@ func resourceIecSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIecSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	subnetClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
@@ -194,7 +196,7 @@ func resourceIecSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceIecSubnetV1Delete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+	config := meta.(*config.Config)
 	subnetClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)

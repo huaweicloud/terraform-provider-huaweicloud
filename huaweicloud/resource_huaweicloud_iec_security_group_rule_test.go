@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/groups"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/rules"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccIecSecurityGroupRuleResource_Basic(t *testing.T) {
@@ -58,7 +59,7 @@ func testAccCheckIecSecGroupV1Exists(n string, group *groups.RespSecurityGroupEn
 			return fmt.Errorf("No ID has been seted")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		iecClient, err := config.IECV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
@@ -89,7 +90,7 @@ func testAccCheckIecSecurityGroupRuleV1Exists(n string, rule *rules.RespSecurity
 			return fmt.Errorf("No ID has been seted")
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.Meta().(*config.Config)
 		iecClient, err := config.IECV1Client(HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
@@ -109,7 +110,7 @@ func testAccCheckIecSecurityGroupRuleV1Exists(n string, rule *rules.RespSecurity
 
 func testAccCheckIecSecurityGroupRuleV1Destory(state *terraform.State) error {
 
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.Meta().(*config.Config)
 	iecClient, err := config.IECV1Client(HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)

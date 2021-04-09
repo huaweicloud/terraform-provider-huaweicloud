@@ -10,6 +10,8 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/elb/backendecs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const nameELBBackend = "ELB-BackendECS"
@@ -93,14 +95,14 @@ func resourceELBBackendECS() *schema.Resource {
 }
 
 func resourceELBBackendECSCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var createOpts backendecs.CreateOpts
-	_, err = buildCreateParam(&createOpts, d, &(map[string]string{"address": "private_address"}))
+	_, err = utils.BuildCreateParam(&createOpts, d, &(map[string]string{"address": "private_address"}))
 	if err != nil {
 		return fmt.Errorf("Error creating %s: building parameter failed:%s", nameELBBackend, err)
 	}
@@ -148,8 +150,8 @@ func resourceELBBackendECSCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceELBBackendECSRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -161,12 +163,12 @@ func resourceELBBackendECSRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	log.Printf("[DEBUG] Retrieved %s(%s): %#v", nameELBBackend, d.Id(), b)
 
-	return refreshResourceData(b, d, &(map[string]string{"server_address": "private_address", "address": "public_address"}))
+	return utils.RefreshResourceData(b, d, &(map[string]string{"server_address": "private_address", "address": "public_address"}))
 }
 
 func resourceELBBackendECSDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	elbClient, err := config.elasticLBClient(GetRegion(d, config))
+	config := meta.(*config.Config)
+	elbClient, err := config.ElasticLBClient(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
