@@ -100,6 +100,12 @@ func ResourceImsImage() *schema.Resource {
 					"ECS", "FusionCompute", "BMS", "Ironic",
 				}, true),
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			// following are additional attributus
 			"visibility": {
 				Type:     schema.TypeString,
@@ -151,12 +157,13 @@ func resourceImsImageCreate(d *schema.ResourceData, meta interface{}) error {
 	image_tags := resourceContainerImageTags(d)
 	if hasFilledOpt(d, "instance_id") {
 		createOpts := &cloudimages.CreateByServerOpts{
-			Name:        d.Get("name").(string),
-			Description: d.Get("description").(string),
-			InstanceId:  d.Get("instance_id").(string),
-			MaxRam:      d.Get("max_ram").(int),
-			MinRam:      d.Get("min_ram").(int),
-			ImageTags:   image_tags,
+			Name:                d.Get("name").(string),
+			Description:         d.Get("description").(string),
+			InstanceId:          d.Get("instance_id").(string),
+			MaxRam:              d.Get("max_ram").(int),
+			MinRam:              d.Get("min_ram").(int),
+			ImageTags:           image_tags,
+			EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 		}
 		log.Printf("[DEBUG] Create Options: %#v", createOpts)
 		v, err = cloudimages.CreateImageByServer(ims_Client, createOpts).ExtractJobResponse()
@@ -166,17 +173,18 @@ func resourceImsImageCreate(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		createOpts := &cloudimages.CreateByOBSOpts{
-			Name:        d.Get("name").(string),
-			Description: d.Get("description").(string),
-			ImageUrl:    d.Get("image_url").(string),
-			MinDisk:     d.Get("min_disk").(int),
-			MaxRam:      d.Get("max_ram").(int),
-			MinRam:      d.Get("min_ram").(int),
-			OsVersion:   d.Get("os_version").(string),
-			IsConfig:    d.Get("is_config").(bool),
-			CmkId:       d.Get("cmk_id").(string),
-			Type:        d.Get("type").(string),
-			ImageTags:   image_tags,
+			Name:                d.Get("name").(string),
+			Description:         d.Get("description").(string),
+			ImageUrl:            d.Get("image_url").(string),
+			MinDisk:             d.Get("min_disk").(int),
+			MaxRam:              d.Get("max_ram").(int),
+			MinRam:              d.Get("min_ram").(int),
+			OsVersion:           d.Get("os_version").(string),
+			IsConfig:            d.Get("is_config").(bool),
+			CmkId:               d.Get("cmk_id").(string),
+			Type:                d.Get("type").(string),
+			ImageTags:           image_tags,
+			EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 		}
 		log.Printf("[DEBUG] Create Options: %#v", createOpts)
 		v, err = cloudimages.CreateImageByOBS(ims_Client, createOpts).ExtractJobResponse()
@@ -255,6 +263,7 @@ func resourceImsImageRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("data_origin", img.DataOrigin)
 	d.Set("disk_format", img.DiskFormat)
 	d.Set("image_size", img.ImageSize)
+	d.Set("enterprise_project_id", img.EnterpriseProjectID)
 
 	// Set image tags
 	if Taglist, err := tags.Get(ims_Client, d.Id()).Extract(); err == nil {

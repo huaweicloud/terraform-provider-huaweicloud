@@ -44,6 +44,8 @@ type Image struct {
 	MinDisk int `json:"min_disk"`
 	// the environment where the image is used
 	VirtualEnvType string `json:"virtual_env_type"`
+	// Enterprise project ID
+	EnterpriseProjectID string `json:"enterprise_project_id"`
 	// *size, virtual_size and checksum parameter are unavailable currently*
 	Size        int64  `json:"size"`
 	VirtualSize int    `json:"virtual_size"`

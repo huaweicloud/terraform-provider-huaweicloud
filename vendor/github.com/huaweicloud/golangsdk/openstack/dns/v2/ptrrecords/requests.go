@@ -29,6 +29,9 @@ type CreateOpts struct {
 
 	// Tags of the ptr.
 	Tags []Tag `json:"tags,omitempty"`
+
+	// Enterprise project id
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
 // Tag is a structure of key value pair.

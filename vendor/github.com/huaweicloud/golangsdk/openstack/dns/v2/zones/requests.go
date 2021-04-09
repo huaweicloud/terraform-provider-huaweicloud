@@ -87,6 +87,9 @@ type CreateOpts struct {
 
 	// Type specifies if this is a primary or secondary zone.
 	Type string `json:"type,omitempty"`
+
+	// Enterprise project id
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
 // ToZoneCreateMap formats an CreateOpts structure into a request body.

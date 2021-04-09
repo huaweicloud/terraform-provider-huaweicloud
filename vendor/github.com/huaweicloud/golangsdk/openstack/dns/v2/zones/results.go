@@ -129,6 +129,9 @@ type Zone struct {
 
 	// Routers associate with the Zone
 	Routers []RouterResult `json:"routers"`
+
+	// Enterprise project id
+	EnterpriseProjectID string `json:"enterprise_project_id"`
 }
 
 type RouterResult struct {
