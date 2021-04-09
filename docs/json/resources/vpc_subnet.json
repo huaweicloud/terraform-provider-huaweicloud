@@ -34,6 +34,22 @@
                 "type": "string",
                 "computed": true
               },
+              "ipv6_cidr": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv6_enable": {
+                "type": "bool",
+                "optional": true
+              },
+              "ipv6_gateway": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv6_subnet_id": {
+                "type": "string",
+                "computed": true
+              },
               "name": {
                 "type": "string",
                 "required": true

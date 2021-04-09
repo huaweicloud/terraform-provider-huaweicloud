@@ -20,10 +20,9 @@
                 "type": "string",
                 "optional": true
               },
-              "billing_mode": {
-                "type": "number",
-                "optional": true,
-                "computed": true
+              "auto_renew": {
+                "type": "string",
+                "optional": true
               },
               "certificate_clusters": {
                 "type": [
@@ -53,6 +52,11 @@
                 ],
                 "computed": true
               },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "cluster_type": {
                 "type": "string",
                 "optional": true
@@ -70,6 +74,26 @@
               "container_network_type": {
                 "type": "string",
                 "required": true
+              },
+              "delete_all": {
+                "type": "string",
+                "optional": true
+              },
+              "delete_efs": {
+                "type": "string",
+                "optional": true
+              },
+              "delete_evs": {
+                "type": "string",
+                "optional": true
+              },
+              "delete_obs": {
+                "type": "string",
+                "optional": true
+              },
+              "delete_sfs": {
+                "type": "string",
+                "optional": true
               },
               "description": {
                 "type": "string",
@@ -137,6 +161,14 @@
               "name": {
                 "type": "string",
                 "required": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true
               },
               "region": {
                 "type": "string",

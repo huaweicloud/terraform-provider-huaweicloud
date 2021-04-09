@@ -39,6 +39,11 @@
                 "type": "string",
                 "optional": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
