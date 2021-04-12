@@ -37,6 +37,7 @@ type Config struct {
 	TenantID            string
 	TenantName          string
 	Token               string
+	SecurityToken       string
 	Username            string
 	UserID              string
 	AgencyName          string
@@ -252,6 +253,10 @@ func buildClientByAKSK(c *Config) error {
 		ao.IdentityEndpoint = c.IdentityEndpoint
 		ao.AccessKey = c.AccessKey
 		ao.SecretKey = c.SecretKey
+		if c.SecurityToken != "" {
+			ao.SecurityToken = c.SecurityToken
+			ao.WithUserCatalog = true
+		}
 	}
 	return genClients(c, pao, dao)
 }
@@ -331,6 +336,10 @@ func (c *Config) ObjectStorageClientWithSignature(region string) (*obs.ObsClient
 	}
 
 	obsEndpoint := getObsEndpoint(c, region)
+	if c.SecurityToken != "" {
+		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint,
+			obs.WithSignature("OBS"), obs.WithSecurityToken(c.SecurityToken))
+	}
 	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"))
 }
 
@@ -347,6 +356,9 @@ func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 	}
 
 	obsEndpoint := getObsEndpoint(c, region)
+	if c.SecurityToken != "" {
+		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSecurityToken(c.SecurityToken))
+	}
 	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint)
 }
 

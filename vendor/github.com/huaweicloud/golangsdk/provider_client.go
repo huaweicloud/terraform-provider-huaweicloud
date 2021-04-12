@@ -243,6 +243,9 @@ func (client *ProviderClient) Request(method, url string, options *RequestOpts) 
 		if client.AKSKAuthOptions.DomainID != "" {
 			req.Header.Set("X-Domain-Id", client.AKSKAuthOptions.DomainID)
 		}
+		if client.AKSKAuthOptions.SecurityToken != "" {
+			req.Header.Set("X-Security-Token", client.AKSKAuthOptions.SecurityToken)
+		}
 	}
 
 	// Issue the request.

@@ -11,15 +11,14 @@ type AKSKAuthOptions struct {
 	// "OS_AUTH_URL" in the information provided by the cloud operator.
 	IdentityEndpoint string `json:"-"`
 
-	// user project id
-	ProjectId string
-
-	ProjectName string
-
 	// region
 	Region string
 
-	// cloud service domain, example: myhwclouds.com
+	// IAM user project id and name
+	ProjectId   string
+	ProjectName string
+
+	// IAM account name and id
 	Domain   string
 	DomainID string
 
@@ -27,8 +26,9 @@ type AKSKAuthOptions struct {
 	BssDomain   string
 	BssDomainID string
 
-	AccessKey string //Access Key
-	SecretKey string //Secret key
+	AccessKey     string //Access Key
+	SecretKey     string //Secret key
+	SecurityToken string //Security Token for temporary Access Key
 
 	// AgencyNmae is the name of agnecy
 	AgencyName string
@@ -38,9 +38,12 @@ type AKSKAuthOptions struct {
 
 	// DelegatedProject is the name of delegated project
 	DelegatedProject string
+
+	// whether using the customer catalog, defaults to false
+	WithUserCatalog bool
 }
 
-// Implements the method of AuthOptionsProvider
+// GetIdentityEndpoint implements the method of AuthOptionsProvider
 func (opts AKSKAuthOptions) GetIdentityEndpoint() string {
 	return opts.IdentityEndpoint
 }

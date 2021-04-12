@@ -54,6 +54,14 @@ func Provider() terraform.ResourceProvider {
 				}, nil),
 			},
 
+			"security_token": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  descriptions["security_token"],
+				RequiredWith: []string{"access_key"},
+				DefaultFunc:  schema.EnvDefaultFunc("HW_SECURITY_TOKEN", nil),
+			},
+
 			"domain_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -612,6 +620,10 @@ func init() {
 
 		"domain_name": "The name of the Domain to scope to.",
 
+		"access_key":     "The access key of the HuaweiCloud to use.",
+		"secret_key":     "The secret key of the HuaweiCloud to use.",
+		"security_token": "The security token to authenticate with a temporary security credential.",
+
 		"insecure": "Trust self-signed certificates.",
 
 		"cacert_file": "A Custom CA certificate.",
@@ -676,6 +688,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		Insecure:            d.Get("insecure").(bool),
 		Password:            d.Get("password").(string),
 		Token:               d.Get("token").(string),
+		SecurityToken:       d.Get("security_token").(string),
 		Region:              region,
 		TenantID:            tenantID,
 		TenantName:          tenantName,
