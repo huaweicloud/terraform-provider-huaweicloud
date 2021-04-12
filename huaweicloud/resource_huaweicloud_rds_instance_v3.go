@@ -516,6 +516,7 @@ func resourceRdsInstanceBackupStrategy(d *schema.ResourceData) *instances.Backup
 func resourceRdsInstanceHaReplicationMode(d *schema.ResourceData) *instances.Ha {
 	var ha *instances.Ha
 	if hasFilledOpt(d, "ha_replication_mode") {
+		ha = new(instances.Ha)
 		ha.Mode = "ha"
 		ha.ReplicationMode = d.Get("ha_replication_mode").(string)
 	}
