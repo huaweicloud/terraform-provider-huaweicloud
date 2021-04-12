@@ -187,7 +187,7 @@ resource "huaweicloud_vpc" "test" {
 
 resource "huaweicloud_vpc_subnet" "test" {
   name          = "%s"
-  cidr          = "192.168.0.0/16"
+  cidr          = "192.168.0.0/24"
   gateway_ip    = "192.168.0.1"
 
   //dns is required for cce node installing
