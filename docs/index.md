@@ -95,6 +95,7 @@ The following arguments are supported:
 
 * `security_token` - (Optional) The security token to authenticate with a
   [temporary security credential](https://support.huaweicloud.com/intl/en-us/iam_faq/iam_01_0620.html).
+  If omitted, the `HW_SECURITY_TOKEN` environment variable is used.
 
 * `cloud` - (Optional) The endpoint of the cloud provider. If omitted, the
   `HW_CLOUD` environment variable is used. Defaults to `myhuaweicloud.com`.
