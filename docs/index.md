@@ -93,6 +93,10 @@ The following arguments are supported:
 * `auth_url` - (Optional, Required before 1.14.0) The Identity authentication URL. If omitted, the
   `HW_AUTH_URL` environment variable is used. This is not required if you use Huawei Cloud.
 
+* `security_token` - (Optional) The security token to authenticate with a
+  [temporary security credential](https://support.huaweicloud.com/intl/en-us/iam_faq/iam_01_0620.html).
+  If omitted, the `HW_SECURITY_TOKEN` environment variable is used.
+
 * `cloud` - (Optional) The endpoint of the cloud provider. If omitted, the
   `HW_CLOUD` environment variable is used. Defaults to `myhuaweicloud.com`.
 

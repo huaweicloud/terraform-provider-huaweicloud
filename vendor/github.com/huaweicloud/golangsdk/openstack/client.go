@@ -357,27 +357,29 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 	client.ProjectID = options.ProjectId
 	client.DomainID = options.BssDomainID
 
-	var entries = make([]tokens3.CatalogEntry, 0, 1)
-	err = catalog.List(v3Client).EachPage(func(page pagination.Page) (bool, error) {
-		catalogList, err := catalog.ExtractServiceCatalog(page)
+	if !options.WithUserCatalog {
+		var entries = make([]tokens3.CatalogEntry, 0, 1)
+		err = catalog.List(v3Client).EachPage(func(page pagination.Page) (bool, error) {
+			catalogList, err := catalog.ExtractServiceCatalog(page)
+			if err != nil {
+				return false, err
+			}
+
+			entries = append(entries, catalogList...)
+			return true, nil
+		})
+
 		if err != nil {
-			return false, err
+			return err
 		}
 
-		entries = append(entries, catalogList...)
-
-		return true, nil
-	})
-
-	if err != nil {
-		return err
+		client.EndpointLocator = func(opts golangsdk.EndpointOpts) (string, error) {
+			return V3EndpointURL(&tokens3.ServiceCatalog{
+				Entries: entries,
+			}, opts)
+		}
 	}
 
-	client.EndpointLocator = func(opts golangsdk.EndpointOpts) (string, error) {
-		return V3EndpointURL(&tokens3.ServiceCatalog{
-			Entries: entries,
-		}, opts)
-	}
 	return nil
 }
 
