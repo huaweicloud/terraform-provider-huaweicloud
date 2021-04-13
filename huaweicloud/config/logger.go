@@ -112,7 +112,7 @@ func (lrt *LogRoundTripper) logRequest(original io.ReadCloser, contentType strin
 
 	// Handle request contentType
 	if strings.HasPrefix(contentType, "application/json") {
-		debugInfo := lrt.formatJSON(bs.Bytes())
+		debugInfo := lrt.formatJSON(bs.Bytes(), true)
 		log.Printf("[DEBUG] HuaweiCloud Request Body: %s", debugInfo)
 	} else {
 		log.Printf("[DEBUG] HuaweiCloud Request Body: %s", bs.String())
@@ -131,7 +131,7 @@ func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType stri
 		if err != nil {
 			return nil, err
 		}
-		debugInfo := lrt.formatJSON(bs.Bytes())
+		debugInfo := lrt.formatJSON(bs.Bytes(), false)
 		if debugInfo != "" {
 			log.Printf("[DEBUG] HuaweiCloud Response Body: %s", debugInfo)
 		}
@@ -144,7 +144,7 @@ func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType stri
 
 // formatJSON will try to pretty-format a JSON body.
 // It will also mask known fields which contain sensitive information.
-func (lrt *LogRoundTripper) formatJSON(raw []byte) string {
+func (lrt *LogRoundTripper) formatJSON(raw []byte, maskBody bool) string {
 	var data map[string]interface{}
 
 	err := json.Unmarshal(raw, &data)
@@ -154,14 +154,8 @@ func (lrt *LogRoundTripper) formatJSON(raw []byte) string {
 	}
 
 	// Mask known password fields
-	if v, ok := data["auth"].(map[string]interface{}); ok {
-		if v, ok := v["identity"].(map[string]interface{}); ok {
-			if v, ok := v["password"].(map[string]interface{}); ok {
-				if v, ok := v["user"].(map[string]interface{}); ok {
-					v["password"] = "***"
-				}
-			}
-		}
+	if maskBody {
+		maskSecurityFields(data)
 	}
 
 	// Ignore the catalog
@@ -184,10 +178,10 @@ func (lrt *LogRoundTripper) formatJSON(raw []byte) string {
 }
 
 // REDACT_HEADERS is a list of headers that need to be redacted
-var REDACT_HEADERS = []string{"x-auth-token", "x-auth-key", "x-service-token",
-	"x-storage-token", "x-account-meta-temp-url-key", "x-account-meta-temp-url-key-2",
-	"x-container-meta-temp-url-key", "x-container-meta-temp-url-key-2", "set-cookie",
-	"x-subject-token"}
+var REDACT_HEADERS = []string{
+	"x-auth-token", "x-security-token", "x-service-token",
+	"x-subject-token", "x-storage-token", "authorization",
+}
 
 // RedactHeaders processes a headers object, returning a redacted list
 func RedactHeaders(headers http.Header) (processedHeaders []string) {
@@ -209,4 +203,29 @@ func FormatHeaders(headers http.Header, seperator string) string {
 	sort.Strings(redactedHeaders)
 
 	return strings.Join(redactedHeaders, seperator)
+}
+
+// "password" is apply to the most request JSON body
+// "adminPass" is apply to the ecs instance request JSON body
+// "adminPwd" is apply to the css cluster request JSON body
+var securityFields = []string{"password", "adminPass", "adminPwd"}
+
+func maskSecurityFields(data map[string]interface{}) bool {
+	for _, field := range securityFields {
+		if _, ok := data[field].(string); ok {
+			data[field] = "***"
+			return true
+		}
+	}
+
+	for _, v := range data {
+		switch v.(type) {
+		case map[string]interface{}:
+			subData := v.(map[string]interface{})
+			if masked := maskSecurityFields(subData); masked {
+				return true
+			}
+		}
+	}
+	return false
 }
