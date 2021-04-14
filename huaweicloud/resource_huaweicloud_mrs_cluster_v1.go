@@ -444,33 +444,34 @@ func resourceClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	createOpts := &cluster.CreateOpts{
-		DataCenter:          region,
-		BillingType:         d.Get("billing_type").(int),
-		MasterNodeNum:       d.Get("master_node_num").(int),
-		MasterNodeSize:      d.Get("master_node_size").(string),
-		CoreNodeNum:         d.Get("core_node_num").(int),
-		CoreNodeSize:        d.Get("core_node_size").(string),
-		AvailableZoneID:     d.Get("available_zone_id").(string),
-		ClusterName:         d.Get("cluster_name").(string),
-		ClusterVersion:      d.Get("cluster_version").(string),
-		ClusterType:         d.Get("cluster_type").(int),
-		VpcID:               d.Get("vpc_id").(string),
-		SubnetID:            d.Get("subnet_id").(string),
-		Vpc:                 vpc.Name,
-		SubnetName:          subnet.Name,
-		VolumeType:          d.Get("volume_type").(string),
-		VolumeSize:          d.Get("volume_size").(int),
-		SafeMode:            d.Get("safe_mode").(int),
-		LoginMode:           loginMode,
-		NodePublicCertName:  d.Get("node_public_cert_name").(string),
-		ClusterMasterSecret: d.Get("node_password").(string),
-		ClusterAdminSecret:  d.Get("cluster_admin_secret").(string),
-		LogCollection:       d.Get("log_collection").(int),
-		ComponentList:       getAllClusterComponents(d),
-		AddJobs:             getAllClusterJobs(d),
+		DataCenter:         region,
+		BillingType:        d.Get("billing_type").(int),
+		MasterNodeNum:      d.Get("master_node_num").(int),
+		MasterNodeSize:     d.Get("master_node_size").(string),
+		CoreNodeNum:        d.Get("core_node_num").(int),
+		CoreNodeSize:       d.Get("core_node_size").(string),
+		AvailableZoneID:    d.Get("available_zone_id").(string),
+		ClusterName:        d.Get("cluster_name").(string),
+		ClusterVersion:     d.Get("cluster_version").(string),
+		ClusterType:        d.Get("cluster_type").(int),
+		VpcID:              d.Get("vpc_id").(string),
+		SubnetID:           d.Get("subnet_id").(string),
+		Vpc:                vpc.Name,
+		SubnetName:         subnet.Name,
+		VolumeType:         d.Get("volume_type").(string),
+		VolumeSize:         d.Get("volume_size").(int),
+		SafeMode:           d.Get("safe_mode").(int),
+		LoginMode:          loginMode,
+		NodePublicCertName: d.Get("node_public_cert_name").(string),
+		LogCollection:      d.Get("log_collection").(int),
+		ComponentList:      getAllClusterComponents(d),
+		AddJobs:            getAllClusterJobs(d),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Add password here so it wouldn't go in the above log entry
+	createOpts.ClusterMasterSecret = d.Get("node_password").(string)
+	createOpts.ClusterAdminSecret = d.Get("cluster_admin_secret").(string)
 
 	clusterCreate, err := cluster.Create(client, createOpts).Extract()
 	if err != nil {

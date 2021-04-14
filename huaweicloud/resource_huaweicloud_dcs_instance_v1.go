@@ -321,7 +321,6 @@ func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 		EngineVersion:         d.Get("engine_version").(string),
 		Capacity:              d.Get("capacity").(float64),
 		NoPasswordAccess:      no_password_access,
-		Password:              d.Get("password").(string),
 		AccessUser:            d.Get("access_user").(string),
 		VPCID:                 d.Get("vpc_id").(string),
 		SecurityGroupID:       d.Get("security_group_id").(string),
@@ -336,6 +335,9 @@ func resourceDcsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Add password here so it wouldn't go in the above log entry
+	createOpts.Password = d.Get("password").(string)
+
 	v, err := instances.Create(dcsV1Client, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud instance: %s", err)

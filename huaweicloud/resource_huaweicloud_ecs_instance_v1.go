@@ -239,7 +239,6 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		Nics:             resourceInstanceNicsV1(d),
 		RootVolume:       resourceInstanceRootVolumeV1(d),
 		DataVolumes:      resourceInstanceDataVolumesV1(d),
-		AdminPass:        d.Get("password").(string),
 		UserData:         []byte(d.Get("user_data").(string)),
 	}
 
@@ -268,6 +267,8 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Add password here so it wouldn't go in the above log entry
+	createOpts.AdminPass = d.Get("password").(string)
 
 	var instance_id string
 	if d.Get("charging_mode") == "prePaid" {

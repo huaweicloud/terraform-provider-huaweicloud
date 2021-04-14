@@ -317,7 +317,6 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		VpcId:            d.Get("vpc_id").(string),
 		SubnetId:         d.Get("subnet_id").(string),
 		SecurityGroupId:  d.Get("security_group_id").(string),
-		Password:         d.Get("password").(string),
 		DiskEncryptionId: d.Get("disk_encryption_id").(string),
 		Mode:             d.Get("mode").(string),
 		Flavor:           resourceDdsFlavors(d),
@@ -329,6 +328,8 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		createOpts.Ssl = "0"
 	}
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Add password here so it wouldn't go in the above log entry
+	createOpts.Password = d.Get("password").(string)
 
 	instance, err := instances.Create(client, createOpts).Extract()
 	if err != nil {

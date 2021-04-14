@@ -501,24 +501,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node client: %s", err)
 	}
 
-	var loginSpec nodes.LoginSpec
-	if hasFilledOpt(d, "key_pair") {
-		loginSpec = nodes.LoginSpec{SshKey: d.Get("key_pair").(string)}
-	} else if hasFilledOpt(d, "password") {
-		loginSpec = nodes.LoginSpec{
-			UserPassword: nodes.UserPassword{
-				Username: "root",
-				Password: d.Get("password").(string),
-			},
-		}
-	}
-
-	// eipCount must be specified when bandwidth_size parameters was set
-	eipCount := 0
-	if _, ok := d.GetOk("bandwidth_size"); ok {
-		eipCount = 1
-	}
-
+	// validation
 	billingMode := 0
 	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 2 {
 		billingMode = 2
@@ -526,6 +509,22 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
+	// eipCount must be specified when bandwidth_size parameters was set
+	eipCount := 0
+	if _, ok := d.GetOk("bandwidth_size"); ok {
+		eipCount = 1
+	}
+
+	// wait for the cce cluster to become available
+	clusterid := d.Get("cluster_id").(string)
+	stateCluster := &resource.StateChangeConf{
+		Target:     []string{"Available"},
+		Refresh:    waitForClusterAvailable(nodeClient, clusterid),
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Delay:      5 * time.Second,
+		MinTimeout: 5 * time.Second,
+	}
+	_, err = stateCluster.WaitForState()
 
 	createOpts := nodes.CreateOpts{
 		Kind:       "Node",
@@ -538,7 +537,6 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 			Flavor:      d.Get("flavor_id").(string),
 			Az:          d.Get("availability_zone").(string),
 			Os:          d.Get("os").(string),
-			Login:       loginSpec,
 			RootVolume:  resourceCCERootVolume(d),
 			DataVolumes: resourceCCEDataVolume(d),
 			PublicIP: nodes.PublicIPSpec{
@@ -577,17 +575,23 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	clusterid := d.Get("cluster_id").(string)
-	stateCluster := &resource.StateChangeConf{
-		Target:     []string{"Available"},
-		Refresh:    waitForClusterAvailable(nodeClient, clusterid),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      15 * time.Second,
-		MinTimeout: 5 * time.Second,
-	}
-	_, err = stateCluster.WaitForState()
-
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Add loginSpec here so it wouldn't go in the above log entry
+	var loginSpec nodes.LoginSpec
+	if hasFilledOpt(d, "key_pair") {
+		loginSpec = nodes.LoginSpec{
+			SshKey: d.Get("key_pair").(string),
+		}
+	} else if hasFilledOpt(d, "password") {
+		loginSpec = nodes.LoginSpec{
+			UserPassword: nodes.UserPassword{
+				Username: "root",
+				Password: d.Get("password").(string),
+			},
+		}
+	}
+	createOpts.Spec.Login = loginSpec
+
 	s, err := nodes.Create(nodeClient, clusterid, createOpts).Extract()
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault403); ok {
@@ -875,7 +879,7 @@ func waitForCceNodeActive(cceClient *golangsdk.ServiceClient, clusterId, nodeId 
 
 func waitForCceNodeDelete(cceClient *golangsdk.ServiceClient, clusterId, nodeId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete HuaweiCloud CCE Node %s.\n", nodeId)
+		log.Printf("[DEBUG] Attempting to delete HuaweiCloud CCE Node %s", nodeId)
 
 		r, err := nodes.Get(cceClient, clusterId, nodeId).Extract()
 
@@ -887,14 +891,13 @@ func waitForCceNodeDelete(cceClient *golangsdk.ServiceClient, clusterId, nodeId 
 			return r, "Deleting", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud CCE Node %s still available.\n", nodeId)
 		return r, r.Status.Phase, nil
 	}
 }
 
 func waitForClusterAvailable(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[INFO] Waiting for HuaweiCloud Cluster to be available %s.\n", clusterId)
+		log.Printf("[INFO] Waiting for CCE Cluster %s to be available", clusterId)
 		n, err := clusters.Get(cceClient, clusterId).Extract()
 
 		if err != nil {

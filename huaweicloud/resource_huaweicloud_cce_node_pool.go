@@ -266,20 +266,18 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
 	}
 
-	var loginSpec nodes.LoginSpec
-	if hasFilledOpt(d, "key_pair") {
-		loginSpec = nodes.LoginSpec{SshKey: d.Get("key_pair").(string)}
-	} else if hasFilledOpt(d, "password") {
-		loginSpec = nodes.LoginSpec{
-			UserPassword: nodes.UserPassword{
-				Username: "root",
-				Password: d.Get("password").(string),
-			},
-		}
+	// wait for the cce cluster to become available
+	clusterid := d.Get("cluster_id").(string)
+	stateCluster := &resource.StateChangeConf{
+		Target:     []string{"Available"},
+		Refresh:    waitForClusterAvailable(nodePoolClient, clusterid),
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Delay:      5 * time.Second,
+		MinTimeout: 5 * time.Second,
 	}
+	_, err = stateCluster.WaitForState()
 
 	initialNodeCount := d.Get("initial_node_count").(int)
-
 	createOpts := nodepools.CreateOpts{
 		Kind:       "NodePool",
 		ApiVersion: "v3",
@@ -292,7 +290,6 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 				Flavor:      d.Get("flavor_id").(string),
 				Az:          d.Get("availability_zone").(string),
 				Os:          d.Get("os").(string),
-				Login:       loginSpec,
 				RootVolume:  resourceCCERootVolume(d),
 				DataVolumes: resourceCCEDataVolume(d),
 				K8sTags:     resourceCCENodeK8sTags(d),
@@ -324,17 +321,23 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	clusterid := d.Get("cluster_id").(string)
-	stateCluster := &resource.StateChangeConf{
-		Target:     []string{"Available"},
-		Refresh:    waitForClusterAvailable(nodePoolClient, clusterid),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      15 * time.Second,
-		MinTimeout: 5 * time.Second,
-	}
-	_, err = stateCluster.WaitForState()
-
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Add loginSpec here so it wouldn't go in the above log entry
+	var loginSpec nodes.LoginSpec
+	if hasFilledOpt(d, "key_pair") {
+		loginSpec = nodes.LoginSpec{
+			SshKey: d.Get("key_pair").(string),
+		}
+	} else if hasFilledOpt(d, "password") {
+		loginSpec = nodes.LoginSpec{
+			UserPassword: nodes.UserPassword{
+				Username: "root",
+				Password: d.Get("password").(string),
+			},
+		}
+	}
+	createOpts.Spec.NodeTemplate.Login = loginSpec
+
 	s, err := nodepools.Create(nodePoolClient, clusterid, createOpts).Extract()
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault403); ok {
