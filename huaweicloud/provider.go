@@ -260,6 +260,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_cce_cluster":                 DataSourceCCEClusterV3(),
 			"huaweicloud_cce_node":                    DataSourceCCENodeV3(),
 			"huaweicloud_cce_node_pool":               DataSourceCCENodePoolV3(),
+			"huaweicloud_cce_addon":                   DataSourceCCEAddonV3(),
 			"huaweicloud_cdm_flavors":                 dataSourceCdmFlavorV1(),
 			"huaweicloud_compute_flavors":             DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":            DataSourceComputeInstance(),
