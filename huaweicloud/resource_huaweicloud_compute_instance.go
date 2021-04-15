@@ -454,7 +454,6 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 			Nics:             resourceInstanceNicsV2(d),
 			RootVolume:       resourceInstanceRootVolumeV1(d),
 			DataVolumes:      resourceInstanceDataVolumesV1(d),
-			AdminPass:        d.Get("admin_pass").(string),
 			UserData:         []byte(d.Get("user_data").(string)),
 		}
 
@@ -498,6 +497,8 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		}
 
 		log.Printf("[DEBUG] ECS Create Options: %#v", createOpts)
+		// Add password here so it wouldn't go in the above log entry
+		createOpts.AdminPass = d.Get("admin_pass").(string)
 
 		var job_id string
 		if d.Get("charging_mode") == "prePaid" {

@@ -315,7 +315,6 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		ConfigurationId:     d.Get("configuration_id").(string),
 		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
-		Password:            d.Get("password").(string),
 		Mode:                "Cluster",
 		Flavor:              resourceGeminiDBFlavor(d),
 		DataStore:           resourceGeminiDBDataStore(d),
@@ -341,6 +340,8 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 		createOpts.ChargeInfo = chargeInfo
 	}
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Add password here so it wouldn't go in the above log entry
+	createOpts.Password = d.Get("password").(string)
 
 	instance, err := instances.Create(client, createOpts).Extract()
 	if err != nil {

@@ -291,7 +291,6 @@ func resourceIecServerV1Create(d *schema.ResourceData, meta interface{}) error {
 		Name:           d.Get("name").(string),
 		ImageRef:       d.Get("image_id").(string),
 		FlavorRef:      d.Get("flavor_id").(string),
-		AdminPass:      d.Get("admin_pass").(string),
 		NetConfig:      resourceNetworkConfig(d),
 		SecurityGroups: resourceServerSecGroups(d),
 		RootVolume:     resourceServerRootVolume(d),
@@ -308,6 +307,9 @@ func resourceIecServerV1Create(d *schema.ResourceData, meta interface{}) error {
 		Coverage:     resourceServerCoverage(d),
 	}
 	log.Printf("[DEBUG] Create IEC servers options: %#v", createOpts)
+	// Add password here so it wouldn't go in the above log entry
+	createOpts.AdminPass = d.Get("admin_pass").(string)
+
 	resp, err := servers.CreateServer(iecClient, createOpts)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud IEC server: %s", err)

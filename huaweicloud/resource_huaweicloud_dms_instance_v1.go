@@ -181,7 +181,6 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 		Engine:          d.Get("engine").(string),
 		EngineVersion:   d.Get("engine_version").(string),
 		StorageSpace:    d.Get("storage_space").(int),
-		Password:        d.Get("password").(string),
 		AccessUser:      d.Get("access_user").(string),
 		VPCID:           d.Get("vpc_id").(string),
 		SecurityGroupID: d.Get("security_group_id").(string),
@@ -197,6 +196,9 @@ func resourceDmsInstancesV1Create(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Add password here so it wouldn't go in the above log entry
+	createOpts.Password = d.Get("password").(string)
+
 	v, err := instances.Create(dmsV1Client, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud instance: %s", err)

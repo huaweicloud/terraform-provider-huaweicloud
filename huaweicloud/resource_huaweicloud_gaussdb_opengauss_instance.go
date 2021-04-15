@@ -355,7 +355,6 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	createOpts := instances.CreateGaussDBOpts{
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor").(string),
-		Password:            d.Get("password").(string),
 		Region:              GetRegion(d, config),
 		VpcId:               d.Get("vpc_id").(string),
 		SubnetId:            d.Get("subnet_id").(string),
@@ -396,6 +395,9 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Add password here so it wouldn't go in the above log entry
+	createOpts.Password = d.Get("password").(string)
+
 	instance, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creating OpenGauss instance : %s", err)

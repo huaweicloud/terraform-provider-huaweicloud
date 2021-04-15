@@ -281,7 +281,6 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	createOpts := instances.CreateTaurusDBOpts{
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor").(string),
-		Password:            d.Get("password").(string),
 		Region:              GetRegion(d, config),
 		VpcId:               d.Get("vpc_id").(string),
 		SubnetId:            d.Get("subnet_id").(string),
@@ -326,6 +325,8 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Add password here so it wouldn't go in the above log entry
+	createOpts.Password = d.Get("password").(string)
 
 	instance, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
