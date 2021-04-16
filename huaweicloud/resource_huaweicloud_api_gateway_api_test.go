@@ -107,29 +107,30 @@ func testAccCheckApiGatewayApiExists(n string) resource.TestCheckFunc {
 func testAccApigwAPI_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_api_gateway_group" "acc_apigw_group" {
-  name = "%s"
+  name        = "%s"
   description = "created by acc test"
 }
 
 resource "huaweicloud_api_gateway_api" "acc_apigw_api" {
-  group_id = huaweicloud_api_gateway_group.acc_apigw_group.id
-  name   = "%s"
-  description  = "created by acc test"
-  tags = ["tag1","tag2"]
-  visibility = 2
-  auth_type = "NONE"
-  backend_type = "HTTP"
+  group_id    = huaweicloud_api_gateway_group.acc_apigw_group.id
+  name        = "%s"
+  visibility  = 2
+  description = "created by acc test"
+  tags        = ["tag1","tag2"]
+
+  auth_type        = "NONE"
+  backend_type     = "HTTP"
   request_protocol = "HTTPS"
-  request_method = "GET"
-  request_uri = "/test/path1"
+  request_method   = "GET"
+  request_uri      = "/test/path1"
   example_success_response = "this is a successful response"
 
   http_backend {
-    protocol = "HTTPS"
-    method = "GET"
-    uri = "/web/openapi"
+    protocol   = "HTTPS"
+    method     = "GET"
+    uri        = "/web/openapi"
     url_domain = "myhuaweicloud.com"
-    timeout = 10000
+    timeout    = 10000
   }
 }
 `, rName, rName)
@@ -138,30 +139,31 @@ resource "huaweicloud_api_gateway_api" "acc_apigw_api" {
 func testAccApigwAPI_update(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_api_gateway_group" "acc_apigw_group" {
-  name = "%s"
+  name        = "%s"
   description = "created by acc test"
 }
 
 resource "huaweicloud_api_gateway_api" "acc_apigw_api" {
-  group_id = huaweicloud_api_gateway_group.acc_apigw_group.id
-  name   = "%s"
-  cors   = true
-  description  = "updated by acc test"
-  tags = ["tag1","tag2"]
-  visibility = 2
-  auth_type = "IAM"
-  backend_type = "HTTP"
+  group_id    = huaweicloud_api_gateway_group.acc_apigw_group.id
+  name        = "%s"
+  visibility  = 2
+  cors        = true
+  description = "updated by acc test"
+  tags        = ["tag1","tag2"]
+
+  auth_type        = "IAM"
+  backend_type     = "HTTP"
   request_protocol = "BOTH"
-  request_method = "GET"
-  request_uri = "/test/path2"
+  request_method   = "GET"
+  request_uri      = "/test/path2"
   example_success_response = "this is a successful response"
 
   http_backend {
-    protocol = "HTTPS"
-    method = "GET"
-    uri = "/web/openapi"
+    protocol   = "HTTPS"
+    method     = "GET"
+    uri        = "/web/openapi"
     url_domain = "myhuaweicloud.com"
-    timeout = 10000
+    timeout    = 10000
   }
 }
 `, rName, rName)
