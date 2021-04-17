@@ -42,6 +42,9 @@ func List(c *golangsdk.ServiceClient, opts ListOpts) ([]Vpc, error) {
 	pages, err := pagination.NewPager(c, u, func(r pagination.PageResult) pagination.Page {
 		return VpcPage{pagination.LinkedPageBase{PageResult: r}}
 	}).AllPages()
+	if err != nil {
+		return nil, err
+	}
 
 	allVpcs, err := ExtractVpcs(pages)
 	if err != nil {

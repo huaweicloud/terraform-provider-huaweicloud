@@ -110,7 +110,9 @@ func Create(client *golangsdk.ServiceClient, ops CreateOpsBuilder) (r CreateResu
 
 // Delete an instance by id
 func Delete(client *golangsdk.ServiceClient, id string) (r DeleteResult) {
-	_, r.Err = client.Delete(deleteURL(client, id), nil)
+	_, r.Err = client.Delete(deleteURL(client, id), &golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+	})
 	return
 }
 

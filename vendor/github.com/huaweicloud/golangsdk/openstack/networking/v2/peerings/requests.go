@@ -60,6 +60,9 @@ func List(c *golangsdk.ServiceClient, opts ListOpts) ([]Peering, error) {
 	pages, err := pagination.NewPager(c, u, func(r pagination.PageResult) pagination.Page {
 		return PeeringConnectionPage{pagination.LinkedPageBase{PageResult: r}}
 	}).AllPages()
+	if err != nil {
+		return nil, err
+	}
 
 	allPeeringConns, err := ExtractPeerings(pages)
 	if err != nil {

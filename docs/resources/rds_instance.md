@@ -117,11 +117,14 @@ resource "huaweicloud_rds_instance" "instance" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the rds instance resource. If omitted, the provider-level region will be used. Changing this creates a new rds instance resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the rds instance resource.
+  If omitted, the provider-level region will be used. Changing this creates a new rds instance resource.
 
-* `availability_zone` - (Required, String, ForceNew) Specifies the AZ name. Changing this parameter will create a new resource.
+* `availability_zone` - (Required, String, ForceNew) Specifies the AZ name.
+  Changing this parameter will create a new resource.
 
-* `db` - (Required, String, ForceNew) Specifies the database information. Structure is documented below. Changing this parameter will create a new resource.
+* `db` - (Required, String, ForceNew) Specifies the database information. Structure is documented below.
+  Changing this parameter will create a new resource.
 
 * `flavor` - (Required, String) Specifies the specification code.
 
@@ -136,34 +139,51 @@ The following arguments are supported:
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID. Changing this parameter will create a new resource.
 
-* `subnet_id` - (Required, String, ForceNew) Specifies the network id of a subnet. Changing this parameter will create a new resource.
+* `subnet_id` - (Required, String, ForceNew) Specifies the network id of a subnet.
+  Changing this parameter will create a new resource.
 
 * `volume` - (Required, List) Specifies the volume information. Structure is documented below.
 
 * `fixed_ip` - (Optional, String, ForceNew) Specifies an intranet floating IP address of RDS DB instance. 
-    Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 
-* `ha_replication_mode` - (Optional, String, ForceNew) Specifies the replication mode for the standby DB instance. For MySQL, the value
-  is async or semisync. For PostgreSQL, the value is async or sync. For
-  Microsoft SQL Server, the value is sync. NOTE: async indicates the
-  asynchronous replication mode. semisync indicates the
-  semi-synchronous replication mode. sync indicates the synchronous
-  replication mode.  Changing this parameter will create a new resource.
+* `ha_replication_mode` - (Optional, String, ForceNew) Specifies the replication mode for the standby DB instance.
+  For MySQL, the value is *async* or *semisync*. For PostgreSQL, the value is *async* or *sync*.
+  For Microsoft SQL Server, the value is *sync*. NOTE: async indicates the asynchronous replication mode.
+  semisync indicates the semi-synchronous replication mode. sync indicates the synchronous replication mode.
+  Changing this parameter will create a new resource.
 
-* `param_group_id` - (Optional, String, ForceNew) Specifies the parameter group ID. Changing this parameter will create a new resource.
+* `param_group_id` - (Optional, String, ForceNew) Specifies the parameter group ID.
+  Changing this parameter will create a new resource.
+
+* `time_zone` - (Optional, String, ForceNew) Specifies the UTC time zone. 
+  For MySQL and PostgreSQL Chinese mainland site and international site use UTC by default. 
+  The value ranges from UTC-12:00 to UTC+12:00 at the full hour. 
+  For Microsoft SQL Server international site use UTC by default and Chinese mainland site use China Standard Time. 
+  The time zone is expressed as a character string, refer to [HuaweiCloud Document](https://support.huaweicloud.com/intl/en-us/api-rds/rds_01_0002.html#rds_01_0002__table613473883617).
+
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the RDS DB instance.
+  Valid values are *prePaid* and *postPaid*, defaults to *postPaid*.
+  Changing this creates a new resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the RDS DB instance.
+  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
+  Changing this creates a new resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the RDS DB instance.
+  If `period_unit` is set to *month*, the value ranges from 1 to 9.
+  If `period_unit` is set to *year*, the value ranges from 1 to 3.
+  This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new resource.
+
+* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
+  Valid values are "true" and "false". Changing this creates a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the RDS instance. Changing this parameter creates a new RDS instance.
 
 * `tags` - (Optional, Map) A mapping of tags to assign to the RDS instance.
   Each tag is represented by one key-value pair.
-  
-* `time_zone` - (Optional, String, ForceNew) Specifies the UTC time zone. 
-  For MySQL and PostgreSQL Chinese mainland site and international site use UTC by default. 
-  The value ranges from UTC-12:00 to UTC+12:00 at the full hour. 
-  For Microsoft SQL Server international site use UTC by default and Chinese mainland site use China Standard Time. 
-  The time zone is expressed as a character string, refer to Document [table 10](https://support.huaweicloud.com/intl/en-us/api-rds/rds_01_0002.html#rds_01_0002__table613473883617).
 
 The `db` block supports:
 

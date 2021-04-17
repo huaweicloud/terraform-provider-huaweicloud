@@ -51,6 +51,16 @@ func resourceRdsInstanceV3() *schema.Resource {
 				},
 			},
 
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"flavor": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
 			"db": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -88,28 +98,6 @@ func resourceRdsInstanceV3() *schema.Resource {
 				},
 			},
 
-			"flavor": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-
-			"security_group_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-
-			"subnet_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-
 			"volume": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -136,6 +124,16 @@ func resourceRdsInstanceV3() *schema.Resource {
 			},
 
 			"vpc_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"subnet_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"security_group_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -252,6 +250,12 @@ func resourceRdsInstanceV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			// charge info: charging_mode, period_unit, period, auto_renew
+			"charging_mode": schemeChargingMode(nil),
+			"period_unit":   schemaPeriodUnit(nil),
+			"period":        schemaPeriod(nil),
+			"auto_renew":    schemaAutoRenew(nil),
 		},
 	}
 }
@@ -264,7 +268,7 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error creating huaweicloud RDS client: %s", err)
 	}
 
-	createRdsOpts := instances.CreateRdsOpts{
+	createOpts := instances.CreateOpts{
 		Name:                d.Get("name").(string),
 		FlavorRef:           d.Get("flavor").(string),
 		VpcId:               d.Get("vpc_id").(string),
@@ -273,7 +277,6 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		ConfigurationId:     d.Get("param_group_id").(string),
 		TimeZone:            d.Get("time_zone").(string),
 		FixedIp:             d.Get("fixed_ip").(string),
-		Password:            d.Get("db.0.password").(string),
 		DiskEncryptionId:    d.Get("volume.0.disk_encryption_id").(string),
 		Port:                strconv.Itoa(d.Get("db.0.port").(int)),
 		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
@@ -285,15 +288,50 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		Ha:                  resourceRdsInstanceHaReplicationMode(d),
 	}
 
-	res, err := instances.Create(client, createRdsOpts).Extract()
+	// PrePaid
+	if d.Get("charging_mode") == "prePaid" {
+		if err := validatePrePaidChargeInfo(d); err != nil {
+			return err
+		}
+
+		chargeInfo := &instances.ChargeInfo{
+			ChargeMode:  d.Get("charging_mode").(string),
+			PeriodType:  d.Get("period_unit").(string),
+			PeriodNum:   d.Get("period").(int),
+			IsAutoPay:   "true",
+			IsAutoRenew: d.Get("auto_renew").(string),
+		}
+		createOpts.ChargeInfo = chargeInfo
+	}
+
+	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Add password here so it wouldn't go in the above log entry
+	createOpts.Password = d.Get("db.0.password").(string)
+
+	res, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error creating huaweicloud RDS instance: %s", err)
 	}
 	d.SetId(res.Instance.Id)
 	instanceID := d.Id()
 
-	if err := checkRDSInstanceJobFinish(client, res.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
-		return fmt.Errorf("Error creating instance (%s): %s", instanceID, err)
+	if res.JobId != "" {
+		if err := checkRDSInstanceJobFinish(client, res.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return fmt.Errorf("Error creating instance (%s): %s", instanceID, err)
+		}
+	} else {
+		// for prePaid charge mode
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"BUILD"},
+			Target:       []string{"ACTIVE", "BACKING UP"},
+			Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
+			Timeout:      d.Timeout(schema.TimeoutCreate),
+			Delay:        20 * time.Second,
+			PollInterval: 10 * time.Second,
+		}
+		if _, err = stateConf.WaitForState(); err != nil {
+			return fmt.Errorf("Error waiting for RDS instance (%s) creation completed: %s", instanceID, err)
+		}
 	}
 
 	tagRaw := d.Get("tags").(map[string]interface{})
@@ -339,6 +377,7 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("disk_encryption_id", instance.DiskEncryptionId)
 	d.Set("time_zone", instance.TimeZone)
 	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
+	d.Set("charging_mode", instance.ChargeInfo.ChargeMode)
 
 	publicIps := make([]interface{}, len(instance.PublicIps))
 	for i, v := range instance.PublicIps {
@@ -557,10 +596,10 @@ func updateRdsInstanceBackpStrategy(d *schema.ResourceData, client *golangsdk.Se
 
 func updateRdsInstanceName(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
 	if d.HasChange("name") {
-		var renameRdsInstanceOpts instances.RenameRdsInstanceOpts
+		var renameOpts instances.RenameInstanceOpts
 
-		renameRdsInstanceOpts.Name = d.Get("name").(string)
-		r := instances.Rename(client, renameRdsInstanceOpts, instanceID)
+		renameOpts.Name = d.Get("name").(string)
+		r := instances.Rename(client, renameOpts, instanceID)
 		if r.Result.Err != nil {
 			return fmt.Errorf("Error renaming HuaweiCloud RDS instance (%s): %s", instanceID, r.Err)
 		}
@@ -586,7 +625,7 @@ func checkRDSInstanceJobFinish(client *golangsdk.ServiceClient, jobID string, ti
 		Target:       []string{"Completed", "Failed"},
 		Refresh:      rdsInstanceJobRefreshFunc(client, jobID),
 		Timeout:      timeout,
-		Delay:        10 * time.Second,
+		Delay:        20 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 	if _, err := stateConf.WaitForState(); err != nil {
