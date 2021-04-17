@@ -81,7 +81,7 @@ func resourceAPIGatewayGroupRead(d *schema.ResourceData, meta interface{}) error
 
 	v, err := groups.Get(apigwClient, d.Id()).Extract()
 	if err != nil {
-		return fmt.Errorf("Error retrieving HuaweiCloud api group: %s", err)
+		return CheckDeleted(d, err, "API GateWay group")
 	}
 
 	log.Printf("[DEBUG] Retrieved api group %s: %+v", d.Id(), v)
