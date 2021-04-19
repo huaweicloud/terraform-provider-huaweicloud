@@ -88,54 +88,52 @@ func DataSourceImagesImageV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"disk_format": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"min_disk_gb": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-
 			"min_ram_mb": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-
 			"protected": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-
 			"checksum": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"size_bytes": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-
 			"metadata": {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-
-			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"file": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"schema": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -220,10 +218,11 @@ func dataSourceImagesImageV2Attributes(d *schema.ResourceData, image *images.Ima
 	if err := d.Set("metadata", image.Metadata); err != nil {
 		return fmt.Errorf("[DEBUG] Error saving metadata to state for HuaweiCloud image (%s): %s", d.Id(), err)
 	}
-	d.Set("created_at", image.CreatedAt.Format(time.RFC3339))
-	d.Set("updated_at", image.UpdatedAt.Format(time.RFC3339))
 	d.Set("file", image.File)
 	d.Set("schema", image.Schema)
+	d.Set("status", image.Status)
+	d.Set("created_at", image.CreatedAt.Format(time.RFC3339))
+	d.Set("updated_at", image.UpdatedAt.Format(time.RFC3339))
 
 	return nil
 }

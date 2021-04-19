@@ -27,6 +27,7 @@ func TestAccImsImageDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
 					resource.TestCheckResourceAttr(dataSourceName, "protected", "false"),
 					resource.TestCheckResourceAttr(dataSourceName, "visibility", "private"),
+					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
 				),
 			},
 		},
@@ -111,7 +112,7 @@ resource "huaweicloud_compute_instance" "test" {
 resource "huaweicloud_images_image" "test" {
   name        = "%s"
   instance_id = huaweicloud_compute_instance.test.id
-  description = "created by TerraformAccTest"
+  description = "created by Terraform AccTest"
 
   tags = {
     foo = "bar"

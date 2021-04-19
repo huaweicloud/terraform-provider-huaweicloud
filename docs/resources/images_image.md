@@ -110,6 +110,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `image_size` - The size(bytes) of the image file format.
 
+* `checksum` - The checksum of the data associated with the image.
+
+* `status` - The status of the image.
+
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.

@@ -49,9 +49,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
 * `checksum` - The checksum of the data associated with the image.
-* `created_at` - The date the image was created.
-* `container_format`: The format of the image's container.
-* `disk_format`: The format of the image's disk.
+* `container_format` - The format of the image's container.
+* `disk_format` - The format of the image's disk.
 * `file` - the trailing path after the glance endpoint that represent the
    location of the image or the path to retrieve it.
 * `metadata` - The metadata associated with the image.
@@ -60,7 +59,8 @@ In addition to all arguments above, the following attributes are exported:
 * `min_ram_mb` - The minimum amount of ram required to use the image.
 * `properties` - Freeform information about the image.
 * `protected` - Whether or not the image is protected.
-* `schema` - The path to the JSON-schema that represent
-   the image or image
+* `schema` - The path to the JSON-schema that represent the image or image.
 * `size_bytes` - The size of the image (in bytes).
-* `update_at` - The date the image was last updated.
+* `status` - The status of the image.
+* `created_at` - The date when the image was created.
+* `update_at` - The date when the image was last updated.
