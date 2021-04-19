@@ -15,7 +15,7 @@ Example to List RecordSets by Zone
 		panic(err)
 	}
 
-	allRRs, err := recordsets.ExtractRecordSets(allPages()
+	allRRs, err := recordsets.ExtractRecordSets(allPages)
 	if err != nil {
 		panic(err)
 	}

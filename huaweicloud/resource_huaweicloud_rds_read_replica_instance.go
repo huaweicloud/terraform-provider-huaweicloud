@@ -320,10 +320,17 @@ func resourceRdsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Deleting Instance %s", d.Id())
 
 	id := d.Id()
-	result := instances.Delete(client, id)
-	if result.Err != nil {
-		return err
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		if err := UnsubscribePrePaidResource(d, config, []string{id}); err != nil {
+			return fmt.Errorf("Error unsubscribe HuaweiCloud RDS instance: %s", err)
+		}
+	} else {
+		result := instances.Delete(client, id)
+		if result.Err != nil {
+			return result.Err
+		}
 	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
@@ -422,7 +429,7 @@ func updateRdsInstanceFlavor(d *schema.ResourceData, client *golangsdk.ServiceCl
 }
 
 func updateRdsInstanceVolume(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
-	var enlargeVolumeRdsOpts instances.EnlargeVolumeRdsOpts
+	var enlargeOpts instances.EnlargeVolumeOpts
 
 	volumeRaw := d.Get("volume").([]interface{})
 	log.Printf("[DEBUG] Enlarge Volume : %+v", volumeRaw)
@@ -430,10 +437,10 @@ func updateRdsInstanceVolume(d *schema.ResourceData, client *golangsdk.ServiceCl
 		if m, ok := volumeRaw[0].(map[string]interface{}); ok {
 			var enlargeVolumeSize instances.EnlargeVolumeSize
 			enlargeVolumeSize.Size = m["size"].(int)
-			enlargeVolumeRdsOpts.EnlargeVolume = &enlargeVolumeSize
+			enlargeOpts.EnlargeVolume = &enlargeVolumeSize
 		}
 	}
-	instance, err := instances.EnlargeVolume(client, enlargeVolumeRdsOpts, instanceID).Extract()
+	instance, err := instances.EnlargeVolume(client, enlargeOpts, instanceID).Extract()
 	if err != nil {
 		return fmt.Errorf("Error updating instance volume from result: %s ", err)
 	}
@@ -445,7 +452,7 @@ func updateRdsInstanceVolume(d *schema.ResourceData, client *golangsdk.ServiceCl
 }
 
 func getRdsInstanceByID(client *golangsdk.ServiceClient, instanceID string) (*instances.RdsInstanceResponse, error) {
-	listOpts := instances.ListRdsInstanceOpts{
+	listOpts := instances.ListOpts{
 		Id: instanceID,
 	}
 	pages, err := instances.List(client, listOpts).AllPages()

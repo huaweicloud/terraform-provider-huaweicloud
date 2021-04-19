@@ -2,30 +2,24 @@
 Package peerings enables management and retrieval of vpc peering connections
 
 Example to List a Vpc Peering Connections
-	   listOpts:=peerings.ListOpts{}
+		listOpts:=peerings.ListOpts{}
 
 		peering,err :=peerings.List(client,sub).AllPages()
+		if err != nil{
+			fmt.Println(err)
+		}
 
 		peerings,err:=peerings.ExtractPeerings(peering)
-
-
 		if err != nil{
 			fmt.Println(err)
 		}
 
 Example to Get a Vpc Peering Connection
-
-       	peeringID := "6bbacb0f-9f94-4fe8-a6b6-1818bdccb2a3"
-
-
+		peeringID := "6bbacb0f-9f94-4fe8-a6b6-1818bdccb2a3"
 		peering,err :=peerings.Get(client,peeringID).Extract()
-
-
 		if err != nil{
 			fmt.Println(err)
 		}
-
-
 
 Example to Accept a Vpc Peering Connection Request
  // Note:- The TenantId should be of accepter

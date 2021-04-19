@@ -229,6 +229,8 @@ github.com/huaweicloud/golangsdk v0.0.0-20210408110332-c61d9b336da5 h1:qsDthJ6oy
 github.com/huaweicloud/golangsdk v0.0.0-20210408110332-c61d9b336da5/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
 github.com/huaweicloud/golangsdk v0.0.0-20210412080213-f1dcb144bd25 h1:nal36cQv+dJUErG3UCFqdQFWdYjAZw9XqJP4Xwnoxf0=
 github.com/huaweicloud/golangsdk v0.0.0-20210412080213-f1dcb144bd25/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
+github.com/huaweicloud/golangsdk v0.0.0-20210417091247-f78a81171753 h1:ogihIkqOr4NqphAjbdgZb7di7HzVU9lD9ZcQEOnLrJI=
+github.com/huaweicloud/golangsdk v0.0.0-20210417091247-f78a81171753/go.mod h1:fcOI5u+0f62JtJd7zkCch/Z57BNC6bhqb32TKuiF4r0=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/imdario/mergo v0.3.9 h1:UauaLniWCFHWd+Jp9oCEkTBj8VO/9DKg3PV3VCNMDIg=
 github.com/imdario/mergo v0.3.9/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=

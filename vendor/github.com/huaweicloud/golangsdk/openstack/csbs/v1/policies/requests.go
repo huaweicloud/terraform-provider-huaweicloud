@@ -31,6 +31,9 @@ func List(c *golangsdk.ServiceClient, opts ListOpts) ([]BackupPolicy, error) {
 	pages, err := pagination.NewPager(c, u, func(r pagination.PageResult) pagination.Page {
 		return BackupPolicyPage{pagination.LinkedPageBase{PageResult: r}}
 	}).AllPages()
+	if err != nil {
+		return nil, err
+	}
 
 	allpolicy, err := ExtractBackupPolicies(pages)
 	if err != nil {

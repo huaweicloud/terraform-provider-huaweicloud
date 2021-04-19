@@ -34,6 +34,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+10:00"),
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 				),
 			},
 			{
@@ -46,6 +47,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_updated"),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 				),
 			},
 			{
@@ -181,7 +183,7 @@ resource "huaweicloud_vpc" "test" {
 
 resource "huaweicloud_vpc_subnet" "test" {
   name          = "%s"
-  cidr          = "192.168.0.0/16"
+  cidr          = "192.168.0.0/24"
   gateway_ip    = "192.168.0.1"
   primary_dns   = "100.125.1.250"
   secondary_dns = "100.125.21.250"

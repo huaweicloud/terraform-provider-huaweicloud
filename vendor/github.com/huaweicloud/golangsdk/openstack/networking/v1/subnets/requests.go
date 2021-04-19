@@ -55,6 +55,9 @@ func List(c *golangsdk.ServiceClient, opts ListOpts) ([]Subnet, error) {
 	pages, err := pagination.NewPager(c, u, func(r pagination.PageResult) pagination.Page {
 		return SubnetPage{pagination.LinkedPageBase{PageResult: r}}
 	}).AllPages()
+	if err != nil {
+		return nil, err
+	}
 
 	allSubnets, err := ExtractSubnets(pages)
 	if err != nil {
