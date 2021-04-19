@@ -719,6 +719,10 @@ func (c *Config) ApiGatewayV1Client(region string) (*golangsdk.ServiceClient, er
 	return c.NewServiceClient("apig", region)
 }
 
+func (c *Config) BcsV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("bcs", region)
+}
+
 func (c *Config) DcsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dcsv1", region)
 }
