@@ -80,6 +80,7 @@ func ResourceImsImage() *schema.Resource {
 			"os_version": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"is_config": {
@@ -121,6 +122,14 @@ func ResourceImsImage() *schema.Resource {
 				Computed: true,
 			},
 			"image_size": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"checksum": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -265,6 +274,11 @@ func resourceImsImageRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("disk_format", img.DiskFormat)
 	d.Set("image_size", img.ImageSize)
 	d.Set("enterprise_project_id", img.EnterpriseProjectID)
+	d.Set("checksum", img.Checksum)
+	d.Set("status", img.Status)
+	if img.OsVersion != "" {
+		d.Set("os_version", img.OsVersion)
+	}
 
 	// Set image tags
 	if Taglist, err := tags.Get(ims_Client, d.Id()).Extract(); err == nil {

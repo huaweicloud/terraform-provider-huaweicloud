@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/golangsdk/openstack/ims/v2/cloudimages"
-	"github.com/huaweicloud/golangsdk/openstack/ims/v2/tags"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -29,19 +28,21 @@ func TestAccImsImage_basic(t *testing.T) {
 				Config: testAccImsImage_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImsImageExists(resourceName, &image),
-					testAccCheckImsImageTags(resourceName, "foo", "bar"),
-					testAccCheckImsImageTags(resourceName, "key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
 				Config: testAccImsImage_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImsImageExists(resourceName, &image),
-					testAccCheckImsImageTags(resourceName, "foo", "bar"),
-					testAccCheckImsImageTags(resourceName, "key", "value1"),
-					testAccCheckImsImageTags(resourceName, "key2", "value2"),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "status", "active"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
 				),
 			},
 		},
@@ -119,46 +120,6 @@ func testAccCheckImsImageExists(n string, image *cloudimages.Image) resource.Tes
 	}
 }
 
-func testAccCheckImsImageTags(n string, k string, v string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("IMS Resource not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
-		}
-
-		found, err := tags.Get(imageClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.Tags == nil {
-			return fmt.Errorf("IMS Tags not found")
-		}
-
-		for _, tag := range found.Tags {
-			if k != tag.Key {
-				continue
-			}
-
-			if v == tag.Value {
-				return nil
-			}
-			return fmt.Errorf("Bad value for %s: %s", k, tag.Value)
-		}
-		return fmt.Errorf("Tag not found: %s", k)
-	}
-}
-
 func testAccImsImage_basic(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
@@ -189,7 +150,7 @@ resource "huaweicloud_compute_instance" "test" {
 resource "huaweicloud_images_image" "test" {
   name        = "%s"
   instance_id = huaweicloud_compute_instance.test.id
-  description = "created by TerraformAccTest"
+  description = "created by Terraform AccTest"
 
   tags = {
     foo = "bar"
@@ -229,7 +190,7 @@ resource "huaweicloud_compute_instance" "test" {
 resource "huaweicloud_images_image" "test" {
   name        = "%s"
   instance_id = huaweicloud_compute_instance.test.id
-  description = "created by TerraformAccTest"
+  description = "created by Terraform AccTest"
 
   tags = {
     foo  = "bar"
@@ -270,7 +231,7 @@ resource "huaweicloud_compute_instance" "test" {
 resource "huaweicloud_images_image" "test" {
   name                  = "%s"
   instance_id           = huaweicloud_compute_instance.test.id
-  description           = "created by TerraformAccTest"
+  description           = "created by Terraform AccTest"
   enterprise_project_id = "%s"
 
   tags = {
