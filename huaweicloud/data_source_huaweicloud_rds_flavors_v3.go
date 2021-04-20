@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -21,6 +22,9 @@ func dataSourceRdsFlavorV3() *schema.Resource {
 			"db_type": {
 				Type:     schema.TypeString,
 				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"MySQL", "PostgreSQL", "SQLServer",
+				}, true),
 			},
 			"db_version": {
 				Type:     schema.TypeString,
@@ -29,6 +33,9 @@ func dataSourceRdsFlavorV3() *schema.Resource {
 			"instance_mode": {
 				Type:     schema.TypeString,
 				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"ha", "single", "replica",
+				}, false),
 			},
 			"flavors": {
 				Type:     schema.TypeList,
@@ -87,6 +94,11 @@ func dataSourceRdsFlavorV3Read(d *schema.ResourceData, meta interface{}) error {
 				"mode":   val["instance_mode"],
 			})
 		}
+	}
+
+	if len(flavors) == 0 {
+		return fmt.Errorf("Your query returned no results. " +
+			"Please change your search criteria and try again.")
 	}
 
 	d.SetId("flavors")
