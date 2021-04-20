@@ -51,6 +51,12 @@ func ResourceNetworkingSecGroupV2() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"delete_default_rules": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"tenant_id": {
 				Type:       schema.TypeString,
 				Optional:   true,
@@ -58,92 +64,78 @@ func ResourceNetworkingSecGroupV2() *schema.Resource {
 				Computed:   true,
 				Deprecated: "tenant_id is deprecated",
 			},
-			"delete_default_rules": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-			},
 		},
 	}
 }
 
 func resourceNetworkingSecGroupV2Create(d *schema.ResourceData, meta interface{}) error {
-
 	config := meta.(*config.Config)
-	networkingClient, err := config.SecurityGroupV1Client(GetRegion(d, config))
+	segClient, err := config.SecurityGroupV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud security group client: %s", err)
+	}
+	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
+	// only name and enterprise_project_id are supported
 	opts := securitygroups.CreateOpts{
 		Name:                d.Get("name").(string),
 		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
 	}
 
-	log.Printf("[DEBUG] Create HuaweiCloud Neutron Security Group: %#v", opts)
-
-	security_group, err := securitygroups.Create(networkingClient, opts).Extract()
+	log.Printf("[DEBUG] Create HuaweiCloud Security Group: %#v", opts)
+	securityGroup, err := securitygroups.Create(segClient, opts).Extract()
 	if err != nil {
-		return err
+		return fmt.Errorf("Error creating Security Group: %s", err)
+	}
+
+	d.SetId(securityGroup.ID)
+
+	description := d.Get("description").(string)
+	if description != "" {
+		updateOpts := groups.UpdateOpts{
+			Description: &description,
+		}
+		_, err = groups.Update(networkingClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return fmt.Errorf("Error updating description of security group %s: %s", d.Id(), err)
+		}
 	}
 
 	// Delete the default security group rules if it has been requested.
 	deleteDefaultRules := d.Get("delete_default_rules").(bool)
 	if deleteDefaultRules {
-		networkingClient_del, err := config.NetworkingV2Client(GetRegion(d, config))
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
-		}
-
-		security_group, err := groups.Get(networkingClient_del, security_group.ID).Extract()
-		if err != nil {
-			return err
-		}
-		for _, rule := range security_group.Rules {
-			if err := rules.Delete(networkingClient_del, rule.ID).ExtractErr(); err != nil {
+		for _, rule := range securityGroup.SecurityGroupRules {
+			if err := rules.Delete(networkingClient, rule.ID).ExtractErr(); err != nil {
 				return fmt.Errorf(
 					"There was a problem deleting a default security group rule: %s", err)
 			}
 		}
 	}
 
-	log.Printf("[DEBUG] HuaweiCloud Neutron Security Group created: %#v", security_group)
-
-	d.SetId(security_group.ID)
-
-	description := d.Get("description").(string)
-	networkingClient_des, err := config.NetworkingV2Client(GetRegion(d, config))
-	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
-	}
-	updateOpts := groups.UpdateOpts{
-		Description: &description,
-	}
-
-	_, err = groups.Update(networkingClient_des, d.Id(), updateOpts).Extract()
-
 	return resourceNetworkingSecGroupV2Read(d, meta)
 }
 
 func resourceNetworkingSecGroupV2Read(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Retrieve information about security group: %s", d.Id())
-
 	config := meta.(*config.Config)
-	networkingClient, err := config.SecurityGroupV1Client(GetRegion(d, config))
+	segClient, err := config.SecurityGroupV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	security_group, err := securitygroups.Get(networkingClient, d.Id()).Extract()
+	log.Printf("[DEBUG] Retrieve information about security group: %s", d.Id())
+	securityGroup, err := securitygroups.Get(segClient, d.Id()).Extract()
 
 	if err != nil {
-		return CheckDeleted(d, err, "HuaweiCloud Neutron Security group")
+		return CheckDeleted(d, err, "HuaweiCloud Security group")
 	}
 
-	d.Set("description", security_group.Description)
-	d.Set("name", security_group.Name)
 	d.Set("region", GetRegion(d, config))
-	d.Set("enterprise_project_id", security_group.EnterpriseProjectId)
+	d.Set("name", securityGroup.Name)
+	d.Set("description", securityGroup.Description)
+	d.Set("enterprise_project_id", securityGroup.EnterpriseProjectId)
 
 	return nil
 }
@@ -155,21 +147,13 @@ func resourceNetworkingSecGroupV2Update(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	var update bool
-	var updateOpts groups.UpdateOpts
-
-	if d.HasChange("name") {
-		update = true
-		updateOpts.Name = d.Get("name").(string)
-	}
-
-	if d.HasChange("description") {
-		update = true
+	if d.HasChanges("name", "description") {
 		description := d.Get("description").(string)
-		updateOpts.Description = &description
-	}
+		updateOpts := groups.UpdateOpts{
+			Name:        d.Get("name").(string),
+			Description: &description,
+		}
 
-	if update {
 		log.Printf("[DEBUG] Updating SecGroup %s with options: %#v", d.Id(), updateOpts)
 		_, err = groups.Update(networkingClient, d.Id(), updateOpts).Extract()
 		if err != nil {
@@ -181,10 +165,8 @@ func resourceNetworkingSecGroupV2Update(d *schema.ResourceData, meta interface{}
 }
 
 func resourceNetworkingSecGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Destroy security group: %s", d.Id())
-
 	config := meta.(*config.Config)
-	networkingClient, err := config.SecurityGroupV1Client(GetRegion(d, config))
+	segClient, err := config.SecurityGroupV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -192,7 +174,7 @@ func resourceNetworkingSecGroupV2Delete(d *schema.ResourceData, meta interface{}
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
-		Refresh:    waitForSecGroupDelete(networkingClient, d.Id()),
+		Refresh:    waitForSecGroupDelete(segClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -200,30 +182,30 @@ func resourceNetworkingSecGroupV2Delete(d *schema.ResourceData, meta interface{}
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud Neutron Security Group: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud Security Group: %s", err)
 	}
 
 	d.SetId("")
 	return nil
 }
 
-func waitForSecGroupDelete(networkingClient *golangsdk.ServiceClient, secGroupId string) resource.StateRefreshFunc {
+func waitForSecGroupDelete(segClient *golangsdk.ServiceClient, secGroupId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Security Group %s.\n", secGroupId)
 
-		r, err := securitygroups.Get(networkingClient, secGroupId).Extract()
+		r, err := securitygroups.Get(segClient, secGroupId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Neutron Security Group %s", secGroupId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Security Group %s", secGroupId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
 		}
 
-		err = securitygroups.Delete(networkingClient, secGroupId).ExtractErr()
+		err = securitygroups.Delete(segClient, secGroupId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Neutron Security Group %s", secGroupId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Security Group %s", secGroupId)
 				return r, "DELETED", nil
 			}
 			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
@@ -234,7 +216,7 @@ func waitForSecGroupDelete(networkingClient *golangsdk.ServiceClient, secGroupId
 			return r, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud Neutron Security Group %s still active.\n", secGroupId)
+		log.Printf("[DEBUG] HuaweiCloud Security Group %s still active.\n", secGroupId)
 		return r, "ACTIVE", nil
 	}
 }

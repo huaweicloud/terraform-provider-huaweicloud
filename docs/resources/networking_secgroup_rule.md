@@ -16,13 +16,13 @@ resource "huaweicloud_networking_secgroup" "mysecgroup" {
 }
 
 resource "huaweicloud_networking_secgroup_rule" "secgroup_rule" {
+  security_group_id = huaweicloud_networking_secgroup.mysecgroup.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
+  port_range_min    = 8080
+  port_range_max    = 8080
   remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = huaweicloud_networking_secgroup.mysecgroup.id
 }
 ```
 
@@ -31,8 +31,12 @@ resource "huaweicloud_networking_secgroup_rule" "secgroup_rule" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to
-    create the security group rule resource. If omitted, the provider-level
-    region will be used.
+    create the security group rule resource.
+    If omitted, the provider-level region will be used.
+    Changing this creates a new security group rule.
+
+* `security_group_id` - (Required, String, ForceNew) Specifies the security
+    group id the rule should belong to.
     Changing this creates a new security group rule.
 
 * `direction` - (Required, String, ForceNew) Specifies the direction of the
@@ -50,34 +54,23 @@ The following arguments are supported:
     Changing this creates a new security group rule.
 
 * `protocol` - (Optional, String, ForceNew) Specifies the layer 4 protocol
-    type, valid values are following. This is required if you want to specify
-    a port range.
-    * __tcp__
-    * __udp__
-    * __icmp__
+    type, valid values are __tcp__, __udp__ and __icmp__.
+    This is required if you want to specify a port range.
     Changing this creates a new security group rule.
 
-* `port_range_min` - (Optional, String, ForceNew) Specifies the lower part of
-    the allowed port range, valid integer value needs to be between 1 and
-    65535.
+* `port_range_min` - (Optional, Int, ForceNew) Specifies the lower part of
+    the allowed port range, valid integer value needs to be between 1 and 65535.
     Changing this creates a new security group rule.
 
-* `port_range_max` - (Optional, Int, ForceNew) Specifies the higher part of the
-    allowed port range, valid integer value needs to be between 1 and 65535.
+* `port_range_max` - (Optional, Int, ForceNew) Specifies the higher part of
+    the allowed port range, valid integer value needs to be between 1 and 65535.
     Changing this creates a new security group rule.
 
 * `remote_ip_prefix` - (Optional, String, ForceNew) Specifies the remote CIDR,
     the value needs to be a valid CIDR (i.e. 192.168.0.0/16).
     Changing this creates a new security group rule.
 
-* `remote_group_id` - (Optional, String, ForceNew) Specifies the remote group
-    id, the value needs to be an Openstack ID of a security group in the same
-    tenant.
-    Changing this creates a new security group rule.
-
-* `security_group_id` - (Required, String, ForceNew) Specifies the security
-    group id the rule should belong to, the value needs to be an Openstack ID
-    of a security group in the same tenant.
+* `remote_group_id` - (Optional, String, ForceNew) Specifies the remote group id.
     Changing this creates a new security group rule.
 
 ## Attributes Reference

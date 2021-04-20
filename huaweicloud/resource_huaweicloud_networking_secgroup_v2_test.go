@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,6 +14,9 @@ import (
 
 func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 	var security_group groups.SecGroup
+	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
+	updatedName := fmt.Sprintf("%s-updated", name)
+	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,25 +24,23 @@ func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkingV2SecGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkingV2SecGroup_basic,
+				Config: testAccSecGroup_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2SecGroupExists(
-						"huaweicloud_networking_secgroup.secgroup_1", &security_group),
+					testAccCheckNetworkingV2SecGroupExists(resourceName, &security_group),
 					testAccCheckNetworkingV2SecGroupRuleCount(&security_group, 6),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_networking_secgroup.secgroup_1",
+				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccNetworkingV2SecGroup_update,
+				Config: testAccSecGroup_update(updatedName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPtr(
-						"huaweicloud_networking_secgroup.secgroup_1", "id", &security_group.ID),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_networking_secgroup.secgroup_1", "name", "security_group_2"),
+					resource.TestCheckResourceAttrPtr(resourceName, "id", &security_group.ID),
+					resource.TestCheckResourceAttr(resourceName, "name", updatedName),
 				),
 			},
 		},
@@ -47,6 +49,8 @@ func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 
 func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
 	var security_group groups.SecGroup
+	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
@@ -54,12 +58,11 @@ func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkingV2SecGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkingV2SecGroup_epsId(),
+				Config: testAccSecGroup_epsId(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2SecGroupExists(
-						"huaweicloud_networking_secgroup.secgroup_1", &security_group),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_networking_secgroup.secgroup_1", "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					testAccCheckNetworkingV2SecGroupExists(resourceName, &security_group),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
@@ -68,6 +71,8 @@ func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
 
 func TestAccNetworkingV2SecGroup_noDefaultRules(t *testing.T) {
 	var security_group groups.SecGroup
+	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -75,30 +80,11 @@ func TestAccNetworkingV2SecGroup_noDefaultRules(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkingV2SecGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkingV2SecGroup_noDefaultRules,
+				Config: testAccSecGroup_noDefaultRules(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2SecGroupExists(
-						"huaweicloud_networking_secgroup.secgroup_1", &security_group),
+					testAccCheckNetworkingV2SecGroupExists(resourceName, &security_group),
 					testAccCheckNetworkingV2SecGroupRuleCount(&security_group, 0),
-				),
-			},
-		},
-	})
-}
-
-func TestAccNetworkingV2SecGroup_timeout(t *testing.T) {
-	var security_group groups.SecGroup
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckNetworkingV2SecGroupDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccNetworkingV2SecGroup_timeout,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2SecGroupExists(
-						"huaweicloud_networking_secgroup.secgroup_1", &security_group),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
 				),
 			},
 		},
@@ -170,45 +156,40 @@ func testAccCheckNetworkingV2SecGroupRuleCount(
 	}
 }
 
-const testAccNetworkingV2SecGroup_basic = `
-resource "huaweicloud_networking_secgroup" "secgroup_1" {
-  name = "security_group"
-  description = "terraform security group acceptance test"
-}
-`
-
-func testAccNetworkingV2SecGroup_epsId() string {
+func testAccSecGroup_basic(name string) string {
 	return fmt.Sprintf(`
-	resource "huaweicloud_networking_secgroup" "secgroup_1" {
-	  name = "security_group"
-	  description = "terraform security group acceptance test"
-	  enterprise_project_id = "%s"
-	}
-	`, HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-const testAccNetworkingV2SecGroup_update = `
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
-  name = "security_group_2"
-  description = "terraform security group acceptance test"
+  name        = "%s"
+  description = "security group acceptance test"
 }
-`
+`, name)
+}
 
-const testAccNetworkingV2SecGroup_noDefaultRules = `
+func testAccSecGroup_update(name string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
-	name = "security_group_1"
-	description = "terraform security group acceptance test"
-	delete_default_rules = true
+  name        = "%s"
+  description = "security group acceptance test updated"
 }
-`
+`, name)
+}
 
-const testAccNetworkingV2SecGroup_timeout = `
+func testAccSecGroup_epsId(name string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
-  name = "security_group"
-  description = "terraform security group acceptance test"
-
-  timeouts {
-    delete = "5m"
-  }
+  name                  = "%s"
+  description           = "ecurity group acceptance test with eps ID"
+  enterprise_project_id = "%s"
 }
-`
+`, name, HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccSecGroup_noDefaultRules(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_networking_secgroup" "secgroup_1" {
+  name                 = "%s"
+  description          = "security group acceptance test without default rules"
+  delete_default_rules = true
+}
+`, name)
+}

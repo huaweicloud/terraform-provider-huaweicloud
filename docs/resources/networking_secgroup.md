@@ -20,51 +20,58 @@ resource "huaweicloud_networking_secgroup" "secgroup" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the security group resource. If omitted, the provider-level region will be used. Changing this creates a new security group resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the security group resource.
+  If omitted, the provider-level region will be used. Changing this creates a new security group resource.
 
-* `name` - (Required, String) A unique name for the security group.
+* `name` - (Required, String) Specifies a unique name for the security group.
 
-* `description` - (Optional, String) Description for the security group.
+* `description` - (Optional, String) Specifies the description for the security group.
 
-* `delete_default_rules` - (Optional, Bool, ForceNew) Whether or not to delete the default
-    egress security rules. This is `false` by default. See the below note
-    for more information.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the security group.
+  Changing this creates a new security group.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the security group. Changing this creates a new security group.
+* `delete_default_rules` - (Optional, Bool, ForceNew) Specifies whether or not to delete the default security rules. 
+  This is `false` by default.
+
+-> **Note:** The default security rules are described in [HuaweiCloud](https://support.huaweicloud.com/intl/en-us/usermanual-vpc/SecurityGroup_0003.html).
+  See the below section for more information.
+
+## Default Security Group Rules
+
+In most cases, HuaweiCloud will create some security group rules for each new security group.
+These security group rules will not be managed by Terraform, so if you prefer to have *all*
+aspects of your infrastructure managed by Terraform, set `delete_default_rules` to `true`
+and then create separate security group rules such as the following:
+
+```hcl
+resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_v4" {
+  security_group_id = huaweicloud_networking_secgroup.secgroup.id
+  direction         = "egress"
+  ethertype         = "IPv4"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_v6" {
+  security_group_id = huaweicloud_networking_secgroup.secgroup.id
+  direction         = "egress"
+  ethertype         = "IPv6"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "allow_ssh" {
+  security_group_id = huaweicloud_networking_secgroup.secgroup.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 22
+  port_range_max    = 22
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+```
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
-
-## Default Security Group Rules
-
-In most cases, HuaweiCloud will create some egress security group rules for each
-new security group. These security group rules will not be managed by
-Terraform, so if you prefer to have *all* aspects of your infrastructure
-managed by Terraform, set `delete_default_rules` to `true` and then create
-separate security group rules such as the following:
-
-```hcl
-resource "huaweicloud_networking_secgroup_rule_v2" "secgroup_rule_v4" {
-  direction         = "egress"
-  ethertype         = "IPv4"
-  security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
-}
-
-resource "huaweicloud_networking_secgroup_rule_v2" "secgroup_rule_v6" {
-  direction         = "egress"
-  ethertype         = "IPv6"
-  security_group_id = "${huaweicloud_networking_secgroup_v2.secgroup.id}"
-}
-```
-
-Please note that this behavior may differ depending on the configuration of
-the HuaweiCloud cloud. The above illustrates the current default Neutron
-behavior. Some HuaweiCloud clouds might provide additional rules and some might
-not provide any rules at all (in which case the `delete_default_rules` setting
-is moot).
+* `id` - The resource ID in UUID format.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
