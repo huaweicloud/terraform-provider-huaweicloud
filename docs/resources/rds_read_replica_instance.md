@@ -11,8 +11,8 @@ Manage RDS Read Replica Instance resource.
 ### Create a Rds read replica instance
 ```hcl
 resource "huaweicloud_networking_secgroup" "secgroup" {
-  name          = "terraform_test_sg_for_rds"
-  description   = "security group for rds read replica instance test"
+  name          = "test_sg_for_rds"
+  description   = "security group for rds read replica instance"
 }
 
 resource "huaweicloud_rds_instance" "instance" {
@@ -56,23 +56,28 @@ resource "huaweicloud_rds_read_replica_instance" "replica_instance" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the rds read replica instance resource. If omitted, the provider-level region will be used.
+* `region` - (Optional, String, ForceNew) The region in which to create the rds read replica instance resource.
+  If omitted, the provider-level region will be used.
 
-  Currently, read replicas can be created only in the same region as that of the primary DB instance.
+  Currently, read replicas can be created *only* in the same region as that of the primary DB instance.
 
-* `name` - (Required, String, ForceNew) Specifies the DB instance name. The DB instance name of the same type must be unique for the same tenant. 
-  
-  The value must be 4 to 64 characters in length and start with a letter. It is case-sensitive and can contain only letters, digits, hyphens (-), and underscores (_).
+* `availability_zone` - (Required, String, ForceNew) Specifies the AZ name.
+  Changing this parameter will create a new resource.
+
+* `name` - (Required, String, ForceNew) Specifies the DB instance name. The DB instance name of the same type
+  must be unique for the same tenant. The value must be 4 to 64 characters in length and start with a letter.
+  It is case-sensitive and can contain only letters, digits, hyphens (-), and underscores (_).
+  Changing this parameter will create a new resource.
 
 * `flavor` - (Required, String) Specifies the specification code.
 
 * `primary_instance_id` - (Required, String, ForceNew) Specifies the DB instance ID, which is used to create a read replica.
+  Changing this parameter will create a new resource.
 
 * `volume` - (Required, List, ForceNew) Specifies the volume information. Structure is documented below.
 
-* `availability_zone` - (Required, String, ForceNew) Specifies the AZ name.
-
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the read replica instance.
+  Changing this parameter will create a new resource.
 
 * `tags` - (Optional, Map) A mapping of tags to assign to the RDS read replica instance. Each tag is represented by one key-value pair.
 
@@ -80,9 +85,12 @@ The `volume` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the volume type. Its value can be any of the following and is case-sensitive: 
     - ULTRAHIGH: indicates the SSD type.
-    - ULTRAHIGHPRO: indicates the ultra-high I/O.
+    - LOCALSSD: indicates the local SSD.
+
+  Changing this parameter will create a new resource.
 
 * `disk_encryption_id` -  (Optional, String, ForceNew) Specifies the key ID for disk encryption.
+  Changing this parameter will create a new resource.
 
 ## Attributes Reference
 

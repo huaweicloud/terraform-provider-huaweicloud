@@ -84,8 +84,8 @@ resource "huaweicloud_kms_key" "key" {
 }
 
 resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = "terraform_test_security_group"
-  description = "terraform security group acceptance test"
+  name        = "test_security_group"
+  description = "security group acceptance test"
 }
 
 resource "huaweicloud_rds_instance" "instance" {
@@ -123,23 +123,21 @@ The following arguments are supported:
 * `availability_zone` - (Required, String, ForceNew) Specifies the AZ name.
   Changing this parameter will create a new resource.
 
-* `db` - (Required, String, ForceNew) Specifies the database information. Structure is documented below.
-  Changing this parameter will create a new resource.
+* `name` - (Required, String) Specifies the DB instance name. The DB instance name of the same type
+  must be unique for the same tenant. The value must be 4 to 64 characters in length and start with a letter.
+  It is case-sensitive and can contain only letters, digits, hyphens (-), and underscores (_).
 
 * `flavor` - (Required, String) Specifies the specification code.
 
-* `name` - (Required, String) Specifies the DB instance name. The DB instance name of the same type
-  must be unique for the same tenant. The value must be 4 to 64
-  characters in length and start with a letter. It is case-sensitive
-  and can contain only letters, digits, hyphens (-), and underscores
-  (_).
-
-* `security_group_id` - (Required, String, ForceNew) Specifies the security group which the RDS DB instance belongs to.
+* `db` - (Required, String, ForceNew) Specifies the database information. Structure is documented below.
   Changing this parameter will create a new resource.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID. Changing this parameter will create a new resource.
 
 * `subnet_id` - (Required, String, ForceNew) Specifies the network id of a subnet.
+  Changing this parameter will create a new resource.
+
+* `security_group_id` - (Required, String, ForceNew) Specifies the security group which the RDS DB instance belongs to.
   Changing this parameter will create a new resource.
 
 * `volume` - (Required, List) Specifies the volume information. Structure is documented below.
@@ -180,7 +178,8 @@ The following arguments are supported:
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
   Valid values are "true" and "false". Changing this creates a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the RDS instance. Changing this parameter creates a new RDS instance.
+* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the RDS instance.
+  Changing this parameter creates a new RDS instance.
 
 * `tags` - (Optional, Map) A mapping of tags to assign to the RDS instance.
   Each tag is represented by one key-value pair.
@@ -204,7 +203,8 @@ The `db` block supports:
   the default value is 5432. For Microsoft SQL Server, the default
   value is 1433.  Changing this parameter will create a new resource.
 
-* `type` - (Required, String,  ForceNew) Specifies the DB engine. Value: MySQL, PostgreSQL, SQLServer. Changing this parameter will create a new resource.
+* `type` - (Required, String,  ForceNew) Specifies the DB engine. Value: *MySQL*, *PostgreSQL*, *SQLServer*.
+  Changing this parameter will create a new resource.
 
 * `version` - (Required, String,  ForceNew) Specifies the database version. Changing this parameter will create a new resource.
   Available value for attributes:
@@ -217,15 +217,17 @@ SQLServer| 2008_R2_EE <br>2008_R2_WEB <br>2012_SE <br>2014_SE <br>2016_SE <br>20
 
 The `volume` block supports:
 
-* `disk_encryption_id` - (Optional) Specifies the key ID for disk encryption. Changing this parameter will create a new resource.
-
 * `size` - (Required, Int) Specifies the volume size. Its value range is from 40 GB to 4000
   GB. The value must be a multiple of 10. Changing this resize the volume.
 
 * `type` - (Required, String, ForceNew) Specifies the volume type. Its value can be any of the following
-  and is case-sensitive: ULTRAHIGH: indicates the SSD type.
-  ULTRAHIGHPRO: indicates the ultra-high I/O (advanced), which supports ultra-high performance (advanced) DB instances.
+  and is case-sensitive:
+    - ULTRAHIGH: indicates the SSD type.
+    - LOCALSSD: indicates the local SSD.
+
   Changing this parameter will create a new resource.
+
+* `disk_encryption_id` - (Optional) Specifies the key ID for disk encryption. Changing this parameter will create a new resource.
 
 The `backup_strategy` block supports:
 
