@@ -184,7 +184,7 @@ func resourceIecSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.DhcpEnable = &dhcp
 	}
 	if d.HasChange("dns_list") {
-		updateOpts.DNSList = resourceSubnetDNSListV1(d)
+		updateOpts.DNSList = resourceSubnetDNSListV1(d, "")
 	}
 
 	_, err = subnets.Update(subnetClient, d.Id(), updateOpts).Extract()
