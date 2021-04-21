@@ -32,6 +32,7 @@ func TestAccVpcSubnetV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "gateway_ip", "192.168.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "dns_list.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
