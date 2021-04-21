@@ -103,9 +103,10 @@ func resourceBCSInstanceV2() *schema.Resource {
 			"eip_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Default:  true,
 				ForceNew: true,
 			},
-			"cluster_id": {
+			"cce_cluster_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -346,14 +347,14 @@ func resourceBCSInstanceV2() *schema.Resource {
 }
 
 func resourceBCSInstanceV2Create(d *schema.ResourceData, meta interface{}) error {
-	var FALSE bool = false
+	var newCluster bool = false
 	config := meta.(*config.Config)
 	client, err := config.BcsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud Blockchain client: %s", err)
 	}
 	createOpts := blockchains.CreateOpts{
-		CreateNewCluster:    &FALSE,
+		CreateNewCluster:    &newCluster,
 		Name:                d.Get("name").(string),
 		VersionType:         d.Get("edition").(int),
 		FabricVersion:       d.Get("fabric_version").(string),
@@ -377,7 +378,7 @@ func resourceBCSInstanceV2Create(d *schema.ResourceData, meta interface{}) error
 		Kafka:               resourceKafkaCreateInfo(d),
 	}
 
-	if v, err := resourceClusterInfo(config, d.Get("cluster_id").(string), GetRegion(d, config)); err != nil {
+	if v, err := resourceClusterInfo(config, d.Get("cce_cluster_id").(string), GetRegion(d, config)); err != nil {
 		return fmt.Errorf("Get cluster information failed: %s ", err)
 	} else {
 		createOpts.ClusterType = "cce"
@@ -431,7 +432,7 @@ func resourceBCSInstanceV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("status", instance.Basic.Status)
 	d.Set("tc3_need", instance.CouchDB != (blockchains.CouchDB{}))
 	d.Set("cluster_type", instance.Basic.ClusterType)
-	d.Set("cluster_id", instance.Basic.ClusterID)
+	d.Set("cce_cluster_id", instance.Basic.ClusterID)
 	d.Set("version", instance.Basic.Version)
 	d.Set("purchase_type", instance.Basic.PurchaseType)
 	d.Set("cross_region_support", instance.Basic.IsCrossRegion)

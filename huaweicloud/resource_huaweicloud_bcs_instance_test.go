@@ -202,7 +202,7 @@ resource "huaweicloud_cce_node" "test" {
   iptype                = "5_bgp"
   bandwidth_charge_mode = "traffic"
   sharetype             = "PER"
-  bandwidth_size        = 100
+  bandwidth_size        = 5
 
   root_volume {
     size       = 40
@@ -224,10 +224,9 @@ resource "huaweicloud_bcs_instance" "test" {
   depends_on = [huaweicloud_cce_node.test]
 
   name                  = "%s"
-  cluster_id            = huaweicloud_cce_cluster.test.id
+  cce_cluster_id        = huaweicloud_cce_cluster.test.id
   consensus             = "etcdraft"
   edition               = 4
-  eip_enable            = true
   enterprise_project_id = "%s"
   fabric_version        = "2.0"
   password              = "%s"
@@ -259,10 +258,9 @@ resource "huaweicloud_bcs_instance" "test" {
   depends_on = [huaweicloud_cce_node.test]
 
   name                  = "%s"
-  cluster_id            = huaweicloud_cce_cluster.test.id
+  cce_cluster_id        = huaweicloud_cce_cluster.test.id
   consensus             = "kafka"
   edition               = 4
-  eip_enable            = true
   enterprise_project_id = "%s"
   fabric_version        = "1.4"
   password              = "%s"

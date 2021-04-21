@@ -23,10 +23,9 @@ data "huaweicloud_cce_cluster" "test" {
 
 resource "huaweicloud_bcs_instance" "test" {
   name                  = var.instance_name
-  cluster_id            = data.huaweicloud_cce_cluster.test.id
+  cce_cluster_id        = data.huaweicloud_cce_cluster.test.id
   consensus             = "etcdraft"
   edition               = 1
-  eip_enable            = true
   enterprise_project_id = var.enterprise_project_id
   fabric_version        = "2.0"
   password              = var.instance_password
@@ -71,10 +70,9 @@ data "huaweicloud_cce_cluster" "test" {
 resource "huaweicloud_bcs_instance" "test" {
   name                  = var.instance_name
   blockchain_type       = "private"
-  cluster_id            = data.huaweicloud_cce_cluster.test.id
+  cce_cluster_id        = data.huaweicloud_cce_cluster.test.id
   consensus             = "kafka"
   edition               = 4
-  eip_enable            = true
   fabric_version        = "1.4"
   enterprise_project_id = var.enterprise_project_id
   password              = var.instance_password
@@ -144,7 +142,6 @@ The following arguments are supported:
 
 * `edition` - (Required, Int, ForceNew) Specifies Service edition of the BCS instance.
   Valid values are `1`, `2` and `4`.
-  For the specifications corresponding to these three versions, please refer to the [specification table](#jump).
   Changing this will create a new instance.
 
 * `fabric_version` - (Required, String, ForceNew) Specifies version of fabric for the BCS instance.
@@ -157,10 +154,9 @@ The following arguments are supported:
   Changing this will create a new instance.
 
 * `orderer_node_num` - (Required, Int, ForceNew) Specifies the number of peers in the orderer organizaion.
-  For the number of orderer nodes, please refer to the [specification table](#jump).
   Changing this will create a new instance.
 
-* `cluster_id` - (Required, String, ForceNew) Specifies the ID of the CCE cluster to attach to the BCS instance.
+* `cce_cluster_id` - (Required, String, ForceNew) Specifies the ID of the CCE cluster to attach to the BCS instance.
   The BCS service needs to exclusively occupy the CCE cluster. Please make sure that the CCE cluster is not occupied
   before deploying the BCS service.
   Changing this will create a new instance.
@@ -185,14 +181,16 @@ The following arguments are supported:
   The specifications are as follows when `volume_type` is `nfs`:
   * The minimum storage capacity of basic edition is 40 GB.
   * The minimum storage capacity of enterprise and professional edition is 100 GB.
-  * The minimum storage capacity of platinum edition is 500 GB.
+
+* `block_info` - (Optional, List, ForceNew) Specifies the configuration of block generation.
+  The block_info object structure is documented below.
 
 * `blockchain_type` - (Optional, String, ForceNew) Specifies the blockchain type of the BCS instance.
   Valid values are `private` and  `union`. Default is `private`.
   Changing this will create a new instance.
 
 * `channels` - (Optional, List, ForceNew) Specifies an array of one or more channels to attach to the BCS
-  instance. For the maximum number of channels, please refer to the specification table.
+  instance.
   If omitted, the bcs instance will create a `channels` named `channel` by default.
   Changing this will create a new instance.
   The channels object structure is documented below.
@@ -246,7 +244,6 @@ The `peer_orgs` block supports:
   Changing this creates a new instance.
 
 * `count` - (Required, Int, ForceNew) Specifies the number of peers in organization.
-  For the number of organization nodes, please refer to the [specification table](#jump).
   Changing this creates a new instance.
 
 The `channels` block supports:
@@ -317,13 +314,6 @@ The `kafka` block supports:
   * The minimum storage capacity of small type is 1200GB.
   * The minimum storage capacity of middle type is 2400GB.
   * The minimum storage capacity of high type is 4800GB.
-
-<span id="jump">Specification Table of BCS instance</span>
-  | Edition | Version Type | Organizations(Max) | Peers(Max) | Orderers(Max) | Channels(Max) |
-  | ------- | ------------ | ------------------ | ---------- | ------------- | ------------- |
-  | Basic   | 1            | 1                  | 2          | 1             | 1             |
-  | Professional | 4       | 2                  | 2          | 3             | 2             |
-  | Enterprise | 2         | 5                  | 2          | 4             | 4             |
 
 ## Attributes Reference
 
