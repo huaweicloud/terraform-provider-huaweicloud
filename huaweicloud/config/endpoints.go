@@ -287,6 +287,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		ResourceBase:     "apigw",
 		WithOutProjectID: true,
 	},
+	"bcs": {
+		Name:    "bcs",
+		Version: "v2",
+	},
 	"dcsv1": {
 		Name:    "dcs",
 		Version: "v1.0",

@@ -271,6 +271,7 @@ github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/instances
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/policies
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/tags
+github.com/huaweicloud/golangsdk/openstack/bcs/v2/blockchains
 github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions
 github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes
 github.com/huaweicloud/golangsdk/openstack/bss/v2/orders
