@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
+	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
 	"gopkg.in/yaml.v2"
 )
@@ -215,4 +216,12 @@ func RemoveNil(data map[string]interface{}) map[string]interface{} {
 	}
 
 	return withoutNil
+}
+
+func IsResourceNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	_, ok := err.(golangsdk.ErrDefault404)
+	return ok
 }

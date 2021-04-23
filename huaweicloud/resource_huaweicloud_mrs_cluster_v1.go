@@ -649,7 +649,7 @@ func resourceClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 	rId := d.Id()
 	clusterGet, err := cluster.Get(client, d.Id()).Extract()
 	if err != nil {
-		if isResourceNotFound(err) {
+		if utils.IsResourceNotFound(err) {
 			log.Printf("[INFO] getting an unavailable Cluster: %s", rId)
 			return nil
 		}

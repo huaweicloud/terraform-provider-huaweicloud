@@ -374,7 +374,7 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	ar, err := resourceECSAutoRecoveryV1Read(d, meta, d.Id())
-	if err != nil && !isResourceNotFound(err) {
+	if err != nil && !utils.IsResourceNotFound(err) {
 		return fmt.Errorf("Error reading auto recovery of instance:%s, err=%s", d.Id(), err)
 	}
 	d.Set("auto_recovery", ar)

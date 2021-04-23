@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/mrs/v1/job"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceMRSJobV1() *schema.Resource {
@@ -236,7 +237,7 @@ func resourceMRSJobV1Delete(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	})
 	if err != nil {
-		if isResourceNotFound(err) {
+		if utils.IsResourceNotFound(err) {
 			log.Printf("[INFO] deleting an unavailable MRS Job: %s", rId)
 			return nil
 		}
