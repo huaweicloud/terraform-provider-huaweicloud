@@ -592,6 +592,10 @@ func (c *Config) SfsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("sfs-turbo", region)
 }
 
+func (c *Config) CbrV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("cbr", region)
+}
+
 func (c *Config) CsbsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("csbs", region)
 }
