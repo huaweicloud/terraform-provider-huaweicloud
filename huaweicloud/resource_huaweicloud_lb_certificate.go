@@ -200,7 +200,7 @@ func resourceCertificateV2Delete(d *schema.ResourceData, meta interface{}) error
 		return nil
 	})
 	if err != nil {
-		if isResourceNotFound(err) {
+		if utils.IsResourceNotFound(err) {
 			log.Printf("[INFO] deleting an unavailable certificate: %s", d.Id())
 			return nil
 		}

@@ -17,6 +17,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/projects"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/roles"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceIAMAgencyV3() *schema.Resource {
@@ -361,7 +362,7 @@ func resourceIAMAgencyV3Read(d *schema.ResourceData, meta interface{}) error {
 	prs := schema.Set{F: resourceIAMAgencyProRoleHash}
 	for pn, pid := range projects {
 		roles, err := agency.ListRolesAttachedOnProject(iamClient, agencyID, pid).ExtractRoles()
-		if err != nil && !isResourceNotFound(err) {
+		if err != nil && !utils.IsResourceNotFound(err) {
 			return fmt.Errorf("Error querying the roles attached on project(%s), err=%s", pn, err)
 		}
 		if len(roles) == 0 {
@@ -382,7 +383,7 @@ func resourceIAMAgencyV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	roles, err := agency.ListRolesAttachedOnDomain(iamClient, agencyID, a.DomainID).ExtractRoles()
-	if err != nil && !isResourceNotFound(err) {
+	if err != nil && !utils.IsResourceNotFound(err) {
 		return fmt.Errorf("Error querying the roles attached on domain, err=%s", err)
 	}
 	if len(roles) != 0 {
@@ -469,7 +470,7 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 			}
 
 			err = agency.DetachRoleByProject(iamClient, agencyID, pid, rid).ExtractErr()
-			if err != nil && !isResourceNotFound(err) {
+			if err != nil && !utils.IsResourceNotFound(err) {
 				return fmt.Errorf("Error detaching role(%s) by project{%s} from agency(%s), err=%s",
 					rid, pid, agencyID, err)
 			}
@@ -506,7 +507,7 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 			}
 
 			err = agency.DetachRoleByDomain(iamClient, agencyID, domainID, rid).ExtractErr()
-			if err != nil && !isResourceNotFound(err) {
+			if err != nil && !utils.IsResourceNotFound(err) {
 				return fmt.Errorf("Error detaching role(%s) by domain{%s} from agency(%s), err=%s",
 					rid, domainID, agencyID, err)
 			}
@@ -548,7 +549,7 @@ func resourceIAMAgencyV3Delete(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	})
 	if err != nil {
-		if isResourceNotFound(err) {
+		if utils.IsResourceNotFound(err) {
 			log.Printf("[INFO] deleting an unavailable IAM-Agency: %s", rID)
 			return nil
 		}
