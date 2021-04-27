@@ -47,10 +47,6 @@ func DataSourceNatGatewayV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"admin_state_up": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -109,7 +105,6 @@ func dataSourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("internal_network_id", natgateway.InternalNetworkID)
 	d.Set("spec", natgateway.Spec)
 	d.Set("status", natgateway.Status)
-	d.Set("admin_state_up", natgateway.AdminStateUp)
 	d.Set("enterprise_project_id", natgateway.EnterpriseProjectID)
 
 	return nil
