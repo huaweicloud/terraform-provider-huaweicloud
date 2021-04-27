@@ -141,11 +141,11 @@ func testAccNatV2Gateway_basic(suffix string) string {
 %s
 
 resource "huaweicloud_nat_gateway" "nat_1" {
-  name                = "nat-gateway-basic-%s"
-  description         = "test for terraform"
-  spec                = "1"
-  internal_network_id = huaweicloud_vpc_subnet.subnet_1.id
-  router_id           = huaweicloud_vpc.vpc_1.id
+  name        = "nat-gateway-basic-%s"
+  description = "test for terraform"
+  spec        = "1"
+  vpc_id      = huaweicloud_vpc.vpc_1.id
+  subnet_id   = huaweicloud_vpc_subnet.subnet_1.id
 }
 	`, testAccNatPreCondition(suffix), suffix)
 }
@@ -155,12 +155,11 @@ func testAccNatV2Gateway_update(suffix string) string {
 %s
 
 resource "huaweicloud_nat_gateway" "nat_1" {
-  name                = "nat-gateway-updated-%s"
-  description         = "test for terraform updated"
-  spec                = "2"
-  internal_network_id = huaweicloud_vpc_subnet.subnet_1.id
-  router_id           = huaweicloud_vpc.vpc_1.id
-
+  name        = "nat-gateway-updated-%s"
+  description = "test for terraform updated"
+  spec        = "2"
+  vpc_id      = huaweicloud_vpc.vpc_1.id
+  subnet_id   = huaweicloud_vpc_subnet.subnet_1.id
 }
 	`, testAccNatPreCondition(suffix), suffix)
 }
@@ -173,8 +172,8 @@ resource "huaweicloud_nat_gateway" "nat_1" {
   name                  = "nat-gateway-eps-%s"
   description           = "test for terraform"
   spec                  = "1"
-  internal_network_id   = huaweicloud_vpc_subnet.subnet_1.id
-  router_id             = huaweicloud_vpc.vpc_1.id
+  vpc_id                = huaweicloud_vpc.vpc_1.id
+  subnet_id             = huaweicloud_vpc_subnet.subnet_1.id
   enterprise_project_id = "%s"
 }
 	`, testAccNatPreCondition(suffix), suffix, HW_ENTERPRISE_PROJECT_ID_TEST)

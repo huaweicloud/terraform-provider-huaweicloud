@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/natgateways"
@@ -40,20 +41,26 @@ func ResourceNatGatewayV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"internal_network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"router_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
 			"spec": {
+				Type:     schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"1", "2", "3", "4",
+				}, false),
+			},
+			"vpc_id": {
 				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: resourceNatGatewayV2ValidateSpec,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"router_id"},
+			},
+			"subnet_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"internal_network_id"},
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -70,6 +77,20 @@ func ResourceNatGatewayV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			// deprecated
+			"internal_network_id": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Deprecated: "use subnet_id instead",
+			},
+			"router_id": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Deprecated: "use vpc_id instead",
+			},
 		},
 	}
 }
@@ -81,12 +102,24 @@ func resourceNatGatewayV2Create(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
+	var vpcID, subnetID string
+	if v1, ok := d.GetOk("vpc_id"); ok {
+		vpcID = v1.(string)
+	} else {
+		vpcID = d.Get("router_id").(string)
+	}
+	if v2, ok := d.GetOk("subnet_id"); ok {
+		subnetID = v2.(string)
+	} else {
+		subnetID = d.Get("internal_network_id").(string)
+	}
+
 	createOpts := &natgateways.CreateOpts{
 		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		Spec:                d.Get("spec").(string),
-		RouterID:            d.Get("router_id").(string),
-		InternalNetworkID:   d.Get("internal_network_id").(string),
+		RouterID:            vpcID,
+		InternalNetworkID:   subnetID,
 		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 	}
 
@@ -131,8 +164,8 @@ func resourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", natGateway.Name)
 	d.Set("description", natGateway.Description)
 	d.Set("spec", natGateway.Spec)
-	d.Set("router_id", natGateway.RouterID)
-	d.Set("internal_network_id", natGateway.InternalNetworkID)
+	d.Set("vpc_id", natGateway.RouterID)
+	d.Set("subnet_id", natGateway.InternalNetworkID)
 	d.Set("status", natGateway.Status)
 	d.Set("region", GetRegion(d, config))
 	d.Set("enterprise_project_id", natGateway.EnterpriseProjectID)
@@ -235,17 +268,4 @@ func waitForNatGatewayDelete(client *golangsdk.ServiceClient, nId string) resour
 		log.Printf("[DEBUG] HuaweiCloud Nat Gateway %s still active.\n", nId)
 		return n, "ACTIVE", nil
 	}
-}
-
-var Specs = [4]string{"1", "2", "3", "4"}
-
-func resourceNatGatewayV2ValidateSpec(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range Specs {
-		if value == Specs[i] {
-			return
-		}
-	}
-	errors = append(errors, fmt.Errorf("%q must be one of %v", k, Specs))
-	return
 }

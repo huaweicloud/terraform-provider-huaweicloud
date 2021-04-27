@@ -71,8 +71,8 @@ resource "huaweicloud_nat_gateway" "nat_1" {
   name                  = "%s"
   description           = "test for terraform"
   spec                  = "1"
-  internal_network_id   = huaweicloud_vpc_subnet.subnet_1.id
-  router_id             = huaweicloud_vpc.vpc_1.id
+  subnet_id             = huaweicloud_vpc_subnet.subnet_1.id
+  vpc_id                = huaweicloud_vpc.vpc_1.id
   enterprise_project_id = data.huaweicloud_enterprise_project.enterprise_project_demo.id
 }
 
