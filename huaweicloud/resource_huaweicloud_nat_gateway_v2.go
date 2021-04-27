@@ -60,13 +60,6 @@ func ResourceNatGatewayV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"tenant_id": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Computed:   true,
-				ForceNew:   true,
-				Deprecated: "tenant_id is deprecated",
-			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -92,7 +85,6 @@ func resourceNatGatewayV2Create(d *schema.ResourceData, meta interface{}) error 
 		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		Spec:                d.Get("spec").(string),
-		TenantID:            d.Get("tenant_id").(string),
 		RouterID:            d.Get("router_id").(string),
 		InternalNetworkID:   d.Get("internal_network_id").(string),
 		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
@@ -141,7 +133,6 @@ func resourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("spec", natGateway.Spec)
 	d.Set("router_id", natGateway.RouterID)
 	d.Set("internal_network_id", natGateway.InternalNetworkID)
-	d.Set("tenant_id", natGateway.TenantID)
 	d.Set("status", natGateway.Status)
 	d.Set("region", GetRegion(d, config))
 	d.Set("enterprise_project_id", natGateway.EnterpriseProjectID)
