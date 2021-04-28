@@ -29,9 +29,8 @@ func TestAccCBRV3Policy_basic(t *testing.T) {
 					testAccCheckCBRV3PolicyExists(resourceName, &asPolicy),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
+					resource.TestCheckResourceAttr(resourceName, "type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "time_period", "20"),
-					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.frequency", "WEEKLY"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.days", "MO,TU"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.0", "06:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.1", "18:00"),
@@ -43,9 +42,8 @@ func TestAccCBRV3Policy_basic(t *testing.T) {
 					testAccCheckCBRV3PolicyExists(resourceName, &asPolicy),
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
+					resource.TestCheckResourceAttr(resourceName, "type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "backup_quantity", "5"),
-					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.frequency", "WEEKLY"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.days", "SA,SU"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.0", "08:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.1", "20:00"),
@@ -68,8 +66,7 @@ func TestAccCBRV3Policy_replication(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
-			testAccPreCheckDpsID(t)
-			testAccPreCheckDestRegion(t)
+			testAccPreCheckDestProject(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckASV1PolicyDestroy,
@@ -80,11 +77,10 @@ func TestAccCBRV3Policy_replication(t *testing.T) {
 					testAccCheckCBRV3PolicyExists(resourceName, &asPolicy),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "protection_type", "replication"),
-					resource.TestCheckResourceAttr(resourceName, "destination_project_id", HW_DEST_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "type", "replication"),
 					resource.TestCheckResourceAttr(resourceName, "destination_region", HW_DEST_REGION),
+					resource.TestCheckResourceAttr(resourceName, "destination_project_id", HW_DEST_PROJECT_ID),
 					resource.TestCheckResourceAttr(resourceName, "time_period", "20"),
-					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.frequency", "DAILY"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.interval", "5"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.0", "06:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.1", "18:00"),
@@ -151,12 +147,11 @@ func testAccCheckCBRV3PolicyExists(n string, policy *policies.Policy) resource.T
 func testCBRV3Policy_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
-  name            = "%s"
-  protection_type = "backup"
-  time_period     = 20
+  name        = "%s"
+  type        = "backup"
+  time_period = 20
 
   backup_cycle {
-    frequency       = "WEEKLY"
     days            = "MO,TU"
     execution_times = ["06:00", "18:00"]
   }
@@ -168,11 +163,10 @@ func testCBRV3Policy_update(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
   name            = "%s-update"
-  protection_type = "backup"
+  type            = "backup"
   backup_quantity = 5
 
   backup_cycle {
-    frequency       = "WEEKLY"
     days            = "SA,SU"
     execution_times = ["08:00", "20:00"]
   }
@@ -184,16 +178,15 @@ func testCBRV3Policy_replication(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
   name                   = "%s"
-  protection_type        = "replication"
-  destination_project_id = "%s"
+  type                   = "replication"
   destination_region     = "%s"
+  destination_project_id = "%s"
   time_period            = 20
 
   backup_cycle {
-    frequency       = "DAILY"
     interval        = 5
     execution_times = ["06:00", "18:00"]
   }
 }
-`, rName, HW_DEST_PROJECT_ID, HW_DEST_REGION)
+`, rName, HW_DEST_REGION, HW_DEST_PROJECT_ID)
 }

@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/cbr/v3/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func resourceCBRPolicyV3() *schema.Resource {
@@ -42,7 +41,7 @@ func resourceCBRPolicyV3() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
-			"protection_type": {
+			"type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -56,13 +55,6 @@ func resourceCBRPolicyV3() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"frequency": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"WEEKLY", "DAILY",
-							}, false),
-						},
 						"interval": {
 							Type:         schema.TypeInt,
 							Optional:     true,
@@ -70,17 +62,25 @@ func resourceCBRPolicyV3() *schema.Resource {
 							ValidateFunc: validation.IntBetween(1, 30),
 						},
 						"days": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validateBackupWeekDay,
+							Type:     schema.TypeString,
+							Optional: true,
+							ValidateFunc: validation.StringMatch(
+								regexp.MustCompile("^(?:MO|TU|WE|TH|FR|SA|SU)(?:,(?:MO|TU|WE|TH|FR|SA|SU))*$"),
+								"the string cannot contain lowercase, letters, numbers, whitespaces and special "+
+									"characters except commas. The valid string of weekly date are:"+
+									"MO, TU, WE, TH, FR, SA, SU.",
+							),
 						},
 						"execution_times": {
 							Type:     schema.TypeList,
 							Required: true,
 							MaxItems: 24,
 							Elem: &schema.Schema{
-								Type:         schema.TypeString,
-								ValidateFunc: validateTimeFormat,
+								Type: schema.TypeString,
+								ValidateFunc: validation.StringMatch(
+									regexp.MustCompile("^[0-1][0-9]|2[0-3]:[0-5][0-9]$"),
+									"the time format should be HH:MM",
+								),
 							},
 						},
 					},
@@ -110,59 +110,6 @@ func resourceCBRPolicyV3() *schema.Resource {
 	}
 }
 
-func validateTimeFormat(val interface{}, key string) (warns []string, errs []error) {
-	time := val.(string)
-	regex := regexp.MustCompile("^(\\d{2}):(\\d{2})$")
-	result := regex.FindStringSubmatch(time)
-	if len(result) == 0 {
-		errs = append(errs, fmt.Errorf("Wrong time format %v, please check your input (HH:MM)", time))
-		return
-	}
-	hour, err := strconv.Atoi(result[1])
-	if err != nil {
-		errs = append(errs, fmt.Errorf("Wrong time hour, it must be UTC time string (HH): %s", err))
-		return
-	}
-	if hour > 23 {
-		errs = append(errs, fmt.Errorf("Hour must be between 0 and 23 inclusive, got: %d", hour))
-	}
-	minute, err := strconv.Atoi(result[2])
-	if err != nil {
-		errs = append(errs, fmt.Errorf("Wrong time minute, it must be UTC time string (MM): %s", err))
-		return
-	}
-	if minute > 59 {
-		errs = append(errs, fmt.Errorf("Minute must be between 0 and 59 inclusive, got: %d", minute))
-	}
-	return
-}
-
-func validateBackupWeekDay(val interface{}, key string) (warns []string, errs []error) {
-	weeklyDays := []string{"MO", "TU", "WE", "TH", "FR", "SA", "SU"}
-	days := val.(string)
-	regex := regexp.MustCompile("([^A-Z,]+)")
-	result := regex.FindAllStringSubmatch(days, -1)
-	if len(result) > 0 {
-		errs = append(errs, fmt.Errorf("Weekly days cannot contain lowercase letters, "+
-			"numbers, whitespaces and special characters except commas"))
-		return
-	}
-	regex = regexp.MustCompile("(\\w+)")
-	result = regex.FindAllStringSubmatch(days, -1)
-	if len(result) == 0 {
-		errs = append(errs, fmt.Errorf("Wrong weekly days format %v, please check your input", days))
-		return
-	}
-	for _, v := range result {
-		if !utils.StrSliceContains(weeklyDays, v[0]) {
-			errs = append(errs, fmt.Errorf("Wrong weekly days value \"%v\", the valid values of \"days\" are: "+
-				"\"MO\", \"TU\", \"WE\", \"TH\", \"FR\", \"SA\", \"SU\"", v[0]))
-			return
-		}
-	}
-	return
-}
-
 func resourceCBRPolicyV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(GetRegion(d, config))
@@ -172,14 +119,18 @@ func resourceCBRPolicyV3Create(d *schema.ResourceData, meta interface{}) error {
 
 	enabled := d.Get("enabled").(bool)
 
+	schedule, err := resourceCBRPolicyV3BackupSchedule(d)
+	if err != nil {
+		return fmt.Errorf("Error to parse the format of backup cycle: %s", err)
+	}
 	createOpts := policies.CreateOpts{
 		Name:                d.Get("name").(string),
-		OperationDefinition: resourceCBRPolicyV3OpDefinition(d),
+		OperationType:       d.Get("type").(string),
 		Enabled:             &enabled,
-		OperationType:       d.Get("protection_type").(string),
+		OperationDefinition: resourceCBRPolicyV3OpDefinition(d),
 		Trigger: &policies.Trigger{
 			Properties: policies.TriggerProperties{
-				Pattern: resourceCBRPolicyV3TriggerPattern(d),
+				Pattern: schedule,
 			},
 		},
 	}
@@ -209,13 +160,13 @@ func resourceCBRPolicyV3Read(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Retrieved policy %s: %+v", d.Id(), cbrPolicy)
 	operationDefinition := cbrPolicy.OperationDefinition
 	mErr := multierror.Append(nil,
+		d.Set("region", GetRegion(d, config)),
 		d.Set("enabled", cbrPolicy.Enabled),
 		d.Set("name", cbrPolicy.Name),
-		d.Set("protection_type", cbrPolicy.OperationType),
+		d.Set("type", cbrPolicy.OperationType),
 		d.Set("destination_region", operationDefinition.DestinationRegion),
 		d.Set("destination_project_id", operationDefinition.DestinationProjectID),
-		setTriggerPattern(d, cbrPolicy.Trigger.Properties.Pattern),
-		d.Set("region", GetRegion(d, config)),
+		setCBRPolicyV3BackupCycle(d, cbrPolicy.Trigger.Properties.Pattern),
 	)
 	if mErr.ErrorOrNil() != nil {
 		return mErr
@@ -243,21 +194,21 @@ func resourceCBRPolicyV3Update(d *schema.ResourceData, meta interface{}) error {
 		newName := d.Get("name")
 		updateOpts.Name = newName.(string)
 	}
-
 	if d.HasChange("enabled") {
 		enabled := d.Get("enabled").(bool)
 		updateOpts.Enabled = &enabled
 	}
-
 	if d.HasChange("backup_cycle") {
-		pattern := resourceCBRPolicyV3TriggerPattern(d)
+		schedule, err := resourceCBRPolicyV3BackupSchedule(d)
+		if err != nil {
+			return fmt.Errorf("Error to parse the format of backup cycle: %s", err)
+		}
 		updateOpts.Trigger = &policies.Trigger{
 			Properties: policies.TriggerProperties{
-				Pattern: pattern,
+				Pattern: schedule,
 			},
 		}
 	}
-
 	if d.HasChanges("backup_quantity", "time_period", "destination_region") {
 		opDefinition := resourceCBRPolicyV3OpDefinition(d)
 		updateOpts.OperationDefinition = opDefinition
@@ -287,13 +238,16 @@ func resourceCBRPolicyV3Delete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceCBRPolicyV3OpDefinition(d *schema.ResourceData) *policies.PolicyODCreate {
-	maxBackups, ok1 := d.GetOk("backup_quantity")
-	durationDays, ok2 := d.GetOk("time_period")
 	policyODCreate := policies.PolicyODCreate{}
+
 	if destinationProjectID, ok3 := d.GetOk("destination_project_id"); ok3 {
 		policyODCreate.DestinationProjectID = destinationProjectID.(string)
 		policyODCreate.DestinationRegion = d.Get("destination_region").(string)
 	}
+
+	//the backup_quantity and time_period are both left blank means the backups are retained permanently
+	maxBackups, ok1 := d.GetOk("backup_quantity")
+	durationDays, ok2 := d.GetOk("time_period")
 	if !ok1 && !ok2 {
 		policyODCreate.MaxBackups = -1
 		policyODCreate.RetentionDurationDays = -1
@@ -305,67 +259,81 @@ func resourceCBRPolicyV3OpDefinition(d *schema.ResourceData) *policies.PolicyODC
 	return &policyODCreate
 }
 
-func makeSchedule(frequency, backupType, duration, time string) string {
+func makeSchedule(frequency, backupType, duration, time string) (string, error) {
 	timeSlice := strings.Split(time, ":")
+	if len(timeSlice) != 2 {
+		return "", fmt.Errorf("Wrong time format (%s), should be HH:MM", time)
+	}
 	schedule := fmt.Sprintf("FREQ=%s;%s=%s;BYHOUR=%s;BYMINUTE=%s",
 		frequency, backupType, duration, timeSlice[0], timeSlice[1])
-	return schedule
+	return schedule, nil
 }
 
-func resourceCBRPolicyV3TriggerPattern(d *schema.ResourceData) []string {
-	defaultWeekDays, defaultIntervalDays := "MO,TU,WE,TH,FR,SA,SU", "1"
-	triggerPatternRaw := d.Get("backup_cycle").([]interface{})
+func resourceCBRPolicyV3BackupSchedule(d *schema.ResourceData) ([]string, error) {
+	var frequency, backupType, duration string
 
-	frequency := triggerPatternRaw[0].(map[string]interface{})["frequency"].(string)
-	var backupType, duration string
-	if frequency == "WEEKLY" {
+	backupCycleRaw := d.Get("backup_cycle").([]interface{})
+	rawInfo := backupCycleRaw[0].(map[string]interface{})
+
+	//If 'days' is set, the value of 'interval' will be 0, relatively, the value of 'days' will be "".
+	if rawInfo["days"] != "" {
+		frequency = "WEEKLY"
 		backupType = "BYDAY"
-		if v, ok := triggerPatternRaw[0].(map[string]interface{})["days"]; ok {
-			duration = v.(string)
-		} else {
-			duration = defaultWeekDays
-		}
+		duration = rawInfo["days"].(string)
 	} else {
+		frequency = "DAILY"
 		backupType = "INTERVAL"
-		if v, ok := triggerPatternRaw[0].(map[string]interface{})["interval"]; ok {
-			duration = strconv.Itoa(v.(int))
-		} else {
-			duration = defaultIntervalDays
-		}
+		duration = strconv.Itoa(rawInfo["interval"].(int))
 	}
-	backupTimes := triggerPatternRaw[0].(map[string]interface{})["execution_times"].([]interface{})
-	patterns := make([]string, len(backupTimes))
+	backupTimes := rawInfo["execution_times"].([]interface{})
+	schedules := make([]string, len(backupTimes))
 	for i, v := range backupTimes {
-		patterns[i] = makeSchedule(frequency, backupType, duration, v.(string))
+		schedule, err := makeSchedule(frequency, backupType, duration, v.(string))
+		if err != nil {
+			return schedules, err
+		}
+		schedules[i] = schedule
 	}
-	return patterns
+	return schedules, nil
 }
 
-func setTriggerPattern(d *schema.ResourceData, patterns []string) error {
-	schedules := make([]map[string]interface{}, 1)
+func setCBRPolicyV3BackupCycle(d *schema.ResourceData, schedules []string) error {
 	schedule := make(map[string]interface{})
-	if strings.Contains(patterns[0], "WEEKLY") {
-		schedule["frequency"] = "WEEKLY"
+	//The value obtained from API is a string containing 'days', 'interval' and 'execution_times',
+	//so it should be extracted when setting the corresponding value to state.
+	if strings.Contains(schedules[0], "WEEKLY") {
 		regexExp := regexp.MustCompile("BYDAY=([\\w,]+);")
-		schedule["days"] = regexExp.FindStringSubmatch(patterns[0])[1]
+		result := regexExp.FindStringSubmatch(schedules[0])
+		//The right length of the string match is two, first is the match result of the regex string,
+		//second is the match result of the regex group.
+		if len(result) != 2 {
+			return fmt.Errorf("Wrong weekly days format in API response")
+		}
+		schedule["days"] = result[1]
 	} else {
-		schedule["frequency"] = "DAILY"
 		regexExp := regexp.MustCompile("INTERVAL=([\\d]+);")
-		num, err := strconv.Atoi(regexExp.FindStringSubmatch(patterns[0])[1])
+		result := regexExp.FindStringSubmatch(schedules[0])
+		if len(result) != 2 {
+			return fmt.Errorf("Wrong backup interval format in API response")
+		}
+		num, err := strconv.Atoi(result[1])
 		if err != nil {
 			return err
 		}
 		schedule["interval"] = num
 	}
-	backupTimes := make([]string, len(patterns))
-	for i, v := range patterns {
+	backupTimeList := make([]string, len(schedules))
+	for i, v := range schedules {
 		regexExp := regexp.MustCompile("BYHOUR=(\\d+);BYMINUTE=(\\d+)")
 		times := regexExp.FindStringSubmatch(v)
-		backupTimes[i] = strings.Join([]string{times[1], times[2]}, ":")
+		if len(times) != 3 {
+			return fmt.Errorf("Wrong backup time format in API response")
+		}
+		backupTimeList[i] = strings.Join([]string{times[1], times[2]}, ":")
 	}
-	schedule["execution_times"] = backupTimes
-	schedules[0] = schedule
-	if err := d.Set("backup_cycle", schedules); err != nil {
+	schedule["execution_times"] = backupTimeList
+	backupCycle := []map[string]interface{}{schedule}
+	if err := d.Set("backup_cycle", backupCycle); err != nil {
 		return err
 	}
 	return nil

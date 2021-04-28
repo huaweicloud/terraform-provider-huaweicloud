@@ -141,15 +141,9 @@ func testAccPreCheckCCI(t *testing.T) {
 	}
 }
 
-func testAccPreCheckDpsID(t *testing.T) {
-	if HW_DEST_PROJECT_ID == "" {
-		t.Skip("This environment does not support project ID tests")
-	}
-}
-
-func testAccPreCheckDestRegion(t *testing.T) {
-	if HW_DEST_REGION == "" {
-		t.Skip("This environment does not support destination region tests")
+func testAccPreCheckDestProject(t *testing.T) {
+	if HW_DEST_REGION == "" || HW_DEST_PROJECT_ID == "" {
+		t.Skip("This environment does not support destination project tests")
 	}
 }
 
