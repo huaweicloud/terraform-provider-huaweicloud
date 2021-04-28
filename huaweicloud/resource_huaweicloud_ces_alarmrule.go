@@ -14,6 +14,26 @@ import (
 
 const nameCESAR = "CES-AlarmRule"
 
+var cesAlarmActions = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"notification_list": {
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 5,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	},
+}
+
 func resourceAlarmRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAlarmRuleCreate,
@@ -121,65 +141,8 @@ func resourceAlarmRule() *schema.Resource {
 				},
 			},
 
-			"alarm_actions": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-
-						"notification_list": {
-							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 5,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
-			},
-
-			"insufficientdata_actions": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-
-						"notification_list": {
-							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 5,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
-			},
-
-			"ok_actions": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-
-						"notification_list": {
-							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 5,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
-			},
+			"alarm_actions": &cesAlarmActions,
+			"ok_actions":    &cesAlarmActions,
 
 			"alarm_enabled": {
 				Type:     schema.TypeBool,
@@ -193,14 +156,35 @@ func resourceAlarmRule() *schema.Resource {
 				Default:  true,
 			},
 
+			"alarm_state": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"update_time": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
 
-			"alarm_state": {
-				Type:     schema.TypeString,
-				Computed: true,
+			// deprecated
+			"insufficientdata_actions": {
+				Type:       schema.TypeList,
+				Optional:   true,
+				Deprecated: "insufficientdata_actions is deprecated",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"notification_list": {
+							Type:     schema.TypeList,
+							Required: true,
+							MaxItems: 5,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -318,12 +302,12 @@ func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("metric", m["metric"])
 	d.Set("condition", m["condition"])
 	d.Set("alarm_actions", m["alarm_actions"])
-	d.Set("insufficientdata_actions", m["insufficientdata_actions"])
 	d.Set("ok_actions", m["ok_actions"])
 	d.Set("alarm_enabled", m["alarm_enabled"])
 	d.Set("alarm_action_enabled", m["alarm_action_enabled"])
-	d.Set("update_time", m["update_time"])
 	d.Set("alarm_state", m["alarm_state"])
+	d.Set("update_time", m["update_time"])
+
 	return nil
 }
 
