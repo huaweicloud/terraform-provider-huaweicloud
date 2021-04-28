@@ -45,6 +45,9 @@ func resourceAlarmRule() *schema.Resource {
 		Read:   resourceAlarmRuleRead,
 		Update: resourceAlarmRuleUpdate,
 		Delete: resourceAlarmRuleDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
