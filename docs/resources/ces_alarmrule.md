@@ -39,13 +39,12 @@ resource "huaweicloud_ces_alarmrule" "alarm_rule" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the alarm rule resource. If omitted, the provider-level region will be used. Changing this creates a new Cloud Eye alarm rule resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the alarm rule resource.
+    If omitted, the provider-level region will be used. Changing this creates a new resource.
 
 * `alarm_name` - (Required, String) Specifies the name of an alarm rule. The value can
     be a string of 1 to 128 characters that can consist of numbers, lowercase letters,
     uppercase letters, underscores (_), or hyphens (-).
-
-* `alarm_description` - (Optional, String) The value can be a string of 0 to 256 characters.
 
 * `metric` - (Required, List) Specifies the alarm metrics. The structure is described
     below.
@@ -53,14 +52,16 @@ The following arguments are supported:
 * `condition` - (Required, List) Specifies the alarm triggering condition. The structure
     is described below.
 
+* `alarm_description` - (Optional, String) The value can be a string of 0 to 256 characters.
+
+* `alarm_enabled` - (Optional, Bool) Specifies whether to enable the alarm. The default
+    value is true.
+
 * `alarm_actions` - (Optional, List) Specifies the action triggered by an alarm. The
     structure is described below.
 
 * `ok_actions` - (Optional, List) Specifies the action triggered by the clearing of
     an alarm. The structure is described below.
-
-* `alarm_enabled` - (Optional, Bool) Specifies whether to enable the alarm. The default
-    value is true.
 
 * `alarm_action_enabled` - (Optional, Bool) Specifies whether to enable the action
     to be triggered by an alarm. The default value is true.
@@ -71,9 +72,10 @@ The following arguments are supported:
 
 The `metric` block supports:
 
-* `namespace` - (Required, String) Specifies the namespace in service.item format. service.item
-    can be a string of 3 to 32 characters that must start with a letter and can
-    consists of uppercase letters, lowercase letters, numbers, or underscores (_).
+* `namespace` - (Required, String) Specifies the namespace in **service.item** format.
+    service.item can be a string of 3 to 32 characters that must start with a letter and
+    can consists of uppercase letters, lowercase letters, numbers, or underscores (_).
+    For details, see [Services Interconnected with Cloud Eye](https://support.huaweicloud.com/intl/en-us/api-ces/ces_03_0059.html).
 
 * `metric_name` - (Required, String) Specifies the metric name. The value can be a string
     of 1 to 64 characters that must start with a letter and can consists of uppercase
@@ -110,10 +112,10 @@ The `condition` block supports:
 * `value` - (Required, String) Specifies the alarm threshold. The value ranges from
     0 to Number of 1.7976931348623157e+308.
 
-* `unit` - (Optional, String) Specifies the data unit.
-
 * `count` - (Required, Int) Specifies the number of consecutive occurrence times.
     The value ranges from 1 to 5.
+
+* `unit` - (Optional, String) Specifies the data unit.
 
 the `alarm_actions` block supports:
 
@@ -122,15 +124,13 @@ the `alarm_actions` block supports:
     - notification: indicates that a notification will be sent to the user.
     - autoscaling: indicates that a scaling action will be triggered.
 
-* `notification_list` - (Optional, List) specifies the topic urn list of the target
-    notification objects. the maximum length is 5. the topic urn list can be
-    obtained from simple message notification (smn) and in the following format:
-    urn: smn:([a-z]|[a-z]|[0-9]|\-){1,32}:([a-z]|[a-z]|[0-9]){32}:([a-z]|[a-z]|[0-9]|\-|\_){1,256}.
-    if type is set to notification, the value of notification_list cannot be
-    empty. if type is set to autoscaling, the value of notification_list must
-    be [] and the value of namespace must be sys.as.
-    Note: to enable the as alarm rules take effect, you must bind scaling
-    policies. for details, see the auto scaling api reference.
+* `notification_list` - (Optional, List) specifies the list of objects to be notified
+    if the alarm status changes, the maximum length is 5.
+    if type is set to *notification*, the value of notification_list cannot be empty.
+    if type is set to *autoscaling*, the value of notification_list must be **[]**
+    and the value of namespace must be *SYS.AS*.
+    Note: to enable the autoscaling alarm rules take effect, you must bind scaling
+    policies.
 
 the `ok_actions` block supports:
 
@@ -138,21 +138,22 @@ the `ok_actions` block supports:
     value is notification.
     notification: indicates that a notification will be sent to the user.
 
-* `notification_list` - (Optional, List) indicates the list of objects to be notified
-    if the alarm status changes. the maximum length is 5.
+* `notification_list` - (Optional, List) specifies the list of objects to be notified
+    if the alarm status changes, the maximum length is 5.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies the alarm rule ID.
-* `update_time` - Specifies the time when the alarm status changed. The value
-    is a UNIX timestamp and the unit is ms.
-* `alarm_state` - Specifies the alarm status. The value can be:
+* `id` - Indicates the alarm rule ID.
+
+* `alarm_state` - Indicates the alarm status. The value can be:
     - ok: The alarm status is normal;
     - alarm: An alarm is generated;
     - insufficient_data: The required data is insufficient.
 
+* `update_time` - Indicates the time when the alarm status changed.
+    The value is a UNIX timestamp and the unit is ms.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
@@ -160,3 +161,10 @@ This resource provides the following timeouts configuration options:
 - `update` - Default is 10 minute.
 - `delete` - Default is 5 minute.
 
+## Import
+
+CES alarm rules can be imported using the `id`, e.g.
+
+```
+$ terraform import huaweicloud_ces_alarmrule.alarm_rule al1619578509719Ga0X1RGWv
+```
