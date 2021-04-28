@@ -5,8 +5,10 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/cloudeyeservice/alarmrule"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -22,6 +24,9 @@ var cesAlarmActions = schema.Schema{
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"notification", "autoscaling",
+				}, false),
 			},
 
 			"notification_list": {
@@ -54,11 +59,11 @@ func resourceAlarmRule() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+
 			"alarm_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"alarm_description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -109,18 +114,25 @@ func resourceAlarmRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"period": {
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validation.IntInSlice([]int{0, 1, 300, 1200, 3600, 14400, 86400}),
 						},
 
 						"filter": {
 							Type:     schema.TypeString,
 							Required: true,
+							ValidateFunc: validation.StringInSlice([]string{
+								"max", "min", "average", "sum", "variance",
+							}, false),
 						},
 
 						"comparison_operator": {
 							Type:     schema.TypeString,
 							Required: true,
+							ValidateFunc: validation.StringInSlice([]string{
+								">=", ">", "<=", "<", "=",
+							}, false),
 						},
 
 						"value": {
@@ -128,14 +140,15 @@ func resourceAlarmRule() *schema.Resource {
 							Required: true,
 						},
 
+						"count": {
+							Type:         schema.TypeInt,
+							Required:     true,
+							ValidateFunc: validation.IntBetween(1, 5),
+						},
+
 						"unit": {
 							Type:     schema.TypeString,
 							Optional: true,
-						},
-
-						"count": {
-							Type:     schema.TypeInt,
-							Required: true,
 						},
 					},
 				},
@@ -236,6 +249,24 @@ func getAlarmAction(d *schema.ResourceData, name string) []alarmrule.ActionOpts 
 	return opts
 }
 
+func getAlarmCondition(d *schema.ResourceData) alarmrule.ConditionOpts {
+	var opts alarmrule.ConditionOpts
+
+	rawCondition := d.Get("condition").([]interface{})
+	if len(rawCondition) == 1 {
+		condition := rawCondition[0].(map[string]interface{})
+
+		opts.Period = condition["period"].(int)
+		opts.Filter = condition["filter"].(string)
+		opts.ComparisonOperator = condition["comparison_operator"].(string)
+		opts.Value = condition["value"].(int)
+		opts.Unit = condition["unit"].(string)
+		opts.Count = condition["count"].(int)
+	}
+
+	return opts
+}
+
 func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CesV1Client(GetRegion(d, config))
@@ -247,23 +278,15 @@ func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	cos := d.Get("condition").([]interface{})
-	co := cos[0].(map[string]interface{})
+
 	createOpts := alarmrule.CreateOpts{
-		AlarmName:        d.Get("alarm_name").(string),
-		AlarmDescription: d.Get("alarm_description").(string),
-		Metric:           metric,
-		Condition: alarmrule.ConditionOpts{
-			Period:             co["period"].(int),
-			Filter:             co["filter"].(string),
-			ComparisonOperator: co["comparison_operator"].(string),
-			Value:              co["value"].(int),
-			Unit:               co["unit"].(string),
-			Count:              co["count"].(int),
-		},
+		AlarmName:               d.Get("alarm_name").(string),
+		AlarmDescription:        d.Get("alarm_description").(string),
+		Metric:                  metric,
+		Condition:               getAlarmCondition(d),
 		AlarmActions:            getAlarmAction(d, "alarm_actions"),
-		InsufficientdataActions: getAlarmAction(d, "insufficientdata_actions"),
 		OkActions:               getAlarmAction(d, "ok_actions"),
+		InsufficientdataActions: getAlarmAction(d, "insufficientdata_actions"),
 		AlarmEnabled:            d.Get("alarm_enabled").(bool),
 		AlarmActionEnabled:      d.Get("alarm_action_enabled").(bool),
 	}
@@ -297,16 +320,27 @@ func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	d.Set("alarm_name", m["alarm_name"])
-	d.Set("alarm_description", m["alarm_description"])
-	d.Set("metric", m["metric"])
-	d.Set("condition", m["condition"])
-	d.Set("alarm_actions", m["alarm_actions"])
-	d.Set("ok_actions", m["ok_actions"])
-	d.Set("alarm_enabled", m["alarm_enabled"])
-	d.Set("alarm_action_enabled", m["alarm_action_enabled"])
-	d.Set("alarm_state", m["alarm_state"])
-	d.Set("update_time", m["update_time"])
+
+	alarmMetric := make([]interface{}, 1)
+	alarmMetric[0] = m["metric"]
+	alarmCondition := make([]interface{}, 1)
+	alarmCondition[0] = m["condition"]
+
+	mErr := multierror.Append(nil,
+		d.Set("alarm_name", m["alarm_name"]),
+		d.Set("alarm_description", m["alarm_description"]),
+		d.Set("metric", alarmMetric),
+		d.Set("condition", alarmCondition),
+		d.Set("alarm_actions", m["alarm_actions"]),
+		d.Set("ok_actions", m["ok_actions"]),
+		d.Set("alarm_enabled", m["alarm_enabled"]),
+		d.Set("alarm_action_enabled", m["alarm_action_enabled"]),
+		d.Set("alarm_state", m["alarm_state"]),
+		d.Set("update_time", m["update_time"]),
+	)
+	if mErr.ErrorOrNil() != nil {
+		return mErr
+	}
 
 	return nil
 }
