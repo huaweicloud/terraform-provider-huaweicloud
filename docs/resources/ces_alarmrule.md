@@ -56,9 +56,6 @@ The following arguments are supported:
 * `alarm_actions` - (Optional, List) Specifies the action triggered by an alarm. The
     structure is described below.
 
-* `insufficientdata_actions` - (Optional, List) Specifies the action triggered by
-    data insufficiency. The structure is described below.
-
 * `ok_actions` - (Optional, List) Specifies the action triggered by the clearing of
     an alarm. The structure is described below.
 
@@ -67,10 +64,10 @@ The following arguments are supported:
 
 * `alarm_action_enabled` - (Optional, Bool) Specifies whether to enable the action
     to be triggered by an alarm. The default value is true.
-    Note: If alarm_action_enabled is set to true, at least one of the following
-    parameters alarm_actions, insufficientdata_actions, and ok_actions cannot
-    be empty. If alarm_actions, insufficientdata_actions, and ok_actions coexist,
-    their corresponding notification_list must be of the same value.
+
+    -> **Note** If alarm_action_enabled is set to true, either alarm_actions or
+    ok_actions cannot be empty. If alarm_actions and ok_actions coexist, their
+    corresponding notification_list must be of the same value.
 
 The `metric` block supports:
 
@@ -134,15 +131,6 @@ the `alarm_actions` block supports:
     be [] and the value of namespace must be sys.as.
     Note: to enable the as alarm rules take effect, you must bind scaling
     policies. for details, see the auto scaling api reference.
-
-the `insufficientdata_actions` block supports:
-
-* `type` - (Optional, String) specifies the type of action triggered by an alarm. the
-    value is notification.
-    notification: indicates that a notification will be sent to the user.
-
-* `notification_list` - (Optional, List) indicates the list of objects to be notified
-    if the alarm status changes. the maximum length is 5.
 
 the `ok_actions` block supports:
 
