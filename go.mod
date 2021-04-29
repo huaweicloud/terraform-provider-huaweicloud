@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/hashicorp/errwrap v1.0.0
+	github.com/hashicorp/go-multierror v1.0.0
 	github.com/hashicorp/terraform-plugin-sdk v1.16.0
 	github.com/huaweicloud/golangsdk v0.0.0-20210417091247-f78a81171753
 	github.com/jen20/awspolicyequivalence v1.1.0
