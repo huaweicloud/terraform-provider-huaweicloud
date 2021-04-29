@@ -57,6 +57,10 @@ The following arguments are supported:
 * `alarm_enabled` - (Optional, Bool) Specifies whether to enable the alarm. The default
     value is true.
 
+* `alarm_type` - (Optional, Int, ForceNew) Specifies the alarm severity. The value can be
+    1, 2, 3 or 4, which indicates *critical*, *major*, *minor*, and *informational*, respectively.
+    The default value is 2. Changing this creates a new resource.
+
 * `alarm_actions` - (Optional, List) Specifies the action triggered by an alarm. The
     structure is described below.
 
