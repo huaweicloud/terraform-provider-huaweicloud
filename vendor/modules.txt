@@ -277,6 +277,7 @@ github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions
 github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes
 github.com/huaweicloud/golangsdk/openstack/bss/v2/orders
 github.com/huaweicloud/golangsdk/openstack/cbr/v3/policies
+github.com/huaweicloud/golangsdk/openstack/cbr/v3/vaults
 github.com/huaweicloud/golangsdk/openstack/cce/v3/addons
 github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters
 github.com/huaweicloud/golangsdk/openstack/cce/v3/nodepools
