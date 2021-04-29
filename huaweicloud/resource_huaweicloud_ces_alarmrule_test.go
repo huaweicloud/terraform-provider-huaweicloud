@@ -27,6 +27,7 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 					testCESAlarmRuleExists(resourceName, &ar),
 					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "alarm_level", "2"),
 				),
 			},
 			{

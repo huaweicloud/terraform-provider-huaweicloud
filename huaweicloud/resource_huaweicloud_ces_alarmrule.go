@@ -166,6 +166,14 @@ func resourceAlarmRule() *schema.Resource {
 				Default:  true,
 			},
 
+			"alarm_level": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      2,
+				ForceNew:     true,
+				ValidateFunc: validation.IntBetween(1, 4),
+			},
+
 			"alarm_action_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -285,6 +293,7 @@ func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	createOpts := alarmrule.CreateOpts{
 		AlarmName:               d.Get("alarm_name").(string),
 		AlarmDescription:        d.Get("alarm_description").(string),
+		AlarmLevel:              d.Get("alarm_level").(int),
 		Metric:                  metric,
 		Condition:               getAlarmCondition(d),
 		AlarmActions:            getAlarmAction(d, "alarm_actions"),
@@ -332,6 +341,7 @@ func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 	mErr := multierror.Append(nil,
 		d.Set("alarm_name", m["alarm_name"]),
 		d.Set("alarm_description", m["alarm_description"]),
+		d.Set("alarm_level", m["alarm_level"]),
 		d.Set("metric", alarmMetric),
 		d.Set("condition", alarmCondition),
 		d.Set("alarm_actions", m["alarm_actions"]),
