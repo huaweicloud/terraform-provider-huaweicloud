@@ -27,12 +27,20 @@ func TestAccDcsInstancesV1_basic(t *testing.T) {
 					testAccCheckDcsV1InstanceExists(resourceName, instance),
 					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
 					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "3.0"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
 					resource.TestCheckResourceAttr(resourceName, "capacity", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttrSet(resourceName, "ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "port"),
+				),
+			},
+			{
+				Config: testAccDcsV1Instance_updated(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("huaweicloud_dcs_instance.instance_1", "backup_policy.0.begin_at", "01:00-02:00"),
+					resource.TestCheckResourceAttr("huaweicloud_dcs_instance.instance_1", "backup_policy.0.save_days", "2"),
+					resource.TestCheckResourceAttr("huaweicloud_dcs_instance.instance_1", "backup_policy.0.backup_at.#", "3"),
 				),
 			},
 		},
@@ -110,6 +118,30 @@ func TestAccDcsInstancesV1_tiny(t *testing.T) {
 	})
 }
 
+func TestAccDcsInstancesV1_single(t *testing.T) {
+	var instance instances.Instance
+	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
+	resourceName := "huaweicloud_dcs_instance.instance_1"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDcsV1InstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDcsV1Instance_single(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDcsV1InstanceExists(resourceName, instance),
+					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
+					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "2"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDcsV1InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	dcsClient, err := config.DcsV1Client(HW_REGION_NAME)
@@ -172,9 +204,46 @@ func testAccDcsV1Instance_basic(instanceName string) string {
 	  name = "subnet-default"
 	}
 
-	resource "huaweicloud_networking_secgroup" "secgroup_1" {
-	  name        = "%s"
-	  description = "secgroup_1"
+	data "huaweicloud_dcs_az" "az_1" {
+	  code = data.huaweicloud_availability_zones.test.names[0]
+	}
+
+	resource "huaweicloud_dcs_instance" "instance_1" {
+	  name              = "%s"
+	  engine_version    = "5.0"
+	  password          = "Huawei_test"
+	  engine            = "Redis"
+	  capacity          = 2
+	  vpc_id            = data.huaweicloud_vpc.test.id
+	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
+	  product_id        = "dcs.master_standby-h"
+      backup_policy {
+        backup_type = "manual"
+        begin_at    = "00:00-01:00"
+        period_type = "weekly"
+        backup_at = [4]
+        save_days = 1
+      }
+
+	  tags = {
+	    key = "value"
+	    owner = "terraform"
+	  }
+	}
+	`, instanceName)
+}
+
+func testAccDcsV1Instance_updated(instanceName string) string {
+	return fmt.Sprintf(`
+	data "huaweicloud_availability_zones" "test" {}
+
+	data "huaweicloud_vpc" "test" {
+	  name = "vpc-default"
+	}
+
+	data "huaweicloud_vpc_subnet" "test" {
+	  name = "subnet-default"
 	}
 
 	data "huaweicloud_dcs_az" "az_1" {
@@ -183,27 +252,28 @@ func testAccDcsV1Instance_basic(instanceName string) string {
 
 	resource "huaweicloud_dcs_instance" "instance_1" {
 	  name              = "%s"
-	  engine_version    = "3.0"
+	  engine_version    = "5.0"
 	  password          = "Huawei_test"
 	  engine            = "Redis"
 	  capacity          = 2
 	  vpc_id            = data.huaweicloud_vpc.test.id
 	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-	  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
 	  product_id        = "dcs.master_standby-h"
-	  save_days         = 1
-	  backup_type       = "manual"
-	  begin_at          = "00:00-01:00"
-	  period_type       = "weekly"
-	  backup_at         = [1]
+      backup_policy {
+        backup_type = "manual"
+        begin_at    = "01:00-02:00"
+        period_type = "weekly"
+        backup_at = [1, 2, 4]
+        save_days = 2
+      }
 
 	  tags = {
 	    key = "value"
 	    owner = "terraform"
 	  }
 	}
-	`, instanceName, instanceName)
+	`, instanceName)
 }
 
 func testAccDcsV1Instance_epsId(instanceName string) string {
@@ -218,33 +288,30 @@ func testAccDcsV1Instance_epsId(instanceName string) string {
 	  name = "subnet-default"
 	}
 
-	resource "huaweicloud_networking_secgroup" "secgroup_1" {
-	  name        = "%s"
-	  description = "secgroup_1"
-	}
 	data "huaweicloud_dcs_az" "az_1" {
 		code = data.huaweicloud_availability_zones.test.names[0]
 	}
 
 	resource "huaweicloud_dcs_instance" "instance_1" {
 	  name              = "%s"
-	  engine_version    = "3.0"
+	  engine_version    = "5.0"
 	  password          = "Huawei_test"
 	  engine            = "Redis"
 	  capacity          = 2
 	  vpc_id            = data.huaweicloud_vpc.test.id
 	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
-	  security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
 	  product_id        = "dcs.master_standby-h"
-	  save_days         = 1
-	  backup_type       = "manual"
-	  begin_at          = "00:00-01:00"
-	  period_type       = "weekly"
-	  backup_at         = [1]
+      backup_policy {
+        backup_type = "manual"
+        begin_at    = "00:00-01:00"
+        period_type = "weekly"
+        backup_at = [1]
+        save_days = 1
+      }
 	  enterprise_project_id = "%s"
 	}
-	`, instanceName, instanceName, HW_ENTERPRISE_PROJECT_ID_TEST)
+	`, instanceName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAccDcsV1Instance_tiny(instanceName string) string {
@@ -273,11 +340,43 @@ func testAccDcsV1Instance_tiny(instanceName string) string {
 	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
 	  product_id        = "redis.ha.xu1.tiny.r2.128-h"
-	  save_days         = 1
-	  backup_type       = "manual"
-	  begin_at          = "00:00-01:00"
-	  period_type       = "weekly"
-	  backup_at         = [1]
+      backup_policy {
+        backup_type = "manual"
+        begin_at    = "00:00-01:00"
+        period_type = "weekly"
+        backup_at = [1]
+        save_days = 1
+      }
+	}
+	`, instanceName)
+}
+
+func testAccDcsV1Instance_single(instanceName string) string {
+	return fmt.Sprintf(`
+	data "huaweicloud_availability_zones" "test" {}
+
+	data "huaweicloud_vpc" "test" {
+	  name = "vpc-default"
+	}
+
+	data "huaweicloud_vpc_subnet" "test" {
+	  name = "subnet-default"
+	}
+
+	data "huaweicloud_dcs_az" "az_1" {
+	  code = data.huaweicloud_availability_zones.test.names[0]
+	}
+
+	resource "huaweicloud_dcs_instance" "instance_1" {
+	  name              = "%s"
+	  engine_version    = "5.0"
+	  password          = "Huawei_test"
+	  engine            = "Redis"
+	  capacity          = 2
+	  vpc_id            = data.huaweicloud_vpc.test.id
+	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
+	  product_id        = "redis.single.xu1.large.2-h"
 	}
 	`, instanceName)
 }
@@ -308,11 +407,13 @@ func testAccDcsV1Instance_whitelists(instanceName string) string {
 	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
 	  product_id        = "redis.ha.xu1.large.r2.2-h"
-	  save_days         = 1
-	  backup_type       = "manual"
-	  begin_at          = "00:00-01:00"
-	  period_type       = "weekly"
-	  backup_at         = [1]
+      backup_policy {
+        backup_type = "manual"
+        begin_at    = "00:00-01:00"
+        period_type = "weekly"
+        backup_at = [1]
+        save_days = 1
+      }
 
 	  whitelists {
 		group_name = "test-group1"
