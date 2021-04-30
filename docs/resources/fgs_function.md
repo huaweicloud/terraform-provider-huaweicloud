@@ -12,7 +12,8 @@ This is an alternative to `huaweicloud_fgs_function_v2`
 ```hcl
 resource "huaweicloud_fgs_function" "f_1" {
   name        = "func_1"
-  package     = "default"
+  app         = "default"
+  agency      = "test"
   description = "fuction test"
   handler     = "test.handler"
   memory_size = 128
@@ -31,7 +32,7 @@ The following arguments are supported:
 
 * `name` - (Required, String, ForceNew) A unique name for the function. Changing this creates a new function.
 
-* `package` - (Required, String) Group to which the function belongs. Changing this creates a new function.
+* `app` - (Required, String) Group to which the function belongs. Changing this creates a new function.
 
 * `code_type` - (Required, String, ForceNew) Function code type, which can be inline: inline code, zip: ZIP file,
 	jar: JAR file or java functions, obs: function code stored in an OBS bucket. Changing this
@@ -55,7 +56,7 @@ The following arguments are supported:
 
 * `user_data` - (Optional, String, ForceNew) Key/Value information defined for the function. Changing this creates a new function.
 
-* `xrole` - (Optional, String, ForceNew) This parameter is mandatory if the function needs to access other cloud services.
+* `agency` - (Optional, String, ForceNew) This parameter is mandatory if the function needs to access other cloud services.
 	Changing this creates a new function.
 
 * `func_code` - (Required, String, ForceNew) Function code. When code_type is set to inline, zip, or jar, this parameter is mandatory,
