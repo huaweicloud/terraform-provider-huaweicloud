@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,6 +14,8 @@ import (
 
 func TestAccFgsV2Function_basic(t *testing.T) {
 	var f function.Function
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_fgs_function.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,9 +23,29 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 		CheckDestroy: testAccCheckFgsV2FunctionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFgsV2Function_basic,
+				Config: testAccFgsV2Function_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFgsV2FunctionExists("huaweicloud_fgs_function_v2.f_1", &f),
+					testAccCheckFgsV2FunctionExists(resourceName, &f),
+				),
+			},
+		},
+	})
+}
+
+func TestAccFgsV2Function_text(t *testing.T) {
+	var f function.Function
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_fgs_function.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckFgsV2FunctionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFgsV2Function_text(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFgsV2FunctionExists(resourceName, &f),
 				),
 			},
 		},
@@ -37,7 +60,7 @@ func testAccCheckFgsV2FunctionDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_fgs_function_v2" {
+		if rs.Type != "huaweicloud_fgs_function" {
 			continue
 		}
 
@@ -82,16 +105,46 @@ func testAccCheckFgsV2FunctionExists(n string, ft *function.Function) resource.T
 	}
 }
 
-const testAccFgsV2Function_basic = `
-resource "huaweicloud_fgs_function_v2" "f_1" {
-  name = "func_1"
+func testAccFgsV2Function_basic(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name = "%s"
   app = "default"
   description = "fuction test"
-  handler = "test.handler"
+  handler = "index.handler"
   memory_size = 128
   timeout = 3
   runtime = "Python2.7"
   code_type = "inline"
   func_code = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
 }
-`
+`, rName)
+}
+
+func testAccFgsV2Function_text(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name = "%s"
+  app = "default"
+  description = "fuction test"
+  handler = "index.handler"
+  memory_size = 128
+  timeout = 3
+  runtime = "Python2.7"
+  code_type = "inline"
+  func_code = <<EOF
+# -*- coding:utf-8 -*-
+import json
+def handler (event, context):
+    return {
+        "statusCode": 200,
+        "isBase64Encoded": False,
+        "body": json.dumps(event),
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+EOF
+}
+`, rName)
+}
