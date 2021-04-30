@@ -355,6 +355,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_as_configuration":                ResourceASConfiguration(),
 			"huaweicloud_as_group":                        ResourceASGroup(),
 			"huaweicloud_as_policy":                       ResourceASPolicy(),
+			"huaweicloud_bms_instance":                    ResourceBmsInstance(),
 			"huaweicloud_bcs_instance":                    resourceBCSInstanceV2(),
 			"huaweicloud_cbr_policy":                      resourceCBRPolicyV3(),
 			"huaweicloud_cbr_vault":                       resourceCBRVaultV3(),

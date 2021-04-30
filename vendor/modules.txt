@@ -258,7 +258,11 @@ github.com/hashicorp/terraform-svchost/auth
 github.com/hashicorp/terraform-svchost/disco
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
+<<<<<<< HEAD
 # github.com/huaweicloud/golangsdk v0.0.0-20210426073930-cc60e7b0eafa
+=======
+# github.com/huaweicloud/golangsdk v0.0.0-20210429115535-b33d1a7b88e5
+>>>>>>> add resource BMS instance
 ## explicit
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/internal
@@ -275,6 +279,7 @@ github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/tags
 github.com/huaweicloud/golangsdk/openstack/bcs/v2/blockchains
 github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions
 github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes
+github.com/huaweicloud/golangsdk/openstack/bms/v1/baremetalservers
 github.com/huaweicloud/golangsdk/openstack/bss/v2/orders
 github.com/huaweicloud/golangsdk/openstack/cbr/v3/policies
 github.com/huaweicloud/golangsdk/openstack/cbr/v3/vaults

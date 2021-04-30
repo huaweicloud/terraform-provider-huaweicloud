@@ -44,6 +44,7 @@ var (
 	HW_CDN_DOMAIN_NAME            = os.Getenv("HW_CDN_DOMAIN_NAME")
 	HW_ADMIN                      = os.Getenv("HW_ADMIN")
 	HW_ENTERPRISE_PROJECT_ID_TEST = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
+	HW_USER_ID                    = os.Getenv("HW_USER_ID")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -156,6 +157,12 @@ func testAccPreCheckEpsID(t *testing.T) {
 func testAccAsConfigPreCheck(t *testing.T) {
 	if HW_FLAVOR_ID == "" {
 		t.Skip("HW_FLAVOR_ID must be set for acceptance tests")
+	}
+}
+
+func testAccPreCheckBms(t *testing.T) {
+	if HW_USER_ID == "" {
+		t.Skip("HW_USER_ID must be set for BMS acceptance tests")
 	}
 }
 
