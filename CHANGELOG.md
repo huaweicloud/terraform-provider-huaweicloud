@@ -1,3 +1,33 @@
+## 1.24.0 (April 30, 2021)
+
+FEATURES:
+
+* **New Data Source:** `huaweicloud_cce_node_pool` ([#1005](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1005))
+* **New Resource:** `huaweicloud_swr_organization` ([#428](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/428))
+* **New Resource:** `huaweicloud_bcs_instance` ([#1064](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1064))
+* **New Resource:** `huaweicloud_bms_instance` ([#1024](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1024))
+* **New Resource:** `huaweicloud_cbr_policy` ([#1025](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1025))
+* **New Resource:** `huaweicloud_cbr_vault` ([#1025](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1025))
+
+ENHANCEMENTS:
+
+* Provider: Support `security_token` to authenticate with a temporary security credential([#1062](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1062))
+* Support `enterprise_project_id` in AS group, SFS turbo, ELB loadbalancer, IMS and DNS ([#1019](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1019))
+* data/huaweicloud_rds_flavors: support to filter rds flavors with replica mode ([#1070](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1070))
+* resource/huaweicloud_lb_monitor: Add port option to lb_monitor ([#1059](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1059))
+* resource/huaweicloud_rds_instance: support prePaid charging mode ([#1066](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1066))
+* resource/huaweicloud_vpc_subnet: Try to set default DNS server if it was not specified ([#1074](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1074))
+* resource/huaweicloud_nat_gateway: Unify network parameters ([#1087](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1087))
+* resource/huaweicloud_ces_alarmrule: Add alarm_level parameter ([#1085](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1085))
+* resource/huaweicloud_fgs_function:
+    - Rename xrole and app parameters ([#1076](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1095))
+    - `func_code` support both base64 and plain text format ([#1077](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1077))
+
+BUG FIXES:
+
+* resource/huaweicloud_rds_instance: Fix RDS deployment crash with v1.23.1 version ([#1054](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1054))
+* resource/huaweicloud_dcs_instance: Fix DCS backup policy issue for single instance ([#1092](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1092))
+
 ## 1.23.1 (April 7, 2021)
 
 BUG FIXES:
