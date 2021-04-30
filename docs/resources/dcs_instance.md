@@ -9,7 +9,7 @@ This is an alternative to `huaweicloud_dcs_instance_v1`
 
 ## Example Usage
 
-### DCS instance for Redis 3.0
+### DCS Single Instance
 
 ```hcl
 data "huaweicloud_dcs_az" "az_1" {
@@ -34,23 +34,18 @@ resource "huaweicloud_vpc_subnet" "subnet_1" {
 resource "huaweicloud_dcs_instance" "instance_1" {
   name              = "test_dcs_instance"
   engine            = "Redis"
-  engine_version    = "3.0"
+  engine_version    = "5.0"
   password          = "Huawei_test"
   capacity          = 2
   vpc_id            = huaweicloud_vpc.vpc_1.id
   subnet_id         = huaweicloud_vpc_subnet.subnet_1.id
   security_group_id = huaweicloud_networking_secgroup.secgroup_1.id
   available_zones   = [data.huaweicloud_dcs_az.az_1.id]
-  product_id        = "dcs.master_standby-h"
-  save_days         = 1
-  backup_type       = "manual"
-  begin_at          = "00:00-01:00"
-  period_type       = "weekly"
-  backup_at         = [1]
+  product_id        = "redis.single.xu1.large.2-h"
 }
 ```
 
-### DCS instance for Redis 5.0
+### DCS HA Instance
 
 ```hcl
 resource "huaweicloud_dcs_instance" "instance_1" {
@@ -63,11 +58,13 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   subnet_id         = huaweicloud_vpc_subnet.subnet_1.id
   available_zones   = [data.huaweicloud_dcs_az.az_1.id]
   product_id        = "redis.ha.au1.large.r2.2-h"
-  save_days         = 1
-  backup_type       = "manual"
-  begin_at          = "00:00-01:00"
-  period_type       = "weekly"
-  backup_at         = [1]
+  backup_policy {
+    save_days   = 1
+    backup_type = "manual"
+    begin_at    = "00:00-01:00"
+    period_type = "weekly"
+    backup_at   = [1, 2, 4, 6]
+  }
 
   whitelists {
     group_name = "test-group1"
@@ -173,21 +170,24 @@ The following arguments are supported:
 	blank, parameter maintain_begin is also blank. In this case, the system automatically allocates
 	the default end time 06:00.
 
-* `save_days` - (Required, Int, ForceNew) Retention time. Unit: day. Range: 1–7. Changing this creates a new instance.
+* `backup_policy` - (Optional, List) Describes the backup configuration to be used with the instance.
 
-* `backup_type` - (Required, String, ForceNew) Backup type. Options:
-    auto: automatic backup.
-    manual: manual backup.
-    Changing this creates a new instance.
+    * `save_days` - (Optional, Int) Retention time. Unit: day. Range: 1–7.
 
-* `begin_at` - (Required, String, ForceNew) Time at which backup starts. "00:00-01:00" indicates that backup
-    starts at 00:00:00. Changing this creates a new instance.
+    * `backup_type` - (Optional, String) Backup type.
 
-* `period_type` - (Required, String, ForceNew) Interval at which backup is performed. Currently, only weekly
-    backup is supported. Changing this creates a new instance.
+      Options:
+      * `auto`: automatic backup
+      * `manual`: manual backup (default)
 
-* `backup_at` - (Required, List, ForceNew) Day in a week on which backup starts. Range: 1–7. Where: 1
-    indicates Monday; 7 indicates Sunday. Changing this creates a new instance.
+    * `begin_at` - (Required, String) Time at which backup starts. "00:00-01:00" indicates that backup
+      starts at `00:00:00`.
+
+    * `period_type` - (Required, String) Interval at which backup is performed.
+      Currently, only weekly backup is supported.
+
+    * `backup_at` - (Required, List) Day in a week on which backup starts. Range: 1–7. Where: 1
+      indicates Monday; 7 indicates Sunday.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the dcs instance. Changing this creates a new instance.
 
@@ -217,5 +217,6 @@ In addition to all arguments above, the following attributes are exported:
 * `internal_version` - Internal DCS version.
 * `max_memory` - Overall memory size. Unit: MB.
 * `user_id` - Indicates a user ID.
+* `user_name` - Username.
 * `ip` - Cache node's IP address in tenant's VPC.
 * `port` - Port of the cache node.
