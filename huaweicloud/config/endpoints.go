@@ -123,6 +123,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "sfs-turbo",
 		Version: "v1",
 	},
+	"cbr": {
+		Name:    "cbr",
+		Version: "v3",
+	},
 	"csbs": {
 		Name:    "csbs",
 		Version: "v1",
