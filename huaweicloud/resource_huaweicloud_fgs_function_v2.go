@@ -1,6 +1,9 @@
 package huaweicloud
 
 import (
+	"crypto/sha1"
+	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"strings"
@@ -113,6 +116,14 @@ func resourceFgsFunctionV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				StateFunc: func(v interface{}) string {
+					switch v.(type) {
+					case string:
+						return funcCodeHashSum(v.(string))
+					default:
+						return ""
+					}
+				},
 			},
 		},
 	}
@@ -146,10 +157,6 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 		agency_v = v.(string)
 	}
 
-	func_code := function.FunctionCodeOpts{
-		File: d.Get("func_code").(string),
-	}
-
 	createOpts := function.CreateOpts{
 		FuncName:     d.Get("name").(string),
 		Package:      pack_v,
@@ -163,7 +170,14 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 		Timeout:      d.Get("timeout").(int),
 		UserData:     d.Get("user_data").(string),
 		Xrole:        agency_v,
-		FuncCode:     func_code,
+	}
+
+	if v, ok := d.GetOk("func_code"); ok {
+		funcCode := funcCodeEncode(v.(string))
+		func_code := function.FunctionCodeOpts{
+			File: funcCode,
+		}
+		createOpts.FuncCode = func_code
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -235,4 +249,24 @@ func resourceFgsFunctionV2Delete(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId("")
 	return nil
+}
+
+func funcCodeHashSum(script string) string {
+	// Check whether the func_code is not Base64 encoded.
+	// Always calculate hash of base64 decoded value since we
+	// check against double-encoding when setting it
+	v, base64DecodeError := base64.StdEncoding.DecodeString(script)
+	if base64DecodeError != nil {
+		v = []byte(script)
+	}
+
+	hash := sha1.Sum(v)
+	return hex.EncodeToString(hash[:])
+}
+
+func funcCodeEncode(script string) string {
+	if _, err := base64.StdEncoding.DecodeString(script); err != nil {
+		return base64.StdEncoding.EncodeToString([]byte(script))
+	}
+	return script
 }

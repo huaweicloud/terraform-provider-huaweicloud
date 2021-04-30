@@ -7,7 +7,7 @@ subcategory: "FunctionGraph"
 Manages a Function resource within HuaweiCloud.
 This is an alternative to `huaweicloud_fgs_function_v2`
 
-## Example Usage
+## Example Usage With base64 func code
 
 ```hcl
 resource "huaweicloud_fgs_function" "f_1" {
@@ -21,6 +21,35 @@ resource "huaweicloud_fgs_function" "f_1" {
   runtime     = "Python2.7"
   code_type   = "inline"
   func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+}
+```
+
+## Example Usage With text code
+
+```hcl
+resource "huaweicloud_fgs_function" "f_1" {
+  name        = "func_1"
+  app         = "default"
+  agency      = "test"
+  description = "fuction test"
+  handler     = "test.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code = <<EOF
+# -*- coding:utf-8 -*-
+import json
+def handler (event, context):
+    return {
+        "statusCode": 200,
+        "isBase64Encoded": False,
+        "body": json.dumps(event),
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+EOF
 }
 ```
 
@@ -60,7 +89,7 @@ The following arguments are supported:
 	Changing this creates a new function.
 
 * `func_code` - (Required, String, ForceNew) Function code. When code_type is set to inline, zip, or jar, this parameter is mandatory,
-	and the code must be encoded using Base64. Changing this creates a new function.
+	and the code can be encoded using Base64 or just with the text code. Changing this creates a new function.
 
 
 ## Attributes Reference
