@@ -85,7 +85,7 @@ func testAccCheckFgsV2FunctionExists(n string, ft *function.Function) resource.T
 const testAccFgsV2Function_basic = `
 resource "huaweicloud_fgs_function_v2" "f_1" {
   name = "func_1"
-  package = "default"
+  app = "default"
   description = "fuction test"
   handler = "test.handler"
   memory_size = 128

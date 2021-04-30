@@ -43,9 +43,17 @@ func resourceFgsFunctionV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"package": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"app"},
+				Deprecated:    "use app instead",
+			},
+			"app": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"package"},
 			},
 			"code_type": {
 				Type:     schema.TypeString,
@@ -89,9 +97,17 @@ func resourceFgsFunctionV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"xrole": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"agency"},
+				Deprecated:    "use agency instead",
+			},
+			"agency": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"xrole"},
 			},
 			"func_code": {
 				Type:     schema.TypeString,
@@ -109,13 +125,34 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 	}
 
+	// check app and package
+	app, app_ok := d.GetOk("app")
+	pak, pak_ok := d.GetOk("package")
+	if !app_ok && !pak_ok {
+		return fmt.Errorf("One of app or package must be configured")
+	}
+	pack_v := ""
+	if app_ok {
+		pack_v = app.(string)
+	} else {
+		pack_v = pak.(string)
+	}
+
+	// get value from agency or xrole
+	agency_v := ""
+	if v, ok := d.GetOk("agency"); ok {
+		agency_v = v.(string)
+	} else if v, ok := d.GetOk("xrole"); ok {
+		agency_v = v.(string)
+	}
+
 	func_code := function.FunctionCodeOpts{
 		File: d.Get("func_code").(string),
 	}
 
 	createOpts := function.CreateOpts{
 		FuncName:     d.Get("name").(string),
-		Package:      d.Get("package").(string),
+		Package:      pack_v,
 		CodeType:     d.Get("code_type").(string),
 		CodeUrl:      d.Get("code_url").(string),
 		Description:  d.Get("description").(string),
@@ -125,7 +162,7 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 		Runtime:      d.Get("runtime").(string),
 		Timeout:      d.Get("timeout").(int),
 		UserData:     d.Get("user_data").(string),
-		Xrole:        d.Get("xrole").(string),
+		Xrole:        agency_v,
 		FuncCode:     func_code,
 	}
 
@@ -155,7 +192,6 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Retrieved Function %s: %+v", d.Id(), f)
 
 	d.Set("name", f.FuncName)
-	d.Set("package", f.Package)
 	d.Set("code_type", f.CodeType)
 	d.Set("code_url", f.CodeUrl)
 	d.Set("description", f.Description)
@@ -165,7 +201,18 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("runtime", f.Runtime)
 	d.Set("timeout", f.Timeout)
 	d.Set("user_data", f.UserData)
-	d.Set("xrole", f.Xrole)
+
+	if _, ok := d.GetOk("app"); ok {
+		d.Set("app", f.Package)
+	} else {
+		d.Set("package", f.Package)
+	}
+
+	if _, ok := d.GetOk("agency"); ok {
+		d.Set("agency", f.Xrole)
+	} else {
+		d.Set("xrole", f.Xrole)
+	}
 
 	return nil
 }
