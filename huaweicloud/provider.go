@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 )
 
 const defaultCloud string = "myhuaweicloud.com"
@@ -265,7 +266,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_compute_instance":            DataSourceComputeInstance(),
 			"huaweicloud_csbs_backup":                 dataSourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy":          dataSourceCSBSBackupPolicyV1(),
-			"huaweicloud_cts_tracker":                 dataSourceCTSTrackerV1(),
 			"huaweicloud_dcs_az":                      dataSourceDcsAZV1(),
 			"huaweicloud_dcs_maintainwindow":          dataSourceDcsMaintainWindowV1(),
 			"huaweicloud_dcs_product":                 dataSourceDcsProductV1(),
@@ -331,7 +331,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dms_maintainwindow_v1":     dataSourceDmsMaintainWindowV1(),
 			"huaweicloud_vbs_backup_policy_v2":      dataSourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup_v2":             dataSourceVBSBackupV2(),
-			"huaweicloud_cts_tracker_v1":            dataSourceCTSTrackerV1(),
 			"huaweicloud_antiddos_v1":               dataSourceAntiDdosV1(),
 			"huaweicloud_dcs_az_v1":                 dataSourceDcsAZV1(),
 			"huaweicloud_dcs_maintainwindow_v1":     dataSourceDcsMaintainWindowV1(),
@@ -347,6 +346,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_rts_stack_v1":                  dataSourceRTSStackV1(),
 			"huaweicloud_rts_stack_resource_v1":         dataSourceRTSStackResourcesV1(),
 			"huaweicloud_rts_software_config_v1":        dataSourceRtsSoftwareConfigV1(),
+			"huaweicloud_cts_tracker":                   deprecated.DataSourceCTSTrackerV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -381,7 +381,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_csbs_backup_policy":              resourceCSBSBackupPolicyV1(),
 			"huaweicloud_css_cluster":                     resourceCssClusterV1(),
 			"huaweicloud_css_snapshot":                    resourceCssSnapshot(),
-			"huaweicloud_cts_tracker":                     resourceCTSTrackerV1(),
 			"huaweicloud_dcs_instance":                    ResourceDcsInstanceV1(),
 			"huaweicloud_dds_instance":                    resourceDdsInstanceV3(),
 			"huaweicloud_dis_stream":                      resourceDisStreamV2(),
@@ -536,7 +535,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_csbs_backup_policy_v1":              resourceCSBSBackupPolicyV1(),
 			"huaweicloud_vbs_backup_policy_v2":               resourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup_v2":                      resourceVBSBackupV2(),
-			"huaweicloud_cts_tracker_v1":                     resourceCTSTrackerV1(),
 			"huaweicloud_maas_task":                          resourceMaasTaskV1(),
 			"huaweicloud_maas_task_v1":                       resourceMaasTaskV1(),
 			"huaweicloud_identity_project_v3":                ResourceIdentityProjectV3(),
@@ -577,6 +575,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_compute_floatingip_associate_v2":    ResourceComputeFloatingIPAssociateV2(),
 			"huaweicloud_rts_stack_v1":                       resourceRTSStackV1(),
 			"huaweicloud_rts_software_config_v1":             resourceSoftwareConfigV1(),
+			"huaweicloud_cts_tracker":                        deprecated.ResourceCTSTrackerV1(),
 		},
 	}
 

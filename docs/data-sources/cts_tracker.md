@@ -1,11 +1,12 @@
 ---
-subcategory: "Cloud Trace Service (CTS)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_cts\_tracker
 
+!> **Warning:** It has been deprecated.
+
 CTS Tracker data source allows access of Cloud Tracker.
-This is an alternative to `huaweicloud_cts_tracker_v1`
 
 ## Example Usage
 

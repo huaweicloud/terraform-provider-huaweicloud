@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"fmt"
@@ -9,9 +9,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceCTSTrackerV1() *schema.Resource {
+func DataSourceCTSTrackerV1() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceCTSTrackerV1Read,
+		Read:               dataSourceCTSTrackerV1Read,
+		DeprecationMessage: "CTS tracker has been deprecated.",
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -69,7 +70,7 @@ func dataSourceCTSTrackerV1() *schema.Resource {
 
 func dataSourceCTSTrackerV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	trackerClient, err := config.CtsV1Client(GetRegion(d, config))
+	trackerClient, err := config.CtsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("Error creating cts Client: %s", err)
 	}
@@ -113,7 +114,7 @@ func dataSourceCTSTrackerV1Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("operations", trackers.SimpleMessageNotification.Operations)
 	d.Set("need_notify_user_list", trackers.SimpleMessageNotification.NeedNotifyUserList)
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
