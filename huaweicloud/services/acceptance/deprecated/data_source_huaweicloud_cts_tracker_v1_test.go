@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"fmt"
@@ -6,14 +6,15 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccCTSTrackerV1DataSource_basic(t *testing.T) {
 	dataName := "data.huaweicloud_cts_tracker.tracker"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:  func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers: acceptance.TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCTSTrackerV1DataSource_basic,
