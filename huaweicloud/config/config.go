@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	huaweisdk "github.com/huaweicloud/golangsdk/openstack"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/domains"
@@ -511,6 +512,28 @@ func (c *Config) loadUserProjects(client *golangsdk.ProviderClient, region strin
 		c.RegionProjectIDMap[item.Name] = item.ID
 	}
 	return nil
+}
+
+// GetRegion returns the region that was specified in the resource. If a
+// region was not set, the provider-level region is checked. The provider-level
+// region can either be set by the region argument or by HW_REGION_NAME.
+func (c *Config) GetRegion(d *schema.ResourceData) string {
+	if v, ok := d.GetOk("region"); ok {
+		return v.(string)
+	}
+
+	return c.Region
+}
+
+// GetEnterpriseProjectID returns the enterprise_project_id that was specified in the resource.
+// If it was not set, the provider-level value is checked. The provider-level value can
+// either be set by the `enterprise_project_id` argument or by HW_ENTERPRISE_PROJECT_ID.
+func (c *Config) GetEnterpriseProjectID(d *schema.ResourceData) string {
+	if v, ok := d.GetOk("enterprise_project_id"); ok {
+		return v.(string)
+	}
+
+	return c.EnterpriseProjectID
 }
 
 // ********** client for Global Service **********

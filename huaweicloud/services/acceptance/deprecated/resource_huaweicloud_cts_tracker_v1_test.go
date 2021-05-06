@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cts/v1/tracker"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccCTSTrackerV1_basic(t *testing.T) {
@@ -16,8 +17,8 @@ func TestAccCTSTrackerV1_basic(t *testing.T) {
 	resourceName := "huaweicloud_cts_tracker.tracker"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckCTSTrackerV1Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -45,8 +46,8 @@ func TestAccCTSTrackerV1_basic(t *testing.T) {
 }
 
 func testAccCheckCTSTrackerV1Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	ctsClient, err := config.CtsV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	ctsClient, err := config.CtsV1Client(config.GetRegion(nil))
 	if err != nil {
 		return fmt.Errorf("Error creating cts client: %s", err)
 	}
@@ -79,8 +80,8 @@ func testAccCheckCTSTrackerV1Exists(n string, trackers *tracker.Tracker) resourc
 			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		ctsClient, err := config.CtsV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		ctsClient, err := config.CtsV1Client(config.GetRegion(nil))
 		if err != nil {
 			return fmt.Errorf("Error creating cts client: %s", err)
 		}

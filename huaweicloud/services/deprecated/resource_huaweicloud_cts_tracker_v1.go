@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"time"
@@ -13,12 +13,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func resourceCTSTrackerV1() *schema.Resource {
+func ResourceCTSTrackerV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCTSTrackerCreate,
-		Read:   resourceCTSTrackerRead,
-		Update: resourceCTSTrackerUpdate,
-		Delete: resourceCTSTrackerDelete,
+		Create:             resourceCTSTrackerCreate,
+		Read:               resourceCTSTrackerRead,
+		Update:             resourceCTSTrackerUpdate,
+		Delete:             resourceCTSTrackerDelete,
+		DeprecationMessage: "CTS tracker has been deprecated.",
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -86,7 +87,7 @@ func resourceCTSTrackerV1() *schema.Resource {
 
 func resourceCTSTrackerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	ctsClient, err := config.CtsV1Client(GetRegion(d, config))
+	ctsClient, err := config.CtsV1Client(config.GetRegion(d))
 
 	if err != nil {
 		return fmt.Errorf("Error creating cts Client: %s", err)
@@ -121,7 +122,7 @@ func resourceCTSTrackerCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCTSTrackerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	ctsClient, err := config.CtsV1Client(GetRegion(d, config))
+	ctsClient, err := config.CtsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("Error creating cts Client: %s", err)
 	}
@@ -154,14 +155,14 @@ func resourceCTSTrackerRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("operations", ctsTracker.SimpleMessageNotification.Operations)
 	d.Set("need_notify_user_list", ctsTracker.SimpleMessageNotification.NeedNotifyUserList)
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
 
 func resourceCTSTrackerUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	ctsClient, err := config.CtsV1Client(GetRegion(d, config))
+	ctsClient, err := config.CtsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("Error creating cts Client: %s", err)
 	}
@@ -199,7 +200,7 @@ func resourceCTSTrackerUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCTSTrackerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	ctsClient, err := config.CtsV1Client(GetRegion(d, config))
+	ctsClient, err := config.CtsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("Error creating cts Client: %s", err)
 	}

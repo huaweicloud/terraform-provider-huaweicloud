@@ -1,11 +1,12 @@
 ---
-subcategory: "Cloud Trace Service (CTS)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_cts\_tracker
 
+!> **Warning:** It has been deprecated.
+
 Allows you to collect, store, and query cloud resource operation records.
-This is an alternative to `huaweicloud_cts_tracker_v1`
 
 ## Example Usage
 
