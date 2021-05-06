@@ -39,25 +39,27 @@ func init() {
 	}
 }
 
-func TestAccPreCheckRequiredEnvVars(t *testing.T) {
+func preCheckRequiredEnvVars(t *testing.T) {
 	if HW_REGION_NAME == "" {
 		t.Fatal("HW_REGION_NAME must be set for acceptance tests")
 	}
 }
 
+//lintignore:AT003
 func TestAccPreCheck(t *testing.T) {
 	// Do not run the test if this is a deprecated testing environment.
 	if HW_DEPRECATED_ENVIRONMENT != "" {
 		t.Skip("This environment only runs deprecated tests")
 	}
 
-	TestAccPreCheckRequiredEnvVars(t)
+	preCheckRequiredEnvVars(t)
 }
 
+//lintignore:AT003
 func TestAccPreCheckDeprecated(t *testing.T) {
 	if HW_DEPRECATED_ENVIRONMENT == "" {
 		t.Skip("This environment does not support deprecated tests")
 	}
 
-	TestAccPreCheckRequiredEnvVars(t)
+	preCheckRequiredEnvVars(t)
 }
