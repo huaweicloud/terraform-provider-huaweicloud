@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -15,8 +16,30 @@ func DataSourceIdentityRoleV3() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				AtLeastOneOf: []string{"name", "display_name"},
+			},
+			"display_name": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				AtLeastOneOf: []string{"name", "display_name"},
+			},
+			"description": {
 				Type:     schema.TypeString,
-				Required: true,
+				Computed: true,
+			},
+			"catalog": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"policy": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -31,7 +54,8 @@ func dataSourceIdentityRoleV3Read(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	listOpts := roles.ListOpts{
-		Name: d.Get("name").(string),
+		Name:        d.Get("name").(string),
+		DisplayName: d.Get("display_name").(string),
 	}
 
 	log.Printf("[DEBUG] List Options: %#v", listOpts)
@@ -54,8 +78,8 @@ func dataSourceIdentityRoleV3Read(d *schema.ResourceData, meta interface{}) erro
 
 	if len(allRoles) > 1 {
 		log.Printf("[DEBUG] Multiple results found: %#v", allRoles)
-		return fmt.Errorf("Your query returned more than one result. Please try a more " +
-			"specific search criteria, or set `most_recent` attribute to true.")
+		return fmt.Errorf("Your query returned more than one result. " +
+			"Please try a more specific search criteria.")
 	}
 	role = allRoles[0]
 
@@ -69,6 +93,16 @@ func dataSourceIdentityRoleV3Attributes(d *schema.ResourceData, config *config.C
 
 	d.SetId(role.ID)
 	d.Set("name", role.Name)
+	d.Set("description", role.Description)
+	d.Set("display_name", role.DisplayName)
+	d.Set("catalog", role.Catalog)
+	d.Set("type", role.Type)
+
+	policy, err := json.Marshal(role.Policy)
+	if err != nil {
+		return fmt.Errorf("Error marshalling policy: %s", err)
+	}
+	d.Set("policy", string(policy))
 
 	return nil
 }

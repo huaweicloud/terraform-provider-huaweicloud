@@ -19,10 +19,19 @@ func TestAccIdentityRoleDataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityRoleDataSource_basic,
+				Config: testAccIdentityRoleDataSource_by_name,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIdentityDataSourceID(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", "secu_admin"),
+					resource.TestCheckResourceAttr(resourceName, "name", "system_all_64"),
+					resource.TestCheckResourceAttr(resourceName, "display_name", "OBS ReadOnlyAccess"),
+				),
+			},
+			{
+				Config: testAccIdentityRoleDataSource_by_displayname,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIdentityDataSourceID(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", "kms_adm"),
+					resource.TestCheckResourceAttr(resourceName, "display_name", "KMS Administrator"),
 				),
 			},
 		},
@@ -44,8 +53,14 @@ func testAccCheckIdentityDataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-const testAccIdentityRoleDataSource_basic = `
+const testAccIdentityRoleDataSource_by_name = `
 data "huaweicloud_identity_role" "role_1" {
-  name = "secu_admin"
+  # OBS ReadOnlyAccess
+  name = "system_all_64"
+}
+`
+const testAccIdentityRoleDataSource_by_displayname = `
+data "huaweicloud_identity_role" "role_1" {
+  display_name = "KMS Administrator"
 }
 `

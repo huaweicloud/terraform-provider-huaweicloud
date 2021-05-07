@@ -4,11 +4,9 @@ subcategory: "Identity and Access Management (IAM)"
 
 # huaweicloud\_identity\_custom\_role
 
-Use this data source to get the ID of an HuaweiCloud custom role.
+Use this data source to get the ID of an IAM **custom policy**.
 
-The Role in Terraform is the same as Policy on console. however,
-The policy name is the display name of Role, the Role name cannot
-be found on Console. 
+## Example Usage
 
 ```hcl
 data "huaweicloud_identity_custom_role" "role" {

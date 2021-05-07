@@ -19,8 +19,13 @@ type Role struct {
 	// Links contains referencing links to the role.
 	Links map[string]interface{} `json:"links"`
 
-	// Name is the role name
-	Name string `json:"name"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	DisplayName string `json:"display_name"`
+	Flag        string `json:"flag"`
+	Catalog     string `json:"catalog"`
+	Type        string `json:"type"`
+	Policy      Policy `json:"policy"`
 
 	// Extra is a collection of miscellaneous key/values.
 	Extra map[string]interface{} `json:"-"`

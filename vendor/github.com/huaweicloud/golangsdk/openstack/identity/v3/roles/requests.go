@@ -14,10 +14,24 @@ type ListOptsBuilder interface {
 // ListOpts provides options to filter the List results.
 type ListOpts struct {
 	// DomainID filters the response by a domain ID.
+	// If this parameter is specified, only custom policies of the account will be returned.
+	// If not specified, all system permissions (including system-defined policies and roles) will be returned.
 	DomainID string `q:"domain_id"`
 
 	// Name filters the response by role name.
 	Name string `q:"name"`
+
+	DisplayName string `q:"display_name"`
+
+	// This parameter is valid only when domain_id is left blank.
+	// policy: system-defined policy; role: system-defined role
+	PermissionType string `q:"permission_type"`
+
+	// Display mode of the permission. The options include domain, project, and all.
+	Type string `q:"type"`
+
+	// Service catalog, which corresponds to the catalog field in policies.
+	Catalog string `q:"catalog"`
 }
 
 // ToRoleListQuery formats a ListOpts into a query string.
