@@ -665,6 +665,11 @@ func (c *Config) ElbV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("elbv2", region)
 }
 
+// client for v3 api
+func (c *Config) ElbV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("elbv3", region)
+}
+
 // client for v2 api
 func (c *Config) LoadBalancerClient(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("loadbalancer", region)
