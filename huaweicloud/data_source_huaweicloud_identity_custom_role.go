@@ -103,8 +103,8 @@ func dataSourceIdentityCustomRoleRead(d *schema.ResourceData, meta interface{}) 
 
 	if len(allRoles) > 1 {
 		log.Printf("[DEBUG] Multiple results found: %#v", allRoles)
-		return fmt.Errorf("Your query returned more than one result. Please try a more " +
-			"specific search criteria.")
+		return fmt.Errorf("Your query returned more than one result. " +
+			"Please try a more specific search criteria.")
 	}
 	role := allRoles[0]
 
