@@ -26,7 +26,7 @@ func TestAccNetworkingV2EIPAssociate_basic(t *testing.T) {
 			{
 				Config: testAccNetworkingV2EIPAssociate_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip_v1.test", &eip),
+					testAccCheckVpcV1EIPExists("huaweicloud_vpc_eip.test", &eip),
 					resource.TestCheckResourceAttrPtr(
 						resourceName, "public_ip", &eip.PublicAddress),
 				),
@@ -43,7 +43,7 @@ func testAccCheckNetworkingV2EIPAssociateDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_vpc_eip_v1" {
+		if rs.Type != "huaweicloud_vpc_eip" {
 			continue
 		}
 
@@ -58,28 +58,9 @@ func testAccCheckNetworkingV2EIPAssociateDestroy(s *terraform.State) error {
 
 func testAccNetworkingV2EIPAssociate_basic(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc_v1" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
+%s
 
-resource "huaweicloud_vpc_subnet_v1" "test" {
-  name          = "%s"
-  cidr          = "192.168.0.0/16"
-  gateway_ip    = "192.168.0.1"
-  vpc_id        = huaweicloud_vpc_v1.test.id
-}
-
-resource "huaweicloud_networking_port_v2" "test" {
-  network_id = huaweicloud_vpc_subnet_v1.test.id
-
-  fixed_ip {
-    subnet_id  = huaweicloud_vpc_subnet_v1.test.subnet_id
-    ip_address = "192.168.0.20"
-  }
-}
-
-resource "huaweicloud_vpc_eip_v1" "test" {
+resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type = "5_bgp"
   }
@@ -92,8 +73,8 @@ resource "huaweicloud_vpc_eip_v1" "test" {
 }
 
 resource "huaweicloud_networking_eip_associate" "test" {
-  public_ip = huaweicloud_vpc_eip_v1.test.address
-  port_id     = huaweicloud_networking_port_v2.test.id
+  public_ip   = huaweicloud_vpc_eip.test.address
+  port_id     = huaweicloud_compute_instance.test.network[0].port
 }
-`, rName, rName, rName)
+`, testAccComputeV2Instance_basic(rName), rName)
 }
