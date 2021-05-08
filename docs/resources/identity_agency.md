@@ -33,16 +33,16 @@ resource "huaweicloud_identity_agency" "agency" {
 resource "huaweicloud_identity_agency" "agency" {
   name                   = "test_agency"
   description            = "test agency"
-  delegated_service_name = "op_svc_obs"
+  delegated_service_name = "op_svc_evs"
 
   project_role {
     project = "cn-north-1"
     roles = [
-      "Tenant Administrator",
+      "SFS FullAccess",
     ]
   }
   domain_roles = [
-    "OBS OperateAccess",
+    "KMS Administrator",
   ]
 }
 ```
@@ -61,6 +61,7 @@ The following arguments are supported:
     This parameter and `delegated_service_name` are alternative.
 
 * `delegated_service_name` - (Optional, String) Specifies the name of delegated cloud service.
+    The value must start with *op_svc_*, for example, *op_svc_obs*.
     This parameter and `delegated_domain_name` are alternative.
 
 * `duration` - (Optional, String) Specifies the validity period of an agency.
@@ -78,7 +79,10 @@ The `project_role` block supports:
 
 * `roles` - (Required, List) Specifies an array of role names.
 
-**note**: one or both of `project_role` and `domain_roles` must be input when creating an agency.
+-> **NOTE**
+    - At least one of `project_role` and `domain_roles` must be specified when creating an agency.
+    - We can get all **System-Defined Roles** form
+[HuaweiCloud](https://support.huaweicloud.com/intl/en-us/usermanual-permissions/iam_01_0001.html).
 
 ## Attributes Reference
 

@@ -31,7 +31,7 @@ func TestAccIdentityAgency_basic(t *testing.T) {
 					testAccCheckIdentityAgencyExists(resourceName, &agency),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a test agency"),
-					resource.TestCheckResourceAttr(resourceName, "delegated_service_name", "op_svc_obs"),
+					resource.TestCheckResourceAttr(resourceName, "delegated_service_name", "op_svc_evs"),
 					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "1"),
 				),
@@ -48,8 +48,8 @@ func TestAccIdentityAgency_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a updated test agency"),
 					resource.TestCheckResourceAttr(resourceName, "delegated_service_name", "op_svc_evs"),
-					resource.TestCheckResourceAttr(resourceName, "duration", "ONEDAY"),
-					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
+					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "2"),
 				),
 			},
 		},
@@ -93,7 +93,7 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a updated test agency"),
 					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", HW_DOMAIN_NAME),
-					resource.TestCheckResourceAttr(resourceName, "duration", "ONEDAY"),
+					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "2"),
 				),
 			},
@@ -157,7 +157,7 @@ func testAccIdentityAgency_basic(rName string) string {
 resource "huaweicloud_identity_agency" "test" {
   name                   = "%s"
   description            = "This is a test agency"
-  delegated_service_name = "op_svc_obs"
+  delegated_service_name = "op_svc_evs"
 
   domain_roles = [
     "OBS OperateAccess",
@@ -172,10 +172,9 @@ resource "huaweicloud_identity_agency" "test" {
   name                   = "%s"
   description            = "This is a updated test agency"
   delegated_service_name = "op_svc_evs"
-  duration              = "ONEDAY"
 
   domain_roles = [
-    "Anti-DDoS Administrator",
+    "OBS OperateAccess", "KMS Administrator",
   ]
 }
 `, rName)
@@ -201,7 +200,6 @@ resource "huaweicloud_identity_agency" "test" {
   name                  = "%s"
   description           = "This is a updated test agency"
   delegated_domain_name = "%s"
-  duration              = "ONEDAY"
 
   domain_roles = [
     "Anti-DDoS Administrator",
