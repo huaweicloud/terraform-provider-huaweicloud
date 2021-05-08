@@ -9,15 +9,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
 func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
-	rand := acctest.RandString(5)
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var instance servers.Server
 	var vip ports.Port
-	var port1 ports.Port
-	var port2 ports.Port
+	var port ports.Port
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -25,13 +26,12 @@ func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkingV2VIPAssociateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkingV2VIPAssociateConfig_basic(rand),
+				Config: testAccNetworkingV2VIPAssociateConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port.port_1", &port1),
-					testAccCheckNetworkingV2PortExists("huaweicloud_networking_port.port_2", &port2),
+					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.test", &instance),
+					testAccCheckNetworkingV2VIPExists("data.huaweicloud_networking_port.port", &port),
 					testAccCheckNetworkingV2VIPExists("huaweicloud_networking_vip.vip_1", &vip),
-					testAccCheckNetworkingV2VIPAssociated(&port1, &vip),
-					testAccCheckNetworkingV2VIPAssociated(&port2, &vip),
+					testAccCheckNetworkingV2VIPAssociated(&port, &vip),
 				),
 			},
 		},
@@ -107,45 +107,21 @@ func testAccCheckNetworkingV2VIPAssociated(p *ports.Port, vip *ports.Port) resou
 	}
 }
 
-func testAccNetworkingV2VIPAssociateConfig_basic(rand string) string {
+func testAccNetworkingV2VIPAssociateConfig_basic(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "vpc_1" {
-  name = "acc-test-vpc-%s"
-  cidr = "192.168.0.0/16"
-}
+%s
 
-resource "huaweicloud_vpc_subnet" "subnet_1" {
-  vpc_id     = huaweicloud_vpc.vpc_1.id
-  name       = "acc-test-subnet-%s"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-}
-
-resource "huaweicloud_networking_port" "port_1" {
-  name       = "port_1"
-  network_id = huaweicloud_vpc_subnet.subnet_1.id
-
-  fixed_ip {
-    subnet_id = huaweicloud_vpc_subnet.subnet_1.subnet_id
-  }
-}
-
-resource "huaweicloud_networking_port" "port_2" {
-  name       = "port_2"
-  network_id = huaweicloud_vpc_subnet.subnet_1.id
-
-  fixed_ip {
-    subnet_id = huaweicloud_vpc_subnet.subnet_1.subnet_id
-  }
+data "huaweicloud_networking_port" "port" {
+  port_id = huaweicloud_compute_instance.test.network[0].port
 }
 
 resource "huaweicloud_networking_vip" "vip_1" {
-  network_id = huaweicloud_vpc_subnet.subnet_1.id
+  network_id = data.huaweicloud_vpc_subnet.test.id
 }
 
 resource "huaweicloud_networking_vip_associate" "vip_associate_1" {
   vip_id   = huaweicloud_networking_vip.vip_1.id
-  port_ids = [huaweicloud_networking_port.port_1.id, huaweicloud_networking_port.port_2.id]
+  port_ids = [huaweicloud_compute_instance.test.network[0].port]
 }
-	`, rand, rand)
+`, testAccComputeV2Instance_basic(rName))
 }
