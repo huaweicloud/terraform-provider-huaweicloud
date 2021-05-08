@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -13,6 +14,9 @@ import (
 
 func TestAccRdsConfigurationV3_basic(t *testing.T) {
 	var config configurations.Configuration
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	updateName := fmt.Sprintf("tf-acc-test-%s-update", acctest.RandString(5))
+	resourceName := "huaweicloud_rds_parametergroup.pg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,23 +24,19 @@ func TestAccRdsConfigurationV3_basic(t *testing.T) {
 		CheckDestroy: testAccCheckRdsConfigV3Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsConfigV3_basic,
+				Config: testAccRdsConfigV3_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsConfigV3Exists("huaweicloud_rds_parametergroup_v3.pg_1", &config),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_rds_parametergroup_v3.pg_1", "name", "pg_1"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_rds_parametergroup_v3.pg_1", "description", "description_1"),
+					testAccCheckRdsConfigV3Exists(resourceName, &config),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "description_1"),
 				),
 			},
 			{
-				Config: testAccRdsConfigV3_update,
+				Config: testAccRdsConfigV3_update(updateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsConfigV3Exists("huaweicloud_rds_parametergroup_v3.pg_1", &config),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_rds_parametergroup_v3.pg_1", "name", "pg_update"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_rds_parametergroup_v3.pg_1", "description", "description_update"),
+					testAccCheckRdsConfigV3Exists(resourceName, &config),
+					resource.TestCheckResourceAttr(resourceName, "name", updateName),
+					resource.TestCheckResourceAttr(resourceName, "description", "description_update"),
 				),
 			},
 		},
@@ -51,7 +51,7 @@ func testAccCheckRdsConfigV3Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_rds_parametergroup_v3" {
+		if rs.Type != "huaweicloud_rds_parametergroup" {
 			continue
 		}
 
@@ -96,32 +96,38 @@ func testAccCheckRdsConfigV3Exists(n string, configuration *configurations.Confi
 	}
 }
 
-const testAccRdsConfigV3_basic = `
-resource "huaweicloud_rds_parametergroup_v3" "pg_1" {
-	name = "pg_1"
-	description = "description_1"
-	values = {
-		max_connections = "10"
-		autocommit = "OFF"
-	}
-	datastore {
-		type = "mysql"
-		version = "5.6"
-	}
-}
-`
+func testAccRdsConfigV3_basic(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_rds_parametergroup" "pg_1" {
+  name        = "%s"
+  description = "description_1"
 
-const testAccRdsConfigV3_update = `
-resource "huaweicloud_rds_parametergroup_v3" "pg_1" {
-	name = "pg_update"
-	description = "description_update"
-	values = {
-		max_connections = "10"
-		autocommit = "OFF"
-	}
-	datastore {
-		type = "mysql"
-		version = "5.6"
-	}
+  values = {
+    max_connections = "10"
+    autocommit      = "OFF"
+  }
+  datastore {
+    type    = "mysql"
+    version = "5.6"
+  }
 }
-`
+`, rName)
+}
+
+func testAccRdsConfigV3_update(updateName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_rds_parametergroup" "pg_1" {
+  name        = "%s"
+  description = "description_update"
+
+  values = {
+    max_connections = "10"
+    autocommit      = "OFF"
+  }
+  datastore {
+    type    = "mysql"
+    version = "5.6"
+  }
+}
+`, updateName)
+}
