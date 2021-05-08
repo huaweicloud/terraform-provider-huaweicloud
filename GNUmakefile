@@ -6,7 +6,7 @@ PKG_NAME=huaweicloud
 default: build
 
 build: fmtcheck
-	go install
+	go install $(FLAGS)
 	
 sweep:
 	@echo "WARNING: This will destroy infrastructure. Use only in development accounts."
