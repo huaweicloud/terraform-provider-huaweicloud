@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/huaweicloud/golangsdk"
@@ -18,6 +19,10 @@ func ResourceCCEAddonV3() *schema.Resource {
 		Create: resourceCCEAddonV3Create,
 		Read:   resourceCCEAddonV3Read,
 		Delete: resourceCCEAddonV3Delete,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceCCEAddonV3Import,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -251,4 +256,20 @@ func waitForCCEAddonDelete(cceClient *golangsdk.ServiceClient, id, clusterID str
 		log.Printf("[DEBUG] HuaweiCloud CCE Addon %s still available.\n", id)
 		return r, "Available", nil
 	}
+}
+
+func resourceCCEAddonV3Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		err := fmt.Errorf("Invalid format specified for CCE Addon. Format must be <cluster id>/<addon id>")
+		return nil, err
+	}
+
+	clusterID := parts[0]
+	addonID := parts[1]
+
+	d.SetId(addonID)
+	d.Set("cluster_id", clusterID)
+
+	return []*schema.ResourceData{d}, nil
 }

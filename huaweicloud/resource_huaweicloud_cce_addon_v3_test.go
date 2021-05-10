@@ -31,6 +31,12 @@ func TestAccCCEAddonV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "running"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccCCEAddonImportStateIdFunc(),
+			},
 		},
 	})
 }
@@ -99,6 +105,24 @@ func testAccCheckCCEAddonV3Exists(n string, cluster string, addon *addons.Addon)
 		*addon = *found
 
 		return nil
+	}
+}
+
+func testAccCCEAddonImportStateIdFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		var clusterID string
+		var addonID string
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type == "huaweicloud_cce_cluster" {
+				clusterID = rs.Primary.ID
+			} else if rs.Type == "huaweicloud_cce_addon" {
+				addonID = rs.Primary.ID
+			}
+		}
+		if clusterID == "" || addonID == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", clusterID, addonID)
+		}
+		return fmt.Sprintf("%s/%s", clusterID, addonID), nil
 	}
 }
 
