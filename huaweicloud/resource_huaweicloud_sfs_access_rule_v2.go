@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func resourceSFSAccessRuleV2() *schema.Resource {
+func ResourceSFSAccessRuleV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSFSAccessRuleV2Create,
 		Read:   resourceSFSAccessRuleV2Read,

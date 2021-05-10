@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func dataSourceSFSFileSystemV2() *schema.Resource {
+func DataSourceSFSFileSystemV2() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceSFSFileSystemV2Read,
 

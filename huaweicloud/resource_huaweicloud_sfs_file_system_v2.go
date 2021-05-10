@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func resourceSFSFileSystemV2() *schema.Resource {
+func ResourceSFSFileSystemV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSFSFileSystemV2Create,
 		Read:   resourceSFSFileSystemV2Read,
