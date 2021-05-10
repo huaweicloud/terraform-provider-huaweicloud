@@ -21,6 +21,7 @@ func TestAccIdentityV3Project_basic(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 			testAccPreCheckAdminOnly(t)
+			testAccPreCheckProject(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckIdentityV3ProjectDestroy,

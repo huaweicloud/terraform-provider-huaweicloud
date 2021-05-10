@@ -158,6 +158,12 @@ func testAccPreCheckEpsID(t *testing.T) {
 	}
 }
 
+func testAccPreCheckProject(t *testing.T) {
+	if HW_ENTERPRISE_PROJECT_ID_TEST != "" {
+		t.Skip("This environment does not support project tests")
+	}
+}
+
 func testAccAsConfigPreCheck(t *testing.T) {
 	if HW_FLAVOR_ID == "" {
 		t.Skip("HW_FLAVOR_ID must be set for acceptance tests")
