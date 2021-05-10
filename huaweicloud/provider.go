@@ -289,6 +289,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_images_image":                DataSourceImagesImageV2(),
 			"huaweicloud_kms_key":                     dataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key":                dataSourceKmsDataKeyV1(),
+			"huaweicloud_lb_loadbalancer":             dataSourceELBV2Loadbalancer(),
 			"huaweicloud_nat_gateway":                 DataSourceNatGatewayV2(),
 			"huaweicloud_networking_port":             DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":         DataSourceNetworkingSecGroupV2(),

@@ -86,6 +86,7 @@ func ResourceLoadBalancerV2() *schema.Resource {
 			},
 
 			"tags": tagsSchema(),
+
 			"loadbalancer_provider": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -100,6 +101,7 @@ func ResourceLoadBalancerV2() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
