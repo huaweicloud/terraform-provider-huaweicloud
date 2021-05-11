@@ -82,6 +82,10 @@ type UpdateResult struct {
 	golangsdk.ErrResult
 }
 
+type EnableResult struct {
+	golangsdk.ErrResult
+}
+
 type DeleteResult struct {
 	golangsdk.ErrResult
 }

@@ -123,6 +123,7 @@ type RequestSpec struct {
 type Values struct {
 	Basic  map[string]interface{} `json:"basic" required:"true"`
 	Custom map[string]interface{} `json:"custom,omitempty"`
+	Flavor map[string]interface{} `json:"flavor,omitempty"`
 }
 
 // ToAddonCreateMap builds a create request body from CreateOpts.

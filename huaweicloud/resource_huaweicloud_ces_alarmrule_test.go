@@ -25,9 +25,11 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 				Config: testCESAlarmRule_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testCESAlarmRuleExists(resourceName, &ar),
+					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmt.Sprintf("rule-%s", rName)),
 					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_level", "2"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.value", "6"),
 				),
 			},
 			{
@@ -38,7 +40,10 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 			{
 				Config: testCESAlarmRule_update(rName),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmt.Sprintf("rule-%s-update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "alarm_level", "3"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.value", "60"),
 				),
 			},
 		},
@@ -174,9 +179,10 @@ func testCESAlarmRule_update(rName string) string {
 %s
 
 resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
-  alarm_name           = "rule-%s"
+  alarm_name           = "rule-%s-update"
   alarm_action_enabled = true
   alarm_enabled        = false
+  alarm_level          = 3
 
   metric {
     namespace   = "SYS.ECS"
@@ -190,7 +196,7 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
     period              = 300
     filter              = "average"
     comparison_operator = ">"
-    value               = 6
+    value               = 60
     unit                = "B/s"
     count               = 1
   }
