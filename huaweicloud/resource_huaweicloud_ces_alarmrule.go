@@ -19,11 +19,13 @@ const nameCESAR = "CES-AlarmRule"
 var cesAlarmActions = schema.Schema{
 	Type:     schema.TypeList,
 	Optional: true,
+	ForceNew: true,
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"notification", "autoscaling",
 				}, false),
@@ -31,8 +33,9 @@ var cesAlarmActions = schema.Schema{
 
 			"notification_list": {
 				Type:     schema.TypeList,
-				Required: true,
 				MaxItems: 5,
+				Required: true,
+				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -75,6 +78,7 @@ func resourceAlarmRule() *schema.Resource {
 			"metric": {
 				Type:     schema.TypeList,
 				Required: true,
+				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -152,6 +156,7 @@ func resourceAlarmRule() *schema.Resource {
 						"unit": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ForceNew: true,
 						},
 					},
 				},
@@ -170,7 +175,6 @@ func resourceAlarmRule() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      2,
-				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(1, 4),
 			},
 
@@ -367,24 +371,54 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	arId := d.Id()
 
-	if !d.HasChange("alarm_enabled") {
-		log.Printf("[WARN] %s Nothing will be updated", nameCESAR)
-		return nil
-	}
-	updateOpts := alarmrule.UpdateOpts{AlarmEnabled: d.Get("alarm_enabled").(bool)}
-	log.Printf("[DEBUG] Updating %s %s with options: %#v", nameCESAR, arId, updateOpts)
+	if d.HasChange("alarm_enabled") {
+		enabled := d.Get("alarm_enabled").(bool)
+		enableOpts := alarmrule.EnableOpts{
+			AlarmEnabled: enabled,
+		}
+		log.Printf("[DEBUG] Updating %s %s to %#v", nameCESAR, arId, enabled)
 
-	timeout := d.Timeout(schema.TimeoutUpdate)
-	//lintignore:R006
-	err = resource.Retry(timeout, func() *resource.RetryError {
+		timeout := d.Timeout(schema.TimeoutUpdate)
+		//lintignore:R006
+		err = resource.Retry(timeout, func() *resource.RetryError {
+			err := alarmrule.Enable(client, arId, enableOpts).ExtractErr()
+			if err != nil {
+				return checkForRetryableError(err)
+			}
+			return nil
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating %s %s: %s", nameCESAR, arId, err)
+		}
+	}
+
+	updateOpts := alarmrule.UpdateOpts{}
+	changed := false
+	if d.HasChanges("alarm_name", "alarm_description", "alarm_level", "alarm_action_enabled") {
+		description := d.Get("alarm_description").(string)
+		actionEnabled := d.Get("alarm_action_enabled").(bool)
+
+		updateOpts.Name = d.Get("alarm_name").(string)
+		updateOpts.AlarmLevel = d.Get("alarm_level").(int)
+		updateOpts.Description = &description
+		updateOpts.ActionEnabled = &actionEnabled
+		changed = true
+	}
+
+	if d.HasChange("condition") {
+		condition := getAlarmCondition(d)
+		// unit field is not supported in Update
+		condition.Unit = ""
+		updateOpts.Condition = &condition
+		changed = true
+	}
+
+	if changed {
+		log.Printf("[DEBUG] Updating %s %s opts: %#v", nameCESAR, arId, updateOpts)
 		err := alarmrule.Update(client, arId, updateOpts).ExtractErr()
 		if err != nil {
-			return checkForRetryableError(err)
+			return fmt.Errorf("Error updating %s %s: %s", nameCESAR, arId, err)
 		}
-		return nil
-	})
-	if err != nil {
-		return fmt.Errorf("Error updating %s %s: %s", nameCESAR, arId, err)
 	}
 
 	return resourceAlarmRuleRead(d, meta)

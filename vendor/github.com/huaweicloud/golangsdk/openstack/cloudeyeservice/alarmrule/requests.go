@@ -76,7 +76,15 @@ type UpdateOptsBuilder interface {
 }
 
 type UpdateOpts struct {
-	AlarmEnabled bool `json:"alarm_enabled"`
+	Name          string         `json:"alarm_name,omitempty"`
+	AlarmType     string         `json:"alarm_type,omitempty"`
+	AlarmLevel    int            `json:"alarm_level,omitempty"`
+	Description   *string        `json:"alarm_description,omitempty"`
+	ActionEnabled *bool          `json:"alarm_action_enabled,omitempty"`
+	Condition     *ConditionOpts `json:"condition,omitempty"`
+	// in actual, alarm_actions and ok_actions don't support to update
+	AlarmActions []ActionOpts `json:"alarm_actions,omitempty"`
+	OkActions    []ActionOpts `json:"ok_actions,omitempty"`
 }
 
 func (opts UpdateOpts) ToAlarmRuleUpdateMap() (map[string]interface{}, error) {
@@ -85,6 +93,30 @@ func (opts UpdateOpts) ToAlarmRuleUpdateMap() (map[string]interface{}, error) {
 
 func Update(c *golangsdk.ServiceClient, id string, opts UpdateOpts) (r UpdateResult) {
 	b, err := opts.ToAlarmRuleUpdateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Put(resourceURL(c, id), b, nil, &golangsdk.RequestOpts{
+		OkCodes: []int{204},
+	})
+	return
+}
+
+type EnableOptsBuilder interface {
+	ToAlarmRuleEnableMap() (map[string]interface{}, error)
+}
+
+type EnableOpts struct {
+	AlarmEnabled bool `json:"alarm_enabled"`
+}
+
+func (opts EnableOpts) ToAlarmRuleEnableMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+func Enable(c *golangsdk.ServiceClient, id string, opts EnableOpts) (r EnableResult) {
+	b, err := opts.ToAlarmRuleEnableMap()
 	if err != nil {
 		r.Err = err
 		return

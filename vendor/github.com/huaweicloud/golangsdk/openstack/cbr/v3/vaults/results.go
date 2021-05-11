@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/pagination"
 )
 
@@ -28,20 +29,20 @@ type DeleteResult struct {
 }
 
 type Vault struct {
-	ID                  string         `json:"id"`
-	Name                string         `json:"name"`
-	Billing             Billing        `json:"billing"`
-	Description         string         `json:"description"`
-	ProjectID           string         `json:"project_id"`
-	ProviderID          string         `json:"provider_id"`
-	Resources           []ResourceResp `json:"resources"`
-	Tags                []Tag          `json:"tags"`
-	EnterpriseProjectID string         `json:"enterprise_project_id"`
-	AutoBind            bool           `json:"auto_bind"`
-	BindRules           VaultBindRules `json:"bind_rules"`
-	UserID              string         `json:"user_id"`
-	CreatedAt           string         `json:"created_at"`
-	AutoExpand          bool           `json:"auto_expand"`
+	ID                  string             `json:"id"`
+	Name                string             `json:"name"`
+	Billing             Billing            `json:"billing"`
+	Description         string             `json:"description"`
+	ProjectID           string             `json:"project_id"`
+	ProviderID          string             `json:"provider_id"`
+	Resources           []ResourceResp     `json:"resources"`
+	Tags                []tags.ResourceTag `json:"tags"`
+	EnterpriseProjectID string             `json:"enterprise_project_id"`
+	AutoBind            bool               `json:"auto_bind"`
+	BindRules           VaultBindRules     `json:"bind_rules"`
+	UserID              string             `json:"user_id"`
+	CreatedAt           string             `json:"created_at"`
+	AutoExpand          bool               `json:"auto_expand"`
 }
 
 type Billing struct {

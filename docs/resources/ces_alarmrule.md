@@ -46,8 +46,8 @@ The following arguments are supported:
     be a string of 1 to 128 characters that can consist of numbers, lowercase letters,
     uppercase letters, underscores (_), or hyphens (-).
 
-* `metric` - (Required, List) Specifies the alarm metrics. The structure is described
-    below.
+* `metric` - (Required, List, ForceNew) Specifies the alarm metrics. The structure is described
+    below. Changing this creates a new resource.
 
 * `condition` - (Required, List) Specifies the alarm triggering condition. The structure
     is described below.
@@ -57,22 +57,22 @@ The following arguments are supported:
 * `alarm_enabled` - (Optional, Bool) Specifies whether to enable the alarm. The default
     value is true.
 
-* `alarm_type` - (Optional, Int, ForceNew) Specifies the alarm severity. The value can be
-    1, 2, 3 or 4, which indicates *critical*, *major*, *minor*, and *informational*, respectively.
-    The default value is 2. Changing this creates a new resource.
+* `alarm_level` - (Optional, Int) Specifies the alarm severity. The value can be 1, 2, 3 or 4,
+    which indicates *critical*, *major*, *minor*, and *informational*, respectively.
+    The default value is 2.
 
-* `alarm_actions` - (Optional, List) Specifies the action triggered by an alarm. The
-    structure is described below.
+* `alarm_actions` - (Optional, List, ForceNew) Specifies the action triggered by an alarm. The
+    structure is described below. Changing this creates a new resource.
 
-* `ok_actions` - (Optional, List) Specifies the action triggered by the clearing of
-    an alarm. The structure is described below.
+* `ok_actions` - (Optional, List, ForceNew) Specifies the action triggered by the clearing of
+    an alarm. The structure is described below. Changing this creates a new resource.
 
 * `alarm_action_enabled` - (Optional, Bool) Specifies whether to enable the action
     to be triggered by an alarm. The default value is true.
 
-    -> **Note** If alarm_action_enabled is set to true, either alarm_actions or
+-> **Note** If alarm_action_enabled is set to true, either alarm_actions or
     ok_actions cannot be empty. If alarm_actions and ok_actions coexist, their
-    corresponding notification_list must be of the same value.
+    corresponding notification_list must be of the **same value**.
 
 The `metric` block supports:
 
@@ -97,13 +97,13 @@ The `dimensions` block supports:
 
 * `value` - (Required, String) Specifies the dimension value. The value can be a string
     of 1 to 64 characters that must start with a letter or a number and can consists
-    of uppercase letters, lowercase letters, numbers, underscores (_), or hyphens
-    (-).
+    of uppercase letters, lowercase letters, numbers, underscores (_), or hyphens (-).
 
 The `condition` block supports:
 
 * `period` - (Required, Int) Specifies the alarm checking period in seconds. The
     value can be 1, 300, 1200, 3600, 14400, and 86400.
+
     Note: If period is set to 1, the raw metric data is used to determine
     whether to generate an alarm.
 
@@ -130,10 +130,11 @@ the `alarm_actions` block supports:
 
 * `notification_list` - (Optional, List) specifies the list of objects to be notified
     if the alarm status changes, the maximum length is 5.
-    if type is set to *notification*, the value of notification_list cannot be empty.
-    if type is set to *autoscaling*, the value of notification_list must be **[]**
+    If `type` is set to *notification*, the value of notification_list cannot be empty.
+    If `type` is set to *autoscaling*, the value of notification_list must be **[]**
     and the value of namespace must be *SYS.AS*.
-    Note: to enable the autoscaling alarm rules take effect, you must bind scaling
+
+    Note: to enable the *autoscaling* alarm rules take effect, you must bind scaling
     policies.
 
 the `ok_actions` block supports:

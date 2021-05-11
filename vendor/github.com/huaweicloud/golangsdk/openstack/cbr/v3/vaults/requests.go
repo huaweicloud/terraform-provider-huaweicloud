@@ -2,20 +2,21 @@ package vaults
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 type CreateOpts struct {
-	Billing             *BillingCreate   `json:"billing" required:"true"`
-	Name                string           `json:"name" required:"true"`
-	Resources           []ResourceCreate `json:"resources" required:"true"`
-	AutoBind            bool             `json:"auto_bind,omitempty"`
-	AutoExpand          bool             `json:"auto_expand,omitempty"`
-	BackupPolicyID      string           `json:"backup_policy_id,omitempty"`
-	BindRules           *VaultBindRules  `json:"bind_rules,omitempty"`
-	Description         string           `json:"description,omitempty"`
-	EnterpriseProjectID string           `json:"enterprise_project_id,omitempty"`
-	Tags                []Tag            `json:"tags,omitempty"`
+	Billing             *BillingCreate     `json:"billing" required:"true"`
+	Name                string             `json:"name" required:"true"`
+	Resources           []ResourceCreate   `json:"resources" required:"true"`
+	AutoBind            bool               `json:"auto_bind,omitempty"`
+	AutoExpand          bool               `json:"auto_expand,omitempty"`
+	BackupPolicyID      string             `json:"backup_policy_id,omitempty"`
+	BindRules           *VaultBindRules    `json:"bind_rules,omitempty"`
+	Description         string             `json:"description,omitempty"`
+	EnterpriseProjectID string             `json:"enterprise_project_id,omitempty"`
+	Tags                []tags.ResourceTag `json:"tags,omitempty"`
 }
 
 type BillingCreate struct {
@@ -56,12 +57,7 @@ type ResourceExtraInfoIncludeVolumes struct {
 }
 
 type VaultBindRules struct {
-	Tags []Tag `json:"tags,omitempty"`
-}
-
-type Tag struct {
-	Key   string `json:"key" required:"true"`
-	Value string `json:"value,omitempty"`
+	Tags []tags.ResourceTag `json:"tags,omitempty"`
 }
 
 type CreateOptsBuilder interface {
