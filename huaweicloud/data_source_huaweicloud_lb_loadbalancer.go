@@ -12,7 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func dataSourceELBV2Loadbalancer() *schema.Resource {
+func DataSourceELBV2Loadbalancer() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceELBV2LoadbalancerRead,
 		Schema: map[string]*schema.Schema{
