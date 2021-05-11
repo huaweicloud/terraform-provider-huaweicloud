@@ -27,6 +27,10 @@ resource "huaweicloud_cbr_vault" "test" {
   resources {
     id = data.huaweicloud_compute_instance.test.id
   }
+
+  tags = {
+    foo = "bar"
+  }
 }
 ```
 
@@ -129,6 +133,8 @@ The following arguments are supported:
 * `resources` - (Optional, List) Specifies an array of one or more resources to attach to the CBR vault.
   The resources structure is documented below.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CBR vault.
+
 The `resources` block supports:
 
   * `id` - (Required, String) Specifies the ID of the resource to be backed up.
@@ -171,19 +177,4 @@ In addition to all arguments above, the following attributes are exported:
 Vaults can be imported by their `id`. For example,
 ```
 terraform import huaweicloud_cbr_vault.test 01c33779-7c83-4182-8b6b-24a671fcedf8
-```
-Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
-API response, security or some other reason. The missing attribute is `policy_id`. It is generally recommended running
-`terraform plan` after importing a vault. You can then decide if changes should be applied to the vault, or the
-resource definition should be updated to align with the vault. Also you can ignore changes as below.
-```
-resource "huaweicloud_cbr_vault" "test" {
-  ...
-
-  lifecycle {
-    ignore_changes = [
-      policy_id,
-    ]
-  }
-}
 ```
