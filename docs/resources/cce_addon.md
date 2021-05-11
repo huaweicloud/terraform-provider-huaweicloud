@@ -38,3 +38,11 @@ This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.
 - `delete` - Default is 3 minute.
 
+## Import
+
+CCE addon can be imported using the cluster ID and addon ID
+separated by a slash, e.g.:
+
+```
+$ terraform import huaweicloud_cce_addon.my_addon bb6923e4-b16e-11eb-b0cd-0255ac101da1/c7ecb230-b16f-11eb-b3b6-0255ac1015a3
+```
