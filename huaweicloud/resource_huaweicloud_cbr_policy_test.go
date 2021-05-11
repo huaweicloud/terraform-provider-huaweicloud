@@ -21,7 +21,7 @@ func TestAccCBRV3Policy_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckASV1PolicyDestroy,
+		CheckDestroy: testAccCheckCBRV3PolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCBRV3Policy_basic(rName),
@@ -69,7 +69,7 @@ func TestAccCBRV3Policy_replication(t *testing.T) {
 			testAccPreCheckDestProject(t)
 		},
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckASV1PolicyDestroy,
+		CheckDestroy: testAccCheckCBRV3PolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCBRV3Policy_replication(rName),
