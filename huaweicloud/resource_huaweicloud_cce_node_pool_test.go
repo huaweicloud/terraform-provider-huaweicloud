@@ -34,6 +34,12 @@ func TestAccCCENodePool_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccCCENodePoolImportStateIdFunc(),
+			},
+			{
 				Config: testAccCCENodePool_update(rName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -124,6 +130,23 @@ func testAccCheckCCENodePoolDestroy(s *terraform.State) error {
 	}
 
 	return nil
+}
+
+func testAccCCENodePoolImportStateIdFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		cluster, ok := s.RootModule().Resources["huaweicloud_cce_cluster.test"]
+		if !ok {
+			return "", fmt.Errorf("Cluster not found: %s", cluster)
+		}
+		nodePool, ok := s.RootModule().Resources["huaweicloud_cce_node_pool.test"]
+		if !ok {
+			return "", fmt.Errorf("Node pool not found: %s", nodePool)
+		}
+		if cluster.Primary.ID == "" || nodePool.Primary.ID == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", cluster.Primary.ID, nodePool.Primary.ID)
+		}
+		return fmt.Sprintf("%s/%s", cluster.Primary.ID, nodePool.Primary.ID), nil
+	}
 }
 
 func testAccCheckCCENodePoolExists(n string, cluster string, nodePool *nodepools.NodePool) resource.TestCheckFunc {
