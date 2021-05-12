@@ -1,3 +1,20 @@
+## 1.24.1 (May 12, 2021)
+
+FEATURES:
+* **New Data Source:** `huaweicloud_lb_loadbalancer` ([#1113](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1113))
+
+ENHANCEMENTS:
+
+* data/huaweicloud_identity_role: Support to filter system-defined IAM role by display_name ([#1105](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1105))
+* resource/huaweicloud_ces_alarmrule: Support update function ([#1116](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1116))
+* resource/huaweicloud_lb_loadbalancer: Support import function ([#1125](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1125))
+* resource/huaweicloud_compute_instance: Support ESSD type for volume_type field ([#1126](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1126))
+
+DEPRECATE:
+
+* resource/huaweicloud_cts_tracker: ([#1102](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1102))
+* data/huaweicloud_cts_tracker: ([#1102](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1102))
+
 ## 1.24.0 (April 30, 2021)
 
 FEATURES:
