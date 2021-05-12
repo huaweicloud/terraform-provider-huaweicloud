@@ -104,20 +104,20 @@ The following arguments are supported:
     The network object structure is documented below.
     Changing this creates a new instance.
 
+* `admin_pass` - (Optional, String, ForceNew) Specifies the administrative password to assign to the instance.
+    Changing this creates a new instance.
+
+* `key_pair` - (Optional, String, ForceNew) Specifies the name of a key pair to put on the instance.
+    The key pair must already be created and associated with the tenant's account.
+    Changing this creates a new instance.
+
 * `user_data` - (Optional, String, ForceNew) Specifies the user data to be injected during the instance creation.
     Text and text files can be injected. `user_data` can come from a variety of sources: inline, read in from the `file`
     function, or the `template_cloudinit_config` resource.
     Changing this creates a new instance.
 
-* `admin_pass` - (Optional, String, ForceNew) Specifies the administrative password to assign to the instance.
-    Changing this creates a new instance.
-
 -> **NOTE:** If the `user_data` field is specified for a Linux BMS that is created using an image with Cloud-Init
 installed, the `admin_pass` field becomes invalid.
-
-* `key_pair` - (Optional, String, ForceNew) Specifies the name of a key pair to put on the instance.
-    The key pair must already be created and associated with the tenant's account.
-    Changing this creates a new instance.
 
 * `security_groups` - (Optional, List, ForceNew) Specifies a array of one or more security group ids to associate
     with the instance. Changing this creates a new instance.
@@ -127,24 +127,21 @@ installed, the `admin_pass` field becomes invalid.
 -> **Note:** If the eip_id parameter is configured, you do not need to configure the bandwidth parameters:
   `iptype`, `eip_charge_mode`, `bandwidth_size`, `share_type` and `bandwidth_charge_mode`.
 
-* `iptype` - (Optional, String, ForceNew) Elastic IP type.
+* `iptype` - (Optional, String, ForceNew) Elastic IP type. Changing this creates a new instance.
     Available options are:
 	* `5_bgp`: dynamic BGP.
 	* `5_sbgp `: static BGP.
-    Changing this creates a new instance.
 
 * `eip_charge_mode` - (Optional, String, ForceNew) Elastic IP billing type. If the bandwidth billing mode is bandwidth, 
     both prePaid and postPaid are supported. If the bandwidth billing mode is traffic, only postPaid is supported.
-    Available options are:
+    Changing this creates a new instance. Available options are:
 	* `prePaid`: indicates the yearly/monthly billing mode.
 	* `postPaid`: indicates the pay-per-use billing mode.
-    Changing this creates a new instance.
 
 * `sharetype` - (Optional, String, ForceNew) Bandwidth sharing type.
-    Available options are:
+    Changing this creates a new instance. Available options are:
 	* `PER`: indicates dedicated bandwidth.
 	* `WHOLE`: indicates shared bandwidth.
-    Changing this creates a new instance.
 
 * `bandwidth_size` - (Optional, Int, ForceNew) Bandwidth size. Changing this creates a new instance.
 
@@ -152,17 +149,16 @@ installed, the `admin_pass` field becomes invalid.
     Available options are:
 	* `traffic`: billing mode is traffic.
 	* `bandwidth`: billing mode is bandwidth.
-    Default to `bandwidth`.
-    Changing this creates a new instance.
+
+    Default to `bandwidth`. Changing this creates a new instance.
 
 * `system_disk_type` - (Optional, String, ForceNew) Specifies the system disk type of the instance.
   For details about disk types, see
-  [Disk Types and Disk Performance](https://support.huaweicloud.com/intl/en-us/productdesc-evs/en-us_topic_0014580744.html)
-    Available options are:
+  [Disk Types and Disk Performance](https://support.huaweicloud.com/intl/en-us/productdesc-evs/en-us_topic_0014580744.html).
+    Changing this creates a new instance. Available options are:
 	* `SSD`: ultra-high I/O disk type.
 	* `GPSSD`: general purpose SSD disk type.
 	* `SAS`: high I/O disk type.
-    Changing this creates a new instance.
 
 * `system_disk_size` - (Optional, int, ForceNew) Specifies the system disk size in GB. The value ranges from 40 to 1024.
     The system disk size must be greater than or equal to the minimum system disk size of the image.

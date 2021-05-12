@@ -165,7 +165,7 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Computed:      true,
 				ConflictsWith: novaConflicts,
 				ValidateFunc: validation.StringInSlice([]string{
-					"SATA", "SAS", "SSD", "GPSSD",
+					"SAS", "SSD", "GPSSD", "ESSD", "SATA",
 				}, true),
 			},
 			"system_disk_size": {

@@ -201,7 +201,7 @@ func ResourceBmsInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"SAS", "SSD", "GPSSD",
+					"SAS", "SSD", "GPSSD", "ESSD",
 				}, true),
 				RequiredWith: []string{
 					"system_disk_size",

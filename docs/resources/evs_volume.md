@@ -53,10 +53,11 @@ The following arguments are supported:
     Changing this creates a new disk.
 
 * `volume_type` - (Required, String, ForceNew) Specifies the disk type.
-    Currently, the value can be SSD, GPSSD or SAS.
+    Currently, the value can be SAS, SSD, GPSSD or ESSD.
+    - SAS: specifies the high I/O disk type.
     - SSD: specifies the ultra-high I/O disk type.
     - GPSSD: specifies the general purpose SSD disk type.
-    - SAS: specifies the high I/O disk type.
+    - ESSD: Extreme SSD type.
 
     If the specified disk type is not available in the AZ, the disk will fail to create.
     Changing this creates a new disk.
