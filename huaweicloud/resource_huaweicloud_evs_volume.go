@@ -50,7 +50,7 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"GPSSD", "SAS", "SSD",
+					"GPSSD", "SSD", "ESSD", "SAS",
 				}, true),
 			},
 			"device_type": {

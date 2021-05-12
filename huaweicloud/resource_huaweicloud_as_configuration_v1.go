@@ -8,6 +8,7 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/configurations"
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups"
@@ -82,14 +83,18 @@ func ResourceASConfiguration() *schema.Resource {
 										Required: true,
 									},
 									"volume_type": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ValidateFunc: resourceASConfigurationValidateVolumeType,
+										Type:     schema.TypeString,
+										Required: true,
+										ValidateFunc: validation.StringInSlice([]string{
+											"SAS", "SSD", "GPSSD", "ESSD", "SATA",
+										}, false),
 									},
 									"disk_type": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ValidateFunc: resourceASConfigurationValidateDiskType,
+										Type:     schema.TypeString,
+										Required: true,
+										ValidateFunc: validation.StringInSlice([]string{
+											"SYS", "DATA",
+										}, false),
 									},
 									"kms_id": {
 										Type:     schema.TypeString,
@@ -412,32 +417,6 @@ func resourceASConfigurationValidateIpType(v interface{}, k string) (ws []string
 		}
 	}
 	errors = append(errors, fmt.Errorf("%q must be one of %v", k, IpTypes))
-	return
-}
-
-var DiskTypes = [2]string{"DATA", "SYS"}
-
-func resourceASConfigurationValidateDiskType(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range DiskTypes {
-		if value == DiskTypes[i] {
-			return
-		}
-	}
-	errors = append(errors, fmt.Errorf("%q must be one of %v", k, DiskTypes))
-	return
-}
-
-var VolumeTypes = [5]string{"SATA", "SSD", "SAS", "co-p1", "uh-l1"}
-
-func resourceASConfigurationValidateVolumeType(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	for i := range VolumeTypes {
-		if value == VolumeTypes[i] {
-			return
-		}
-	}
-	errors = append(errors, fmt.Errorf("%q must be one of %v", k, VolumeTypes))
 	return
 }
 

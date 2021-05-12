@@ -180,13 +180,7 @@ resource "huaweicloud_compute_instance" "myinstance" {
 }
 ```
 
-`user_data` can come from a variety of sources: inline, read in from the `file`
-function, or the `template_cloudinit_config` resource.
-
 ## Argument Reference
-
--> **NOTE:** If the `user_data` field is specified for a Linux ECS that is created using an image with Cloud-Init
-installed, the `admin_pass` field becomes invalid.
 
 The following arguments are supported:
 
@@ -211,10 +205,6 @@ The following arguments are supported:
 * `flavor_name` - (Optional, String) Required if `flavor_id` is empty.
     Specifies the name of the desired flavor for the instance.
 
-* `user_data` - (Optional, String, ForceNew) Specifies the user data to be injected during the instance creation.
-    Text and text files can be injected.
-    Changing this creates a new server.
-
 * `security_groups` - (Optional, String) Specifies a array of one or more security group names to associate with the
     instance.
 
@@ -233,13 +223,14 @@ The following arguments are supported:
     Changing this creates a new instance.
 
 * `system_disk_type` - (Optional, String, ForceNew) Specifies the system disk type of the instance.
-    Defaults to `GPSSD`. For details about disk types, see
-  [Disk Types and Disk Performance](https://support.huaweicloud.com/en-us/productdesc-evs/en-us_topic_0014580744.html)
+    Defaults to `GPSSD`. Changing this creates a new instance.
+
+    For details about disk types, see [Disk Types and Disk Performance](https://support.huaweicloud.com/en-us/productdesc-evs/en-us_topic_0014580744.html).
     Available options are:
-	* `SSD`: ultra-high I/O disk type.
-	* `GPSSD`: general purpose SSD disk type.
-	* `SAS`: high I/O disk type.
-    Changing this creates a new instance.
+    * `SAS`: high I/O disk type.
+    * `SSD`: ultra-high I/O disk type.
+    * `GPSSD`: general purpose SSD disk type.
+    * `ESSD`: Extreme SSD type.
 
 * `system_disk_size` - (Optional, String) Specifies the system disk size in GB, The value range is 1 to 1024.
     Shrinking the disk is not supported.
@@ -247,6 +238,13 @@ The following arguments are supported:
 * `data_disks` - (Optional, String, ForceNew) Specifies an array of one or more data disks to attach to the instance.
     The data_disks object structure is documented below.
     Changing this creates a new instance.
+
+* `user_data` - (Optional, String, ForceNew) Specifies the user data to be injected during the instance creation.
+    Text and text files can be injected.
+    Changing this creates a new server.
+
+    -> **NOTE:** If the `user_data` field is specified for a Linux ECS that is created using an image with
+    Cloud-Init installed, the `admin_pass` field becomes invalid.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 

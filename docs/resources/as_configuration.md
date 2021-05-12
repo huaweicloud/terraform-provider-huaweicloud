@@ -19,7 +19,7 @@ resource "huaweicloud_as_configuration" "my_as_config" {
     image  = var.image_id
     disk {
       size        = 40
-      volume_type = "SATA"
+      volume_type = "SSD"
       disk_type   = "SYS"
     }
     key_name  = var.keyname
@@ -38,12 +38,12 @@ resource "huaweicloud_as_configuration" "my_as_config" {
     image  = var.image_id
     disk {
       size        = 40
-      volume_type = "SATA"
+      volume_type = "SSD"
       disk_type   = "SYS"
     }
     disk {
       size        = 100
-      volume_type = "SATA"
+      volume_type = "SSD"
       disk_type   = "DATA"
       kms_id      = var.kms_id
     }
@@ -63,7 +63,7 @@ resource "huaweicloud_as_configuration" "my_as_config" {
     image  = var.image_id
     disk {
       size        = 40
-      volume_type = "SATA"
+      volume_type = "SSD"
       disk_type   = "SYS"
     }
     key_name  = var.keyname
@@ -74,9 +74,6 @@ resource "huaweicloud_as_configuration" "my_as_config" {
   }
 }
 ```
-
-`user_data` can come from a variety of sources: inline, read in from the `file`
-function, or the `template_cloudinit_config` resource.
 
 ### AS Configuration uses the existing instance specifications as the template
 
@@ -139,10 +136,13 @@ The `disk` block supports:
     and the data disk size ranges from 10 to 32768.
 
 * `volume_type` - (Required, String) The disk type, which must be the same as the disk type available in the system.
-    The options include `SATA` (common I/O disk type) and `SSD` (ultra-high I/O disk type).
+    Available options are:
+    * `SAS`: high I/O disk type.
+    * `SSD`: ultra-high I/O disk type.
+    * `GPSSD`: general purpose SSD disk type.
 
 * `disk_type` - (Required, String) Whether the disk is a system disk or a data disk. Option `DATA` indicates
-    a data disk. option `SYS` indicates a system disk.
+    a data disk, option `SYS` indicates a system disk.
 
 * `kms_id` - (Optional, String, ForceNew) The Encryption KMS ID of the data disk.
 
