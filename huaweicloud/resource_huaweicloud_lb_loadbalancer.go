@@ -23,6 +23,9 @@ func ResourceLoadBalancerV2() *schema.Resource {
 		Update: resourceLoadBalancerV2Update,
 		Delete: resourceLoadBalancerV2Delete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Update: schema.DefaultTimeout(10 * time.Minute),
