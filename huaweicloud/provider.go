@@ -274,6 +274,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dms_az":                      dataSourceDmsAZV1(),
 			"huaweicloud_dms_product":                 dataSourceDmsProductV1(),
 			"huaweicloud_dms_maintainwindow":          dataSourceDmsMaintainWindowV1(),
+			"huaweicloud_elb_flavors":                 dataSourceElbFlavorsV3(),
 			"huaweicloud_enterprise_project":          DataSourceEnterpriseProject(),
 			"huaweicloud_gaussdb_cassandra_instance":  dataSourceGeminiDBInstance(),
 			"huaweicloud_gaussdb_opengauss_instance":  dataSourceOpenGaussInstance(),
