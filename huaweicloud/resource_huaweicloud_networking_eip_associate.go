@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func resourceNetworkingFloatingIPAssociateV2() *schema.Resource {
+func ResourceNetworkingFloatingIPAssociateV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkingFloatingIPAssociateV2Create,
 		Read:   resourceNetworkingFloatingIPAssociateV2Read,
