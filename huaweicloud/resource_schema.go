@@ -16,6 +16,16 @@ func tagsSchema() *schema.Schema {
 	}
 }
 
+// tagsForceNewSchema returns the schema to use for tags with ForceNew
+func tagsForceNewSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeMap,
+		Optional: true,
+		ForceNew: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	}
+}
+
 func schemeChargingMode(conflicts []string) *schema.Schema {
 	resourceSchema := schema.Schema{
 		Type:     schema.TypeString,

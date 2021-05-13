@@ -240,17 +240,12 @@ func ResourceBmsInstance() *schema.Resource {
 			"period":        schemaPeriod([]string{}),
 			"auto_renew":    schemaAutoRenew([]string{}),
 
+			"tags": tagsForceNewSchema(),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
-			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"agency_name": {
 				Type:     schema.TypeString,
