@@ -719,10 +719,6 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		return nil, err
 	}
 
-	if config.HwClient != nil && config.HwClient.ProjectID != "" {
-		config.RegionProjectIDMap[config.Region] = config.HwClient.ProjectID
-	}
-
 	return &config, nil
 }
 

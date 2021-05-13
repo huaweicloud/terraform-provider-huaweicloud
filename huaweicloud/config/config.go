@@ -90,6 +90,10 @@ func (c *Config) LoadAndValidate() error {
 		return err
 	}
 
+	if c.HwClient != nil && c.HwClient.ProjectID != "" {
+		c.RegionProjectIDMap[c.Region] = c.HwClient.ProjectID
+	}
+
 	// set DomainID for IAM resource
 	if c.DomainID == "" {
 		if domainID, err := c.getDomainID(); err == nil {
