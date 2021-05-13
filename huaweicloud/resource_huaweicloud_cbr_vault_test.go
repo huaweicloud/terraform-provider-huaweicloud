@@ -34,6 +34,8 @@ func TestAccCBRV3Vault_serverBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "size", "200"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
@@ -45,17 +47,17 @@ func TestAccCBRV3Vault_serverBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "server"),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "300"),
+					resource.TestCheckResourceAttrSet(resourceName, "policy_id"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
 				),
 			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"policy_id",
-				},
 			},
 		},
 	})
@@ -86,9 +88,6 @@ func TestAccCBRV3Vault_serverReplication(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"policy_id",
-				},
 			},
 		},
 	})
@@ -128,6 +127,7 @@ func TestAccCBRV3Vault_volumeBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "auto_expand", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "policy_id"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
@@ -136,9 +136,6 @@ func TestAccCBRV3Vault_volumeBasic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"policy_id",
-				},
 			},
 		},
 	})
@@ -176,6 +173,7 @@ func TestAccCBRV3Vault_turboBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "turbo"),
 					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "size", "1000"),
+					resource.TestCheckResourceAttrSet(resourceName, "policy_id"),
 					resource.TestCheckResourceAttr(resourceName, "resources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
@@ -184,9 +182,6 @@ func TestAccCBRV3Vault_turboBasic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"policy_id",
-				},
 			},
 		},
 	})
@@ -218,9 +213,6 @@ func TestAccCBRV3Vault_turboReplication(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"policy_id",
-				},
 			},
 		},
 	})
@@ -357,6 +349,11 @@ resource "huaweicloud_cbr_vault" "test" {
   protection_type       = "backup"
   size                  = 200
   enterprise_project_id = "%s"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
 }
 `, testAccCBRV3Vault_serverBase(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
@@ -378,6 +375,11 @@ resource "huaweicloud_cbr_vault" "test" {
 
   resources {
     id = huaweicloud_compute_instance.test.id
+  }
+
+  tags = {
+    foo1 = "bar"
+    key  = "value_update"
   }
 }
 `, testAccCBRV3Vault_serverBase(rName), testAccCBRV3Vault_policy(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
