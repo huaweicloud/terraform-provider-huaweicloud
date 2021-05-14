@@ -37,6 +37,12 @@ func TestAccCCENodeV3_basic(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccCCENodeImportStateIdFunc(),
+			},
+			{
 				Config: testAccCCENodeV3_update(rName, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -134,6 +140,23 @@ func testAccCheckCCENodeV3Exists(n string, cluster string, node *nodes.Nodes) re
 		*node = *found
 
 		return nil
+	}
+}
+
+func testAccCCENodeImportStateIdFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		cluster, ok := s.RootModule().Resources["huaweicloud_cce_cluster.test"]
+		if !ok {
+			return "", fmt.Errorf("Cluster not found: %s", cluster)
+		}
+		node, ok := s.RootModule().Resources["huaweicloud_cce_node.test"]
+		if !ok {
+			return "", fmt.Errorf("Node not found: %s", node)
+		}
+		if cluster.Primary.ID == "" || node.Primary.ID == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", cluster.Primary.ID, node.Primary.ID)
+		}
+		return fmt.Sprintf("%s/%s", cluster.Primary.ID, node.Primary.ID), nil
 	}
 }
 
