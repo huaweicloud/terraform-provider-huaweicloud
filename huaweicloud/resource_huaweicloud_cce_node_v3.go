@@ -270,11 +270,8 @@ func ResourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"tags": { //(node/ecs_tags)
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
+			//(node/ecs_tags)
+			"tags": tagsSchema(),
 			"annotations": {
 				Type:     schema.TypeMap,
 				Optional: true,

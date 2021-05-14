@@ -170,16 +170,12 @@ func ResourceASGroup() *schema.Resource {
 				Optional:    true,
 				Default:     "no",
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 			"enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
+			"tags": tagsSchema(),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,

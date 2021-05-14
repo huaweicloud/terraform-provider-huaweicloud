@@ -100,16 +100,12 @@ func ResourceEvsStorageVolumeV3() *schema.Resource {
 				ForceNew: true,
 				Default:  false,
 			},
+			"tags": tagsSchema(),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
-			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"attachment": {
 				Type:     schema.TypeSet,
