@@ -113,6 +113,14 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"security_groups": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"security_group_ids"},
+				Elem:          &schema.Schema{Type: schema.TypeString},
+				Set:           schema.HashString,
+			},
+			"security_group_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
@@ -744,6 +752,12 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	}
 	d.Set("security_groups", secGrpNames)
 
+	secGrpIDs := make([]string, len(server.SecurityGroups))
+	for i, sg := range server.SecurityGroups {
+		secGrpIDs[i] = sg.ID
+	}
+	d.Set("security_group_ids", secGrpIDs)
+
 	// Set volume attached
 	if len(server.VolumeAttached) > 0 {
 		bds := make([]map[string]interface{}, len(server.VolumeAttached))
@@ -863,15 +877,19 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	if d.HasChange("security_groups") {
-		oldSGRaw, newSGRaw := d.GetChange("security_groups")
+	if d.HasChanges("security_group_ids", "security_groups") {
+		var oldSGRaw interface{}
+		var newSGRaw interface{}
+		if d.HasChange("security_group_ids") {
+			oldSGRaw, newSGRaw = d.GetChange("security_group_ids")
+		} else {
+			oldSGRaw, newSGRaw = d.GetChange("security_groups")
+		}
 		oldSGSet := oldSGRaw.(*schema.Set)
 		newSGSet := newSGRaw.(*schema.Set)
 		secgroupsToAdd := newSGSet.Difference(oldSGSet)
 		secgroupsToRemove := oldSGSet.Difference(newSGSet)
-
 		log.Printf("[DEBUG] Security groups to add: %v", secgroupsToAdd)
-
 		log.Printf("[DEBUG] Security groups to remove: %v", secgroupsToRemove)
 
 		for _, g := range secgroupsToRemove.List() {
@@ -880,7 +898,6 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 				if _, ok := err.(golangsdk.ErrDefault404); ok {
 					continue
 				}
-
 				return fmt.Errorf("Error removing security group (%s) from HuaweiCloud server (%s): %s", g, d.Id(), err)
 			} else {
 				log.Printf("[DEBUG] Removed security group (%s) from instance (%s)", g, d.Id())
@@ -1112,6 +1129,16 @@ func ServerV2StateRefreshFunc(client *golangsdk.ServiceClient, instanceID string
 }
 
 func resourceInstanceSecGroupIdsV1(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]cloudservers.SecurityGroup, error) {
+	if v, ok := d.GetOk("security_group_ids"); ok {
+		rawSecGroups := v.(*schema.Set).List()
+		secgroups := make([]cloudservers.SecurityGroup, len(rawSecGroups))
+		for i, raw := range rawSecGroups {
+			secgroups[i] = cloudservers.SecurityGroup{
+				ID: raw.(string),
+			}
+		}
+		return secgroups, nil
+	}
 	rawSecGroups := d.Get("security_groups").(*schema.Set).List()
 	secgroups := make([]cloudservers.SecurityGroup, len(rawSecGroups))
 	for i, raw := range rawSecGroups {

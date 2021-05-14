@@ -71,6 +71,11 @@ func DataSourceComputeInstance() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"security_group_ids": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"system_disk_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -228,6 +233,12 @@ func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) err
 		secGrpNames[i] = sg.Name
 	}
 	d.Set("security_groups", secGrpNames)
+
+	secGrpIDs := make([]string, len(server.SecurityGroups))
+	for i, sg := range server.SecurityGroups {
+		secGrpIDs[i] = sg.ID
+	}
+	d.Set("security_group_ids", secGrpIDs)
 
 	// set os:scheduler_hints
 	osHints := server.OsSchedulerHints

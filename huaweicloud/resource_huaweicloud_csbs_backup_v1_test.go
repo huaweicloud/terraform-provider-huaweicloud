@@ -115,12 +115,16 @@ func testAccCSBSBackupV1Exists(n string, backups *backup.Backup) resource.TestCh
 
 func testAccCSBSBackupV1_basic(rName string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
+
 resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name              = "%s"
-  image_id          = "%s"
-  security_groups   = ["default"]
-  availability_zone = "%s"
-  flavor_id         = "%s"
+  name               = "%s"
+  image_id           = "%s"
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = "%s"
+  flavor_id          = "%s"
   metadata = {
     foo = "bar"
   }
@@ -139,12 +143,16 @@ resource "huaweicloud_csbs_backup" "csbs" {
 
 func testAccCSBSBackupV1_timeout(rName string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
+
 resource "huaweicloud_compute_instance_v2" "instance_1" {
-  name              = "%s"
-  image_id          = "%s"
-  security_groups   = ["default"]
-  availability_zone = "%s"
-  flavor_id         = "%s"
+  name               = "%s"
+  image_id           = "%s"
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = "%s"
+  flavor_id          = "%s"
   metadata = {
     foo = "bar"
   }

@@ -167,11 +167,11 @@ resource "huaweicloud_compute_servergroup" "sg_1" {
 }
 
 resource "huaweicloud_compute_instance" "instance_1" {
-  name = "%s"
-  image_id = data.huaweicloud_images_image.test.id
-  flavor_id = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   scheduler_hints {
     group = huaweicloud_compute_servergroup.sg_1.id
   }
@@ -193,11 +193,11 @@ resource "huaweicloud_compute_servergroup" "sg_1" {
 }
 
 resource "huaweicloud_compute_instance" "instance_1" {
-  name = "%s"
-  image_id = data.huaweicloud_images_image.test.id
-  flavor_id = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
   }

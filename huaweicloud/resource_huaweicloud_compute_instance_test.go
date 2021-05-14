@@ -328,6 +328,10 @@ data "huaweicloud_images_image" "test" {
   name        = "Ubuntu 18.04 server 64bit"
   most_recent = true
 }
+
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
 `
 
 func testAccComputeV2Instance_basic(rName string) string {
@@ -335,11 +339,11 @@ func testAccComputeV2Instance_basic(rName string) string {
 %s
 
 resource "huaweicloud_compute_instance" "test" {
-  name              = "%s"
-  image_id          = data.huaweicloud_images_image.test.id
-  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
@@ -353,11 +357,11 @@ func testAccComputeV2Instance_disks(rName string) string {
 %s
 
 resource "huaweicloud_compute_instance" "test" {
-  name              = "%s"
-  image_id          = data.huaweicloud_images_image.test.id
-  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name                        = "%s"
+  image_id                    = data.huaweicloud_images_image.test.id
+  flavor_id                   = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids          = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone           = data.huaweicloud_availability_zones.test.names[0]
   delete_disks_on_termination = true
 
   system_disk_type = "SAS"
@@ -380,11 +384,11 @@ func testAccComputeV2Instance_prePaid(rName string) string {
 %s
 
 resource "huaweicloud_compute_instance" "test" {
-  name              = "%s"
-  image_id          = data.huaweicloud_images_image.test.id
-  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
@@ -402,11 +406,11 @@ func testAccComputeV2Instance_tags(rName string) string {
 %s
 
 resource "huaweicloud_compute_instance" "test" {
-  name              = "%s"
-  image_id          = data.huaweicloud_images_image.test.id
-  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
@@ -425,11 +429,11 @@ func testAccComputeV2Instance_tags2(rName string) string {
 %s
 
 resource "huaweicloud_compute_instance" "test" {
-  name              = "%s"
-  image_id          = data.huaweicloud_images_image.test.id
-  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
@@ -448,11 +452,11 @@ func testAccComputeV2Instance_notags(rName string) string {
 %s
 
 resource "huaweicloud_compute_instance" "test" {
-  name              = "%s"
-  image_id          = data.huaweicloud_images_image.test.id
-  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name               = "%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
@@ -466,12 +470,12 @@ func testAccComputeV2Instance_powerAction(rName, powerAction string) string {
 %s
 
 resource "huaweicloud_compute_instance" "test" {
-  name              = "%s"
-  image_id          = data.huaweicloud_images_image.test.id
-  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  power_action      = "%s"
+  name               = "%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  power_action       = "%s"
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
