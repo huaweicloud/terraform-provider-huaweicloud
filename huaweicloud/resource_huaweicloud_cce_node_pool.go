@@ -23,6 +23,9 @@ func ResourceCCENodePool() *schema.Resource {
 		Read:   resourceCCENodePoolRead,
 		Update: resourceCCENodePoolUpdate,
 		Delete: resourceCCENodePoolDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceCCENodePoolV3Import,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
@@ -58,6 +61,7 @@ func ResourceCCENodePool() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"labels": { //(k8s_tags)
 				Type:     schema.TypeMap,
@@ -179,6 +183,7 @@ func ResourceCCENodePool() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"preinstall": {
 				Type:     schema.TypeString,
@@ -220,6 +225,7 @@ func ResourceCCENodePool() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+				Computed: true,
 			},
 			"subnet_id": {
 				Type:     schema.TypeString,
@@ -404,6 +410,14 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("max_node_count", s.Spec.Autoscaling.MaxNodeCount)
 	d.Set("scale_down_cooldown_time", s.Spec.Autoscaling.ScaleDownCooldownTime)
 	d.Set("priority", s.Spec.Autoscaling.Priority)
+	d.Set("type", s.Spec.Type)
+
+	// set extend_param
+	var extend_param = s.Spec.NodeTemplate.ExtendParam
+	d.Set("max_pods", extend_param["maxPods"].(float64))
+	delete(extend_param, "maxPods")
+	d.Set("extend_param", extend_param)
+
 	if s.Spec.NodeTemplate.RunTime != nil {
 		d.Set("runtime", s.Spec.NodeTemplate.RunTime.Name)
 	}
@@ -609,4 +623,20 @@ func recursiveNodePoolCreate(cceClient *golangsdk.ServiceClient, opts nodepools.
 		}
 	}
 	return nil, "fail"
+}
+
+func resourceCCENodePoolV3Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		err := fmt.Errorf("Invalid format specified for CCE Node Pool. Format must be <cluster id>/<node pool id>")
+		return nil, err
+	}
+
+	clusterID := parts[0]
+	nodePoolID := parts[1]
+
+	d.SetId(nodePoolID)
+	d.Set("cluster_id", clusterID)
+
+	return []*schema.ResourceData{d}, nil
 }
