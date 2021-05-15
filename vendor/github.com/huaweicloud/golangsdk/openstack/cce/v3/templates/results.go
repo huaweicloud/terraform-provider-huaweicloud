@@ -1,6 +1,9 @@
 package templates
 
-import "github.com/huaweicloud/golangsdk"
+import (
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/cce/v3/addons"
+)
 
 type commonResult struct {
 	golangsdk.Result
@@ -25,16 +28,11 @@ type Metadata struct {
 }
 
 type Spec struct {
-	Type        string     `json:"type"`
-	Labels      []string   `json:"labels"`
-	LogoURL     string     `json:"logoURL"`
-	Description string     `json:"description"`
-	Versions    []Versions `json:"versions"`
-}
-
-type Versions struct {
-	Version string      `json:"version"`
-	Input   interface{} `json:"input"`
+	Type        string            `json:"type"`
+	Labels      []string          `json:"labels"`
+	LogoURL     string            `json:"logoURL"`
+	Description string            `json:"description"`
+	Versions    []addons.Versions `json:"versions"`
 }
 
 func (r ListResutlt) Extract() ([]Template, error) {

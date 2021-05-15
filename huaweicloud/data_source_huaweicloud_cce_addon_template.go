@@ -3,13 +3,28 @@ package huaweicloud
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/golangsdk/openstack/cce/v3/addons"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/templates"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
+
+type Template struct {
+	UID             string
+	Name            string
+	Version         string
+	Description     string
+	Spec            string
+	Stable          bool
+	SupportVersions []addons.SupportVersions
+}
+
+func (t Template) IsEmpty() bool {
+	return reflect.DeepEqual(t, Template{})
+}
 
 func DataSourceCCEAddonTemplateV3() *schema.Resource {
 	return &schema.Resource{
@@ -41,6 +56,30 @@ func DataSourceCCEAddonTemplateV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"stable": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"support_version": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"virtual_machine": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
+						"bare_metal": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -61,16 +100,18 @@ func dataSourceCCEAddonTemplateV3Read(d *schema.ResourceData, meta interface{}) 
 
 	name := d.Get("name").(string)
 	version := d.Get("version").(string)
-	spec, description, err := getTemplateByNameAndVersion(templateList, name, version)
+	template, err := getTemplateByNameAndVersion(templateList, name, version)
 	if err != nil {
 		return fmt.Errorf("Unable to find specifies template by name (%s) and version (%s): %s", name, version, err)
 	}
 
-	d.SetId(hashcode.Strings([]string{name, version}))
+	d.SetId(template.UID)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("spec", spec),
-		d.Set("description", description),
+		d.Set("spec", template.Spec),
+		d.Set("description", template.Description),
+		d.Set("stable", template.Stable),
+		setTemplateSupportVersionState(d, template.SupportVersions),
 	)
 	if mErr.ErrorOrNil() != nil {
 		return mErr
@@ -78,32 +119,61 @@ func dataSourceCCEAddonTemplateV3Read(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 
-func getTemplateByNameAndVersion(templateList []templates.Template, name, version string) (string, string, error) {
-	versions := make([]templates.Versions, 1)
-	var description string
-LOOP:
-	for _, template := range templateList {
-		if template.Metadata.Name != name {
+// getTemplateByNameAndVersion is method to using add-on name, version and the cluster id to find a unique
+// add-on template in list.
+func getTemplateByNameAndVersion(templateList []templates.Template, specName, specVersion string) (Template, error) {
+	var result Template
+	// For each add-on, they have one or more version templates.
+	for _, temp := range templateList {
+		if temp.Metadata.Name != specName {
 			continue
 		}
-		for _, ver := range template.Spec.Versions {
-			if version == ver.Version {
-				description = template.Spec.Description
-				versions[0] = ver
-				break LOOP
+		// If the specified additional template is found, the loop is interrupted.
+		for _, ver := range temp.Spec.Versions {
+			if ver.Version == specVersion {
+				// Save the description and
+				result.UID = temp.Metadata.UID
+				result.Name = specName
+				result.Version = specVersion
+				result.Description = temp.Spec.Description
+				// Return a json string to the user, which contains the contents of the basic and custom fields.
+				specBytes, err := json.Marshal(ver.Input)
+				if err != nil {
+					return result, fmt.Errorf("Error converting input struct")
+				}
+				result.Spec = string(specBytes)
+				result.Stable = ver.Stable
+				result.SupportVersions = ver.SupportVersions
+				break
 			}
 		}
+		if !result.IsEmpty() {
+			break
+		}
 	}
-	if len(versions) < 1 {
-		return "", "", fmt.Errorf("Your query returned no results, please change your search criteria and try again")
+	if result.IsEmpty() {
+		return result, fmt.Errorf("Your query returned no results, please change your search criteria and try again")
 	}
 
-	specStruct := versions[0].Input
-	// Return a json string to the user, which contains the contents of the basic and custom fields (In add-on values).
-	specBytes, err := json.Marshal(specStruct)
-	if err != nil {
-		return "", "", fmt.Errorf("Error converting input struct")
+	return result, nil
+}
+
+func setTemplateSupportVersionState(d *schema.ResourceData, supportList []addons.SupportVersions) error {
+	serportVersionMap := map[string]*schema.Set{}
+	for _, supports := range supportList {
+		v := schema.Set{F: schema.HashString}
+		for _, ver := range supports.ClusterVersion {
+			v.Add(ver)
+		}
+		if supports.ClusterType == "VirtualMachine" {
+			serportVersionMap["virtual_machine"] = &v
+		}
+		if supports.ClusterType == "BareMetal" {
+			serportVersionMap["bare_metal"] = &v
+		}
 	}
-	spec := string(specBytes)
-	return spec, description, nil
+	if err := d.Set("support_version", []map[string]*schema.Set{serportVersionMap}); err != nil {
+		return err
+	}
+	return nil
 }

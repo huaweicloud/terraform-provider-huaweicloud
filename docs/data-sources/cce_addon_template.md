@@ -39,8 +39,14 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource id of the addon template in hashcode format.
+* `id` - The resource id of the addon template.
 
 * `description` - The description of the add-on.
 
 * `spec` - The detail configuration of the add-on template.
+
+* `stable` - Whether the add-on template is a stable version.
+
+* `support_version/virtual_machine` - The cluster (Virtual Machine) version that the add-on template supported.
+
+* `support_version/bare_metal` - The cluster (Bare Metal) version that the add-on template supported.
