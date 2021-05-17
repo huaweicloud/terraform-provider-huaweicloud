@@ -28,7 +28,7 @@ func TestAccDcsInstancesV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
 					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
 					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "2"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "0.125"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttrSet(resourceName, "ip"),
@@ -213,11 +213,11 @@ func testAccDcsV1Instance_basic(instanceName string) string {
 	  engine_version    = "5.0"
 	  password          = "Huawei_test"
 	  engine            = "Redis"
-	  capacity          = 2
+	  capacity          = 0.125
 	  vpc_id            = data.huaweicloud_vpc.test.id
 	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
-	  product_id        = "dcs.master_standby-h"
+	  product_id        = "redis.ha.xu1.tiny.r2.128-h"
       backup_policy {
         backup_type = "manual"
         begin_at    = "00:00-01:00"
@@ -255,11 +255,11 @@ func testAccDcsV1Instance_updated(instanceName string) string {
 	  engine_version    = "5.0"
 	  password          = "Huawei_test"
 	  engine            = "Redis"
-	  capacity          = 2
+	  capacity          = 0.125
 	  vpc_id            = data.huaweicloud_vpc.test.id
 	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
-	  product_id        = "dcs.master_standby-h"
+	  product_id        = "redis.ha.xu1.tiny.r2.128-h"
       backup_policy {
         backup_type = "manual"
         begin_at    = "01:00-02:00"
@@ -297,11 +297,11 @@ func testAccDcsV1Instance_epsId(instanceName string) string {
 	  engine_version    = "5.0"
 	  password          = "Huawei_test"
 	  engine            = "Redis"
-	  capacity          = 2
+	  capacity          = 0.125
 	  vpc_id            = data.huaweicloud_vpc.test.id
 	  subnet_id         = data.huaweicloud_vpc_subnet.test.id
 	  available_zones   = [data.huaweicloud_dcs_az.az_1.id]
-	  product_id        = "dcs.master_standby-h"
+	  product_id        = "redis.ha.xu1.tiny.r2.128-h"
       backup_policy {
         backup_type = "manual"
         begin_at    = "00:00-01:00"
