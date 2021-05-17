@@ -6,54 +6,55 @@ import (
 )
 
 type Function struct {
-	Id                 string         `json:"-"`
-	FuncId             string         `json:"-"`
-	FuncUrn            string         `json:"func_urn"`
-	FuncName           string         `json:"func_name"`
-	DomainId           string         `json:"domain_id"`
-	Namespace          string         `json:"namespace"`
-	ProjectName        string         `json:"project_name"`
-	Package            string         `json:"package"`
-	Runtime            string         `json:"runtime"`
-	Timeout            int            `json:"timeout"`
-	Handler            string         `json:"handler"`
-	MemorySize         int            `json:"memory_size"`
-	Cpu                int            `json:"cpu"`
-	CodeType           string         `json:"code_type"`
-	CodeUrl            string         `json:"code_url"`
-	CodeFileName       string         `json:"code_filename"`
-	CodeSize           int64          `json:"code_size"`
-	UserData           string         `json:"user_data"`
-	Digest             string         `json:"digest"`
-	Version            string         `json:"version"`
-	ImageName          string         `json:"image_name"`
-	Xrole              string         `json:"xrole"`
-	AppXrole           *string        `json:"app_xrole"`
-	Description        string         `json:"description"`
-	VersionDescription string         `json:"version_description"`
-	LastmodifiedUtc    int64          `json:"-"`
-	LastModified       string         `json:"last_modified"`
-	FuncCode           FunctionCode   `json:"func_code"`
-	FuncVpc            *FuncVpc       `json:"func_vpc"`
-	MountConfig        *MountConfig   `json:"mount_config,omitempty"`
-	Concurrency        int            `json:"-"`
-	DependList         []string       `json:"depend_list"`
-	StrategyConfig     StrategyConfig `json:"strategy_config"`
-	ExtendConfig       string         `json:"extend_config"`
-	Dependencies       []*Dependency  `json:"dependencies"`
-	InitializerTimeout int            `json:"initializer_timeout,omitempty"`
-	InitializerHandler string         `json:"initializer_handler,omitempty"`
+	Id                  string         `json:"-"`
+	FuncId              string         `json:"-"`
+	FuncUrn             string         `json:"func_urn"`
+	FuncName            string         `json:"func_name"`
+	DomainId            string         `json:"domain_id"`
+	Namespace           string         `json:"namespace"`
+	ProjectName         string         `json:"project_name"`
+	Package             string         `json:"package"`
+	Runtime             string         `json:"runtime"`
+	Timeout             int            `json:"timeout"`
+	Handler             string         `json:"handler"`
+	MemorySize          int            `json:"memory_size"`
+	Cpu                 int            `json:"cpu"`
+	CodeType            string         `json:"code_type"`
+	CodeUrl             string         `json:"code_url"`
+	CodeFileName        string         `json:"code_filename"`
+	CodeSize            int64          `json:"code_size"`
+	UserData            string         `json:"user_data"`
+	Digest              string         `json:"digest"`
+	Version             string         `json:"version"`
+	ImageName           string         `json:"image_name"`
+	Xrole               string         `json:"xrole"`
+	AppXrole            string         `json:"app_xrole"`
+	Description         string         `json:"description"`
+	VersionDescription  string         `json:"version_description"`
+	LastmodifiedUtc     int64          `json:"-"`
+	LastModified        string         `json:"last_modified"`
+	FuncCode            FunctionCode   `json:"func_code"`
+	FuncVpc             FuncVpc        `json:"func_vpc"`
+	MountConfig         MountConfig    `json:"mount_config,omitempty"`
+	Concurrency         int            `json:"-"`
+	DependList          []string       `json:"depend_list"`
+	StrategyConfig      StrategyConfig `json:"strategy_config"`
+	ExtendConfig        string         `json:"extend_config"`
+	Dependencies        []*Dependency  `json:"dependencies"`
+	InitializerTimeout  int            `json:"initializer_timeout,omitempty"`
+	InitializerHandler  string         `json:"initializer_handler,omitempty"`
+	EnterpriseProjectID string         `json:"enterprise_project_id"`
 }
 
 type FuncMount struct {
-	Id             string             `json:"id"`
-	MountType      string             `json:"mount_type"`
-	MountResource  string             `json:"mount_resource"`
-	MountSharePath string             `json:"mount_share_path"`
-	LocalMountPath string             `json:"local_mount_path" description:"local file path in function runtime environment"`
+	Id             string             `json:"id,omitempty"`
+	MountType      string             `json:"mount_type" required:"true"`
+	MountResource  string             `json:"mount_resource" required:"true"`
+	MountSharePath string             `json:"mount_share_path" required:"true"`
+	LocalMountPath string             `json:"local_mount_path" required:"true" description:"local file path in function runtime environment"`
 	UserGroupId    *int               `json:"-"`
 	UserId         *int               `json:"-"`
-	Status         string             `json:"status"` //ACTIVE或DISABLED，和触发器类似。如果已经存在的配置不可用了processrouter不会挂载。
+	Status         string             `json:"status,omitempty"` //ACTIVE或DISABLED，和触发器类似。如果已经存在的配置不可用了processrouter不会挂载。
 	ProjectId      string             `json:"-"`
 	FuncVersions   []*FunctionVersion `json:"-"`
 	SaveType       int                `json:"-"` //仅仅在数据处理时用到，如果需要保存新的映射关系，则将其置为1，如要删除老的，将其置为2
@@ -110,13 +111,13 @@ type Dependency struct {
 }
 
 type MountUser struct {
-	UserId      *int `json:"user_id"`
-	UserGroupId *int `json:"user_group_id"`
+	UserId      int `json:"user_id" required:"true"`
+	UserGroupId int `json:"user_group_id" required:"true"`
 }
 
 type MountConfig struct {
-	MountUser  *MountUser   `json:"mount_user"`
-	FuncMounts []*FuncMount `json:"func_mounts"`
+	MountUser  MountUser   `json:"mount_user" required:"true"`
+	FuncMounts []FuncMount `json:"func_mounts" required:"true"`
 }
 
 //noinspection GoNameStartsWithPackageName
@@ -139,12 +140,12 @@ type FuncVpc struct {
 	Id         string `json:"-"`
 	DomainId   string `json:"-" validate:"regexp=^[a-zA-Z0-9-]+$" description:"domain id"`
 	Namespace  string `json:"-"`
-	VpcName    string `json:"vpc_name"`
-	VpcId      string `json:"vpc_id"`
-	SubnetName string `json:"subnet_name"`
-	SubnetId   string `json:"subnet_id"`
-	Cidr       string `json:"cidr"`
-	Gateway    string `json:"gateway"`
+	VpcName    string `json:"vpc_name,omitempty"`
+	VpcId      string `json:"vpc_id,omitempty"`
+	SubnetName string `json:"subnet_name,omitempty"`
+	SubnetId   string `json:"subnet_id,omitempty"`
+	Cidr       string `json:"cidr,omitempty"`
+	Gateway    string `json:"gateway,omitempty"`
 }
 
 type StrategyConfig struct {

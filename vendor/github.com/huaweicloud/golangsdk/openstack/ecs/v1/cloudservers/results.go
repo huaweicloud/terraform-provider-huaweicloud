@@ -72,6 +72,7 @@ type VolumeAttached struct {
 
 type SecurityGroups struct {
 	Name string `json:"name"`
+	ID   string `json:"id"`
 }
 
 // CloudServer is only used for method that requests details on a single server, by ID.
