@@ -283,6 +283,10 @@ The following arguments are supported:
 * `agency_name` - (Optional, String, ForceNew) Specifies the IAM agency name which is created on IAM to provide
     temporary credentials for ECS to access cloud services. Changing this creates a new instance.
 
+* `power_action` - (Optional, String) Specifies the power action to be done for the instance.
+  The valid values are *ON*, *OFF*, *REBOOT*, *FORCE-OFF* and *FORCE-REBOOT*.
+
+  -> **NOTE:** The `power_action` is a one-time action.
 
 The `network` block supports:
 
@@ -346,8 +350,9 @@ terraform import huaweicloud_compute_instance.my_instance b11b407c-e604-4e8d-8bc
 Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
 API response, security or some other reason. The missing attributes include:
 `admin_pass`, `user_data`, `data_disks`, `scheduler_hints`, `stop_before_destroy`, `delete_disks_on_termination`,
-`network/access_network` and arguments for pre-paid. It is generally recommended running `terraform plan` after
-importing an instance. You can then decide if changes should be applied to the instance, or the resource definition
+`network/access_network`, `power_action` and arguments for pre-paid.
+It is generally recommended running `terraform plan` after importing an instance.
+You can then decide if changes should be applied to the instance, or the resource definition
 should be updated to align with the instance. Also you can ignore changes as below.
 ```
 resource "huaweicloud_compute_instance" "myinstance" {

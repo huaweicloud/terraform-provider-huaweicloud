@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
@@ -26,13 +27,21 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
+	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/powers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var novaConflicts = []string{"block_device", "metadata"}
+var (
+	novaConflicts  = []string{"block_device", "metadata"}
+	powerActionMap = map[string]string{
+		"ON":     "os-start",
+		"OFF":    "os-stop",
+		"REBOOT": "reboot",
+	}
+)
 
 func ResourceComputeInstanceV2() *schema.Resource {
 	return &schema.Resource{
@@ -285,6 +294,14 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: utils.ValidateECSTagValue,
 				Elem:         &schema.Schema{Type: schema.TypeString},
+			},
+			"power_action": {
+				Type:     schema.TypeString,
+				Optional: true,
+				// If you want to support more actions, please update powerActionMap simultaneously.
+				ValidateFunc: validation.StringInSlice([]string{
+					"ON", "OFF", "REBOOT", "FORCE-OFF", "FORCE-REBOOT",
+				}, false),
 			},
 			"volume_attached": {
 				Type:     schema.TypeList,
@@ -622,6 +639,18 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
+	// Create an instance in the shutdown state.
+	if action, ok := d.GetOk("power_action"); ok {
+		action := action.(string)
+		if action == "OFF" || action == "FORCE-OFF" {
+			if err = doPowerAction(ecsClient, d, action); err != nil {
+				return fmt.Errorf("Doing power action (%s) for instance (%s) failed: %s", action, d.Id(), err)
+			}
+		} else {
+			log.Printf("[WARN] The power action (%s) is invalid after instance created", action)
+		}
+	}
+
 	return resourceComputeInstanceV2Read(d, meta)
 }
 
@@ -951,6 +980,14 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return fmt.Errorf(
 				"Error waiting for huaweicloud_compute_instance system disk %s to become ready: %s", systemDiskID, err)
+		}
+	}
+
+	// The instance power status update needs to be done at the end
+	if d.HasChange("power_action") {
+		action := d.Get("power_action").(string)
+		if err = doPowerAction(ecsClient, d, action); err != nil {
+			return fmt.Errorf("Doing power action (%s) for instance (%s) failed: %s", action, d.Id(), err)
 		}
 	}
 
@@ -1360,6 +1397,40 @@ func watiForServerTargetState(client *golangsdk.ServiceClient, ID string, pendin
 	_, err := stateConf.WaitForState()
 	if err != nil {
 		return fmt.Errorf("Error waiting for instance (%s) to become target state (%v): %s", ID, target, err)
+	}
+	return nil
+}
+
+// doPowerAction is a method for instance power doing shutdown, startup and reboot actions.
+func doPowerAction(client *golangsdk.ServiceClient, d *schema.ResourceData, action string) error {
+	var jobResp *cloudservers.JobResponse
+	powerOpts := powers.PowerOpts{
+		Servers: []powers.ServerInfo{
+			{ID: d.Id()},
+		},
+	}
+	// In the reboot structure, Type is a required option.
+	// Since the type of power off and reboot is 'SOFT' by default, setting this value has solved the power structural
+	// compatibility problem between optional and required.
+	if action != "ON" {
+		powerOpts.Type = "SOFT"
+	}
+	if strings.HasPrefix(action, "FORCE-") {
+		powerOpts.Type = "HARD"
+		action = strings.TrimPrefix(action, "FORCE-")
+	}
+	op, ok := powerActionMap[action]
+	if !ok {
+		return fmt.Errorf("The powerMap does not contain option (%s)", action)
+	}
+	jobResp, err := powers.PowerAction(client, powerOpts, op).ExtractJobResponse()
+	if err != nil {
+		return fmt.Errorf("Doing power action (%s) for instance (%s) failed: %s", action, d.Id(), err)
+	}
+	// The time of the power on/off and reboot is usually between 15 and 35 seconds.
+	timeout := 3 * time.Minute
+	if err := cloudservers.WaitForJobSuccess(client, int(timeout/time.Second), jobResp.JobID); err != nil {
+		return err
 	}
 	return nil
 }
