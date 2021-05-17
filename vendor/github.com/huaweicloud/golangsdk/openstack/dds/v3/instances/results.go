@@ -14,20 +14,21 @@ type CreateResult struct {
 }
 
 type Instance struct {
-	Id               string            `json:"id"`
-	Name             string            `json:"name"`
-	DataStore        DataStore         `json:"datastore"`
-	Status           string            `json:"status"`
-	Region           string            `json:"region"`
-	AvailabilityZone string            `json:"availability_zone"`
-	VpcId            string            `json:"vpc_id"`
-	SubnetId         string            `json:"subnet_id"`
-	SecurityGroupId  string            `json:"security_group_id"`
-	DiskEncryptionId string            `json:"disk_encryption_id"`
-	Ssl              string            `json:"ssl_option"`
-	Mode             string            `json:"mode"`
-	Flavor           []FlavorOpt       `json:"flavor"`
-	BackupStrategy   BackupStrategyOpt `json:"backup_strategy"`
+	Id                  string            `json:"id"`
+	Name                string            `json:"name"`
+	DataStore           DataStore         `json:"datastore"`
+	Status              string            `json:"status"`
+	Region              string            `json:"region"`
+	AvailabilityZone    string            `json:"availability_zone"`
+	VpcId               string            `json:"vpc_id"`
+	SubnetId            string            `json:"subnet_id"`
+	SecurityGroupId     string            `json:"security_group_id"`
+	DiskEncryptionId    string            `json:"disk_encryption_id"`
+	Ssl                 string            `json:"ssl_option"`
+	Mode                string            `json:"mode"`
+	Flavor              []FlavorOpt       `json:"flavor"`
+	BackupStrategy      BackupStrategyOpt `json:"backup_strategy"`
+	EnterpriseProjectID string            `json:"enterprise_project_id"`
 }
 
 type FlavorOpt struct {
@@ -77,27 +78,28 @@ type ListInstanceResponse struct {
 }
 
 type InstanceResponse struct {
-	Id                string         `json:"id"`
-	Name              string         `json:"name"`
-	Status            string         `json:"status"`
-	Port              string         `json:"port"`
-	Mode              string         `json:"mode"`
-	Region            string         `json:"region"`
-	DataStore         DataStore      `json:"datastore"`
-	Engine            string         `json:"engine"`
-	Created           string         `json:"created"`
-	Updated           string         `json:"updated"`
-	DbUserName        string         `json:"db_user_name"`
-	Ssl               int            `json:"ssl"`
-	VpcId             string         `json:"vpc_id"`
-	SubnetId          string         `json:"subnet_id"`
-	SecurityGroupId   string         `json:"security_group_id"`
-	BackupStrategy    BackupStrategy `json:"backup_strategy"`
-	MaintenanceWindow string         `json:"maintenance_window"`
-	Groups            []Group        `json:"groups"`
-	DiskEncryptionId  string         `json:"disk_encryption_id"`
-	TimeZone          string         `json:"time_zone"`
-	Actions           []string       `json:"actions"`
+	Id                  string         `json:"id"`
+	Name                string         `json:"name"`
+	Status              string         `json:"status"`
+	Port                string         `json:"port"`
+	Mode                string         `json:"mode"`
+	Region              string         `json:"region"`
+	DataStore           DataStore      `json:"datastore"`
+	Engine              string         `json:"engine"`
+	Created             string         `json:"created"`
+	Updated             string         `json:"updated"`
+	DbUserName          string         `json:"db_user_name"`
+	Ssl                 int            `json:"ssl"`
+	VpcId               string         `json:"vpc_id"`
+	SubnetId            string         `json:"subnet_id"`
+	SecurityGroupId     string         `json:"security_group_id"`
+	BackupStrategy      BackupStrategy `json:"backup_strategy"`
+	MaintenanceWindow   string         `json:"maintenance_window"`
+	Groups              []Group        `json:"groups"`
+	DiskEncryptionId    string         `json:"disk_encryption_id"`
+	TimeZone            string         `json:"time_zone"`
+	Actions             []string       `json:"actions"`
+	EnterpriseProjectID string         `json:"enterprise_project_id"`
 }
 
 type Group struct {

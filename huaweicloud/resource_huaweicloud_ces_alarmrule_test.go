@@ -50,6 +50,32 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 	})
 }
 
+func TestAccCESAlarmRule_withEpsId(t *testing.T) {
+	var ar alarmrule.AlarmRule
+	rName := fmt.Sprintf("tf-acc-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_ces_alarmrule.alarmrule_1"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testCESAlarmRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCESAlarmRule_withEpsId(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testCESAlarmRuleExists(resourceName, &ar),
+					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmt.Sprintf("rule-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "alarm_level", "2"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.value", "6"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
 func testCESAlarmRuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.CesV1Client(HW_REGION_NAME)
@@ -132,6 +158,7 @@ resource "huaweicloud_compute_instance" "vm_1" {
     uuid = data.huaweicloud_vpc_subnet.test.id
   }
 }
+
 resource "huaweicloud_smn_topic" "topic_1" {
   name         = "smn-%s"
   display_name = "The display name of smn topic"
@@ -150,11 +177,13 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
   metric {
     namespace   = "SYS.ECS"
     metric_name = "network_outgoing_bytes_rate_inband"
+
     dimensions {
       name  = "instance_id"
       value = huaweicloud_compute_instance.vm_1.id
     }
   }
+
   condition  {
     period              = 300
     filter              = "average"
@@ -187,11 +216,13 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
   metric {
     namespace   = "SYS.ECS"
     metric_name = "network_outgoing_bytes_rate_inband"
+
     dimensions {
       name  = "instance_id"
       value = huaweicloud_compute_instance.vm_1.id
     }
   }
+
   condition  {
     period              = 300
     filter              = "average"
@@ -209,4 +240,42 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
   }
 }
 `, testCESAlarmRule_base(rName), rName)
+}
+
+func testCESAlarmRule_withEpsId(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
+  alarm_name            = "rule-%s"
+  alarm_action_enabled  = true
+  enterprise_project_id = "%s"
+
+  metric {
+    namespace   = "SYS.ECS"
+    metric_name = "network_outgoing_bytes_rate_inband"
+	
+    dimensions {
+      name  = "instance_id"
+      value = huaweicloud_compute_instance.vm_1.id
+    }
+  }
+  
+  condition  {
+    period              = 300
+    filter              = "average"
+    comparison_operator = ">"
+    value               = 6
+    unit                = "B/s"
+    count               = 1
+  }
+
+  alarm_actions {
+    type              = "notification"
+    notification_list = [
+      huaweicloud_smn_topic.topic_1.topic_urn
+    ]
+  }
+}
+`, testCESAlarmRule_base(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }

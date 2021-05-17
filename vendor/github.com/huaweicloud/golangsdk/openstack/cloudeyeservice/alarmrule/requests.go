@@ -48,6 +48,7 @@ type CreateOpts struct {
 	OkActions               []ActionOpts  `json:"ok_actions,omitempty"`
 	AlarmEnabled            bool          `json:"alarm_enabled"`
 	AlarmActionEnabled      bool          `json:"alarm_action_enabled"`
+	EnterpriseProjectID     string        `json:"enterprise_project_id,omitempty"`
 }
 
 func (opts CreateOpts) ToAlarmRuleCreateMap() (map[string]interface{}, error) {
