@@ -604,20 +604,11 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		// Wait for the instance to become running so we can get some attributes
 		// that aren't available until later.
 		log.Printf("[DEBUG] Waiting for instance (%s) to become running", server.ID)
-		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"BUILD"},
-			Target:     []string{"ACTIVE"},
-			Refresh:    ServerV2StateRefreshFunc(computeClient, server.ID),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
-			Delay:      10 * time.Second,
-			MinTimeout: 3 * time.Second,
-		}
-
-		_, err = stateConf.WaitForState()
-		if err != nil {
-			return fmt.Errorf(
-				"Error waiting for instance (%s) to become ready: %s",
-				server.ID, err)
+		pending := []string{"BUILD"}
+		target := []string{"ACTIVE"}
+		timeout := d.Timeout(schema.TimeoutCreate)
+		if err := watiForServerTargetState(computeClient, d.Id(), pending, target, timeout); err != nil {
+			return fmt.Errorf("State waiting timeout: %s", err)
 		}
 	}
 
@@ -979,18 +970,12 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			log.Printf("[WARN] Error stopping HuaweiCloud instance: %s", err)
 		} else {
-			stopStateConf := &resource.StateChangeConf{
-				Pending:    []string{"ACTIVE"},
-				Target:     []string{"SHUTOFF"},
-				Refresh:    ServerV2StateRefreshFunc(computeClient, d.Id()),
-				Timeout:    3 * time.Minute,
-				Delay:      10 * time.Second,
-				MinTimeout: 3 * time.Second,
-			}
 			log.Printf("[DEBUG] Waiting for instance (%s) to stop", d.Id())
-			_, err = stopStateConf.WaitForState()
-			if err != nil {
-				log.Printf("[WARN] Error waiting for instance (%s) to stop: %s, proceeding to delete", d.Id(), err)
+			pending := []string{"ACTIVE"}
+			target := []string{"SHUTOFF"}
+			timeout := d.Timeout(schema.TimeoutCreate)
+			if err := watiForServerTargetState(computeClient, d.Id(), pending, target, timeout); err != nil {
+				return fmt.Errorf("State waiting timeout: %s", err)
 			}
 		}
 	}
@@ -1022,20 +1007,11 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Instance may still exist after Order/Job succeed.
-	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"ACTIVE", "SHUTOFF"},
-		Target:     []string{"DELETED", "SOFT_DELETED"},
-		Refresh:    ServerV2StateRefreshFunc(computeClient, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      10 * time.Second,
-		MinTimeout: 3 * time.Second,
-	}
-
-	_, err = stateConf.WaitForState()
-	if err != nil {
-		return fmt.Errorf(
-			"Error waiting for instance (%s) to delete: %s",
-			d.Id(), err)
+	pending := []string{"ACTIVE", "SHUTOFF"}
+	target := []string{"DELETED", "SOFT_DELETED"}
+	deleteTimeout := d.Timeout(schema.TimeoutDelete)
+	if err := watiForServerTargetState(computeClient, d.Id(), pending, target, deleteTimeout); err != nil {
+		return fmt.Errorf("State waiting timeout: %s", err)
 	}
 
 	d.SetId("")
@@ -1368,5 +1344,22 @@ func checkBlockDeviceConfig(d *schema.ResourceData) error {
 		}
 	}
 
+	return nil
+}
+
+func watiForServerTargetState(client *golangsdk.ServiceClient, ID string, pending, target []string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      pending,
+		Target:       target,
+		Refresh:      ServerV2StateRefreshFunc(client, ID),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	_, err := stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf("Error waiting for instance (%s) to become target state (%v): %s", ID, target, err)
+	}
 	return nil
 }
