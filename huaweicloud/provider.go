@@ -395,6 +395,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dns_recordset":                   ResourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone":                        ResourceDNSZoneV2(),
 			"huaweicloud_dws_cluster":                     resourceDwsCluster(),
+			"huaweicloud_elb_listener":                    ResourceListenerV3(),
 			"huaweicloud_elb_loadbalancer":                ResourceLoadBalancerV3(),
 			"huaweicloud_evs_snapshot":                    ResourceEvsSnapshotV2(),
 			"huaweicloud_evs_volume":                      ResourceEvsStorageVolumeV3(),

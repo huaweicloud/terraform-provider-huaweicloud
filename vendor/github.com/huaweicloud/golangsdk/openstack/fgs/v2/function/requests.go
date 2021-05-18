@@ -21,21 +21,21 @@ type FunctionCodeOpts struct {
 
 //function struct
 type CreateOpts struct {
-	FuncName      string           `json:"func_name" required:"true"`
-	Package       string           `json:"package" required:"true"`
-	CodeType      string           `json:"code_type" required:"true"`
-	CodeUrl       string           `json:"code_url,omitempty"`
-	Description   string           `json:"description,omitempty"`
-	CodeFilename  string           `json:"code_filename,omitempty"`
-	Handler       string           `json:"handler" required:"true"`
-	MemorySize    int              `json:"memory_size" required:"true"`
-	Runtime       string           `json:"runtime" required:"true"`
-	Timeout       int              `json:"timeout" required:"true"`
-	UserData      string           `json:"user_data,omitempty"`
-	Xrole         string           `json:"xrole,omitempty"`
-	AppXrole      string           `json:"app_xrole,omitempty"`
-	DependencyPkg string           `json:"dependency_pkg,omitempty"`
-	FuncCode      FunctionCodeOpts `json:"func_code" required:"true"`
+	FuncName            string           `json:"func_name" required:"true"`
+	Package             string           `json:"package" required:"true"`
+	CodeType            string           `json:"code_type" required:"true"`
+	CodeUrl             string           `json:"code_url,omitempty"`
+	Description         string           `json:"description,omitempty"`
+	CodeFilename        string           `json:"code_filename,omitempty"`
+	Handler             string           `json:"handler" required:"true"`
+	MemorySize          int              `json:"memory_size" required:"true"`
+	Runtime             string           `json:"runtime" required:"true"`
+	Timeout             int              `json:"timeout" required:"true"`
+	UserData            string           `json:"user_data,omitempty"`
+	Xrole               string           `json:"xrole,omitempty"`
+	AppXrole            string           `json:"app_xrole,omitempty"`
+	FuncCode            FunctionCodeOpts `json:"func_code" required:"true"`
+	EnterpriseProjectID string           `json:"enterprise_project_id,omitempty"`
 }
 
 func (opts CreateOpts) ToCreateFunctionMap() (map[string]interface{}, error) {
@@ -107,10 +107,11 @@ type UpdateOptsBuilder interface {
 
 //Function struct for update
 type UpdateCodeOpts struct {
-	CodeType      string           `json:"code_type" required:"true"`
-	CodeUrl       string           `json:"code_url,omitempty"`
-	DependencyPkg string           `json:"dependency_pkg,omitempty"`
-	FuncCode      FunctionCodeOpts `json:"func_code,omitempty"`
+	CodeType     string           `json:"code_type" required:"true"`
+	CodeUrl      string           `json:"code_url,omitempty"`
+	DependList   []string         `json:"depend_list,omitempty"`
+	CodeFileName string           `json:"code_filename,omitempty"`
+	FuncCode     FunctionCodeOpts `json:"func_code,omitempty"`
 }
 
 func (opts UpdateCodeOpts) ToUpdateMap() (map[string]interface{}, error) {
@@ -130,17 +131,20 @@ func UpdateCode(c *golangsdk.ServiceClient, functionUrn string, opts UpdateOptsB
 
 //Metadata struct for update
 type UpdateMetadataOpts struct {
-	Runtime       string `json:"runtime" required:"true"`
-	CodeType      string `json:"code_type" required:"true"`
-	CodeUrl       string `json:"code_url,omitempty"`
-	Description   string `json:"description,omitempty"`
-	MemorySize    int    `json:"memory_size" required:"true"`
-	Handler       string `json:"handler" required:"true"`
-	Timeout       int    `json:"timeout" required:"true"`
-	UserData      string `json:"user_data,omitempty"`
-	DependencyPkg string `json:"dependency_pkg,omitempty"`
-	Xrole         string `json:"xrole,omitempty"`
-	AppXrole      string `json:"app_xrole,omitempty"`
+	Handler            string       `json:"handler" required:"true"`
+	MemorySize         int          `json:"memory_size" required:"true"`
+	Timeout            int          `json:"timeout" required:"true"`
+	Runtime            string       `json:"runtime" required:"true"`
+	Package            string       `json:"package,omitempty"`
+	FuncVpc            *FuncVpc     `json:"func_vpc,omitempty"`
+	MountConfig        *MountConfig `json:"mount_config,omitempty"`
+	CodeUrl            string       `json:"code_url,omitempty"`
+	Description        string       `json:"description,omitempty"`
+	UserData           string       `json:"user_data,omitempty"`
+	Xrole              string       `json:"xrole,omitempty"`
+	AppXrole           string       `json:"app_xrole,omitempty"`
+	InitializerHandler string       `json:"initializer_handler,omitempty"`
+	InitializerTimeout int          `json:"initializer_timeout,omitempty"`
 }
 
 func (opts UpdateMetadataOpts) ToUpdateMap() (map[string]interface{}, error) {

@@ -328,6 +328,7 @@ github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers
 github.com/huaweicloud/golangsdk/openstack/ecs/v1/flavors
 github.com/huaweicloud/golangsdk/openstack/elb/v2/loadbalancers
 github.com/huaweicloud/golangsdk/openstack/elb/v3/flavors
+github.com/huaweicloud/golangsdk/openstack/elb/v3/listeners
 github.com/huaweicloud/golangsdk/openstack/elb/v3/loadbalancers
 github.com/huaweicloud/golangsdk/openstack/eps/v1/enterpriseprojects
 github.com/huaweicloud/golangsdk/openstack/evs/v2/snapshots
