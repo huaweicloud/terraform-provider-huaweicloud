@@ -1,3 +1,9 @@
+## 1.24.2 (May 18, 2021)
+
+BUG FIXES:
+
+* resource/huaweicloud_sfs_turbo: Remove SFS turbo size validation ([#1140](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1140))
+
 ## 1.24.1 (May 12, 2021)
 
 FEATURES:
