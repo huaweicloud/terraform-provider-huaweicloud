@@ -14,7 +14,7 @@ import (
 
 func TestAccIdentityRole_basic(t *testing.T) {
 	var role policies.Role
-	var roleName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
+	var roleName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	var roleNameUpdate = roleName + "update"
 	resourceName := "huaweicloud_identity_role.test"
 

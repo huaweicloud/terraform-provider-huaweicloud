@@ -106,7 +106,7 @@ func resourceMRSClusterV1() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"SATA", "SAS", "SSD",
+					"SAS", "SSD", "GPSSD", "ESSD", "SATA",
 				}, false),
 			},
 			"volume_size": {

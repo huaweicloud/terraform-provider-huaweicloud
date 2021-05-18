@@ -283,6 +283,7 @@ github.com/huaweicloud/golangsdk/openstack/cce/v3/addons
 github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters
 github.com/huaweicloud/golangsdk/openstack/cce/v3/nodepools
 github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes
+github.com/huaweicloud/golangsdk/openstack/cce/v3/templates
 github.com/huaweicloud/golangsdk/openstack/cci/v1/networks
 github.com/huaweicloud/golangsdk/openstack/cdn/v1/domains
 github.com/huaweicloud/golangsdk/openstack/cloudeyeservice/alarmrule

@@ -14,7 +14,7 @@ import (
 
 func TestAccIdentityV3Group_basic(t *testing.T) {
 	var group groups.Group
-	var groupName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
+	var groupName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_group.group_1"
 
 	resource.ParallelTest(t, resource.TestCase{

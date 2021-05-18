@@ -8,8 +8,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/cbr/v3/policies"
 	"github.com/huaweicloud/golangsdk/openstack/cbr/v3/vaults"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 var resourceType map[string]string = map[string]string{
@@ -130,6 +133,7 @@ func resourceCBRVaultV3() *schema.Resource {
 					},
 				},
 			},
+			"tags": tagsSchema(),
 			"allocated": {
 				Type:     schema.TypeFloat,
 				Computed: true,
@@ -183,6 +187,15 @@ func resourceCBRVaultV3Create(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	if v, ok := d.GetOk("tags"); ok {
+		tagRaw := v.(map[string]interface{})
+		taglist := utils.ExpandResourceTags(tagRaw)
+		tagErr := tags.Create(client, "vault", d.Id(), taglist).ExtractErr()
+		if tagErr != nil {
+			return fmt.Errorf("Error setting tags of CBR vault: %s", tagErr)
+		}
+	}
+
 	return resourceCBRVaultV3Read(d, meta)
 }
 
@@ -232,6 +245,7 @@ func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("size", vault.Billing.Size),
 		d.Set("auto_expand", vault.AutoExpand),
 		d.Set("enterprise_project_id", vault.EnterpriseProjectID),
+		d.Set("tags", utils.TagsToMap(vault.Tags)),
 		//computed
 		//The result of 'allocated' and 'used' is in MB, and now we need to use GB as the unit.
 		d.Set("allocated", getNumberInGB(float64(vault.Billing.Allocated))),
@@ -242,6 +256,17 @@ func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return fmt.Errorf("Error setting vault fields: %s", err)
+	}
+	listOpts := policies.ListOpts{
+		VaultID: d.Id(),
+	}
+	allPages, err := policies.List(client, listOpts).AllPages()
+	if err != nil {
+		return fmt.Errorf("Error getting policy by ID (%s): %s", d.Id(), err)
+	}
+	policyList, err := policies.ExtractPolicies(allPages)
+	if len(policyList) == 1 {
+		d.Set("policy_id", policyList[0].ID)
 	}
 
 	return nil
@@ -277,6 +302,12 @@ func resourceCBRVaultV3Update(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("policy_id") {
 		if err := updatePolicy(d, client); err != nil {
 			return err
+		}
+	}
+
+	if d.HasChange("tags") {
+		if err = utils.UpdateResourceTags(client, d, "vault", d.Id()); err != nil {
+			return fmt.Errorf("Failed to update tags: %s", err)
 		}
 	}
 

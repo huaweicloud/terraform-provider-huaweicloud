@@ -41,11 +41,8 @@ func ResourceImsImage() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
+			"tags": tagsSchema(),
+
 			"max_ram": {
 				Type:     schema.TypeInt,
 				Optional: true,

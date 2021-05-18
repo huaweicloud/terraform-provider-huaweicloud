@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -27,6 +28,9 @@ func ResourceCCENodeV3() *schema.Resource {
 		Read:   resourceCCENodeV3Read,
 		Update: resourceCCENodeV3Update,
 		Delete: resourceCCENodeV3Delete,
+		Importer: &schema.ResourceImporter{
+			State: resourceCCENodeV3Import,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
@@ -266,11 +270,8 @@ func ResourceCCENodeV3() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"tags": { //(node/ecs_tags)
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
+			//(node/ecs_tags)
+			"tags": tagsSchema(),
 			"annotations": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -985,4 +986,20 @@ func getEipIDbyAddress(client *golangsdk.ServiceClient, address string) (string,
 	}
 
 	return allEips[0].ID, nil
+}
+
+func resourceCCENodeV3Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		err := fmt.Errorf("Invalid format specified for CCE Node. Format must be <cluster id>/<node id>")
+		return nil, err
+	}
+
+	clusterID := parts[0]
+	nodeID := parts[1]
+
+	d.SetId(nodeID)
+	d.Set("cluster_id", clusterID)
+
+	return []*schema.ResourceData{d}, nil
 }

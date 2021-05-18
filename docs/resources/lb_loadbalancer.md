@@ -74,3 +74,11 @@ This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.
 - `update` - Default is 10 minute.
 - `delete` - Default is 5 minute.
+
+## Import
+
+Load balancers can be imported using the `id`, e.g.
+
+```
+$ terraform import huaweicloud_lb_loadbalancer.test 3e3632db-36c6-4b28-a92e-e72e6562daa6
+```

@@ -251,12 +251,7 @@ func ResourceObsBucket() *schema.Resource {
 				},
 			},
 
-			"tags": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-
+			"tags": tagsSchema(),
 			"force_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,

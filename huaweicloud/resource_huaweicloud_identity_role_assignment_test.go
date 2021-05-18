@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/groups"
@@ -15,6 +16,7 @@ import (
 func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 	var role roles.Role
 	var group groups.Group
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_role_assignment.role_assignment_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -26,7 +28,7 @@ func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 		CheckDestroy: testAccCheckIdentityV3RoleAssignmentDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIdentityV3RoleAssignment_project,
+				Config: testAccIdentityV3RoleAssignment_project(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIdentityV3RoleAssignmentExists(resourceName, &role, &group),
 					resource.TestCheckResourceAttrPtr(resourceName, "group_id", &group.ID),
@@ -35,7 +37,7 @@ func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccIdentityV3RoleAssignment_domain,
+				Config: testAccIdentityV3RoleAssignment_domain(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIdentityV3RoleAssignmentExists(resourceName, &role, &group),
 					resource.TestCheckResourceAttrPtr(resourceName, "group_id", &group.ID),
@@ -131,13 +133,14 @@ func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, grou
 	}
 }
 
-var testAccIdentityV3RoleAssignment_project = fmt.Sprintf(`
+func testAccIdentityV3RoleAssignment_project(rName string) string {
+	return fmt.Sprintf(`
 data "huaweicloud_identity_role" "role_1" {
   name = "rds_adm"
 }
 
 resource "huaweicloud_identity_group" "group_1" {
-  name = "group_1"
+  name = "%s"
 }
 
 resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
@@ -145,15 +148,17 @@ resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
   group_id   = huaweicloud_identity_group.group_1.id
   project_id = "%s"
 }
-`, HW_PROJECT_ID)
+`, rName, HW_PROJECT_ID)
+}
 
-var testAccIdentityV3RoleAssignment_domain = fmt.Sprintf(`
+func testAccIdentityV3RoleAssignment_domain(rName string) string {
+	return fmt.Sprintf(`
 data "huaweicloud_identity_role" "role_1" {
   name = "secu_admin"
 }
 
 resource "huaweicloud_identity_group" "group_1" {
-  name = "group_1"
+  name = "%s"
 }
 
 resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
@@ -161,4 +166,5 @@ resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
   group_id   = huaweicloud_identity_group.group_1.id
   domain_id = "%s"
 }
-`, HW_DOMAIN_ID)
+`, rName, HW_DOMAIN_ID)
+}

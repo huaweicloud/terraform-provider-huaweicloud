@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccIdentityCustomRoleDataSource_basic(t *testing.T) {
-	var rName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
+	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
