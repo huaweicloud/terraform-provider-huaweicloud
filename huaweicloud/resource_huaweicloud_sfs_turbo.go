@@ -43,9 +43,8 @@ func ResourceSFSTurbo() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(4, 64),
 			},
 			"size": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntAtLeast(500),
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 			"share_proto": {
 				Type:         schema.TypeString,
