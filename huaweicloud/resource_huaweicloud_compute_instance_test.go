@@ -138,6 +138,75 @@ func TestAccComputeV2Instance_tags(t *testing.T) {
 	})
 }
 
+func TestAccComputeV2Instance_powerAction(t *testing.T) {
+	var instance servers.Server
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_compute_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeV2Instance_powerAction(rName, "OFF"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "power_action", "OFF"),
+					resource.TestCheckResourceAttr(resourceName, "status", "SHUTOFF"),
+				),
+			},
+			{
+				Config: testAccComputeV2Instance_powerAction(rName, "ON"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "power_action", "ON"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+				),
+			},
+			{
+				Config: testAccComputeV2Instance_powerAction(rName, "REBOOT"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "power_action", "REBOOT"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+				),
+			},
+			{
+				Config: testAccComputeV2Instance_powerAction(rName, "FORCE-REBOOT"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "power_action", "FORCE-REBOOT"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+				),
+			},
+			{
+				Config: testAccComputeV2Instance_powerAction(rName, "FORCE-OFF"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeV2InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "power_action", "FORCE-OFF"),
+					resource.TestCheckResourceAttr(resourceName, "status", "SHUTOFF"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"stop_before_destroy",
+					"power_action",
+				},
+			},
+		},
+	})
+}
+
 func testAccCheckComputeV2InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
@@ -390,4 +459,23 @@ resource "huaweicloud_compute_instance" "test" {
   }
 }
 `, testAccCompute_data, rName)
+}
+
+func testAccComputeV2Instance_powerAction(rName, powerAction string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_compute_instance" "test" {
+  name              = "%s"
+  image_id          = data.huaweicloud_images_image.test.id
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
+  security_groups   = ["default"]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  power_action      = "%s"
+
+  network {
+    uuid = data.huaweicloud_vpc_subnet.test.id
+  }
+}
+`, testAccCompute_data, rName, powerAction)
 }

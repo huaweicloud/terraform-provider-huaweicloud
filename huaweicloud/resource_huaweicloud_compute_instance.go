@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
@@ -26,13 +27,21 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
+	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/powers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var novaConflicts = []string{"block_device", "metadata"}
+var (
+	novaConflicts  = []string{"block_device", "metadata"}
+	powerActionMap = map[string]string{
+		"ON":     "os-start",
+		"OFF":    "os-stop",
+		"REBOOT": "reboot",
+	}
+)
 
 func ResourceComputeInstanceV2() *schema.Resource {
 	return &schema.Resource{
@@ -285,6 +294,14 @@ func ResourceComputeInstanceV2() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: utils.ValidateECSTagValue,
 				Elem:         &schema.Schema{Type: schema.TypeString},
+			},
+			"power_action": {
+				Type:     schema.TypeString,
+				Optional: true,
+				// If you want to support more actions, please update powerActionMap simultaneously.
+				ValidateFunc: validation.StringInSlice([]string{
+					"ON", "OFF", "REBOOT", "FORCE-OFF", "FORCE-REBOOT",
+				}, false),
 			},
 			"volume_attached": {
 				Type:     schema.TypeList,
@@ -604,20 +621,11 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		// Wait for the instance to become running so we can get some attributes
 		// that aren't available until later.
 		log.Printf("[DEBUG] Waiting for instance (%s) to become running", server.ID)
-		stateConf := &resource.StateChangeConf{
-			Pending:    []string{"BUILD"},
-			Target:     []string{"ACTIVE"},
-			Refresh:    ServerV2StateRefreshFunc(computeClient, server.ID),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
-			Delay:      10 * time.Second,
-			MinTimeout: 3 * time.Second,
-		}
-
-		_, err = stateConf.WaitForState()
-		if err != nil {
-			return fmt.Errorf(
-				"Error waiting for instance (%s) to become ready: %s",
-				server.ID, err)
+		pending := []string{"BUILD"}
+		target := []string{"ACTIVE"}
+		timeout := d.Timeout(schema.TimeoutCreate)
+		if err := watiForServerTargetState(computeClient, d.Id(), pending, target, timeout); err != nil {
+			return fmt.Errorf("State waiting timeout: %s", err)
 		}
 	}
 
@@ -628,6 +636,18 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		tagErr := tags.Create(ecsClient, "cloudservers", d.Id(), taglist).ExtractErr()
 		if tagErr != nil {
 			log.Printf("[WARN] Error setting tags of instance:%s, err=%s", d.Id(), err)
+		}
+	}
+
+	// Create an instance in the shutdown state.
+	if action, ok := d.GetOk("power_action"); ok {
+		action := action.(string)
+		if action == "OFF" || action == "FORCE-OFF" {
+			if err = doPowerAction(ecsClient, d, action); err != nil {
+				return fmt.Errorf("Doing power action (%s) for instance (%s) failed: %s", action, d.Id(), err)
+			}
+		} else {
+			log.Printf("[WARN] The power action (%s) is invalid after instance created", action)
 		}
 	}
 
@@ -963,6 +983,14 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
+	// The instance power status update needs to be done at the end
+	if d.HasChange("power_action") {
+		action := d.Get("power_action").(string)
+		if err = doPowerAction(ecsClient, d, action); err != nil {
+			return fmt.Errorf("Doing power action (%s) for instance (%s) failed: %s", action, d.Id(), err)
+		}
+	}
+
 	return resourceComputeInstanceV2Read(d, meta)
 }
 
@@ -979,18 +1007,12 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			log.Printf("[WARN] Error stopping HuaweiCloud instance: %s", err)
 		} else {
-			stopStateConf := &resource.StateChangeConf{
-				Pending:    []string{"ACTIVE"},
-				Target:     []string{"SHUTOFF"},
-				Refresh:    ServerV2StateRefreshFunc(computeClient, d.Id()),
-				Timeout:    3 * time.Minute,
-				Delay:      10 * time.Second,
-				MinTimeout: 3 * time.Second,
-			}
 			log.Printf("[DEBUG] Waiting for instance (%s) to stop", d.Id())
-			_, err = stopStateConf.WaitForState()
-			if err != nil {
-				log.Printf("[WARN] Error waiting for instance (%s) to stop: %s, proceeding to delete", d.Id(), err)
+			pending := []string{"ACTIVE"}
+			target := []string{"SHUTOFF"}
+			timeout := d.Timeout(schema.TimeoutCreate)
+			if err := watiForServerTargetState(computeClient, d.Id(), pending, target, timeout); err != nil {
+				return fmt.Errorf("State waiting timeout: %s", err)
 			}
 		}
 	}
@@ -1022,20 +1044,11 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Instance may still exist after Order/Job succeed.
-	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"ACTIVE", "SHUTOFF"},
-		Target:     []string{"DELETED", "SOFT_DELETED"},
-		Refresh:    ServerV2StateRefreshFunc(computeClient, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      10 * time.Second,
-		MinTimeout: 3 * time.Second,
-	}
-
-	_, err = stateConf.WaitForState()
-	if err != nil {
-		return fmt.Errorf(
-			"Error waiting for instance (%s) to delete: %s",
-			d.Id(), err)
+	pending := []string{"ACTIVE", "SHUTOFF"}
+	target := []string{"DELETED", "SOFT_DELETED"}
+	deleteTimeout := d.Timeout(schema.TimeoutDelete)
+	if err := watiForServerTargetState(computeClient, d.Id(), pending, target, deleteTimeout); err != nil {
+		return fmt.Errorf("State waiting timeout: %s", err)
 	}
 
 	d.SetId("")
@@ -1368,5 +1381,56 @@ func checkBlockDeviceConfig(d *schema.ResourceData) error {
 		}
 	}
 
+	return nil
+}
+
+func watiForServerTargetState(client *golangsdk.ServiceClient, ID string, pending, target []string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      pending,
+		Target:       target,
+		Refresh:      ServerV2StateRefreshFunc(client, ID),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	_, err := stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf("Error waiting for instance (%s) to become target state (%v): %s", ID, target, err)
+	}
+	return nil
+}
+
+// doPowerAction is a method for instance power doing shutdown, startup and reboot actions.
+func doPowerAction(client *golangsdk.ServiceClient, d *schema.ResourceData, action string) error {
+	var jobResp *cloudservers.JobResponse
+	powerOpts := powers.PowerOpts{
+		Servers: []powers.ServerInfo{
+			{ID: d.Id()},
+		},
+	}
+	// In the reboot structure, Type is a required option.
+	// Since the type of power off and reboot is 'SOFT' by default, setting this value has solved the power structural
+	// compatibility problem between optional and required.
+	if action != "ON" {
+		powerOpts.Type = "SOFT"
+	}
+	if strings.HasPrefix(action, "FORCE-") {
+		powerOpts.Type = "HARD"
+		action = strings.TrimPrefix(action, "FORCE-")
+	}
+	op, ok := powerActionMap[action]
+	if !ok {
+		return fmt.Errorf("The powerMap does not contain option (%s)", action)
+	}
+	jobResp, err := powers.PowerAction(client, powerOpts, op).ExtractJobResponse()
+	if err != nil {
+		return fmt.Errorf("Doing power action (%s) for instance (%s) failed: %s", action, d.Id(), err)
+	}
+	// The time of the power on/off and reboot is usually between 15 and 35 seconds.
+	timeout := 3 * time.Minute
+	if err := cloudservers.WaitForJobSuccess(client, int(timeout/time.Second), jobResp.JobID); err != nil {
+		return err
+	}
 	return nil
 }
