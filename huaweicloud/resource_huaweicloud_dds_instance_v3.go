@@ -172,6 +172,12 @@ func resourceDdsInstanceV3() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"tags": tagsSchema(),
 			"db_username": {
 				Type:     schema.TypeString,
@@ -310,17 +316,18 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 	}
 
 	createOpts := instances.CreateOpts{
-		Name:             d.Get("name").(string),
-		DataStore:        resourceDdsDataStore(d),
-		Region:           GetRegion(d, config),
-		AvailabilityZone: d.Get("availability_zone").(string),
-		VpcId:            d.Get("vpc_id").(string),
-		SubnetId:         d.Get("subnet_id").(string),
-		SecurityGroupId:  d.Get("security_group_id").(string),
-		DiskEncryptionId: d.Get("disk_encryption_id").(string),
-		Mode:             d.Get("mode").(string),
-		Flavor:           resourceDdsFlavors(d),
-		BackupStrategy:   resourceDdsBackupStrategy(d),
+		Name:                d.Get("name").(string),
+		DataStore:           resourceDdsDataStore(d),
+		Region:              GetRegion(d, config),
+		AvailabilityZone:    d.Get("availability_zone").(string),
+		VpcId:               d.Get("vpc_id").(string),
+		SubnetId:            d.Get("subnet_id").(string),
+		SecurityGroupId:     d.Get("security_group_id").(string),
+		DiskEncryptionId:    d.Get("disk_encryption_id").(string),
+		Mode:                d.Get("mode").(string),
+		Flavor:              resourceDdsFlavors(d),
+		BackupStrategy:      resourceDdsBackupStrategy(d),
+		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 	}
 	if d.Get("ssl").(bool) {
 		createOpts.Ssl = "1"
@@ -405,6 +412,7 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("db_username", instance.DbUserName)
 	d.Set("status", instance.Status)
 	d.Set("port", instance.Port)
+	d.Set("enterprise_project_id", instance.EnterpriseProjectID)
 
 	sslEnable := true
 	if instance.Ssl == 0 {

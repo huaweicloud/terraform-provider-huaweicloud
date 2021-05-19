@@ -46,6 +46,28 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 	})
 }
 
+func TestAccDDSV3Instance_withEpsId(t *testing.T) {
+	var instance instances.Instance
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_dds_instance.instance"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDDSV3InstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDDSInstanceV3Config_withEpsId(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDDSV3InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDDSV3InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.DdsV3Client(HW_REGION_NAME)
@@ -131,44 +153,47 @@ resource "huaweicloud_networking_secgroup" "secgroup_acc" {
 }
 
 resource "huaweicloud_dds_instance" "instance" {
-  name = "%s"
+  name              = "%s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = data.huaweicloud_vpc.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  password          = "Test@123"
+  mode              = "Sharding"
+
   datastore {
-    type = "DDS-Community"
-    version = "3.4"
+    type           = "DDS-Community"
+    version        = "3.4"
     storage_engine = "wiredTiger"
   }
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id = data.huaweicloud_vpc.test.id
-  subnet_id = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
-  password = "Test@123"
-  mode = "Sharding"
 
   flavor {
-    type = "mongos"
-    num = 2
+    type      = "mongos"
+    num       = 2
     spec_code = "dds.mongodb.c3.medium.4.mongos"
   }
   flavor {
-    type = "shard"
-    num = 2
-    storage = "ULTRAHIGH"
-    size = 20
+    type      = "shard"
+    num       = 2
+    storage   = "ULTRAHIGH"
+    size      = 20
     spec_code = "dds.mongodb.c3.medium.4.shard"
   }
   flavor {
-    type = "config"
-    num = 1
-    storage = "ULTRAHIGH"
-    size = 20
+    type      = "config"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 20
     spec_code = "dds.mongodb.c3.large.2.config"
   }
+
   backup_strategy {
     start_time = "08:00-09:00"
-    keep_days = "8"
+    keep_days  = "8"
   }
+
   tags = {
-	foo = "bar"
+	foo   = "bar"
     owner = "terraform"
   }
 }`, rName, rName)
@@ -191,45 +216,112 @@ resource "huaweicloud_networking_secgroup" "secgroup_acc" {
 }
 
 resource "huaweicloud_dds_instance" "instance" {
-  name = "%s"
+  name              = "%s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = data.huaweicloud_vpc.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  password          = "Test@123"
+  mode              = "Sharding"
+
   datastore {
-    type = "DDS-Community"
-    version = "3.4"
+    type           = "DDS-Community"
+    version        = "3.4"
     storage_engine = "wiredTiger"
   }
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id = data.huaweicloud_vpc.test.id
-  subnet_id = data.huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
-  password = "Test@123"
-  mode = "Sharding"
 
   flavor {
-    type = "mongos"
-    num = 2
+    type      = "mongos"
+    num       = 2
     spec_code = "dds.mongodb.c3.medium.4.mongos"
   }
   flavor {
-    type = "shard"
-    num = 2
-    storage = "ULTRAHIGH"
-    size = 20
+    type      = "shard"
+    num       = 2
+    storage   = "ULTRAHIGH"
+    size      = 20
     spec_code = "dds.mongodb.c3.medium.4.shard"
   }
   flavor {
-    type = "config"
-    num = 1
-    storage = "ULTRAHIGH"
-    size = 20
+    type      = "config"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 20
     spec_code = "dds.mongodb.c3.large.2.config"
   }
+
   backup_strategy {
     start_time = "00:00-01:00"
-    keep_days = "7"
+    keep_days  = "7"
   }
+
+  tags = {
+	foo   = "bar"
+    owner = "terraform"
+  }
+}`, rName, rName)
+}
+
+func testAccDDSInstanceV3Config_withEpsId(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+resource "huaweicloud_networking_secgroup" "secgroup_acc" {
+  name = "%s"
+}
+
+resource "huaweicloud_dds_instance" "instance" {
+  name                  = "%s"
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id                = data.huaweicloud_vpc.test.id
+  subnet_id             = data.huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.secgroup_acc.id
+  password              = "Test@123"
+  mode                  = "Sharding"
+  enterprise_project_id = "%s"
+
+  datastore {
+    type           = "DDS-Community"
+    version        = "3.4"
+    storage_engine = "wiredTiger"
+  }
+
+  flavor {
+    type      = "mongos"
+    num       = 2
+    spec_code = "dds.mongodb.c3.medium.4.mongos"
+  }
+  flavor {
+    type      = "shard"
+    num       = 2
+    storage   = "ULTRAHIGH"
+    size      = 20
+    spec_code = "dds.mongodb.c3.medium.4.shard"
+  }
+  flavor {
+    type      = "config"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 20
+    spec_code = "dds.mongodb.c3.large.2.config"
+  }
+
+  backup_strategy {
+    start_time = "08:00-09:00"
+    keep_days  = "8"
+  }
+
   tags = {
 	foo = "bar"
     owner = "terraform"
   }
-}`, rName, rName)
+}`, rName, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
