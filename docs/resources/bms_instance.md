@@ -112,14 +112,13 @@ The following arguments are supported:
     Changing this creates a new instance.
 
 * `user_data` - (Optional, String, ForceNew) Specifies the user data to be injected during the instance creation.
-    Text and text files can be injected. `user_data` can come from a variety of sources: inline, read in from the `file`
-    function, or the `template_cloudinit_config` resource.
-    Changing this creates a new instance.
+    Text and text files can be injected. `user_data` can come from a variety of sources: inline, read in from the
+    *file* function. Changing this creates a new instance.
 
 -> **NOTE:** If the `user_data` field is specified for a Linux BMS that is created using an image with Cloud-Init
 installed, the `admin_pass` field becomes invalid.
 
-* `security_groups` - (Optional, List, ForceNew) Specifies a array of one or more security group ids to associate
+* `security_groups` - (Optional, List, ForceNew) Specifies an array of one or more security group IDs to associate
     with the instance. Changing this creates a new instance.
 
 * `eip_id` - (Optional, String, ForceNew) The ID of the EIP. Changing this creates a new instance.
@@ -222,7 +221,6 @@ In addition to all arguments above, the following attributes are exported:
 * `nics/mac_address` - The MAC address of the nic.
 * `nics/port_id` - The port ID corresponding to the IP address.
 * `disk_ids` - The ID of disks attached.
-
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

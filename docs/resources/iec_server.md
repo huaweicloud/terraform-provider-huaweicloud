@@ -90,78 +90,78 @@ resource "huaweicloud_iec_server" "server_test" {
 
 The following arguments are supported:
 
-* `coverage_sites` - (Required, List, ForceNew) Specifies an array of site ID 
-    and operator for the IEC server. 
+* `coverage_sites` - (Required, List, ForceNew) Specifies an array of site ID
+    and operator for the IEC server.
     The coverage_sites object structure is documented below.
     Changing this parameter creates a new IEC server resource.
 
-* `flavor_id` - (Required, String, ForceNew) Specifies the flavor ID of the 
-    desired flavor for the IEC server. 
+* `flavor_id` - (Required, String, ForceNew) Specifies the flavor ID of the
+    desired flavor for the IEC server.
     Changing this parameter creates a new IEC server resource.
 
-* `image_id` - (Required, String, ForceNew) Specifies the image ID of the 
-    desired image for the IEC server. 
+* `image_id` - (Required, String, ForceNew) Specifies the image ID of the
+    desired image for the IEC server.
     Changing this parameter creates a new IEC server resource.
 
-* `name` - (Required, String, ForceNew) Specifies the IEC server name. 
-    This parameter can contain a maximum of 64 characters, which may consist of 
+* `name` - (Required, String, ForceNew) Specifies the IEC server name.
+    This parameter can contain a maximum of 64 characters, which may consist of
     letters, digits, dot(.), underscores (_), and hyphens (-).
     Changing this parameter creates a new IEC server resource.
 
-* `security_groups` - (Required, List, ForceNew) Specifies an array of one or 
-    more security group names to associate with the IEC server. 
+* `security_groups` - (Required, List, ForceNew) Specifies an array of one or
+    more security group IDs to associate with the IEC server.
     Changing this parameter creates a new IEC server resource.
 
-* `subnet_ids` - (Required, List, ForceNew) Specifies an array of one or more 
-    subnet ID of Network for the IEC server binding. 
+* `subnet_ids` - (Required, List, ForceNew) Specifies an array of one or more
+    subnet ID of Network for the IEC server binding.
     Changing this parameter creates a new IEC server resource.
 
-* `system_disk_type` - (Required, String, ForceNew) Specifies the type of system 
-    disk for the IEC server binding. 
+* `system_disk_type` - (Required, String, ForceNew) Specifies the type of system
+    disk for the IEC server binding.
     Valid value is *SAS*(high I/O disk type).
     Changing this parameter creates a new IEC server resource.
 
-* `system_disk_size` - (Required, String, ForceNew) Specifies the size of system 
-    disk for the IEC server binding.  The value range is 40 to 100 in GB. 
+* `system_disk_size` - (Required, String, ForceNew) Specifies the size of system
+    disk for the IEC server binding.  The value range is 40 to 100 in GB.
     Changing this parameter creates a new IEC server resource.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies the ID of vpc for the IEC 
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of vpc for the IEC
     server. VPC mode only *CUSTOMER* can be used to create IEC server.
     Changing this parameter creates a new IEC server resource.
 
-* `admin_pass` - (Optional, String, ForceNew) Specifies the administrative 
-    password to assign to the IEC server. This parameter can contain a maximum 
-    of 26 characters, which may consist of letters, digits and Special 
+* `admin_pass` - (Optional, String, ForceNew) Specifies the administrative
+    password to assign to the IEC server. This parameter can contain a maximum
+    of 26 characters, which may consist of letters, digits and Special
     characters(~!?,.:;-_'"(){}[]/<>@#$%^&*+|\=) and space.
-    This parameter and key_pair are alternative.
+    This parameter and `key_pair` are alternative.
     Changing this changes the root password on the existing server.
 
-* `bind_eip` - (Optional, String, ForceNew) Specifies whether the IEC server is 
+* `key_pair` - (Optional, String, ForceNew) Specifies the name of a key pair to
+    put on the IEC server. The key pair must already be created and associated
+    with the tenant's account.
+    This parameter and `admin_pass` are alternative.
+    Changing this parameter creates a new IEC server resource.
+
+* `bind_eip` - (Optional, String, ForceNew) Specifies whether the IEC server is
     bound to EIP. Changing this parameter creates a new IEC server resource.
 
-* `coverage_level` - (Optional, String, ForceNew) Specifies the coverage level 
+* `coverage_level` - (Optional, String, ForceNew) Specifies the coverage level
     of IEC sites. Valid value is *SITE*.
     Changing this parameter creates a new IEC server resource.
 
-* `coverage_policy` - (Optional, String, ForceNew) Specifies the policy of IEC 
+* `coverage_policy` - (Optional, String, ForceNew) Specifies the policy of IEC
     sites. Valid values are *centralize* and *discrete*, *centralize* is default.
     Changing this parameter creates a new IEC server resource.
 
-* `data_disks` - (Optional, List, ForceNew) Specifies the array of data disks 
-    to attach to the IEC server. Up to two data disks can be specified. 
+* `data_disks` - (Optional, List, ForceNew) Specifies the array of data disks
+    to attach to the IEC server. Up to two data disks can be specified.
     The data_disks object structure is documented below.
     Changing this parameter creates a new IEC server resource.
 
-* `key_pair` - (Optional, String, ForceNew) Specifies the name of a key pair to 
-    put on the IEC server. The key pair must already be created and associated \
-    with the tenant's account.
-    This parameter and admin_pass are alternative.
-    Changing this parameter creates a new IEC server resource.
-
 * `user_data` - (Optional, String, ForceNew) Specifies the user data (information
-    after encoding) configured during IEC server creation. The user_data can come 
-    from a variety of sources: inline, read in from the `file` or the `gzip`.
-    Changing this parameter creates a new IEC server resource.    
+    after encoding) configured during IEC server creation. The value can come
+    from a variety of sources: inline, read in from the *file* function.
+    Changing this parameter creates a new IEC server resource.
 
 The `coverage_sites` block supports:
 
@@ -171,12 +171,12 @@ The `coverage_sites` block supports:
 
 The `data_disks` block supports:
 
-* `type` -(Required, String, ForceNew) Specifies the type of data disk for the 
+* `type` -(Required, String, ForceNew) Specifies the type of data disk for the
     IEC server binding. Valid value is *SAS*(high I/O disk type).
     Changing this parameter creates a new IEC server resource.
 
-* `size` - (Required, String, ForceNew) Specifies the size of data disk for the 
-    IEC server binding. The value range is 10 to 500 in GB. 
+* `size` - (Required, String, ForceNew) Specifies the size of data disk for the
+    IEC server binding. The value range is 10 to 500 in GB.
     Changing this parameter creates a new IEC server resource.
 
 ## Attributes Reference
