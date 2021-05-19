@@ -32,6 +32,7 @@ DCS | huaweicloud_dcs_instance |
 NAT | huaweicloud_nat_gateway | huaweicloud_nat_snat_rule<br>huaweicloud_nat_dnat_rule
 CDM | huaweicloud_cdm_cluster |
 CDN | huaweicloud_cdn_domain |
+CES | huaweicloud_ces_alarmrule |
 GaussDB | huaweicloud_gaussdb_cassandra_instance<br>huaweicloud_gaussdb_mysql_instance<br>huaweicloud_gaussdb_opengauss_instance |
 
 ## Argument Reference

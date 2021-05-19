@@ -58,6 +58,7 @@ type AlarmRule struct {
 	AlarmActionEnabled      bool          `json:"alarm_action_enabled"`
 	UpdateTime              int64         `json:"update_time"`
 	AlarmState              string        `json:"alarm_state"`
+	EnterpriseProjectID     string        `json:"enterprise_project_id"`
 }
 
 type GetResult struct {
