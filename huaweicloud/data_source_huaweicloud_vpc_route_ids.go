@@ -23,10 +23,9 @@ func dataSourceVPCRouteIdsV2() *schema.Resource {
 				Required: true,
 			},
 			"ids": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
 			},
 		},
 	}

@@ -70,6 +70,9 @@ The following arguments are supported:
 * `alarm_action_enabled` - (Optional, Bool) Specifies whether to enable the action
     to be triggered by an alarm. The default value is true.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the alarm rule.
+  Changing this creates a new resource.
+
 -> **Note** If alarm_action_enabled is set to true, either alarm_actions or
     ok_actions cannot be empty. If alarm_actions and ok_actions coexist, their
     corresponding notification_list must be of the **same value**.

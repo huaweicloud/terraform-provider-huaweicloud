@@ -112,6 +112,9 @@ The following arguments are supported:
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. The structure is
 	described below.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the dds instance.
+  Changing this creates a new instance.
+
 * `ssl` - (Optional, Bool) Specifies whether to enable or disable SSL. Defaults to true.
 
 **Note:** The instance will be restarted in the background when switching SSL. Please operate with caution.

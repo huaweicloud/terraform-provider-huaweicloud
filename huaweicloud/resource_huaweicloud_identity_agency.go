@@ -20,7 +20,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func resourceIAMAgencyV3() *schema.Resource {
+func ResourceIAMAgencyV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIAMAgencyV3Create,
 		Read:   resourceIAMAgencyV3Read,

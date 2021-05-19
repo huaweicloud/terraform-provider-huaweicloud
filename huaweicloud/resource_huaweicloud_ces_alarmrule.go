@@ -184,6 +184,13 @@ func resourceAlarmRule() *schema.Resource {
 				Default:  true,
 			},
 
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+
 			"alarm_state": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -305,6 +312,7 @@ func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 		InsufficientdataActions: getAlarmAction(d, "insufficientdata_actions"),
 		AlarmEnabled:            d.Get("alarm_enabled").(bool),
 		AlarmActionEnabled:      d.Get("alarm_action_enabled").(bool),
+		EnterpriseProjectID:     GetEnterpriseProjectID(d, config),
 	}
 	log.Printf("[DEBUG] Create %s Options: %#v", nameCESAR, createOpts)
 
@@ -354,6 +362,7 @@ func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("alarm_action_enabled", m["alarm_action_enabled"]),
 		d.Set("alarm_state", m["alarm_state"]),
 		d.Set("update_time", m["update_time"]),
+		d.Set("enterprise_project_id", m["enterprise_project_id"]),
 	)
 	if mErr.ErrorOrNil() != nil {
 		return mErr
