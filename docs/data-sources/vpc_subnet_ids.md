@@ -20,7 +20,7 @@ data "huaweicloud_vpc_subnet_ids" "subnet_ids" {
 
 data "huaweicloud_vpc_subnet" "subnet" {
   count = length(data.huaweicloud_vpc_subnet_ids.subnet_ids.ids)
-  id    = tolist(data.huaweicloud_vpc_subnet_ids.subnet_ids.ids)[count.index]
+  id    = data.huaweicloud_vpc_subnet_ids.subnet_ids.ids[count.index]
 }
 
 output "subnet_cidr_blocks" {
