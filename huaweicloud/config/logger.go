@@ -208,7 +208,8 @@ func FormatHeaders(headers http.Header, seperator string) string {
 // "password" is apply to the most request JSON body
 // "adminPass" is apply to the ecs instance request JSON body
 // "adminPwd" is apply to the css cluster request JSON body
-var securityFields = []string{"password", "adminPass", "adminPwd"}
+// "secret" is apply to the AK/SK response JSON body
+var securityFields = []string{"password", "adminPass", "adminPwd", "secret"}
 
 func maskSecurityFields(data map[string]interface{}) bool {
 	for _, field := range securityFields {
