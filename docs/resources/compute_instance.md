@@ -12,6 +12,8 @@ This is an alternative to `huaweicloud_compute_instance_v2`
 ### Basic Instance
 
 ```hcl
+variable "secgroup_id" {}
+
 data "huaweicloud_availability_zones" "myaz" {}
 
 data "huaweicloud_compute_flavors" "myflavor" {
@@ -31,11 +33,11 @@ data "huaweicloud_images_image" "myimage" {
 }
 
 resource "huaweicloud_compute_instance" "basic" {
-  name              = "basic"
-  image_id          = data.huaweicloud_images_image.myimage.id
-  flavor_id         = data.huaweicloud_compute_flavors.myflavor.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  name               = "basic"
+  image_id           = data.huaweicloud_images_image.myimage.id
+  flavor_id          = data.huaweicloud_compute_flavors.myflavor.ids[0]
+  security_group_ids = [var.secgroup_id]
+  availability_zone  = data.huaweicloud_availability_zones.myaz.names[0]
 
   network {
     uuid = data.huaweicloud_vpc_subnet.mynet.id
@@ -46,13 +48,15 @@ resource "huaweicloud_compute_instance" "basic" {
 ### Instance With Associated Eip
 
 ```hcl
+variable "secgroup_id" {}
+
 resource "huaweicloud_compute_instance" "myinstance" {
-  name              = "myinstance"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "s6.small.1"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "cn-north-4a"
+  name               = "myinstance"
+  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id          = "s6.small.1"
+  key_pair           = "my_key_pair_name"
+  security_group_ids = [var.secgroup_id]
+  availability_zone  = "cn-north-4a"
 
   network {
     uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
@@ -80,6 +84,8 @@ resource "huaweicloud_compute_eip_associate" "associated" {
 ### Instance With Attached Volume
 
 ```hcl
+variable "secgroup_id" {}
+
 resource "huaweicloud_evs_volume" "myvolume" {
   name              = "myvolume"
   availability_zone = "cn-north-4a"
@@ -88,12 +94,12 @@ resource "huaweicloud_evs_volume" "myvolume" {
 }
 
 resource "huaweicloud_compute_instance" "myinstance" {
-  name              = "myinstance"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "s6.small.1"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "cn-north-4a"
+  name               = "myinstance"
+  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id          = "s6.small.1"
+  key_pair           = "my_key_pair_name"
+  security_group_ids = [var.secgroup_id]
+  availability_zone  = "cn-north-4a"
 
   network {
     uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
@@ -113,13 +119,15 @@ with multiple data disks, but we can't ensure the volume attached order. So it's
 recommended to use `Instance With Attached Volume` above.
 
 ```hcl
+variable "secgroup_id" {}
+
 resource "huaweicloud_compute_instance" "multi-disk" {
-  name              = "multi-net"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "s6.small.1"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "cn-north-4a"
+  name               = "multi-net"
+  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id          = "s6.small.1"
+  key_pair           = "my_key_pair_name"
+  security_group_ids = [var.secgroup_id]
+  availability_zone  = "cn-north-4a"
 
   system_disk_type = "SAS"
   system_disk_size = 40
@@ -144,13 +152,15 @@ resource "huaweicloud_compute_instance" "multi-disk" {
 ### Instance With Multiple Networks
 
 ```hcl
+variable "secgroup_id" {}
+
 resource "huaweicloud_compute_instance" "multi-net" {
-  name              = "multi-net"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "s6.small.1"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "cn-north-4a"
+  name               = "multi-net"
+  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id          = "s6.small.1"
+  key_pair           = "my_key_pair_name"
+  security_group_ids = [var.secgroup_id]
+  availability_zone  = "cn-north-4a"
 
   network {
     uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
@@ -165,14 +175,16 @@ resource "huaweicloud_compute_instance" "multi-net" {
 ### Instance with User Data (cloud-init)
 
 ```hcl
+variable "secgroup_id" {}
+
 resource "huaweicloud_compute_instance" "myinstance" {
-  name              = "instance"
-  image_id          = "ad091b52-742f-469e-8f3c-fd81cadf0743"
-  flavor_id         = "s6.small.1"
-  key_pair          = "my_key_pair_name"
-  security_groups   = ["default"]
-  availability_zone = "az"
-  user_data         = "#cloud-config\nhostname: instance_1.example.com\nfqdn: instance_1.example.com"
+  name               = "instance"
+  image_id           = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  flavor_id          = "s6.small.1"
+  key_pair           = "my_key_pair_name"
+  security_group_ids = [var.secgroup_id]
+  availability_zone  = "az"
+  user_data          = "#cloud-config\nhostname: instance_1.example.com\nfqdn: instance_1.example.com"
 
   network {
     uuid = "55534eaa-533a-419d-9b40-ec427ea7195a"
@@ -205,7 +217,7 @@ The following arguments are supported:
 * `flavor_name` - (Optional, String) Required if `flavor_id` is empty.
     Specifies the name of the desired flavor for the instance.
 
-* `security_groups` - (Optional, String) Specifies a array of one or more security group names to associate with the
+* `security_group_ids` - (Optional, List) Specifies an array of one or more security group IDs to associate with the
     instance.
 
 * `availability_zone` - (Required, String, ForceNew) Specifies the availability zone in which to create

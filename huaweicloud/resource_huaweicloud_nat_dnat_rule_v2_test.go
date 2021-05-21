@@ -141,6 +141,10 @@ func testAccCheckNatDnatExists() resource.TestCheckFunc {
 
 func testAccNatV2DnatRule_base(suffix string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_networking_secgroup" "test" {
+  name = "default"
+}
+
 resource "huaweicloud_vpc_eip" "eip_1" {
   publicip {
     type = "5_bgp"
@@ -168,11 +172,11 @@ data "huaweicloud_images_image" "test" {
 }
 
 resource "huaweicloud_compute_instance" "instance_1" {
-  name              = "instance-acc-test-%s"
-  image_id          = data.huaweicloud_images_image.test.id
-  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name               = "instance-acc-test-%s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
 
   network {
     uuid = huaweicloud_vpc_subnet.subnet_1.id
