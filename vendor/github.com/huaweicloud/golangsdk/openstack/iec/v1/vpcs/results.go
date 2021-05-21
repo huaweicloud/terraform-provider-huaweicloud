@@ -65,3 +65,19 @@ func (r UpdateResult) Extract() (*common.VPC, error) {
 type UpdateStatusResult struct {
 	commonResult
 }
+
+// Vpcs vpc列表对象
+type Vpcs struct {
+	Vpcs  []common.VPC `json:"vpcs"`
+	Count int          `json:"count"`
+}
+
+type ListResult struct {
+	commonResult
+}
+
+func (r ListResult) Extract() (*Vpcs, error) {
+	var entity Vpcs
+	err := r.ExtractIntoStructPtr(&entity, "")
+	return &entity, err
+}

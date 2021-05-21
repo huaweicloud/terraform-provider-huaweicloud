@@ -2,7 +2,7 @@ package subnets
 
 import "github.com/huaweicloud/golangsdk"
 
-func CreateURL(c *golangsdk.ServiceClient) string {
+func rootURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("subnets")
 }
 

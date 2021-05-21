@@ -320,11 +320,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v2",
 	},
 
-	// catalog for edge / IoT
+	// catalog for IEC which is a global service
 	"iec": {
 		Name:             "iecs",
 		Version:          "v1",
 		Scope:            "global",
+		Admin:            true,
 		WithOutProjectID: true,
 	},
 

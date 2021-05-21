@@ -68,7 +68,7 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 		return
 	}
 
-	createURL := CreateURL(client)
+	createURL := rootURL(client)
 
 	var resp *http.Response
 	resp, r.Err = client.Post(createURL, b, &r.Body, &golangsdk.RequestOpts{
@@ -165,5 +165,45 @@ func Update(client *golangsdk.ServiceClient, subnetId string, opts UpdateOptsBui
 	}
 	defer resp.Body.Close()
 
+	return
+}
+
+// ListOpts allows the filtering collections through the API.
+type ListOpts struct {
+	Limit  int    `q:"limit"`
+	Offset int    `q:"offset"`
+	VpcID  string `q:"vpc_id"`
+	SiteID string `q:"site_id"`
+}
+
+type ListSubnetsOptsBuilder interface {
+	ToListSubnetsQuery() (string, error)
+}
+
+// ToListSubnetsQuery converts ListSubnetsOpts structures to query string
+func (opts ListOpts) ToListSubnetsQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return "", err
+	}
+
+	return q.String(), err
+}
+
+// List returns collection of subnets.
+func List(client *golangsdk.ServiceClient, opts ListSubnetsOptsBuilder) (r ListResult) {
+	listURL := rootURL(client)
+	if opts != nil {
+		query, err := opts.ToListSubnetsQuery()
+		if err != nil {
+			r.Err = err
+			return
+		}
+		listURL += query
+	}
+
+	_, r.Err = client.Get(listURL, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{http.StatusOK},
+	})
 	return
 }

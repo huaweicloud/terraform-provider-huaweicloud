@@ -13,6 +13,14 @@ type CreateOpts struct {
 	NetworkId string `json:"network_id" required:"true"`
 
 	DeviceOwner string `json:"device_owner,omitempty"`
+
+	FixedIPs []FixIPEntity `json:"fixed_ips,omitempty"`
+}
+
+// FixIPEntity 私有IP的结构体
+type FixIPEntity struct {
+	SubnetID  string `json:"subnet_id,omitempty"`
+	IPAddress string `json:"ip_address,omitempty"`
 }
 
 type CreateOptsBuilder interface {
@@ -34,7 +42,7 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 		return
 	}
 
-	_, r.Err = client.Post(CreateURL(client), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(rootURL(client), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{http.StatusOK, http.StatusCreated},
 	})
 	return
@@ -95,6 +103,50 @@ func Update(client *golangsdk.ServiceClient, portId string, opts UpdateOptsBuild
 	}
 
 	_, r.Err = client.Put(UpdateURL(client, portId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{http.StatusOK},
+	})
+	return
+}
+
+type ListOpts struct {
+	Limit          int      `q:"limit"`
+	Offset         int      `q:"offset"`
+	ID             string   `q:"id"`
+	Name           string   `q:"name"`
+	AdminStateUp   bool     `q:"admin_state_up"`
+	DeviceID       string   `q:"device_id"`
+	DeviceOwner    string   `q:"device_owner"`
+	FixedIPs       []string `q:"fixed_ips"`
+	MacAddress     string   `q:"mac_address"`
+	NetworkID      string   `q:"network_id"`
+	SecurityGroups string   `q:"security_groups"`
+	Status         string   `q:"status"`
+}
+
+type ListPortsOptsBuilder interface {
+	ToListPortsQuery() (string, error)
+}
+
+func (opts ListOpts) ToListPortsQuery() (string, error) {
+	b, err := golangsdk.BuildQueryString(&opts)
+	if err != nil {
+		return "", err
+	}
+	return b.String(), nil
+}
+
+func List(client *golangsdk.ServiceClient, opts ListPortsOptsBuilder) (r ListResult) {
+	listPortsURL := rootURL(client)
+	if opts != nil {
+		query, err := opts.ToListPortsQuery()
+		if err != nil {
+			r.Err = err
+			return r
+		}
+		listPortsURL += query
+	}
+
+	_, r.Err = client.Get(listPortsURL, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{http.StatusOK},
 	})
 	return

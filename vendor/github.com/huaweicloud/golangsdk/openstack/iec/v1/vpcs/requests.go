@@ -79,7 +79,7 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 		r.Err = err
 		return
 	}
-	createURL := CreateURL(client)
+	createURL := rootURL(client)
 
 	var resp *http.Response
 	resp, r.Err = client.Post(createURL, b, &r.Body, &golangsdk.RequestOpts{
@@ -127,5 +127,51 @@ func Delete(client *golangsdk.ServiceClient, vpcID string) (r DeleteResult) {
 	}
 	defer resp.Body.Close()
 
+	return
+}
+
+// ListOpts allows the filtering collections through the API.
+type ListOpts struct {
+	Limit  int `q:"limit"`
+	Offset int `q:"offset"`
+
+	// ID is the unique identifier for the vpc.
+	ID string `q:"id"`
+
+	// Name is the human readable name for the vpc. It does not have to be unique.
+	Name string `q:"name"`
+}
+
+type ListVPCOptsBuilder interface {
+	ToListVPCQuery() (string, error)
+}
+
+// ToListVPCQuery converts ListVPCOpts structures to query string
+func (opts ListOpts) ToListVPCQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return "", err
+	}
+
+	return q.String(), err
+}
+
+// List returns collection of vpcs.
+// It accepts a ListOpts struct, which allows you to filter
+// the returned collection for greater efficiency.
+func List(client *golangsdk.ServiceClient, opts ListVPCOptsBuilder) (r ListResult) {
+	listURL := rootURL(client)
+	if opts != nil {
+		query, err := opts.ToListVPCQuery()
+		if err != nil {
+			r.Err = err
+			return
+		}
+		listURL += query
+	}
+
+	_, r.Err = client.Get(listURL, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{http.StatusOK},
+	})
 	return
 }

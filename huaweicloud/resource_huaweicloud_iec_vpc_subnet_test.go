@@ -23,7 +23,7 @@ func TestAccIecVPCSubnetV1_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIecVpcV1Destroy,
+		CheckDestroy: testAccCheckIecVpcSubnetV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIecVpcSubnetV1_customer(rName),
