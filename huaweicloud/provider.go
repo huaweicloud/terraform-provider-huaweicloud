@@ -287,6 +287,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_identity_custom_role":        DataSourceIdentityCustomRole(),
 			"huaweicloud_iec_flavors":                 dataSourceIecFlavors(),
 			"huaweicloud_iec_images":                  dataSourceIecImages(),
+			"huaweicloud_iec_port":                    DataSourceIECPort(),
 			"huaweicloud_iec_sites":                   dataSourceIecSites(),
 			"huaweicloud_iec_vpc":                     DataSourceIECVpc(),
 			"huaweicloud_iec_vpc_subnets":             DataSourceIECVpcSubnets(),
