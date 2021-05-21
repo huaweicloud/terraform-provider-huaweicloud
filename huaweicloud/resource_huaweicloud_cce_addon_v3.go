@@ -76,6 +76,11 @@ func ResourceCCEAddonV3() *schema.Resource {
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"flavor": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
 			},
@@ -83,7 +88,7 @@ func ResourceCCEAddonV3() *schema.Resource {
 	}
 }
 
-func getValuesValues(d *schema.ResourceData) (basic, custom map[string]interface{}, err error) {
+func getValuesValues(d *schema.ResourceData) (basic, custom, flavor map[string]interface{}, err error) {
 	values := d.Get("values").([]interface{})
 	if len(values) == 0 {
 		basic = map[string]interface{}{}
@@ -99,6 +104,9 @@ func getValuesValues(d *schema.ResourceData) (basic, custom map[string]interface
 	if customRaw, ok := valuesMap["custom"]; ok {
 		custom = customRaw.(map[string]interface{})
 	}
+	if flavorRaw, ok := valuesMap["flavor"]; ok {
+		flavor = flavorRaw.(map[string]interface{})
+	}
 	basic = basicRaw.(map[string]interface{})
 	return
 }
@@ -113,7 +121,7 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 
 	var cluster_id = d.Get("cluster_id").(string)
 
-	basic, custom, err := getValuesValues(d)
+	basic, custom, flavor, err := getValuesValues(d)
 
 	if err != nil {
 		return fmt.Errorf("error getting values for CCE addon: %s", err)
@@ -134,6 +142,7 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 			Values: addons.Values{
 				Basic:  basic,
 				Custom: custom,
+				Flavor: flavor,
 			},
 		},
 	}

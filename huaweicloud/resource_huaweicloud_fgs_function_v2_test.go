@@ -28,6 +28,34 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 					testAccCheckFgsV2FunctionExists(resourceName, &f),
 				),
 			},
+			{
+				Config: testAccFgsV2Function_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFgsV2FunctionExists(resourceName, &f),
+					resource.TestCheckResourceAttr(resourceName, "description", "fuction test update"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccFgsV2Function_withEpsId(t *testing.T) {
+	var f function.Function
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_fgs_function.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckEpsID(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckFgsV2FunctionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFgsV2Function_withEpsId(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFgsV2FunctionExists(resourceName, &f),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
 		},
 	})
 }
@@ -46,6 +74,29 @@ func TestAccFgsV2Function_text(t *testing.T) {
 				Config: testAccFgsV2Function_text(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFgsV2FunctionExists(resourceName, &f),
+				),
+			},
+		},
+	})
+}
+
+func TestAccFgsV2Function_agency(t *testing.T) {
+	var f function.Function
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_fgs_function.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckFgsV2FunctionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFgsV2Function_agency(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckFgsV2FunctionExists(resourceName, &f),
+					resource.TestCheckResourceAttr(resourceName, "agency", rName),
+					resource.TestCheckResourceAttr(resourceName, "func_mounts.0.mount_type", "sfs"),
+					resource.TestCheckResourceAttr(resourceName, "func_mounts.0.status", "active"),
 				),
 			},
 		},
@@ -108,15 +159,31 @@ func testAccCheckFgsV2FunctionExists(n string, ft *function.Function) resource.T
 func testAccFgsV2Function_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
-  name = "%s"
-  app = "default"
+  name        = "%s"
+  app         = "default"
   description = "fuction test"
-  handler = "index.handler"
+  handler     = "index.handler"
   memory_size = 128
-  timeout = 3
-  runtime = "Python2.7"
-  code_type = "inline"
-  func_code = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+}
+`, rName)
+}
+
+func testAccFgsV2Function_update(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%s"
+  app         = "default"
+  description = "fuction test update"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
 }
 `, rName)
 }
@@ -124,14 +191,15 @@ resource "huaweicloud_fgs_function" "test" {
 func testAccFgsV2Function_text(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
-  name = "%s"
-  app = "default"
+  name        = "%s"
+  app         = "default"
   description = "fuction test"
-  handler = "index.handler"
+  handler     = "index.handler"
   memory_size = 128
-  timeout = 3
-  runtime = "Python2.7"
-  code_type = "inline"
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+
   func_code = <<EOF
 # -*- coding:utf-8 -*-
 import json
@@ -147,4 +215,80 @@ def handler (event, context):
 EOF
 }
 `, rName)
+}
+
+func testAccFgsV2Function_withEpsId(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_fgs_function" "test" {
+  name                  = "%s"
+  app                   = "default"
+  description           = "fuction test"
+  handler               = "index.handler"
+  memory_size           = 128
+  timeout               = 3
+  runtime               = "Python2.7"
+  code_type             = "inline"
+  enterprise_project_id = "%s"
+  func_code             = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+}
+`, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccFgsV2Function_agency(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc" "test" {
+  name = "%s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "%s"
+  cidr       = "192.168.1.0/24"
+  gateway_ip = "192.168.1.1"
+  vpc_id     = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_sfs_file_system" "test" {
+  share_proto = "NFS"
+  size        = 10
+  name        = "%s"
+  description = "test sfs for fgs"
+}
+
+resource "huaweicloud_identity_agency" "test" {
+  name                   = "%s"
+  description            = "test agency for fgs"
+  delegated_service_name = "op_svc_cff"
+
+  project_role {
+    project = "cn-north-4"
+    roles = [
+      "VPC Administrator",
+      "SFS Administrator",
+    ]
+  }
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%s"
+  package     = "default"
+  description = "fuction test"
+  handler     = "test.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+  agency      = huaweicloud_identity_agency.test.name
+  vpc_id      = huaweicloud_vpc.test.id
+  network_id  = huaweicloud_vpc_subnet.test.id
+
+  func_mounts {
+    mount_type       = "sfs"
+    mount_resource   = huaweicloud_sfs_file_system.test.id
+    mount_share_path = huaweicloud_sfs_file_system.test.export_location
+    local_mount_path = "/mnt"
+  }
+}
+`, rName, rName, rName, rName, rName)
 }

@@ -24,6 +24,7 @@ The following arguments are supported:
 The `values` block supports:
 * `basic` - (Required, Map) Key/Value pairs vary depending on the add-on.
 * `custom` - (Optional, Map) Key/Value pairs vary depending on the add-on.
+* `flavor` - (Optional, Map) Key/Value pairs vary depending on the add-on.
 
 ## Attributes Reference
 
