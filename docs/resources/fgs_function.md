@@ -53,50 +53,138 @@ EOF
 }
 ```
 
+## Example Usage With agency, vpc, subnet and func_mounts
+
+```hcl
+resource "huaweicloud_vpc" "test" {
+  name = vpc_1"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name       = "subnet_1"
+  cidr       = "192.168.1.0/24"
+  gateway_ip = "192.168.1.1"
+  vpc_id     = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_sfs_file_system" "test" {
+  share_proto = "NFS"
+  size        = 10
+  name        = "sfs_1"
+  description = "test sfs for fgs"
+}
+
+resource "huaweicloud_identity_agency" "test" {
+  name                   = "agency_1"
+  description            = "test agency for fgs"
+  delegated_service_name = "op_svc_cff"
+
+  project_role {
+    project = "cn-north-4"
+    roles = [
+      "VPC Administrator",
+      "SFS Administrator",
+    ]
+  }
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "func_1"
+  package     = "default"
+  description = "fuction test"
+  handler     = "test.handler"
+  memory_size = 128
+  timeout     = 3
+  runtime     = "Python2.7"
+  code_type   = "inline"
+  func_code   = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
+  agency      = huaweicloud_identity_agency.test.name
+  vpc_id      = huaweicloud_vpc.test.id
+  network_id  = huaweicloud_vpc_subnet.test.id
+
+  func_mounts {
+    mount_type       = "sfs"
+    mount_resource   = huaweicloud_sfs_file_system.test.id
+    mount_share_path = huaweicloud_sfs_file_system.test.export_location
+    local_mount_path = "/mnt"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the Function resource. If omitted, the provider-level region will be used. Changing this creates a new Function resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the Function resource.
+  If omitted, the provider-level region will be used. Changing this creates a new Function resource.
 
-* `name` - (Required, String, ForceNew) A unique name for the function. Changing this creates a new function.
+* `name` - (Required, String, ForceNew) Specifies the name of the function.
 
-* `app` - (Required, String) Group to which the function belongs. Changing this creates a new function.
+* `app` - (Required, String) Specifies the group to which the function belongs.
 
-* `code_type` - (Required, String, ForceNew) Function code type, which can be inline: inline code, zip: ZIP file,
-	jar: JAR file or java functions, obs: function code stored in an OBS bucket. Changing this
-	creates a new function.
+* `handler` - (Required, String) Specifies the entry point of the function.
 
-* `code_url` - (Optional, String, ForceNew) This parameter is mandatory when code_type is set to obs. Changing this
-	creates a new function.
+* `memory_size` - (Required, Int) Specifies the memory size(MB) allocated to the function.
 
-* `description` - (Optional, String, ForceNew) Description of the function. Changing this creates a new function.
+* `runtime` - (Required, String) Specifies the environment for executing the function.
 
-* `code_filename` - (Optional, String, ForceNew) Name of a function file, This field is mandatory only when coe_type is
-	set to jar or zip. Changing this creates a new function.
+* `timeout` - (Required, Int) Specifies the timeout interval of the function, ranges from 3s to 900s.
 
-* `handler` - (Required, String, ForceNew) Entry point of the function. Changing this creates a new function.
+* `code_type` - (Required, String) Specifies the function code type, which can be inline: inline code, zip: ZIP file,
+	jar: JAR file or java functions, obs: function code stored in an OBS bucket.
 
-* `memory_size` - (Required, Int, ForceNew) Memory size(MB) allocated to the function. Changing this creates a new function.
+* `func_code` - (Optional, String) Specifies the function code. When code_type is set to inline, zip, or jar, this parameter is mandatory,
+	and the code can be encoded using Base64 or just with the text code.
 
-* `runtime` - (Required, String, ForceNew) Environment for executing the function. Changing this creates a new function.
+* `code_url` - (Optional, String) Specifies the code url. This parameter is mandatory when code_type is set to obs.
 
-* `timeout` - (Required, Int, ForceNew) Timeout interval of the function, ranges from 3s to 900s. Changing this creates a new function.
+* `code_filename` - (Optional, String) Specifies the name of a function file, This field is mandatory only when coe_type is
+	set to jar or zip.
 
-* `user_data` - (Optional, String, ForceNew) Key/Value information defined for the function. Changing this creates a new function.
+* `depend_list` - (Optional, String) Specifies the dependencies of the function.
 
-* `agency` - (Optional, String, ForceNew) This parameter is mandatory if the function needs to access other cloud services.
-	Changing this creates a new function.
+* `user_data` - (Optional, String) Specifies the Key/Value information defined for the function.
 
-* `func_code` - (Required, String, ForceNew) Function code. When code_type is set to inline, zip, or jar, this parameter is mandatory,
-	and the code can be encoded using Base64 or just with the text code. Changing this creates a new function.
+* `agency` - (Optional, String) Specifies the agency. This parameter is mandatory if the function needs to access other cloud services.
 
+* `app_agency` - (Optional, String) Specifies An execution agency enables you to obtain a token or an AK/SK for accessing other cloud services.
+
+* `description` - (Optional, String) Specifies the description of the function.
+
+* `initializer_handler` - (Optional, String) Specifies the initializer of the function.
+
+* `initializer_timeout` - (Optional, Int) Specifies the maximum duration the function can be initialized. Value range: 1s to 300s.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the function.
+  Changing this creates a new function.
+
+* `vpc_id`  - (Optional, String) Specifies the ID of VPC.
+
+* `network_id`  - (Optional, String) Specifies the ID of subnet.
+
+* `mount_user_id` - (Optional, String) Specifies the user ID, a non-0 integer from –1 to 65534. Default to -1.
+
+* `mount_user_group_id` - (Optional, String) Specifies the user group ID, a non-0 integer from –1 to 65534. Default to -1.
+
+* `func_mounts` - (Optional, List) Specifies the file system list. The `func_mounts` object structure is documented below.
+
+The `func_mounts` block supports:
+
+* `mount_type` - (Required, String) Specifies the mount type. Options: sfs, sfsTurbo, and ecs.
+
+* `mount_resource` - (Required, String) Specifies the ID of the mounted resource (corresponding cloud service).
+
+* `mount_share_path` - (Required, String) Specifies the remote mount path. Example: 192.168.0.12:/data.
+
+* `local_mount_path` - (Required, String) Specifies the function access path.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
+* `func_mounts/status` - The status of file system.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
