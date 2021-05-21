@@ -288,6 +288,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_iec_flavors":                 dataSourceIecFlavors(),
 			"huaweicloud_iec_images":                  dataSourceIecImages(),
 			"huaweicloud_iec_sites":                   dataSourceIecSites(),
+			"huaweicloud_iec_vpc":                     DataSourceIECVpc(),
 			"huaweicloud_images_image":                DataSourceImagesImageV2(),
 			"huaweicloud_kms_key":                     dataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key":                dataSourceKmsDataKeyV1(),
