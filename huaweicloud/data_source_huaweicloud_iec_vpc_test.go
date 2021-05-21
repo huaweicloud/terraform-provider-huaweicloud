@@ -13,8 +13,9 @@ func TestAccIECVpcDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-vpc-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckIecVpcV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceIECVpc_basic(rName),

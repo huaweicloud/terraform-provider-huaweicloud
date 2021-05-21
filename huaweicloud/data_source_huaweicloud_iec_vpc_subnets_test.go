@@ -71,7 +71,7 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_1" {
 }
 
 resource "huaweicloud_iec_vpc_subnet" "subnet_2" {
-  name       = "%s-1"
+  name       = "%s-2"
   cidr       = "192.168.1.0/24"
   vpc_id     = huaweicloud_iec_vpc.vpc_test.id
   site_id    = data.huaweicloud_iec_sites.sites_test.sites[1].id
