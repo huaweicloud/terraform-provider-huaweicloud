@@ -30,6 +30,7 @@ func TestAccIECSubnetsDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(allSubnets, "subnets.#", "2"),
 					resource.TestCheckResourceAttr(siteSubnets, "subnets.#", "1"),
 					resource.TestCheckResourceAttrSet(siteSubnets, "subnets.0.id"),
+					resource.TestCheckResourceAttrSet(siteSubnets, "subnets.0.site_info"),
 					resource.TestCheckResourceAttrSet(siteSubnets, "subnets.0.status"),
 				),
 			},

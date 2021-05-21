@@ -45,11 +45,15 @@ func DataSourceIECVpcSubnets() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"gateway_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"site_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"gateway_ip": {
+						"site_info": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -102,8 +106,9 @@ func dataSourceIECVpcSubnetIdsRead(d *schema.ResourceData, meta interface{}) err
 			"id":         item.ID,
 			"name":       item.Name,
 			"cidr":       item.Cidr,
-			"site_id":    item.SiteID,
 			"gateway_ip": item.GatewayIP,
+			"site_id":    item.SiteID,
+			"site_info":  item.SiteInfo,
 			"dns_list":   item.DNSList,
 			"status":     item.Status,
 		}
