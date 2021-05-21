@@ -2,6 +2,7 @@ package cloudimages
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/huaweicloud/golangsdk"
 )
@@ -52,7 +53,7 @@ func WaitForJobSuccess(client *golangsdk.ServiceClient, secs int, jobID string) 
 		if err != nil {
 			return false, err
 		}
-
+		time.Sleep(10 * time.Second)
 		if job.Status == "SUCCESS" {
 			return true, nil
 		}

@@ -71,3 +71,19 @@ func (r UpdateResult) Extract() (*UpdateResp, error) {
 	err := r.ExtractIntoStructPtr(&entity, "subnet")
 	return &entity, err
 }
+
+// Subnets vpc列表对象
+type Subnets struct {
+	Subnets []common.Subnet `json:"subnets"`
+	Count   int             `json:"count"`
+}
+
+type ListResult struct {
+	commonResult
+}
+
+func (r ListResult) Extract() (*Subnets, error) {
+	var entity Subnets
+	err := r.ExtractIntoStructPtr(&entity, "")
+	return &entity, err
+}

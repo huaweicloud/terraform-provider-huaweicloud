@@ -42,3 +42,19 @@ func (r UpdateResult) Extract() (*common.Port, error) {
 	err := r.ExtractIntoStructPtr(&entity, "port")
 	return &entity, err
 }
+
+// Ports 端口列表对象
+type Ports struct {
+	Ports []common.Port `json:"ports"`
+	Count int           `json:"count"`
+}
+
+type ListResult struct {
+	commonResult
+}
+
+func (r ListResult) Extract() (*Ports, error) {
+	var entity Ports
+	err := r.ExtractIntoStructPtr(&entity, "")
+	return &entity, err
+}
