@@ -7,7 +7,7 @@ import (
 
 type DataStoreOpt struct {
 	Type    string `json:"type" required:"true"`
-	Version string `json:"version" required:"true"`
+	Version string `json:"version,omitempty"`
 }
 
 type BackupStrategyOpt struct {

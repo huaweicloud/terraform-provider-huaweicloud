@@ -98,9 +98,10 @@ The following arguments are supported:
 
 The `datastore` block supports:
 
-* `engine` - (Required, String, ForceNew) Specifies the database engine. Only "GaussDB(openGauss)" is supported now.
+* `engine` - (Required, String, ForceNew) Specifies the database engine. Only "GaussDB(for openGauss)" is supported now.
 
-* `version` - (Required, String, ForceNew) Specifies the database version. Defaults to "1.1". Please reference to the API docs for valid options.
+* `version` - (Optional, String, ForceNew) Specifies the database version. Defaults to the latest version.
+  Please reference to the API docs for valid options.
 
 
 The `volume` block supports:
