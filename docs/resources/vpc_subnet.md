@@ -60,7 +60,7 @@ The following arguments are supported:
 
 * `ipv6_enable` (Optional, Bool) - Specifies whether the IPv6 function is enabled for the subnet. Defaults to false.
 
-* `dhcp_enable` (Optional, Bool) - Specifies whether the DHCP function is enabled for the subnet. Defaults to false.
+* `dhcp_enable` (Optional, Bool) - Specifies whether the DHCP function is enabled for the subnet. Defaults to true.
 
 * `primary_dns` (Optional, String) - Specifies the IP address of DNS server 1 on the subnet.
   The value must be a valid IP address.

@@ -290,7 +290,8 @@ func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.SECONDARY_DNS = d.Get("secondary_dns").(string)
 	}
 	if d.HasChange("dns_list") {
-		updateOpts.DnsList = resourceSubnetDNSListV1(d, "")
+		dnsList := resourceSubnetDNSListV1(d, "")
+		updateOpts.DnsList = &dnsList
 	}
 	if d.HasChange("dhcp_enable") {
 		updateOpts.EnableDHCP = d.Get("dhcp_enable").(bool)
