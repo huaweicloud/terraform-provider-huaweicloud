@@ -15,6 +15,12 @@ import (
 
 func resourceIecSubnetDNSListV1(d *schema.ResourceData) []string {
 	rawDNSN := d.Get("dns_list").([]interface{})
+
+	// set the default DNS if it was not specified
+	if len(rawDNSN) == 0 {
+		return []string{"114.114.114.114", "8.8.8.8"}
+	}
+
 	dnsn := make([]string, len(rawDNSN))
 	for i, raw := range rawDNSN {
 		dnsn[i] = raw.(string)
@@ -184,7 +190,8 @@ func resourceIecSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.DhcpEnable = &dhcp
 	}
 	if d.HasChange("dns_list") {
-		updateOpts.DNSList = resourceSubnetDNSListV1(d, "")
+		dnsList := resourceSubnetDNSListV1(d, "")
+		updateOpts.DNSList = &dnsList
 	}
 
 	_, err = subnets.Update(subnetClient, d.Id(), updateOpts).Extract()

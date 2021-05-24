@@ -133,7 +133,7 @@ type UpdateOpts struct {
 	// Specifies the DNS server address list of a subnet. This field
 	// is required if you need to use more than two DNS servers. This parameter value is the
 	// superset of both DNS server address 1 and DNS server address 2.
-	DNSList []string `json:"dnsList,omitempty"`
+	DNSList *[]string `json:"dnsList,omitempty"`
 }
 
 type UpdateOptsBuilder interface {
