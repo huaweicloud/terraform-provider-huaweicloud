@@ -32,6 +32,7 @@ func TestAccIecVPCSubnetV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-subnet", rName)),
 					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.128.0/18"),
 					resource.TestCheckResourceAttr(resourceName, "gateway_ip", "192.168.128.1"),
+					resource.TestCheckResourceAttr(resourceName, "dns_list.#", "2"),
 				),
 			},
 			{
