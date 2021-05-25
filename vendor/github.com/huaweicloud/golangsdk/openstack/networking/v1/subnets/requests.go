@@ -196,7 +196,7 @@ type UpdateOpts struct {
 	EnableDHCP    bool           `json:"dhcp_enable"`
 	PRIMARY_DNS   string         `json:"primary_dns,omitempty"`
 	SECONDARY_DNS string         `json:"secondary_dns,omitempty"`
-	DnsList       []string       `json:"dnsList,omitempty"`
+	DnsList       *[]string      `json:"dnsList,omitempty"`
 	ExtraDhcpOpts []ExtraDhcpOpt `json:"extra_dhcp_opts,omitempty"`
 }
 
