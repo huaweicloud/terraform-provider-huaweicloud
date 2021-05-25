@@ -405,6 +405,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_elb_l7rule":                      ResourceL7RuleV3(),
 			"huaweicloud_elb_listener":                    ResourceListenerV3(),
 			"huaweicloud_elb_loadbalancer":                ResourceLoadBalancerV3(),
+			"huaweicloud_elb_monitor":                     ResourceMonitorV3(),
 			"huaweicloud_elb_ipgroup":                     ResourceIpGroupV3(),
 			"huaweicloud_elb_pool":                        ResourcePoolV3(),
 			"huaweicloud_elb_member":                      ResourceMemberV3(),
