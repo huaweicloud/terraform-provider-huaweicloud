@@ -65,6 +65,8 @@ type PublicIP struct {
 	SiteInfo string `json:"site_info"`
 
 	Region string `json:"region,omitempty"`
+
+	Type string `json:"type,omitempty"`
 }
 
 // GeoLocation 地理位置
@@ -150,7 +152,7 @@ type Subnet struct {
 	// SiteID
 	SiteID string `json:"site_id,omitempty"`
 
-	//SiteInfo
+	// SiteInfo
 	SiteInfo string `json:"site_info,omitempty"`
 }
 
@@ -228,6 +230,33 @@ type Site struct {
 
 	//站点的状态,
 	Status string `json:"status"`
+
+	// CityShortName 城市名称缩写
+	CityShortName string `json:"city_short_name"`
+
+	// EipPools
+	EipPools []EipPool `json:"pools,omitempty"`
+}
+
+// EipPool eip池返回体内容
+type EipPool struct {
+	// ID EIP池的唯一uuid
+	ID string `json:"id"`
+
+	// SiteID 站点ID
+	SiteID string `json:"site_id"`
+
+	// DisplayName EIP池展示名
+	DisplayName string `json:"display_name"`
+
+	// OperatorID 运营商ID
+	OperatorID *Operator `json:"operator"`
+
+	// PoolID EIP 池标识，从neutron获取
+	PoolID string `json:"pool_id"`
+
+	// IPVersion IPv4：IPv4池 IPv6：IPv6池
+	IPVersion string `json:"ip_version"`
 }
 
 type Port struct {
@@ -380,6 +409,8 @@ type Bandwidth struct {
 	Operator Operator `json:"operator,omitempty"`
 
 	UpdateTime time.Time `json:"update_time,omitempty"`
+
+	PoolID string `json:"pool_id,omitempty"`
 }
 
 type PublicIpinfo struct {
@@ -657,6 +688,7 @@ type CoverageSite struct {
 type Demand struct {
 	Operator string `json:"operator" required:"true"`
 	Count    int    `json:"demand_count" required:"true"`
+	PoolID   string `json:"pool_id"`
 }
 
 type ResourceOpts struct {
@@ -718,7 +750,10 @@ type NetConfig struct {
 
 // Subnet
 type SubnetID struct {
-	ID string `json:"id" required:"true"`
+	ID                  string `json:"id" required:"true"`
+	IPv6BandWidthEnable bool   `json:"ipv6_bandwidth_enable"`
+	IPv6Enable          bool   `json:"ipv6_enable"`
+	PoolIDV6            string `json:"-"`
 }
 
 type BandWidth struct {
@@ -796,12 +831,6 @@ type ReqSecurityGroupRuleEntity struct {
 	RemoteGroupID   string      `json:"remote_group_id,omitempty"`
 }
 
-// RegionSecurityGroupItem region级别的安全组信息
-type RegionSecurityGroupItem struct {
-	RegionID              string `json:"region_id,omitempty"`
-	RegionSecurityGroupID string `json:"region_security_group_id,omitempty"`
-}
-
 // RespSecurityGroupRuleEntity 获取安全组安全组的规则的结构体
 type RespSecurityGroupRuleEntity struct {
 	ID              string      `json:"id"`
@@ -814,4 +843,40 @@ type RespSecurityGroupRuleEntity struct {
 	PortRangeMax    interface{} `json:"port_range_max"`
 	RemoteIPPrefix  string      `json:"remote_ip_prefix"`
 	RemoteGroupID   string      `json:"remote_group_id"`
+}
+
+// 边缘资源组对象
+type Stack struct {
+	Name      string         `json:"name"`
+	Resources []ResourceOpts `json:"resources"`
+}
+
+type DeploymentEdgecloud struct {
+	ID          *string   `json:"id,omitempty"`
+	Name        *string   `json:"name,omitempty"`
+	Stacks      *Stack    `json:"stacks,omitempty"`
+	Description *string   `json:"description,omitempty"`
+	Coverage    *Coverage `json:"coverage,omitempty"`
+}
+
+// Distribution 实例分布对象
+type Distribution struct {
+	Area                string `json:"area,omitempty"`
+	City                string `json:"name,omitempty"`
+	Operator            string `json:"operator,omitempty"`
+	Province            string `json:"province,omitempty"`
+	SiteId              string `json:"site_id,omitempty"`
+	PoolId              string `json:"pool_id,omitempty"`
+	StackCount          int32  `json:"stack_count,omitempty"`
+	CityShortName       string `json:"city_count_name,omitempty"`
+	IPv6Enable          bool   `json:"ipv6_enable,omitempty"`
+	IPv6BandWidthEnable bool   `json:"ipv6_bandwidth_enable,omitempty"`
+	PoolIDV6            string `json:"pool_id_v6,omitempty"`
+}
+
+// DeploymentResult 部署计划的查询结果
+type DeploymentResult struct {
+	ID            string              `json:"id"`
+	EdgeCloud     DeploymentEdgecloud `json:"edgecloud"`
+	Distributions []Distribution      `json:"distribution"`
 }

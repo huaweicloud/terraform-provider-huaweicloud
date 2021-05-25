@@ -30,7 +30,7 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 		return
 	}
 
-	_, r.Err = client.Post(CreateURL(client), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(rootURL(client), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{http.StatusOK},
 	})
 	return
@@ -130,5 +130,41 @@ func UpdateRule(client *golangsdk.ServiceClient, fwID string, opts UpdateRuleOpt
 	}
 
 	_, r.Err = client.Put(UpdateRuleURL(client, fwID), b, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{http.StatusOK}})
+	return
+}
+
+type ListOpts struct {
+	Limit  int    `q:"limit"`
+	Offset int    `q:"offset"`
+	ID     string `q:"id"`
+	Name   string `q:"name"`
+}
+
+type ListFirewallsOptsBuilder interface {
+	ToListFirewallsQuery() (string, error)
+}
+
+func (opts ListOpts) ToListFirewallsQuery() (string, error) {
+	b, err := golangsdk.BuildQueryString(&opts)
+	if err != nil {
+		return "", err
+	}
+	return b.String(), nil
+}
+
+func List(client *golangsdk.ServiceClient, opts ListFirewallsOptsBuilder) (r ListResult) {
+	listURL := rootURL(client)
+	if opts != nil {
+		query, err := opts.ToListFirewallsQuery()
+		if err != nil {
+			r.Err = err
+			return r
+		}
+		listURL += query
+	}
+
+	_, r.Err = client.Get(listURL, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{http.StatusOK},
+	})
 	return
 }

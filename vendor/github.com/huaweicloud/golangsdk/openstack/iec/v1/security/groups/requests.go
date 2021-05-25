@@ -30,7 +30,7 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 		return
 	}
 
-	_, r.Err = client.Post(CreateURL(client), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(rootURL(client), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{http.StatusOK},
 	})
 	return
@@ -45,6 +45,40 @@ func Delete(client *golangsdk.ServiceClient, securityGroupID string) (r DeleteRe
 func Get(client *golangsdk.ServiceClient, securityGroupID string) (r GetResult) {
 	url := GetURL(client, securityGroupID)
 	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{http.StatusOK},
+	})
+	return
+}
+
+type ListOpts struct {
+	Limit  int `q:"limit"`
+	Offset int `q:"offset"`
+}
+
+type ListSecurityGroupsOptsBuilder interface {
+	ToListSecurityGroupsQuery() (string, error)
+}
+
+func (opts ListOpts) ToListSecurityGroupsQuery() (string, error) {
+	b, err := golangsdk.BuildQueryString(&opts)
+	if err != nil {
+		return "", err
+	}
+	return b.String(), nil
+}
+
+func List(client *golangsdk.ServiceClient, opts ListSecurityGroupsOptsBuilder) (r ListResult) {
+	listURL := rootURL(client)
+	if opts != nil {
+		query, err := opts.ToListSecurityGroupsQuery()
+		if err != nil {
+			r.Err = err
+			return r
+		}
+		listURL += query
+	}
+
+	_, r.Err = client.Get(listURL, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{http.StatusOK},
 	})
 	return

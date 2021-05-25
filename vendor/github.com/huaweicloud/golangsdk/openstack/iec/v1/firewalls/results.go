@@ -95,3 +95,19 @@ func (r UpdateRuleResult) Extract() (*Firewall, error) {
 	err := r.ExtractIntoStructPtr(&entity, "firewall")
 	return &entity, err
 }
+
+// Firewalls firewall列表对象
+type Firewalls struct {
+	Firewalls []Firewall `json:"firewalls"`
+	Count     int        `json:"count"`
+}
+
+type ListResult struct {
+	commonResult
+}
+
+func (r ListResult) Extract() (*Firewalls, error) {
+	var entity Firewalls
+	err := r.ExtractIntoStructPtr(&entity, "")
+	return &entity, err
+}
