@@ -328,6 +328,7 @@ github.com/huaweicloud/golangsdk/openstack/dms/v1/instances
 github.com/huaweicloud/golangsdk/openstack/dms/v1/maintainwindows
 github.com/huaweicloud/golangsdk/openstack/dms/v1/products
 github.com/huaweicloud/golangsdk/openstack/dms/v1/queues
+github.com/huaweicloud/golangsdk/openstack/dms/v2/kafka/instances
 github.com/huaweicloud/golangsdk/openstack/dns/v2/ptrrecords
 github.com/huaweicloud/golangsdk/openstack/dns/v2/recordsets
 github.com/huaweicloud/golangsdk/openstack/dns/v2/zones
