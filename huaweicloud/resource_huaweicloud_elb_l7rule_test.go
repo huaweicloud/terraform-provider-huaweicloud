@@ -1,0 +1,199 @@
+package huaweicloud
+
+import (
+	"fmt"
+	"regexp"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+
+	l7rules "github.com/huaweicloud/golangsdk/openstack/elb/v3/l7policies"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+)
+
+func TestAccElbV3L7Rule_basic(t *testing.T) {
+	var l7rule l7rules.Rule
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_elb_l7rule.l7rule_1"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckElbV3L7RuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckElbV3L7RuleConfig_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckElbV3L7RuleExists(resourceName, &l7rule),
+					resource.TestCheckResourceAttr(resourceName, "type", "PATH"),
+					resource.TestCheckResourceAttr(resourceName, "compare_type", "EQUAL_TO"),
+					resource.TestCheckResourceAttr(resourceName, "value", "/api"),
+					resource.TestMatchResourceAttr(resourceName, "l7policy_id",
+						regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")),
+				),
+			},
+			{
+				Config: testAccCheckElbV3L7RuleConfig_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckElbV3L7RuleExists(resourceName, &l7rule),
+					resource.TestCheckResourceAttr(resourceName, "type", "PATH"),
+					resource.TestCheckResourceAttr(resourceName, "compare_type", "STARTS_WITH"),
+					resource.TestCheckResourceAttr(resourceName, "value", "/images"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckElbV3L7RuleDestroy(s *terraform.State) error {
+	config := testAccProvider.Meta().(*config.Config)
+	lbClient, err := config.ElbV3Client(HW_REGION_NAME)
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
+	}
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "huaweicloud_elb_l7rule" {
+			continue
+		}
+
+		l7policyID := ""
+		for k, v := range rs.Primary.Attributes {
+			if k == "l7policy_id" {
+				l7policyID = v
+				break
+			}
+		}
+
+		if l7policyID == "" {
+			return fmt.Errorf("Unable to find l7policy_id")
+		}
+
+		_, err := l7rules.GetRule(lbClient, l7policyID, rs.Primary.ID).Extract()
+		if err == nil {
+			return fmt.Errorf("L7 Rule still exists: %s", rs.Primary.ID)
+		}
+	}
+
+	return nil
+}
+
+func testAccCheckElbV3L7RuleExists(n string, l7rule *l7rules.Rule) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*config.Config)
+		lbClient, err := config.ElbV3Client(HW_REGION_NAME)
+		if err != nil {
+			return fmt.Errorf("Error creating HuaweiCloud load balancing client: %s", err)
+		}
+
+		l7policyID := ""
+		for k, v := range rs.Primary.Attributes {
+			if k == "l7policy_id" {
+				l7policyID = v
+				break
+			}
+		}
+
+		if l7policyID == "" {
+			return fmt.Errorf("Unable to find l7policy_id")
+		}
+
+		found, err := l7rules.GetRule(lbClient, l7policyID, rs.Primary.ID).Extract()
+		if err != nil {
+			return err
+		}
+
+		if found.ID != rs.Primary.ID {
+			return fmt.Errorf("Policy not found")
+		}
+
+		*l7rule = *found
+
+		return nil
+	}
+}
+
+func testAccCheckElbV3L7RuleConfig(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc_subnet" "test" {
+  name = "subnet-default"
+}
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name            = "%s"
+  ipv4_subnet_id  = data.huaweicloud_vpc_subnet.test.subnet_id
+  ipv6_network_id = data.huaweicloud_vpc_subnet.test.id
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+}
+
+resource "huaweicloud_elb_listener" "test" {
+  name            = "%s"
+  description     = "test description"
+  protocol        = "HTTP"
+  protocol_port   = 8080
+  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+
+  forward_eip = true
+
+  idle_timeout = 60
+  request_timeout = 60
+  response_timeout = 60
+}
+
+resource "huaweicloud_elb_pool" "test" {
+  name            = "%s"
+  protocol        = "HTTP"
+  lb_method       = "LEAST_CONNECTIONS"
+  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+}
+
+resource "huaweicloud_elb_l7policy" "test" {
+  name         = "%s"
+  description  = "test description"
+  listener_id  = huaweicloud_elb_listener.test.id
+  redirect_pool_id = huaweicloud_elb_pool.test.id
+}
+`, rName, rName, rName, rName)
+}
+
+func testAccCheckElbV3L7RuleConfig_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_elb_l7rule" "l7rule_1" {
+  l7policy_id  = huaweicloud_elb_l7policy.test.id
+  type         = "PATH"
+  compare_type = "EQUAL_TO"
+  value        = "/api"
+}
+`, testAccCheckElbV3L7RuleConfig(rName))
+}
+
+func testAccCheckElbV3L7RuleConfig_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_elb_l7rule" "l7rule_1" {
+  l7policy_id  = huaweicloud_elb_l7policy.test.id
+  type         = "PATH"
+  compare_type = "STARTS_WITH"
+  value        = "/images"
+}
+`, testAccCheckElbV3L7RuleConfig(rName))
+}

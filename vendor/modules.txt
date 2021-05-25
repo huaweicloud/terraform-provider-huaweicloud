@@ -340,6 +340,7 @@ github.com/huaweicloud/golangsdk/openstack/elb/v2/loadbalancers
 github.com/huaweicloud/golangsdk/openstack/elb/v3/certificates
 github.com/huaweicloud/golangsdk/openstack/elb/v3/flavors
 github.com/huaweicloud/golangsdk/openstack/elb/v3/ipgroups
+github.com/huaweicloud/golangsdk/openstack/elb/v3/l7policies
 github.com/huaweicloud/golangsdk/openstack/elb/v3/listeners
 github.com/huaweicloud/golangsdk/openstack/elb/v3/loadbalancers
 github.com/huaweicloud/golangsdk/openstack/elb/v3/pools
