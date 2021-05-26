@@ -78,7 +78,7 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 		return
 	}
 
-	createURL := CreateURL(client)
+	createURL := rootURL(client)
 
 	var resp *http.Response
 	resp, r.Err = client.Post(createURL, b, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{http.StatusOK}})
@@ -151,5 +151,41 @@ func Update(client *golangsdk.ServiceClient, publicipId string, opts UpdateOptsB
 	}
 	defer resp.Body.Close()
 
+	return
+}
+
+type ListOpts struct {
+	Limit  int    `q:"limit"`
+	Offset int    `q:"offset"`
+	PortID string `q:"port_id"`
+	SiteID string `q:"site_id"`
+}
+
+type ListPublicIPsOptsBuilder interface {
+	ToListPublicIPsQuery() (string, error)
+}
+
+func (opts ListOpts) ToListPublicIPsQuery() (string, error) {
+	b, err := golangsdk.BuildQueryString(&opts)
+	if err != nil {
+		return "", err
+	}
+	return b.String(), nil
+}
+
+func List(client *golangsdk.ServiceClient, opts ListPublicIPsOptsBuilder) (r ListResult) {
+	listURL := rootURL(client)
+	if opts != nil {
+		query, err := opts.ToListPublicIPsQuery()
+		if err != nil {
+			r.Err = err
+			return r
+		}
+		listURL += query
+	}
+
+	_, r.Err = client.Get(listURL, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{http.StatusOK},
+	})
 	return
 }

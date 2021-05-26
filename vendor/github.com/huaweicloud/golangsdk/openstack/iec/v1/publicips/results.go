@@ -119,3 +119,19 @@ func (r UpdateResult) Extract() (*PublicIPUpdateResp, error) {
 	err := r.ExtractIntoStructPtr(&entity, "publicip")
 	return &entity, err
 }
+
+// PublicIPs 弹性公网ip列表对象
+type PublicIPs struct {
+	PublicIPs []common.PublicIP `json:"publicips"`
+	Count     int               `json:"count"`
+}
+
+type ListResult struct {
+	commonResult
+}
+
+func (r ListResult) Extract() (*PublicIPs, error) {
+	var entity PublicIPs
+	err := r.ExtractIntoStructPtr(&entity, "")
+	return &entity, err
+}
