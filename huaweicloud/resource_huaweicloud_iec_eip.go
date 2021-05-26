@@ -172,7 +172,7 @@ func resourceIecEipV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("ip_version", n.IPVersion)
 	d.Set("bandwidth_id", n.BandwidthID)
 	d.Set("bandwidth_name", n.BandwidthName)
-	d.Set("bandwidth_name", n.BandwidthSize)
+	d.Set("bandwidth_size", n.BandwidthSize)
 	d.Set("bandwidth_share_type", n.BandwidthShareType)
 	d.Set("site_info", n.SiteInfo)
 

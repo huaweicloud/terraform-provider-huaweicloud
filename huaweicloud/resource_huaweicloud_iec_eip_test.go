@@ -23,7 +23,7 @@ func TestAccIecEIPResource_basic(t *testing.T) {
 		CheckDestroy: testAccCheckIecEIPDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIecEIP_basic(),
+				Config: testAccIecEIP_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIecEIPExists(resourceName, &iecEip),
 					resource.TestCheckResourceAttr(resourceName, "ip_version", "4"),
@@ -96,14 +96,10 @@ func testAccCheckIecEIPExists(n string, resource *iec_common.PublicIP) resource.
 	}
 }
 
-func testAccIecEIP_basic() string {
-	return fmt.Sprintf(`
-data "huaweicloud_iec_sites" "sites_test" {
-  region = "%s"
-}
+var testAccIecEIP_basic string = `
+data "huaweicloud_iec_sites" "sites_test" {}
 
 resource "huaweicloud_iec_eip" "eip_test" {
-  site_id    = data.huaweicloud_iec_sites.sites_test.sites[0].id
+  site_id = data.huaweicloud_iec_sites.sites_test.sites[0].id
 }
-`, HW_REGION_NAME)
-}
+`
