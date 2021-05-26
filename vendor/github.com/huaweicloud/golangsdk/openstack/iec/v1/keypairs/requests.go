@@ -36,7 +36,7 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 		r.Err = err
 		return
 	}
-	createURL := CreateURL(client)
+	createURL := rootURL(client)
 
 	var resp *http.Response
 	resp, r.Err = client.Post(createURL, b, &r.Body, &golangsdk.RequestOpts{
@@ -79,5 +79,40 @@ func Delete(client *golangsdk.ServiceClient, keyPairID string) (r DeleteResult) 
 	}
 	defer resp.Body.Close()
 
+	return
+}
+
+type ListOpts struct {
+	Limit  int    `q:"limit"`
+	Offset int    `q:"offset"`
+	Name   string `q:"name"`
+}
+
+type ListKeyPairsOptsBuilder interface {
+	ToListKeyPairsQuery() (string, error)
+}
+
+func (opts ListOpts) ToListKeyPairsQuery() (string, error) {
+	b, err := golangsdk.BuildQueryString(&opts)
+	if err != nil {
+		return "", err
+	}
+	return b.String(), nil
+}
+
+func List(client *golangsdk.ServiceClient, opts ListKeyPairsOptsBuilder) (r ListResult) {
+	listKeyPairsURL := rootURL(client)
+	if opts != nil {
+		query, err := opts.ToListKeyPairsQuery()
+		if err != nil {
+			r.Err = err
+			return r
+		}
+		listKeyPairsURL += query
+	}
+
+	_, r.Err = client.Get(listKeyPairsURL, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{http.StatusOK},
+	})
 	return
 }

@@ -32,3 +32,14 @@ func (r GetResult) Extract() (*common.KeyPair, error) {
 	err := r.ExtractIntoStructPtr(&entity, "")
 	return &entity, err
 }
+
+type ListResult struct {
+	commonResult
+}
+
+func (r ListResult) Extract() (*[]common.KeyPair, error) {
+	var entity []common.KeyPair
+
+	err := r.ExtractInto(&entity)
+	return &entity, err
+}
