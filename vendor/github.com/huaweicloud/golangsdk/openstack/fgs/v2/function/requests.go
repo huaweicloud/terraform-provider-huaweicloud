@@ -34,7 +34,7 @@ type CreateOpts struct {
 	UserData            string           `json:"user_data,omitempty"`
 	Xrole               string           `json:"xrole,omitempty"`
 	AppXrole            string           `json:"app_xrole,omitempty"`
-	FuncCode            FunctionCodeOpts `json:"func_code" required:"true"`
+	FuncCode            FunctionCodeOpts `json:"func_code,omitempty"`
 	EnterpriseProjectID string           `json:"enterprise_project_id,omitempty"`
 }
 

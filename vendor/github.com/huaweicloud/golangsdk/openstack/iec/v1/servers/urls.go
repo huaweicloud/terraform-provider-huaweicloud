@@ -2,7 +2,7 @@ package servers
 
 import "github.com/huaweicloud/golangsdk"
 
-func createURL(client *golangsdk.ServiceClient) string {
+func rootURL(client *golangsdk.ServiceClient) string {
 	return client.ServiceURL("cloudservers")
 }
 
