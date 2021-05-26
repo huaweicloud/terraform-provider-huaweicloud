@@ -396,6 +396,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dms_group":                       resourceDmsGroupsV1(),
 			"huaweicloud_dms_instance":                    resourceDmsInstancesV1(),
 			"huaweicloud_dms_queue":                       resourceDmsQueuesV1(),
+			"huaweicloud_dms_kafka_instance":              resourceDmsKafkaInstance(),
 			"huaweicloud_dns_ptrrecord":                   ResourceDNSPtrRecordV2(),
 			"huaweicloud_dns_recordset":                   ResourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone":                        ResourceDNSZoneV2(),
