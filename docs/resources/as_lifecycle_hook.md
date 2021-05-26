@@ -4,7 +4,7 @@ subcategory: "Auto Scaling"
 
 # huaweicloud\_as\_lifecycle\_hook
 
-Manages a AS Lifecycle Hook resource within HuaweiCloud.
+Manages an AS Lifecycle Hook resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -37,7 +37,7 @@ The following arguments are supported:
 
 * `name` - (Required, String) Specifies the lifecycle hook name.
   This parameter can contain a maximum of 32 characters, which may consist of letters, digits,
-  underscores(_) and hyphens (-).
+  underscores (_) and hyphens (-).
 
 * `type` - (Required, String) Specifies the lifecycle hook type.
   The valid values are following strings:
@@ -46,14 +46,15 @@ The following arguments are supported:
 
 * `notification_topic_urn` - (Required, String) Specifies a unique topic in SMN.
 
-* `scaling_group_id` - (Required, String, ForceNew) Specifies the AS group ID.
+* `scaling_group_id` - (Required, String, ForceNew) Specifies the ID of the AS group in UUID format.
   Changing this creates a new AS lifecycle hook.
 
 * `default_result` - (Optional, String) Specifies the default lifecycle hook callback operation.
-  This operation is performed when the timeout duration expires. The valid values are *ABANDON* and *CONTINUE*.
+  This operation is performed when the timeout duration expires.
+  The valid values are *ABANDON* and *CONTINUE*, default to *ABANDON*.
 
 * `timeout` - (Optional, Int) Specifies the lifecycle hook timeout duration, which ranges from 300 to 86400 in the
-  unit of second. The default value is 3600.
+  unit of second, default to 3600.
 
 * `notification_message` - (Optional, String) Specifies a customized notification.
   This parameter can contains a maximum of 256 characters, which cannot contain the following characters: <>&'().
@@ -66,11 +67,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `notification_topic_name` - The topic name in SMN.
 
-* `create_time` - The time when the lifecycle hook is created.
+* `create_time` - The server time in UTC format when the lifecycle hook is created.
 
 ## Import
 
-Lifecycle hooks can be imported using the AS group ID and hook ID separated by a slash, e.g.:
+Lifecycle hooks can be imported using the AS group ID and hook ID separated by a slash, e.g.
 
 ```
 $ terraform import huaweicloud_as_lifecycle_hook.test <AS group ID>/<Lifecycle hook ID>

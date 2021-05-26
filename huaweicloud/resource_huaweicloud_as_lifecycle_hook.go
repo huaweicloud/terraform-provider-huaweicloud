@@ -59,7 +59,7 @@ func ResourceASLifecycleHook() *schema.Resource {
 			"default_result": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "ABANDON",
 				ValidateFunc: validation.StringInSlice([]string{
 					"ABANDON", "CONTINUE",
 				}, false),
@@ -67,7 +67,7 @@ func ResourceASLifecycleHook() *schema.Resource {
 			"timeout": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Computed:     true,
+				Default:      3600,
 				ValidateFunc: validation.IntBetween(300, 86400),
 			},
 			"notification_message": {
@@ -110,7 +110,7 @@ func resourceASLifecycleHookCreate(d *schema.ResourceData, meta interface{}) err
 	createOpts.Type = v
 	hook, err := lifecyclehooks.Create(client, createOpts, groupId).Extract()
 	if err != nil {
-		return fmt.Errorf("Error craeting lifecycle hook: %s", err)
+		return fmt.Errorf("Error creating lifecycle hook: %s", err)
 	}
 	d.SetId(hook.Name)
 
@@ -127,11 +127,11 @@ func resourceASLifecycleHookRead(d *schema.ResourceData, meta interface{}) error
 	groupId := d.Get("scaling_group_id").(string)
 	hook, err := lifecyclehooks.Get(client, groupId, d.Id()).Extract()
 	if err != nil {
-		return fmt.Errorf("Error getting the specifies lifecycle hook of the Auto Scaling service: %s", err)
+		return CheckDeleted(d, err, "Error getting the specifies lifecycle hook of the AutoScaling service")
 	}
 	d.Set("region", region)
 	if err = setASLifecycleHookToState(d, hook); err != nil {
-		return fmt.Errorf("Error setting lifecycle hook to state: %s", err)
+		return fmt.Errorf("Error setting the lifecycle hook to state: %s", err)
 	}
 	return nil
 }
@@ -142,24 +142,31 @@ func resourceASLifecycleHookUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud AutoScaling client: %s", err)
 	}
-	//lintignore:R019
-	if d.HasChanges("type", "default_result", "timeout", "notification_topic_urn", "notification_message") {
-		updateOpts := lifecyclehooks.UpdateOpts{
-			DefaultResult:        d.Get("default_result").(string),
-			Timeout:              d.Get("timeout").(int),
-			NotificationTopicURN: d.Get("notification_topic_urn").(string),
-			NotificationMetadata: d.Get("notification_message").(string),
-		}
+	updateOpts := lifecyclehooks.UpdateOpts{}
+	if d.HasChange("type") {
 		hookType := d.Get("type").(string)
 		v, ok := hookTypeMap[hookType]
 		if !ok {
 			return fmt.Errorf("The type (%s) of hook is not in the map (%#v)", hookType, hookTypeMap)
 		}
 		updateOpts.Type = v
-		_, err := lifecyclehooks.Update(client, updateOpts, d.Get("scaling_group_id").(string), d.Id()).Extract()
-		if err != nil {
-			return fmt.Errorf("Error updating the lifecycle hook of the AutoScaling service: %s", err)
-		}
+	}
+	if d.HasChange("default_result") {
+		updateOpts.DefaultResult = d.Get("default_result").(string)
+	}
+	if d.HasChange("timeout") {
+		updateOpts.Timeout = d.Get("timeout").(int)
+	}
+	if d.HasChange("notification_topic_urn") {
+		updateOpts.NotificationTopicURN = d.Get("notification_topic_urn").(string)
+	}
+	if d.HasChange("notification_message") {
+		updateOpts.NotificationMetadata = d.Get("notification_message").(string)
+	}
+	groupId := d.Get("scaling_group_id").(string)
+	_, err = lifecyclehooks.Update(client, updateOpts, groupId, d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error updating the lifecycle hook of the AutoScaling service: %s", err)
 	}
 
 	return resourceASLifecycleHookRead(d, meta)
@@ -171,7 +178,8 @@ func resourceASLifecycleHookDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud AutoScaling client: %s", err)
 	}
-	err = lifecyclehooks.Delete(client, d.Get("scaling_group_id").(string), d.Id()).ExtractErr()
+	groupId := d.Get("scaling_group_id").(string)
+	err = lifecyclehooks.Delete(client, groupId, d.Id()).ExtractErr()
 	if err != nil {
 		return fmt.Errorf("Error deleting the lifecycle hook of the AutoScaling service: %s", err)
 	}
@@ -181,14 +189,12 @@ func resourceASLifecycleHookDelete(d *schema.ResourceData, meta interface{}) err
 
 func setASLifecycleHookToState(d *schema.ResourceData, hook *lifecyclehooks.Hook) error {
 	mErr := multierror.Append(
-		// required && optional parameters
 		d.Set("name", hook.Name),
 		d.Set("default_result", hook.DefaultResult),
 		d.Set("timeout", hook.Timeout),
 		d.Set("notification_topic_urn", hook.NotificationTopicURN),
 		d.Set("notification_message", hook.NotificationMetadata),
 		setASLifecycleHookType(d, hook),
-		// computed parameters
 		d.Set("notification_topic_name", hook.NotificationTopicName),
 		d.Set("create_time", hook.CreateTime),
 	)
@@ -211,26 +217,9 @@ func setASLifecycleHookType(d *schema.ResourceData, hook *lifecyclehooks.Hook) e
 func resourceASLifecycleHookImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		err := fmt.Errorf("Invalid format specified for lifecycle hook, must be <scaling_group_id>/<hook_id>")
-		return nil, err
+		return nil, fmt.Errorf("Invalid format specified for lifecycle hook, must be <scaling_group_id>/<hook_id>")
 	}
-
-	config := meta.(*config.Config)
-	client, err := config.AutoscalingV1Client(GetRegion(d, config))
-	if err != nil {
-		return nil, fmt.Errorf("Error creating HuaweiCloud AutoScaling client: %s", err)
-	}
-
-	groupId := parts[0]
-	ID := parts[1]
-	hook, err := lifecyclehooks.Get(client, groupId, ID).Extract()
-	if err != nil {
-		return nil, fmt.Errorf("Error getting the specifies lifecycle hook of the Auto Scaling service: %s", err)
-	}
-	d.SetId(ID)
-	d.Set("scaling_group_id", groupId)
-	if err = setASLifecycleHookToState(d, hook); err != nil {
-		return nil, fmt.Errorf("Error setting lifecycle hook: %s", err)
-	}
+	d.SetId(parts[1])
+	d.Set("scaling_group_id", parts[0])
 	return []*schema.ResourceData{d}, nil
 }

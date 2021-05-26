@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -15,7 +16,8 @@ import (
 func TestAccASLifecycleHook_basic(t *testing.T) {
 	var hook lifecyclehooks.Hook
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceGroupName := "huaweicloud_as_group.test"
+	// If the group name of the testASV1Group_basic method is updated, the resource name must also be updated.
+	resourceGroupName := "huaweicloud_as_group.hth_as_group"
 	resourceHookName := "huaweicloud_as_lifecycle_hook.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -32,8 +34,8 @@ func TestAccASLifecycleHook_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceHookName, "default_result", "ABANDON"),
 					resource.TestCheckResourceAttr(resourceHookName, "timeout", "3600"),
 					resource.TestCheckResourceAttr(resourceHookName, "notification_message", "This is a test message"),
-					resource.TestCheckResourceAttr(resourceHookName, "notification_topic_urn",
-						fmt.Sprintf("urn:smn:%s:%s:default", HW_REGION_NAME, HW_PROJECT_ID)),
+					resource.TestMatchResourceAttr(resourceHookName, "notification_topic_urn",
+						regexp.MustCompile(fmt.Sprintf("^(urn:smn:%s:%s:%s)$", HW_REGION_NAME, HW_PROJECT_ID, rName))),
 				),
 			},
 			{
@@ -46,15 +48,16 @@ func TestAccASLifecycleHook_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceHookName, "timeout", "600"),
 					resource.TestCheckResourceAttr(resourceHookName, "notification_message",
 						"This is a update message"),
-					resource.TestCheckResourceAttr(resourceHookName, "notification_topic_urn",
-						fmt.Sprintf("urn:smn:%s:%s:update", HW_REGION_NAME, HW_PROJECT_ID)),
+					resource.TestMatchResourceAttr(resourceHookName, "notification_topic_urn",
+						regexp.MustCompile(fmt.Sprintf("^(urn:smn:%s:%s:%s-update)$",
+							HW_REGION_NAME, HW_PROJECT_ID, rName))),
 				),
 			},
 			{
 				ResourceName:      resourceHookName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccASLifecycleHookImportStateIdFunc(),
+				ImportStateIdFunc: testAccASLifecycleHookImportStateIdFunc(resourceGroupName, resourceHookName),
 			},
 		},
 	})
@@ -71,7 +74,7 @@ func testAccCheckASLifecycleHookDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type == "huaweicloud_as_group" {
 			groupID = rs.Primary.ID
-			continue
+			break
 		}
 	}
 	for _, rs := range s.RootModule().Resources {
@@ -119,13 +122,13 @@ func testAccCheckASLifecycleHookExists(resGroup, resHook string, hook *lifecycle
 	}
 }
 
-func testAccASLifecycleHookImportStateIdFunc() resource.ImportStateIdFunc {
+func testAccASLifecycleHookImportStateIdFunc(groupRes, hookRes string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		group, ok := s.RootModule().Resources["huaweicloud_as_group.test"]
+		group, ok := s.RootModule().Resources[groupRes]
 		if !ok {
 			return "", fmt.Errorf("Auto Scaling group not found: %s", group)
 		}
-		hook, ok := s.RootModule().Resources["huaweicloud_as_lifecycle_hook.test"]
+		hook, ok := s.RootModule().Resources[hookRes]
 		if !ok {
 			return "", fmt.Errorf("Auto Scaling lifecycle hook not found: %s", hook)
 		}
@@ -138,97 +141,18 @@ func testAccASLifecycleHookImportStateIdFunc() resource.ImportStateIdFunc {
 
 func testASLifecycleHook_base(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
+%s
 
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 18.04 server 64bit"
-  most_recent = true
-}
-
-data "huaweicloud_compute_flavors" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  performance_type  = "normal"
-  cpu_core_count    = 2
-  memory_size       = 4
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%s"
-}
-
-resource "huaweicloud_compute_keypair" "test" {
+resource "huaweicloud_smn_topic" "test" {
   name = "%s"
-
-  lifecycle {
-    ignore_changes = [
-      public_key,
-    ]
-  }
 }
 
-resource "huaweicloud_lb_loadbalancer" "test" {
-  name          = "%s"
-  vip_subnet_id = data.huaweicloud_vpc_subnet.test.subnet_id
+resource "huaweicloud_smn_topic" "update" {
+  name = "%s-update"
+}
+`, testASV1Group_basic(rName), rName, rName)
 }
 
-resource "huaweicloud_lb_listener" "test" {
-  name            = "%s"
-  protocol        = "HTTP"
-  protocol_port   = 8080
-  loadbalancer_id = huaweicloud_lb_loadbalancer.test.id
-}
-
-resource "huaweicloud_lb_pool" "test" {
-  name        = "%s"
-  protocol    = "HTTP"
-  lb_method   = "ROUND_ROBIN"
-  listener_id = huaweicloud_lb_listener.test.id
-}
-
-resource "huaweicloud_as_configuration" "test"{
-  scaling_configuration_name = "%s"
-
-  instance_config {
-    image    = data.huaweicloud_images_image.test.id
-    flavor   = data.huaweicloud_compute_flavors.test.ids[0]
-    key_name = huaweicloud_compute_keypair.test.id
-
-    disk {
-      size        = 40
-      volume_type = "SATA"
-      disk_type   = "SYS"
-    }
-  }
-}
-
-resource "huaweicloud_as_group" "test"{
-  scaling_group_name       = "%s"
-  scaling_configuration_id = huaweicloud_as_configuration.test.id
-  vpc_id                   = data.huaweicloud_vpc.test.id
-
-  networks {
-    id = data.huaweicloud_vpc_subnet.test.id
-  }
-  security_groups {
-    id = huaweicloud_networking_secgroup.test.id
-  }
-  lbaas_listeners {
-    pool_id       = huaweicloud_lb_pool.test.id
-    protocol_port = huaweicloud_lb_listener.test.protocol_port
-  }
-}
-`, rName, rName, rName, rName, rName, rName, rName)
-}
-
-// Please make sure the smn topic is exist in specifies region and project.
 func testASLifecycleHook_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -236,15 +160,13 @@ func testASLifecycleHook_basic(rName string) string {
 resource "huaweicloud_as_lifecycle_hook" "test" {
   name                   = "%s"
   type                   = "ADD"
-  scaling_group_id       = huaweicloud_as_group.test.id
-  default_result         = "ABANDON"
-  notification_topic_urn = "%s"
+  scaling_group_id       = huaweicloud_as_group.hth_as_group.id
+  notification_topic_urn = huaweicloud_smn_topic.test.topic_urn
   notification_message   = "This is a test message"
-}	  
-`, testASLifecycleHook_base(rName), rName, fmt.Sprintf("urn:smn:%s:%s:default", HW_REGION_NAME, HW_PROJECT_ID))
+}
+`, testASLifecycleHook_base(rName), rName)
 }
 
-// Please make sure the smn topic is exist in specifies region and project.
 func testASLifecycleHook_update(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -252,11 +174,11 @@ func testASLifecycleHook_update(rName string) string {
 resource "huaweicloud_as_lifecycle_hook" "test" {
   name                   = "%s"
   type                   = "REMOVE"
-  scaling_group_id       = huaweicloud_as_group.test.id
+  scaling_group_id       = huaweicloud_as_group.hth_as_group.id
   default_result         = "CONTINUE"
-  notification_topic_urn = "%s"
+  notification_topic_urn = huaweicloud_smn_topic.update.topic_urn
   notification_message   = "This is a update message"
   timeout                = 600
-}	  
-`, testASLifecycleHook_base(rName), rName, fmt.Sprintf("urn:smn:%s:%s:update", HW_REGION_NAME, HW_PROJECT_ID))
+}
+`, testASLifecycleHook_base(rName), rName)
 }
