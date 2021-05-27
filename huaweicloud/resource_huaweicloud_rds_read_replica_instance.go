@@ -17,7 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func resourceRdsReadReplicaInstance() *schema.Resource {
+func ResourceRdsReadReplicaInstance() *schema.Resource {
 
 	return &schema.Resource{
 

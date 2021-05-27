@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func resourceRdsConfigurationV3() *schema.Resource {
+func ResourceRdsConfigurationV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceRdsConfigurationV3Create,
 		Read:   resourceRdsConfigurationV3Read,

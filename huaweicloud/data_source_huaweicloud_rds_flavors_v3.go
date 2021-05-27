@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceRdsFlavorV3() *schema.Resource {
+func DataSourceRdsFlavorV3() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceRdsFlavorV3Read,
 
