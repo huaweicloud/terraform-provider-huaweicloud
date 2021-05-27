@@ -31,6 +31,48 @@ func resourceIecServer() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
+			"flavor_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"image_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"system_disk_size": {
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
+			},
+			"system_disk_type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"vpc_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"subnet_ids": {
+				Type:     schema.TypeList,
+				Required: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"security_groups": {
+				Type:     schema.TypeSet,
+				Required: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"coverage_sites": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -50,54 +92,17 @@ func resourceIecServer() *schema.Resource {
 					},
 				},
 			},
-			"flavor_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"image_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: false,
-			},
-			"security_groups": {
-				Type:     schema.TypeSet,
-				Required: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"subnet_ids": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"system_disk_size": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-			},
-			"system_disk_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"vpc_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
 			"admin_pass": {
 				Type:         schema.TypeString,
 				Sensitive:    true,
 				Optional:     true,
 				ForceNew:     true,
 				ExactlyOneOf: []string{"admin_pass", "key_pair"},
+			},
+			"key_pair": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"bind_eip": {
 				Type:     schema.TypeBool,
@@ -138,11 +143,6 @@ func resourceIecServer() *schema.Resource {
 						},
 					},
 				},
-			},
-			"key_pair": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
 			},
 			"user_data": {
 				Type:     schema.TypeString,
@@ -199,7 +199,7 @@ func resourceIecServer() *schema.Resource {
 	}
 }
 
-func resourceServerSecGroups(d *schema.ResourceData) []common.SecurityGroup {
+func buildServerSecGroups(d *schema.ResourceData) []common.SecurityGroup {
 	rawSecGroups := d.Get("security_groups").(*schema.Set).List()
 	secgroups := make([]common.SecurityGroup, len(rawSecGroups))
 
@@ -211,7 +211,7 @@ func resourceServerSecGroups(d *schema.ResourceData) []common.SecurityGroup {
 	return secgroups
 }
 
-func resourceNetworkConfig(d *schema.ResourceData) common.NetConfig {
+func buildNetworkConfig(d *schema.ResourceData) common.NetConfig {
 	netOpts := common.NetConfig{}
 
 	rawSubnets := d.Get("subnet_ids").([]interface{})
@@ -228,7 +228,7 @@ func resourceNetworkConfig(d *schema.ResourceData) common.NetConfig {
 	return netOpts
 }
 
-func resourceServerRootVolume(d *schema.ResourceData) common.RootVolume {
+func buildServerRootVolume(d *schema.ResourceData) common.RootVolume {
 	rootVolume := common.RootVolume{
 		VolumeType: d.Get("system_disk_type").(string),
 		Size:       d.Get("system_disk_size").(int),
@@ -237,7 +237,7 @@ func resourceServerRootVolume(d *schema.ResourceData) common.RootVolume {
 	return rootVolume
 }
 
-func resourceServerDataVolumes(d *schema.ResourceData) []common.DataVolume {
+func buildServerDataVolumes(d *schema.ResourceData) []common.DataVolume {
 	rawVols := d.Get("data_disks").([]interface{})
 	volList := make([]common.DataVolume, len(rawVols))
 
@@ -261,7 +261,7 @@ func resourceServerCoverage(d *schema.ResourceData) common.Coverage {
 		sitesList[i] = common.CoverageSite{
 			Site: site["site_id"].(string),
 			Demands: []common.Demand{
-				common.Demand{
+				{
 					Operator: site["operator"].(string),
 					Count:    1,
 				},
@@ -291,10 +291,10 @@ func resourceIecServerV1Create(d *schema.ResourceData, meta interface{}) error {
 		Name:           d.Get("name").(string),
 		ImageRef:       d.Get("image_id").(string),
 		FlavorRef:      d.Get("flavor_id").(string),
-		NetConfig:      resourceNetworkConfig(d),
-		SecurityGroups: resourceServerSecGroups(d),
-		RootVolume:     resourceServerRootVolume(d),
-		DataVolumes:    resourceServerDataVolumes(d),
+		NetConfig:      buildNetworkConfig(d),
+		SecurityGroups: buildServerSecGroups(d),
+		RootVolume:     buildServerRootVolume(d),
+		DataVolumes:    buildServerDataVolumes(d),
 	}
 	if d.Get("bind_eip").(bool) {
 		resourceOpts.BandWidth = &common.BandWidth{
@@ -308,7 +308,11 @@ func resourceIecServerV1Create(d *schema.ResourceData, meta interface{}) error {
 	}
 	log.Printf("[DEBUG] Create IEC servers options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
-	createOpts.AdminPass = d.Get("admin_pass").(string)
+	if v, ok := d.GetOk("admin_pass"); ok {
+		createOpts.AdminPass = v.(string)
+	} else {
+		createOpts.KeyName = d.Get("key_pair").(string)
+	}
 
 	resp, err := servers.CreateServer(iecClient, createOpts)
 	if err != nil {
@@ -430,7 +434,7 @@ func resourceIecServerV1Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Deleting HuaweiCloud servers %s", d.Id())
 	deleteOpts := servers.DeleteOpts{
 		Servers: []cloudservers.Server{
-			cloudservers.Server{
+			{
 				Id: d.Id(),
 			},
 		},

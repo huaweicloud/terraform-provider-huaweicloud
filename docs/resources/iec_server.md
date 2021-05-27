@@ -2,7 +2,7 @@
 subcategory: "Intelligent EdgeCloud (IEC)"
 ---
 
-# huaweicloud\_iec\_server
+# huaweicloud_iec_server
 
 Manages a IEC server resource within HuaweiCloud.
 
@@ -90,9 +90,9 @@ resource "huaweicloud_iec_server" "server_test" {
 
 The following arguments are supported:
 
-* `coverage_sites` - (Required, List, ForceNew) Specifies an array of site ID
-    and operator for the IEC server.
-    The coverage_sites object structure is documented below.
+* `name` - (Required, String, ForceNew) Specifies the IEC server name.
+    This parameter can contain a maximum of 64 characters, which may consist of
+    letters, digits, dot(.), underscores (_), and hyphens (-).
     Changing this parameter creates a new IEC server resource.
 
 * `flavor_id` - (Required, String, ForceNew) Specifies the flavor ID of the
@@ -103,17 +103,16 @@ The following arguments are supported:
     desired image for the IEC server.
     Changing this parameter creates a new IEC server resource.
 
-* `name` - (Required, String, ForceNew) Specifies the IEC server name.
-    This parameter can contain a maximum of 64 characters, which may consist of
-    letters, digits, dot(.), underscores (_), and hyphens (-).
-    Changing this parameter creates a new IEC server resource.
-
-* `security_groups` - (Required, List, ForceNew) Specifies an array of one or
-    more security group IDs to associate with the IEC server.
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of vpc for the IEC
+    server. VPC mode only *CUSTOMER* can be used to create IEC server.
     Changing this parameter creates a new IEC server resource.
 
 * `subnet_ids` - (Required, List, ForceNew) Specifies an array of one or more
     subnet ID of Network for the IEC server binding.
+    Changing this parameter creates a new IEC server resource.
+
+* `security_groups` - (Required, List, ForceNew) Specifies an array of one or
+    more security group IDs to associate with the IEC server.
     Changing this parameter creates a new IEC server resource.
 
 * `system_disk_type` - (Required, String, ForceNew) Specifies the type of system
@@ -125,8 +124,8 @@ The following arguments are supported:
     disk for the IEC server binding.  The value range is 40 to 100 in GB.
     Changing this parameter creates a new IEC server resource.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies the ID of vpc for the IEC
-    server. VPC mode only *CUSTOMER* can be used to create IEC server.
+* `coverage_sites` - (Required, List, ForceNew) Specifies an array of site ID
+    and operator for the IEC server. The object structure is documented below.
     Changing this parameter creates a new IEC server resource.
 
 * `admin_pass` - (Optional, String, ForceNew) Specifies the administrative
@@ -155,7 +154,7 @@ The following arguments are supported:
 
 * `data_disks` - (Optional, List, ForceNew) Specifies the array of data disks
     to attach to the IEC server. Up to two data disks can be specified.
-    The data_disks object structure is documented below.
+    The object structure is documented below.
     Changing this parameter creates a new IEC server resource.
 
 * `user_data` - (Optional, String, ForceNew) Specifies the user data (information
@@ -165,17 +164,15 @@ The following arguments are supported:
 
 The `coverage_sites` block supports:
 
-* `site_id` -(Required, String, ForceNew) Specifies the ID of IEC site.
-
-* `operator` -(Required, String, ForceNew) Specifies the operator of the IEC site.
+  * `site_id` -(Required, String, ForceNew) Specifies the ID of IEC site.
+  * `operator` -(Required, String, ForceNew) Specifies the operator of the IEC site.
 
 The `data_disks` block supports:
 
-* `type` -(Required, String, ForceNew) Specifies the type of data disk for the
+  * `type` -(Required, String, ForceNew) Specifies the type of data disk for the
     IEC server binding. Valid value is *SAS*(high I/O disk type).
     Changing this parameter creates a new IEC server resource.
-
-* `size` - (Required, String, ForceNew) Specifies the size of data disk for the
+  * `size` - (Required, String, ForceNew) Specifies the size of data disk for the
     IEC server binding. The value range is 10 to 500 in GB.
     Changing this parameter creates a new IEC server resource.
 
@@ -184,19 +181,15 @@ The `data_disks` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `edgecloud_id` - The ID of the edgecloud service.
-
 * `edgecloud_name` - The Name of the edgecloud service.
-
 * `nics` - An array of one or more network configuration for IEC server.
-
 * `origin_server_id` : The ID of origin server.
-
 * `status` - The status of IEC server.
 
 The `nics` block supports:
-* `port` - The port of IEC server.
-* `mac` - The mac address of IEC server.
-* `address` - The address of EIP or VIP.
+  * `port` - The port of IEC server.
+  * `mac` - The mac address of IEC server.
+  * `address` - The address of EIP or VIP.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

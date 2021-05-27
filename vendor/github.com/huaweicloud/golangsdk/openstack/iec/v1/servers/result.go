@@ -62,7 +62,7 @@ type JobExecResult struct {
 	commonResult
 }
 
-//执行创建image异步接口时返回的jobid结构
+// Job 执行创建/删除接口时返回的jobid结构
 type Job struct {
 	// job id of create image
 	Id string `json:"job_id"`
@@ -74,7 +74,7 @@ func (r commonResult) ExtractJob() (Job, error) {
 	return j, err
 }
 
-//Server struct is a serverIds structure returned when you create a server
+// ServerIDs is a serverIds structure returned when you create a server
 type ServerIDs struct {
 	IDs []string `json:"server_ids"`
 }
@@ -96,4 +96,20 @@ type CreateCloudServerResponse struct {
 // method to determine if the call succeeded or failed.
 type DeleteResult struct {
 	golangsdk.ErrResult
+}
+
+type Servers struct {
+	Servers []Server `json:"servers"`
+	Count   int      `json:"count"`
+}
+
+type ListResult struct {
+	commonResult
+}
+
+func (r ListResult) Extract() (*Servers, error) {
+	var entity Servers
+
+	err := r.ExtractInto(&entity)
+	return &entity, err
 }

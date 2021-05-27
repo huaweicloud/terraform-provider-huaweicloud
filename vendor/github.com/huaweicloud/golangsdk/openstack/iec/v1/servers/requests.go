@@ -101,7 +101,7 @@ func CreateServer(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (crea
 		return
 	}
 
-	createURL := createURL(client)
+	createURL := rootURL(client)
 	var resp *http.Response
 	resp, err = client.Post(createURL, reqBody, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{http.StatusAccepted},
@@ -120,8 +120,10 @@ func CreateServer(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (crea
 		err = errServer
 		return
 	}
-	createResult = CreateCloudServerResponse{Job: job,
-		ServerIDs: server}
+	createResult = CreateCloudServerResponse{
+		Job:       job,
+		ServerIDs: server,
+	}
 
 	defer resp.Body.Close()
 	return
@@ -158,12 +160,52 @@ func DeleteServers(client *golangsdk.ServiceClient, opts DeleteOptsBuilder) (r D
 
 	var resp *http.Response
 	resp, r.Err = client.Post(deleteURL, body, nil, &golangsdk.RequestOpts{
-		OkCodes: []int{http.StatusNoContent},
+		OkCodes: []int{http.StatusAccepted},
 	})
 	if r.Err != nil {
 		return
 	}
 	defer resp.Body.Close()
 
+	return
+}
+
+type ListOpts struct {
+	Limit       int    `q:"limit"`
+	Offset      int    `q:"offset"`
+	Name        string `q:"name"`
+	Area        string `q:"area"`
+	City        string `q:"city"`
+	Province    string `q:"province"`
+	EdgeCloudID string `q:"edgecloud_id"`
+	Status      string `q:"status"`
+}
+
+type ListServersOptsBuilder interface {
+	ToListServersQuery() (string, error)
+}
+
+func (opts ListOpts) ToListServersQuery() (string, error) {
+	b, err := golangsdk.BuildQueryString(&opts)
+	if err != nil {
+		return "", err
+	}
+	return b.String(), nil
+}
+
+func List(client *golangsdk.ServiceClient, opts ListServersOptsBuilder) (r ListResult) {
+	listURL := rootURL(client)
+	if opts != nil {
+		query, err := opts.ToListServersQuery()
+		if err != nil {
+			r.Err = err
+			return r
+		}
+		listURL += query
+	}
+
+	_, r.Err = client.Get(listURL, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{http.StatusOK},
+	})
 	return
 }
