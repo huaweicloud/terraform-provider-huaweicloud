@@ -364,6 +364,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_api_gateway_group":               resourceAPIGatewayGroup(),
 			"huaweicloud_as_configuration":                ResourceASConfiguration(),
 			"huaweicloud_as_group":                        ResourceASGroup(),
+			"huaweicloud_as_lifecycle_hook":               ResourceASLifecycleHook(),
 			"huaweicloud_as_policy":                       ResourceASPolicy(),
 			"huaweicloud_bms_instance":                    ResourceBmsInstance(),
 			"huaweicloud_bcs_instance":                    resourceBCSInstanceV2(),
