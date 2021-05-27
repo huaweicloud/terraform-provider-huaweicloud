@@ -30,20 +30,13 @@ type CreateOps struct {
 	// Indicates the version of a message engine.
 	EngineVersion string `json:"engine_version" required:"true"`
 
-	//Indicates the baseline bandwidth of a Kafka instance, that is,
-	//the maximum amount of data transferred per unit time. Unit: byte/s.
-	Specification string `json:"specification" required:"true"`
-
 	// Indicates the message storage space.
 	StorageSpace int `json:"storage_space" required:"true"`
-
-	//Indicates the maximum number of topics in a Kafka instance.
-	PartitionNum int `json:"partition_num" required:"true"`
 
 	// Indicates a username.
 	// A username consists of 1 to 64 characters
 	// and supports only letters, digits, and hyphens (-).
-	AccessUser string `json:"access_user,omitempty"`
+	AccessUser string `json:"access_user" required:"true"`
 
 	// Indicates the password of an instance.
 	// An instance password must meet the following complexity requirements:
@@ -53,7 +46,7 @@ type CreateOps struct {
 	// Uppercase letters
 	// Digits
 	// Special characters (`~!@#$%^&*()-_=+\|[{}]:'",<.>/?)
-	Password string `json:"password,omitempty"`
+	Password string `json:"password" required:"true"`
 
 	// Indicates the ID of a VPC.
 	VPCID string `json:"vpc_id" required:"true"`
@@ -71,21 +64,6 @@ type CreateOps struct {
 	// Indicates a product ID.
 	ProductID string `json:"product_id" required:"true"`
 
-	// Indicates the username for logging in to the Kafka Manager.
-	// The username consists of 4 to 64 characters and can contain
-	//letters, digits, hyphens (-), and underscores (_).
-	KafkaManagerUser string `json:"kafka_manager_user" required:"true"`
-
-	// Indicates the password for logging in to the Kafka Manager.
-	// The password must meet the following complexity requirements:
-	// Must be a string consisting of 8 to 32 characters.
-	// Contains at least three of the following characters:
-	// Lowercase letters
-	// Uppercase letters
-	// Digits
-	// Special characters `~!@#$%^&*()-_=+\|[{}];:',<.>/?
-	KafkaManagerPassword string `json:"kafka_manager_password" required:"true"`
-
 	// Indicates the time at which a maintenance time window starts.
 	// Format: HH:mm:ss
 	MaintainBegin string `json:"maintain_begin,omitempty"`
@@ -97,28 +75,14 @@ type CreateOps struct {
 	// Indicates whether to open the public network access function. Default to false.
 	EnablePublicIP bool `json:"enable_publicip,omitempty"`
 
-	// Indicates the bandwidth of the public network.
-	PublicBandWidth int `json:"public_bandwidth,omitempty"`
-
 	// Indicates the ID of the Elastic IP address bound to the instance.
 	PublicIpID string `json:"publicip_id,omitempty"`
 
 	// Indicates whether to enable SSL-encrypted access.
 	SslEnable bool `json:"ssl_enable,omitempty"`
 
-	// Indicates the action to be taken when the memory usage reaches the disk capacity threshold. Options:
-	// time_base: Automatically delete the earliest messages.
-	// produce_reject: Stop producing new messages.
-	RetentionPolicy string `json:"retention_policy,omitempty"`
-
-	// Indicates whether to enable dumping.
-	ConnectorEnalbe bool `json:"connector_enable,omitempty"`
-
-	// Indicates whether to enable automatic topic creation.
-	EnableAutoTopic bool `json:"enable_auto_topic,omitempty"`
-
 	//Indicates the storage I/O specification. For details on how to select a disk type
-	StorageSpecCode string `json:"storage_spec_code,omitempty"`
+	StorageSpecCode string `json:"storage_spec_code" required:"true"`
 
 	// Indicates the enterprise project ID.
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
@@ -183,10 +147,11 @@ type UpdateOpts struct {
 	// Indicates the ID of a security group.
 	SecurityGroupID string `json:"security_group_id,omitempty"`
 
-	// Indicates the action to be taken when the memory usage reaches the disk capacity threshold. Options:
-	// time_base: Automatically delete the earliest messages.
-	// produce_reject: Stop producing new messages.
-	RetentionPolicy string `json:"retention_policy,omitempty"`
+	// Indicates whether to open the public network access function. Default to false.
+	EnablePublicIP *bool `json:"enable_publicip,omitempty"`
+
+	// Indicates the ID of the Elastic IP address bound to the instance.
+	PublicIpID string `json:"publicip_id,omitempty"`
 
 	// Indicates the enterprise project ID.
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
