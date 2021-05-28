@@ -16,32 +16,31 @@ func TestAccCCIPersistentVolumeClaims_basic(t *testing.T) {
 	var pvc persistentvolumeclaims.ListResp
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cci_pvc.test"
-	ns := "terraform-test"
 	volumeType := "ssd"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheckCCI(t)
+			testAccPreCheckCCINamespace(t)
 			testAccPreCheckEpsID(t)
 		},
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCIPersistentVolumeClaimsDestroy(ns, volumeType),
+		CheckDestroy: testAccCheckCCIPersistentVolumeClaimsDestroy(volumeType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCIPersistentVolumeClaims_basic(ns, rName, volumeType),
+				Config: testAccCCIPersistentVolumeClaims_basic(rName, volumeType),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCIPersistentVolumeClaimsExists(resourceName, ns, volumeType, &pvc),
+					testAccCheckCCIPersistentVolumeClaimsExists(resourceName, volumeType, &pvc),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "namespace", ns),
+					resource.TestCheckResourceAttr(resourceName, "namespace", HW_CCI_NAMESPACE),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", volumeType),
-					resource.TestCheckResourceAttr(resourceName, "volume_size", "20"),
 				),
 			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccCCIPvcImportStateIdFunc(resourceName, ns),
+				ImportStateIdFunc: testAccCCIPvcImportStateIdFunc(resourceName),
 			},
 		},
 	})
@@ -52,32 +51,31 @@ func TestAccCCIPersistentVolumeClaims_obs(t *testing.T) {
 	rInt := acctest.RandInt()
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cci_pvc.test"
-	ns := "terraform-test"
 	volumeType := "obs"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheckCCI(t)
+			testAccPreCheckCCINamespace(t)
 			testAccPreCheckEpsID(t)
 		},
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCIPersistentVolumeClaimsDestroy(ns, volumeType),
+		CheckDestroy: testAccCheckCCIPersistentVolumeClaimsDestroy(volumeType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCIPersistentVolumeClaims_obs(ns, rName, volumeType, rInt),
+				Config: testAccCCIPersistentVolumeClaims_obs(rName, volumeType, rInt),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCIPersistentVolumeClaimsExists(resourceName, ns, volumeType, &pvc),
+					testAccCheckCCIPersistentVolumeClaimsExists(resourceName, volumeType, &pvc),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "namespace", ns),
+					resource.TestCheckResourceAttr(resourceName, "namespace", HW_CCI_NAMESPACE),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", volumeType),
-					resource.TestCheckResourceAttr(resourceName, "volume_size", "1"),
 				),
 			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccCCIPvcImportStateIdFunc(resourceName, ns),
+				ImportStateIdFunc: testAccCCIPvcImportStateIdFunc(resourceName),
 			},
 		},
 	})
@@ -87,32 +85,31 @@ func TestAccCCIPersistentVolumeClaims_nfs(t *testing.T) {
 	var pvc persistentvolumeclaims.ListResp
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cci_pvc.test"
-	ns := "terraform-test"
 	volumeType := "nfs-rw"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheckCCI(t)
+			testAccPreCheckCCINamespace(t)
 			testAccPreCheckEpsID(t)
 		},
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCIPersistentVolumeClaimsDestroy(ns, volumeType),
+		CheckDestroy: testAccCheckCCIPersistentVolumeClaimsDestroy(volumeType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCIPersistentVolumeClaims_nfs(ns, rName, volumeType),
+				Config: testAccCCIPersistentVolumeClaims_nfs(rName, volumeType),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCIPersistentVolumeClaimsExists(resourceName, ns, volumeType, &pvc),
+					testAccCheckCCIPersistentVolumeClaimsExists(resourceName, volumeType, &pvc),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "namespace", ns),
+					resource.TestCheckResourceAttr(resourceName, "namespace", HW_CCI_NAMESPACE),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", volumeType),
-					resource.TestCheckResourceAttr(resourceName, "volume_size", "100"),
 				),
 			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccCCIPvcImportStateIdFunc(resourceName, ns),
+				ImportStateIdFunc: testAccCCIPvcImportStateIdFunc(resourceName),
 			},
 		},
 	})
@@ -123,35 +120,36 @@ func TestAccCCIPersistentVolumeClaims_efs(t *testing.T) {
 	suffix := acctest.RandString(5)
 	rName := fmt.Sprintf("tf-acc-test-%s", suffix)
 	resourceName := "huaweicloud_cci_pvc.test"
-	ns := "terraform-test"
 	volumeType := "efs-standard"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckCCI(t) },
+		PreCheck: func() {
+			testAccPreCheckCCI(t)
+			testAccPreCheckCCINamespace(t)
+		},
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCIPersistentVolumeClaimsDestroy(ns, volumeType),
+		CheckDestroy: testAccCheckCCIPersistentVolumeClaimsDestroy(volumeType),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCIPersistentVolumeClaims_efs(ns, rName, suffix, volumeType),
+				Config: testAccCCIPersistentVolumeClaims_efs(rName, volumeType, suffix),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCIPersistentVolumeClaimsExists(resourceName, ns, volumeType, &pvc),
+					testAccCheckCCIPersistentVolumeClaimsExists(resourceName, volumeType, &pvc),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "namespace", ns),
+					resource.TestCheckResourceAttr(resourceName, "namespace", HW_CCI_NAMESPACE),
 					resource.TestCheckResourceAttr(resourceName, "volume_type", volumeType),
-					resource.TestCheckResourceAttr(resourceName, "volume_size", "500"),
 				),
 			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccCCIPvcImportStateIdFunc(resourceName, ns),
+				ImportStateIdFunc: testAccCCIPvcImportStateIdFunc(resourceName),
 			},
 		},
 	})
 }
 
-func testAccCheckCCIPersistentVolumeClaimsDestroy(ns, volumeType string) resource.TestCheckFunc {
+func testAccCheckCCIPersistentVolumeClaimsDestroy(volumeType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.CciV1Client(HW_REGION_NAME)
@@ -162,16 +160,16 @@ func testAccCheckCCIPersistentVolumeClaimsDestroy(ns, volumeType string) resourc
 			if rs.Type != "huaweicloud_cci_pvc" {
 				continue
 			}
-			_, err := getPvcInfoFromServer(client, ns, volumeType, rs.Primary.ID)
-			if err != nil {
-				return fmt.Errorf("Unable to find the specifies PVC (%s) form server: %s", rs.Primary.ID, err)
+			response, err := getCCIPvcInfoById(client, HW_CCI_NAMESPACE, volumeType, rs.Primary.ID)
+			if err == nil && response != nil {
+				return fmt.Errorf("The PVC (%s) still exist", rs.Primary.ID)
 			}
 		}
 		return nil
 	}
 }
 
-func testAccCheckCCIPersistentVolumeClaimsExists(n, ns, volumeType string,
+func testAccCheckCCIPersistentVolumeClaimsExists(n, volumeType string,
 	pvc *persistentvolumeclaims.ListResp) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -186,7 +184,7 @@ func testAccCheckCCIPersistentVolumeClaimsExists(n, ns, volumeType string,
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud CCI Client: %s", err)
 		}
-		response, err := getPvcInfoFromServer(client, ns, volumeType, rs.Primary.ID)
+		response, err := getCCIPvcInfoById(client, HW_CCI_NAMESPACE, volumeType, rs.Primary.ID)
 		if err != nil {
 			return fmt.Errorf("Unable to find the specifies PVC (%s) form server: %s", rs.Primary.ID, err)
 		}
@@ -199,21 +197,21 @@ func testAccCheckCCIPersistentVolumeClaimsExists(n, ns, volumeType string,
 	}
 }
 
-func testAccCCIPvcImportStateIdFunc(pvcRes, ns string) resource.ImportStateIdFunc {
+func testAccCCIPvcImportStateIdFunc(pvcRes string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		pvc, ok := s.RootModule().Resources[pvcRes]
 		if !ok {
 			return "", fmt.Errorf("Auto Scaling lifecycle hook not found: %s", pvc)
 		}
-		if ns == "" || pvc.Primary.Attributes["volume_type"] == "" || pvc.Primary.ID == "" {
-			return "", fmt.Errorf("Unable to find the resource by import ID: %s/%s/%s",
-				ns, pvc.Primary.Attributes["volume_type"], pvc.Primary.ID)
+		if pvc.Primary.Attributes["volume_type"] == "" || pvc.Primary.ID == "" {
+			return "", fmt.Errorf("Unable to find the resource by import infos: %s/%s/%s",
+				HW_CCI_NAMESPACE, pvc.Primary.Attributes["volume_type"], pvc.Primary.ID)
 		}
-		return fmt.Sprintf("%s/%s/%s", ns, pvc.Primary.Attributes["volume_type"], pvc.Primary.ID), nil
+		return fmt.Sprintf("%s/%s/%s", HW_CCI_NAMESPACE, pvc.Primary.Attributes["volume_type"], pvc.Primary.ID), nil
 	}
 }
 
-func testAccCCIPersistentVolumeClaims_basic(ns, rName, volumeType string) string {
+func testAccCCIPersistentVolumeClaims_basic(rName, volumeType string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -222,12 +220,11 @@ resource "huaweicloud_cci_pvc" "test" {
   namespace   = "%s"
   volume_type = "%s"
   volume_id   = huaweicloud_evs_volume.test.id
-  volume_size = huaweicloud_evs_volume.test.size
 }
-`, testAccEvsVolume_epsID(rName), rName, ns, volumeType)
+`, testAccEvsVolume_epsID(rName), rName, HW_CCI_NAMESPACE, volumeType)
 }
 
-func testAccCCIPersistentVolumeClaims_obs(ns, rName, volumeType string, suffix int) string {
+func testAccCCIPersistentVolumeClaims_obs(rName, volumeType string, suffix int) string {
 	return fmt.Sprintf(`
 %s
 
@@ -236,12 +233,11 @@ resource "huaweicloud_cci_pvc" "test" {
   namespace   = "%s"
   volume_type = "%s"
   volume_id   = huaweicloud_obs_bucket.bucket.id
-  volume_size = 1
 }
-`, testAccObsBucket_epsId(suffix), rName, ns, volumeType)
+`, testAccObsBucket_epsId(suffix), rName, HW_CCI_NAMESPACE, volumeType)
 }
 
-func testAccCCIPersistentVolumeClaims_nfs(ns, rName, volumeType string) string {
+func testAccCCIPersistentVolumeClaims_nfs(rName, volumeType string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -250,13 +246,12 @@ resource "huaweicloud_cci_pvc" "test" {
   namespace         = "%s"
   volume_type       = "%s"
   volume_id         = huaweicloud_sfs_file_system.sfs_1.id
-  volume_size       = 100
   device_mount_path = huaweicloud_sfs_file_system.sfs_1.export_location
 }
-`, testAccSFSFileSystemV2_epsId(rName), rName, ns, volumeType)
+`, testAccSFSFileSystemV2_epsId(rName), rName, HW_CCI_NAMESPACE, volumeType)
 }
 
-func testAccCCIPersistentVolumeClaims_efs(ns, rName, suffix, volumeType string) string {
+func testAccCCIPersistentVolumeClaims_efs(rName, volumeType, suffix string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -265,8 +260,7 @@ resource "huaweicloud_cci_pvc" "test" {
   namespace         = "%s"
   volume_type       = "%s"
   volume_id         = huaweicloud_sfs_turbo.sfs-turbo1.id
-  volume_size       = 500
   device_mount_path = huaweicloud_sfs_turbo.sfs-turbo1.export_location
 }
-`, testAccSFSTurbo_basic(suffix), rName, ns, volumeType)
+`, testAccSFSTurbo_basic(suffix), rName, HW_CCI_NAMESPACE, volumeType)
 }

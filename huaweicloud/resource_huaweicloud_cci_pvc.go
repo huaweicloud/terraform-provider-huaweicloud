@@ -3,7 +3,6 @@ package huaweicloud
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -83,11 +82,6 @@ func ResourceCCIPersistentVolumeClaimV1() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"volume_size": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-			},
 			"device_mount_path": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -147,7 +141,8 @@ func buildCCIPersistentVolumeClaimV1CreateParams(d *schema.ResourceData) (persis
 		StorageClassName: volumeType,
 		Resources: persistentvolumeclaims.ResourceRequirement{
 			Requests: &persistentvolumeclaims.ResourceName{
-				Storage: fmt.Sprintf("%dGi", d.Get("volume_size").(int)),
+				// At present, due to design defects of the CCI service, the storage has no practical meaning.
+				Storage: "1Gi",
 			},
 		},
 	}
@@ -164,7 +159,7 @@ func resourceCCIPersistentVolumeClaimV1Create(d *schema.ResourceData, meta inter
 
 	createOpts, err := buildCCIPersistentVolumeClaimV1CreateParams(d)
 	if err != nil {
-		return fmt.Errorf("Unable to build createOpts of the Persistent Volume Claim: %s", err)
+		return fmt.Errorf("Unable to build createOpts of the PVC: %s", err)
 	}
 	ns := d.Get("namespace").(string)
 	create, err := persistentvolumeclaims.Create(client, createOpts, ns).Extract()
@@ -173,7 +168,7 @@ func resourceCCIPersistentVolumeClaimV1Create(d *schema.ResourceData, meta inter
 	}
 	d.SetId(create.Metadata.UID)
 	stateRef := StateRefresh{
-		Pending:      []string{"Pending", "Bound"},
+		Pending:      []string{"Pending"},
 		Target:       []string{"Bound"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
@@ -187,28 +182,15 @@ func resourceCCIPersistentVolumeClaimV1Create(d *schema.ResourceData, meta inter
 }
 
 func saveCCIPersistentVolumeClaimV1State(d *schema.ResourceData, resp *persistentvolumeclaims.ListResp) error {
-	specResp := &resp.PersistentVolume.Spec
+	spec := &resp.PersistentVolume.Spec
 	metadata := &resp.PersistentVolumeClaim.Metadata
-	// The volume size format is 'xGi'.
-	regex := regexp.MustCompile("^([1-9][0-9]*)Gi$")
-	storages := regex.FindStringSubmatch(specResp.Capacity.Storage)
-	if len(storages) < 2 {
-		return fmt.Errorf("The response of volume capacity is not a valid number, need 'xGi', but got '%s'",
-			specResp.Capacity.Storage)
-	}
-	volumeSize, err := strconv.Atoi(storages[1])
-	if err != nil {
-		return fmt.Errorf("The input capacity (%s) is not a number: %s", storages[1], err)
-	}
-
 	mErr := multierror.Append(nil,
 		d.Set("namespace", metadata.Namespace),
 		d.Set("name", metadata.Name),
-		d.Set("volume_id", specResp.FlexVolume.Options.VolumeID),
-		d.Set("volume_size", volumeSize),
-		d.Set("volume_type", specResp.StorageClassName),
-		d.Set("device_mount_path", specResp.FlexVolume.Options.DeviceMountPath),
-		d.Set("access_modes", specResp.AccessModes),
+		d.Set("volume_id", spec.FlexVolume.Options.VolumeID),
+		d.Set("volume_type", spec.StorageClassName),
+		d.Set("device_mount_path", spec.FlexVolume.Options.DeviceMountPath),
+		d.Set("access_modes", spec.AccessModes),
 		d.Set("status", resp.PersistentVolumeClaim.Status.Phase),
 		d.Set("creation_timestamp", metadata.CreationTimestamp),
 		d.Set("enable", metadata.Enable),
@@ -230,7 +212,7 @@ func resourceCCIPersistentVolumeClaimV1Read(d *schema.ResourceData, meta interfa
 
 	ns := d.Get("namespace").(string)
 	volumeType := d.Get("volume_type").(string)
-	response, err := getPvcInfoFromServer(client, ns, volumeType, d.Id())
+	response, err := getCCIPvcInfoById(client, ns, volumeType, d.Id())
 	if err != nil {
 		return CheckDeleted(d, err, "Error getting the specifies PVC form server")
 	}
@@ -294,7 +276,7 @@ func pvcStateRefreshFunc(d *schema.ResourceData, client *golangsdk.ServiceClient
 	ns string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		volumeType := d.Get("volume_type").(string)
-		response, err := getPvcInfoFromServer(client, ns, volumeType, d.Id())
+		response, err := getCCIPvcInfoById(client, ns, volumeType, d.Id())
 		if err != nil {
 			return response, "ERROR", nil
 		}
@@ -305,33 +287,30 @@ func pvcStateRefreshFunc(d *schema.ResourceData, client *golangsdk.ServiceClient
 	}
 }
 
-func getPvcInfoFromServer(client *golangsdk.ServiceClient, ns, volumeType,
-	pvcId string) (*persistentvolumeclaims.ListResp, error) {
-	var response *persistentvolumeclaims.ListResp
+func getCCIPvcInfoById(client *golangsdk.ServiceClient, ns, volumeType,
+	id string) (*persistentvolumeclaims.ListResp, error) {
 	// If the storage of listOpts is not set, the list method will search for all PVCs of evs type.
 	storageType, ok := volumeTypeForList[volumeType]
 	if !ok {
-		return response, fmt.Errorf("The volume type (%s) is not available", volumeType)
+		return nil, fmt.Errorf("The volume type (%s) is not available", volumeType)
 	}
 	listOpts := persistentvolumeclaims.ListOpts{
 		StorageType: storageType,
 	}
 	pages, err := persistentvolumeclaims.List(client, listOpts, ns).AllPages()
 	if err != nil {
-		return response, fmt.Errorf("Error finding the PVCs of type %s: %s", storageType, err)
+		return nil, fmt.Errorf("Error finding the PVCs from the server: %s", err)
 	}
 	responses, err := persistentvolumeclaims.ExtractPersistentVolumeClaims(pages)
 	if err != nil {
-		return response, fmt.Errorf("Error retrieving HuaweiCloud CCI PVCs: %s", err)
+		return nil, fmt.Errorf("Error extracting HuaweiCloud CCI PVC list: %s", err)
 	}
 	for _, v := range responses {
-		if v.PersistentVolumeClaim.Metadata.UID == pvcId {
-			response = new(persistentvolumeclaims.ListResp)
-			response = &v
-			break
+		if v.PersistentVolumeClaim.Metadata.UID == id {
+			return &v, nil
 		}
 	}
-	return response, nil
+	return nil, nil
 }
 
 func resourceCCIPvcImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
