@@ -43,9 +43,6 @@ resource "huaweicloud_iec_server" "server_test" {
 
 ### Server Instance With Multiple Data Disks
 
-It's possible to specify multiple `data_disks` entries to create an server 
-with multiple data disks.
-
 ```hcl
 variable "iec_server_name" {}
 variable "iec_iamge_id" {}
@@ -164,12 +161,12 @@ The following arguments are supported:
 
 The `coverage_sites` block supports:
 
-  * `site_id` -(Required, String, ForceNew) Specifies the ID of IEC site.
-  * `operator` -(Required, String, ForceNew) Specifies the operator of the IEC site.
+  * `site_id` - (Required, String, ForceNew) Specifies the ID of IEC site.
+  * `operator` - (Required, String, ForceNew) Specifies the operator of the IEC site.
 
 The `data_disks` block supports:
 
-  * `type` -(Required, String, ForceNew) Specifies the type of data disk for the
+  * `type` - (Required, String, ForceNew) Specifies the type of data disk for the
     IEC server binding. Valid value is *SAS*(high I/O disk type).
     Changing this parameter creates a new IEC server resource.
   * `size` - (Required, String, ForceNew) Specifies the size of data disk for the
@@ -182,14 +179,29 @@ In addition to all arguments above, the following attributes are exported:
 
 * `edgecloud_id` - The ID of the edgecloud service.
 * `edgecloud_name` - The Name of the edgecloud service.
-* `nics` - An array of one or more network configuration for IEC server.
-* `origin_server_id` : The ID of origin server.
+* `image_name` - The image name of the IEC server.
+* `flavor_name` - The flavor name of the IEC server.
+* `nics` - An array of one or more networks to attach to the IEC server.
+    The object structure is documented below.
+* `volume_attached` - An array of one or more disks to attach to the IEC server.
+    The object structure is documented below.
+* `public_ip` - The EIP address that is associted to the IEC server.
+* `system_disk_id` - The system disk voume ID.
+* `origin_server_id` - The ID of origin server.
 * `status` - The status of IEC server.
 
 The `nics` block supports:
-  * `port` - The port of IEC server.
-  * `mac` - The mac address of IEC server.
-  * `address` - The address of EIP or VIP.
+  * `port` - The port ID corresponding to the IP address on that network.
+  * `mac` - The MAC address of the NIC on that network.
+  * `address` - The IPv4 address of the server on that network.
+
+The `volume_attached` block supports:
+
+  * `volume_id` - The volume ID on that attachment.
+  * `boot_index` - The volume boot index on that attachment.
+  * `size` - The volume size on that attachment.
+  * `type` - The volume type on that attachment.
+  * `device` - The device name in the IEC server.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

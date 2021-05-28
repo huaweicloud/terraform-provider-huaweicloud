@@ -26,12 +26,16 @@ func TestAccIecServerResource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIecServerExists(resourceName, &cloudserver),
 					resource.TestCheckResourceAttr(resourceName, "name", "server-"+rName),
-					resource.TestCheckResourceAttr(resourceName, "nics.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "image_name", "Ubuntu 16.04 server 64bit"),
+					resource.TestCheckResourceAttr(resourceName, "nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "subnet_ids.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "security_groups.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "volume_attached.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_type", "SAS"),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "40"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrSet(resourceName, "system_disk_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "public_ip"),
 				),
 			},
 		},
@@ -111,7 +115,7 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
   name = "subnet-%s"
   cidr = "192.168.0.0/16"
   gateway_ip = "192.168.0.1"
-  vpc_id = huaweicloud_iec_vpc.vpc_test.id
+  vpc_id  = huaweicloud_iec_vpc.vpc_test.id
   site_id = data.huaweicloud_iec_sites.sites_test.sites[0].id
 }
 
@@ -120,15 +124,15 @@ resource "huaweicloud_iec_keypair" "keypair_test" {
 }
 
 resource "huaweicloud_iec_security_group" "secgroup_test" {
-  name = "secgroup-%s"
+  name        = "secgroup-%s"
   description = "this is a test group"
 }
 
 resource "huaweicloud_iec_security_group_rule" "rule_test" {
-  direction = "ingress"
+  direction      = "ingress"
   port_range_min = 445
   port_range_max = 445
-  protocol = "tcp" 
+  protocol       = "tcp"
   security_group_id = huaweicloud_iec_security_group.secgroup_test.id
   remote_ip_prefix = "0.0.0.0/0"
 }

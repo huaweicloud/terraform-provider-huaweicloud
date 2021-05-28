@@ -292,6 +292,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_iec_network_acl":             dataSourceIECNetworkACL(),
 			"huaweicloud_iec_port":                    DataSourceIECPort(),
 			"huaweicloud_iec_security_group":          dataSourceIECSecurityGroup(),
+			"huaweicloud_iec_server":                  dataSourceIECServer(),
 			"huaweicloud_iec_sites":                   dataSourceIecSites(),
 			"huaweicloud_iec_vpc":                     DataSourceIECVpc(),
 			"huaweicloud_iec_vpc_subnets":             DataSourceIECVpcSubnets(),
