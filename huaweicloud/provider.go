@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cce"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cci"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
@@ -431,6 +432,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_node_pool":                   ResourceCCENodePool(),
 			"huaweicloud_cce_namespace":                   cce.ResourceCCENamespaceV1(),
 			"huaweicloud_cce_pvc":                         cce.ResourceCcePersistentVolumeClaimsV1(),
+			"huaweicloud_cci_namespace":                   cci.ResourceCciNamespace(),
 			"huaweicloud_cci_network":                     resourceCCINetworkV1(),
 			"huaweicloud_cci_pvc":                         ResourceCCIPersistentVolumeClaimV1(),
 			"huaweicloud_cdm_cluster":                     ResourceCdmClusterV1(),

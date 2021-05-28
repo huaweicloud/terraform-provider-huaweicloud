@@ -56,7 +56,7 @@ github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 github.com/bgentry/go-netrc/netrc
-# github.com/chnsz/golangsdk v0.0.0-20211030022355-e5b519b9f8fa
+# github.com/chnsz/golangsdk v0.0.0-20211104073851-76d1b6395a61
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -95,6 +95,7 @@ github.com/chnsz/golangsdk/openstack/cce/v3/clusters
 github.com/chnsz/golangsdk/openstack/cce/v3/nodepools
 github.com/chnsz/golangsdk/openstack/cce/v3/nodes
 github.com/chnsz/golangsdk/openstack/cce/v3/templates
+github.com/chnsz/golangsdk/openstack/cci/v1/namespaces
 github.com/chnsz/golangsdk/openstack/cci/v1/networks
 github.com/chnsz/golangsdk/openstack/cci/v1/persistentvolumeclaims
 github.com/chnsz/golangsdk/openstack/cdn/v1/domains
