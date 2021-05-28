@@ -40,7 +40,6 @@ func resourceDmsKafkaInstance() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"engine_version": {
 				Type:     schema.TypeString,
@@ -412,13 +411,16 @@ func resourceDmsKafkaInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 		"security_group_id", "retention_policy", "enterprise_project_id") {
 		description := d.Get("description").(string)
 		updateOpts := instances.UpdateOpts{
-			Name:                d.Get("name").(string),
 			Description:         &description,
 			MaintainBegin:       d.Get("maintain_begin").(string),
 			MaintainEnd:         d.Get("maintain_end").(string),
 			SecurityGroupID:     d.Get("security_group_id").(string),
 			RetentionPolicy:     d.Get("retention_policy").(string),
 			EnterpriseProjectID: d.Get("enterprise_project_id").(string),
+		}
+
+		if d.HasChange("name") {
+			updateOpts.Name = d.Get("name").(string)
 		}
 
 		err = instances.Update(dmsV2Client, d.Id(), updateOpts).Err
@@ -444,11 +446,6 @@ func resourceDmsKafkaInstanceDelete(d *schema.ResourceData, meta interface{}) er
 	dmsV2Client, err := config.DmsV2Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("error creating HuaweiCloud dms instance client: %s", err)
-	}
-
-	_, err = instances.Get(dmsV2Client, d.Id()).Extract()
-	if err != nil {
-		return CheckDeleted(d, err, "instance")
 	}
 
 	err = instances.Delete(dmsV2Client, d.Id()).ExtractErr()
