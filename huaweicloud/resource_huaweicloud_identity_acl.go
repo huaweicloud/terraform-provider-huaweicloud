@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func resourceIdentityACL() *schema.Resource {
+func ResourceIdentityACL() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityACLCreate,
 		Read:   resourceIdentityACLRead,
