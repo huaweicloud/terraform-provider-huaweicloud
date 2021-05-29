@@ -176,3 +176,4 @@ resource "huaweicloud_cce_node_pool" "my_node_pool" {
     ]
   }
 }
+```
