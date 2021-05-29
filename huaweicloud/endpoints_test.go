@@ -377,7 +377,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 
 // TestAccServiceEndpoints_Compute test for endpoints of the clients used in ecs
 // include computeV1Client,computeV11Client,computeV2Client,autoscalingV1Client,imageV2Client,
-// cceV3Client,cceAddonV3Client,cciV1Client and FgsV2Client
+// cceV3Client,cceAddonV3Client,cciV1Client,cciV1BetaClient and FgsV2Client
 func TestAccServiceEndpoints_Compute(t *testing.T) {
 
 	testAccPreCheckServiceEndpoints(t)
@@ -465,6 +465,16 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	// test for cciV1Client
 	serviceClient, err = nil, nil
 	serviceClient, err = config.CciV1Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud cci v1 beta1 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://cci.%s.%s/api/v1/", HW_REGION_NAME, config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	compareURL(expectedURL, actualURL, "cci", "v1", t)
+
+	// test for cciV1BetaClient
+	serviceClient, err = nil, nil
+	serviceClient, err = config.CciV1BetaClient(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cci v1 client: %s", err)
 	}

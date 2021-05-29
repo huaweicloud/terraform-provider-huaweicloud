@@ -376,6 +376,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_cce_addon":                       ResourceCCEAddonV3(),
 			"huaweicloud_cce_node_pool":                   ResourceCCENodePool(),
 			"huaweicloud_cci_network":                     resourceCCINetworkV1(),
+			"huaweicloud_cci_pvc":                         ResourceCCIPersistentVolumeClaimV1(),
 			"huaweicloud_cdm_cluster":                     resourceCdmClusterV1(),
 			"huaweicloud_cdn_domain":                      resourceCdnDomainV1(),
 			"huaweicloud_ces_alarmrule":                   resourceAlarmRule(),

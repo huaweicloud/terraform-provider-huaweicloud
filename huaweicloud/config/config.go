@@ -590,6 +590,10 @@ func (c *Config) AomV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("aom", region)
 }
 
+func (c *Config) CciV1BetaClient(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("cciv1_bata", region)
+}
+
 func (c *Config) CciV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cciv1", region)
 }
