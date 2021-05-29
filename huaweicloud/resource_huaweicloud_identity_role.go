@@ -12,7 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func resourceIdentityRole() *schema.Resource {
+func ResourceIdentityRole() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityRoleCreate,
 		Read:   resourceIdentityRoleRead,
