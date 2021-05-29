@@ -14,13 +14,13 @@ import (
 func TestAccRdsInstanceV3_basic(t *testing.T) {
 	var instance instances.RdsInstanceResponse
 	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceLabel := "huaweicloud_rds_instance"
+	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceLabel),
+		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceType),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRdsInstanceV3_basic(name),
@@ -28,11 +28,11 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "1"),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c6.large.2"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+10:00"),
+					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+08:00"),
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 				),
@@ -43,7 +43,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", name)),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "2"),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c6.xlarge.2"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.xlarge.2"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_updated"),
@@ -66,13 +66,13 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
 	var instance instances.RdsInstanceResponse
 	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceLabel := "huaweicloud_rds_instance"
+	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceLabel),
+		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceType),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRdsInstanceV3_epsId(name),
@@ -88,13 +88,13 @@ func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
 func TestAccRdsInstanceV3_ha(t *testing.T) {
 	var instance instances.RdsInstanceResponse
 	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceLabel := "huaweicloud_rds_instance"
+	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceLabel),
+		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceType),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRdsInstanceV3_ha(name),
@@ -102,11 +102,11 @@ func TestAccRdsInstanceV3_ha(t *testing.T) {
 					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "1"),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c6.large.2.ha"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2.ha"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+10:00"),
+					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+08:00"),
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
 					resource.TestCheckResourceAttr(resourceName, "ha_replication_mode", "async"),
 				),
@@ -115,7 +115,7 @@ func TestAccRdsInstanceV3_ha(t *testing.T) {
 	})
 }
 
-func testAccCheckRdsInstanceV3Destroy(providerRes string) resource.TestCheckFunc {
+func testAccCheckRdsInstanceV3Destroy(rsType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.RdsV3Client(HW_REGION_NAME)
@@ -124,7 +124,7 @@ func testAccCheckRdsInstanceV3Destroy(providerRes string) resource.TestCheckFunc
 		}
 
 		for _, rs := range s.RootModule().Resources {
-			if rs.Type != providerRes {
+			if rs.Type != rsType {
 				continue
 			}
 
@@ -134,7 +134,7 @@ func testAccCheckRdsInstanceV3Destroy(providerRes string) resource.TestCheckFunc
 				return err
 			}
 			if instance.Id != "" {
-				return fmt.Errorf("%s (%s) still exists", providerRes, id)
+				return fmt.Errorf("%s (%s) still exists", rsType, id)
 			}
 		}
 		return nil
@@ -202,22 +202,22 @@ func testAccRdsInstanceV3_basic(name string) string {
 
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s"
-  flavor            = "rds.pg.c6.large.2"
+  flavor            = "rds.pg.n1.large.2"
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
   security_group_id = huaweicloud_networking_secgroup.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   vpc_id            = huaweicloud_vpc.test.id
-  time_zone         = "UTC+10:00"
+  time_zone         = "UTC+08:00"
   fixed_ip          = "192.168.0.58"
 
   db {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
-    version  = "10"
+    version  = "12"
     port     = 8635
   }
   volume {
-    type = "ULTRAHIGH"
+    type = "CLOUDSSD"
     size = 50
   }
   backup_strategy {
@@ -240,21 +240,21 @@ func testAccRdsInstanceV3_update(name string) string {
 
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s-update"
-  flavor            = "rds.pg.c6.xlarge.2"
+  flavor            = "rds.pg.n1.xlarge.2"
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
   security_group_id = huaweicloud_networking_secgroup.test.id
   subnet_id         = huaweicloud_vpc_subnet.test.id
   vpc_id            = huaweicloud_vpc.test.id
-  time_zone         = "UTC+10:00"
+  time_zone         = "UTC+08:00"
 
   db {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
-    version  = "10"
+    version  = "12"
     port     = 8635
   }
   volume {
-    type = "ULTRAHIGH"
+    type = "CLOUDSSD"
     size = 100
   }
   backup_strategy {
@@ -276,7 +276,7 @@ func testAccRdsInstanceV3_epsId(name string) string {
 
 resource "huaweicloud_rds_instance" "test" {
   name                  = "%s"
-  flavor                = "rds.pg.c6.large.2"
+  flavor                = "rds.pg.n1.large.2"
   availability_zone     = [data.huaweicloud_availability_zones.test.names[0]]
   security_group_id     = huaweicloud_networking_secgroup.test.id
   subnet_id             = huaweicloud_vpc_subnet.test.id
@@ -286,11 +286,11 @@ resource "huaweicloud_rds_instance" "test" {
   db {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
-    version  = "10"
+    version  = "12"
     port     = 8635
   }
   volume {
-    type = "ULTRAHIGH"
+    type = "CLOUDSSD"
     size = 50
   }
   backup_strategy {
@@ -307,11 +307,11 @@ func testAccRdsInstanceV3_ha(name string) string {
 
 resource "huaweicloud_rds_instance" "test" {
   name                = "%s"
-  flavor              = "rds.pg.c6.large.2.ha"
+  flavor              = "rds.pg.n1.large.2.ha"
   security_group_id   = huaweicloud_networking_secgroup.test.id
   subnet_id           = huaweicloud_vpc_subnet.test.id
   vpc_id              = huaweicloud_vpc.test.id
-  time_zone           = "UTC+10:00"
+  time_zone           = "UTC+08:00"
   fixed_ip            = "192.168.0.58"
   ha_replication_mode = "async"
   availability_zone   = [
@@ -322,11 +322,11 @@ resource "huaweicloud_rds_instance" "test" {
   db {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
-    version  = "10"
+    version  = "12"
     port     = 8635
   }
   volume {
-    type = "ULTRAHIGH"
+    type = "CLOUDSSD"
     size = 50
   }
   backup_strategy {

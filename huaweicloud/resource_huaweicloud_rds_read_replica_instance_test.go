@@ -12,22 +12,22 @@ import (
 func TestAccRdsReadReplicaInstance_basic(t *testing.T) {
 	var replica instances.RdsInstanceResponse
 	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceLabel := "huaweicloud_rds_read_replica_instance"
+	resourceType := "huaweicloud_rds_read_replica_instance"
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceLabel),
+		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceType),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccReadRdsReplicaInstance_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceV3Exists(resourceName, &replica),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c6.large.2.rr"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2.rr"),
 					resource.TestCheckResourceAttr(resourceName, "type", "Replica"),
-					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "ULTRAHIGH"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -37,9 +37,9 @@ func TestAccRdsReadReplicaInstance_basic(t *testing.T) {
 				Config: testAccReadRdsReplicaInstance_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceV3Exists(resourceName, &replica),
-					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.c6.xlarge.2.rr"),
-					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "ULTRAHIGH"),
-					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "120"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.xlarge.2.rr"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar2"),
 				),
@@ -59,13 +59,13 @@ func TestAccRdsReadReplicaInstance_basic(t *testing.T) {
 func TestAccRdsReadReplicaInstance_withEpsId(t *testing.T) {
 	var replica instances.RdsInstanceResponse
 	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceLabel := "huaweicloud_rds_read_replica_instance"
+	resourceType := "huaweicloud_rds_read_replica_instance"
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckEpsID(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceLabel),
+		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceType),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccReadRdsReplicaInstance_withEpsId(name),
@@ -84,7 +84,7 @@ func testAccReadRdsReplicaInstanceV3_base(name string) string {
 
 resource "huaweicloud_rds_instance" "test" {
   name              = "%s"
-  flavor            = "rds.pg.c6.large.2"
+  flavor            = "rds.pg.n1.large.2"
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
   security_group_id = huaweicloud_networking_secgroup.test.id
   vpc_id            = huaweicloud_vpc.test.id
@@ -93,11 +93,11 @@ resource "huaweicloud_rds_instance" "test" {
   db {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
-    version  = "10"
+    version  = "12"
     port     = 8635
   }
   volume {
-    type = "ULTRAHIGH"
+    type = "CLOUDSSD"
     size = 50
   }
 }
@@ -110,12 +110,12 @@ func testAccReadRdsReplicaInstance_basic(name string) string {
 
 resource "huaweicloud_rds_read_replica_instance" "test" {
   name                = "%s"
-  flavor              = "rds.pg.c6.large.2.rr"
+  flavor              = "rds.pg.n1.large.2.rr"
   primary_instance_id = huaweicloud_rds_instance.test.id
   availability_zone   = data.huaweicloud_availability_zones.test.names[0]
 
   volume {
-    type = "ULTRAHIGH"
+    type = "CLOUDSSD"
   }
 
   tags = {
@@ -132,13 +132,12 @@ func testAccReadRdsReplicaInstance_update(name string) string {
 
 resource "huaweicloud_rds_read_replica_instance" "test" {
   name                = "%s"
-  flavor              = "rds.pg.c6.xlarge.2.rr"
+  flavor              = "rds.pg.n1.xlarge.2.rr"
   primary_instance_id = huaweicloud_rds_instance.test.id
   availability_zone   = data.huaweicloud_availability_zones.test.names[0]
 
   volume {
-	type = "ULTRAHIGH"
-	size = 120
+	type = "CLOUDSSD"
   }
 
   tags = {
@@ -155,12 +154,13 @@ func testAccReadRdsReplicaInstance_withEpsId(name string) string {
 
 resource "huaweicloud_rds_read_replica_instance" "test" {
   name                  = "%s"
-  flavor                = "rds.pg.c6.large.2.rr"
+  flavor                = "rds.pg.n1.large.2.rr"
   primary_instance_id   = huaweicloud_rds_instance.test.id
   availability_zone     = data.huaweicloud_availability_zones.test.names[0]
   enterprise_project_id = "%s"
+
   volume {
-    type = "ULTRAHIGH"
+    type = "CLOUDSSD"
   }
 }
 `, testAccReadRdsReplicaInstanceV3_base(name), name, HW_ENTERPRISE_PROJECT_ID_TEST)
