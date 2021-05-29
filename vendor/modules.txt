@@ -435,8 +435,6 @@ github.com/huaweicloud/golangsdk/openstack/opengauss/v3/backups
 github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances
 github.com/huaweicloud/golangsdk/openstack/rds/v3/backups
 github.com/huaweicloud/golangsdk/openstack/rds/v3/configurations
-github.com/huaweicloud/golangsdk/openstack/rds/v3/datastores
-github.com/huaweicloud/golangsdk/openstack/rds/v3/flavors
 github.com/huaweicloud/golangsdk/openstack/rds/v3/instances
 github.com/huaweicloud/golangsdk/openstack/rts/v1/softwareconfig
 github.com/huaweicloud/golangsdk/openstack/rts/v1/stackresources

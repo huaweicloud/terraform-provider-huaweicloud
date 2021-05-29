@@ -2,9 +2,9 @@
 subcategory: "Relational Database Service (RDS)"
 ---
 
-# huaweicloud\_rds\_instance
+# huaweicloud_rds_instance
 
-Manage RDS instance resource
+Manage RDS instance resource within HuaweiCloud.
 This is an alternative to `huaweicloud_rds_instance_v3`
 
 ## Example Usage
@@ -18,22 +18,24 @@ resource "huaweicloud_networking_secgroup" "secgroup" {
 }
 
 resource "huaweicloud_rds_instance" "instance" {
-  availability_zone = ["{{ availability_zone }}"]
-  db {
-    password = "Huangwei!120521"
-    type     = "PostgreSQL"
-    version  = "9.5"
-    port     = "8635"
-  }
   name              = "terraform_test_rds_instance"
-  security_group_id = huaweicloud_networking_secgroup.secgroup.id
-  subnet_id         = "{{ subnet_id }}"
+  flavor            = "rds.pg.n1.large.2"
   vpc_id            = "{{ vpc_id }}"
+  subnet_id         = "{{ subnet_id }}"
+  security_group_id = huaweicloud_networking_secgroup.secgroup.id
+  availability_zone = ["{{ availability_zone }}"]
+
+  db {
+    type     = "PostgreSQL"
+    version  = "12"
+    password = "Huangwei!120521"
+  }
+
   volume {
     type = "ULTRAHIGH"
     size = 100
   }
-  flavor = "rds.pg.c2.large"
+
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = 1
@@ -50,23 +52,23 @@ resource "huaweicloud_networking_secgroup" "secgroup" {
 }
 
 resource "huaweicloud_rds_instance" "instance" {
-  availability_zone = ["{{ availability_zone_1 }}", "{{ availability_zone_2 }}"]
+  name                = "terraform_test_rds_instance"
+  flavor              = "rds.pg.n1.large.2.ha"
+  ha_replication_mode = "async"
+  vpc_id              = "{{ vpc_id }}"
+  subnet_id           = "{{ subnet_id }}"
+  security_group_id   = huaweicloud_networking_secgroup.secgroup.id
+  availability_zone   = ["{{ availability_zone_1 }}", "{{ availability_zone_2 }}"]
+
   db {
-    password = "Huangwei!120521"
     type     = "PostgreSQL"
-    version  = "9.5"
-    port     = "8635"
+    version  = "12"
+    password = "Huangwei!120521"
   }
-  name              = "terraform_test_rds_instance"
-  security_group_id = huaweicloud_networking_secgroup.secgroup.id
-  subnet_id         = "{{ subnet_id }}"
-  vpc_id            = "{{ vpc_id }}"
   volume {
     type = "ULTRAHIGH"
     size = 100
   }
-  flavor              = "rds.pg.s1.large.ha"
-  ha_replication_mode = "async"
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = 1
@@ -89,23 +91,23 @@ resource "huaweicloud_networking_secgroup" "secgroup" {
 }
 
 resource "huaweicloud_rds_instance" "instance" {
-  availability_zone = ["{{ availability_zone }}"]
-  db {
-    password = "Huangwei!120521"
-    type     = "PostgreSQL"
-    version  = "9.5"
-    port     = "8635"
-  }
   name              = "terraform_test_rds_instance"
-  security_group_id = huaweicloud_networking_secgroup.secgroup.id
-  subnet_id         = "{{ subnet_id }}"
+  flavor            = "rds.pg.n1.large.2"
   vpc_id            = "{{ vpc_id }}"
+  subnet_id         = "{{ subnet_id }}"
+  security_group_id = huaweicloud_networking_secgroup.secgroup.id
+  availability_zone = ["{{ availability_zone }}"]
+
+  db {
+    type     = "PostgreSQL"
+    version  = "12"
+    password = "Huangwei!120521"
+  }
   volume {
-    disk_encryption_id = huaweicloud_kms_key.key.id
     type               = "ULTRAHIGH"
     size               = 100
+    disk_encryption_id = huaweicloud_kms_key.key.id
   }
-  flavor = "rds.pg.c2.large"
   backup_strategy {
     start_time = "08:00-09:00"
     keep_days  = 1
@@ -120,7 +122,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the rds instance resource.
   If omitted, the provider-level region will be used. Changing this creates a new rds instance resource.
 
-* `availability_zone` - (Required, String, ForceNew) Specifies the AZ name.
+* `availability_zone` - (Required, List, ForceNew) Specifies the list of AZ name.
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the DB instance name. The DB instance name of the same type
@@ -128,6 +130,8 @@ The following arguments are supported:
   It is case-sensitive and can contain only letters, digits, hyphens (-), and underscores (_).
 
 * `flavor` - (Required, String) Specifies the specification code.
+
+  -> **NOTE:** Services will be interrupted for 5 to 10 minutes when you change RDS instance flavor.
 
 * `db` - (Required, String, ForceNew) Specifies the database information. Structure is documented below.
   Changing this parameter will create a new resource.
@@ -148,10 +152,14 @@ The following arguments are supported:
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 
 * `ha_replication_mode` - (Optional, String, ForceNew) Specifies the replication mode for the standby DB instance.
-  For MySQL, the value is *async* or *semisync*. For PostgreSQL, the value is *async* or *sync*.
-  For Microsoft SQL Server, the value is *sync*. NOTE: async indicates the asynchronous replication mode.
-  semisync indicates the semi-synchronous replication mode. sync indicates the synchronous replication mode.
   Changing this parameter will create a new resource.
+  - For MySQL, the value is *async* or *semisync*.
+  - For PostgreSQL, the value is *async* or *sync*.
+  - For Microsoft SQL Server, the value is *sync*.
+
+  -> **NOTE:** async indicates the asynchronous replication mode.
+    semisync indicates the semi-synchronous replication mode.
+    sync indicates the synchronous replication mode.
 
 * `param_group_id` - (Optional, String, ForceNew) Specifies the parameter group ID.
   Changing this parameter will create a new resource.
@@ -160,7 +168,8 @@ The following arguments are supported:
   For MySQL and PostgreSQL Chinese mainland site and international site use UTC by default. 
   The value ranges from UTC-12:00 to UTC+12:00 at the full hour. 
   For Microsoft SQL Server international site use UTC by default and Chinese mainland site use China Standard Time. 
-  The time zone is expressed as a character string, refer to [HuaweiCloud Document](https://support.huaweicloud.com/intl/en-us/api-rds/rds_01_0002.html#rds_01_0002__table613473883617).
+  The time zone is expressed as a character string, refer to
+  [HuaweiCloud Document](https://support.huaweicloud.com/intl/en-us/api-rds/rds_01_0002.html#rds_01_0002__table613473883617).
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the RDS DB instance.
   Valid values are *prePaid* and *postPaid*, defaults to *postPaid*.
@@ -186,59 +195,56 @@ The following arguments are supported:
 
 The `db` block supports:
 
+* `type` - (Required, String,  ForceNew) Specifies the DB engine. Available value are *MySQL*, *PostgreSQL* and *SQLServer*.
+  Changing this parameter will create a new resource.
+
+* `version` - (Required, String,  ForceNew) Specifies the database version.
+   Changing this parameter will create a new resource. Available values detailed in
+  [DB Engines and Versions](https://support.huaweicloud.com/intl/en-us/productdesc-rds/en-us_topic_0043898356.html).
+
 * `password` - (Required, String, ForceNew) Specifies the database password. The value cannot be
   empty and should contain 8 to 32 characters, including uppercase
   and lowercase letters, digits, and the following special
   characters: ~!@#%^*-_=+? You are advised to enter a strong
   password to improve security, preventing security risks such as
-  brute force cracking.  Changing this parameter will create a new resource.
+  brute force cracking. Changing this parameter will create a new resource.
 
-* `port` - (Optional, Int,  ForceNew) Specifies the database port information. The MySQL database port
-  ranges from 1024 to 65535 (excluding 12017 and 33071, which are
-  occupied by the RDS system and cannot be used). The PostgreSQL
-  database port ranges from 2100 to 9500. The Microsoft SQL Server
-  database port can be 1433 or ranges from 2100 to 9500, excluding
-  5355 and 5985. If this parameter is not set, the default value is
-  as follows: For MySQL, the default value is 3306. For PostgreSQL,
-  the default value is 5432. For Microsoft SQL Server, the default
-  value is 1433.  Changing this parameter will create a new resource.
-
-* `type` - (Required, String,  ForceNew) Specifies the DB engine. Value: *MySQL*, *PostgreSQL*, *SQLServer*.
-  Changing this parameter will create a new resource.
-
-* `version` - (Required, String,  ForceNew) Specifies the database version. Changing this parameter will create a new resource.
-  Available value for attributes:
-
-type | version
----- | ---
-MySQL| 5.6 <br>5.7  <br>8.0 <br>*8.0 is available only for users with the required permission.* <br>*You can contact customer service to apply for the permission.*
-PostgreSQL | 9.5 <br> 9.6 <br>10 <br>11
-SQLServer| 2008_R2_EE <br>2008_R2_WEB <br>2012_SE <br>2014_SE <br>2016_SE <br>2017_SE <br>2012_EE <br>2014_EE <br>2016_EE <br>2017_EE <br>2012_WEB <br>2014_WEB <br>2016_WEB <br>2017_WEB
+* `port` - (Optional, Int,  ForceNew) Specifies the database port. Changing this parameter will create a new resource.
+  - The MySQL database port ranges from 1024 to 65535 (excluding 12017 and 33071, which are
+    occupied by the RDS system and cannot be used). The default value is 3306.
+  - The PostgreSQL database port ranges from 2100 to 9500. The default value is 5432.
+  - The Microsoft SQL Server database port can be 1433 or ranges from 2100 to 9500,
+    excluding 5355 and 5985. The default value is 1433.
 
 The `volume` block supports:
 
 * `size` - (Required, Int) Specifies the volume size. Its value range is from 40 GB to 4000
-  GB. The value must be a multiple of 10. Changing this resize the volume.
+  GB. The value must be a multiple of 10 and greater than the original size.
 
 * `type` - (Required, String, ForceNew) Specifies the volume type. Its value can be any of the following
   and is case-sensitive:
-    - ULTRAHIGH: indicates the SSD type.
-    - LOCALSSD: indicates the local SSD.
+    - *ULTRAHIGH*: SSD storage.
+    - *LOCALSSD*: local SSD storage.
+    - *CLOUDSSD*: cloud SSD storage. This storage type is supported only with general-purpose and dedicated DB instances.
+    - *ESSD*: extreme SSD storage.
 
+  Changing this parameter will create a new resource. For details about volume types, see
+  [DB Instance Storage Types](https://support.huaweicloud.com/intl/en-us/productdesc-rds/rds_01_0020.html).
+
+* `disk_encryption_id` - (Optional) Specifies the key ID for disk encryption.
   Changing this parameter will create a new resource.
-
-* `disk_encryption_id` - (Optional) Specifies the key ID for disk encryption. Changing this parameter will create a new resource.
 
 The `backup_strategy` block supports:
 
-* `keep_days` - (Optional, Int) Specifies the retention days for specific backup files. The value
-  range is from 0 to 732. If this parameter is not specified or set
-  to 0, the automated backup policy is disabled. NOTICE:
-  Primary/standby DB instances of Microsoft SQL Server do not
+* `keep_days` - (Optional, Int) Specifies the retention days for specific backup files.
+  The value range is from 0 to 732. If this parameter is not specified or set to 0,
+  the automated backup policy is disabled.
+
+  -> **NOTE:** Primary/standby DB instances of Microsoft SQL Server do not
   support disabling the automated backup policy.
 
 * `start_time` - (Required, String) Specifies the backup time window. Automated backups will be
-  triggered during the backup time window. It must be a valid value in the &quot;hh:mm-HH:MM&quot;
+  triggered during the backup time window. It must be a valid value in the **hh:mm-HH:MM**
   format. The current time is in the UTC format. The HH value must
   be 1 greater than the hh value. The values of mm and MM must be
   the same and must be set to any of the following: 00, 15, 30, or 45.

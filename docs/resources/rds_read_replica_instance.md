@@ -2,7 +2,7 @@
 subcategory: "Relational Database Service (RDS)"
 ---
 
-# huaweicloud\_rds\_read\_replica\_instance
+# huaweicloud_rds_read_replica_instance
 
 Manage RDS Read Replica Instance resource.
 
@@ -17,17 +17,17 @@ resource "huaweicloud_networking_secgroup" "secgroup" {
 
 resource "huaweicloud_rds_instance" "instance" {
   name                  = "terraform_test_rds_instance"
-  flavor                = "rds.pg.c2.medium"
-  availability_zone     = ["{{ availability_zone }}"]
-  security_group_id     = huaweicloud_networking_secgroup.secgroup.id
+  flavor                = "rds.pg.n1.large.2"
+  availability_zone     = ["{{ availability_zone }}"]  
   vpc_id                = "{{ vpc_id }}"
   subnet_id             = "{{ subnet_id }}"
+  security_group_id     = huaweicloud_networking_secgroup.secgroup.id
   enterprise_project_id = "{{ enterprise_project_id }}"
 
   db {
-    password    = "Huangwei!120521"
     type        = "PostgreSQL"
-    version     = "10"
+    version     = "12"
+    password    = "Huangwei!120521"
     port        = "8635"
   }
   volume {
@@ -41,8 +41,8 @@ resource "huaweicloud_rds_instance" "instance" {
 }
 
 resource "huaweicloud_rds_read_replica_instance" "replica_instance" {
-  name                  = "terraform_test_rds_read_replica_instance"
-  flavor                = "rds.pg.c2.medium.rr"
+  name                  = "test_rds_readonly_instance"
+  flavor                = "rds.pg.n1.large.2.rr"
   primary_instance_id   = huaweicloud_rds_instance.instance.id
   availability_zone     = "{{ availability_zone }}"
   enterprise_project_id = "{{ enterprise_project_id }}"
@@ -75,6 +75,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `volume` - (Required, List, ForceNew) Specifies the volume information. Structure is documented below.
+  Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the read replica instance.
   Changing this parameter will create a new resource.
@@ -84,8 +85,10 @@ The following arguments are supported:
 The `volume` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the volume type. Its value can be any of the following and is case-sensitive: 
-    - ULTRAHIGH: indicates the SSD type.
-    - LOCALSSD: indicates the local SSD.
+    - *ULTRAHIGH*: SSD storage.
+    - *LOCALSSD*: local SSD storage.
+    - *CLOUDSSD*: cloud SSD storage. This storage type is supported only with general-purpose and dedicated DB instances.
+    - *ESSD*: extreme SSD storage.
 
   Changing this parameter will create a new resource.
 
