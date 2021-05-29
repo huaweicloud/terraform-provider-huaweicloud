@@ -124,7 +124,7 @@ The following arguments are supported:
     Changing this creates a new instance resource.
 
 * `maintain_begin` - (Optional, String) Specifies the time at which a maintenance time window starts.
-    Format: HH:mm:ss.
+    Format: HH:mm.
     The start time and end time of a maintenance time window must indicate the time segment of
 	a supported maintenance time window. The start time must be set to 22:00, 02:00, 06:00, 10:00,
     14:00, or 18:00. Parameters `maintain_begin` and `maintain_end` must be set in pairs. If
@@ -132,7 +132,7 @@ The following arguments are supported:
     the system automatically allocates the default start time 02:00.
 
 * `maintain_end` - (Optional, String) Specifies the time at which a maintenance time window ends.
-    Format: HH:mm:ss.
+    Format: HH:mm.
     The start time and end time of a maintenance time window must indicate the time segment of
 	a supported maintenance time window. The end time is four hours later than the start time.
     For example, if the start time is 22:00, the end time is 02:00. Parameters `maintain_begin`
@@ -177,7 +177,7 @@ In addition to all arguments above, the following attributes are exported:
 * `port` - Indicates the port number of the DMS kafka instance.
 * `status` - Indicates the status of the DMS kafka instance.
 * `ssl_enable` - Indicates whether the SSL-encrypted access is enabled.
-* `enable_publicip` - Indicates whether public access to the DMS kafka instance is enabled.
+* `enable_public_ip` - Indicates whether public access to the DMS kafka instance is enabled.
 * `resource_spec_code` - Indicates a resource specifications identifier.
 * `type` - Indicates the DMS kafka instance type.
 * `user_id` - Indicates the ID of the user who created the DMS kafka instance

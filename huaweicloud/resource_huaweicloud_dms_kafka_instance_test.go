@@ -131,7 +131,7 @@ func testAccCheckDmsKafkaInstanceExists(n string, instance instances.Instance) r
 	}
 }
 
-func testAccDmsKafkaInstance_basic(rName string) string {
+func testAccDmsKafkaInstance_Base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_dms_az" "test" {}
 
@@ -153,6 +153,12 @@ resource "huaweicloud_networking_secgroup" "test" {
   name        = "%s"
   description = "secgroup for kafka"
 }
+`, rName)
+}
+
+func testAccDmsKafkaInstance_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_dms_kafka_instance" "test" {
   name              = "%s"
@@ -176,31 +182,12 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     owner = "terraform"
   }
 }
-`, rName, rName)
+`, testAccDmsKafkaInstance_Base(rName), rName)
 }
 
 func testAccDmsKafkaInstance_update(rName, updateName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_dms_az" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_dms_product" "test" {
-  engine        = "kafka"
-  instance_type = "cluster"
-  version       = "2.3.0"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%s"
-  description = "secgroup for kafka"
-}
+%s
 
 resource "huaweicloud_dms_kafka_instance" "test" {
   name              = "%s"
@@ -224,31 +211,12 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     owner = "terraform_update"
   }
 }
-`, rName, updateName)
+`, testAccDmsKafkaInstance_Base(rName), updateName)
 }
 
 func testAccDmsKafkaInstance_withEpsId(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_dms_az" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_dms_product" "test" {
-  engine        = "kafka"
-  instance_type = "cluster"
-  version       = "2.3.0"
-}
-
-resource "huaweicloud_networking_secgroup" "test" {
-  name        = "%s"
-  description = "secgroup for kafka"
-}
+%s
 
 resource "huaweicloud_dms_kafka_instance" "test" {
   name                  = "%s"
@@ -273,5 +241,5 @@ resource "huaweicloud_dms_kafka_instance" "test" {
     owner = "terraform"
   }
 }
-`, rName, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccDmsKafkaInstance_Base(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
