@@ -2,7 +2,7 @@
 subcategory: "Auto Scaling"
 ---
 
-# huaweicloud\_as\_lifecycle\_hook
+# huaweicloud_as_lifecycle_hook
 
 Manages an AS Lifecycle Hook resource within HuaweiCloud.
 
@@ -20,7 +20,7 @@ variable "smn_topic_urn" {}
 resource "huaweicloud_as_lifecycle_hook" "test" {
   name                   = var.hook_name
   type                   = "ADD"
-  group_id               = var.as_group_id
+  scaling_group_id       = var.as_group_id
   default_result         = "ABANDON"
   notification_topic_urn = var.smn_topic_urn
   notification_message   = "This is a test message"
