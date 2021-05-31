@@ -18,7 +18,7 @@ func TestAccDmsInstancesV1_Rabbitmq(t *testing.T) {
 	resourceName := "huaweicloud_dms_instance.instance_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDms(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDmsV1InstanceDestroy,
 		Steps: []resource.TestStep{
@@ -52,7 +52,7 @@ func TestAccDmsInstancesV1_Kafka(t *testing.T) {
 	resourceName := "huaweicloud_dms_instance.instance_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDms(t) },
+		PreCheck:     func() { testAccPreCheckDeprecated(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDmsV1InstanceDestroy,
 		Steps: []resource.TestStep{

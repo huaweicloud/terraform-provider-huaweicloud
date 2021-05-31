@@ -24,6 +24,7 @@ func resourceDmsInstancesV1() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		DeprecationMessage: "use huaweicloud_dms_kafka_instance or huaweicloud_dms_rabbitmq_instance instead",
 
 		Schema: map[string]*schema.Schema{
 			"region": {

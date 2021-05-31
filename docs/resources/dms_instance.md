@@ -1,8 +1,11 @@
 ---
-subcategory: "Distributed Message Service (DMS)"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud\_dms\_instance
+
+!> **Warning:** It has been deprecated, use `huaweicloud_dms_kafka_instance` or
+    `huaweicloud_dms_rabbitmq_instance` instead.
 
 Manages a DMS instance in the huaweicloud DMS Service.
 This is an alternative to `huaweicloud_dms_instance_v1`
