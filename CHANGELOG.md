@@ -1,3 +1,46 @@
+## 1.25.0 (May 31, 2021)
+
+FEATURES:
+* **New Data Source:** `huaweicloud_cce_addon_template` ([#1039](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1039))
+* **New Data Source:** `huaweicloud_iec_port` ([#1152](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1152))
+* **New Data Source:** `huaweicloud_iec_vpc` ([#1152](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1152))
+* **New Data Source:** `huaweicloud_iec_vpc_subnets` ([#1152](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1152))
+* **New Data Source:** `huaweicloud_iec_network_acl` ([#1159](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1159))
+* **New Data Source:** `huaweicloud_iec_security_group` ([#1159](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1159))
+* **New Data Source:** `huaweicloud_iec_eips` ([#1164](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1164))
+* **New Data Source:** `huaweicloud_iec_keypair` ([#1164](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1164))
+* **New Data Source:** `huaweicloud_iec_server` ([#1169](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1169))
+* **New Resource:** `huaweicloud_as_lifecycle_hook` ([#1069](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1069))
+* **New Resource:** `huaweicloud_cci_pvc` ([#1081](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1081))
+* **New Resource:** `huaweicloud_elb_listener` ([#1021](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1021))
+* **New Resource:** `huaweicloud_elb_certificate` ([#1148](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1148))
+* **New Resource:** `huaweicloud_elb_ipgroup` ([#1148](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1148))
+* **New Resource:** `huaweicloud_elb_pool` ([#1150](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1150))
+* **New Resource:** `huaweicloud_elb_member` ([#1150](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1150))
+* **New Resource:** `huaweicloud_elb_l7policy` ([#1161](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1161))
+* **New Resource:** `huaweicloud_elb_l7rule` ([#1161](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1161))
+* **New Resource:** `huaweicloud_elb_monitor` ([#1163](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1163))
+* **New Resource:** `huaweicloud_dms_kafka_instance` ([#1162](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1162))
+* **New Resource:** `huaweicloud_dms_rabbitmq_instance` ([#1170](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1170))
+
+ENHANCEMENTS:
+* resource/huaweicloud_cce_node: Support import function ([#958](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/958))
+* resource/huaweicloud_cce_node_pool: Support import function ([#1005](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1005))
+* resource/huaweicloud_compute_instance: Support power action ([#914](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/914))
+* resource/huaweicloud_fgs_function: Support to update parameters ([#1140](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1040))
+* resource/huaweicloud_iec_vpc_subnet: Set the default DNS list if it was not specified ([#1157](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1157))
+* enterprise_project_id support:
+    - `huaweicloud_ces_alarmrule`: ([1137](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1137))
+    - `huaweicloud_dds_instance`: ([#1145](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1145))
+
+BUG FIXES:
+* data/huaweicloud_vpc_route_ids: Make list instead of set for ids ([#1141](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1141))
+* resource/huaweicloud_compute_instance: Support security_group_ids parameter ([#1128](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1128))
+
+DEPRECATE:
+* resource/huaweicloud_dms_instance: ([#1176](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1176))
+
+
 ## 1.24.2 (May 18, 2021)
 
 BUG FIXES:
