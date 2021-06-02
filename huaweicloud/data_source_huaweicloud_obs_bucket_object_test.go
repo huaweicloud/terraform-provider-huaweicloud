@@ -13,9 +13,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func TestAccHuaweiCloudObsBucketObjectDataSource_content(t *testing.T) {
+func TestAccObsBucketObjectDataSource_content(t *testing.T) {
 	rInt := acctest.RandInt()
-	resourceConf, dataSourceConf := testAccHuaweiCloudObsBucketObjectDataSource_content(rInt)
+	dataSourceName := "data.huaweicloud_obs_bucket_object.obj"
+	resourceConf, dataSourceConf := testAccObsBucketObjectDataSource_content(rInt)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                  func() { testAccPreCheckOBS(t) },
@@ -31,16 +32,17 @@ func TestAccHuaweiCloudObsBucketObjectDataSource_content(t *testing.T) {
 			{
 				Config: dataSourceConf,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAwsObsObjectDataSourceExists("data.huaweicloud_obs_bucket_object.obj"),
-					resource.TestCheckResourceAttr("data.huaweicloud_obs_bucket_object.obj", "content_type", "binary/octet-stream"),
-					resource.TestCheckResourceAttr("data.huaweicloud_obs_bucket_object.obj", "storage_class", "STANDARD"),
+					testAccCheckAwsObsObjectDataSourceExists(dataSourceName),
+					resource.TestCheckResourceAttr(dataSourceName, "content_type", "binary/octet-stream"),
+					resource.TestCheckResourceAttr(dataSourceName, "storage_class", "STANDARD"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccHuaweiCloudObsBucketObjectDataSource_source(t *testing.T) {
+func TestAccObsBucketObjectDataSource_source(t *testing.T) {
+	dataSourceName := "data.huaweicloud_obs_bucket_object.obj"
 	tmpFile, err := ioutil.TempFile("", "tf-acc-obs-obj-source")
 	if err != nil {
 		t.Fatal(err)
@@ -58,7 +60,7 @@ func TestAccHuaweiCloudObsBucketObjectDataSource_source(t *testing.T) {
 	}
 	tmpFile.Close()
 
-	resourceConf, dataSourceConf := testAccHuaweiCloudObsBucketObjectDataSource_source(rInt, tmpFile.Name())
+	resourceConf, dataSourceConf := testAccObsBucketObjectDataSource_source(rInt, tmpFile.Name())
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                  func() { testAccPreCheckOBS(t) },
@@ -74,18 +76,19 @@ func TestAccHuaweiCloudObsBucketObjectDataSource_source(t *testing.T) {
 			{
 				Config: dataSourceConf,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAwsObsObjectDataSourceExists("data.huaweicloud_obs_bucket_object.obj"),
-					resource.TestCheckResourceAttr("data.huaweicloud_obs_bucket_object.obj", "content_type", "binary/octet-stream"),
-					resource.TestCheckResourceAttr("data.huaweicloud_obs_bucket_object.obj", "storage_class", "STANDARD"),
+					testAccCheckAwsObsObjectDataSourceExists(dataSourceName),
+					resource.TestCheckResourceAttr(dataSourceName, "content_type", "binary/octet-stream"),
+					resource.TestCheckResourceAttr(dataSourceName, "storage_class", "STANDARD"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccHuaweiCloudObsBucketObjectDataSource_allParams(t *testing.T) {
+func TestAccObsBucketObjectDataSource_allParams(t *testing.T) {
 	rInt := acctest.RandInt()
-	resourceConf, dataSourceConf := testAccHuaweiCloudObsBucketObjectDataSource_allParams(rInt)
+	dataSourceName := "data.huaweicloud_obs_bucket_object.obj"
+	resourceConf, dataSourceConf := testAccObsBucketObjectDataSource_allParams(rInt)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                  func() { testAccPreCheckOBS(t) },
@@ -101,9 +104,9 @@ func TestAccHuaweiCloudObsBucketObjectDataSource_allParams(t *testing.T) {
 			{
 				Config: dataSourceConf,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAwsObsObjectDataSourceExists("data.huaweicloud_obs_bucket_object.obj"),
-					resource.TestCheckResourceAttr("data.huaweicloud_obs_bucket_object.obj", "content_type", "application/unknown"),
-					resource.TestCheckResourceAttr("data.huaweicloud_obs_bucket_object.obj", "storage_class", "STANDARD"),
+					testAccCheckAwsObsObjectDataSourceExists(dataSourceName),
+					resource.TestCheckResourceAttr(dataSourceName, "content_type", "application/unknown"),
+					resource.TestCheckResourceAttr(dataSourceName, "storage_class", "STANDARD"),
 				),
 			},
 		},
@@ -155,71 +158,80 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccHuaweiCloudObsBucketObjectDataSource_content(randInt int) (string, string) {
+func testAccObsBucketObjectDataSource_content(randInt int) (string, string) {
 	resource := fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
-	bucket = "tf-object-test-bucket-%d"
+  bucket = "tf-acc-test-bucket-%d"
 }
+
 resource "huaweicloud_obs_bucket_object" "object" {
-	bucket = huaweicloud_obs_bucket.object_bucket.bucket
-	key = "test-key-%d"
-	content = "some_bucket_content"
+  bucket  = huaweicloud_obs_bucket.object_bucket.bucket
+  key     = "test-key-%d"
+  content = "some_bucket_content"
 }
 `, randInt, randInt)
 
-	dataSource := fmt.Sprintf(`%s
+	dataSource := fmt.Sprintf(`
+%s
+
 data "huaweicloud_obs_bucket_object" "obj" {
-	bucket = "tf-object-test-bucket-%d"
-	key = "test-key-%d"
+  bucket = "tf-acc-test-bucket-%d"
+  key    = "test-key-%d"
 }`, resource, randInt, randInt)
 
 	return resource, dataSource
 }
 
-func testAccHuaweiCloudObsBucketObjectDataSource_source(randInt int, source string) (string, string) {
+func testAccObsBucketObjectDataSource_source(randInt int, source string) (string, string) {
 	resource := fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
-	bucket = "tf-object-test-bucket-%d"
+  bucket = "tf-acc-test-bucket-%d"
 }
+
 resource "huaweicloud_obs_bucket_object" "object" {
-	bucket = huaweicloud_obs_bucket.object_bucket.bucket
-	key = "test-key-%d"
-	source = "%s"
-	content_type = "binary/octet-stream"
+  bucket       = huaweicloud_obs_bucket.object_bucket.bucket
+  key          = "test-key-%d"
+  source       = "%s"
+  content_type = "binary/octet-stream"
 }
 `, randInt, randInt, source)
 
-	dataSource := fmt.Sprintf(`%s
+	dataSource := fmt.Sprintf(`
+%s
+
 data "huaweicloud_obs_bucket_object" "obj" {
-	bucket = "tf-object-test-bucket-%d"
-	key = "test-key-%d"
+  bucket = "tf-acc-test-bucket-%d"
+  key    = "test-key-%d"
 }`, resource, randInt, randInt)
 
 	return resource, dataSource
 }
 
-func testAccHuaweiCloudObsBucketObjectDataSource_allParams(randInt int) (string, string) {
+func testAccObsBucketObjectDataSource_allParams(randInt int) (string, string) {
 	resource := fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
-	bucket = "tf-object-test-bucket-%d"
+  bucket = "tf-acc-test-bucket-%d"
 }
+
 resource "huaweicloud_obs_bucket_object" "object" {
-	bucket = huaweicloud_obs_bucket.object_bucket.bucket
-	key = "test-key-%d"
-	content = <<CONTENT
-	{"msg": "Hi there!"}
+  bucket        = huaweicloud_obs_bucket.object_bucket.bucket
+  key           = "test-key-%d"
+  acl           = "private"
+  storage_class = "STANDARD"
+  encryption    = true
+  content_type  = "application/unknown"
+  content       = <<CONTENT
+    {"msg": "Hi there!"}
 CONTENT
-	acl = "private"
-	content_type = "application/unknown"
-	storage_class = "STANDARD"
-	encryption = true
 }
 `, randInt, randInt)
 
-	dataSource := fmt.Sprintf(`%s
+	dataSource := fmt.Sprintf(`
+%s
+
 data "huaweicloud_obs_bucket_object" "obj" {
-	bucket = "tf-object-test-bucket-%d"
-	key = "test-key-%d"
+  bucket = "tf-acc-test-bucket-%d"
+  key    = "test-key-%d"
 }`, resource, randInt, randInt)
 
 	return resource, dataSource

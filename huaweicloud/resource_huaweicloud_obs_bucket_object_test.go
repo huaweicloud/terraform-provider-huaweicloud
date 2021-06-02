@@ -14,6 +14,7 @@ import (
 )
 
 func TestAccObsBucketObject_source(t *testing.T) {
+	resourceName := "huaweicloud_obs_bucket_object.object"
 	tmpFile, err := ioutil.TempFile("", "tf-acc-obs-obj-source")
 	if err != nil {
 		t.Fatal(err)
@@ -35,21 +36,17 @@ func TestAccObsBucketObject_source(t *testing.T) {
 			{
 				Config: testAccObsBucketObjectConfigSource(rInt, tmpFile.Name()),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckObsBucketObjectExists("huaweicloud_obs_bucket_object.object"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_obs_bucket_object.object", "key", "test-key"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_obs_bucket_object.object", "content_type", "binary/octet-stream"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_obs_bucket_object.object", "storage_class", "STANDARD"),
+					testAccCheckObsBucketObjectExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "key", "test-key"),
+					resource.TestCheckResourceAttr(resourceName, "content_type", "binary/octet-stream"),
+					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
 				),
 			},
 			{
 				// update with encryption
 				Config: testAccObsBucketObjectConfig_withSSE(rInt, tmpFile.Name()),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"huaweicloud_obs_bucket_object.object", "encryption", "true"),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
 				),
 			},
 		},
@@ -58,6 +55,7 @@ func TestAccObsBucketObject_source(t *testing.T) {
 
 func TestAccObsBucketObject_content(t *testing.T) {
 	rInt := acctest.RandInt()
+	resourceName := "huaweicloud_obs_bucket_object.object"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckOBS(t) },
@@ -68,11 +66,9 @@ func TestAccObsBucketObject_content(t *testing.T) {
 				PreConfig: func() {},
 				Config:    testAccObsBucketObjectConfigContent(rInt),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckObsBucketObjectExists("huaweicloud_obs_bucket_object.object"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_obs_bucket_object.object", "key", "test-key"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_obs_bucket_object.object", "size", "19"),
+					testAccCheckObsBucketObjectExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "key", "test-key"),
+					resource.TestCheckResourceAttr(resourceName, "size", "19"),
 				),
 			},
 		},
@@ -166,13 +162,14 @@ func testAccCheckObsBucketObjectExists(n string) resource.TestCheckFunc {
 func testAccObsBucketObjectConfigSource(randInt int, source string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
-    bucket = "tf-object-test-bucket-%d"
+  bucket = "tf-acc-test-bucket-%d"
 }
+
 resource "huaweicloud_obs_bucket_object" "object" {
-	bucket = huaweicloud_obs_bucket.object_bucket.bucket
-	key = "test-key"
-	source = "%s"
-	content_type = "binary/octet-stream"
+  bucket       = huaweicloud_obs_bucket.object_bucket.bucket
+  key          = "test-key"
+  source       = "%s"
+  content_type = "binary/octet-stream"
 }
 `, randInt, source)
 }
@@ -180,12 +177,13 @@ resource "huaweicloud_obs_bucket_object" "object" {
 func testAccObsBucketObjectConfigContent(randInt int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
-        bucket = "tf-object-test-bucket-%d"
+  bucket = "tf-acc-test-bucket-%d"
 }
+
 resource "huaweicloud_obs_bucket_object" "object" {
-        bucket = huaweicloud_obs_bucket.object_bucket.bucket
-        key = "test-key"
-        content = "some_bucket_content"
+  bucket  = huaweicloud_obs_bucket.object_bucket.bucket
+  key     = "test-key"
+  content = "some_bucket_content"
 }
 `, randInt)
 }
@@ -193,15 +191,15 @@ resource "huaweicloud_obs_bucket_object" "object" {
 func testAccObsBucketObjectConfig_withSSE(randInt int, source string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
-	bucket = "tf-object-test-bucket-%d"
+  bucket = "tf-acc-test-bucket-%d"
 }
 
 resource "huaweicloud_obs_bucket_object" "object" {
-	bucket = huaweicloud_obs_bucket.object_bucket.bucket
-	key = "test-key"
-	source = "%s"
-	content_type = "binary/octet-stream"
-	encryption = true
+bucket       = huaweicloud_obs_bucket.object_bucket.bucket
+key          = "test-key"
+source       = "%s"
+content_type = "binary/octet-stream"
+encryption   = true
 }
 `, randInt, source)
 }
