@@ -264,12 +264,17 @@ func ResourceObsBucket() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
+			"multi_az": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
+				ForceNew: true,
 			},
 
 			"bucket_domain_name": {
@@ -298,8 +303,11 @@ func resourceObsBucketCreate(d *schema.ResourceData, meta interface{}) error {
 		Epid:         GetEnterpriseProjectID(d, config),
 	}
 	opts.Location = region
-	log.Printf("[DEBUG] OBS bucket create opts: %#v", opts)
+	if _, ok := d.GetOk("multi_az"); ok {
+		opts.AvailableZone = "3az"
+	}
 
+	log.Printf("[DEBUG] OBS bucket create opts: %#v", opts)
 	_, err = obsClient.CreateBucket(opts)
 	if err != nil {
 		return getObsError("Error creating bucket", bucket, err)
@@ -422,8 +430,8 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	// Read  enterprise project id
-	if err := setObsBucketEnterpriseProjectID(obsClient, d); err != nil {
+	// Read enterprise project id and multi_az
+	if err := setObsBucketMetadata(obsClient, d); err != nil {
 		return err
 	}
 
@@ -922,7 +930,7 @@ func setObsBucketStorageClass(obsClient *obs.ObsClient, d *schema.ResourceData) 
 	return nil
 }
 
-func setObsBucketEnterpriseProjectID(obsClient *obs.ObsClient, d *schema.ResourceData) error {
+func setObsBucketMetadata(obsClient *obs.ObsClient, d *schema.ResourceData) error {
 	bucket := d.Id()
 	input := &obs.GetBucketMetadataInput{
 		Bucket: bucket,
@@ -932,9 +940,15 @@ func setObsBucketEnterpriseProjectID(obsClient *obs.ObsClient, d *schema.Resourc
 		return getObsError("Error getting metadata of OBS bucket", bucket, err)
 	}
 
-	epsId := string(output.Epid)
-	log.Printf("[DEBUG] getting enterprise project id of OBS bucket %s: %s", bucket, epsId)
-	d.Set("enterprise_project_id", epsId)
+	epsID := string(output.Epid)
+	log.Printf("[DEBUG] getting enterprise project id of OBS bucket %s: %s", bucket, epsID)
+	d.Set("enterprise_project_id", epsID)
+
+	if output.AvailableZone == "3az" {
+		d.Set("multi_az", true)
+	} else {
+		d.Set("multi_az", false)
+	}
 
 	return nil
 }
