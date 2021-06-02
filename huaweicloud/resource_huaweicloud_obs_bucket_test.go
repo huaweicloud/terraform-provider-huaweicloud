@@ -23,26 +23,24 @@ func TestAccObsBucket_basic(t *testing.T) {
 				Config: testAccObsBucket_basic(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObsBucketExists(resourceName),
-					resource.TestCheckResourceAttr(
-						resourceName, "bucket", testAccObsBucketName(rInt)),
-					resource.TestCheckResourceAttr(
-						resourceName, "bucket_domain_name", testAccObsBucketDomainName(rInt)),
-					resource.TestCheckResourceAttr(
-						resourceName, "acl", "private"),
-					resource.TestCheckResourceAttr(
-						resourceName, "storage_class", "STANDARD"),
-					resource.TestCheckResourceAttr(
-						resourceName, "region", HW_REGION_NAME),
+					resource.TestCheckResourceAttr(resourceName, "bucket", testAccObsBucketName(rInt)),
+					resource.TestCheckResourceAttr(resourceName, "bucket_domain_name", testAccObsBucketDomainName(rInt)),
+					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
+					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
+					resource.TestCheckResourceAttr(resourceName, "multi_az", "false"),
+					resource.TestCheckResourceAttr(resourceName, "region", HW_REGION_NAME),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
 				Config: testAccObsBucket_basic_update(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObsBucketExists(resourceName),
-					resource.TestCheckResourceAttr(
-						resourceName, "acl", "public-read"),
-					resource.TestCheckResourceAttr(
-						resourceName, "storage_class", "WARM"),
+					resource.TestCheckResourceAttr(resourceName, "acl", "public-read"),
+					resource.TestCheckResourceAttr(resourceName, "storage_class", "WARM"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
 				),
 			},
 		},
@@ -72,7 +70,7 @@ func TestAccObsBucket_withEpsId(t *testing.T) {
 	})
 }
 
-func TestAccObsBucket_tags(t *testing.T) {
+func TestAccObsBucket_multiAZ(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
@@ -82,14 +80,14 @@ func TestAccObsBucket_tags(t *testing.T) {
 		CheckDestroy: testAccCheckObsBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccObsBucketConfigWithTags(rInt),
+				Config: testAccObsBucketConfigMultiAZ(rInt),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						resourceName, "tags.name", testAccObsBucketName(rInt)),
-					resource.TestCheckResourceAttr(
-						resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(
-						resourceName, "tags.key1", "value1"),
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "bucket", testAccObsBucketName(rInt)),
+					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
+					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
+					resource.TestCheckResourceAttr(resourceName, "multi_az", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tags.multi_az", "3az"),
 				),
 			},
 		},
@@ -127,7 +125,7 @@ func TestAccObsBucket_versioning(t *testing.T) {
 
 func TestAccObsBucket_logging(t *testing.T) {
 	rInt := acctest.RandInt()
-	target_bucket := fmt.Sprintf("tf-test-log-bucket-%d", rInt)
+	targetBucket := fmt.Sprintf("tf-test-log-bucket-%d", rInt)
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -139,7 +137,7 @@ func TestAccObsBucket_logging(t *testing.T) {
 				Config: testAccObsBucketConfigWithLogging(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckObsBucketExists(resourceName),
-					testAccCheckObsBucketLogging(resourceName, target_bucket, "log/"),
+					testAccCheckObsBucketLogging(resourceName, targetBucket, "log/"),
 				),
 			},
 		},
@@ -354,9 +352,29 @@ func testAccObsBucketDomainName(randInt int) string {
 func testAccObsBucket_basic(randInt int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
-	bucket = "tf-test-bucket-%d"
-    storage_class = "STANDARD"
-	acl = "private"
+  bucket        = "tf-test-bucket-%d"
+  storage_class = "STANDARD"
+  acl           = "private"
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, randInt)
+}
+
+func testAccObsBucket_basic_update(randInt int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket        = "tf-test-bucket-%d"
+  storage_class = "WARM"
+  acl           = "public-read"
+
+  tags = {
+    owner = "terraform"
+    key   = "value1"
+  }
 }
 `, randInt)
 }
@@ -364,45 +382,35 @@ resource "huaweicloud_obs_bucket" "bucket" {
 func testAccObsBucket_epsId(randInt int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
-  bucket = "tf-test-bucket-%d"
-  storage_class = "STANDARD"
-  acl = "private"
+  bucket                = "tf-test-bucket-%d"
+  storage_class         = "STANDARD"
+  acl                   = "private"
   enterprise_project_id = "%s"
 }
 `, randInt, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccObsBucket_basic_update(randInt int) string {
+func testAccObsBucketConfigMultiAZ(randInt int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
-	bucket = "tf-test-bucket-%d"
-    storage_class = "WARM"
-	acl = "public-read"
+  bucket   = "tf-test-bucket-%d"
+  acl      = "private"
+  multi_az = true
+
+  tags = {
+    key      = "value"
+    multi_az = "3az"
+  }
 }
 `, randInt)
-}
-
-func testAccObsBucketConfigWithTags(randInt int) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_obs_bucket" "bucket" {
-	bucket = "tf-test-bucket-%d"
-	acl = "private"
-
-	tags = {
-		name = "tf-test-bucket-%d"
-        foo = "bar"
-        key1 = "value1"
-	}
-}
-`, randInt, randInt)
 }
 
 func testAccObsBucketConfigWithVersioning(randInt int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
-	bucket = "tf-test-bucket-%d"
-	acl = "private"
-	versioning = true
+  bucket     = "tf-test-bucket-%d"
+  acl        = "private"
+  versioning = true
 }
 `, randInt)
 }
@@ -410,9 +418,9 @@ resource "huaweicloud_obs_bucket" "bucket" {
 func testAccObsBucketConfigWithDisableVersioning(randInt int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
-	bucket = "tf-test-bucket-%d"
-	acl = "private"
-	versioning = false
+  bucket     = "tf-test-bucket-%d"
+  acl        = "private"
+  versioning = false
 }
 `, randInt)
 }
@@ -420,18 +428,19 @@ resource "huaweicloud_obs_bucket" "bucket" {
 func testAccObsBucketConfigWithLogging(randInt int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "log_bucket" {
-	bucket = "tf-test-log-bucket-%d"
-	acl = "log-delivery-write"
-    force_destroy = "true"
+  bucket        = "tf-test-log-bucket-%d"
+  acl           = "log-delivery-write"
+  force_destroy = true
 }
-resource "huaweicloud_obs_bucket" "bucket" {
-	bucket = "tf-test-bucket-%d"
-	acl = "private"
 
-	logging {
-		target_bucket = huaweicloud_obs_bucket.log_bucket.id
-		target_prefix = "log/"
-	}
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket = "tf-test-bucket-%d"
+  acl    = "private"
+
+  logging {
+    target_bucket = huaweicloud_obs_bucket.log_bucket.id
+    target_prefix = "log/"
+  }
 }
 `, randInt, randInt)
 }
@@ -439,9 +448,9 @@ resource "huaweicloud_obs_bucket" "bucket" {
 func testAccObsBucketConfigWithQuota(randInt int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
-	bucket = "tf-test-bucket-%d"
-	acl = "private"
-	quota = 1000000000
+  bucket = "tf-test-bucket-%d"
+  acl    = "private"
+  quota  = 1000000000
 }
 `, randInt)
 }
@@ -449,55 +458,54 @@ resource "huaweicloud_obs_bucket" "bucket" {
 func testAccObsBucketConfigWithLifecycle(randInt int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
-	bucket = "tf-test-bucket-%d"
-	acl = "private"
-	versioning = true
+  bucket     = "tf-test-bucket-%d"
+  acl        = "private"
+  versioning = true
 
-	lifecycle_rule {
-		name = "rule1"
-		prefix = "path1/"
-		enabled = true
+  lifecycle_rule {
+    name    = "rule1"
+    prefix  = "path1/"
+    enabled = true
 
-		expiration {
-			days = 365
-		}
-	}
-	lifecycle_rule {
-		name = "rule2"
-		prefix = "path2/"
-		enabled = true
+    expiration {
+      days = 365
+    }
+  }
+  lifecycle_rule {
+    name    = "rule2"
+    prefix  = "path2/"
+    enabled = true
 
-		expiration {
-			days = 365
-		}
+    expiration {
+      days = 365
+    }
 
-		transition {
-			days = 30
-			storage_class = "WARM"
-		}
-		transition {
-			days = 180
-			storage_class = "COLD"
-		}
-	}
-	lifecycle_rule {
-		name = "rule3"
-		prefix = "path3/"
-		enabled = true
+    transition {
+      days          = 30
+      storage_class = "WARM"
+    }
+    transition {
+      days          = 180
+      storage_class = "COLD"
+    }
+  }
+  lifecycle_rule {
+    name    = "rule3"
+    prefix  = "path3/"
+    enabled = true
 
-		noncurrent_version_expiration {
-			days = 365
-		}
-
-		noncurrent_version_transition {
-			days = 60
-			storage_class = "WARM"
-		}
-		noncurrent_version_transition {
-			days = 180
-			storage_class = "COLD"
-		}
-	}
+    noncurrent_version_expiration {
+      days = 365
+    }
+    noncurrent_version_transition {
+      days          = 60
+      storage_class = "WARM"
+    }
+    noncurrent_version_transition {
+      days          = 180
+      storage_class = "COLD"
+    }
+  }
 }
 `, randInt)
 }
@@ -505,23 +513,23 @@ resource "huaweicloud_obs_bucket" "bucket" {
 func testAccObsBucketWebsiteConfigWithRoutingRules(randInt int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
-	bucket = "tf-test-bucket-%d"
-	acl = "public-read"
+  bucket = "tf-test-bucket-%d"
+  acl    = "public-read"
 
-	website {
-		index_document = "index.html"
-		error_document = "error.html"
-		routing_rules = <<EOF
+  website {
+    index_document = "index.html"
+    error_document = "error.html"
+    routing_rules = <<EOF
 [{
-	"Condition": {
-		"KeyPrefixEquals": "docs/"
-	},
-	"Redirect": {
-		"ReplaceKeyPrefixWith": "documents/"
-	}
+  "Condition": {
+    "KeyPrefixEquals": "docs/"
+  },
+  "Redirect": {
+    "ReplaceKeyPrefixWith": "documents/"
+  }
 }]
 EOF
-	}
+  }
 }
 `, randInt)
 }
@@ -529,16 +537,16 @@ EOF
 func testAccObsBucketConfigWithCORS(randInt int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
-	bucket = "tf-test-bucket-%d"
-	acl = "public-read"
+  bucket = "tf-test-bucket-%d"
+  acl    = "public-read"
 
-	cors_rule {
-		allowed_headers = ["*"]
-		allowed_methods = ["PUT","POST"]
-		allowed_origins = ["https://www.example.com"]
-		expose_headers  = ["x-amz-server-side-encryption","ETag"]
-		max_age_seconds = 3000
-	}
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT","POST"]
+    allowed_origins = ["https://www.example.com"]
+    expose_headers  = ["x-amz-server-side-encryption","ETag"]
+    max_age_seconds = 3000
+  }
 }
 `, randInt)
 }

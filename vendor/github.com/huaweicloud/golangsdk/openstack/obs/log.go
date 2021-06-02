@@ -13,7 +13,6 @@
 package obs
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -23,6 +22,7 @@ import (
 	"sync"
 )
 
+// Level defines the level of the log
 type Level int
 
 const (
@@ -84,7 +84,10 @@ func (lw *loggerWrapper) doInit() {
 func (lw *loggerWrapper) rotate() {
 	stat, err := lw.fd.Stat()
 	if err != nil {
-		lw.fd.Close()
+		_err := lw.fd.Close()
+		if _err != nil {
+			doLog(LEVEL_WARN, "Failed to close file with reason: %v", _err)
+		}
 		panic(err)
 	}
 	if stat.Size() >= logConf.maxLogSize {
@@ -92,7 +95,10 @@ func (lw *loggerWrapper) rotate() {
 		if _err != nil {
 			panic(err)
 		}
-		lw.fd.Close()
+		_err = lw.fd.Close()
+		if _err != nil {
+			doLog(LEVEL_WARN, "Failed to close file with reason: %v", _err)
+		}
 		if lw.index > logConf.backups {
 			lw.index = 1
 		}
@@ -100,9 +106,9 @@ func (lw *loggerWrapper) rotate() {
 		if _err != nil {
 			panic(err)
 		}
-		lw.index += 1
+		lw.index++
 
-		fd, err := os.OpenFile(lw.fullPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		fd, err := os.OpenFile(lw.fullPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 		if err != nil {
 			panic(err)
 		}
@@ -134,7 +140,10 @@ func (lw *loggerWrapper) doWrite() {
 		msg, ok := <-lw.ch
 		if !ok {
 			lw.doFlush()
-			lw.fd.Close()
+			_err := lw.fd.Close()
+			if _err != nil {
+				doLog(LEVEL_WARN, "Failed to close file with reason: %v", _err)
+			}
 			break
 		}
 		if len(lw.queue) >= lw.cacheCount {
@@ -155,7 +164,7 @@ func (lw *loggerWrapper) Printf(format string, v ...interface{}) {
 
 var consoleLogger *log.Logger
 var fileLogger *loggerWrapper
-var lock *sync.RWMutex = new(sync.RWMutex)
+var lock = new(sync.RWMutex)
 
 func isDebugLogEnabled() bool {
 	return logConf.level <= LEVEL_DEBUG
@@ -182,10 +191,12 @@ func reset() {
 	logConf = getDefaultLogConf()
 }
 
+// InitLog enable logging function with default cacheCnt
 func InitLog(logFullPath string, maxLogSize int64, backups int, level Level, logToConsole bool) error {
 	return InitLogWithCacheCnt(logFullPath, maxLogSize, backups, level, logToConsole, 50)
 }
 
+// InitLogWithCacheCnt enable logging function
 func InitLogWithCacheCnt(logFullPath string, maxLogSize int64, backups int, level Level, logToConsole bool, cacheCnt int) error {
 	lock.Lock()
 	defer lock.Unlock()
@@ -203,32 +214,19 @@ func InitLogWithCacheCnt(logFullPath string, maxLogSize int64, backups int, leve
 			_fullPath += ".log"
 		}
 
-		stat, err := os.Stat(_fullPath)
-		if err == nil && stat.IsDir() {
-			return errors.New(fmt.Sprintf("logFullPath:[%s] is a directory", _fullPath))
-		} else if err := os.MkdirAll(filepath.Dir(_fullPath), os.ModePerm); err != nil {
-			return err
-		}
-
-		fd, err := os.OpenFile(_fullPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		stat, fd, err := initLogFile(_fullPath)
 		if err != nil {
 			return err
 		}
 
-		if stat == nil {
-			stat, err = os.Stat(_fullPath)
-			if err != nil {
-				fd.Close()
-				return err
-			}
-		}
-
 		prefix := stat.Name() + "."
 		index := 1
+		var timeIndex int64 = 0
 		walkFunc := func(path string, info os.FileInfo, err error) error {
 			if err == nil {
 				if name := info.Name(); strings.HasPrefix(name, prefix) {
-					if i := StringToInt(name[len(prefix):], 0); i >= index {
+					if i := StringToInt(name[len(prefix):], 0); i >= index && info.ModTime().Unix() >= timeIndex {
+						timeIndex = info.ModTime().Unix()
 						index = i + 1
 					}
 				}
@@ -237,7 +235,10 @@ func InitLogWithCacheCnt(logFullPath string, maxLogSize int64, backups int, leve
 		}
 
 		if err = filepath.Walk(filepath.Dir(_fullPath), walkFunc); err != nil {
-			fd.Close()
+			_err := fd.Close()
+			if _err != nil {
+				doLog(LEVEL_WARN, "Failed to close file with reason: %v", _err)
+			}
 			return err
 		}
 
@@ -257,6 +258,33 @@ func InitLogWithCacheCnt(logFullPath string, maxLogSize int64, backups int, leve
 	return nil
 }
 
+func initLogFile(_fullPath string) (os.FileInfo, *os.File, error) {
+	stat, err := os.Stat(_fullPath)
+	if err == nil && stat.IsDir() {
+		return nil, nil, fmt.Errorf("logFullPath:[%s] is a directory", _fullPath)
+	} else if err = os.MkdirAll(filepath.Dir(_fullPath), os.ModePerm); err != nil {
+		return nil, nil, err
+	}
+
+	fd, err := os.OpenFile(_fullPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if stat == nil {
+		stat, err = os.Stat(_fullPath)
+		if err != nil {
+			_err := fd.Close()
+			if _err != nil {
+				doLog(LEVEL_WARN, "Failed to close file with reason: %v", _err)
+			}
+			return nil, nil, err
+		}
+	}
+	return stat, fd, nil
+}
+
+// CloseLog disable logging and synchronize cache data to log files
 func CloseLog() {
 	if logEnabled() {
 		lock.Lock()
@@ -265,13 +293,11 @@ func CloseLog() {
 	}
 }
 
-func SyncLog() {
-}
-
 func logEnabled() bool {
 	return consoleLogger != nil || fileLogger != nil
 }
 
+// DoLog writes log messages to the logger
 func DoLog(level Level, format string, v ...interface{}) {
 	doLog(level, format, v...)
 }
@@ -294,5 +320,11 @@ func doLog(level Level, format string, v ...interface{}) {
 			nowDate := FormatUtcNow("2006-01-02T15:04:05Z")
 			fileLogger.Printf("%s %s%s", nowDate, prefix, msg)
 		}
+	}
+}
+
+func checkAndLogErr(err error, level Level, format string, v ...interface{}) {
+	if err != nil {
+		doLog(level, format, v...)
 	}
 }

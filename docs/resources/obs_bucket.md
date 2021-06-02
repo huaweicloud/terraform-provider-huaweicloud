@@ -2,7 +2,7 @@
 subcategory: "Object Storage Service (OBS)"
 ---
 
-# huaweicloud\_obs\_bucket
+# huaweicloud_obs_bucket
 
 Provides an OBS bucket resource.
 
@@ -147,13 +147,17 @@ The following arguments are supported:
   A bucket must be named according to the globally applied DNS naming regulations as follows:
 	* The name must be globally unique in OBS.
 	* The name must contain 3 to 63 characters. Only lowercase letters, digits, hyphens (-), and periods (.) are allowed.
-	* The name cannot start or end with a period (.) or hyphen (-), and cannot contain two consecutive periods (.) or contain a period (.) and a hyphen (-) adjacent to each other.
+	* The name cannot start or end with a period (.) or hyphen (-), and cannot contain two consecutive periods (.) or
+    contain a period (.) and a hyphen (-) adjacent to each other.
 	* The name cannot be an IP address.
-	* If the name contains any periods (.), a security certificate verification message may appear when you access the bucket or its objects by entering a domain name.
+	* If the name contains any periods (.), a security certificate verification message may appear when you access
+    the bucket or its objects by entering a domain name.
 
-* `storage_class` - (Optional, String) Specifies the storage class of the bucket. OBS provides three storage classes: "STANDARD", "WARM" (Infrequent Access) and "COLD" (Archive). Defaults to `STANDARD`.
+* `storage_class` - (Optional, String) Specifies the storage class of the bucket. OBS provides three storage classes:
+  "STANDARD", "WARM" (Infrequent Access) and "COLD" (Archive). Defaults to `STANDARD`.
 
-* `acl` - (Optional, String) Specifies the ACL policy for a bucket. The predefined common policies are as follows: "private", "public-read", "public-read-write" and "log-delivery-write". Defaults to `private`.
+* `acl` - (Optional, String) Specifies the ACL policy for a bucket. The predefined common policies are as follows:
+  "private", "public-read", "public-read-write" and "log-delivery-write". Defaults to `private`.
 
 * `policy` - (Optional, String) Specifies the text of the bucket policy in JSON format. For more information about
   obs format bucket policy, see the [Developer Guide](https://support.huaweicloud.com/intl/en-us/devg-obs/obs_06_0048.html).
@@ -167,17 +171,31 @@ The following arguments are supported:
 
 * `logging` - (Optional, Map) A settings of bucket logging (documented below).
 
-* `quota` - (Optional, Int) Specifies bucket storage quota. Must be a positive integer in the unit of byte. The maximum storage quota is 2<sup>63</sup> – 1 bytes. The default bucket storage quota is 0, indicating that the bucket storage quota is not limited.
+* `quota` - (Optional, Int) Specifies bucket storage quota. Must be a positive integer in the unit of byte.
+  The maximum storage quota is 2<sup>63</sup> – 1 bytes. The default bucket storage quota is 0, indicating that
+  the bucket storage quota is not limited.
 
 * `website` - (Optional, List) A website object (documented below).
+
 * `cors_rule` - (Optional, List) A rule of Cross-Origin Resource Sharing (documented below).
+
 * `lifecycle_rule` - (Optional, List) A configuration of object lifecycle management (documented below).
 
-* `force_destroy` - (Optional, Bool) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. Default to `false`.
+* `force_destroy` - (Optional, Bool) A boolean that indicates all objects should be deleted from the bucket,
+  so that the bucket can be destroyed without error. Default to `false`.
 
-* `region` - (Optional, String, ForceNew) Specified the region where this bucket will be created. If not specified, used the region by the provider.
+* `region` - (Optional, String, ForceNew) Specifies the region where this bucket will be created.
+  If not specified, used the region by the provider. Changing this will create a new bucket.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the OBS bucket. Changing this creates a OBS bucket.
+* `multi_az` - (Optional, Bool, ForceNew) Whether enable the multi-AZ mode for the bucket.
+  When the multi-AZ mode is enabled, data in the bucket is duplicated and stored in multiple AZs.
+
+  -> **NOTE:** Once a bucket is created, you cannot enable or disable the multi-AZ mode.
+  Changing this will create a new bucket, but the name of a deleted bucket can be reused
+  for another bucket at least 30 minutes after the deletion. Exercise caution when changing this field.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the OBS bucket.
+  Changing this will create a new bucket.
 
 The `logging` object supports the following:
 
@@ -187,22 +205,25 @@ The `logging` object supports the following:
 
 The `website` object supports the following:
 
-* `index_document` - (Required, String)  Unless using `redirect_all_requests_to`. Specifies the default homepage of the static website, only HTML web pages are supported.
+* `index_document` - (Required, String)  Unless using `redirect_all_requests_to`. Specifies the default homepage of
+  the static website, only HTML web pages are supported.
   OBS only allows files such as `index.html` in the root directory of a bucket to function as the default homepage.
   That is to say, do not set the default homepage with a multi-level directory structure (for example, /page/index.html).
 
 * `error_document` - (Optional, String) Specifies the error page returned when an error occurs during static website access.
   Only HTML, JPG, PNG, BMP, and WEBP files under the root directory are supported.
 
-* `redirect_all_requests_to` - (Optional, String) A hostname to redirect all website requests for this bucket to. Hostname can optionally be prefixed with a protocol (`http://` or `https://`) to use when redirecting requests. The default is the protocol that is used in the original request.
+* `redirect_all_requests_to` - (Optional, String) A hostname to redirect all website requests for this bucket to.
+  Hostname can optionally be prefixed with a protocol (`http://` or `https://`) to use when redirecting requests.
+  The default is the protocol that is used in the original request.
 
-* `routing_rules` - (Optional, String) A JSON or XML format containing routing rules describing redirect behavior and when redirects are applied.
-  Each rule contains a `Condition` and a `Redirect` as shown in the following table:
+* `routing_rules` - (Optional, String) A JSON or XML format containing routing rules describing redirect behavior and
+  when redirects are applied. Each rule contains a `Condition` and a `Redirect` as shown in the following table:
 
-Parameter | Key
--|-
-Condition | KeyPrefixEquals, HttpErrorCodeReturnedEquals
-Redirect | Protocol, HostName, ReplaceKeyPrefixWith, ReplaceKeyWith, HttpRedirectCode
+  Parameter | Key
+  --- | ---
+  Condition | KeyPrefixEquals, HttpErrorCodeReturnedEquals
+  Redirect | Protocol, HostName, ReplaceKeyPrefixWith, ReplaceKeyWith, HttpRedirectCode
 
 The `cors_rule` object supports the following:
 
@@ -228,7 +249,8 @@ The `lifecycle_rule` object supports the following:
 
 * `prefix` - (Optional, String) Object key prefix identifying one or more objects to which the rule applies.
   If omitted, all objects in the bucket will be managed by the lifecycle rule.
-  The prefix cannot start or end with a slash (/), cannot have consecutive slashes (/), and cannot contain the following special characters: \:*?"<>|.
+  The prefix cannot start or end with a slash (/), cannot have consecutive slashes (/), and
+  cannot contain the following special characters: \:*?"<>|.
 
 * `expiration` - (Optional, List) Specifies a period when objects that have been last updated are automatically deleted. (documented below).
 * `transition` - (Optional, List) Specifies a period when objects that have been last updated are automatically transitioned to `WARM` or `COLD` storage class (documented below).

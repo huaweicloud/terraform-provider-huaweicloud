@@ -19,35 +19,42 @@ import (
 	"time"
 )
 
+// BaseModel defines base model response from OBS
 type BaseModel struct {
 	StatusCode      int                 `xml:"-"`
-	RequestId       string              `xml:"RequestId"`
+	RequestId       string              `xml:"RequestId" json:"request_id"`
 	ResponseHeaders map[string][]string `xml:"-"`
 }
 
+// Bucket defines bucket properties
 type Bucket struct {
 	XMLName      xml.Name  `xml:"Bucket"`
 	Name         string    `xml:"Name"`
 	CreationDate time.Time `xml:"CreationDate"`
 	Location     string    `xml:"Location"`
+	BucketType   string    `xml:"BucketType,omitempty"`
 }
 
+// Owner defines owner properties
 type Owner struct {
 	XMLName     xml.Name `xml:"Owner"`
 	ID          string   `xml:"ID"`
 	DisplayName string   `xml:"DisplayName,omitempty"`
 }
 
+// Initiator defines initiator properties
 type Initiator struct {
 	XMLName     xml.Name `xml:"Initiator"`
 	ID          string   `xml:"ID"`
 	DisplayName string   `xml:"DisplayName,omitempty"`
 }
 
+// ListBucketsInput is the input parameter of ListBuckets function
 type ListBucketsInput struct {
 	QueryLocation bool
 }
 
+// ListBucketsOutput is the result of ListBuckets function
 type ListBucketsOutput struct {
 	BaseModel
 	XMLName xml.Name `xml:"ListAllMyBucketsResult"`
@@ -60,11 +67,13 @@ type bucketLocationObs struct {
 	Location string   `xml:",chardata"`
 }
 
+// BucketLocation defines bucket location configuration
 type BucketLocation struct {
 	XMLName  xml.Name `xml:"CreateBucketConfiguration"`
 	Location string   `xml:"LocationConstraint,omitempty"`
 }
 
+// CreateBucketInput is the input parameter of CreateBucket function
 type CreateBucketInput struct {
 	BucketLocation
 	Bucket                      string           `xml:"-"`
@@ -78,13 +87,17 @@ type CreateBucketInput struct {
 	GrantReadDeliveredId        string           `xml:"-"`
 	GrantFullControlDeliveredId string           `xml:"-"`
 	Epid                        string           `xml:"-"`
+	AvailableZone               string           `xml:"-"`
+	IsFSFileInterface           bool             `xml:"-"`
 }
 
+// BucketStoragePolicy defines the bucket storage class
 type BucketStoragePolicy struct {
 	XMLName      xml.Name         `xml:"StoragePolicy"`
 	StorageClass StorageClassType `xml:"DefaultStorageClass"`
 }
 
+// SetBucketStoragePolicyInput is the input parameter of SetBucketStoragePolicy function
 type SetBucketStoragePolicyInput struct {
 	Bucket string `xml:"-"`
 	BucketStoragePolicy
@@ -95,6 +108,7 @@ type getBucketStoragePolicyOutputS3 struct {
 	BucketStoragePolicy
 }
 
+// GetBucketStoragePolicyOutput is the result of GetBucketStoragePolicy function
 type GetBucketStoragePolicyOutput struct {
 	BaseModel
 	StorageClass string
@@ -109,20 +123,24 @@ type getBucketStoragePolicyOutputObs struct {
 	bucketStoragePolicyObs
 }
 
+// ListObjsInput defines parameters for listing objects
 type ListObjsInput struct {
 	Prefix        string
 	MaxKeys       int
 	Delimiter     string
 	Origin        string
 	RequestHeader string
+	EncodingType  string
 }
 
+// ListObjectsInput is the input parameter of ListObjects function
 type ListObjectsInput struct {
 	ListObjsInput
 	Bucket string
 	Marker string
 }
 
+// Content defines the object content properties
 type Content struct {
 	XMLName      xml.Name         `xml:"Contents"`
 	Owner        Owner            `xml:"Owner"`
@@ -133,6 +151,7 @@ type Content struct {
 	StorageClass StorageClassType `xml:"StorageClass"`
 }
 
+// ListObjectsOutput is the result of ListObjects function
 type ListObjectsOutput struct {
 	BaseModel
 	XMLName        xml.Name  `xml:"ListBucketResult"`
@@ -146,8 +165,10 @@ type ListObjectsOutput struct {
 	Contents       []Content `xml:"Contents"`
 	CommonPrefixes []string  `xml:"CommonPrefixes>Prefix"`
 	Location       string    `xml:"-"`
+	EncodingType   string    `xml:"EncodingType,omitempty"`
 }
 
+// ListVersionsInput is the input parameter of ListVersions function
 type ListVersionsInput struct {
 	ListObjsInput
 	Bucket          string
@@ -155,6 +176,7 @@ type ListVersionsInput struct {
 	VersionIdMarker string
 }
 
+// Version defines the properties of versioning objects
 type Version struct {
 	DeleteMarker
 	XMLName xml.Name `xml:"Version"`
@@ -162,6 +184,7 @@ type Version struct {
 	Size    int64    `xml:"Size"`
 }
 
+// DeleteMarker defines the properties of versioning delete markers
 type DeleteMarker struct {
 	XMLName      xml.Name         `xml:"DeleteMarker"`
 	Key          string           `xml:"Key"`
@@ -172,6 +195,7 @@ type DeleteMarker struct {
 	StorageClass StorageClassType `xml:"StorageClass"`
 }
 
+// ListVersionsOutput is the result of ListVersions function
 type ListVersionsOutput struct {
 	BaseModel
 	XMLName             xml.Name       `xml:"ListVersionsResult"`
@@ -188,8 +212,10 @@ type ListVersionsOutput struct {
 	DeleteMarkers       []DeleteMarker `xml:"DeleteMarker"`
 	CommonPrefixes      []string       `xml:"CommonPrefixes>Prefix"`
 	Location            string         `xml:"-"`
+	EncodingType        string         `xml:"EncodingType,omitempty"`
 }
 
+// ListMultipartUploadsInput is the input parameter of ListMultipartUploads function
 type ListMultipartUploadsInput struct {
 	Bucket         string
 	Prefix         string
@@ -197,8 +223,10 @@ type ListMultipartUploadsInput struct {
 	Delimiter      string
 	KeyMarker      string
 	UploadIdMarker string
+	EncodingType   string
 }
 
+// Upload defines multipart upload properties
 type Upload struct {
 	XMLName      xml.Name         `xml:"Upload"`
 	Key          string           `xml:"Key"`
@@ -209,6 +237,7 @@ type Upload struct {
 	Initiator    Initiator        `xml:"Initiator"`
 }
 
+// ListMultipartUploadsOutput is the result of ListMultipartUploads function
 type ListMultipartUploadsOutput struct {
 	BaseModel
 	XMLName            xml.Name `xml:"ListMultipartUploadsResult"`
@@ -223,23 +252,28 @@ type ListMultipartUploadsOutput struct {
 	Prefix             string   `xml:"Prefix"`
 	Uploads            []Upload `xml:"Upload"`
 	CommonPrefixes     []string `xml:"CommonPrefixes>Prefix"`
+	EncodingType       string   `xml:"EncodingType,omitempty"`
 }
 
+// BucketQuota defines bucket quota configuration
 type BucketQuota struct {
 	XMLName xml.Name `xml:"Quota"`
 	Quota   int64    `xml:"StorageQuota"`
 }
 
+// SetBucketQuotaInput is the input parameter of SetBucketQuota function
 type SetBucketQuotaInput struct {
 	Bucket string `xml:"-"`
 	BucketQuota
 }
 
+// GetBucketQuotaOutput is the result of GetBucketQuota function
 type GetBucketQuotaOutput struct {
 	BaseModel
 	BucketQuota
 }
 
+// GetBucketStorageInfoOutput is the result of GetBucketStorageInfo function
 type GetBucketStorageInfoOutput struct {
 	BaseModel
 	XMLName      xml.Name `xml:"GetBucketStorageInfoResult"`
@@ -255,11 +289,14 @@ type getBucketLocationOutputObs struct {
 	BaseModel
 	bucketLocationObs
 }
+
+// GetBucketLocationOutput is the result of GetBucketLocation function
 type GetBucketLocationOutput struct {
 	BaseModel
 	Location string `xml:"-"`
 }
 
+// Grantee defines grantee properties
 type Grantee struct {
 	XMLName     xml.Name     `xml:"Grantee"`
 	Type        GranteeType  `xml:"type,attr"`
@@ -276,6 +313,7 @@ type granteeObs struct {
 	Canned      string      `xml:"Canned,omitempty"`
 }
 
+// Grant defines grant properties
 type Grant struct {
 	XMLName    xml.Name       `xml:"Grant"`
 	Grantee    Grantee        `xml:"Grantee"`
@@ -289,6 +327,7 @@ type grantObs struct {
 	Delivered  bool           `xml:"Delivered"`
 }
 
+// AccessControlPolicy defines access control policy properties
 type AccessControlPolicy struct {
 	XMLName   xml.Name `xml:"AccessControlPolicy"`
 	Owner     Owner    `xml:"Owner"`
@@ -302,32 +341,37 @@ type accessControlPolicyObs struct {
 	Grants  []grantObs `xml:"AccessControlList>Grant"`
 }
 
+// GetBucketAclOutput is the result of GetBucketAcl function
 type GetBucketAclOutput struct {
 	BaseModel
 	AccessControlPolicy
 }
 
-type getBucketAclOutputObs struct {
+type getBucketACLOutputObs struct {
 	BaseModel
 	accessControlPolicyObs
 }
 
+// SetBucketAclInput is the input parameter of SetBucketAcl function
 type SetBucketAclInput struct {
 	Bucket string  `xml:"-"`
 	ACL    AclType `xml:"-"`
 	AccessControlPolicy
 }
 
+// SetBucketPolicyInput is the input parameter of SetBucketPolicy function
 type SetBucketPolicyInput struct {
 	Bucket string
 	Policy string
 }
 
+// GetBucketPolicyOutput is the result of GetBucketPolicy function
 type GetBucketPolicyOutput struct {
 	BaseModel
 	Policy string `json:"body"`
 }
 
+// CorsRule defines the CORS rules
 type CorsRule struct {
 	XMLName       xml.Name `xml:"CORSRule"`
 	ID            string   `xml:"ID,omitempty"`
@@ -338,50 +382,60 @@ type CorsRule struct {
 	ExposeHeader  []string `xml:"ExposeHeader,omitempty"`
 }
 
+// BucketCors defines the bucket CORS configuration
 type BucketCors struct {
 	XMLName   xml.Name   `xml:"CORSConfiguration"`
 	CorsRules []CorsRule `xml:"CORSRule"`
 }
 
+// SetBucketCorsInput is the input parameter of SetBucketCors function
 type SetBucketCorsInput struct {
 	Bucket string `xml:"-"`
 	BucketCors
 }
 
+// GetBucketCorsOutput is the result of GetBucketCors function
 type GetBucketCorsOutput struct {
 	BaseModel
 	BucketCors
 }
 
+// BucketVersioningConfiguration defines the versioning configuration
 type BucketVersioningConfiguration struct {
 	XMLName xml.Name             `xml:"VersioningConfiguration"`
 	Status  VersioningStatusType `xml:"Status"`
 }
 
+// SetBucketVersioningInput is the input parameter of SetBucketVersioning function
 type SetBucketVersioningInput struct {
 	Bucket string `xml:"-"`
 	BucketVersioningConfiguration
 }
 
+// GetBucketVersioningOutput is the result of GetBucketVersioning function
 type GetBucketVersioningOutput struct {
 	BaseModel
 	BucketVersioningConfiguration
 }
 
+// IndexDocument defines the default page configuration
 type IndexDocument struct {
 	Suffix string `xml:"Suffix"`
 }
 
+// ErrorDocument defines the error page configuration
 type ErrorDocument struct {
 	Key string `xml:"Key,omitempty"`
 }
 
+// Condition defines condition in RoutingRule
 type Condition struct {
 	XMLName                     xml.Name `xml:"Condition"`
 	KeyPrefixEquals             string   `xml:"KeyPrefixEquals,omitempty"`
 	HttpErrorCodeReturnedEquals string   `xml:"HttpErrorCodeReturnedEquals,omitempty"`
 }
 
+// Redirect defines redirect in RoutingRule
 type Redirect struct {
 	XMLName              xml.Name     `xml:"Redirect"`
 	Protocol             ProtocolType `xml:"Protocol,omitempty"`
@@ -391,18 +445,21 @@ type Redirect struct {
 	HttpRedirectCode     string       `xml:"HttpRedirectCode,omitempty"`
 }
 
+// RoutingRule defines routing rules
 type RoutingRule struct {
 	XMLName   xml.Name  `xml:"RoutingRule"`
 	Condition Condition `xml:"Condition,omitempty"`
 	Redirect  Redirect  `xml:"Redirect"`
 }
 
+// RedirectAllRequestsTo defines redirect in BucketWebsiteConfiguration
 type RedirectAllRequestsTo struct {
 	XMLName  xml.Name     `xml:"RedirectAllRequestsTo"`
 	Protocol ProtocolType `xml:"Protocol,omitempty"`
 	HostName string       `xml:"HostName"`
 }
 
+// BucketWebsiteConfiguration defines the bucket website configuration
 type BucketWebsiteConfiguration struct {
 	XMLName               xml.Name              `xml:"WebsiteConfiguration"`
 	RedirectAllRequestsTo RedirectAllRequestsTo `xml:"RedirectAllRequestsTo,omitempty"`
@@ -411,22 +468,26 @@ type BucketWebsiteConfiguration struct {
 	RoutingRules          []RoutingRule         `xml:"RoutingRules>RoutingRule,omitempty"`
 }
 
+// SetBucketWebsiteConfigurationInput is the input parameter of SetBucketWebsiteConfiguration function
 type SetBucketWebsiteConfigurationInput struct {
 	Bucket string `xml:"-"`
 	BucketWebsiteConfiguration
 }
 
+// GetBucketWebsiteConfigurationOutput is the result of GetBucketWebsiteConfiguration function
 type GetBucketWebsiteConfigurationOutput struct {
 	BaseModel
 	BucketWebsiteConfiguration
 }
 
+// GetBucketMetadataInput is the input parameter of GetBucketMetadata function
 type GetBucketMetadataInput struct {
 	Bucket        string
 	Origin        string
 	RequestHeader string
 }
 
+// SetObjectMetadataInput is the input parameter of SetObjectMetadata function
 type SetObjectMetadataInput struct {
 	Bucket                  string
 	Key                     string
@@ -443,6 +504,7 @@ type SetObjectMetadataInput struct {
 	Metadata                map[string]string
 }
 
+//SetObjectMetadataOutput is the result of SetObjectMetadata function
 type SetObjectMetadataOutput struct {
 	BaseModel
 	MetadataDirective       MetadataDirectiveType
@@ -457,6 +519,7 @@ type SetObjectMetadataOutput struct {
 	Metadata                map[string]string
 }
 
+// GetBucketMetadataOutput is the result of GetBucketMetadata function
 type GetBucketMetadataOutput struct {
 	BaseModel
 	StorageClass  StorageClassType
@@ -468,8 +531,11 @@ type GetBucketMetadataOutput struct {
 	MaxAgeSeconds int
 	ExposeHeader  string
 	Epid          string
+	AvailableZone string
+	FSStatus      FSStatusType
 }
 
+// BucketLoggingStatus defines the bucket logging configuration
 type BucketLoggingStatus struct {
 	XMLName      xml.Name `xml:"BucketLoggingStatus"`
 	Agency       string   `xml:"Agency,omitempty"`
@@ -478,16 +544,19 @@ type BucketLoggingStatus struct {
 	TargetGrants []Grant  `xml:"LoggingEnabled>TargetGrants>Grant,omitempty"`
 }
 
+// SetBucketLoggingConfigurationInput is the input parameter of SetBucketLoggingConfiguration function
 type SetBucketLoggingConfigurationInput struct {
 	Bucket string `xml:"-"`
 	BucketLoggingStatus
 }
 
+// GetBucketLoggingConfigurationOutput is the result of GetBucketLoggingConfiguration function
 type GetBucketLoggingConfigurationOutput struct {
 	BaseModel
 	BucketLoggingStatus
 }
 
+// Transition defines transition property in LifecycleRule
 type Transition struct {
 	XMLName      xml.Name         `xml:"Transition"`
 	Date         time.Time        `xml:"Date,omitempty"`
@@ -495,23 +564,27 @@ type Transition struct {
 	StorageClass StorageClassType `xml:"StorageClass"`
 }
 
+// Expiration defines expiration property in LifecycleRule
 type Expiration struct {
 	XMLName xml.Name  `xml:"Expiration"`
 	Date    time.Time `xml:"Date,omitempty"`
 	Days    int       `xml:"Days,omitempty"`
 }
 
+// NoncurrentVersionTransition defines noncurrentVersion transition property in LifecycleRule
 type NoncurrentVersionTransition struct {
 	XMLName        xml.Name         `xml:"NoncurrentVersionTransition"`
 	NoncurrentDays int              `xml:"NoncurrentDays"`
 	StorageClass   StorageClassType `xml:"StorageClass"`
 }
 
+// NoncurrentVersionExpiration defines noncurrentVersion expiration property in LifecycleRule
 type NoncurrentVersionExpiration struct {
 	XMLName        xml.Name `xml:"NoncurrentVersionExpiration"`
 	NoncurrentDays int      `xml:"NoncurrentDays"`
 }
 
+// LifecycleRule defines lifecycle rule
 type LifecycleRule struct {
 	ID                           string                        `xml:"ID,omitempty"`
 	Prefix                       string                        `xml:"Prefix"`
@@ -522,48 +595,57 @@ type LifecycleRule struct {
 	NoncurrentVersionExpiration  NoncurrentVersionExpiration   `xml:"NoncurrentVersionExpiration,omitempty"`
 }
 
+// BucketLifecyleConfiguration defines the bucket lifecycle configuration
 type BucketLifecyleConfiguration struct {
 	XMLName        xml.Name        `xml:"LifecycleConfiguration"`
 	LifecycleRules []LifecycleRule `xml:"Rule"`
 }
 
+// SetBucketLifecycleConfigurationInput is the input parameter of SetBucketLifecycleConfiguration function
 type SetBucketLifecycleConfigurationInput struct {
 	Bucket string `xml:"-"`
 	BucketLifecyleConfiguration
 }
 
+// GetBucketLifecycleConfigurationOutput is the result of GetBucketLifecycleConfiguration function
 type GetBucketLifecycleConfigurationOutput struct {
 	BaseModel
 	BucketLifecyleConfiguration
 }
 
+// Tag defines tag property in BucketTagging
 type Tag struct {
 	XMLName xml.Name `xml:"Tag"`
 	Key     string   `xml:"Key"`
 	Value   string   `xml:"Value"`
 }
 
+// BucketTagging defines the bucket tag configuration
 type BucketTagging struct {
 	XMLName xml.Name `xml:"Tagging"`
 	Tags    []Tag    `xml:"TagSet>Tag"`
 }
 
+// SetBucketTaggingInput is the input parameter of SetBucketTagging function
 type SetBucketTaggingInput struct {
 	Bucket string `xml:"-"`
 	BucketTagging
 }
 
+// GetBucketTaggingOutput is the result of GetBucketTagging function
 type GetBucketTaggingOutput struct {
 	BaseModel
 	BucketTagging
 }
 
+// FilterRule defines filter rule in TopicConfiguration
 type FilterRule struct {
 	XMLName xml.Name `xml:"FilterRule"`
 	Name    string   `xml:"Name,omitempty"`
 	Value   string   `xml:"Value,omitempty"`
 }
 
+// TopicConfiguration defines the topic configuration
 type TopicConfiguration struct {
 	XMLName     xml.Name     `xml:"TopicConfiguration"`
 	ID          string       `xml:"Id,omitempty"`
@@ -572,11 +654,13 @@ type TopicConfiguration struct {
 	FilterRules []FilterRule `xml:"Filter>Object>FilterRule"`
 }
 
+// BucketNotification defines the bucket notification configuration
 type BucketNotification struct {
 	XMLName             xml.Name             `xml:"NotificationConfiguration"`
 	TopicConfigurations []TopicConfiguration `xml:"TopicConfiguration"`
 }
 
+// SetBucketNotificationInput is the input parameter of SetBucketNotification function
 type SetBucketNotificationInput struct {
 	Bucket string `xml:"-"`
 	BucketNotification
@@ -600,36 +684,43 @@ type getBucketNotificationOutputS3 struct {
 	bucketNotificationS3
 }
 
+// GetBucketNotificationOutput is the result of GetBucketNotification function
 type GetBucketNotificationOutput struct {
 	BaseModel
 	BucketNotification
 }
 
+// DeleteObjectInput is the input parameter of DeleteObject function
 type DeleteObjectInput struct {
 	Bucket    string
 	Key       string
 	VersionId string
 }
 
+// DeleteObjectOutput is the result of DeleteObject function
 type DeleteObjectOutput struct {
 	BaseModel
 	VersionId    string
 	DeleteMarker bool
 }
 
+// ObjectToDelete defines the object property in DeleteObjectsInput
 type ObjectToDelete struct {
 	XMLName   xml.Name `xml:"Object"`
 	Key       string   `xml:"Key"`
 	VersionId string   `xml:"VersionId,omitempty"`
 }
 
+// DeleteObjectsInput is the input parameter of DeleteObjects function
 type DeleteObjectsInput struct {
-	Bucket  string           `xml:"-"`
-	XMLName xml.Name         `xml:"Delete"`
-	Quiet   bool             `xml:"Quiet,omitempty"`
-	Objects []ObjectToDelete `xml:"Object"`
+	Bucket       string           `xml:"-"`
+	XMLName      xml.Name         `xml:"Delete"`
+	Quiet        bool             `xml:"Quiet,omitempty"`
+	Objects      []ObjectToDelete `xml:"Object"`
+	EncodingType string           `xml:"EncodingType"`
 }
 
+// Deleted defines the deleted property in DeleteObjectsOutput
 type Deleted struct {
 	XMLName               xml.Name `xml:"Deleted"`
 	Key                   string   `xml:"Key"`
@@ -638,6 +729,7 @@ type Deleted struct {
 	DeleteMarkerVersionId string   `xml:"DeleteMarkerVersionId"`
 }
 
+// Error defines the error property in DeleteObjectsOutput
 type Error struct {
 	XMLName   xml.Name `xml:"Error"`
 	Key       string   `xml:"Key"`
@@ -646,13 +738,16 @@ type Error struct {
 	Message   string   `xml:"Message"`
 }
 
+// DeleteObjectsOutput is the result of DeleteObjects function
 type DeleteObjectsOutput struct {
 	BaseModel
-	XMLName  xml.Name  `xml:"DeleteResult"`
-	Deleteds []Deleted `xml:"Deleted"`
-	Errors   []Error   `xml:"Error"`
+	XMLName      xml.Name  `xml:"DeleteResult"`
+	Deleteds     []Deleted `xml:"Deleted"`
+	Errors       []Error   `xml:"Error"`
+	EncodingType string    `xml:"EncodingType,omitempty"`
 }
 
+// SetObjectAclInput is the input parameter of SetObjectAcl function
 type SetObjectAclInput struct {
 	Bucket    string  `xml:"-"`
 	Key       string  `xml:"-"`
@@ -661,18 +756,21 @@ type SetObjectAclInput struct {
 	AccessControlPolicy
 }
 
+// GetObjectAclInput is the input parameter of GetObjectAcl function
 type GetObjectAclInput struct {
 	Bucket    string
 	Key       string
 	VersionId string
 }
 
+// GetObjectAclOutput is the result of GetObjectAcl function
 type GetObjectAclOutput struct {
 	BaseModel
 	VersionId string
 	AccessControlPolicy
 }
 
+// RestoreObjectInput is the input parameter of RestoreObject function
 type RestoreObjectInput struct {
 	Bucket    string          `xml:"-"`
 	Key       string          `xml:"-"`
@@ -682,23 +780,27 @@ type RestoreObjectInput struct {
 	Tier      RestoreTierType `xml:"GlacierJobParameters>Tier,omitempty"`
 }
 
+// ISseHeader defines the sse encryption header
 type ISseHeader interface {
 	GetEncryption() string
 	GetKey() string
 }
 
+// SseKmsHeader defines the SseKms header
 type SseKmsHeader struct {
 	Encryption string
 	Key        string
 	isObs      bool
 }
 
+// SseCHeader defines the SseC header
 type SseCHeader struct {
 	Encryption string
 	Key        string
 	KeyMD5     string
 }
 
+// GetObjectMetadataInput is the input parameter of GetObjectMetadata function
 type GetObjectMetadataInput struct {
 	Bucket        string
 	Key           string
@@ -708,6 +810,7 @@ type GetObjectMetadataInput struct {
 	SseHeader     ISseHeader
 }
 
+// GetObjectMetadataOutput is the result of GetObjectMetadata function
 type GetObjectMetadataOutput struct {
 	BaseModel
 	VersionId               string
@@ -730,6 +833,7 @@ type GetObjectMetadataOutput struct {
 	Metadata                map[string]string
 }
 
+// GetObjectInput is the input parameter of GetObject function
 type GetObjectInput struct {
 	GetObjectMetadataInput
 	IfMatch                    string
@@ -747,6 +851,7 @@ type GetObjectInput struct {
 	ResponseExpires            string
 }
 
+// GetObjectOutput is the result of GetObject function
 type GetObjectOutput struct {
 	GetObjectMetadataOutput
 	DeleteMarker       bool
@@ -758,6 +863,7 @@ type GetObjectOutput struct {
 	Body               io.ReadCloser
 }
 
+// ObjectOperationInput defines the object operation properties
 type ObjectOperationInput struct {
 	Bucket                  string
 	Key                     string
@@ -773,6 +879,7 @@ type ObjectOperationInput struct {
 	Metadata                map[string]string
 }
 
+// PutObjectBasicInput defines the basic object operation properties
 type PutObjectBasicInput struct {
 	ObjectOperationInput
 	ContentType   string
@@ -780,16 +887,19 @@ type PutObjectBasicInput struct {
 	ContentLength int64
 }
 
+// PutObjectInput is the input parameter of PutObject function
 type PutObjectInput struct {
 	PutObjectBasicInput
 	Body io.Reader
 }
 
+// PutFileInput is the input parameter of PutFile function
 type PutFileInput struct {
 	PutObjectBasicInput
 	SourceFile string
 }
 
+// PutObjectOutput is the result of PutObject function
 type PutObjectOutput struct {
 	BaseModel
 	VersionId    string
@@ -798,6 +908,7 @@ type PutObjectOutput struct {
 	ETag         string
 }
 
+// CopyObjectInput is the input parameter of CopyObject function
 type CopyObjectInput struct {
 	ObjectOperationInput
 	CopySourceBucket            string
@@ -818,6 +929,7 @@ type CopyObjectInput struct {
 	SuccessActionRedirect       string
 }
 
+// CopyObjectOutput is the result of CopyObject function
 type CopyObjectOutput struct {
 	BaseModel
 	CopySourceVersionId string     `xml:"-"`
@@ -828,26 +940,32 @@ type CopyObjectOutput struct {
 	ETag                string     `xml:"ETag"`
 }
 
+// AbortMultipartUploadInput is the input parameter of AbortMultipartUpload function
 type AbortMultipartUploadInput struct {
 	Bucket   string
 	Key      string
 	UploadId string
 }
 
+// InitiateMultipartUploadInput is the input parameter of InitiateMultipartUpload function
 type InitiateMultipartUploadInput struct {
 	ObjectOperationInput
-	ContentType string
+	ContentType  string
+	EncodingType string
 }
 
+// InitiateMultipartUploadOutput is the result of InitiateMultipartUpload function
 type InitiateMultipartUploadOutput struct {
 	BaseModel
-	XMLName   xml.Name `xml:"InitiateMultipartUploadResult"`
-	Bucket    string   `xml:"Bucket"`
-	Key       string   `xml:"Key"`
-	UploadId  string   `xml:"UploadId"`
-	SseHeader ISseHeader
+	XMLName      xml.Name `xml:"InitiateMultipartUploadResult"`
+	Bucket       string   `xml:"Bucket"`
+	Key          string   `xml:"Key"`
+	UploadId     string   `xml:"UploadId"`
+	SseHeader    ISseHeader
+	EncodingType string `xml:"EncodingType,omitempty"`
 }
 
+// UploadPartInput is the input parameter of UploadPart function
 type UploadPartInput struct {
 	Bucket     string
 	Key        string
@@ -861,6 +979,7 @@ type UploadPartInput struct {
 	PartSize   int64
 }
 
+// UploadPartOutput is the result of UploadPart function
 type UploadPartOutput struct {
 	BaseModel
 	PartNumber int
@@ -868,6 +987,7 @@ type UploadPartOutput struct {
 	SseHeader  ISseHeader
 }
 
+// Part defines the part properties
 type Part struct {
 	XMLName      xml.Name  `xml:"Part"`
 	PartNumber   int       `xml:"PartNumber"`
@@ -876,33 +996,40 @@ type Part struct {
 	Size         int64     `xml:"Size,omitempty"`
 }
 
+// CompleteMultipartUploadInput is the input parameter of CompleteMultipartUpload function
 type CompleteMultipartUploadInput struct {
-	Bucket   string   `xml:"-"`
-	Key      string   `xml:"-"`
-	UploadId string   `xml:"-"`
-	XMLName  xml.Name `xml:"CompleteMultipartUpload"`
-	Parts    []Part   `xml:"Part"`
+	Bucket       string   `xml:"-"`
+	Key          string   `xml:"-"`
+	UploadId     string   `xml:"-"`
+	XMLName      xml.Name `xml:"CompleteMultipartUpload"`
+	Parts        []Part   `xml:"Part"`
+	EncodingType string   `xml:"-"`
 }
 
+// CompleteMultipartUploadOutput is the result of CompleteMultipartUpload function
 type CompleteMultipartUploadOutput struct {
 	BaseModel
-	VersionId string     `xml:"-"`
-	SseHeader ISseHeader `xml:"-"`
-	XMLName   xml.Name   `xml:"CompleteMultipartUploadResult"`
-	Location  string     `xml:"Location"`
-	Bucket    string     `xml:"Bucket"`
-	Key       string     `xml:"Key"`
-	ETag      string     `xml:"ETag"`
+	VersionId    string     `xml:"-"`
+	SseHeader    ISseHeader `xml:"-"`
+	XMLName      xml.Name   `xml:"CompleteMultipartUploadResult"`
+	Location     string     `xml:"Location"`
+	Bucket       string     `xml:"Bucket"`
+	Key          string     `xml:"Key"`
+	ETag         string     `xml:"ETag"`
+	EncodingType string     `xml:"EncodingType,omitempty"`
 }
 
+// ListPartsInput is the input parameter of ListParts function
 type ListPartsInput struct {
 	Bucket           string
 	Key              string
 	UploadId         string
 	MaxParts         int
 	PartNumberMarker int
+	EncodingType     string
 }
 
+// ListPartsOutput is the result of ListParts function
 type ListPartsOutput struct {
 	BaseModel
 	XMLName              xml.Name         `xml:"ListPartsResult"`
@@ -917,8 +1044,10 @@ type ListPartsOutput struct {
 	Initiator            Initiator        `xml:"Initiator"`
 	Owner                Owner            `xml:"Owner"`
 	Parts                []Part           `xml:"Part"`
+	EncodingType         string           `xml:"EncodingType,omitempty"`
 }
 
+// CopyPartInput is the input parameter of CopyPart function
 type CopyPartInput struct {
 	Bucket               string
 	Key                  string
@@ -933,6 +1062,7 @@ type CopyPartInput struct {
 	SourceSseHeader      ISseHeader
 }
 
+// CopyPartOutput is the result of CopyPart function
 type CopyPartOutput struct {
 	BaseModel
 	XMLName      xml.Name   `xml:"CopyPartResult"`
@@ -942,6 +1072,7 @@ type CopyPartOutput struct {
 	SseHeader    ISseHeader `xml:"-"`
 }
 
+// CreateSignedUrlInput is the input parameter of CreateSignedUrl function
 type CreateSignedUrlInput struct {
 	Method      HttpMethodType
 	Bucket      string
@@ -952,11 +1083,13 @@ type CreateSignedUrlInput struct {
 	QueryParams map[string]string
 }
 
+// CreateSignedUrlOutput is the result of CreateSignedUrl function
 type CreateSignedUrlOutput struct {
 	SignedUrl                  string
 	ActualSignedRequestHeaders http.Header
 }
 
+// CreateBrowserBasedSignatureInput is the input parameter of CreateBrowserBasedSignature function.
 type CreateBrowserBasedSignatureInput struct {
 	Bucket     string
 	Key        string
@@ -964,6 +1097,7 @@ type CreateBrowserBasedSignatureInput struct {
 	FormParams map[string]string
 }
 
+// CreateBrowserBasedSignatureOutput is the result of CreateBrowserBasedSignature function.
 type CreateBrowserBasedSignatureOutput struct {
 	OriginPolicy string
 	Policy       string
@@ -971,4 +1105,149 @@ type CreateBrowserBasedSignatureOutput struct {
 	Credential   string
 	Date         string
 	Signature    string
+}
+
+// HeadObjectInput is the input parameter of HeadObject function
+type HeadObjectInput struct {
+	Bucket    string
+	Key       string
+	VersionId string
+}
+
+// BucketPayer defines the request payment configuration
+type BucketPayer struct {
+	XMLName xml.Name  `xml:"RequestPaymentConfiguration"`
+	Payer   PayerType `xml:"Payer"`
+}
+
+// SetBucketRequestPaymentInput is the input parameter of SetBucketRequestPayment function
+type SetBucketRequestPaymentInput struct {
+	Bucket string `xml:"-"`
+	BucketPayer
+}
+
+// GetBucketRequestPaymentOutput is the result of GetBucketRequestPayment function
+type GetBucketRequestPaymentOutput struct {
+	BaseModel
+	BucketPayer
+}
+
+// UploadFileInput is the input parameter of UploadFile function
+type UploadFileInput struct {
+	ObjectOperationInput
+	ContentType      string
+	UploadFile       string
+	PartSize         int64
+	TaskNum          int
+	EnableCheckpoint bool
+	CheckpointFile   string
+	EncodingType     string
+}
+
+// DownloadFileInput is the input parameter of DownloadFile function
+type DownloadFileInput struct {
+	GetObjectMetadataInput
+	IfMatch           string
+	IfNoneMatch       string
+	IfModifiedSince   time.Time
+	IfUnmodifiedSince time.Time
+	DownloadFile      string
+	PartSize          int64
+	TaskNum           int
+	EnableCheckpoint  bool
+	CheckpointFile    string
+}
+
+// SetBucketFetchPolicyInput is the input parameter of SetBucketFetchPolicy function
+type SetBucketFetchPolicyInput struct {
+	Bucket string
+	Status FetchPolicyStatusType `json:"status"`
+	Agency string                `json:"agency"`
+}
+
+// GetBucketFetchPolicyInput is the input parameter of GetBucketFetchPolicy function
+type GetBucketFetchPolicyInput struct {
+	Bucket string
+}
+
+// GetBucketFetchPolicyOutput is the result of GetBucketFetchPolicy function
+type GetBucketFetchPolicyOutput struct {
+	BaseModel
+	FetchResponse `json:"fetch"`
+}
+
+// FetchResponse defines the response fetch policy configuration
+type FetchResponse struct {
+	Status FetchPolicyStatusType `json:"status"`
+	Agency string                `json:"agency"`
+}
+
+// DeleteBucketFetchPolicyInput is the input parameter of DeleteBucketFetchPolicy function
+type DeleteBucketFetchPolicyInput struct {
+	Bucket string
+}
+
+// SetBucketFetchJobInput is the input parameter of SetBucketFetchJob function
+type SetBucketFetchJobInput struct {
+	Bucket           string            `json:"bucket"`
+	URL              string            `json:"url"`
+	Host             string            `json:"host,omitempty"`
+	Key              string            `json:"key,omitempty"`
+	Md5              string            `json:"md5,omitempty"`
+	CallBackURL      string            `json:"callbackurl,omitempty"`
+	CallBackBody     string            `json:"callbackbody,omitempty"`
+	CallBackBodyType string            `json:"callbackbodytype,omitempty"`
+	CallBackHost     string            `json:"callbackhost,omitempty"`
+	FileType         string            `json:"file_type,omitempty"`
+	IgnoreSameKey    bool              `json:"ignore_same_key,omitempty"`
+	ObjectHeaders    map[string]string `json:"objectheaders,omitempty"`
+	Etag             string            `json:"etag,omitempty"`
+	TrustName        string            `json:"trustname,omitempty"`
+}
+
+// SetBucketFetchJobOutput is the result of SetBucketFetchJob function
+type SetBucketFetchJobOutput struct {
+	BaseModel
+	SetBucketFetchJobResponse
+}
+
+// SetBucketFetchJobResponse defines the response SetBucketFetchJob configuration
+type SetBucketFetchJobResponse struct {
+	ID   string `json:"id"`
+	Wait int    `json:"Wait"`
+}
+
+// GetBucketFetchJobInput is the input parameter of GetBucketFetchJob function
+type GetBucketFetchJobInput struct {
+	Bucket string
+	JobID  string
+}
+
+// GetBucketFetchJobOutput is the result of GetBucketFetchJob function
+type GetBucketFetchJobOutput struct {
+	BaseModel
+	GetBucketFetchJobResponse
+}
+
+// GetBucketFetchJobResponse defines the response fetch job configuration
+type GetBucketFetchJobResponse struct {
+	Err    string      `json:"err"`
+	Code   string      `json:"code"`
+	Status string      `json:"status"`
+	Job    JobResponse `json:"job"`
+}
+
+// JobResponse defines the response job configuration
+type JobResponse struct {
+	Bucket           string `json:"bucket"`
+	URL              string `json:"url"`
+	Host             string `json:"host"`
+	Key              string `json:"key"`
+	Md5              string `json:"md5"`
+	CallBackURL      string `json:"callbackurl"`
+	CallBackBody     string `json:"callbackbody"`
+	CallBackBodyType string `json:"callbackbodytype"`
+	CallBackHost     string `json:"callbackhost"`
+	FileType         string `json:"file_type"`
+	IgnoreSameKey    bool   `json:"ignore_same_key"`
 }

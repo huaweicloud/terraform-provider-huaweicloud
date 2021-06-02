@@ -1,3 +1,72 @@
+Version 3.21.1
+
+New Features:
+
+Documentation & Demo:
+
+Resolved Issues:
+1. Fixed the issue that a failure message is still returned even if code is successfully retried within allowed attempts.
+2. Fixed the issue that no error messages are returned when a response message fails to be obtained.
+
+-----------------------------------------------------------------------------------
+
+Version 3.20.7.1
+
+New Features:
+1. Added the APIs for resumable upload (ObsClient.UploadFile) and resumable download (ObsClient.DownloadFile).
+
+Documentation & Demo:
+1. Added the description of the API for resumable upload to section "Object Upload" and the description of the API for resumable download to section "Object Download" in the OBS Go SDK Developer Guide.
+2. Added the topics of resumable upload and resumable download to section "Other APIs" in OBS Go SDK API Reference.
+
+Resolved Issues:
+1. Optimized part of the code.
+
+-----------------------------------------------------------------------------------
+
+Version 3.20.7
+
+New Features:
+
+Documentation & Demo:
+
+Resolved Issues:
+1. Optimized part of the code.
+
+-----------------------------------------------------------------------------------
+
+Version 3.20.3
+
+New Features:
+1. Added the ObsClient.HeadObject API for determining whether an object exists.
+2. Added the ObsClient.SetBucketRequestPayment and ObsClient.GetBucketRequestPayment APIs respectively for configuring the Requester Pays function and obtaining related configuration.
+3. Supports configuration of the Requester Pays header (obs.WithReqPaymentHeader) when calling an API.
+
+Documentation & Demo:
+1. Added the topic of checking whether an object exists to section "Object Management" in OBS Go SDK Developer Guide; added the API for checking whether an object exists to section "Bucket-Related APIs" in OBS Go SDK API Reference; added the request parameter for checking whether an object exists to section "Data Types" in OBS Go SDK API Reference.
+2. Added the topic of Requester Pays to section "Bucket Management" in OBS Go SDK Developer Guide; added the APIs for configuring the Requester Pays function and obtaining related configuration to section "Bucket-Related APIs" in OBS Go SDK API Reference; added the request parameter for configuring Requester Pays and the response result of obtaining Requester Pays configuration to section "Data Types" in OBS Go SDK API Reference.
+3. Added the topic of SDK API extended configurations to section "Initialization" in OBS Go SDK API Reference.
+4. Added the topic of Requester Pays configuration to section "Enumeration Constants" in OBS Go SDK API Reference.
+5. Added the description of extended parameters to the API method definitions in OBS Go SDK API Reference.
+
+Resolved Issues:
+1. Optimized part of the code.
+2. Fixed the issue that the Epid parameter does not take effect if StorageClass is not specified when calling the CreateBucket API.
+3. Supports the az-redundancy parameter when calling the CreateBucket API.
+
+-----------------------------------------------------------------------------------
+
+Version 3.20.1
+
+New Features:
+
+Documentation & Demo:
+
+Resolved Issues:
+1. Optimized part of the code.
+
+-----------------------------------------------------------------------------------
+
 Version 3.19.11
 Updated the version ID format. The new version ID is named in the following format: Main version ID.Year ID.Month ID.
 
