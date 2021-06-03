@@ -298,5 +298,21 @@ $ terraform import huaweicloud_obs_bucket.bucket <bucket-name>
 OBS bucket with S3 foramt bucket policy can be imported using the `bucket` and "s3" by a slash, e.g.
 
 ```
-$ terraform import huaweicloud_obs_bucket_policy.s3_policy <bucket-name>/s3
+$ terraform import huaweicloud_obs_bucket.bucket_with_s3_policy <bucket-name>/s3
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attrubutes
+missing from the API response. The missing attributes include `acl` and `force_destroy`.
+It is generally recommended running `terraform plan` after importing an OBS bucket.
+Also you can ignore changes as below.
+```
+resource "huaweicloud_obs_bucket" "bucket" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      acl, force_destroy,
+    ]
+  }
+}
 ```

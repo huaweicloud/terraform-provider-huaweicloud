@@ -102,6 +102,12 @@ func TestAccObsBucketPolicy_s3(t *testing.T) {
 					resource.TestCheckResourceAttr(policyName, "policy_format", "s3"),
 				),
 			},
+			{
+				ResourceName:      policyName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccOBSPolicyImportStateIDFunc(),
+			},
 		},
 	})
 }
@@ -138,11 +144,22 @@ func testAccCheckObsBucketHasPolicy(n string, expectedPolicyText string) resourc
 
 		actualPolicyText := policy.Policy
 		if actualPolicyText != expectedPolicyText {
-			return fmt.Errorf("Non-equivalent policy error:\n\nexpected: %s\n\n     got: %s\n",
+			return fmt.Errorf("non-equivalent policy error:\n\nexpected: %s\n\n     got: %s",
 				expectedPolicyText, actualPolicyText)
 		}
 
 		return nil
+	}
+}
+
+func testAccOBSPolicyImportStateIDFunc() resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		policyRes, ok := s.RootModule().Resources["huaweicloud_obs_bucket_policy.s3_policy"]
+		if !ok {
+			return "", fmt.Errorf("huaweicloud_obs_bucket_policy resource not found")
+		}
+
+		return fmt.Sprintf("%s/s3", policyRes.Primary.ID), nil
 	}
 }
 
