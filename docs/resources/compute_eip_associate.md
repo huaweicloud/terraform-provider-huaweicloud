@@ -2,10 +2,9 @@
 subcategory: "Elastic Cloud Server (ECS)"
 ---
 
-# huaweicloud\_compute\_eip\_associate
+# huaweicloud_compute_eip_associate
 
-Associate an EIP to an instance. This is an alternative to
-`huaweicloud_compute_floatingip_associate_v2`.
+Associate an EIP to a compute instance.
 
 ## Example Usage
 
@@ -86,11 +85,11 @@ resource "huaweicloud_compute_eip_associate" "associated" {
 
 The following arguments are supported:
 
-* `public_ip` - (Required, String, ForceNew) The EIP to associate.
+* `public_ip` - (Required, String, ForceNew) Specifies the EIP address to associate.
 
-* `instance_id` - (Required, String, ForceNew) The instance to associte the EIP with.
+* `instance_id` - (Required, String, ForceNew) Specifies the instance to associte the EIP with.
 
-* `fixed_ip` - (Optional, String, ForceNew) The specific IP address to direct traffic to.
+* `fixed_ip` - (Optional, String, ForceNew) Specifies the IP address to direct traffic to.
 
 ## Attributes Reference
 
