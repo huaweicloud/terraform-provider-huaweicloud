@@ -15,6 +15,7 @@ import (
 func TestAccComputeV2InterfaceAttach_Basic(t *testing.T) {
 	var ai attachinterfaces.Interface
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_compute_interface_attach.ai_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -24,9 +25,14 @@ func TestAccComputeV2InterfaceAttach_Basic(t *testing.T) {
 			{
 				Config: testAccComputeV2InterfaceAttach_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InterfaceAttachExists("huaweicloud_compute_interface_attach.ai_1", &ai),
+					testAccCheckComputeV2InterfaceAttachExists(resourceName, &ai),
 					testAccCheckComputeV2InterfaceAttachIP(&ai, "192.168.0.199"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -126,8 +132,8 @@ resource "huaweicloud_compute_instance" "instance_1" {
 
 resource "huaweicloud_compute_interface_attach" "ai_1" {
   instance_id = huaweicloud_compute_instance.instance_1.id
-  network_id =  data.huaweicloud_vpc_subnet.test.id
-  fixed_ip = "192.168.0.199"
+  network_id  = data.huaweicloud_vpc_subnet.test.id
+  fixed_ip    = "192.168.0.199"
 }
 `, testAccCompute_data, rName)
 }
