@@ -43,6 +43,15 @@ func TestAccObsBucket_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"acl",
+					"force_destroy",
+				},
+			},
 		},
 	})
 }
@@ -198,14 +207,6 @@ func TestAccObsBucket_lifecycle(t *testing.T) {
 						resourceName, "lifecycle_rule.2.noncurrent_version_transition.0.days", "60"),
 					resource.TestCheckResourceAttr(
 						resourceName, "lifecycle_rule.2.noncurrent_version_transition.1.days", "180"),
-					/*
-						resource.TestCheckResourceAttr(
-							resourceName, "lifecycle_rule.0.expiration.days", "365"),
-						resource.TestCheckResourceAttr(
-							resourceName, "lifecycle_rule.1.expiration.days", "365"),
-						resource.TestCheckResourceAttr(
-							resourceName, "lifecycle_rule.2.noncurrent_version_expiration.days", "365"),
-					*/
 				),
 			},
 		},
