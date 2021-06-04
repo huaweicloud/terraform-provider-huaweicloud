@@ -5,7 +5,6 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/recordsets"
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/zones"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/firewall_groups"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/routerinsertion"
@@ -197,12 +196,6 @@ func (opts ZoneCreateOpts) ToZoneCreateMap() (map[string]interface{}, error) {
 	}
 
 	return nil, fmtp.Errorf("Expected map but got %T", b[""])
-}
-
-// EIPCreateOpts represents the attributes used when creating a new eip.
-type EIPCreateOpts struct {
-	eips.ApplyOpts
-	ValueSpecs map[string]string `json:"value_specs,omitempty"`
 }
 
 // VpnIPSecPolicyCreateOpts represents the attributes used when creating a new IPSec policy.

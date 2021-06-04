@@ -105,11 +105,6 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"value_specs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 		},
 	}
 }
@@ -121,16 +116,12 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error creating networking client: %s", err)
 	}
 
-	createOpts := EIPCreateOpts{
-		eips.ApplyOpts{
-			IP:        resourcePublicIP(d),
-			Bandwidth: resourceBandWidth(d),
-		},
-		MapValueSpecs(d),
+	createOpts := eips.ApplyOpts{
+		IP:        resourcePublicIP(d),
+		Bandwidth: resourceBandWidth(d),
 	}
 
 	epsID := GetEnterpriseProjectID(d, config)
-
 	if epsID != "" {
 		createOpts.EnterpriseProjectID = epsID
 	}
