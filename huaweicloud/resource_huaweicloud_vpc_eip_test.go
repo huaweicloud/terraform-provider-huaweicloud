@@ -29,6 +29,11 @@ func TestAccVpcV1EIP_basic(t *testing.T) {
 					testAccCheckVpcV1EIPExists(resourceName, &eip),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -49,6 +54,11 @@ func TestAccVpcV1EIP_share(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1EIPExists(resourceName, &eip),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

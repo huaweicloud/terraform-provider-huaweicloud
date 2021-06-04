@@ -62,48 +62,22 @@ func testAccCheckNetworkingV2VIPAssociateDestroy(s *terraform.State) error {
 		}
 	}
 
-	log.Printf("[DEBUG] testAccCheckNetworkingV2VIPAssociateDestroy success!")
+	log.Printf("[DEBUG] Destroy NetworkingVIPAssociated success!")
 	return nil
 }
 
 func testAccCheckNetworkingV2VIPAssociated(p *ports.Port, vip *ports.Port) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
-		}
-
-		p, err := ports.Get(networkingClient, p.ID).Extract()
-		if err != nil {
-			// If the error is a 404, then the port does not exist,
-			// and therefore the VIP cannot be associated to it.
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return nil
-			}
-			return err
-		}
-
-		vipport, err := ports.Get(networkingClient, vip.ID).Extract()
-		if err != nil {
-			// If the error is a 404, then the vip port does not exist,
-			// and therefore the VIP cannot be associated to it.
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return nil
-			}
-			return err
-		}
-
 		for _, ip := range p.FixedIPs {
-			for _, addresspair := range vipport.AllowedAddressPairs {
+			for _, addresspair := range vip.AllowedAddressPairs {
 				if ip.IPAddress == addresspair.IPAddress {
-					log.Printf("[DEBUG] testAccCheckNetworkingV2VIPAssociated success!")
+					log.Printf("[DEBUG] Check NetworkingVIPAssociated success!")
 					return nil
 				}
 			}
 		}
 
-		return fmt.Errorf("VIP %s was not attached to port %s", vipport.ID, p.ID)
+		return fmt.Errorf("VIP %s was not attached to port %s", vip.ID, p.ID)
 	}
 }
 
