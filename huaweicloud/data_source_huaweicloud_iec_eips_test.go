@@ -12,9 +12,10 @@ func TestAccIECPublicIPsDataSource_basic(t *testing.T) {
 	resourceName := "data.huaweicloud_iec_eips.site"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIecEIPDestroy,
+		PreCheck:                  func() { testAccPreCheck(t) },
+		Providers:                 testAccProviders,
+		CheckDestroy:              testAccCheckIecEIPDestroy,
+		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIECEipsDataSource_config,
@@ -23,8 +24,6 @@ func TestAccIECPublicIPsDataSource_basic(t *testing.T) {
 				Config: testAccIECEipsDataSource_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccIECPublicIPsDataSourceID(resourceName),
-					// "eips.#" >= 2
-					// resource.TestCheckResourceAttr(resourceName, "eips.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "eips.0.ip_version", "4"),
 					resource.TestCheckResourceAttr(resourceName, "eips.0.bandwidth_share_type", "WHOLE"),
 					resource.TestCheckResourceAttrSet(resourceName, "site_info"),
