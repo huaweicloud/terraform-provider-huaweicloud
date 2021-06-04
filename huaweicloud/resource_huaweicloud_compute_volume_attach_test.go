@@ -15,6 +15,7 @@ import (
 func TestAccComputeV2VolumeAttach_basic(t *testing.T) {
 	var va volumeattach.VolumeAttachment
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_compute_volume_attach.va_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -24,11 +25,11 @@ func TestAccComputeV2VolumeAttach_basic(t *testing.T) {
 			{
 				Config: testAccComputeV2VolumeAttach_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2VolumeAttachExists("huaweicloud_compute_volume_attach.va_1", &va),
+					testAccCheckComputeV2VolumeAttachExists(resourceName, &va),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_compute_volume_attach.va_1",
+				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

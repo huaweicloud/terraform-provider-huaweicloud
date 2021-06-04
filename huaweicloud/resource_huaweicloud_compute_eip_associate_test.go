@@ -128,7 +128,7 @@ func testAccCheckComputeV2EIPAssociateAssociated(
 		// Walk through the instance's addresses and find the match
 		i := 0
 		for _, networkAddresses := range newInstance.Addresses {
-			i += 1
+			i++
 			if i != n {
 				continue
 			}
@@ -177,7 +177,7 @@ func testAccComputeV2EIPAssociate_basic(rName string) string {
 %s
 
 resource "huaweicloud_compute_eip_associate" "test" {
-  public_ip = huaweicloud_vpc_eip.test.address
+  public_ip   = huaweicloud_vpc_eip.test.address
   instance_id = huaweicloud_compute_instance.test.id
 }
 `, testAccComputeV2EIPAssociate_Base(rName))
@@ -188,7 +188,7 @@ func testAccComputeV2EIPAssociate_fixedIP(rName string) string {
 %s
 
 resource "huaweicloud_compute_eip_associate" "test" {
-  public_ip = huaweicloud_vpc_eip.test.address
+  public_ip   = huaweicloud_vpc_eip.test.address
   instance_id = huaweicloud_compute_instance.test.id
   fixed_ip    = huaweicloud_compute_instance.test.access_ip_v4
 }
