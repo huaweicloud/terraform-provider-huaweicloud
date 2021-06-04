@@ -70,10 +70,9 @@ data "huaweicloud_vpc_subnet" "mynet" {
   name = "subnet-default"
 }
 
-resource "huaweicloud_networking_port" "myport" {
-  name           = "port"
-  network_id     = data.huaweicloud_vpc_subnet.mynet.id
-  admin_state_up = "true"
+data "huaweicloud_networking_port" "myport" {
+  network_id = data.huaweicloud_vpc_subnet.mynet.id
+  fixed_ip   = "192.168.0.100"
 }
 
 resource "huaweicloud_compute_instance" "myinstance" {
@@ -91,7 +90,7 @@ resource "huaweicloud_compute_instance" "myinstance" {
 
 resource "huaweicloud_compute_interface_attach" "attached" {
   instance_id = huaweicloud_compute_instance.myinstance.id
-  port_id     = huaweicloud_networking_port.myport.id
+  port_id     = data.huaweicloud_networking_port.myport.id
 }
 
 ```

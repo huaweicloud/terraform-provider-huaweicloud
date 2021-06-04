@@ -8,6 +8,7 @@ import (
 )
 
 func TestAccNetworkingV2PortDataSource_basic(t *testing.T) {
+	resourceName := "data.huaweicloud_networking_port.gw_port"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -17,8 +18,9 @@ func TestAccNetworkingV2PortDataSource_basic(t *testing.T) {
 			{
 				Config: testAccNetworkingV2PortDataSource_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_networking_port.port_3", "all_fixed_ips.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "all_fixed_ips.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "mac_address"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
 				),
 			},
 		},
@@ -31,9 +33,9 @@ data "huaweicloud_vpc_subnet" "mynet" {
   name = "subnet-default"
 }
 
-data "huaweicloud_networking_port" "port_3" {
+data "huaweicloud_networking_port" "gw_port" {
   network_id = data.huaweicloud_vpc_subnet.mynet.id
-  fixed_ip = data.huaweicloud_vpc_subnet.mynet.gateway_ip
+  fixed_ip   = data.huaweicloud_vpc_subnet.mynet.gateway_ip
 }
 `)
 }
