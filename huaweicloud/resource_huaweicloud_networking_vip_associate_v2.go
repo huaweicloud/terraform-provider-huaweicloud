@@ -123,7 +123,7 @@ func resourceNetworkingVIPAssociateV2Create(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	// chech the vip
+	// check the vip port
 	vipID := d.Get("vip_id").(string)
 	_, err = ports.Get(networkingClient, vipID).Extract()
 	if err != nil {
@@ -147,7 +147,7 @@ func resourceNetworkingVIPAssociateV2Update(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	// chech the vip
+	// check the vip port
 	vipID := d.Get("vip_id").(string)
 	_, err = ports.Get(networkingClient, vipID).Extract()
 	if err != nil {
@@ -169,8 +169,8 @@ func resourceNetworkingVIPAssociateV2Read(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	vipID := d.Get("vip_id").(string)
 	// check the vip port
+	vipID := d.Get("vip_id").(string)
 	vip, err := ports.Get(networkingClient, vipID).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "vip")
@@ -222,8 +222,8 @@ func resourceNetworkingVIPAssociateV2Delete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
-	vipID := d.Get("vip_id").(string)
 	// check the vip port
+	vipID := d.Get("vip_id").(string)
 	_, err = ports.Get(networkingClient, vipID).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "vip")
