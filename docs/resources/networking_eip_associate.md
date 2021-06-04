@@ -29,7 +29,7 @@ resource "huaweicloud_vpc_eip" "myeip" {
 
 resource "huaweicloud_networking_eip_associate" "associated" {
   public_ip = huaweicloud_vpc_eip.myeip.address
-  port_id   = huaweicloud_networking_port.myport.id
+  port_id   = data.huaweicloud_networking_port.myport.id
 }
 ```
 
