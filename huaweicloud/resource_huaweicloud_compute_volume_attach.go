@@ -85,7 +85,6 @@ func resourceComputeVolumeAttachV2Create(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Creating volume attachment: %#v", attachOpts)
-
 	attachment, err := volumeattach.Create(computeClient, instanceId, attachOpts).Extract()
 	if err != nil {
 		return err
@@ -108,8 +107,8 @@ func resourceComputeVolumeAttachV2Create(d *schema.ResourceData, meta interface{
 
 	// Use the instance ID and attachment ID as the resource ID.
 	// This is because an attachment cannot be retrieved just by its ID alone.
+	// attachment ID equals the volume ID
 	id := fmt.Sprintf("%s/%s", instanceId, attachment.ID)
-
 	d.SetId(id)
 
 	return resourceComputeVolumeAttachV2Read(d, meta)
