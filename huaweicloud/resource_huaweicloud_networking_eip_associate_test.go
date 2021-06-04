@@ -31,6 +31,11 @@ func TestAccNetworkingV2EIPAssociate_basic(t *testing.T) {
 						resourceName, "public_ip", &eip.PublicAddress),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -73,8 +78,8 @@ resource "huaweicloud_vpc_eip" "test" {
 }
 
 resource "huaweicloud_networking_eip_associate" "test" {
-  public_ip   = huaweicloud_vpc_eip.test.address
-  port_id     = huaweicloud_compute_instance.test.network[0].port
+  public_ip = huaweicloud_vpc_eip.test.address
+  port_id   = huaweicloud_compute_instance.test.network[0].port
 }
 `, testAccComputeV2Instance_basic(rName), rName)
 }
