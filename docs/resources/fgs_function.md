@@ -7,7 +7,9 @@ subcategory: "FunctionGraph"
 Manages a Function resource within HuaweiCloud.
 This is an alternative to `huaweicloud_fgs_function_v2`
 
-## Example Usage With base64 func code
+## Example Usage 
+
+### With base64 func code
 
 ```hcl
 resource "huaweicloud_fgs_function" "f_1" {
@@ -24,7 +26,7 @@ resource "huaweicloud_fgs_function" "f_1" {
 }
 ```
 
-## Example Usage With text code
+### With text code
 
 ```hcl
 resource "huaweicloud_fgs_function" "f_1" {
@@ -53,7 +55,7 @@ EOF
 }
 ```
 
-## Example Usage With agency, vpc, subnet and func_mounts
+### With agency, vpc, subnet and func_mounts
 
 ```hcl
 resource "huaweicloud_vpc" "test" {
@@ -112,8 +114,8 @@ resource "huaweicloud_fgs_function" "test" {
 }
 ```
 
-## Example with agency, user_data for environment variables and OBS for code storage
-```
+### With agency, user_data for environment variables and OBS for code storage
+```hcl
 resource "huaweicloud_identity_agency" "agency" {
   name                   = "fgs_obs_agency"
   description            = "Delegate OBS access to FGS"
