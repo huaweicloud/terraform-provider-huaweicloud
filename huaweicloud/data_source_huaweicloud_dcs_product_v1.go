@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceDcsProductV1() *schema.Resource {
+func DataSourceDcsProductV1() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceDcsProductV1Read,
 
