@@ -2,6 +2,7 @@ package eips
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/common/structs"
 	"github.com/huaweicloud/golangsdk/pagination"
 )
 
@@ -16,6 +17,9 @@ type ApplyOpts struct {
 	IP                  PublicIpOpts  `json:"publicip" required:"true"`
 	Bandwidth           BandwidthOpts `json:"bandwidth" required:"true"`
 	EnterpriseProjectID string        `json:"enterprise_project_id,omitempty"`
+
+	//ExtendParam is only valid by v2.0 client
+	ExtendParam *structs.ChargeInfo `json:"extendParam,omitempty"`
 }
 
 type PublicIpOpts struct {

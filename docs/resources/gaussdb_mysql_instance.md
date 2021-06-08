@@ -95,6 +95,9 @@ The following arguments are supported:
 
 * `force_import` - (Optional, Bool) If specified, try to import the instance instead of creating if the name already existed.
 
+* `volume_size` - (Optional, Int) Specifies the volume size of the instance. The new storage space must be greater than
+  the current storage and must be a multiple of 10 GB. Only valid when in prePaid mode.
+
 * `charging_mode` - (Optional, String, ForceNew) The charging mode of the instance.
   Valid values are *prePaid* and *postPaid*, defaults to *postPaid*.
   Changing this creates a new resource.

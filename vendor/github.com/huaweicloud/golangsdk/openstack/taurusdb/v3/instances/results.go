@@ -78,16 +78,21 @@ type Volume struct {
 	Used string `json:"used"`
 }
 
+type NodeVolume struct {
+	Size int `json:"size"`
+}
+
 type Nodes struct {
-	Id               string   `json:"id"`
-	Name             string   `json:"name"`
-	Type             string   `json:"type"`
-	Status           string   `json:"status"`
-	PrivateIps       []string `json:"private_read_ips"`
-	Port             int      `json:"port"`
-	Flavor           string   `json:"flavor_ref"`
-	Region           string   `json:"region_code"`
-	AvailabilityZone string   `json:"az_code"`
+	Id               string     `json:"id"`
+	Name             string     `json:"name"`
+	Type             string     `json:"type"`
+	Status           string     `json:"status"`
+	PrivateIps       []string   `json:"private_read_ips"`
+	Port             int        `json:"port"`
+	Flavor           string     `json:"flavor_ref"`
+	Region           string     `json:"region_code"`
+	AvailabilityZone string     `json:"az_code"`
+	Volume           NodeVolume `json:"volume"`
 }
 
 type commonResult struct {
@@ -126,6 +131,10 @@ func (r GetResult) Extract() (*TaurusDBInstance, error) {
 	var instance TaurusDBInstance
 	err := r.ExtractIntoStructPtr(&instance, "instance")
 	return &instance, err
+}
+
+type ExtendResult struct {
+	golangsdk.ErrResult
 }
 
 type ListTaurusDBResult struct {
