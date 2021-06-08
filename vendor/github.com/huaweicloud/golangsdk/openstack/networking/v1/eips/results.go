@@ -11,11 +11,20 @@ type ApplyResult struct {
 }
 
 func (r ApplyResult) Extract() (PublicIp, error) {
-	var ip struct {
-		Ip PublicIp `json:"publicip"`
+	var ipResp struct {
+		IP         PublicIp `json:"publicip"`
+		OrderID    string   `json:"order_id"`
+		PublicipID string   `json:"publicip_id"`
 	}
-	err := r.Result.ExtractInto(&ip)
-	return ip.Ip, err
+	err := r.Result.ExtractInto(&ipResp)
+	if ipResp.PublicipID != "" {
+		ipResp.IP.ID = ipResp.PublicipID
+	}
+	if ipResp.OrderID != "" {
+		ipResp.IP.OrderID = ipResp.OrderID
+	}
+
+	return ipResp.IP, err
 }
 
 //PublicIp is a struct that represents a public ip
@@ -27,6 +36,7 @@ type PublicIp struct {
 	PrivateAddress      string `json:"private_ip_address"`
 	PortID              string `json:"port_id"`
 	TenantID            string `json:"tenant_id"`
+	OrderID             string `json:"order_id"`
 	CreateTime          string `json:"create_time"`
 	BandwidthID         string `json:"bandwidth_id"`
 	BandwidthSize       int    `json:"bandwidth_size"`
@@ -40,11 +50,11 @@ type GetResult struct {
 }
 
 func (r GetResult) Extract() (PublicIp, error) {
-	var Ip struct {
-		Ip PublicIp `json:"publicip"`
+	var getResp struct {
+		IP PublicIp `json:"publicip"`
 	}
-	err := r.Result.ExtractInto(&Ip)
-	return Ip.Ip, err
+	err := r.Result.ExtractInto(&getResp)
+	return getResp.IP, err
 }
 
 //DeleteResult is a struct of delete result
