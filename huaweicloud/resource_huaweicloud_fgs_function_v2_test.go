@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -26,6 +27,8 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 				Config: testAccFgsV2Function_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFgsV2FunctionExists(resourceName, &f),
+					resource.TestMatchResourceAttr(resourceName, "urn", regexp.MustCompile(`\w+`)),     // just check urn is not null
+					resource.TestMatchResourceAttr(resourceName, "version", regexp.MustCompile(`\w+`)), // just check version is not null
 				),
 			},
 			{
@@ -33,6 +36,8 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFgsV2FunctionExists(resourceName, &f),
 					resource.TestCheckResourceAttr(resourceName, "description", "fuction test update"),
+					resource.TestMatchResourceAttr(resourceName, "urn", regexp.MustCompile(`\w+`)),     // just check urn is not null
+					resource.TestMatchResourceAttr(resourceName, "version", regexp.MustCompile(`\w+`)), // just check version is not null
 				),
 			},
 		},

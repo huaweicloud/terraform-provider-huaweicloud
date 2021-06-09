@@ -160,6 +160,14 @@ func resourceFgsFunctionV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"urn": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"func_mounts": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -251,6 +259,8 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error creating HuaweiCloud function: %s", err)
 	}
 
+	// The "func_urn" is the unique identifier of the function
+	// in terraform, we convert to id, not using FuncUrn
 	d.SetId(f.FuncUrn)
 	if hasFilledOpt(d, "vpc_id") || hasFilledOpt(d, "func_mounts") || hasFilledOpt(d, "app_agency") ||
 		hasFilledOpt(d, "initializer_handler") || hasFilledOpt(d, "initializer_timeout") {
@@ -295,6 +305,10 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("runtime", f.Runtime)
 	d.Set("timeout", f.Timeout)
 	d.Set("user_data", f.UserData)
+	d.Set("version", f.Version)
+
+	urn := resourceFgsFunctionUrn(d.Id())
+	d.Set("urn", urn)
 
 	if _, ok := d.GetOk("app"); ok {
 		d.Set("app", f.Package)
@@ -536,8 +550,8 @@ func resourceFgsFunctionMountConfig(d *schema.ResourceData) *function.MountConfi
 }
 
 func resourceFgsFunctionUrn(urn string) string {
-	if strings.HasSuffix(urn, ":latest") {
-		urn = urn[0 : len(urn)-7]
-	}
+	//urn = urn:fss:ru-moscow-1:0910fc31530026f82fd0c018a303517e:function:default:func_2:latest
+	index := strings.LastIndex(urn, ":")
+	urn = urn[0:index]
 	return urn
 }
