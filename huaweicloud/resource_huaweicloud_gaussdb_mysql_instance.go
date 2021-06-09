@@ -87,6 +87,10 @@ func resourceGaussDBInstance() *schema.Resource {
 				Optional: true,
 				Default:  1,
 			},
+			"volume_size": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"time_zone": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -308,6 +312,13 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		createOpts.MasterAZ = v.(string)
 	}
 
+	if hasFilledOpt(d, "volume_size") {
+		volume := &instances.VolumeOpt{
+			Size: d.Get("volume_size").(int),
+		}
+		createOpts.Volume = volume
+	}
+
 	// PrePaid
 	if d.Get("charging_mode") == "prePaid" {
 		if err := validatePrePaidChargeInfo(d); err != nil {
@@ -433,6 +444,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	// set nodes
 	flavor := ""
 	slave_count := 0
+	volume_size := 0
 	nodesList := make([]map[string]interface{}, 0, 1)
 	for _, raw := range instance.Nodes {
 		node := map[string]interface{}{
@@ -445,6 +457,9 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 		if len(raw.PrivateIps) > 0 {
 			node["private_read_ip"] = raw.PrivateIps[0]
 		}
+		if raw.Volume.Size > 0 {
+			volume_size = raw.Volume.Size
+		}
 		nodesList = append(nodesList, node)
 		if raw.Type == "slave" && raw.Status == "ACTIVE" {
 			slave_count += 1
@@ -455,6 +470,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	d.Set("nodes", nodesList)
 	d.Set("read_replicas", slave_count)
+	d.Set("volume_size", volume_size)
 	if flavor != "" {
 		log.Printf("[DEBUG] Node Flavor: %s", flavor)
 		d.Set("flavor", flavor)
@@ -586,6 +602,19 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				}
 				log.Printf("[DEBUG] Deleted Read Replica: %s", slave_nodes[i])
 			}
+		}
+	}
+
+	if d.HasChange("volume_size") {
+		extendOpts := instances.ExtendVolumeOpts{
+			Size:      d.Get("volume_size").(int),
+			IsAutoPay: "true",
+		}
+		log.Printf("[DEBUG] Extending Volume: %#v", extendOpts)
+
+		err = instances.ExtendVolume(client, d.Id(), extendOpts).ExtractErr()
+		if err != nil {
+			return fmt.Errorf("Error extending volume: %s", err)
 		}
 	}
 

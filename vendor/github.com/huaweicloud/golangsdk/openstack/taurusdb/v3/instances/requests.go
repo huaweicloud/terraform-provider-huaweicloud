@@ -17,6 +17,10 @@ type ChargeInfoOpt struct {
 	IsAutoPay    string `json:"is_auto_pay,omitempty"`
 }
 
+type VolumeOpt struct {
+	Size int `json:"size" required:"true"`
+}
+
 type DataStoreOpt struct {
 	Type    string `json:"type" required:"true"`
 	Version string `json:"version" required:"true"`
@@ -46,6 +50,7 @@ type CreateTaurusDBOpts struct {
 	DataStore           DataStoreOpt       `json:"datastore" required:"true"`
 	BackupStrategy      *BackupStrategyOpt `json:"backup_strategy,omitempty"`
 	ChargeInfo          *ChargeInfoOpt     `json:"charge_info,omitempty"`
+	Volume              *VolumeOpt         `json:"volume,omitempty"`
 }
 
 type CreateTaurusDBBuilder interface {
@@ -261,6 +266,38 @@ func UpdatePass(client *golangsdk.ServiceClient, instanceId string, opts UpdateP
 
 	_, r.Err = client.Post(passwordURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
+
+type ExtendVolumeOpts struct {
+	Size      int    `json:"size" required:"true"`
+	IsAutoPay string `json:"is_auto_pay,omitempty"`
+}
+
+type ExtendVolumeBuilder interface {
+	ToVolumeExtendMap() (map[string]interface{}, error)
+}
+
+func (opts ExtendVolumeOpts) ToVolumeExtendMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func ExtendVolume(client *golangsdk.ServiceClient, instanceId string, opts ExtendVolumeBuilder) (r ExtendResult) {
+	b, err := opts.ToVolumeExtendMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(volumeURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{201},
 		MoreHeaders: requestOpts.MoreHeaders,
 	})
 

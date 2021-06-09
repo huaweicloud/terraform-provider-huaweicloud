@@ -12,7 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func resourceAPIGatewayAPI() *schema.Resource {
+func ResourceAPIGatewayAPI() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAPIGatewayAPICreate,
 		Read:   resourceAPIGatewayAPIRead,
