@@ -185,6 +185,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
 * `func_mounts/status` - The status of file system.
+* `urn` - Uniform Resource Name
+* `version` - The version of the function
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
