@@ -549,9 +549,15 @@ func resourceFgsFunctionMountConfig(d *schema.ResourceData) *function.MountConfi
 	return &mountConfig
 }
 
+/**
+ * Parse urn according from fun_urn.
+ * If the separator is not ":" then return to the original value.
+ */
 func resourceFgsFunctionUrn(urn string) string {
 	//urn = urn:fss:ru-moscow-1:0910fc31530026f82fd0c018a303517e:function:default:func_2:latest
 	index := strings.LastIndex(urn, ":")
-	urn = urn[0:index]
+	if index != -1 {
+		urn = urn[0:index]
+	}
 	return urn
 }
