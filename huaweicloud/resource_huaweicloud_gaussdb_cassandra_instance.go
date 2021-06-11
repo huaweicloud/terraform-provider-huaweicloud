@@ -142,6 +142,7 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 						"keep_days": {
 							Type:     schema.TypeInt,
 							Optional: true,
+							Computed: true,
 						},
 					},
 				},
@@ -237,15 +238,16 @@ func resourceGeminiDBDataStore(d *schema.ResourceData) instances.DataStore {
 }
 
 func resourceGeminiDBBackupStrategy(d *schema.ResourceData) *instances.BackupStrategyOpt {
-	backupStrategyRaw := d.Get("backup_strategy").([]interface{})
-	if len(backupStrategyRaw) == 1 {
-		strategy := backupStrategyRaw[0].(map[string]interface{})
-		return &instances.BackupStrategyOpt{
-			StartTime: strategy["start_time"].(string),
-			KeepDays:  strconv.Itoa(strategy["keep_days"].(int)),
+	if _, ok := d.GetOk("backup_strategy"); ok {
+		opt := &instances.BackupStrategyOpt{
+			StartTime: d.Get("backup_strategy.0.start_time").(string),
 		}
+		// The default value of keepdays is 7, but empty value of keepdays will be converted to 0.
+		if v, ok := d.GetOk("backup_strategy.0.keep_days"); ok {
+			opt.KeepDays = strconv.Itoa(v.(int))
+		}
+		return opt
 	}
-
 	return nil
 }
 
