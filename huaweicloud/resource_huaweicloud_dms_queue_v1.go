@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func resourceDmsQueuesV1() *schema.Resource {
+func ResourceDmsQueuesV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDmsQueuesV1Create,
 		Read:   resourceDmsQueuesV1Read,
