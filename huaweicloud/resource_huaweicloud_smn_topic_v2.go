@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func resourceTopic() *schema.Resource {
+func ResourceTopic() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceTopicCreate,
 		Read:   resourceTopicRead,

@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func resourceSubscription() *schema.Resource {
+func ResourceSubscription() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSubscriptionCreate,
 		Read:   resourceSubscriptionRead,
