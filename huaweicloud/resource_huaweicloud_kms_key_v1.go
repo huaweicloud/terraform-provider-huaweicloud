@@ -19,7 +19,7 @@ const EnabledState = "2"
 const DisabledState = "3"
 const PendingDeletionState = "4"
 
-func resourceKmsKeyV1() *schema.Resource {
+func ResourceKmsKeyV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKmsKeyV1Create,
 		Read:   resourceKmsKeyV1Read,
