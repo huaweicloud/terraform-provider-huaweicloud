@@ -3,15 +3,18 @@ package huaweicloud
 import (
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/bss/v2/orders"
+	sdk_structs "github.com/huaweicloud/golangsdk/openstack/common/structs"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func ResourceVpcEIPV1() *schema.Resource {
@@ -39,6 +42,7 @@ func ResourceVpcEIPV1() *schema.Resource {
 			"publicip": {
 				Type:     schema.TypeList,
 				Required: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
@@ -63,13 +67,20 @@ func ResourceVpcEIPV1() *schema.Resource {
 			"bandwidth": {
 				Type:     schema.TypeList,
 				Required: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": {
+						"share_type": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 							ForceNew: true,
-							Computed: true,
+						},
+						"id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							Computed:     true,
+							ExactlyOneOf: []string{"bandwidth.0.id", "bandwidth.0.name"},
 						},
 						"name": {
 							Type:     schema.TypeString,
@@ -80,11 +91,6 @@ func ResourceVpcEIPV1() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
-						},
-						"share_type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
 						},
 						"charge_mode": {
 							Type:     schema.TypeString,
@@ -105,15 +111,64 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			// charge info: charging_mode, period_unit, period, auto_renew
+			"charging_mode": schemeChargingMode(nil),
+			"period_unit":   schemaPeriodUnit([]string{"publicip.0.ip_address"}),
+			"period":        schemaPeriod([]string{"publicip.0.ip_address"}),
+			"auto_renew":    schemaAutoRenew([]string{"publicip.0.ip_address"}),
 		},
 	}
 }
 
+func validatePrePaidBandWidth(bandwidth eips.BandwidthOpts) error {
+	if bandwidth.Id != "" || bandwidth.Name == "" || bandwidth.ShareType == "WHOLE" {
+		return fmtp.Errorf("shared bandwidth is not supported in prePaid charging mode")
+	}
+	if bandwidth.ChargeMode == "traffic" {
+		return fmtp.Errorf("EIP can only be billed by bandwidth in prePaid charging mode")
+	}
+
+	return nil
+}
+
+func validatePrePaidSupportedRegion(region string) error {
+	var valid bool
+	// reference to: https://support.huaweicloud.com/api-eip/eip_api_0006.html#section3
+	var supportedRegion = []string{
+		"cn-north-4", "cn-east-3", "cn-south-1", "cn-southwest-2",
+		"ap-southeast-2", "ap-southeast-3",
+	}
+
+	for _, r := range supportedRegion {
+		if r == region {
+			valid = true
+			break
+		}
+	}
+	if !valid {
+		return fmtp.Errorf("prepaid charging mode is not supported in %s region", region)
+	}
+
+	return nil
+}
+
 func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
+	region := GetRegion(d, config)
+
+	networkingClient, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating networking client: %s", err)
+		return fmtp.Errorf("Error creating networking v1 client: %s", err)
+	}
+	// networkingV2Client is used to create EIP in prePaid charging mode
+	networkingV2Client, err := config.NetworkingV2Client(region)
+	if err != nil {
+		return fmtp.Errorf("Error creating networking v2 client: %s", err)
 	}
 
 	createOpts := eips.ApplyOpts{
@@ -126,14 +181,50 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 		createOpts.EnterpriseProjectID = epsID
 	}
 
+	if d.Get("charging_mode").(string) == "prePaid" {
+		if err := validatePrePaidChargeInfo(d); err != nil {
+			return err
+		}
+		if err := validatePrePaidBandWidth(createOpts.Bandwidth); err != nil {
+			return err
+		}
+		if err := validatePrePaidSupportedRegion(region); err != nil {
+			return err
+		}
+
+		chargeInfo := &sdk_structs.ChargeInfo{
+			ChargeMode:  d.Get("charging_mode").(string),
+			PeriodType:  d.Get("period_unit").(string),
+			PeriodNum:   d.Get("period").(int),
+			IsAutoPay:   "true",
+			IsAutoRenew: d.Get("auto_renew").(string),
+		}
+		createOpts.ExtendParam = chargeInfo
+	}
+
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
-	eIP, err := eips.Apply(networkingClient, createOpts).Extract()
+	eIP, err := eips.Apply(networkingV2Client, createOpts).Extract()
 	if err != nil {
 		return fmtp.Errorf("Error allocating EIP: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Waiting for EIP %#v to become available.", eIP)
+	if eIP.ID == "" {
+		return fmtp.Errorf("can not get the resource ID")
+	}
+	// wait for order success
+	if eIP.OrderID != "" {
+		bssClient, err := config.BssV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmtp.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
+		}
+		if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), eIP.OrderID); err != nil {
+			return err
+		}
+	}
 
+	d.SetId(eIP.ID)
+
+	logp.Printf("[DEBUG] Waiting for EIP %s to become available.", eIP.ID)
 	timeout := d.Timeout(schema.TimeoutCreate)
 	err = waitForEIPActive(networkingClient, eIP.ID, timeout)
 	if err != nil {
@@ -146,8 +237,6 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmtp.Errorf("Error binding eip:%s to port: %s", eIP.ID, err)
 	}
-
-	d.SetId(eIP.ID)
 
 	return resourceVpcEIPV1Read(d, meta)
 }
@@ -192,6 +281,13 @@ func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("address", eIP.PublicAddress)
 	d.Set("region", GetRegion(d, config))
 	d.Set("enterprise_project_id", eIP.EnterpriseProjectID)
+
+	// "DOWN" means the publicips is active but unbound
+	if eIP.Status == "DOWN" {
+		d.Set("status", "UNBOUND")
+	} else {
+		d.Set("status", eIP.Status)
+	}
 
 	return nil
 }
@@ -256,13 +352,24 @@ func resourceVpcEIPV1Delete(d *schema.ResourceData, meta interface{}) error {
 		logp.Printf("[WARN] Error trying to unbind eip %s :%s", d.Id(), err)
 	}
 
+	id := d.Id()
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		if err := UnsubscribePrePaidResource(d, config, []string{id}); err != nil {
+			return fmtp.Errorf("Error unsubscribe publicip: %s", err)
+		}
+	} else {
+		if err := eips.Delete(networkingClient, id).ExtractErr(); err != nil {
+			return fmtp.Errorf("Error deleting publicip: %s", err)
+		}
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
 		Refresh:    waitForEIPDelete(networkingClient, d.Id()),
 		Timeout:    timeout,
 		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		MinTimeout: 5 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()
@@ -271,51 +378,7 @@ func resourceVpcEIPV1Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId("")
-
 	return nil
-}
-
-func getEIPStatus(networkingClient *golangsdk.ServiceClient, eId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		e, err := eips.Get(networkingClient, eId).Extract()
-		if err != nil {
-			return nil, "", err
-		}
-
-		logp.Printf("[DEBUG] EIP: %+v", e)
-		if e.Status == "DOWN" || e.Status == "ACTIVE" {
-			return e, "ACTIVE", nil
-		}
-
-		return e, "", nil
-	}
-}
-
-func waitForEIPDelete(networkingClient *golangsdk.ServiceClient, eId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		logp.Printf("[DEBUG] Attempting to delete EIP %s.\n", eId)
-
-		e, err := eips.Get(networkingClient, eId).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted EIP %s", eId)
-				return e, "DELETED", nil
-			}
-			return e, "ACTIVE", err
-		}
-
-		err = eips.Delete(networkingClient, eId).ExtractErr()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				logp.Printf("[DEBUG] Successfully deleted EIP %s", eId)
-				return e, "DELETED", nil
-			}
-			return e, "ACTIVE", err
-		}
-
-		logp.Printf("[DEBUG] EIP %s still active.\n", eId)
-		return e, "ACTIVE", nil
-	}
 }
 
 func resourcePublicIP(d *schema.ResourceData) eips.PublicIpOpts {
@@ -381,6 +444,26 @@ func unbindToPort(d *schema.ResourceData, eipID string, networkingClient *golang
 	return waitForEIPActive(networkingClient, eipID, timeout)
 }
 
+func getEIPStatus(networkingClient *golangsdk.ServiceClient, eId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		e, err := eips.Get(networkingClient, eId).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return nil, "PENDING_CREATE", nil
+			}
+
+			return nil, "", err
+		}
+
+		logp.Printf("[DEBUG] EIP: %+v", e)
+		if e.Status == "DOWN" || e.Status == "ACTIVE" {
+			return e, "ACTIVE", nil
+		}
+
+		return e, "", nil
+	}
+}
+
 func waitForEIPActive(networkingClient *golangsdk.ServiceClient, eipID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
@@ -392,4 +475,22 @@ func waitForEIPActive(networkingClient *golangsdk.ServiceClient, eipID string, t
 
 	_, err := stateConf.WaitForState()
 	return err
+}
+
+func waitForEIPDelete(networkingClient *golangsdk.ServiceClient, eId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		logp.Printf("[DEBUG] Attempting to delete EIP %s.\n", eId)
+
+		e, err := eips.Get(networkingClient, eId).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				logp.Printf("[DEBUG] Successfully deleted EIP %s", eId)
+				return e, "DELETED", nil
+			}
+			return nil, "ERROR", err
+		}
+
+		logp.Printf("[DEBUG] EIP %s still active.\n", eId)
+		return e, "ACTIVE", nil
+	}
 }
