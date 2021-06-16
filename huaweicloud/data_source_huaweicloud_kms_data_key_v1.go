@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceKmsDataKeyV1() *schema.Resource {
+func DataSourceKmsDataKeyV1() *schema.Resource {
 	return &schema.Resource{
 		Read: resourceKmsDataKeyV1Read,
 

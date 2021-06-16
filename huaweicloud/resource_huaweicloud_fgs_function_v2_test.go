@@ -26,6 +26,8 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 				Config: testAccFgsV2Function_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFgsV2FunctionExists(resourceName, &f),
+					resource.TestCheckResourceAttrSet(resourceName, "urn"),
+					resource.TestCheckResourceAttrSet(resourceName, "version"),
 				),
 			},
 			{
@@ -33,6 +35,8 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckFgsV2FunctionExists(resourceName, &f),
 					resource.TestCheckResourceAttr(resourceName, "description", "fuction test update"),
+					resource.TestCheckResourceAttrSet(resourceName, "urn"),
+					resource.TestCheckResourceAttrSet(resourceName, "version"),
 				),
 			},
 		},

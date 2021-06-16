@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func dataSourceKmsKeyV1() *schema.Resource {
+func DataSourceKmsKeyV1() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceKmsKeyV1Read,
 
