@@ -7,7 +7,9 @@ subcategory: "FunctionGraph"
 Manages a Function resource within HuaweiCloud.
 This is an alternative to `huaweicloud_fgs_function_v2`
 
-## Example Usage With base64 func code
+## Example Usage 
+
+### With base64 func code
 
 ```hcl
 resource "huaweicloud_fgs_function" "f_1" {
@@ -24,7 +26,7 @@ resource "huaweicloud_fgs_function" "f_1" {
 }
 ```
 
-## Example Usage With text code
+### With text code
 
 ```hcl
 resource "huaweicloud_fgs_function" "f_1" {
@@ -53,7 +55,7 @@ EOF
 }
 ```
 
-## Example Usage With agency, vpc, subnet and func_mounts
+### With agency, vpc, subnet and func_mounts
 
 ```hcl
 resource "huaweicloud_vpc" "test" {
@@ -112,6 +114,33 @@ resource "huaweicloud_fgs_function" "test" {
 }
 ```
 
+### With agency, user_data for environment variables and OBS for code storage
+```hcl
+resource "huaweicloud_identity_agency" "agency" {
+  name                   = "fgs_obs_agency"
+  description            = "Delegate OBS access to FGS"
+  delegated_service_name = "op_svc_cff"
+  domain_roles = [ "OBS OperateAccess" ]
+}
+
+resource "huaweicloud_fgs_function" "function" {
+  name         = "test_function"
+  app           = "default"
+  description   = "test function"
+  handler       = "index.handler"
+  agency        = huaweicloud_identity_agency.agency.name
+  memory_size   = 128
+  timeout       = 3
+  runtime       = "Node.js6.10"
+  user_data     = jsonencode({ 
+    environmentVariable1 = "someValue"
+    environmentVariable2 = 5
+  })
+  code_type     = "obs"
+  code_url      = "https://your-bucket.obs.your-region.myhuaweicloud.com/your-function.zip"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -144,7 +173,7 @@ The following arguments are supported:
 
 * `depend_list` - (Optional, String) Specifies the dependencies of the function.
 
-* `user_data` - (Optional, String) Specifies the Key/Value information defined for the function.
+* `user_data` - (Optional, String) Specifies the Key/Value information defined for the function. Key/value data might be parsed with [Terraform `jsonencode()` function]('https://www.terraform.io/docs/language/functions/jsonencode.html').
 
 * `agency` - (Optional, String) Specifies the agency. This parameter is mandatory if the function needs to access other cloud services.
 
