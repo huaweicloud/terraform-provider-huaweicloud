@@ -258,6 +258,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v1.0",
 		WithOutProjectID: true,
 	},
+	"waf": {
+		Name:    "waf",
+		Version: "v1",
+	},
 
 	// catalog for Enterprise Intelligence
 	"mrs": {
