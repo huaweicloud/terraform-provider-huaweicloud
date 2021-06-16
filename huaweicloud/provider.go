@@ -418,7 +418,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_elb_member":                      ResourceMemberV3(),
 			"huaweicloud_evs_snapshot":                    ResourceEvsSnapshotV2(),
 			"huaweicloud_evs_volume":                      ResourceEvsStorageVolumeV3(),
-			"huaweicloud_fgs_function":                    resourceFgsFunctionV2(),
+			"huaweicloud_fgs_function":                    ResourceFgsFunctionV2(),
 			"huaweicloud_gaussdb_cassandra_instance":      resourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_mysql_instance":          resourceGaussDBInstance(),
 			"huaweicloud_gaussdb_opengauss_instance":      resourceOpenGaussInstance(),
@@ -583,7 +583,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_cs_route_v1":                        resourceCsRouteV1(),
 			"huaweicloud_networking_vip_v2":                  resourceNetworkingVIPV2(),
 			"huaweicloud_networking_vip_associate_v2":        resourceNetworkingVIPAssociateV2(),
-			"huaweicloud_fgs_function_v2":                    resourceFgsFunctionV2(),
+			"huaweicloud_fgs_function_v2":                    ResourceFgsFunctionV2(),
 			"huaweicloud_cdn_domain_v1":                      resourceCdnDomainV1(),
 			// Deprecated
 			"huaweicloud_blockstorage_volume_v2":             resourceBlockStorageVolumeV2(),
