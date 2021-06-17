@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func resourceDmsKafkaInstance() *schema.Resource {
+func ResourceDmsKafkaInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDmsKafkaInstanceCreate,
 		Read:   resourceDmsKafkaInstanceRead,
