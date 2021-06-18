@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func resourceDmsInstancesV1() *schema.Resource {
+func ResourceDmsInstancesV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDmsInstancesV1Create,
 		Read:   resourceDmsInstancesV1Read,

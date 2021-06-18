@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceDmsMaintainWindowV1() *schema.Resource {
+func DataSourceDmsMaintainWindowV1() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceDmsMaintainWindowV1Read,
 

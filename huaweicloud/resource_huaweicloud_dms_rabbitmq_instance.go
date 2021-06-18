@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func resourceDmsRabbitmqInstance() *schema.Resource {
+func ResourceDmsRabbitmqInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDmsRabbitmqInstanceCreate,
 		Read:   resourceDmsRabbitmqInstanceRead,

@@ -260,6 +260,13 @@ func ResourceRdsInstanceV3() *schema.Resource {
 	}
 }
 
+func buildRdsInstanceV3DBPort(d *schema.ResourceData) string {
+	if v, ok := d.GetOk("db.0.port"); ok {
+		return strconv.Itoa(v.(int))
+	}
+	return ""
+}
+
 func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	region := GetRegion(d, config)
@@ -278,7 +285,7 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		TimeZone:            d.Get("time_zone").(string),
 		FixedIp:             d.Get("fixed_ip").(string),
 		DiskEncryptionId:    d.Get("volume.0.disk_encryption_id").(string),
-		Port:                strconv.Itoa(d.Get("db.0.port").(int)),
+		Port:                buildRdsInstanceV3DBPort(d),
 		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
 		Region:              region,
 		AvailabilityZone:    buildRdsInstanceAvailabilityZone(d),

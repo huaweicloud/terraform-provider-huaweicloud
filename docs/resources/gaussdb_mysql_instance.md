@@ -98,22 +98,6 @@ The following arguments are supported:
 * `volume_size` - (Optional, Int) Specifies the volume size of the instance. The new storage space must be greater than
   the current storage and must be a multiple of 10 GB. Only valid when in prePaid mode.
 
-* `charging_mode` - (Optional, String, ForceNew) The charging mode of the instance.
-  Valid values are *prePaid* and *postPaid*, defaults to *postPaid*.
-  Changing this creates a new resource.
-
-* `period_unit` - (Optional, String, ForceNew) The charging period unit of the instance.
-  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
-  Changing this creates a new resource.
-
-* `period` - (Optional, Int, ForceNew) The charging period of the instance.
-  If `period_unit` is set to *month*, the value ranges from 1 to 9.
-  If `period_unit` is set to *year*, the value ranges from 1 to 3.
-  This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new resource.
-
-* `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
-  Valid values are "true" and "false". Changing this creates a new resource.
-
 The `datastore` block supports:
 
 * `engine` - (Optional, String, ForceNew) Specifies the database engine. Only "gauss-mysql" is supported now.
