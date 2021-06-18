@@ -406,6 +406,31 @@ func ConvertLifecyleConfigurationToXml(input BucketLifecyleConfiguration, return
 	return
 }
 
+// ConvertEncryptionConfigurationToXml converts BucketEncryptionConfiguration value to XML data and returns it
+func ConvertEncryptionConfigurationToXml(input BucketEncryptionConfiguration, returnMd5 bool, isObs bool) (data string, md5 string) {
+	xml := make([]string, 0, 5)
+	xml = append(xml, "<ServerSideEncryptionConfiguration><Rule><ApplyServerSideEncryptionByDefault>")
+
+	algorithm := XmlTranscoding(input.SSEAlgorithm)
+	xml = append(xml, fmt.Sprintf("<SSEAlgorithm>%s</SSEAlgorithm>", algorithm))
+
+	if input.KMSMasterKeyID != "" {
+		kmsKeyID := XmlTranscoding(input.KMSMasterKeyID)
+		xml = append(xml, fmt.Sprintf("<KMSMasterKeyID>%s</KMSMasterKeyID>", kmsKeyID))
+	}
+	if input.ProjectID != "" {
+		projectID := XmlTranscoding(input.ProjectID)
+		xml = append(xml, fmt.Sprintf("<ProjectID>%s</ProjectID>", projectID))
+	}
+
+	xml = append(xml, "</ApplyServerSideEncryptionByDefault></Rule></ServerSideEncryptionConfiguration>")
+	data = strings.Join(xml, "")
+	if returnMd5 {
+		md5 = Base64Md5([]byte(data))
+	}
+	return
+}
+
 func converntFilterRulesToXML(filterRules []FilterRule, isObs bool) string {
 	if length := len(filterRules); length > 0 {
 		xml := make([]string, 0, length*4)

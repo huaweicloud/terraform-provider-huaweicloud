@@ -81,7 +81,8 @@ func Create(client *golangsdk.ServiceClient, opts CreateTaurusDBBuilder) (r Crea
 }
 
 type CreateReplicaOpts struct {
-	Priorities []int `json:"priorities" required:"true"`
+	Priorities []int  `json:"priorities" required:"true"`
+	IsAutoPay  string `json:"is_auto_pay,omitempty"`
 }
 
 type CreateReplicaBuilder interface {
@@ -289,7 +290,7 @@ func (opts ExtendVolumeOpts) ToVolumeExtendMap() (map[string]interface{}, error)
 	return b, nil
 }
 
-func ExtendVolume(client *golangsdk.ServiceClient, instanceId string, opts ExtendVolumeBuilder) (r ExtendResult) {
+func ExtendVolume(client *golangsdk.ServiceClient, instanceId string, opts ExtendVolumeBuilder) (r JobResult) {
 	b, err := opts.ToVolumeExtendMap()
 	if err != nil {
 		r.Err = err
@@ -304,8 +305,13 @@ func ExtendVolume(client *golangsdk.ServiceClient, instanceId string, opts Exten
 	return
 }
 
-type ResizeOpts struct {
+type ResizeOpt struct {
 	Spec string `json:"spec_code" required:"true"`
+}
+
+type ResizeOpts struct {
+	Resize    ResizeOpt `json:"resize_flavor" required:"true"`
+	IsAutoPay string    `json:"is_auto_pay,omitempty"`
 }
 
 type ResizeBuilder interface {
@@ -313,7 +319,7 @@ type ResizeBuilder interface {
 }
 
 func (opts ResizeOpts) ToResizeMap() (map[string]interface{}, error) {
-	b, err := golangsdk.BuildRequestBody(opts, "resize_flavor")
+	b, err := golangsdk.BuildRequestBody(opts, "")
 	if err != nil {
 		return nil, err
 	}
