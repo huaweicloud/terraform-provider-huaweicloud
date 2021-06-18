@@ -673,7 +673,11 @@ func resourceGaussDBInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	instanceId := d.Id()
 	if d.Get("charging_mode") == "prePaid" {
 		if err := UnsubscribePrePaidResource(d, config, []string{instanceId}); err != nil {
-			return fmt.Errorf("Error unsubscribe HuaweiCloud GaussDB instance: %s", err)
+			// try to delete the instance directly if unsubscribing failed
+			res := instances.Delete(client, instanceId)
+			if res.Err != nil {
+				return CheckDeleted(d, res.Err, "GaussDB instance")
+			}
 		}
 	} else {
 		result := instances.Delete(client, instanceId)
