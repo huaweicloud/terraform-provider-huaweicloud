@@ -205,9 +205,26 @@ func resourceScmCertificateV3Read(d *schema.ResourceData, meta interface{}) erro
 	d.Set("sans", certDetail.Sans)
 	d.Set("domain_count", certDetail.DomainCount)
 	d.Set("wildcard_count", certDetail.WildcardCount)
-	d.Set("authentifications", certDetail.Authentifications)
+
+	// convert the type of 'certDetail.Authentifications' to TypeList
+	auths := convertAuthToArray(certDetail.Authentifications)
+	d.Set("authentifications", auths)
 
 	return nil
+}
+
+func convertAuthToArray(authArr []certificates.Authentification) []map[string]interface{} {
+	auths := make([]map[string]interface{}, 0, len(authArr))
+	for _, v := range authArr {
+		auth := map[string]interface{}{
+			"record_name":  v.RecordName,
+			"record_type":  v.RecordType,
+			"record_value": v.RecordValue,
+			"domain":       v.Domain,
+		}
+		auths = append(auths, auth)
+	}
+	return auths
 }
 
 func resourceScmCertificateV3Delete(d *schema.ResourceData, meta interface{}) error {
