@@ -276,6 +276,7 @@ github.com/huaweicloud/golangsdk/openstack/antiddos/v1/antiddos
 github.com/huaweicloud/golangsdk/openstack/aom/v1/icagents
 github.com/huaweicloud/golangsdk/openstack/apigw/apis
 github.com/huaweicloud/golangsdk/openstack/apigw/groups
+github.com/huaweicloud/golangsdk/openstack/apigw/v2/apigroups
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/applications
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/channels
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/environments
