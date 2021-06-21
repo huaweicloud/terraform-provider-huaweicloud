@@ -90,12 +90,12 @@ func resourceScmCertificatePushV3Create(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf(errMsg)
 	}
 
-	d.SetId(generateId(certificateId, pushOpts))
+	d.SetId(generateCertPushId(certificateId, pushOpts))
 
 	return resourceScmCertificatePushV3Read(d, meta)
 }
 
-func generateId(certificateId string, opt certificates.PushOpts) (id string) {
+func generateCertPushId(certificateId string, opt certificates.PushOpts) (id string) {
 	id = certificateId + "_" + opt.TargetService + "_" + opt.TargetProject
 	return
 }
