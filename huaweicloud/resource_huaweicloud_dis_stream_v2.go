@@ -24,7 +24,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func resourceDisStreamV2() *schema.Resource {
+func ResourceDisStreamV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDisStreamV2Create,
 		Read:   resourceDisStreamV2Read,
