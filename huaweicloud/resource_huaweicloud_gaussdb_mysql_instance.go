@@ -588,6 +588,21 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderID); err != nil {
 				return err
 			}
+			// check whether the order take effect
+			instance, err := instances.Get(client, instanceId).Extract()
+			if err != nil {
+				return err
+			}
+			currFlavor := ""
+			for _, raw := range instance.Nodes {
+				if currFlavor == "" {
+					currFlavor = raw.Flavor
+					break
+				}
+			}
+			if currFlavor != newFlavor {
+				return fmt.Errorf("Error updating flavor for instance %s: order failed", instanceId)
+			}
 		}
 		log.Printf("[DEBUG] Updated Flavor for instance %s", instanceId)
 	}
@@ -629,6 +644,20 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if n.OrderID != "" {
 				if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderID); err != nil {
 					return err
+				}
+				// check whether the order take effect
+				instance, err := instances.Get(client, instanceId).Extract()
+				if err != nil {
+					return err
+				}
+				slave_count := 0
+				for _, raw := range instance.Nodes {
+					if raw.Type == "slave" && raw.Status == "ACTIVE" {
+						slave_count += 1
+					}
+				}
+				if newnum.(int) != slave_count {
+					return fmt.Errorf("Error updating read_replicas for instance %s: order failed", instanceId)
 				}
 			}
 		}
@@ -677,6 +706,21 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if n.OrderID != "" {
 			if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderID); err != nil {
 				return err
+			}
+			// check whether the order take effect
+			instance, err := instances.Get(client, instanceId).Extract()
+			if err != nil {
+				return err
+			}
+			volume_size := 0
+			for _, raw := range instance.Nodes {
+				if raw.Volume.Size > 0 {
+					volume_size = raw.Volume.Size
+					break
+				}
+			}
+			if volume_size != d.Get("volume_size").(int) {
+				return fmt.Errorf("Error updating volume for instance %s: order failed", instanceId)
 			}
 		}
 	}
