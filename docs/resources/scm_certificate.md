@@ -11,7 +11,6 @@ centrally manage all your SSL certificates in one place.
 ## Example Usage
 
 ```hcl
-
 # Load the certificate contents from the local files.
 resource "huaweicloud_scm_certificate" "certificate_2" {
   name              = "certificate_2"
