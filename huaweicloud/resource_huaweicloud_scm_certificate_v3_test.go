@@ -5,7 +5,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/scm/v3/certificates"
-	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -51,9 +50,6 @@ func testAccCheckScmV3CertificateExists(n string, c *certificates.CertificateEsc
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		log.Printf("terraform.State: %#v", s)
-		log.Printf("terraform.RS: %#v", rs)
-		log.Printf("terraform.Attributes: %#v", rs.Primary.Attributes)
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
