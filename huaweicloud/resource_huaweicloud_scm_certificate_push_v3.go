@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -12,8 +13,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-const MAX_ERROR_MESSAGE_LEN = 200
-const ELLIPSIS = "..."
+const (
+	MAX_ERROR_MESSAGE_LEN = 200
+	ELLIPSIS_STRING       = "..."
+
+	TARGET_SERVICE_CDN         = "CDN"
+	TARGET_SERVICE_WAF         = "WAF"
+	TARGET_SERVICE_ENHANCE_ELB = "Enhance_ELB"
+)
 
 func resourceScmCertificatePushV3() *schema.Resource {
 	return &schema.Resource{
@@ -44,7 +51,7 @@ func resourceScmCertificatePushV3() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"CDN", "WAF", "Enhance_ELB",
+					TARGET_SERVICE_CDN, TARGET_SERVICE_WAF, TARGET_SERVICE_ENHANCE_ELB,
 				}, false),
 			},
 			"target_project": {
@@ -63,11 +70,16 @@ func resourceScmCertificatePushV3Create(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error creating HuaweiCloud Certificate client: %s", err)
 	}
 
-	certificateId := d.Get("certificate_id").(string)
-
 	pushOpts := certificates.PushOpts{
 		TargetProject: d.Get("target_project").(string),
 		TargetService: d.Get("target_service").(string),
+	}
+	certificateId := d.Get("certificate_id").(string)
+
+	if strings.Compare(pushOpts.TargetService, TARGET_SERVICE_CDN) != 0 && len(pushOpts.TargetProject) == 0 {
+		return fmt.Errorf("the argument of \"target_project\" cannot be empty, "+
+			"it can be empty when pushed to the CDN service only. "+
+			"\r\ncertificate_id: %s, target_service: %s", certificateId, pushOpts.TargetService)
 	}
 
 	err = certificates.Push(elbClient, certificateId, pushOpts).ExtractErr()
@@ -97,7 +109,7 @@ func processErr(err error) string {
 		errBody := string(err500.Body)
 		// Maybe the text in the body is very long, only 200 characters printed。
 		if len(errBody) >= MAX_ERROR_MESSAGE_LEN {
-			errBody = errBody[0:MAX_ERROR_MESSAGE_LEN] + ELLIPSIS
+			errBody = errBody[0:MAX_ERROR_MESSAGE_LEN] + ELLIPSIS_STRING
 		}
 		// If 'err' is an ErrDefault500 object, the following information will be printed.
 		log.Printf("[ERROR] Push certificate service error. URL: %s, Body: %s",
