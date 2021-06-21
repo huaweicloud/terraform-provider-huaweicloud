@@ -46,6 +46,10 @@ var (
 	HW_ADMIN                      = os.Getenv("HW_ADMIN")
 	HW_ENTERPRISE_PROJECT_ID_TEST = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
 	HW_USER_ID                    = os.Getenv("HW_USER_ID")
+
+	HW_CERTIFICATE_KEY_PATH         = os.Getenv("HW_CERTIFICATE_KEY_PATH")
+	HW_CERTIFICATE_CHAIN_PATH       = os.Getenv("HW_CERTIFICATE_CHAIN_PATH")
+	HW_CERTIFICATE_PRIVATE_KEY_PATH = os.Getenv("HW_CERTIFICATE_PRIVATE_KEY_PATH")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -334,4 +338,16 @@ func envVarFile(varName string) (string, error) {
 		return "", fmt.Errorf("Error closing temp file: %s", err)
 	}
 	return tmpFile.Name(), nil
+}
+
+func testAccPreCheckScm(t *testing.T) {
+	if HW_CERTIFICATE_KEY_PATH == "" {
+		t.Skip("HW_CERTIFICATE_KEY_PATH must be set for SCM certificate tests")
+	}
+	if HW_CERTIFICATE_CHAIN_PATH == "" {
+		t.Skip("HW_CERTIFICATE_CHAIN_PATH must be set for BMS certificate tests")
+	}
+	if HW_CERTIFICATE_PRIVATE_KEY_PATH == "" {
+		t.Skip("HW_CERTIFICATE_PRIVATE_KEY_PATH must be set for BMS certificate tests")
+	}
 }
