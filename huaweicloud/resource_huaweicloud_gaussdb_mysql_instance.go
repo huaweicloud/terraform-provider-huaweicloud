@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/bss/v2/orders"
 	"github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -521,6 +522,10 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}
+	bssClient, err := config.BssV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
+	}
 	instanceId := d.Id()
 
 	if d.HasChange("name") {
@@ -558,7 +563,12 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("flavor") {
 		newFlavor := d.Get("flavor").(string)
 		resizeOpts := instances.ResizeOpts{
-			Spec: newFlavor,
+			Resize: instances.ResizeOpt{
+				Spec: newFlavor,
+			},
+		}
+		if d.Get("charging_mode") == "prePaid" {
+			resizeOpts.IsAutoPay = "true"
 		}
 		log.Printf("[DEBUG] Update Flavor Options: %+v", resizeOpts)
 
@@ -567,8 +577,32 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Error updating flavor for instance %s: %s ", instanceId, err)
 		}
 
-		if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.JobID); err != nil {
-			return err
+		// wait for job success
+		if n.JobID != "" {
+			if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.JobID); err != nil {
+				return err
+			}
+		}
+		// wait for order success
+		if n.OrderID != "" {
+			if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderID); err != nil {
+				return err
+			}
+			// check whether the order take effect
+			instance, err := instances.Get(client, instanceId).Extract()
+			if err != nil {
+				return err
+			}
+			currFlavor := ""
+			for _, raw := range instance.Nodes {
+				if currFlavor == "" {
+					currFlavor = raw.Flavor
+					break
+				}
+			}
+			if currFlavor != newFlavor {
+				return fmt.Errorf("Error updating flavor for instance %s: order failed", instanceId)
+			}
 		}
 		log.Printf("[DEBUG] Updated Flavor for instance %s", instanceId)
 	}
@@ -584,6 +618,9 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			createReplicaOpts := instances.CreateReplicaOpts{
 				Priorities: priorities,
 			}
+			if d.Get("charging_mode") == "prePaid" {
+				createReplicaOpts.IsAutoPay = "true"
+			}
 			log.Printf("[DEBUG] Create Replica Options: %+v", createReplicaOpts)
 
 			n, err := instances.CreateReplica(client, instanceId, createReplicaOpts).ExtractJobResponse()
@@ -591,13 +628,36 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				return fmt.Errorf("Error creating read replicas for instance %s: %s ", instanceId, err)
 			}
 
-			job_list := strings.Split(n.JobID, ",")
-			log.Printf("[DEBUG] Create Replica Jobs: %#v", job_list)
-			for i := 0; i < len(job_list); i++ {
-				job_id := job_list[i]
-				log.Printf("[DEBUG] Waiting for job: %s", job_id)
-				if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), job_id); err != nil {
+			// wait for job success
+			if n.JobID != "" {
+				job_list := strings.Split(n.JobID, ",")
+				log.Printf("[DEBUG] Create Replica Jobs: %#v", job_list)
+				for i := 0; i < len(job_list); i++ {
+					job_id := job_list[i]
+					log.Printf("[DEBUG] Waiting for job: %s", job_id)
+					if err := instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), job_id); err != nil {
+						return err
+					}
+				}
+			}
+			// wait for order success
+			if n.OrderID != "" {
+				if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderID); err != nil {
 					return err
+				}
+				// check whether the order take effect
+				instance, err := instances.Get(client, instanceId).Extract()
+				if err != nil {
+					return err
+				}
+				slave_count := 0
+				for _, raw := range instance.Nodes {
+					if raw.Type == "slave" && raw.Status == "ACTIVE" {
+						slave_count += 1
+					}
+				}
+				if newnum.(int) != slave_count {
+					return fmt.Errorf("Error updating read_replicas for instance %s: order failed", instanceId)
 				}
 			}
 		}
@@ -637,9 +697,31 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 		log.Printf("[DEBUG] Extending Volume: %#v", extendOpts)
 
-		err = instances.ExtendVolume(client, d.Id(), extendOpts).ExtractErr()
+		n, err := instances.ExtendVolume(client, d.Id(), extendOpts).ExtractJobResponse()
 		if err != nil {
 			return fmt.Errorf("Error extending volume: %s", err)
+		}
+
+		// wait for order success
+		if n.OrderID != "" {
+			if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderID); err != nil {
+				return err
+			}
+			// check whether the order take effect
+			instance, err := instances.Get(client, instanceId).Extract()
+			if err != nil {
+				return err
+			}
+			volume_size := 0
+			for _, raw := range instance.Nodes {
+				if raw.Volume.Size > 0 {
+					volume_size = raw.Volume.Size
+					break
+				}
+			}
+			if volume_size != d.Get("volume_size").(int) {
+				return fmt.Errorf("Error updating volume for instance %s: order failed", instanceId)
+			}
 		}
 	}
 

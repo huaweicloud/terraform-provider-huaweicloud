@@ -115,7 +115,8 @@ type ExtendResult struct {
 }
 
 type ExtendResponse struct {
-	JobId string `json:"job_id"`
+	JobId   string `json:"job_id"`
+	OrderId string `json:"order_id"`
 }
 
 func (r ExtendResult) Extract() (*ExtendResponse, error) {
