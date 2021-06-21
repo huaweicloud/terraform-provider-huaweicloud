@@ -18,7 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func resourceMRSClusterV1() *schema.Resource {
+func ResourceMRSClusterV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceClusterV1Create,
 		Read:   resourceClusterV1Read,
