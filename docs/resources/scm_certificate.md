@@ -111,3 +111,6 @@ This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.
 - `update` - Default is 10 minute.
 - `delete` - Default is 5 minute.
+
+## Error Codes
+See Error Codes and Solution: https://support.huaweicloud.com/intl/en-us/api-scm/PushCertificate.html
