@@ -70,7 +70,8 @@ func Create(client *golangsdk.ServiceClient, opts CreateGeminiDBBuilder) (r Crea
 }
 
 type ExtendVolumeOpts struct {
-	Size int `json:"size" required:"true"`
+	Size      int    `json:"size" required:"true"`
+	IsAutoPay string `json:"is_auto_pay,omitempty"`
 }
 
 type ExtendVolumeBuilder interface {
@@ -100,7 +101,8 @@ func ExtendVolume(client *golangsdk.ServiceClient, instanceId string, opts Exten
 }
 
 type EnlargeNodeOpts struct {
-	Num int `json:"num" required:"true"`
+	Num       int    `json:"num" required:"true"`
+	IsAutoPay string `json:"is_auto_pay,omitempty"`
 }
 
 type EnlargeNodeBuilder interface {
@@ -321,9 +323,14 @@ func UpdatePass(client *golangsdk.ServiceClient, instanceId string, opts UpdateP
 	return
 }
 
-type ResizeOpts struct {
+type ResizeOpt struct {
 	InstanceID string `json:"target_id" required:"true"`
 	SpecCode   string `json:"target_spec_code" required:"true"`
+}
+
+type ResizeOpts struct {
+	Resize    ResizeOpt `json:"resize" required:"true"`
+	IsAutoPay string    `json:"is_auto_pay,omitempty"`
 }
 
 type ResizeBuilder interface {
@@ -331,7 +338,7 @@ type ResizeBuilder interface {
 }
 
 func (opts ResizeOpts) ToResizeMap() (map[string]interface{}, error) {
-	b, err := golangsdk.BuildRequestBody(opts, "resize")
+	b, err := golangsdk.BuildRequestBody(opts, "")
 	if err != nil {
 		return nil, err
 	}

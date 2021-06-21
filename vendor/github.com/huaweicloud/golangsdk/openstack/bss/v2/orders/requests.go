@@ -26,3 +26,8 @@ func Unsubscribe(client *golangsdk.ServiceClient, opts UnsubscribeOptsBuilder) (
 	_, r.Err = client.Post(unsubscribeURL(client), reqBody, &r.Body, &golangsdk.RequestOpts{OkCodes: []int{200}})
 	return
 }
+
+func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
+	_, r.Err = client.Get(getURL(client, id), &r.Body, nil)
+	return
+}

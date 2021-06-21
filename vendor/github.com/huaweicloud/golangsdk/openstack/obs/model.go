@@ -613,6 +613,26 @@ type GetBucketLifecycleConfigurationOutput struct {
 	BucketLifecyleConfiguration
 }
 
+// BucketEncryptionConfiguration defines the bucket encryption configuration
+type BucketEncryptionConfiguration struct {
+	XMLName        xml.Name `xml:"ServerSideEncryptionConfiguration"`
+	SSEAlgorithm   string   `xml:"Rule>ApplyServerSideEncryptionByDefault>SSEAlgorithm"`
+	KMSMasterKeyID string   `xml:"Rule>ApplyServerSideEncryptionByDefault>KMSMasterKeyID,omitempty"`
+	ProjectID      string   `xml:"Rule>ApplyServerSideEncryptionByDefault>ProjectID,omitempty"`
+}
+
+// SetBucketEncryptionInput is the input parameter of SetBucketEncryption function
+type SetBucketEncryptionInput struct {
+	Bucket string `xml:"-"`
+	BucketEncryptionConfiguration
+}
+
+// GetBucketEncryptionOutput is the result of GetBucketEncryption function
+type GetBucketEncryptionOutput struct {
+	BaseModel
+	BucketEncryptionConfiguration
+}
+
 // Tag defines tag property in BucketTagging
 type Tag struct {
 	XMLName xml.Name `xml:"Tag"`

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/bss/v2/orders"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/configurations"
@@ -556,6 +557,10 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return fmt.Errorf("Error creating Huaweicloud Vpc: %s", err)
 	}
+	bssClient, err := config.BssV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmt.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
+	}
 	//update tags
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
@@ -642,10 +647,19 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		extendOpts := instances.ExtendVolumeOpts{
 			Size: d.Get("volume_size").(int),
 		}
+		if d.Get("charging_mode") == "prePaid" {
+			extendOpts.IsAutoPay = "true"
+		}
 
-		result := instances.ExtendVolume(client, d.Id(), extendOpts)
-		if result.Err != nil {
-			return fmt.Errorf("Error extending huaweicloud_gaussdb_cassandra_instance %s size: %s", d.Id(), result.Err)
+		n, err := instances.ExtendVolume(client, d.Id(), extendOpts).Extract()
+		if err != nil {
+			return fmt.Errorf("Error extending huaweicloud_gaussdb_cassandra_instance %s size: %s", d.Id(), err)
+		}
+		// wait for order success
+		if n.OrderId != "" {
+			if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderId); err != nil {
+				return err
+			}
 		}
 
 		stateConf := &resource.StateChangeConf{
@@ -656,7 +670,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			MinTimeout: 10 * time.Second,
 		}
 
-		_, err := stateConf.WaitForState()
+		_, err = stateConf.WaitForState()
 		if err != nil {
 			return fmt.Errorf(
 				"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
@@ -671,11 +685,20 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			enlargeNodeOpts := instances.EnlargeNodeOpts{
 				Num: expand_size,
 			}
+			if d.Get("charging_mode") == "prePaid" {
+				enlargeNodeOpts.IsAutoPay = "true"
+			}
 			log.Printf("[DEBUG] Enlarge Node Options: %+v", enlargeNodeOpts)
 
-			result := instances.EnlargeNode(client, d.Id(), enlargeNodeOpts)
-			if result.Err != nil {
-				return fmt.Errorf("Error enlarging huaweicloud_gaussdb_cassandra_instance %s node size: %s", d.Id(), result.Err)
+			n, err := instances.EnlargeNode(client, d.Id(), enlargeNodeOpts).Extract()
+			if err != nil {
+				return fmt.Errorf("Error enlarging huaweicloud_gaussdb_cassandra_instance %s node size: %s", d.Id(), err)
+			}
+			// wait for order success
+			if n.OrderId != "" {
+				if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderId); err != nil {
+					return err
+				}
 			}
 
 			stateConf := &resource.StateChangeConf{
@@ -687,7 +710,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 				PollInterval: 20 * time.Second,
 			}
 
-			_, err := stateConf.WaitForState()
+			_, err = stateConf.WaitForState()
 			if err != nil {
 				return fmt.Errorf(
 					"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
@@ -776,13 +799,24 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			log.Printf("[DEBUG] Inconsistent Node SpecCode: %s, Flavor: %s", specCode, flavor)
 			// Do resize action
 			resizeOpts := instances.ResizeOpts{
-				InstanceID: d.Id(),
-				SpecCode:   d.Get("flavor").(string),
+				Resize: instances.ResizeOpt{
+					InstanceID: d.Id(),
+					SpecCode:   d.Get("flavor").(string),
+				},
+			}
+			if d.Get("charging_mode") == "prePaid" {
+				resizeOpts.IsAutoPay = "true"
 			}
 
-			result := instances.Resize(client, d.Id(), resizeOpts)
-			if result.Err != nil {
-				return fmt.Errorf("Error resizing huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), result.Err)
+			n, err := instances.Resize(client, d.Id(), resizeOpts).Extract()
+			if err != nil {
+				return fmt.Errorf("Error resizing huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
+			}
+			// wait for order success
+			if n.OrderId != "" {
+				if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderId); err != nil {
+					return err
+				}
 			}
 
 			stateConf := &resource.StateChangeConf{
@@ -793,7 +827,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 				PollInterval: 20 * time.Second,
 			}
 
-			_, err := stateConf.WaitForState()
+			_, err = stateConf.WaitForState()
 			if err != nil {
 				return fmt.Errorf(
 					"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
