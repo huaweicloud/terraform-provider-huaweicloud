@@ -255,6 +255,7 @@ var (
 		"delete":                       true,
 		"cors":                         true,
 		"restore":                      true,
+		"encryption":                   true,
 		"tagging":                      true,
 		"append":                       true,
 		"position":                     true,
@@ -706,6 +707,9 @@ const (
 
 	// SubResourceNotification subResource value: notification
 	SubResourceNotification SubResourceType = "notification"
+
+	// SubResourceEncryption subResource value: encryption
+	SubResourceEncryption SubResourceType = "encryption"
 
 	// SubResourceTagging subResource value: tagging
 	SubResourceTagging SubResourceType = "tagging"
