@@ -367,6 +367,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_api_gateway_group":               ResourceAPIGatewayGroup(),
 			"huaweicloud_apig_instance":                   apig.ResourceApigInstanceV2(),
 			"huaweicloud_apig_application":                apig.ResourceApigApplicationV2(),
+			"huaweicloud_apig_environment":                apig.ResourceApigEnvironmentV2(),
 			"huaweicloud_apig_vpc_channel":                apig.ResourceApigVpcChannelV2(),
 			"huaweicloud_as_configuration":                ResourceASConfiguration(),
 			"huaweicloud_as_group":                        ResourceASGroup(),
