@@ -1,135 +1,135 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"github.com/huaweicloud/golangsdk"
-	"log"
-	"strings"
-	"time"
+    "fmt"
+    "github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+    "github.com/huaweicloud/golangsdk"
+    "log"
+    "strings"
+    "time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/huaweicloud/golangsdk/openstack/scm/v3/certificates"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+    "github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+    "github.com/huaweicloud/golangsdk/openstack/scm/v3/certificates"
+    "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-const (
+/*const (
 	MAX_ERROR_MESSAGE_LEN = 200
 	ELLIPSIS_STRING       = "..."
 
 	TARGET_SERVICE_CDN         = "CDN"
 	TARGET_SERVICE_WAF         = "WAF"
 	TARGET_SERVICE_ENHANCE_ELB = "Enhance_ELB"
-)
+)*/
 
 func resourceScmCertificatePushV3() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceScmCertificatePushV3Create,
-		Read:   resourceScmCertificatePushV3Read,
-		Delete: resourceScmCertificatePushV3Delete,
+    return &schema.Resource{
+        Create: resourceScmCertificatePushV3Create,
+        Read:   resourceScmCertificatePushV3Read,
+        Delete: resourceScmCertificatePushV3Delete,
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Read:   schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
-		},
+        Timeouts: &schema.ResourceTimeout{
+            Create: schema.DefaultTimeout(10 * time.Minute),
+            Read:   schema.DefaultTimeout(10 * time.Minute),
+            Delete: schema.DefaultTimeout(5 * time.Minute),
+        },
 
-		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"certificate_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"target_service": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					TARGET_SERVICE_CDN, TARGET_SERVICE_WAF, TARGET_SERVICE_ENHANCE_ELB,
-				}, false),
-			},
-			"target_project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-		},
-	}
+        Schema: map[string]*schema.Schema{
+            "region": {
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+                ForceNew: true,
+            },
+            "certificate_id": {
+                Type:     schema.TypeString,
+                Required: true,
+                ForceNew: true,
+            },
+            "target_service": {
+                Type:     schema.TypeString,
+                Required: true,
+                ForceNew: true,
+                ValidateFunc: validation.StringInSlice([]string{
+                    TARGET_SERVICE_CDN, TARGET_SERVICE_WAF, TARGET_SERVICE_ENHANCE_ELB,
+                }, false),
+            },
+            "target_project": {
+                Type:     schema.TypeString,
+                Optional: true,
+                ForceNew: true,
+            },
+        },
+    }
 }
 
 func resourceScmCertificatePushV3Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	elbClient, err := config.ScmV3Client(GetRegion(d, config))
-	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Certificate client: %s", err)
-	}
+    config := meta.(*config.Config)
+    elbClient, err := config.ScmV3Client(GetRegion(d, config))
+    if err != nil {
+        return fmt.Errorf("Error creating HuaweiCloud Certificate client: %s", err)
+    }
 
-	pushOpts := certificates.PushOpts{
-		TargetProject: d.Get("target_project").(string),
-		TargetService: d.Get("target_service").(string),
-	}
-	certificateId := d.Get("certificate_id").(string)
+    pushOpts := certificates.PushOpts{
+        TargetProject: d.Get("target_project").(string),
+        TargetService: d.Get("target_service").(string),
+    }
+    certificateId := d.Get("certificate_id").(string)
 
-	if strings.Compare(pushOpts.TargetService, TARGET_SERVICE_CDN) != 0 && len(pushOpts.TargetProject) == 0 {
-		return fmt.Errorf("the argument of \"target_project\" cannot be empty, "+
-			"it can be empty when pushed to the CDN service only. "+
-			"\r\ncertificate_id: %s, target_service: %s", certificateId, pushOpts.TargetService)
-	}
+    if strings.Compare(pushOpts.TargetService, TARGET_SERVICE_CDN) != 0 && len(pushOpts.TargetProject) == 0 {
+        return fmt.Errorf("the argument of \"target_project\" cannot be empty, "+
+            "it can be empty when pushed to the CDN service only. "+
+            "\r\ncertificate_id: %s, target_service: %s", certificateId, pushOpts.TargetService)
+    }
 
-	err = certificates.Push(elbClient, certificateId, pushOpts).ExtractErr()
-	if err != nil {
-		d.SetId("")
-		// Parse 'err' to print more error messages.
-		errMsg := processErr(err)
-		return fmt.Errorf(errMsg)
-	}
+    err = certificates.Push(elbClient, certificateId, pushOpts).ExtractErr()
+    if err != nil {
+        d.SetId("")
+        // Parse 'err' to print more error messages.
+        errMsg := processErr(err)
+        return fmt.Errorf(errMsg)
+    }
 
-	d.SetId(generateCertPushId(certificateId, pushOpts))
+    d.SetId(generateCertPushId(certificateId, pushOpts))
 
-	return resourceScmCertificatePushV3Read(d, meta)
+    return resourceScmCertificatePushV3Read(d, meta)
 }
 
 func generateCertPushId(certificateId string, opt certificates.PushOpts) (id string) {
-	id = certificateId + "_" + opt.TargetService + "_" + opt.TargetProject
-	return
+    id = certificateId + "_" + opt.TargetService + "_" + opt.TargetProject
+    return
 }
 
 // The ErrDefault500 to print only "Internal Server Error" are not clear enough.
 // Parse the 'err' object to print more error messages.
 func processErr(err error) string {
-	// errMsg: The error message to be printed.
-	errMsg := fmt.Sprintf("Push certificate service error: %s", err)
-	if err500, ok := err.(golangsdk.ErrDefault500); ok {
-		errBody := string(err500.Body)
-		// Maybe the text in the body is very long, only 200 characters printed。
-		if len(errBody) >= MAX_ERROR_MESSAGE_LEN {
-			errBody = errBody[0:MAX_ERROR_MESSAGE_LEN] + ELLIPSIS_STRING
-		}
-		// If 'err' is an ErrDefault500 object, the following information will be printed.
-		log.Printf("[ERROR] Push certificate service error. URL: %s, Body: %s",
-			err500.URL, errBody)
-		errMsg = fmt.Sprintf("Push certificate service error: "+
-			"Bad request with: [%s %s], error message: %s", err500.Method, err500.URL, errBody)
-	} else {
-		// If 'err' is other error object, the default information will be printed.
-		log.Printf("[ERROR] Push certificate service error: %s, \n%#v", err.Error(), err)
-		errMsg = fmt.Sprintf("Push certificate service error: %s", err)
-	}
-	return errMsg
+    // errMsg: The error message to be printed.
+    errMsg := fmt.Sprintf("Push certificate service error: %s", err)
+    if err500, ok := err.(golangsdk.ErrDefault500); ok {
+        errBody := string(err500.Body)
+        // Maybe the text in the body is very long, only 200 characters printed。
+        if len(errBody) >= MAX_ERROR_MESSAGE_LEN {
+            errBody = errBody[0:MAX_ERROR_MESSAGE_LEN] + ELLIPSIS_STRING
+        }
+        // If 'err' is an ErrDefault500 object, the following information will be printed.
+        log.Printf("[ERROR] Push certificate service error. URL: %s, Body: %s",
+            err500.URL, errBody)
+        errMsg = fmt.Sprintf("Push certificate service error: "+
+            "Bad request with: [%s %s], error message: %s", err500.Method, err500.URL, errBody)
+    } else {
+        // If 'err' is other error object, the default information will be printed.
+        log.Printf("[ERROR] Push certificate service error: %s, \n%#v", err.Error(), err)
+        errMsg = fmt.Sprintf("Push certificate service error: %s", err)
+    }
+    return errMsg
 }
 
 func resourceScmCertificatePushV3Read(d *schema.ResourceData, meta interface{}) error {
-	// no API to read pushed info. -- 2021-6-16
-	return nil
+    // no API to read pushed info. -- 2021-6-16
+    return nil
 }
 
 func resourceScmCertificatePushV3Delete(d *schema.ResourceData, meta interface{}) error {
-	// no API to remove pushed services. -- 2021-6-16
-	return nil
+    // no API to remove pushed services. -- 2021-6-16
+    return nil
 }
