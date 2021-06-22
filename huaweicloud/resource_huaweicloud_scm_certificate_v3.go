@@ -385,3 +385,25 @@ func parsePushCertificateToMap(pushCertificate []interface{}) (map[string]map[st
 	}
 	return serviceMapping, nil
 }
+
+func processErr(err error) string {
+	// errMsg: The error message to be printed.
+	errMsg := fmt.Sprintf("Push certificate service error: %s", err)
+	if err500, ok := err.(golangsdk.ErrDefault500); ok {
+		errBody := string(err500.Body)
+		// Maybe the text in the body is very long, only 200 characters printed。
+		if len(errBody) >= MAX_ERROR_MESSAGE_LEN {
+			errBody = errBody[0:MAX_ERROR_MESSAGE_LEN] + ELLIPSIS_STRING
+		}
+		// If 'err' is an ErrDefault500 object, the following information will be printed.
+		log.Printf("[ERROR] Push certificate service error. URL: %s, Body: %s",
+			err500.URL, errBody)
+		errMsg = fmt.Sprintf("Push certificate service error: "+
+			"Bad request with: [%s %s], error message: %s", err500.Method, err500.URL, errBody)
+	} else {
+		// If 'err' is other error object, the default information will be printed.
+		log.Printf("[ERROR] Push certificate service error: %s, \n%#v", err.Error(), err)
+		errMsg = fmt.Sprintf("Push certificate service error: %s", err)
+	}
+	return errMsg
+}
