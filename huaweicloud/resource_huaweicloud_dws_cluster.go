@@ -25,7 +25,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func resourceDwsCluster() *schema.Resource {
+func ResourceDwsCluster() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDwsClusterCreate,
 		Read:   resourceDwsClusterRead,
