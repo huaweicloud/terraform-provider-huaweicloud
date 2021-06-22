@@ -140,7 +140,7 @@ func testAccCheckScmV3CertificateExists(n string, c *certificates.CertificateEsc
 }
 
 func testAccCheckScmV3CertificatePushExists(
-    certResourceName string, targetService string, targetProject string) resource.TestCheckFunc {
+	certResourceName string, targetService string, targetProject string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		log.Printf("terraform.State: %#v", s)
 		// Get the resource info by certificateResorceName
@@ -157,9 +157,9 @@ func testAccCheckScmV3CertificatePushExists(
 		stateTargetProject := certRs.Primary.Attributes["push_certificate.0.target_project.0"]
 
 		if strings.Compare(targetService, stateTargetService) != 0 ||
-		    strings.Compare(targetProject, stateTargetProject) != 0 {
+			strings.Compare(targetProject, stateTargetProject) != 0 {
 			return fmt.Errorf("Push certificate failed! targetService: %s, targetProject: %s",
-			    targetService, targetProject)
+				targetService, targetProject)
 		}
 
 		return nil
