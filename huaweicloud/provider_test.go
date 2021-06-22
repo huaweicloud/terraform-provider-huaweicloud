@@ -341,13 +341,8 @@ func envVarFile(varName string) (string, error) {
 }
 
 func testAccPreCheckScm(t *testing.T) {
-	if HW_CERTIFICATE_KEY_PATH == "" {
-		t.Skip("HW_CERTIFICATE_KEY_PATH must be set for SCM certificate tests")
-	}
-	if HW_CERTIFICATE_CHAIN_PATH == "" {
-		t.Skip("HW_CERTIFICATE_CHAIN_PATH must be set for BMS certificate tests")
-	}
-	if HW_CERTIFICATE_PRIVATE_KEY_PATH == "" {
-		t.Skip("HW_CERTIFICATE_PRIVATE_KEY_PATH must be set for BMS certificate tests")
+	if HW_CERTIFICATE_KEY_PATH == "" || HW_CERTIFICATE_CHAIN_PATH == "" || HW_CERTIFICATE_PRIVATE_KEY_PATH == "" {
+		t.Skip("HW_CERTIFICATE_KEY_PATH,HW_CERTIFICATE_CHAIN_PATH and " +
+			"HW_CERTIFICATE_PRIVATE_KEY_PATH must be set for SCM certificate tests")
 	}
 }
