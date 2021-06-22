@@ -12,16 +12,16 @@ centrally manage all your SSL certificates in one place.
 
 ```hcl
 # Load the certificate contents from the local files.
-resource "huaweicloud_scm_certificate" "certificate_2" {
-  name              = "certificate_2"
+resource "huaweicloud_scm_certificate" "certificate_1" {
+  name              = "certificate_1"
   certificate       = file("/usr/local/data/certificate/cert_xxx/xxx_ca.crt")
   certificate_chain = file("/usr/local/data/certificate/cert_xxx/xxx_ca_chain.crt")
   private_key       = file("/usr/local/data/certificate/cert_xxx/xxx_server.key")
 }
 
 # Write the contents of the certificate into the Terrafrom script.
-resource "huaweicloud_scm_certificate" "certificate_1" {
-  name              ="certificate_1"
+resource "huaweicloud_scm_certificate" "certificate_2" {
+  name              ="certificate_2"
   certificate       = <<EOT
 -----BEGIN CERTIFICATE-----
 MIIC9DCCAl2gAwIBAgIUUcJZn3ep4l8iHu6lL/jE2UV+G8gwDQYJKoZIhvcNAQEL
