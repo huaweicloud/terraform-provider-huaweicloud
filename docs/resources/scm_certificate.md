@@ -72,9 +72,9 @@ resource "huaweicloud_scm_certificate" "certificate_3" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the ELB certificate resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the SCM certificate resource.
     If omitted, the provider-level region will be used.
-    Changing this creates a new certificate.
+    Changing this setting will push a new certificate.
 * `name` - (Optional, String, ForceNew) Human-readable name for the Certificate. 
     Does not have to be unique. The value contains a maximum of 63 characters.
 * `certificate` - (Required, String, ForceNew) The public encrypted key of the Certificate, PEM format.
