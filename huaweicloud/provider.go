@@ -602,7 +602,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_rts_software_config_v1":             resourceSoftwareConfigV1(),
 			"huaweicloud_cts_tracker":                        deprecated.ResourceCTSTrackerV1(),
 			"huaweicloud_scm_certificate":                    resourceScmCertificateV3(),
-			"huaweicloud_scm_certificate_push":               resourceScmCertificatePushV3(),
 		},
 	}
 
