@@ -270,7 +270,6 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	//return fmt.Errorf("Error creating HuaweiCloud SCM client") //
 	return resourceScmCertificateV3Read(d, meta)
 }
 
