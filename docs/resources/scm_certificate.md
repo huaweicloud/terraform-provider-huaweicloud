@@ -46,6 +46,28 @@ EOT
 }
 ```
 
+It supports to push an SSL certificate to another HUAWEI CLOUD service, such as Elastic Load Balance (ELB),
+Web Application Firewall (WAF), and Content Delivery Network (CDN).
+
+## Example Usage
+```hcl
+# Load the certificate contents from the local files.
+resource "huaweicloud_scm_certificate" "certificate_3" {
+  name              = "certificate_3"
+  certificate       = file("/usr/local/data/certificate/cert_xxx/xxx_ca.crt")
+  certificate_chain = file("/usr/local/data/certificate/cert_xxx/xxx_ca_chain.crt")
+  private_key       = file("/usr/local/data/certificate/cert_xxx/xxx_server.key")
+
+  push_certificate {
+    target_project  = ["la-south-2"]
+    target_service  = "Enhance_ELB"
+  }
+
+  push_certificate {
+    target_service  = "CDN"
+  }
+}
+```
 ## Argument Reference
 
 The following arguments are supported:
@@ -60,7 +82,15 @@ The following arguments are supported:
     It can be extracted from the _server.crt_ file in the Nginx directory, 
     usually after the second paragraph is the certificate chain.
 * `private_key` - (Required, String, ForceNew) The private encrypted key of the Certificate, PEM format.
+* `push_certificate` - (Optional, List) The service to which the certificate needs to be pushed.The push_certificate
+  structure is documented below.
 
+The `push_certificate` block supports:
+* `target_service` - (Required, String) Service to which the certificate is pushed.
+  The options include `CDN`,`WAF` and `Enhance_ELB`.
+* `target_project` - (Optional, String) The project where the service you want to push a certificate to.
+  The same certificate can be pushed repeatedly to the same WAF or ELB service in the same `target_project`,
+  but the CDN service can only be pushed once.
 
 ## Attributes Reference
 
