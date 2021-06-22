@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func TestScmCertificationV3_basic(t *testing.T) {
+func TestAccScmCertificationV3_basic(t *testing.T) {
 	var certInfo certificates.CertificateEscrowInfo
 	resourceName := "huaweicloud_scm_certificate.certificate_1"
 
@@ -24,7 +24,7 @@ func TestScmCertificationV3_basic(t *testing.T) {
 		CheckDestroy: testAccCheckScmV3CertificateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testScmCertificateV3_config(rName),
+				Config: testAccScmCertificateV3_config(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScmV3CertificateExists(resourceName, &certInfo),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -32,7 +32,7 @@ func TestScmCertificationV3_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testScmCertificateV3_config(rUpdateName),
+				Config: testAccScmCertificateV3_config(rUpdateName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScmV3CertificateExists(resourceName, &certInfo),
 					resource.TestCheckResourceAttr(resourceName, "name", rUpdateName),
@@ -96,7 +96,7 @@ func testAccCheckScmV3CertificateDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testScmCertificateV3_config(name string) string {
+func testAccScmCertificateV3_config(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_scm_certificate" "certificate_1" {
   name              = "%s"

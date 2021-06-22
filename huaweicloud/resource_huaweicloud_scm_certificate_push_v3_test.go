@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func TestScmCertificationPushV3_basic(t *testing.T) {
+func TestAccScmCertificationPushV3_basic(t *testing.T) {
 	certResourceName := "huaweicloud_scm_certificate.certificate_1"
 	pushResourceName := "huaweicloud_scm_certificate_push.push_1"
 	targetService := "Enhance_ELB"
@@ -27,7 +27,7 @@ func TestScmCertificationPushV3_basic(t *testing.T) {
 		CheckDestroy: testAccCheckScmV3CertificatePushDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testScmCertificatePushV3_config(rName, targetService, targetProject),
+				Config: testAccScmCertificatePushV3_config(rName, targetService, targetProject),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScmV3CertificatePushExists(certResourceName, pushResourceName, targetService, targetProject),
 					resource.TestCheckResourceAttrSet(pushResourceName, "id"),
@@ -99,7 +99,7 @@ func testAccCheckScmV3CertificatePushDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testScmCertificatePushV3_config(resourceName string, targetService string, targetProject string) string {
+func testAccScmCertificatePushV3_config(resourceName string, targetService string, targetProject string) string {
 
 	certResource := fmt.Sprintf(`
 resource "huaweicloud_scm_certificate" "certificate_1" {
