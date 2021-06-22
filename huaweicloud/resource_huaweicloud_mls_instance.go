@@ -15,10 +15,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"reflect"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
@@ -187,7 +188,7 @@ func resourceMlsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.MlsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	opts := make(map[string]interface{})
@@ -257,7 +258,7 @@ func resourceMlsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	url = client.ServiceURL(url)
 
-	log.Printf("[DEBUG] Creating new Instance: %#v", opts)
+	logp.Printf("[DEBUG] Creating new Instance: %#v", opts)
 	r := golangsdk.Result{}
 	_, r.Err = client.Post(
 		url,
@@ -265,7 +266,7 @@ func resourceMlsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 		&r.Body,
 		&golangsdk.RequestOpts{OkCodes: successHTTPCodes})
 	if r.Err != nil {
-		return fmt.Errorf("Error creating Instance: %s", r.Err)
+		return fmtp.Errorf("Error creating Instance: %s", r.Err)
 	}
 
 	pathParameters := map[string][]string{
@@ -275,7 +276,7 @@ func resourceMlsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	for key, path := range pathParameters {
 		value, err := navigateMap(r.Body, path)
 		if err != nil {
-			return fmt.Errorf("Error retrieving async operation path parameter: %s", err)
+			return fmtp.Errorf("Error retrieving async operation path parameter: %s", err)
 		}
 		data[key] = value
 	}
@@ -312,7 +313,7 @@ func resourceMlsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	id, err := navigateMap(obj, []string{"instance", "id"})
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmtp.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id.(string))
 
@@ -323,7 +324,7 @@ func resourceMlsInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.MlsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	url, err := replaceVars(d, "instances/{id}", nil)
@@ -337,57 +338,57 @@ func resourceMlsInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		url, &r.Body,
 		&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 	if r.Err != nil {
-		return fmt.Errorf("Error reading %s: %s", fmt.Sprintf("MlsInstance %q", d.Id()), r.Err)
+		return fmtp.Errorf("Error reading %s: %s", fmtp.Sprintf("MlsInstance %q", d.Id()), r.Err)
 	}
 	v, err := navigateMap(r.Body, []string{"instance"})
 	if err != nil {
-		return fmt.Errorf("Error reading %s: the result does not contain instance", fmt.Sprintf("MlsInstance %q", d.Id()))
+		return fmtp.Errorf("Error reading %s: the result does not contain instance", fmtp.Sprintf("MlsInstance %q", d.Id()))
 	}
 	res := v.(map[string]interface{})
 
 	if v, ok := res["created"]; ok {
 		if err := d.Set("created", v); err != nil {
-			return fmt.Errorf("Error reading Instance:created, err: %s", err)
+			return fmtp.Errorf("Error reading Instance:created, err: %s", err)
 		}
 	}
 
 	if v, ok := res["currentTask"]; ok {
 		if err := d.Set("current_task", v); err != nil {
-			return fmt.Errorf("Error reading Instance:current_task, err: %s", err)
+			return fmtp.Errorf("Error reading Instance:current_task, err: %s", err)
 		}
 	}
 
 	if v, ok := res["innerEndPoint"]; ok {
 		if err := d.Set("inner_endpoint", v); err != nil {
-			return fmt.Errorf("Error reading Instance:inner_endpoint, err: %s", err)
+			return fmtp.Errorf("Error reading Instance:inner_endpoint, err: %s", err)
 		}
 	}
 
 	if v, ok := res["publicEndPoint"]; ok {
 		if err := d.Set("public_endpoint", v); err != nil {
-			return fmt.Errorf("Error reading Instance:public_endpoint, err: %s", err)
+			return fmtp.Errorf("Error reading Instance:public_endpoint, err: %s", err)
 		}
 	}
 
 	if v, ok := res["status"]; ok {
 		if err := d.Set("status", v); err != nil {
-			return fmt.Errorf("Error reading Instance:status, err: %s", err)
+			return fmtp.Errorf("Error reading Instance:status, err: %s", err)
 		}
 	}
 
 	if v, ok := res["updated"]; ok {
 		if err := d.Set("updated", v); err != nil {
-			return fmt.Errorf("Error reading Instance:updated, err: %s", err)
+			return fmtp.Errorf("Error reading Instance:updated, err: %s", err)
 		}
 	}
 
 	if v, ok := res["network"]; ok {
 		networkProp, err := flattenMlsInstanceNetwork(v)
 		if err != nil {
-			return fmt.Errorf("Error reading Instance:network, err: %s", err)
+			return fmtp.Errorf("Error reading Instance:network, err: %s", err)
 		}
 		if err := d.Set("network", networkProp); err != nil {
-			return fmt.Errorf("Error reading Instance:network, err: %s", err)
+			return fmtp.Errorf("Error reading Instance:network, err: %s", err)
 		}
 	}
 
@@ -398,7 +399,7 @@ func resourceMlsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.MlsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	url, err := replaceVars(d, "instances/{id}", nil)
@@ -407,7 +408,7 @@ func resourceMlsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	url = client.ServiceURL(url)
 
-	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
+	logp.Printf("[DEBUG] Deleting Instance %q", d.Id())
 	r := golangsdk.Result{}
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
 		OkCodes:      successHTTPCodes,
@@ -416,7 +417,7 @@ func resourceMlsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 		JSONBody:     map[string]interface{}{},
 	})
 	if r.Err != nil {
-		return fmt.Errorf("Error deleting Instance %q: %s", d.Id(), r.Err)
+		return fmtp.Errorf("Error deleting Instance %q: %s", d.Id(), r.Err)
 	}
 
 	_, err = waitToFinish(
@@ -457,7 +458,7 @@ func flattenMlsInstanceNetwork(v interface{}) (interface{}, error) {
 	if val, ok := original["publicIP"]; ok {
 		publicIPProp, err := flattenMlsInstanceNetworkPublicIP(val)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading network:public_ip, err: %s", err)
+			return nil, fmtp.Errorf("Error reading network:public_ip, err: %s", err)
 		}
 		transformed["public_ip"] = publicIPProp
 	}

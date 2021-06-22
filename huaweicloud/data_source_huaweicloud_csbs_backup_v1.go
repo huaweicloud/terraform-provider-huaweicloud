@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/csbs/v1/backup"
@@ -185,7 +185,7 @@ func dataSourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	backupClient, err := config.CsbsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating csbs client: %s", err)
+		return fmtp.Errorf("Error creating csbs client: %s", err)
 	}
 
 	listOpts := backup.ListOpts{
@@ -202,21 +202,21 @@ func dataSourceCSBSBackupV1Read(d *schema.ResourceData, meta interface{}) error 
 
 	refinedbackups, err := backup.List(backupClient, listOpts)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve backup: %s", err)
+		return fmtp.Errorf("Unable to retrieve backup: %s", err)
 	}
 
 	if len(refinedbackups) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedbackups) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	backupObject := refinedbackups[0]
-	log.Printf("[INFO] Retrieved backup %s using given filter", backupObject.Id)
+	logp.Printf("[INFO] Retrieved backup %s using given filter", backupObject.Id)
 
 	d.SetId(backupObject.Id)
 

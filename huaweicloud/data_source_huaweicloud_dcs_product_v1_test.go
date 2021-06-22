@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -29,18 +30,18 @@ func testAccCheckDcsProductV1DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find Dcs product data source: %s", n)
+			return fmtp.Errorf("Can't find Dcs product data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Dcs product data source ID not set")
+			return fmtp.Errorf("Dcs product data source ID not set")
 		}
 
 		return nil
 	}
 }
 
-var testAccDcsProductV1DataSource_basic = fmt.Sprintf(`
+var testAccDcsProductV1DataSource_basic = fmtp.Sprintf(`
 data "huaweicloud_dcs_product_v1" "product1" {
 spec_code = "dcs.single_node"
 }

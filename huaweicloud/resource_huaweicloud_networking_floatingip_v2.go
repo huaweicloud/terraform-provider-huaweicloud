@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -12,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -86,7 +86,7 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	createOpts := FloatingIPCreateOpts{
@@ -99,13 +99,13 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 		MapValueSpecs(d),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	floatingIP, err := floatingips.Create(networkingClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error allocating floating IP: %s", err)
+		return fmtp.Errorf("Error allocating floating IP: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for HuaweiCloud Neutron Floating IP (%s) to become available.", floatingIP.ID)
+	logp.Printf("[DEBUG] Waiting for HuaweiCloud Neutron Floating IP (%s) to become available.", floatingIP.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
@@ -117,7 +117,7 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Neutron Floating IP: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud Neutron Floating IP: %s", err)
 	}
 
 	d.SetId(floatingIP.ID)
@@ -129,7 +129,7 @@ func resourceNetworkFloatingIPV2Read(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	floatingIP, err := floatingips.Get(networkingClient, d.Id()).Extract()
@@ -152,7 +152,7 @@ func resourceNetworkFloatingIPV2Update(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	var updateOpts floatingips.UpdateOpts
@@ -162,11 +162,11 @@ func resourceNetworkFloatingIPV2Update(d *schema.ResourceData, meta interface{})
 		updateOpts.PortID = &portID
 	}
 
-	log.Printf("[DEBUG] Update Options: %#v", updateOpts)
+	logp.Printf("[DEBUG] Update Options: %#v", updateOpts)
 
 	_, err = floatingips.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating floating IP: %s", err)
+		return fmtp.Errorf("Error updating floating IP: %s", err)
 	}
 
 	return resourceNetworkFloatingIPV2Read(d, meta)
@@ -176,7 +176,7 @@ func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -190,7 +190,7 @@ func resourceNetworkFloatingIPV2Delete(d *schema.ResourceData, meta interface{})
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud Neutron Floating IP: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud Neutron Floating IP: %s", err)
 	}
 
 	d.SetId("")
@@ -204,7 +204,7 @@ func waitForFloatingIPActive(networkingClient *golangsdk.ServiceClient, fId stri
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud Neutron Floating IP: %+v", f)
+		logp.Printf("[DEBUG] HuaweiCloud Neutron Floating IP: %+v", f)
 		if f.Status == "DOWN" || f.Status == "ACTIVE" {
 			return f, "ACTIVE", nil
 		}
@@ -215,16 +215,16 @@ func waitForFloatingIPActive(networkingClient *golangsdk.ServiceClient, fId stri
 
 func waitForFloatingIPDelete(networkingClient *golangsdk.ServiceClient, fId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Floating IP %s.\n", fId)
+		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud Floating IP %s.\n", fId)
 
 		f, err := floatingips.Get(networkingClient, fId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Floating IP %s", fId)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Floating IP %s", fId)
 				return f, "DELETED", nil
 			}
 			if _, ok := err.(golangsdk.ErrDefault500); ok {
-				log.Printf("[DEBUG] Got 500 error when delting HuaweiCloud Floating IP %s, it should be stream control on API server, try again later", fId)
+				logp.Printf("[DEBUG] Got 500 error when delting HuaweiCloud Floating IP %s, it should be stream control on API server, try again later", fId)
 				return f, "ACTIVE", nil
 			}
 			return f, "ACTIVE", err
@@ -233,17 +233,17 @@ func waitForFloatingIPDelete(networkingClient *golangsdk.ServiceClient, fId stri
 		err = floatingips.Delete(networkingClient, fId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Floating IP %s", fId)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Floating IP %s", fId)
 				return f, "DELETED", nil
 			}
 			if _, ok := err.(golangsdk.ErrDefault500); ok {
-				log.Printf("[DEBUG] Got 500 error when delting HuaweiCloud Floating IP %s, it should be stream control on API server, try again later", fId)
+				logp.Printf("[DEBUG] Got 500 error when delting HuaweiCloud Floating IP %s, it should be stream control on API server, try again later", fId)
 				return f, "ACTIVE", nil
 			}
 			return f, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud Floating IP %s still active.\n", fId)
+		logp.Printf("[DEBUG] HuaweiCloud Floating IP %s still active.\n", fId)
 		return f, "ACTIVE", nil
 	}
 }

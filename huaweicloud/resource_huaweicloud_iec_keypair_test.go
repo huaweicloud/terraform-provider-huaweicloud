@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -16,7 +17,7 @@ import (
 func TestAccIECKeypairResource_basic(t *testing.T) {
 	var keypair common.KeyPair
 	resourceName := "huaweicloud_iec_keypair.kp_1"
-	rName := fmt.Sprintf("KeyPair-%s", acctest.RandString(4))
+	rName := fmtp.Sprintf("KeyPair-%s", acctest.RandString(4))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -44,7 +45,7 @@ func testAccCheckIECKeypairDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	iecClient, err := config.IECV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -54,7 +55,7 @@ func testAccCheckIECKeypairDestroy(s *terraform.State) error {
 
 		_, err := keypairs.Get(iecClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Keypair still exists")
+			return fmtp.Errorf("Keypair still exists")
 		}
 	}
 
@@ -65,17 +66,17 @@ func testAccCheckIECKeypairExists(n string, kp *common.KeyPair) resource.TestChe
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		iecClient, err := config.IECV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 		}
 
 		found, err := keypairs.Get(iecClient, rs.Primary.ID).Extract()
@@ -84,7 +85,7 @@ func testAccCheckIECKeypairExists(n string, kp *common.KeyPair) resource.TestChe
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Keypair not found")
+			return fmtp.Errorf("Keypair not found")
 		}
 
 		*kp = *found
@@ -94,7 +95,7 @@ func testAccCheckIECKeypairExists(n string, kp *common.KeyPair) resource.TestChe
 }
 
 func testAccIECKeypair_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_iec_keypair" "kp_1" {
   name = "%s"
 }

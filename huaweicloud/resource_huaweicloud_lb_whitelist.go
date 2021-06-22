@@ -1,14 +1,14 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/whitelists"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceWhitelistV2() *schema.Resource {
@@ -63,7 +63,7 @@ func resourceWhitelistV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	enableWhitelist := d.Get("enable_whitelist").(bool)
@@ -74,10 +74,10 @@ func resourceWhitelistV2Create(d *schema.ResourceData, meta interface{}) error {
 		Whitelist:       d.Get("whitelist").(string),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	wl, err := whitelists.Create(elbClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Whitelist: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud Whitelist: %s", err)
 	}
 
 	d.SetId(wl.ID)
@@ -88,7 +88,7 @@ func resourceWhitelistV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	wl, err := whitelists.Get(elbClient, d.Id()).Extract()
@@ -96,7 +96,7 @@ func resourceWhitelistV2Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "whitelist")
 	}
 
-	log.Printf("[DEBUG] Retrieved whitelist %s: %#v", d.Id(), wl)
+	logp.Printf("[DEBUG] Retrieved whitelist %s: %#v", d.Id(), wl)
 
 	d.SetId(wl.ID)
 	d.Set("tenant_id", wl.TenantId)
@@ -111,7 +111,7 @@ func resourceWhitelistV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var updateOpts whitelists.UpdateOpts
@@ -123,10 +123,10 @@ func resourceWhitelistV2Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.Whitelist = d.Get("whitelist").(string)
 	}
 
-	log.Printf("[DEBUG] Updating whitelist %s with options: %#v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating whitelist %s with options: %#v", d.Id(), updateOpts)
 	_, err = whitelists.Update(elbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to update whitelist %s: %s", d.Id(), err)
+		return fmtp.Errorf("Unable to update whitelist %s: %s", d.Id(), err)
 	}
 
 	return resourceWhitelistV2Read(d, meta)
@@ -136,13 +136,13 @@ func resourceWhitelistV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Attempting to delete whitelist %s", d.Id())
+	logp.Printf("[DEBUG] Attempting to delete whitelist %s", d.Id())
 	err = whitelists.Delete(elbClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud whitelist: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud whitelist: %s", err)
 	}
 	d.SetId("")
 	return nil

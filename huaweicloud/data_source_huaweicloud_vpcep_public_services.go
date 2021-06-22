@@ -1,11 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceVPCEPPublicServices() *schema.Resource {
@@ -63,7 +62,7 @@ func dataSourceVpcepPublicRead(d *schema.ResourceData, meta interface{}) error {
 	region := GetRegion(d, config)
 	vpcepClient, err := config.VPCEPClient(region)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
 	}
 
 	listOpts := services.ListOpts{
@@ -73,11 +72,11 @@ func dataSourceVpcepPublicRead(d *schema.ResourceData, meta interface{}) error {
 
 	allServices, err := services.ListPublic(vpcepClient, listOpts)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve vpc endpoint public services: %s", err)
+		return fmtp.Errorf("Unable to retrieve vpc endpoint public services: %s", err)
 	}
 
 	if len(allServices) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 

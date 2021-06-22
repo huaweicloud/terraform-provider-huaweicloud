@@ -15,13 +15,13 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"reflect"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceDisStreamV2() *schema.Resource {
@@ -166,18 +166,18 @@ func resourceDisStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DisV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	opts := resourceDisStreamV2UserInputParams(d)
 
 	params, err := buildDisStreamV2CreateParameters(opts, nil)
 	if err != nil {
-		return fmt.Errorf("Error building the request body of api(create), err=%s", err)
+		return fmtp.Errorf("Error building the request body of api(create), err=%s", err)
 	}
 	_, err = sendDisStreamV2CreateRequest(d, params, client)
 	if err != nil {
-		return fmt.Errorf("Error creating DisStreamV2, err=%s", err)
+		return fmtp.Errorf("Error creating DisStreamV2, err=%s", err)
 	}
 
 	d.SetId(opts["stream_name"].(string))
@@ -189,7 +189,7 @@ func resourceDisStreamV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DisV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	res := make(map[string]interface{})
@@ -207,19 +207,19 @@ func resourceDisStreamV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DisV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	opts := resourceDisStreamV2UserInputParams(d)
 
 	params, err := buildDisStreamV2UpdateParameters(opts, nil)
 	if err != nil {
-		return fmt.Errorf("Error building the request body of api(update), err=%s", err)
+		return fmtp.Errorf("Error building the request body of api(update), err=%s", err)
 	}
 	if e, _ := isEmptyValue(reflect.ValueOf(params)); !e {
 		_, err = sendDisStreamV2UpdateRequest(d, params, client)
 		if err != nil {
-			return fmt.Errorf("Error updating (DisStreamV2: %v), err=%s", d.Id(), err)
+			return fmtp.Errorf("Error updating (DisStreamV2: %v), err=%s", d.Id(), err)
 		}
 	}
 
@@ -230,7 +230,7 @@ func resourceDisStreamV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DisV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	url, err := replaceVars(d, "streams/{id}", nil)
@@ -239,7 +239,7 @@ func resourceDisStreamV2Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 	url = client.ServiceURL(url)
 
-	log.Printf("[DEBUG] Deleting Stream %q", d.Id())
+	logp.Printf("[DEBUG] Deleting Stream %q", d.Id())
 	r := golangsdk.Result{}
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
 		OkCodes:      successHTTPCodes,
@@ -248,7 +248,7 @@ func resourceDisStreamV2Delete(d *schema.ResourceData, meta interface{}) error {
 		MoreHeaders:  map[string]string{"Content-Type": "application/json"},
 	})
 	if r.Err != nil {
-		return fmt.Errorf("Error deleting Stream %q, err=%s", d.Id(), r.Err)
+		return fmtp.Errorf("Error deleting Stream %q, err=%s", d.Id(), r.Err)
 	}
 
 	return nil
@@ -456,7 +456,7 @@ func sendDisStreamV2CreateRequest(d *schema.ResourceData, params interface{},
 		OkCodes: successHTTPCodes,
 	})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(create), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(create), err=%s", r.Err)
 	}
 	return r.Body, nil
 }
@@ -500,7 +500,7 @@ func sendDisStreamV2UpdateRequest(d *schema.ResourceData, params interface{},
 		OkCodes: successHTTPCodes,
 	})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(update), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(update), err=%s", r.Err)
 	}
 	return r.Body, nil
 }
@@ -516,7 +516,7 @@ func sendDisStreamV2ReadRequest(d *schema.ResourceData, client *golangsdk.Servic
 	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(read) for resource(DisStreamV2), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(read) for resource(DisStreamV2), err=%s", r.Err)
 	}
 
 	return r.Body, nil
@@ -669,107 +669,107 @@ func setDisStreamV2Properties(d *schema.ResourceData, response map[string]interf
 
 	v, err := navigateValue(response, []string{"read", "auto_scale_max_partition_count"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:auto_scale_max_partition_count, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:auto_scale_max_partition_count, err: %s", err)
 	}
 	if err = d.Set("auto_scale_max_partition_count", v); err != nil {
-		return fmt.Errorf("Error setting Stream:auto_scale_max_partition_count, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:auto_scale_max_partition_count, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "auto_scale_min_partition_count"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:auto_scale_min_partition_count, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:auto_scale_min_partition_count, err: %s", err)
 	}
 	if err = d.Set("auto_scale_min_partition_count", v); err != nil {
-		return fmt.Errorf("Error setting Stream:auto_scale_min_partition_count, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:auto_scale_min_partition_count, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "compression_format"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:compression_format, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:compression_format, err: %s", err)
 	}
 	if err = d.Set("compression_format", v); err != nil {
-		return fmt.Errorf("Error setting Stream:compression_format, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:compression_format, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "create_time"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:created, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:created, err: %s", err)
 	}
 	if err = d.Set("created", v); err != nil {
-		return fmt.Errorf("Error setting Stream:created, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:created, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "csv_properties", "delimiter"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:csv_delimiter, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:csv_delimiter, err: %s", err)
 	}
 	if err = d.Set("csv_delimiter", v); err != nil {
-		return fmt.Errorf("Error setting Stream:csv_delimiter, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:csv_delimiter, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "data_schema"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:data_schema, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:data_schema, err: %s", err)
 	}
 	if err = d.Set("data_schema", v); err != nil {
-		return fmt.Errorf("Error setting Stream:data_schema, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:data_schema, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "data_type"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:data_type, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:data_type, err: %s", err)
 	}
 	if err = d.Set("data_type", v); err != nil {
-		return fmt.Errorf("Error setting Stream:data_type, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:data_type, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "readable_partition_count"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:readable_partition_count, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:readable_partition_count, err: %s", err)
 	}
 	if err = d.Set("readable_partition_count", v); err != nil {
-		return fmt.Errorf("Error setting Stream:readable_partition_count, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:readable_partition_count, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "retention_period"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:retention_period, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:retention_period, err: %s", err)
 	}
 	if err = d.Set("retention_period", v); err != nil {
-		return fmt.Errorf("Error setting Stream:retention_period, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:retention_period, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "stream_name"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:stream_name, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:stream_name, err: %s", err)
 	}
 	if err = d.Set("stream_name", v); err != nil {
-		return fmt.Errorf("Error setting Stream:stream_name, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:stream_name, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "stream_type"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:stream_type, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:stream_type, err: %s", err)
 	}
 	if err = d.Set("stream_type", v); err != nil {
-		return fmt.Errorf("Error setting Stream:stream_type, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:stream_type, err: %s", err)
 	}
 
 	v, _ = opts["tags"]
 	v, err = flattenDisStreamV2Tags(response, nil, v)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:tags, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:tags, err: %s", err)
 	}
 	if err = d.Set("tags", v); err != nil {
-		return fmt.Errorf("Error setting Stream:tags, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:tags, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "writable_partition_count"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Stream:writable_partition_count, err: %s", err)
+		return fmtp.Errorf("Error reading Stream:writable_partition_count, err: %s", err)
 	}
 	if err = d.Set("writable_partition_count", v); err != nil {
-		return fmt.Errorf("Error setting Stream:writable_partition_count, err: %s", err)
+		return fmtp.Errorf("Error setting Stream:writable_partition_count, err: %s", err)
 	}
 
 	return nil
@@ -814,13 +814,13 @@ func flattenDisStreamV2Tags(d interface{}, arrayIndex map[string]int, currentVal
 
 		v, err := navigateValue(d, []string{"read", "tags", "key"}, newArrayIndex)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading Stream:key, err: %s", err)
+			return nil, fmtp.Errorf("Error reading Stream:key, err: %s", err)
 		}
 		r["key"] = v
 
 		v, err = navigateValue(d, []string{"read", "tags", "value"}, newArrayIndex)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading Stream:value, err: %s", err)
+			return nil, fmtp.Errorf("Error reading Stream:value, err: %s", err)
 		}
 		r["value"] = v
 

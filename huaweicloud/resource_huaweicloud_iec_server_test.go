@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,7 +14,7 @@ import (
 
 func TestAccIecServerResource_basic(t *testing.T) {
 	var cloudserver cloudservers.CloudServer
-	rName := fmt.Sprintf("iec-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("iec-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_server.server_test"
 
 	resource.Test(t, resource.TestCase{
@@ -47,17 +48,17 @@ func testAccCheckIecServerExists(n string, cloudserver *cloudservers.CloudServer
 	return func(state *terraform.State) error {
 		rs, ok := state.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID has been seted")
+			return fmtp.Errorf("No ID has been seted")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		iecClient, err := config.IECV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 		}
 
 		found, err := cloudservers.Get(iecClient, rs.Primary.ID).Extract()
@@ -66,7 +67,7 @@ func testAccCheckIecServerExists(n string, cloudserver *cloudservers.CloudServer
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("IEC Server not found")
+			return fmtp.Errorf("IEC Server not found")
 		}
 		*cloudserver = *found
 
@@ -79,7 +80,7 @@ func testAccCheckIecServerDestory(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	iecClient, err := config.IECV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -88,7 +89,7 @@ func testAccCheckIecServerDestory(s *terraform.State) error {
 		}
 		_, err := cloudservers.Get(iecClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("IEC Server still exists")
+			return fmtp.Errorf("IEC Server still exists")
 		}
 	}
 
@@ -96,7 +97,7 @@ func testAccCheckIecServerDestory(s *terraform.State) error {
 }
 
 func testAccIecServer_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_iec_flavors" "flavors_test" {}
 
 data "huaweicloud_iec_images" "images_test" {

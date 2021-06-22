@@ -1,15 +1,14 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceNetworkACLRule() *schema.Resource {
@@ -86,7 +85,7 @@ func resourceNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	enabled := d.Get("enabled").(bool)
@@ -106,13 +105,13 @@ func resourceNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) erro
 		Enabled:              &enabled,
 	}
 
-	log.Printf("[DEBUG] Create Network ACL rule: %#v", ruleConfiguration)
+	logp.Printf("[DEBUG] Create Network ACL rule: %#v", ruleConfiguration)
 	rule, err := rules.Create(fwClient, ruleConfiguration).Extract()
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Network ACL rule with id %s", rule.ID)
+	logp.Printf("[DEBUG] Network ACL rule with id %s", rule.ID)
 	d.SetId(rule.ID)
 
 	return resourceNetworkACLRuleRead(d, meta)
@@ -122,7 +121,7 @@ func resourceNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	rule, err := rules.Get(fwClient, d.Id()).Extract()
@@ -130,7 +129,7 @@ func resourceNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) error 
 		return CheckDeleted(d, err, "Network ACL rule")
 	}
 
-	log.Printf("[DEBUG] Retrieve HuaweiCloud Network ACL rule %s: %#v", d.Id(), rule)
+	logp.Printf("[DEBUG] Retrieve HuaweiCloud Network ACL rule %s: %#v", d.Id(), rule)
 
 	d.Set("action", rule.Action)
 	d.Set("name", rule.Name)
@@ -155,7 +154,7 @@ func resourceNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	var updateOpts rules.UpdateOpts
@@ -200,7 +199,7 @@ func resourceNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateOpts.Enabled = &enabled
 	}
 
-	log.Printf("[DEBUG] Updating Network ACL rule %s: %#v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating Network ACL rule %s: %#v", d.Id(), updateOpts)
 	err = rules.Update(fwClient, d.Id(), updateOpts).Err
 	if err != nil {
 		return err
@@ -213,7 +212,7 @@ func resourceNetworkACLRuleDelete(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	rule, err := rules.Get(fwClient, d.Id()).Extract()
@@ -232,7 +231,7 @@ func resourceNetworkACLRuleDelete(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	log.Printf("[DEBUG] Destroy Network ACL rule: %s", d.Id())
+	logp.Printf("[DEBUG] Destroy Network ACL rule: %s", d.Id())
 	return rules.Delete(fwClient, d.Id()).Err
 }
 

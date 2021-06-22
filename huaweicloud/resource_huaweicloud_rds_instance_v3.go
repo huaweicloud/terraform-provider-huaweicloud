@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -15,6 +13,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceRdsInstanceV3() *schema.Resource {
@@ -272,7 +272,7 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 	region := GetRegion(d, config)
 	client, err := config.RdsV3Client(region)
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud RDS client: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud RDS client: %s", err)
 	}
 
 	createOpts := instances.CreateOpts{
@@ -311,20 +311,20 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		createOpts.ChargeInfo = chargeInfo
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("db.0.password").(string)
 
 	res, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud RDS instance: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud RDS instance: %s", err)
 	}
 	d.SetId(res.Instance.Id)
 	instanceID := d.Id()
 
 	if res.JobId != "" {
 		if err := checkRDSInstanceJobFinish(client, res.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
-			return fmt.Errorf("Error creating instance (%s): %s", instanceID, err)
+			return fmtp.Errorf("Error creating instance (%s): %s", instanceID, err)
 		}
 	} else {
 		// for prePaid charge mode
@@ -337,7 +337,7 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 			PollInterval: 10 * time.Second,
 		}
 		if _, err = stateConf.WaitForState(); err != nil {
-			return fmt.Errorf("Error waiting for RDS instance (%s) creation completed: %s", instanceID, err)
+			return fmtp.Errorf("Error waiting for RDS instance (%s) creation completed: %s", instanceID, err)
 		}
 	}
 
@@ -345,7 +345,7 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(client, "instances", instanceID, taglist).ExtractErr(); tagErr != nil {
-			return fmt.Errorf("Error setting tags of RDS instance (%s): %s", instanceID, tagErr)
+			return fmtp.Errorf("Error setting tags of RDS instance (%s): %s", instanceID, tagErr)
 		}
 	}
 
@@ -356,19 +356,19 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud RDS client: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud RDS client: %s", err)
 	}
 
 	instanceID := d.Id()
 	instance, err := getRdsInstanceByID(client, instanceID)
 	if err != nil {
-		return fmt.Errorf("Error getting huaweicloud RDS instance: %s", err)
+		return fmtp.Errorf("Error getting huaweicloud RDS instance: %s", err)
 	}
 	if instance.Id == "" {
 		d.SetId("")
 		return nil
 	}
-	log.Printf("[DEBUG] Retrieved RDS instance (%s): %#v", instanceID, instance)
+	logp.Printf("[DEBUG] Retrieved RDS instance (%s): %#v", instanceID, instance)
 
 	d.Set("region", instance.Region)
 	d.Set("name", instance.Name)
@@ -406,7 +406,7 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 		"disk_encryption_id": instance.DiskEncryptionId,
 	}
 	if err := d.Set("volume", volume); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving volume to RDS instance (%s): %s", instanceID, err)
+		return fmtp.Errorf("[DEBUG] Error saving volume to RDS instance (%s): %s", instanceID, err)
 	}
 
 	dbList := make([]map[string]interface{}, 1)
@@ -421,7 +421,7 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	dbList[0] = database
 	if err := d.Set("db", dbList); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving data base to RDS instance (%s): %s", instanceID, err)
+		return fmtp.Errorf("[DEBUG] Error saving data base to RDS instance (%s): %s", instanceID, err)
 	}
 
 	backup := make([]map[string]interface{}, 1)
@@ -430,7 +430,7 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 		"keep_days":  instance.BackupStrategy.KeepDays,
 	}
 	if err := d.Set("backup_strategy", backup); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving backup strategy to RDS instance (%s): %s", instanceID, err)
+		return fmtp.Errorf("[DEBUG] Error saving backup strategy to RDS instance (%s): %s", instanceID, err)
 	}
 
 	nodes := make([]map[string]interface{}, len(instance.Nodes))
@@ -444,7 +444,7 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	if err := d.Set("nodes", nodes); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving nodes to RDS instance (%s): %s", instanceID, err)
+		return fmtp.Errorf("[DEBUG] Error saving nodes to RDS instance (%s): %s", instanceID, err)
 	}
 
 	d.Set("tags", utils.TagsToMap(instance.Tags))
@@ -452,7 +452,7 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	az1 := instance.Nodes[0].AvailabilityZone
 	if strings.HasSuffix(d.Get("flavor").(string), ".ha") {
 		if len(instance.Nodes) < 2 {
-			return fmt.Errorf("[DEBUG] Error saving availability zone to RDS instance (%s): "+
+			return fmtp.Errorf("[DEBUG] Error saving availability zone to RDS instance (%s): "+
 				"HA mode must have two availability zone", instanceID)
 		}
 		az2 := instance.Nodes[1].AvailabilityZone
@@ -472,7 +472,7 @@ func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud RDS Client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud RDS Client: %s", err)
 	}
 	instanceID := d.Id()
 	// Since the instance will throw an exception when making an API interface call in 'BACKING UP' state,
@@ -486,29 +486,29 @@ func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 		MinTimeout: 3 * time.Second,
 	}
 	if _, err = stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("Error waiting for RDS instance (%s) become active state: %s", instanceID, err)
+		return fmtp.Errorf("Error waiting for RDS instance (%s) become active state: %s", instanceID, err)
 	}
 
 	if err := updateRdsInstanceName(d, client, instanceID); err != nil {
-		return fmt.Errorf("[ERROR] %s", err)
+		return fmtp.Errorf("[ERROR] %s", err)
 	}
 
 	if err := updateRdsInstanceFlavor(d, client, instanceID); err != nil {
-		return fmt.Errorf("[ERROR] %s", err)
+		return fmtp.Errorf("[ERROR] %s", err)
 	}
 
 	if err := updateRdsInstanceVolumeSize(d, client, instanceID); err != nil {
-		return fmt.Errorf("[ERROR] %s", err)
+		return fmtp.Errorf("[ERROR] %s", err)
 	}
 
 	if err := updateRdsInstanceBackpStrategy(d, client, instanceID); err != nil {
-		return fmt.Errorf("[ERROR] %s", err)
+		return fmtp.Errorf("[ERROR] %s", err)
 	}
 
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceID)
 		if tagErr != nil {
-			return fmt.Errorf("Error updating tags of RDS instance (%s): %s", instanceID, tagErr)
+			return fmtp.Errorf("Error updating tags of RDS instance (%s): %s", instanceID, tagErr)
 		}
 	}
 
@@ -519,14 +519,14 @@ func resourceRdsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud rds client: %s ", err)
+		return fmtp.Errorf("Error creating huaweicloud rds client: %s ", err)
 	}
 
 	id := d.Id()
-	log.Printf("[DEBUG] Deleting Instance %s", id)
+	logp.Printf("[DEBUG] Deleting Instance %s", id)
 	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
 		if err := UnsubscribePrePaidResource(d, config, []string{id}); err != nil {
-			return fmt.Errorf("Error unsubscribe HuaweiCloud RDS instance: %s", err)
+			return fmtp.Errorf("Error unsubscribe HuaweiCloud RDS instance: %s", err)
 		}
 	} else {
 		result := instances.Delete(client, id)
@@ -546,12 +546,12 @@ func resourceRdsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for rds instance (%s) to be deleted: %s ",
 			id, err)
 	}
 
-	log.Printf("[DEBUG] Successfully deleted rds instance %s", id)
+	logp.Printf("[DEBUG] Successfully deleted rds instance %s", id)
 	return nil
 }
 
@@ -561,7 +561,7 @@ func getRdsInstanceByID(client *golangsdk.ServiceClient, instanceID string) (*in
 	}
 	pages, err := instances.List(client, listOpts).AllPages()
 	if err != nil {
-		return nil, fmt.Errorf("An error occured while querying rds instance %s: %s", instanceID, err)
+		return nil, fmtp.Errorf("An error occured while querying rds instance %s: %s", instanceID, err)
 	}
 
 	resp, err := instances.ExtractRdsInstances(pages)
@@ -572,16 +572,16 @@ func getRdsInstanceByID(client *golangsdk.ServiceClient, instanceID string) (*in
 	instanceList := resp.Instances
 	if len(instanceList) == 0 {
 		// return an empty rds instance
-		log.Printf("[WARN] can not find the specified rds instance %s", instanceID)
+		logp.Printf("[WARN] can not find the specified rds instance %s", instanceID)
 		instance := new(instances.RdsInstanceResponse)
 		return instance, nil
 	}
 
 	if len(instanceList) > 1 {
-		return nil, fmt.Errorf("retrieving more than one rds instance by %s", instanceID)
+		return nil, fmtp.Errorf("retrieving more than one rds instance by %s", instanceID)
 	}
 	if instanceList[0].Id != instanceID {
-		return nil, fmt.Errorf("the id of rds instance was expected %s, but got %s",
+		return nil, fmtp.Errorf("the id of rds instance was expected %s, but got %s",
 			instanceID, instanceList[0].Id)
 	}
 
@@ -652,7 +652,7 @@ func updateRdsInstanceName(d *schema.ResourceData, client *golangsdk.ServiceClie
 	}
 	r := instances.Rename(client, renameOpts, instanceID)
 	if r.Result.Err != nil {
-		return fmt.Errorf("Error renaming HuaweiCloud RDS instance (%s): %s", instanceID, r.Err)
+		return fmtp.Errorf("Error renaming HuaweiCloud RDS instance (%s): %s", instanceID, r.Err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -664,7 +664,7 @@ func updateRdsInstanceName(d *schema.ResourceData, client *golangsdk.ServiceClie
 		MinTimeout: 3 * time.Second,
 	}
 	if _, err := stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("Error waiting for RDS instance (%s) flavor to be updated: %s ", instanceID, err)
+		return fmtp.Errorf("Error waiting for RDS instance (%s) flavor to be updated: %s ", instanceID, err)
 	}
 
 	return nil
@@ -683,7 +683,7 @@ func updateRdsInstanceFlavor(d *schema.ResourceData, client *golangsdk.ServiceCl
 
 	_, err := instances.Resize(client, resizeFlavorOpts, instanceID).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating instance Flavor from result: %s ", err)
+		return fmtp.Errorf("Error updating instance Flavor from result: %s ", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -695,7 +695,7 @@ func updateRdsInstanceFlavor(d *schema.ResourceData, client *golangsdk.ServiceCl
 		PollInterval: 15 * time.Second,
 	}
 	if _, err = stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("Error waiting for instance (%s) flavor to be Updated: %s ", instanceID, err)
+		return fmtp.Errorf("Error waiting for instance (%s) flavor to be Updated: %s ", instanceID, err)
 	}
 	return nil
 }
@@ -713,13 +713,13 @@ func updateRdsInstanceVolumeSize(d *schema.ResourceData, client *golangsdk.Servi
 		},
 	}
 
-	log.Printf("[DEBUG] Enlarge Volume opts: %+v", enlargeOpts)
+	logp.Printf("[DEBUG] Enlarge Volume opts: %+v", enlargeOpts)
 	instance, err := instances.EnlargeVolume(client, enlargeOpts, instanceID).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating instance volume from result: %s ", err)
+		return fmtp.Errorf("Error updating instance volume from result: %s ", err)
 	}
 	if err := checkRDSInstanceJobFinish(client, instance.JobId, d.Timeout(schema.TimeoutUpdate)); err != nil {
-		return fmt.Errorf("Error updating instance (%s): %s", instanceID, err)
+		return fmtp.Errorf("Error updating instance (%s): %s", instanceID, err)
 	}
 
 	return nil
@@ -740,10 +740,10 @@ func updateRdsInstanceBackpStrategy(d *schema.ResourceData, client *golangsdk.Se
 		Period:    "1,2,3,4,5,6,7",
 	}
 
-	log.Printf("[DEBUG] updateOpts: %#v", updateOpts)
+	logp.Printf("[DEBUG] updateOpts: %#v", updateOpts)
 	err := backups.Update(client, instanceID, updateOpts).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error updating FlexibleEngine RDS instance (%s): %s", instanceID, err)
+		return fmtp.Errorf("Error updating FlexibleEngine RDS instance (%s): %s", instanceID, err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -755,7 +755,7 @@ func updateRdsInstanceBackpStrategy(d *schema.ResourceData, client *golangsdk.Se
 		MinTimeout: 3 * time.Second,
 	}
 	if _, err = stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("Error waiting for RDS instance (%s) backup to be updated: %s ", instanceID, err)
+		return fmtp.Errorf("Error waiting for RDS instance (%s) backup to be updated: %s ", instanceID, err)
 	}
 
 	return nil
@@ -771,7 +771,7 @@ func checkRDSInstanceJobFinish(client *golangsdk.ServiceClient, jobID string, ti
 		PollInterval: 10 * time.Second,
 	}
 	if _, err := stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("Error waiting for RDS instance (%s) job to be completed: %s ", jobID, err)
+		return fmtp.Errorf("Error waiting for RDS instance (%s) job to be completed: %s ", jobID, err)
 	}
 	return nil
 }

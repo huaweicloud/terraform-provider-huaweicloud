@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/errwrap"
@@ -11,6 +9,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceVpcPeeringConnectionAccepterV2() *schema.Resource {
@@ -72,18 +72,18 @@ func resourceVPCPeeringAccepterV2Create(d *schema.ResourceData, meta interface{}
 	peeringClient, err := config.NetworkingV2Client(GetRegion(d, config))
 
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud Peering client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud Peering client: %s", err)
 	}
 
 	id := d.Get("vpc_peering_connection_id").(string)
 
 	n, err := peerings.Get(peeringClient, id).Extract()
 	if err != nil {
-		return fmt.Errorf("Error retrieving Huaweicloud Vpc Peering Connection: %s", err)
+		return fmtp.Errorf("Error retrieving Huaweicloud Vpc Peering Connection: %s", err)
 	}
 
 	if n.Status != "PENDING_ACCEPTANCE" {
-		return fmt.Errorf("VPC peering action not permitted: Can not accept/reject peering request not in PENDING_ACCEPTANCE state.")
+		return fmtp.Errorf("VPC peering action not permitted: Can not accept/reject peering request not in PENDING_ACCEPTANCE state.")
 	}
 
 	var expectedStatus string
@@ -118,7 +118,7 @@ func resourceVPCPeeringAccepterV2Create(d *schema.ResourceData, meta interface{}
 
 	_, err = stateConf.WaitForState()
 	d.SetId(n.ID)
-	log.Printf("[INFO] VPC Peering Connection status: %s", expectedStatus)
+	logp.Printf("[INFO] VPC Peering Connection status: %s", expectedStatus)
 
 	return resourceVpcPeeringAccepterRead(d, meta)
 
@@ -128,7 +128,7 @@ func resourceVpcPeeringAccepterRead(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	peeringclient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud peering client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud peering client: %s", err)
 	}
 
 	n, err := peerings.Get(peeringclient, d.Id()).Extract()
@@ -138,7 +138,7 @@ func resourceVpcPeeringAccepterRead(d *schema.ResourceData, meta interface{}) er
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving Huaweicloud Vpc Peering Connection: %s", err)
+		return fmtp.Errorf("Error retrieving Huaweicloud Vpc Peering Connection: %s", err)
 	}
 
 	d.Set("name", n.Name)
@@ -154,14 +154,14 @@ func resourceVpcPeeringAccepterRead(d *schema.ResourceData, meta interface{}) er
 func resourceVPCPeeringAccepterUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("accept") {
-		return fmt.Errorf("VPC peering action not permitted: Can not accept/reject peering request not in pending_acceptance state.'")
+		return fmtp.Errorf("VPC peering action not permitted: Can not accept/reject peering request not in pending_acceptance state.'")
 	}
 
 	return resourceVpcPeeringAccepterRead(d, meta)
 }
 
 func resourceVPCPeeringAccepterDelete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[WARN] Will not delete VPC peering connection. Terraform will remove this resource from the state file, however resources may remain.")
+	logp.Printf("[WARN] Will not delete VPC peering connection. Terraform will remove this resource from the state file, however resources may remain.")
 	d.SetId("")
 	return nil
 }

@@ -1,13 +1,12 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/huaweicloud/golangsdk/openstack/elb/v3/monitors"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceMonitorV3() *schema.Resource {
@@ -75,7 +74,7 @@ func resourceMonitorV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	createOpts := monitors.CreateOpts{
@@ -89,10 +88,10 @@ func resourceMonitorV3Create(d *schema.ResourceData, meta interface{}) error {
 		MonitorPort: d.Get("port").(int),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	monitor, err := monitors.Create(lbClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to create monitor: %s", err)
+		return fmtp.Errorf("Unable to create monitor: %s", err)
 	}
 
 	d.SetId(monitor.ID)
@@ -104,7 +103,7 @@ func resourceMonitorV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	monitor, err := monitors.Get(lbClient, d.Id()).Extract()
@@ -112,7 +111,7 @@ func resourceMonitorV3Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "monitor")
 	}
 
-	log.Printf("[DEBUG] Retrieved monitor %s: %#v", d.Id(), monitor)
+	logp.Printf("[DEBUG] Retrieved monitor %s: %#v", d.Id(), monitor)
 
 	d.Set("protocol", monitor.Type)
 	d.Set("interval", monitor.Delay)
@@ -132,7 +131,7 @@ func resourceMonitorV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var updateOpts monitors.UpdateOpts
@@ -155,10 +154,10 @@ func resourceMonitorV3Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.MonitorPort = d.Get("port").(int)
 	}
 
-	log.Printf("[DEBUG] Updating monitor %s with options: %#v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating monitor %s with options: %#v", d.Id(), updateOpts)
 	_, err = monitors.Update(lbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to update monitor %s: %s", d.Id(), err)
+		return fmtp.Errorf("Unable to update monitor %s: %s", d.Id(), err)
 	}
 
 	return resourceMonitorV3Read(d, meta)
@@ -168,13 +167,13 @@ func resourceMonitorV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting monitor %s", d.Id())
+	logp.Printf("[DEBUG] Deleting monitor %s", d.Id())
 	err = monitors.Delete(lbClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Unable to delete monitor %s: %s", d.Id(), err)
+		return fmtp.Errorf("Unable to delete monitor %s: %s", d.Id(), err)
 	}
 
 	return nil

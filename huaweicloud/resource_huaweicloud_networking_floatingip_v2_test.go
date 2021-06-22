@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -58,7 +59,7 @@ func testAccCheckNetworkingV2FloatingIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud floating IP: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud floating IP: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -68,7 +69,7 @@ func testAccCheckNetworkingV2FloatingIPDestroy(s *terraform.State) error {
 
 		_, err := floatingips.Get(networkClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("FloatingIP still exists")
+			return fmtp.Errorf("FloatingIP still exists")
 		}
 	}
 
@@ -79,17 +80,17 @@ func testAccCheckNetworkingV2FloatingIPExists(n string, kp *floatingips.Floating
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		found, err := floatingips.Get(networkClient, rs.Primary.ID).Extract()
@@ -98,7 +99,7 @@ func testAccCheckNetworkingV2FloatingIPExists(n string, kp *floatingips.Floating
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("FloatingIP not found")
+			return fmtp.Errorf("FloatingIP not found")
 		}
 
 		*kp = *found
@@ -110,7 +111,7 @@ func testAccCheckNetworkingV2FloatingIPExists(n string, kp *floatingips.Floating
 func testAccCheckNetworkingV2FloatingIPBoundToCorrectIP(fip *floatingips.FloatingIP, fixed_ip string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if fip.FixedIP != fixed_ip {
-			return fmt.Errorf("Floating ip associated with wrong fixed ip")
+			return fmtp.Errorf("Floating ip associated with wrong fixed ip")
 		}
 
 		return nil
@@ -135,7 +136,7 @@ func testAccCheckNetworkingV2InstanceFloatingIPAttach(
 				}
 			}
 		}
-		return fmt.Errorf("Floating IP %+v was not attached to instance %+v", fip, instance)
+		return fmtp.Errorf("Floating IP %+v was not attached to instance %+v", fip, instance)
 	}
 }
 
@@ -144,7 +145,7 @@ resource "huaweicloud_networking_floatingip_v2" "fip_1" {
 }
 `
 
-var testAccNetworkingV2FloatingIP_fixedip_bind = fmt.Sprintf(`
+var testAccNetworkingV2FloatingIP_fixedip_bind = fmtp.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"

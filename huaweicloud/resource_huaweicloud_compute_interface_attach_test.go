@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccComputeV2InterfaceAttach_Basic(t *testing.T) {
 	var ai attachinterfaces.Interface
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_interface_attach.ai_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -42,7 +43,7 @@ func testAccCheckComputeV2InterfaceAttachDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -57,7 +58,7 @@ func testAccCheckComputeV2InterfaceAttachDestroy(s *terraform.State) error {
 
 		_, err = attachinterfaces.Get(computeClient, instanceId, portId).Extract()
 		if err == nil {
-			return fmt.Errorf("Volume attachment still exists")
+			return fmtp.Errorf("Volume attachment still exists")
 		}
 	}
 
@@ -68,17 +69,17 @@ func testAccCheckComputeV2InterfaceAttachExists(n string, ai *attachinterfaces.I
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
 		instanceId, portId, err := computeInterfaceAttachV2ParseID(rs.Primary.ID)
@@ -93,7 +94,7 @@ func testAccCheckComputeV2InterfaceAttachExists(n string, ai *attachinterfaces.I
 
 		//if found.instanceID != instanceID || found.PortID != portId {
 		if found.PortID != portId {
-			return fmt.Errorf("InterfaceAttach not found")
+			return fmtp.Errorf("InterfaceAttach not found")
 		}
 
 		*ai = *found
@@ -110,13 +111,13 @@ func testAccCheckComputeV2InterfaceAttachIP(
 				return nil
 			}
 		}
-		return fmt.Errorf("Requested ip (%s) does not exist on port", ip)
+		return fmtp.Errorf("Requested ip (%s) does not exist on port", ip)
 
 	}
 }
 
 func testAccComputeV2InterfaceAttach_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "instance_1" {

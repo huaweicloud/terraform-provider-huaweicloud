@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -34,7 +35,7 @@ func testAccCheckCdnDomainV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	cdnClient, err := config.CdnV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CDN Domain client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CDN Domain client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -44,7 +45,7 @@ func testAccCheckCdnDomainV1Destroy(s *terraform.State) error {
 
 		found, err := domains.Get(cdnClient, rs.Primary.ID, nil).Extract()
 		if err == nil && found.DomainStatus != "deleting" {
-			return fmt.Errorf("Destroying CDN domain failed or domain still exists")
+			return fmtp.Errorf("Destroying CDN domain failed or domain still exists")
 		}
 	}
 
@@ -55,17 +56,17 @@ func testAccCheckCdnDomainV1Exists(n string, domain *domains.CdnDomain) resource
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("CDN Domain Resource not found: %s", n)
+			return fmtp.Errorf("CDN Domain Resource not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		cdnClient, err := config.CdnV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud CDN Domain client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud CDN Domain client: %s", err)
 		}
 
 		found, err := domains.Get(cdnClient, rs.Primary.ID, nil).Extract()
@@ -74,7 +75,7 @@ func testAccCheckCdnDomainV1Exists(n string, domain *domains.CdnDomain) resource
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("CDN Domain not found")
+			return fmtp.Errorf("CDN Domain not found")
 		}
 
 		*domain = *found
@@ -82,7 +83,7 @@ func testAccCheckCdnDomainV1Exists(n string, domain *domains.CdnDomain) resource
 	}
 }
 
-var testAccCdnDomainV1_basic = fmt.Sprintf(`
+var testAccCdnDomainV1_basic = fmtp.Sprintf(`
 resource "huaweicloud_cdn_domain_v1" "domain_1" {
   name   = "%s"
   type   = "web"

@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -11,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccNetworkingV2Port_basic(t *testing.T) {
@@ -186,7 +186,7 @@ func testAccCheckNetworkingV2PortDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -196,7 +196,7 @@ func testAccCheckNetworkingV2PortDestroy(s *terraform.State) error {
 
 		_, err := ports.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Port still exists")
+			return fmtp.Errorf("Port still exists")
 		}
 	}
 
@@ -207,17 +207,17 @@ func testAccCheckNetworkingV2PortExists(n string, port *ports.Port) resource.Tes
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		found, err := ports.Get(networkingClient, rs.Primary.ID).Extract()
@@ -226,7 +226,7 @@ func testAccCheckNetworkingV2PortExists(n string, port *ports.Port) resource.Tes
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Port not found")
+			return fmtp.Errorf("Port not found")
 		}
 
 		*port = *found
@@ -238,7 +238,7 @@ func testAccCheckNetworkingV2PortExists(n string, port *ports.Port) resource.Tes
 func testAccCheckNetworkingV2PortCountFixedIPs(port *ports.Port, expected int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(port.FixedIPs) != expected {
-			return fmt.Errorf("Expected %d Fixed IPs, got %d", expected, len(port.FixedIPs))
+			return fmtp.Errorf("Expected %d Fixed IPs, got %d", expected, len(port.FixedIPs))
 		}
 
 		return nil
@@ -249,7 +249,7 @@ func testAccCheckNetworkingV2PortCountAllowedAddressPairs(
 	port *ports.Port, expected int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(port.AllowedAddressPairs) != expected {
-			return fmt.Errorf("Expected %d Allowed Address Pairs, got %d", expected, len(port.AllowedAddressPairs))
+			return fmtp.Errorf("Expected %d Allowed Address Pairs, got %d", expected, len(port.AllowedAddressPairs))
 		}
 
 		return nil

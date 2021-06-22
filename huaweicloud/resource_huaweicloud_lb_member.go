@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,6 +8,8 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceMemberV2() *schema.Resource {
@@ -65,7 +65,7 @@ func ResourceMemberV2() *schema.Resource {
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(int)
 					if value < 1 {
-						errors = append(errors, fmt.Errorf(
+						errors = append(errors, fmtp.Errorf(
 							"Only numbers greater than 0 are supported values for 'weight'"))
 					}
 					return
@@ -97,7 +97,7 @@ func resourceMemberV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	adminStateUp := d.Get("admin_state_up").(bool)
@@ -115,7 +115,7 @@ func resourceMemberV2Create(d *schema.ResourceData, meta interface{}) error {
 		createOpts.SubnetID = v.(string)
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	// Wait for LB to become active before continuing
 	poolID := d.Get("pool_id").(string)
@@ -125,7 +125,7 @@ func resourceMemberV2Create(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] Attempting to create member")
+	logp.Printf("[DEBUG] Attempting to create member")
 	var member *pools.Member
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
@@ -137,7 +137,7 @@ func resourceMemberV2Create(d *schema.ResourceData, meta interface{}) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("Error creating member: %s", err)
+		return fmtp.Errorf("Error creating member: %s", err)
 	}
 
 	// Wait for LB to become ACTIVE again
@@ -155,7 +155,7 @@ func resourceMemberV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	member, err := pools.GetMember(lbClient, d.Get("pool_id").(string), d.Id()).Extract()
@@ -163,7 +163,7 @@ func resourceMemberV2Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "member")
 	}
 
-	log.Printf("[DEBUG] Retrieved member %s: %#v", d.Id(), member)
+	logp.Printf("[DEBUG] Retrieved member %s: %#v", d.Id(), member)
 
 	d.Set("name", member.Name)
 	d.Set("weight", member.Weight)
@@ -181,7 +181,7 @@ func resourceMemberV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var updateOpts pools.UpdateMemberOpts
@@ -204,7 +204,7 @@ func resourceMemberV2Update(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] Updating member %s with options: %#v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating member %s with options: %#v", d.Id(), updateOpts)
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		_, err = pools.UpdateMember(lbClient, poolID, d.Id(), updateOpts).Extract()
@@ -215,7 +215,7 @@ func resourceMemberV2Update(d *schema.ResourceData, meta interface{}) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("Unable to update member %s: %s", d.Id(), err)
+		return fmtp.Errorf("Unable to update member %s: %s", d.Id(), err)
 	}
 
 	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
@@ -230,7 +230,7 @@ func resourceMemberV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// Wait for Pool to become active before continuing
@@ -241,7 +241,7 @@ func resourceMemberV2Delete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] Attempting to delete member %s", d.Id())
+	logp.Printf("[DEBUG] Attempting to delete member %s", d.Id())
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err = pools.DeleteMember(lbClient, poolID, d.Id()).ExtractErr()

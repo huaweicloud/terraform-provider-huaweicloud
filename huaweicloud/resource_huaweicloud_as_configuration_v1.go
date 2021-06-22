@@ -3,8 +3,6 @@ package huaweicloud
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"fmt"
-	"log"
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -13,6 +11,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/configurations"
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceASConfiguration() *schema.Resource {
@@ -190,12 +190,12 @@ func getDisk(diskMeta []interface{}) ([]configurations.DiskOpts, error) {
 		diskType := disk["disk_type"].(string)
 		if diskType == "SYS" {
 			if size < 40 || size > 32768 {
-				return diskOptsList, fmt.Errorf("For system disk size should be [40, 32768]")
+				return diskOptsList, fmtp.Errorf("For system disk size should be [40, 32768]")
 			}
 		}
 		if diskType == "DATA" {
 			if size < 10 || size > 32768 {
-				return diskOptsList, fmt.Errorf("For data disk size should be [10, 32768]")
+				return diskOptsList, fmtp.Errorf("For data disk size should be [10, 32768]")
 			}
 		}
 		diskOpts := configurations.DiskOpts{
@@ -256,13 +256,13 @@ func getInstanceConfig(configDataMap map[string]interface{}) (configurations.Ins
 	disksData := configDataMap["disk"].([]interface{})
 	disks, err := getDisk(disksData)
 	if err != nil {
-		return configurations.InstanceConfigOpts{}, fmt.Errorf("Error happened when validating disk size: %s", err)
+		return configurations.InstanceConfigOpts{}, fmtp.Errorf("Error happened when validating disk size: %s", err)
 	}
-	log.Printf("[DEBUG] get disks: %#v", disks)
+	logp.Printf("[DEBUG] get disks: %#v", disks)
 
 	personalityData := configDataMap["personality"].([]interface{})
 	personalities := getPersonality(personalityData)
-	log.Printf("[DEBUG] get personality: %#v", personalities)
+	logp.Printf("[DEBUG] get personality: %#v", personalities)
 
 	instanceConfigOpts := configurations.InstanceConfigOpts{
 		ID:          configDataMap["instance_id"].(string),
@@ -274,17 +274,17 @@ func getInstanceConfig(configDataMap map[string]interface{}) (configurations.Ins
 		Personality: personalities,
 		Metadata:    configDataMap["metadata"].(map[string]interface{}),
 	}
-	log.Printf("[DEBUG] instanceConfigOpts: %#v", instanceConfigOpts)
+	logp.Printf("[DEBUG] instanceConfigOpts: %#v", instanceConfigOpts)
 	pubicIpData := configDataMap["public_ip"].([]interface{})
-	log.Printf("[DEBUG] pubicIpData: %#v", pubicIpData)
+	logp.Printf("[DEBUG] pubicIpData: %#v", pubicIpData)
 	// user specify public_ip
 	if len(pubicIpData) == 1 {
 		publicIpMap := pubicIpData[0].(map[string]interface{})
 		publicIps := getPublicIps(publicIpMap)
 		instanceConfigOpts.PubicIp = publicIps
-		log.Printf("[DEBUG] get publicIps: %#v", publicIps)
+		logp.Printf("[DEBUG] get publicIps: %#v", publicIps)
 	}
-	log.Printf("[DEBUG] get instanceConfig: %#v", instanceConfigOpts)
+	logp.Printf("[DEBUG] get instanceConfig: %#v", instanceConfigOpts)
 	return instanceConfigOpts, nil
 }
 
@@ -292,28 +292,28 @@ func resourceASConfigurationCreate(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
-	log.Printf("[DEBUG] asClient: %#v", asClient)
+	logp.Printf("[DEBUG] asClient: %#v", asClient)
 	configDataMap := d.Get("instance_config").([]interface{})[0].(map[string]interface{})
-	log.Printf("[DEBUG] instance_config is: %#v", configDataMap)
+	logp.Printf("[DEBUG] instance_config is: %#v", configDataMap)
 	instanceConfig, err1 := getInstanceConfig(configDataMap)
 	if err1 != nil {
-		return fmt.Errorf("Error when getting instance_config info: %s", err1)
+		return fmtp.Errorf("Error when getting instance_config info: %s", err1)
 	}
 	createOpts := configurations.CreateOpts{
 		Name:           d.Get("scaling_configuration_name").(string),
 		InstanceConfig: instanceConfig,
 	}
 
-	log.Printf("[DEBUG] Create AS configuration Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create AS configuration Options: %#v", createOpts)
 	asConfigId, err := configurations.Create(asClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating ASConfiguration: %s", err)
+		return fmtp.Errorf("Error creating ASConfiguration: %s", err)
 	}
-	log.Printf("[DEBUG] Create AS Configuration Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create AS Configuration Options: %#v", createOpts)
 	d.SetId(asConfigId)
-	log.Printf("[DEBUG] Create AS Configuration %q Success!", asConfigId)
+	logp.Printf("[DEBUG] Create AS Configuration %q Success!", asConfigId)
 	return resourceASConfigurationRead(d, meta)
 }
 
@@ -321,7 +321,7 @@ func resourceASConfigurationRead(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
 
 	asConfig, err := configurations.Get(asClient, d.Id()).Extract()
@@ -329,7 +329,7 @@ func resourceASConfigurationRead(d *schema.ResourceData, meta interface{}) error
 		return CheckDeleted(d, err, "AS Configuration")
 	}
 
-	log.Printf("[DEBUG] Retrieved ASConfiguration %q: %+v", d.Id(), asConfig)
+	logp.Printf("[DEBUG] Retrieved ASConfiguration %q: %+v", d.Id(), asConfig)
 
 	return nil
 }
@@ -338,22 +338,22 @@ func resourceASConfigurationDelete(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	asClient, err := config.AutoscalingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud autoscaling client: %s", err)
 	}
 	groups, err1 := getASGroupsByConfiguration(asClient, d.Id())
 	if err1 != nil {
-		return fmt.Errorf("Error getting AS groups by configuration ID %q: %s", d.Id(), err1)
+		return fmtp.Errorf("Error getting AS groups by configuration ID %q: %s", d.Id(), err1)
 	}
 	if len(groups) > 0 {
 		var groupIds []string
 		for _, group := range groups {
 			groupIds = append(groupIds, group.ID)
 		}
-		return fmt.Errorf("Can not delete the configuration %q, it is used by AS groups %s.", d.Id(), groupIds)
+		return fmtp.Errorf("Can not delete the configuration %q, it is used by AS groups %s.", d.Id(), groupIds)
 	}
-	log.Printf("[DEBUG] Begin to delete AS configuration %q", d.Id())
+	logp.Printf("[DEBUG] Begin to delete AS configuration %q", d.Id())
 	if delErr := configurations.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
-		return fmt.Errorf("Error deleting AS configuration: %s", delErr)
+		return fmtp.Errorf("Error deleting AS configuration: %s", delErr)
 	}
 
 	return nil
@@ -366,7 +366,7 @@ func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configuration
 	}
 	page, err := groups.List(asClient, listOpts).AllPages()
 	if err != nil {
-		return gs, fmt.Errorf("Error getting ASGroups by configuration %q: %s", configurationID, err)
+		return gs, fmtp.Errorf("Error getting ASGroups by configuration %q: %s", configurationID, err)
 	}
 	gs, err = page.(groups.GroupPage).Extract()
 	return gs, err
@@ -381,7 +381,7 @@ func resourceASConfigurationValidateChargeMode(v interface{}, k string) (ws []st
 			return
 		}
 	}
-	errors = append(errors, fmt.Errorf("%q must be one of %v", k, BandWidthChargeMode))
+	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, BandWidthChargeMode))
 	return
 }
 
@@ -394,7 +394,7 @@ func resourceASConfigurationValidateShareType(v interface{}, k string) (ws []str
 			return
 		}
 	}
-	errors = append(errors, fmt.Errorf("%q must be one of %v", k, BandWidthShareType))
+	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, BandWidthShareType))
 	return
 }
 
@@ -403,7 +403,7 @@ func resourceASConfigurationValidateEipBandWidthSize(v interface{}, k string) (w
 	if 1 <= value && value <= 300 {
 		return
 	}
-	errors = append(errors, fmt.Errorf("%q must be [1, 300], but it is %d", k, value))
+	errors = append(errors, fmtp.Errorf("%q must be [1, 300], but it is %d", k, value))
 	return
 }
 
@@ -416,7 +416,7 @@ func resourceASConfigurationValidateIpType(v interface{}, k string) (ws []string
 			return
 		}
 	}
-	errors = append(errors, fmt.Errorf("%q must be one of %v", k, IpTypes))
+	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, IpTypes))
 	return
 }
 
@@ -424,10 +424,10 @@ func resourceASConfigurationValidateIpType(v interface{}, k string) (ws []string
 func resourceASConfigurationValidateName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 || len(value) < 1 {
-		errors = append(errors, fmt.Errorf("%q must contain more than 1 and less than 64 characters", k))
+		errors = append(errors, fmtp.Errorf("%q must contain more than 1 and less than 64 characters", k))
 	}
 	if !regexp.MustCompile(`^[0-9a-zA-Z-_]+$`).MatchString(value) {
-		errors = append(errors, fmt.Errorf("only alphanumeric characters, hyphens, and underscores allowed in %q", k))
+		errors = append(errors, fmtp.Errorf("only alphanumeric characters, hyphens, and underscores allowed in %q", k))
 	}
 	return
 }

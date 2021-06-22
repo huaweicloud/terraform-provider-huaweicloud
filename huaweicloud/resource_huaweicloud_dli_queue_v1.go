@@ -15,13 +15,13 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"reflect"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceDliQueueV1() *schema.Resource {
@@ -98,23 +98,23 @@ func resourceDliQueueV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DliV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	opts := resourceDliQueueV1UserInputParams(d)
 
 	params, err := buildDliQueueV1CreateParameters(opts, nil)
 	if err != nil {
-		return fmt.Errorf("Error building the request body of api(create), err=%s", err)
+		return fmtp.Errorf("Error building the request body of api(create), err=%s", err)
 	}
 	r, err := sendDliQueueV1CreateRequest(d, params, client)
 	if err != nil {
-		return fmt.Errorf("Error creating DliQueueV1, err=%s", err)
+		return fmtp.Errorf("Error creating DliQueueV1, err=%s", err)
 	}
 
 	id, err := navigateValue(r, []string{"queue_name"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error constructing id, err=%s", err)
+		return fmtp.Errorf("Error constructing id, err=%s", err)
 	}
 	d.SetId(convertToStr(id))
 
@@ -125,7 +125,7 @@ func resourceDliQueueV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DliV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	res := make(map[string]interface{})
@@ -148,7 +148,7 @@ func resourceDliQueueV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DliV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	url, err := replaceVars(d, "queues/{id}", nil)
@@ -157,7 +157,7 @@ func resourceDliQueueV1Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 	url = client.ServiceURL(url)
 
-	log.Printf("[DEBUG] Deleting Queue %q", d.Id())
+	logp.Printf("[DEBUG] Deleting Queue %q", d.Id())
 	r := golangsdk.Result{}
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
 		OkCodes:      successHTTPCodes,
@@ -166,7 +166,7 @@ func resourceDliQueueV1Delete(d *schema.ResourceData, meta interface{}) error {
 		MoreHeaders:  map[string]string{"Content-Type": "application/json"},
 	})
 	if r.Err != nil {
-		return fmt.Errorf("Error deleting Queue %q, err=%s", d.Id(), r.Err)
+		return fmtp.Errorf("Error deleting Queue %q, err=%s", d.Id(), r.Err)
 	}
 
 	return nil
@@ -249,7 +249,7 @@ func sendDliQueueV1CreateRequest(d *schema.ResourceData, params interface{},
 		OkCodes: successHTTPCodes,
 	})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(create), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(create), err=%s", r.Err)
 	}
 	return r.Body, nil
 }
@@ -272,7 +272,7 @@ func findDliQueueV1ByList(client *golangsdk.ServiceClient, link, resourceID stri
 		}
 	}
 
-	return nil, fmt.Errorf("Error finding the resource by list api")
+	return nil, fmtp.Errorf("Error finding the resource by list api")
 }
 
 func sendDliQueueV1ListRequest(client *golangsdk.ServiceClient, url string) (interface{}, error) {
@@ -280,7 +280,7 @@ func sendDliQueueV1ListRequest(client *golangsdk.ServiceClient, url string) (int
 	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(list) for resource(DliQueueV1), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(list) for resource(DliQueueV1), err=%s", r.Err)
 	}
 
 	v, err := navigateValue(r.Body, []string{"queues"}, nil)
@@ -329,25 +329,25 @@ func flattenDliQueueV1Options(response map[string]interface{}) (map[string]inter
 
 	v, err := flattenDliQueueV1CreateTime(response, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Queue:create_time, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Queue:create_time, err: %s", err)
 	}
 	opts["create_time"] = v
 
 	v, err = navigateValue(response, []string{"list", "cu_count"}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Queue:cu_count, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Queue:cu_count, err: %s", err)
 	}
 	opts["cu_count"] = v
 
 	v, err = navigateValue(response, []string{"list", "description"}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Queue:description, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Queue:description, err: %s", err)
 	}
 	opts["description"] = v
 
 	v, err = navigateValue(response, []string{"list", "queue_name"}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Queue:name, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Queue:name, err: %s", err)
 	}
 	opts["name"] = v
 
@@ -370,7 +370,7 @@ func setDliQueueV1States(d *schema.ResourceData, opts map[string]interface{}) er
 	for k, v := range opts {
 		//lintignore:R001
 		if err := d.Set(k, v); err != nil {
-			return fmt.Errorf("Error setting DliQueueV1:%s, err: %s", k, err)
+			return fmtp.Errorf("Error setting DliQueueV1:%s, err: %s", k, err)
 		}
 	}
 	return nil

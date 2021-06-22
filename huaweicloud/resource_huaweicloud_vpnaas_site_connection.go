@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -12,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/siteconnections"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceVpnSiteConnectionV2() *schema.Resource {
@@ -151,7 +151,7 @@ func resourceVpnSiteConnectionV2Create(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var createOpts siteconnections.CreateOptsBuilder
@@ -190,7 +190,7 @@ func resourceVpnSiteConnectionV2Create(d *schema.ResourceData, meta interface{})
 		MapValueSpecs(d),
 	}
 
-	log.Printf("[DEBUG] Create site connection: %#v", createOpts)
+	logp.Printf("[DEBUG] Create site connection: %#v", createOpts)
 
 	conn, err := siteconnections.Create(networkingClient, createOpts).Extract()
 	if err != nil {
@@ -210,7 +210,7 @@ func resourceVpnSiteConnectionV2Create(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	log.Printf("[DEBUG] SiteConnection created: %#v", conn)
+	logp.Printf("[DEBUG] SiteConnection created: %#v", conn)
 	d.SetId(conn.ID)
 
 	// create tags
@@ -218,7 +218,7 @@ func resourceVpnSiteConnectionV2Create(d *schema.ResourceData, meta interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(networkingClient, "ipsec-site-connections", d.Id(), taglist).ExtractErr(); tagErr != nil {
-			return fmt.Errorf("Error setting tags of VPN site connection %s: %s", d.Id(), tagErr)
+			return fmtp.Errorf("Error setting tags of VPN site connection %s: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -226,12 +226,12 @@ func resourceVpnSiteConnectionV2Create(d *schema.ResourceData, meta interface{})
 }
 
 func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Retrieve information about site connection: %s", d.Id())
+	logp.Printf("[DEBUG] Retrieve information about site connection: %s", d.Id())
 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	conn, err := siteconnections.Get(networkingClient, d.Id()).Extract()
@@ -239,7 +239,7 @@ func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) e
 		return CheckDeleted(d, err, "site_connection")
 	}
 
-	log.Printf("[DEBUG] Read HuaweiCloud SiteConnection %s: %#v", d.Id(), conn)
+	logp.Printf("[DEBUG] Read HuaweiCloud SiteConnection %s: %#v", d.Id(), conn)
 
 	d.Set("name", conn.Name)
 	d.Set("description", conn.Description)
@@ -269,18 +269,18 @@ func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) e
 	var dpd []map[string]interface{}
 	dpd = append(dpd, dpdMap)
 	if err := d.Set("dpd", &dpd); err != nil {
-		log.Printf("[WARN] unable to set Site connection DPD")
+		logp.Printf("[WARN] unable to set Site connection DPD")
 	}
 
 	// Set tags
 	resourceTags, err := tags.Get(networkingClient, "ipsec-site-connections", d.Id()).Extract()
 	if err != nil {
-		return fmt.Errorf("Error fetching VPN site connection tags: %s", err)
+		return fmtp.Errorf("Error fetching VPN site connection tags: %s", err)
 	}
 
 	tagmap := utils.TagsToMap(resourceTags.Tags)
 	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("Error saving tags for VPN site connection %s: %s", d.Id(), err)
+		return fmtp.Errorf("Error saving tags for VPN site connection %s: %s", d.Id(), err)
 	}
 
 	return nil
@@ -291,7 +291,7 @@ func resourceVpnSiteConnectionV2Update(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	opts := siteconnections.UpdateOpts{}
@@ -371,7 +371,7 @@ func resourceVpnSiteConnectionV2Update(d *schema.ResourceData, meta interface{})
 	var updateOpts siteconnections.UpdateOptsBuilder
 	updateOpts = opts
 
-	log.Printf("[DEBUG] Updating site connection with id %s: %#v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating site connection with id %s: %#v", d.Id(), updateOpts)
 
 	if hasChange {
 		conn, err := siteconnections.Update(networkingClient, d.Id(), updateOpts).Extract()
@@ -392,25 +392,25 @@ func resourceVpnSiteConnectionV2Update(d *schema.ResourceData, meta interface{})
 			return err
 		}
 
-		log.Printf("[DEBUG] Updated connection with id %s", d.Id())
+		logp.Printf("[DEBUG] Updated connection with id %s", d.Id())
 	}
 
 	// update tags
 	tagErr := utils.UpdateResourceTags(networkingClient, d, "ipsec-site-connections", d.Id())
 	if tagErr != nil {
-		return fmt.Errorf("Error updating tags of VPN site connection %s: %s", d.Id(), tagErr)
+		return fmtp.Errorf("Error updating tags of VPN site connection %s: %s", d.Id(), tagErr)
 	}
 
 	return resourceVpnSiteConnectionV2Read(d, meta)
 }
 
 func resourceVpnSiteConnectionV2Delete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Destroy service: %s", d.Id())
+	logp.Printf("[DEBUG] Destroy service: %s", d.Id())
 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	err = siteconnections.Delete(networkingClient, d.Id()).Err
@@ -437,17 +437,17 @@ func waitForSiteConnectionDeletion(networkingClient *golangsdk.ServiceClient, id
 
 	return func() (interface{}, string, error) {
 		conn, err := siteconnections.Get(networkingClient, id).Extract()
-		log.Printf("[DEBUG] Got site connection %s => %#v", id, conn)
+		logp.Printf("[DEBUG] Got site connection %s => %#v", id, conn)
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] SiteConnection %s is actually deleted", id)
+				logp.Printf("[DEBUG] SiteConnection %s is actually deleted", id)
 				return "", "DELETED", nil
 			}
-			return nil, "", fmt.Errorf("Unexpected error: %s", err)
+			return nil, "", fmtp.Errorf("Unexpected error: %s", err)
 		}
 
-		log.Printf("[DEBUG] SiteConnection %s deletion is pending", id)
+		logp.Printf("[DEBUG] SiteConnection %s deletion is pending", id)
 		return conn, "DELETING", nil
 	}
 }

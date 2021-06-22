@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 )
 
 func randomZoneName() string {
-	return fmt.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
+	return fmtp.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
 }
 
 func TestAccDNSV2RecordSet_basic(t *testing.T) {
@@ -108,7 +109,7 @@ func testAccCheckDNSV2RecordSetDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -123,7 +124,7 @@ func testAccCheckDNSV2RecordSetDestroy(s *terraform.State) error {
 
 		_, err = recordsets.Get(dnsClient, zoneID, recordsetID).Extract()
 		if err == nil {
-			return fmt.Errorf("Record set still exists")
+			return fmtp.Errorf("Record set still exists")
 		}
 	}
 
@@ -134,17 +135,17 @@ func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet)
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 		}
 
 		zoneID, recordsetID, err := parseDNSV2RecordSetID(rs.Primary.ID)
@@ -158,7 +159,7 @@ func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet)
 		}
 
 		if found.ID != recordsetID {
-			return fmt.Errorf("Record set not found")
+			return fmtp.Errorf("Record set not found")
 		}
 
 		*recordset = *found
@@ -168,7 +169,7 @@ func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet)
 }
 
 func testAccDNSV2RecordSet_basic(zoneName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
   email       = "email2@example.com"
@@ -193,7 +194,7 @@ resource "huaweicloud_dns_recordset" "recordset_1" {
 }
 
 func testAccDNSV2RecordSet_update(zoneName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
   email       = "email2@example.com"
@@ -218,7 +219,7 @@ resource "huaweicloud_dns_recordset" "recordset_1" {
 }
 
 func testAccDNSV2RecordSet_readTTL(zoneName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
   email       = "email2@example.com"
@@ -236,7 +237,7 @@ resource "huaweicloud_dns_recordset" "recordset_1" {
 }
 
 func testAccDNSV2RecordSet_private(zoneName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc" "default" {
   name = "vpc-default"
 }

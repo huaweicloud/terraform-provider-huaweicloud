@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,6 +8,8 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/monitors"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceMonitorV2() *schema.Resource {
@@ -109,7 +109,7 @@ func resourceMonitorV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	adminStateUp := d.Get("admin_state_up").(bool)
@@ -135,8 +135,8 @@ func resourceMonitorV2Create(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	log.Printf("[DEBUG] Attempting to create monitor")
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Attempting to create monitor")
 	var monitor *monitors.Monitor
 	//lintignore:R006
 	err = resource.Retry(timeout, func() *resource.RetryError {
@@ -148,7 +148,7 @@ func resourceMonitorV2Create(d *schema.ResourceData, meta interface{}) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("Unable to create monitor: %s", err)
+		return fmtp.Errorf("Unable to create monitor: %s", err)
 	}
 
 	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
@@ -165,7 +165,7 @@ func resourceMonitorV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	monitor, err := monitors.Get(lbClient, d.Id()).Extract()
@@ -173,7 +173,7 @@ func resourceMonitorV2Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "monitor")
 	}
 
-	log.Printf("[DEBUG] Retrieved monitor %s: %#v", d.Id(), monitor)
+	logp.Printf("[DEBUG] Retrieved monitor %s: %#v", d.Id(), monitor)
 
 	d.Set("tenant_id", monitor.TenantID)
 	d.Set("type", monitor.Type)
@@ -197,7 +197,7 @@ func resourceMonitorV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var updateOpts monitors.UpdateOpts
@@ -230,7 +230,7 @@ func resourceMonitorV2Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.HTTPMethod = d.Get("http_method").(string)
 	}
 
-	log.Printf("[DEBUG] Updating monitor %s with options: %#v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating monitor %s with options: %#v", d.Id(), updateOpts)
 	timeout := d.Timeout(schema.TimeoutUpdate)
 	poolID := d.Get("pool_id").(string)
 	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
@@ -247,7 +247,7 @@ func resourceMonitorV2Update(d *schema.ResourceData, meta interface{}) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("Unable to update monitor %s: %s", d.Id(), err)
+		return fmtp.Errorf("Unable to update monitor %s: %s", d.Id(), err)
 	}
 
 	// Wait for LB to become active before continuing
@@ -263,10 +263,10 @@ func resourceMonitorV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting monitor %s", d.Id())
+	logp.Printf("[DEBUG] Deleting monitor %s", d.Id())
 	timeout := d.Timeout(schema.TimeoutUpdate)
 	poolID := d.Get("pool_id").(string)
 	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)
@@ -283,7 +283,7 @@ func resourceMonitorV2Delete(d *schema.ResourceData, meta interface{}) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("Unable to delete monitor %s: %s", d.Id(), err)
+		return fmtp.Errorf("Unable to delete monitor %s: %s", d.Id(), err)
 	}
 
 	err = waitForLBV2viaPool(lbClient, poolID, "ACTIVE", timeout)

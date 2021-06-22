@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,7 +11,7 @@ import (
 )
 
 func TestAccIdentityCustomRoleDataSource_basic(t *testing.T) {
-	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var rName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -35,11 +36,11 @@ func testAccCheckIdentityCustomDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find role data source: %s", n)
+			return fmtp.Errorf("Can't find role data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Role data source ID not set")
+			return fmtp.Errorf("Role data source ID not set")
 		}
 
 		return nil
@@ -47,7 +48,7 @@ func testAccCheckIdentityCustomDataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccIdentityCustomRoleDataSource_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_role" test {
   name        = "%s"
   description = "created by terraform"

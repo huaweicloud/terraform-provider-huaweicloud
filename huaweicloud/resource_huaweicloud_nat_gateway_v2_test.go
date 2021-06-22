@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -25,7 +26,7 @@ func TestAccNatGateway_basic(t *testing.T) {
 				Config: testAccNatV2Gateway_basic(randSuffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNatV2GatewayExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("nat-gateway-basic-%s", randSuffix)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("nat-gateway-basic-%s", randSuffix)),
 					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform"),
 					resource.TestCheckResourceAttr(resourceName, "spec", "1"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
@@ -39,7 +40,7 @@ func TestAccNatGateway_basic(t *testing.T) {
 			{
 				Config: testAccNatV2Gateway_update(randSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("nat-gateway-updated-%s", randSuffix)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("nat-gateway-updated-%s", randSuffix)),
 					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform updated"),
 					resource.TestCheckResourceAttr(resourceName, "spec", "2"),
 				),
@@ -72,7 +73,7 @@ func testAccCheckNatV2GatewayDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	natClient, err := config.NatGatewayClient(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -82,7 +83,7 @@ func testAccCheckNatV2GatewayDestroy(s *terraform.State) error {
 
 		_, err := natgateways.Get(natClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Nat gateway still exists")
+			return fmtp.Errorf("Nat gateway still exists")
 		}
 	}
 
@@ -93,17 +94,17 @@ func testAccCheckNatV2GatewayExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		natClient, err := config.NatGatewayClient(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud nat client: %s", err)
 		}
 
 		found, err := natgateways.Get(natClient, rs.Primary.ID).Extract()
@@ -112,7 +113,7 @@ func testAccCheckNatV2GatewayExists(n string) resource.TestCheckFunc {
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Nat gateway not found")
+			return fmtp.Errorf("Nat gateway not found")
 		}
 
 		return nil
@@ -120,7 +121,7 @@ func testAccCheckNatV2GatewayExists(n string) resource.TestCheckFunc {
 }
 
 func testAccNatPreCondition(suffix string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "vpc_1" {
   name = "nat-vpc-%s"
   cidr = "172.16.0.0/16"
@@ -137,7 +138,7 @@ resource "huaweicloud_vpc_subnet" "subnet_1" {
 }
 
 func testAccNatV2Gateway_basic(suffix string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_nat_gateway" "nat_1" {
@@ -151,7 +152,7 @@ resource "huaweicloud_nat_gateway" "nat_1" {
 }
 
 func testAccNatV2Gateway_update(suffix string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_nat_gateway" "nat_1" {
@@ -165,7 +166,7 @@ resource "huaweicloud_nat_gateway" "nat_1" {
 }
 
 func testAccNatV2Gateway_epsId(suffix string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_nat_gateway" "nat_1" {

@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,12 +9,13 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpcPeeringConnectionV2_basic(t *testing.T) {
 	var peering peerings.Peering
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_peering_connection.test"
 	rNameUpdate := rName + "updated"
 
@@ -51,7 +51,7 @@ func testAccCheckVpcPeeringConnectionV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud Peering client: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud Peering client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -61,7 +61,7 @@ func testAccCheckVpcPeeringConnectionV2Destroy(s *terraform.State) error {
 
 		_, err := peerings.Get(peeringClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Vpc Peering Connection still exists")
+			return fmtp.Errorf("Vpc Peering Connection still exists")
 		}
 	}
 
@@ -72,17 +72,17 @@ func testAccCheckVpcPeeringConnectionV2Exists(n string, peering *peerings.Peerin
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		peeringClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud Peering client: %s", err)
+			return fmtp.Errorf("Error creating huaweicloud Peering client: %s", err)
 		}
 
 		found, err := peerings.Get(peeringClient, rs.Primary.ID).Extract()
@@ -91,7 +91,7 @@ func testAccCheckVpcPeeringConnectionV2Exists(n string, peering *peerings.Peerin
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Vpc peering Connection not found")
+			return fmtp.Errorf("Vpc peering Connection not found")
 		}
 
 		*peering = *found
@@ -101,7 +101,7 @@ func testAccCheckVpcPeeringConnectionV2Exists(n string, peering *peerings.Peerin
 }
 
 func testAccVpcPeeringConnectionV2_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s_1"
   cidr = "192.168.0.0/16"

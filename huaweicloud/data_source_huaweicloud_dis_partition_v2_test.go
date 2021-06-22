@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -29,11 +30,11 @@ func testAccCheckDisPartitionV2Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources["data.huaweicloud_dis_partition_v2.partition"]
 		if !ok {
-			return fmt.Errorf("Error checking huaweicloud_dis_partition_v2.partition exist, err=not found this resource")
+			return fmtp.Errorf("Error checking huaweicloud_dis_partition_v2.partition exist, err=not found this resource")
 		}
 
 		if _, ok := rs.Primary.Attributes["partitions.0.id"]; !ok {
-			return fmt.Errorf("expect partitions to be set")
+			return fmtp.Errorf("expect partitions to be set")
 		}
 
 		return nil
@@ -41,7 +42,7 @@ func testAccCheckDisPartitionV2Exists() resource.TestCheckFunc {
 }
 
 func testAccDisPartitionV2_basic(random string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_dis_partition_v2" "partition" {

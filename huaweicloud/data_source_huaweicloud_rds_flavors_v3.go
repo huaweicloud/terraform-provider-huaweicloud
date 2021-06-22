@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"fmt"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -70,10 +70,10 @@ func dataSourceRdsFlavorV3Read(d *schema.ResourceData, meta interface{}) error {
 
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud rds client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud rds client: %s", err)
 	}
 
-	link := fmt.Sprintf("flavors/%s?version_name=%s", d.Get("db_type").(string), d.Get("db_version").(string))
+	link := fmtp.Sprintf("flavors/%s?version_name=%s", d.Get("db_type").(string), d.Get("db_version").(string))
 	url := client.ServiceURL(link)
 
 	r, err := sendRdsFlavorV3ListRequest(client, url)
@@ -97,7 +97,7 @@ func dataSourceRdsFlavorV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if len(flavors) == 0 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
@@ -113,7 +113,7 @@ func sendRdsFlavorV3ListRequest(client *golangsdk.ServiceClient, url string) (in
 			"X-Language":   "en-us",
 		}})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error fetching flavors for rds v3, error: %s", r.Err)
+		return nil, fmtp.Errorf("Error fetching flavors for rds v3, error: %s", r.Err)
 	}
 
 	v, err := navigateValue(r.Body, []string{"flavors"}, nil)

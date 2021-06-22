@@ -2,13 +2,13 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"reflect"
 	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 type funcSkipOpt func(optn string, jsonTags []string, tag reflect.StructTag) bool
@@ -32,11 +32,11 @@ func (e *exchangeParam) BuildCUParam(opts interface{}, d *schema.ResourceData) (
 
 	optsValue := reflect.ValueOf(opts)
 	if optsValue.Kind() != reflect.Ptr {
-		return skippedFields, fmt.Errorf("parameter of opts should be a pointer")
+		return skippedFields, fmtp.Errorf("parameter of opts should be a pointer")
 	}
 	optsValue = optsValue.Elem()
 	if optsValue.Kind() != reflect.Struct {
-		return skippedFields, fmt.Errorf("parameter must be a pointer to a struct")
+		return skippedFields, fmtp.Errorf("parameter must be a pointer to a struct")
 	}
 
 	optsType := reflect.TypeOf(opts)
@@ -48,7 +48,7 @@ func (e *exchangeParam) BuildCUParam(opts interface{}, d *schema.ResourceData) (
 		f := optsType.Field(i)
 		tag := getParamTag("json", f.Tag)
 		if tag == "" {
-			return skippedFields, fmt.Errorf("can not convert for item %v: without of json tag", v)
+			return skippedFields, fmtp.Errorf("can not convert for item %v: without of json tag", v)
 		}
 		tags := strings.Split(tag, ",")
 		fieldn := tags[0]
@@ -63,35 +63,35 @@ func (e *exchangeParam) BuildCUParam(opts interface{}, d *schema.ResourceData) (
 		}
 		optv := d.Get(optn)
 		if optv == nil {
-			log.Printf("[DEBUG] opt:%s is not set", optn)
+			logp.Printf("[DEBUG] opt:%s is not set", optn)
 			continue
 		}
 		value[optn] = optv
 	}
 	if len(value) == 0 {
-		log.Printf("[WARN]no parameter was set")
+		logp.Printf("[WARN]no parameter was set")
 		return skippedFields, nil
 	}
 	return skippedFields, e.buildStruct(&optsValue, optsType, value)
 }
 
 func (e *exchangeParam) buildStruct(optsValue *reflect.Value, optsType reflect.Type, value map[string]interface{}) error {
-	log.Printf("[DEBUG] buildStruct:: optsValue=%v, optsType=%v, value=%#v\n", optsValue, optsType, value)
+	logp.Printf("[DEBUG] buildStruct:: optsValue=%v, optsType=%v, value=%#v\n", optsValue, optsType, value)
 
 	for i := 0; i < optsValue.NumField(); i++ {
 		v := optsValue.Field(i)
 		f := optsType.Field(i)
 		tag := f.Tag.Get("json")
 		if tag == "" {
-			return fmt.Errorf("can not convert for item %v: without of json tag", v)
+			return fmtp.Errorf("can not convert for item %v: without of json tag", v)
 		}
 		fieldn := strings.Split(tag, ",")[0]
 		optn := e.toSchemaOptName(fieldn)
-		log.Printf("[DEBUG] buildStruct:: convert for opt:%s", optn)
+		logp.Printf("[DEBUG] buildStruct:: convert for opt:%s", optn)
 
 		optv, ok := value[optn]
 		if !ok {
-			log.Printf("[DEBUG] field:%s was not supplied", fieldn)
+			logp.Printf("[DEBUG] field:%s was not supplied", fieldn)
 			continue
 		}
 
@@ -126,10 +126,10 @@ func (e *exchangeParam) buildStruct(optsValue *reflect.Value, optsType reflect.T
 				v.Set(t)
 
 			default:
-				return fmt.Errorf("unknown type of item %v: %v", v, v.Type().Elem().Kind())
+				return fmtp.Errorf("unknown type of item %v: %v", v, v.Type().Elem().Kind())
 			}
 		case reflect.Struct:
-			log.Printf("[DEBUG] buildStruct:: convert struct for opt:%s, value:%#v", optn, optv)
+			logp.Printf("[DEBUG] buildStruct:: convert struct for opt:%s, value:%#v", optn, optv)
 			var p map[string]interface{}
 			ok := true
 
@@ -140,7 +140,7 @@ func (e *exchangeParam) buildStruct(optsValue *reflect.Value, optsType reflect.T
 				p, ok = optv.(map[string]interface{})
 			}
 			if !ok {
-				return fmt.Errorf("can not convert to (map[string]interface{}) for opt:%s, value:%#v", optn, optv)
+				return fmtp.Errorf("can not convert to (map[string]interface{}) for opt:%s, value:%#v", optn, optv)
 			}
 
 			err := e.buildStruct(&v, f.Type, p)
@@ -149,7 +149,7 @@ func (e *exchangeParam) buildStruct(optsValue *reflect.Value, optsType reflect.T
 			}
 
 		default:
-			return fmt.Errorf("unknown type of item %v: %v", v, v.Kind())
+			return fmtp.Errorf("unknown type of item %v: %v", v, v.Kind())
 		}
 	}
 	return nil
@@ -176,7 +176,7 @@ func (e *exchangeParam) BuildResourceData(resp interface{}, d *schema.ResourceDa
 		f := optsType.Field(i)
 		tag := f.Tag.Get("json")
 		if tag == "" {
-			return fmt.Errorf("can not convert for item %v: without of json tag", v)
+			return fmtp.Errorf("can not convert for item %v: without of json tag", v)
 		}
 		fieldn := strings.Split(tag, ",")[0]
 		optn := e.toSchemaOptName(fieldn)
@@ -184,7 +184,7 @@ func (e *exchangeParam) BuildResourceData(resp interface{}, d *schema.ResourceDa
 			continue
 		}
 		optv := value[optn]
-		log.Printf("[DEBUG BuildResourceData: set for opt:%s, value:%#v", optn, optv)
+		logp.Printf("[DEBUG BuildResourceData: set for opt:%s, value:%#v", optn, optv)
 
 		switch v.Kind() {
 		default:
@@ -206,26 +206,26 @@ func (e *exchangeParam) BuildResourceData(resp interface{}, d *schema.ResourceDa
 func (e *exchangeParam) convertToMap(resp interface{}) (map[string]interface{}, error) {
 	b, err := json.Marshal(resp)
 	if err != nil {
-		return nil, fmt.Errorf("refreshResourceData:: marshal failed:%v", err)
+		return nil, fmtp.Errorf("refreshResourceData:: marshal failed:%v", err)
 	}
 
 	m := regexp.MustCompile(`"[a-z0-9A-Z_]+":`)
 	nb := m.ReplaceAllFunc(
 		b,
 		func(src []byte) []byte {
-			k := fmt.Sprintf("%s", src[1:len(src)-2])
-			return []byte(fmt.Sprintf("\"%s\":", e.toSchemaOptName(k)))
+			k := fmtp.Sprintf("%s", src[1:len(src)-2])
+			return []byte(fmtp.Sprintf("\"%s\":", e.toSchemaOptName(k)))
 		},
 	)
-	log.Printf("[DEBUG]befor change b =%s, b=%#v", b, b)
-	log.Printf("[DEBUG] after change nb=%s, nb=%#v", nb, nb)
+	logp.Printf("[DEBUG]befor change b =%s, b=%#v", b, b)
+	logp.Printf("[DEBUG] after change nb=%s, nb=%#v", nb, nb)
 
 	p := make(map[string]interface{})
 	err = json.Unmarshal(nb, &p)
 	if err != nil {
-		return nil, fmt.Errorf("refreshResourceData:: unmarshal failed:%v", err)
+		return nil, fmtp.Errorf("refreshResourceData:: unmarshal failed:%v", err)
 	}
-	log.Printf("[DEBUG]refreshResourceData:: raw data = %#v\n", p)
+	logp.Printf("[DEBUG]refreshResourceData:: raw data = %#v\n", p)
 	return p, nil
 }
 
@@ -291,7 +291,7 @@ func BuildUpdateParam(opts interface{}, d *schema.ResourceData, nameMap *map[str
 		return notPassFileds, err
 	}
 	if !hasUpdatedItems {
-		return notPassFileds, fmt.Errorf("no changes happened")
+		return notPassFileds, fmtp.Errorf("no changes happened")
 	}
 	return notPassFileds, nil
 }

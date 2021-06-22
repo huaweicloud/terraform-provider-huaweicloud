@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strconv"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/groups"
@@ -81,17 +82,17 @@ func dataSourceIECSecurityGroupRead(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	allSecGroups, err := groups.List(iecClient, nil).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve security groups: %s", err)
+		return fmtp.Errorf("Unable to retrieve security groups: %s", err)
 	}
 
 	total := len(allSecGroups.SecurityGroups)
 	if total < 1 {
-		return fmt.Errorf("Your query returned no results")
+		return fmtp.Errorf("Your query returned no results")
 	}
 
 	// filter security groups by name
@@ -104,11 +105,11 @@ func dataSourceIECSecurityGroupRead(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 	if groupItem == nil {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
-	log.Printf("[DEBUG] Retrieved IEC security group %s: %+v", groupItem.ID, groupItem)
+	logp.Printf("[DEBUG] Retrieved IEC security group %s: %+v", groupItem.ID, groupItem)
 	d.SetId(groupItem.ID)
 	d.Set("name", groupItem.Name)
 	d.Set("description", groupItem.Description)

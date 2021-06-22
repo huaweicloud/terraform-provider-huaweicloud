@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/flavors"
@@ -54,7 +55,7 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud ECS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud ECS client: %s", err)
 	}
 
 	listOpts := &flavors.ListOpts{
@@ -68,7 +69,7 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 
 	allFlavors, err := flavors.ExtractFlavors(pages)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve flavors: %s ", err)
+		return fmtp.Errorf("Unable to retrieve flavors: %s ", err)
 	}
 
 	cpu := d.Get("cpu_core_count").(int)
@@ -116,7 +117,7 @@ func dataSourceEcsFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if len(ids) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 

@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strconv"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
@@ -158,7 +159,7 @@ func dataSourceGaussDBMysqlInstanceRead(d *schema.ResourceData, meta interface{}
 	region := GetRegion(d, config)
 	client, err := config.GaussdbV3Client(region)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
 
 	listOpts := instances.ListTaurusDBInstanceOpts{
@@ -174,16 +175,16 @@ func dataSourceGaussDBMysqlInstanceRead(d *schema.ResourceData, meta interface{}
 
 	allInstances, err := instances.ExtractTaurusDBInstances(pages)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve instances: %s", err)
+		return fmtp.Errorf("Unable to retrieve instances: %s", err)
 	}
 
 	if allInstances.TotalCount < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if allInstances.TotalCount > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
@@ -193,7 +194,7 @@ func dataSourceGaussDBMysqlInstanceRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	log.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
+	logp.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
 	d.SetId(instance.Id)
 
 	d.Set("region", region)
@@ -257,7 +258,7 @@ func dataSourceGaussDBMysqlInstanceRead(d *schema.ResourceData, meta interface{}
 	d.Set("nodes", nodesList)
 	d.Set("read_replicas", slave_count)
 	if flavor != "" {
-		log.Printf("[DEBUG] Node Flavor: %s", flavor)
+		logp.Printf("[DEBUG] Node Flavor: %s", flavor)
 		d.Set("flavor", flavor)
 	}
 

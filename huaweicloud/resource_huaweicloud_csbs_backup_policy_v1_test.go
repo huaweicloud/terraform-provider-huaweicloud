@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,8 +14,8 @@ import (
 
 func TestAccCSBSBackupPolicyV1_basic(t *testing.T) {
 	var policy policies.BackupPolicy
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	updateName := fmt.Sprintf("tf-acc-test-update-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	updateName := fmtp.Sprintf("tf-acc-test-update-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -50,7 +51,7 @@ func TestAccCSBSBackupPolicyV1_basic(t *testing.T) {
 
 func TestAccCSBSBackupPolicyV1_timeout(t *testing.T) {
 	var policy policies.BackupPolicy
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -71,7 +72,7 @@ func testAccCheckCSBSBackupPolicyV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	policyClient, err := config.CsbsV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating csbs client: %s", err)
+		return fmtp.Errorf("Error creating csbs client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -81,7 +82,7 @@ func testAccCheckCSBSBackupPolicyV1Destroy(s *terraform.State) error {
 
 		_, err := policies.Get(policyClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("backup policy still exists")
+			return fmtp.Errorf("backup policy still exists")
 		}
 	}
 
@@ -92,17 +93,17 @@ func testAccCheckCSBSBackupPolicyV1Exists(n string, policy *policies.BackupPolic
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		policyClient, err := config.CsbsV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating csbs client: %s", err)
+			return fmtp.Errorf("Error creating csbs client: %s", err)
 		}
 
 		found, err := policies.Get(policyClient, rs.Primary.ID).Extract()
@@ -111,7 +112,7 @@ func testAccCheckCSBSBackupPolicyV1Exists(n string, policy *policies.BackupPolic
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("backup policy not found")
+			return fmtp.Errorf("backup policy not found")
 		}
 
 		*policy = *found
@@ -121,7 +122,7 @@ func testAccCheckCSBSBackupPolicyV1Exists(n string, policy *policies.BackupPolic
 }
 
 func testAccCSBSBackupPolicyV1_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
@@ -158,7 +159,7 @@ resource "huaweicloud_csbs_backup_policy" "backup_policy" {
 }
 
 func testAccCSBSBackupPolicyV1_update(rName, updateName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
@@ -195,7 +196,7 @@ resource "huaweicloud_csbs_backup_policy" "backup_policy" {
 }
 
 func testAccCSBSBackupPolicyV1_timeout(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }

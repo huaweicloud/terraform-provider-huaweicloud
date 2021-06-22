@@ -1,14 +1,13 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/huaweicloud/golangsdk/openstack/smn/v2/subscriptions"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceSubscription() *schema.Resource {
@@ -67,7 +66,7 @@ func resourceSubscriptionCreate(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	client, err := config.SmnV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud smn client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud smn client: %s", err)
 	}
 	topicUrn := d.Get("topic_urn").(string)
 	createOpts := subscriptions.CreateOps{
@@ -75,30 +74,30 @@ func resourceSubscriptionCreate(d *schema.ResourceData, meta interface{}) error 
 		Protocol: d.Get("protocol").(string),
 		Remark:   d.Get("remark").(string),
 	}
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	subscription, err := subscriptions.Create(client, createOpts, topicUrn).Extract()
 	if err != nil {
-		return fmt.Errorf("Error getting subscription from result: %s", err)
+		return fmtp.Errorf("Error getting subscription from result: %s", err)
 	}
-	log.Printf("[DEBUG] Create : subscription.SubscriptionUrn %s", subscription.SubscriptionUrn)
+	logp.Printf("[DEBUG] Create : subscription.SubscriptionUrn %s", subscription.SubscriptionUrn)
 	if subscription.SubscriptionUrn != "" {
 		d.SetId(subscription.SubscriptionUrn)
 		d.Set("subscription_urn", subscription.SubscriptionUrn)
 		return resourceSubscriptionRead(d, meta)
 	}
 
-	return fmt.Errorf("Unexpected conversion error in resourceSubscriptionCreate.")
+	return fmtp.Errorf("Unexpected conversion error in resourceSubscriptionCreate.")
 }
 
 func resourceSubscriptionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.SmnV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud smn client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud smn client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting subscription %s", d.Id())
+	logp.Printf("[DEBUG] Deleting subscription %s", d.Id())
 
 	id := d.Id()
 	result := subscriptions.Delete(client, id)
@@ -106,7 +105,7 @@ func resourceSubscriptionDelete(d *schema.ResourceData, meta interface{}) error 
 		return result.Err
 	}
 
-	log.Printf("[DEBUG] Successfully deleted subscription %s", id)
+	logp.Printf("[DEBUG] Successfully deleted subscription %s", id)
 	return nil
 }
 
@@ -114,20 +113,20 @@ func resourceSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.SmnV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud smn client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud smn client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Getting subscription %s", d.Id())
+	logp.Printf("[DEBUG] Getting subscription %s", d.Id())
 
 	id := d.Id()
 	subscriptionslist, err := subscriptions.List(client).Extract()
 	if err != nil {
-		return fmt.Errorf("Error Get subscriptionslist: %s", err)
+		return fmtp.Errorf("Error Get subscriptionslist: %s", err)
 	}
-	log.Printf("[DEBUG] list : subscriptionslist %#v", subscriptionslist)
+	logp.Printf("[DEBUG] list : subscriptionslist %#v", subscriptionslist)
 	for _, subscription := range subscriptionslist {
 		if subscription.SubscriptionUrn == id {
-			log.Printf("[DEBUG] subscription: %#v", subscription)
+			logp.Printf("[DEBUG] subscription: %#v", subscription)
 			d.Set("topic_urn", subscription.TopicUrn)
 			d.Set("endpoint", subscription.Endpoint)
 			d.Set("protocol", subscription.Protocol)
@@ -138,6 +137,6 @@ func resourceSubscriptionRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	log.Printf("[DEBUG] Successfully get subscription %s", id)
+	logp.Printf("[DEBUG] Successfully get subscription %s", id)
 	return nil
 }

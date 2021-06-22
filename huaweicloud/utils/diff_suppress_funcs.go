@@ -3,13 +3,13 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"reflect"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 	awspolicy "github.com/jen20/awspolicyequivalence"
 )
 
@@ -107,7 +107,7 @@ func CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 
 	equal := bytes.Compare(canonicalJson1, canonicalJson2) == 0
 	if !equal {
-		log.Printf("[DEBUG] Canonical template are not equal.\nFirst: %s\nSecond: %s\n",
+		logp.Printf("[DEBUG] Canonical template are not equal.\nFirst: %s\nSecond: %s\n",
 			canonicalJson1, canonicalJson2)
 	}
 	return equal, nil

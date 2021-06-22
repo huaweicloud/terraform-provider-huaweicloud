@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -9,6 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/services"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpnServiceV2_basic(t *testing.T) {
@@ -35,7 +35,7 @@ func testAccCheckVpnServiceV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_vpnaas_service" {
@@ -43,7 +43,7 @@ func testAccCheckVpnServiceV2Destroy(s *terraform.State) error {
 		}
 		_, err = services.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Service (%s) still exists.", rs.Primary.ID)
+			return fmtp.Errorf("Service (%s) still exists.", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -56,17 +56,17 @@ func testAccCheckVpnServiceV2Exists(n string, serv *services.Service) resource.T
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		var found *services.Service
@@ -81,7 +81,7 @@ func testAccCheckVpnServiceV2Exists(n string, serv *services.Service) resource.T
 	}
 }
 
-var testAccVpnServiceV2_basic = fmt.Sprintf(`
+var testAccVpnServiceV2_basic = fmtp.Sprintf(`
 	resource "huaweicloud_networking_router_v2" "router_1" {
 	  name = "router_1"
 	  admin_state_up = "true"

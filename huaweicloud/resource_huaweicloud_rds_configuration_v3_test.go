@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,12 +9,13 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/configurations"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccRdsConfigurationV3_basic(t *testing.T) {
 	var config configurations.Configuration
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	updateName := fmt.Sprintf("tf-acc-test-%s-update", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	updateName := fmtp.Sprintf("tf-acc-test-%s-update", acctest.RandString(5))
 	resourceName := "huaweicloud_rds_parametergroup.pg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -47,7 +47,7 @@ func testAccCheckRdsConfigV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	rdsClient, err := config.RdsV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud RDS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud RDS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -57,7 +57,7 @@ func testAccCheckRdsConfigV3Destroy(s *terraform.State) error {
 
 		_, err := configurations.Get(rdsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Rds configuration still exists")
+			return fmtp.Errorf("Rds configuration still exists")
 		}
 	}
 
@@ -68,17 +68,17 @@ func testAccCheckRdsConfigV3Exists(n string, configuration *configurations.Confi
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		rdsClient, err := config.RdsV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud RDS client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud RDS client: %s", err)
 		}
 
 		found, err := configurations.Get(rdsClient, rs.Primary.ID).Extract()
@@ -87,7 +87,7 @@ func testAccCheckRdsConfigV3Exists(n string, configuration *configurations.Confi
 		}
 
 		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("Rds configuration not found")
+			return fmtp.Errorf("Rds configuration not found")
 		}
 
 		*configuration = *found
@@ -97,7 +97,7 @@ func testAccCheckRdsConfigV3Exists(n string, configuration *configurations.Confi
 }
 
 func testAccRdsConfigV3_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_rds_parametergroup" "pg_1" {
   name        = "%s"
   description = "description_1"
@@ -115,7 +115,7 @@ resource "huaweicloud_rds_parametergroup" "pg_1" {
 }
 
 func testAccRdsConfigV3_update(updateName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_rds_parametergroup" "pg_1" {
   name        = "%s"
   description = "description_update"

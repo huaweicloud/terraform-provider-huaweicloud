@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
@@ -176,7 +176,7 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
+		return fmtp.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
 
 	listOpts := clusters.ListOpts{
@@ -188,24 +188,24 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	refinedClusters, err := clusters.List(cceClient, listOpts)
-	log.Printf("[DEBUG] Value of allClusters: %#v", refinedClusters)
+	logp.Printf("[DEBUG] Value of allClusters: %#v", refinedClusters)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve clusters: %s", err)
+		return fmtp.Errorf("Unable to retrieve clusters: %s", err)
 	}
 
 	if len(refinedClusters) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedClusters) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	Cluster := refinedClusters[0]
 
-	log.Printf("[DEBUG] Retrieved Clusters using given filter %s: %+v", Cluster.Metadata.Id, Cluster)
+	logp.Printf("[DEBUG] Retrieved Clusters using given filter %s: %+v", Cluster.Metadata.Id, Cluster)
 	var v []map[string]interface{}
 	for _, endpoint := range Cluster.Status.Endpoints {
 
@@ -247,7 +247,7 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 	kubeConfigRaw, err := utils.JsonMarshal(r.Body)
 
 	if err != nil {
-		log.Printf("Error marshaling r.Body: %s", err)
+		logp.Printf("Error marshaling r.Body: %s", err)
 	}
 
 	d.Set("kube_config_raw", string(kubeConfigRaw))
@@ -255,7 +255,7 @@ func dataSourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error 
 	cert, err := r.Extract()
 
 	if err != nil {
-		log.Printf("Error retrieving HuaweiCloud CCE cluster cert: %s", err)
+		logp.Printf("Error retrieving HuaweiCloud CCE cluster cert: %s", err)
 	}
 
 	//Set Certificate Clusters

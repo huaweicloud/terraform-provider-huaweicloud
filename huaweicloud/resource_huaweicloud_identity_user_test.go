@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccIdentityV3User_basic(t *testing.T) {
 	var user users.User
-	var userName = fmt.Sprintf("acc-user-%s", acctest.RandString(5))
+	var userName = fmtp.Sprintf("acc-user-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_user.user_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -59,7 +60,7 @@ func testAccCheckIdentityV3UserDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	iamClient, err := config.IAMV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -69,7 +70,7 @@ func testAccCheckIdentityV3UserDestroy(s *terraform.State) error {
 
 		_, err := users.Get(iamClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("User still exists")
+			return fmtp.Errorf("User still exists")
 		}
 	}
 
@@ -80,17 +81,17 @@ func testAccCheckIdentityV3UserExists(n string, user *users.User) resource.TestC
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		iamClient, err := config.IAMV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}
 
 		found, err := users.Get(iamClient, rs.Primary.ID).Extract()
@@ -99,7 +100,7 @@ func testAccCheckIdentityV3UserExists(n string, user *users.User) resource.TestC
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("User not found")
+			return fmtp.Errorf("User not found")
 		}
 
 		*user = *found
@@ -109,7 +110,7 @@ func testAccCheckIdentityV3UserExists(n string, user *users.User) resource.TestC
 }
 
 func testAccIdentityV3User_basic(userName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
   name        = "%s"
   password    = "password123@!"
@@ -120,7 +121,7 @@ resource "huaweicloud_identity_user" "user_1" {
 }
 
 func testAccIdentityV3User_update(userName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
   name        = "%s"
   password    = "password123@!"

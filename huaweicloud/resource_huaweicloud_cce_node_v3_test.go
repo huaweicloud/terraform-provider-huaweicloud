@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -16,7 +17,7 @@ import (
 func TestAccCCENodeV3_basic(t *testing.T) {
 	var node nodes.Nodes
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	updateName := rName + "update"
 	resourceName := "huaweicloud_cce_node.test"
 	//clusterName here is used to provide the cluster id to fetch cce node.
@@ -81,7 +82,7 @@ func testAccCheckCCENodeV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 
 	var clusterId string
@@ -97,7 +98,7 @@ func testAccCheckCCENodeV3Destroy(s *terraform.State) error {
 
 		_, err := nodes.Get(cceClient, clusterId, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Node still exists")
+			return fmtp.Errorf("Node still exists")
 		}
 	}
 
@@ -108,24 +109,24 @@ func testAccCheckCCENodeV3Exists(n string, cluster string, node *nodes.Nodes) re
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 		c, ok := s.RootModule().Resources[cluster]
 		if !ok {
-			return fmt.Errorf("Cluster not found: %s", c)
+			return fmtp.Errorf("Cluster not found: %s", c)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 		if c.Primary.ID == "" {
-			return fmt.Errorf("Cluster id is not set")
+			return fmtp.Errorf("Cluster id is not set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		cceClient, err := config.CceV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 		}
 
 		found, err := nodes.Get(cceClient, c.Primary.ID, rs.Primary.ID).Extract()
@@ -134,7 +135,7 @@ func testAccCheckCCENodeV3Exists(n string, cluster string, node *nodes.Nodes) re
 		}
 
 		if found.Metadata.Id != rs.Primary.ID {
-			return fmt.Errorf("Node not found")
+			return fmtp.Errorf("Node not found")
 		}
 
 		*node = *found
@@ -147,21 +148,21 @@ func testAccCCENodeImportStateIdFunc() resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		cluster, ok := s.RootModule().Resources["huaweicloud_cce_cluster.test"]
 		if !ok {
-			return "", fmt.Errorf("Cluster not found: %s", cluster)
+			return "", fmtp.Errorf("Cluster not found: %s", cluster)
 		}
 		node, ok := s.RootModule().Resources["huaweicloud_cce_node.test"]
 		if !ok {
-			return "", fmt.Errorf("Node not found: %s", node)
+			return "", fmtp.Errorf("Node not found: %s", node)
 		}
 		if cluster.Primary.ID == "" || node.Primary.ID == "" {
-			return "", fmt.Errorf("resource not found: %s/%s", cluster.Primary.ID, node.Primary.ID)
+			return "", fmtp.Errorf("resource not found: %s/%s", cluster.Primary.ID, node.Primary.ID)
 		}
-		return fmt.Sprintf("%s/%s", cluster.Primary.ID, node.Primary.ID), nil
+		return fmtp.Sprintf("%s/%s", cluster.Primary.ID, node.Primary.ID), nil
 	}
 }
 
 func testAccCCENodeV3_Base(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_availability_zones" "test" {}
@@ -183,7 +184,7 @@ resource "huaweicloud_cce_cluster" "test" {
 }
 
 func testAccCCENodeV3_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node" "test" {
@@ -210,7 +211,7 @@ resource "huaweicloud_cce_node" "test" {
 }
 
 func testAccCCENodeV3_update(rName, updateName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node" "test" {
@@ -237,7 +238,7 @@ resource "huaweicloud_cce_node" "test" {
 }
 
 func testAccCCENodeV3_auto_assign_eip(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node" "test" {
@@ -266,7 +267,7 @@ resource "huaweicloud_cce_node" "test" {
 }
 
 func testAccCCENodeV3_existing_eip(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_vpc_eip" "test" {
@@ -304,7 +305,7 @@ resource "huaweicloud_cce_node" "test" {
 }
 
 func testAccCCENodeV3_volume_extendParams(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node" "test" {

@@ -1,11 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -123,7 +122,7 @@ func dataSourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud SFS Client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud SFS Client: %s", err)
 	}
 
 	listOpts := shares.ListOpts{
@@ -134,22 +133,22 @@ func dataSourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) err
 
 	refinedSfs, err := shares.List(sfsClient, listOpts)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve shares: %s", err)
+		return fmtp.Errorf("Unable to retrieve shares: %s", err)
 	}
 
 	if len(refinedSfs) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedSfs) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	share := refinedSfs[0]
 
-	log.Printf("[INFO] Retrieved Shares using given filter %s: %+v", share.ID, share)
+	logp.Printf("[INFO] Retrieved Shares using given filter %s: %+v", share.ID, share)
 	d.SetId(share.ID)
 
 	d.Set("availability_zone", share.AvailabilityZone)

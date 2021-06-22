@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,7 +11,7 @@ import (
 )
 
 func TestAccNatGatewayDataSource_basic(t *testing.T) {
-	natgateway := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	natgateway := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -38,11 +39,11 @@ func testAccCheckNatGatewayV2DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find natgateway data source: %s", n)
+			return fmtp.Errorf("Can't find natgateway data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("NatGateway data source ID not set")
+			return fmtp.Errorf("NatGateway data source ID not set")
 		}
 
 		return nil
@@ -50,7 +51,7 @@ func testAccCheckNatGatewayV2DataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccNatGatewayV2DataSource_basic(name string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_enterprise_project" "enterprise_project_demo" {
   name = "terraform"
 }

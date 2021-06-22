@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strings"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/attachinterfaces"
@@ -29,7 +30,7 @@ func computeInterfaceAttachV2AttachFunc(
 func computeInterfaceAttachV2DetachFunc(
 	computeClient *golangsdk.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to detach huaweicloud_compute_interface_attach_v2 %s from instance %s",
+		logp.Printf("[DEBUG] Attempting to detach huaweicloud_compute_interface_attach_v2 %s from instance %s",
 			attachmentId, instanceId)
 
 		va, err := attachinterfaces.Get(computeClient, instanceId, attachmentId).Extract()
@@ -53,7 +54,7 @@ func computeInterfaceAttachV2DetachFunc(
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] huaweicloud_compute_interface_attach_v2 %s is still active.", attachmentId)
+		logp.Printf("[DEBUG] huaweicloud_compute_interface_attach_v2 %s is still active.", attachmentId)
 		return nil, "", nil
 	}
 }
@@ -61,7 +62,7 @@ func computeInterfaceAttachV2DetachFunc(
 func computeInterfaceAttachV2ParseID(id string) (string, string, error) {
 	idParts := strings.Split(id, "/")
 	if len(idParts) < 2 {
-		return "", "", fmt.Errorf("Unable to determine huaweicloud_compute_interface_attach_v2 %s ID", id)
+		return "", "", fmtp.Errorf("Unable to determine huaweicloud_compute_interface_attach_v2 %s ID", id)
 	}
 
 	instanceId := idParts[0]

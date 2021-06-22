@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,8 +14,8 @@ import (
 
 func TestAccDmsInstancesV1_Rabbitmq(t *testing.T) {
 	var instance instances.Instance
-	var instanceName = fmt.Sprintf("dms_instance_%s", acctest.RandString(5))
-	var instanceUpdate = fmt.Sprintf("dms_instance_update_%s", acctest.RandString(5))
+	var instanceName = fmtp.Sprintf("dms_instance_%s", acctest.RandString(5))
+	var instanceUpdate = fmtp.Sprintf("dms_instance_update_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dms_instance.instance_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -48,7 +49,7 @@ func TestAccDmsInstancesV1_Rabbitmq(t *testing.T) {
 
 func TestAccDmsInstancesV1_Kafka(t *testing.T) {
 	var instance instances.Instance
-	var instanceName = fmt.Sprintf("dms_instance_%s", acctest.RandString(5))
+	var instanceName = fmtp.Sprintf("dms_instance_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dms_instance.instance_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -73,7 +74,7 @@ func testAccCheckDmsV1InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud instance client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud instance client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -83,7 +84,7 @@ func testAccCheckDmsV1InstanceDestroy(s *terraform.State) error {
 
 		_, err := instances.Get(dmsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("The Dms instance still exists.")
+			return fmtp.Errorf("The Dms instance still exists.")
 		}
 	}
 	return nil
@@ -93,26 +94,26 @@ func testAccCheckDmsV1InstanceExists(n string, instance instances.Instance) reso
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud instance client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud instance client: %s", err)
 		}
 
 		v, err := instances.Get(dmsClient, rs.Primary.ID).Extract()
 		if err != nil {
-			return fmt.Errorf("Error getting HuaweiCloud instance: %s, err: %s", rs.Primary.ID, err)
+			return fmtp.Errorf("Error getting HuaweiCloud instance: %s, err: %s", rs.Primary.ID, err)
 		}
 
 		if v.InstanceID != rs.Primary.ID {
-			return fmt.Errorf("The Dms instance not found.")
+			return fmtp.Errorf("The Dms instance not found.")
 		}
 		instance = *v
 		return nil
@@ -120,7 +121,7 @@ func testAccCheckDmsV1InstanceExists(n string, instance instances.Instance) reso
 }
 
 func testAccDmsV1Instance_basic(instanceName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_dms_az" "az_1" {
 }
 data "huaweicloud_dms_product" "product_1" {
@@ -156,7 +157,7 @@ resource "huaweicloud_dms_instance" "instance_1" {
 }
 
 func testAccDmsV1Instance_update(instanceUpdate string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_dms_az" "az_1" {
 }
 data "huaweicloud_dms_product" "product_1" {
@@ -193,7 +194,7 @@ resource "huaweicloud_dms_instance" "instance_1" {
 }
 
 func testAccDmsV1Instance_KafkaInstance(instanceName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_dms_az" "az_1" {
 }
 data "huaweicloud_dms_product" "product_1" {

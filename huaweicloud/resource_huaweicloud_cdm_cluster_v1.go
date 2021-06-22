@@ -15,8 +15,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"reflect"
 	"strings"
 	"time"
@@ -24,6 +22,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceCdmClusterV1() *schema.Resource {
@@ -197,17 +197,17 @@ func resourceCdmClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	client, err := config.CdmV11Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	opts := resourceCdmClusterV1UserInputParams(d, config)
 	params, err := buildCdmClusterV1CreateParameters(opts, nil)
 	if err != nil {
-		return fmt.Errorf("Error building the request body of api(create), err=%s", err)
+		return fmtp.Errorf("Error building the request body of api(create), err=%s", err)
 	}
 	r, err := sendCdmClusterV1CreateRequest(d, params, client)
 	if err != nil {
-		return fmt.Errorf("Error creating CdmClusterV1, err=%s", err)
+		return fmtp.Errorf("Error creating CdmClusterV1, err=%s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutCreate)
@@ -217,7 +217,7 @@ func resourceCdmClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 	}
 	id, err := navigateValue(obj, []string{"id"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error constructing id, err=%s", err)
+		return fmtp.Errorf("Error constructing id, err=%s", err)
 	}
 	d.SetId(id.(string))
 
@@ -228,7 +228,7 @@ func resourceCdmClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CdmV11Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	res := make(map[string]interface{})
@@ -246,7 +246,7 @@ func resourceCdmClusterV1Delete(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	client, err := config.CdmV11Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	url, err := replaceVars(d, "clusters/{id}", nil)
@@ -258,10 +258,10 @@ func resourceCdmClusterV1Delete(d *schema.ResourceData, meta interface{}) error 
 	opts := resourceCdmClusterV1UserInputParams(d, config)
 	params, err := buildCdmClusterV1DeleteParameters(opts, nil)
 	if err != nil {
-		return fmt.Errorf("Error building the request body of api(delete), err=%s", err)
+		return fmtp.Errorf("Error building the request body of api(delete), err=%s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting Cluster %q", d.Id())
+	logp.Printf("[DEBUG] Deleting Cluster %q", d.Id())
 	r := golangsdk.Result{}
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
 		OkCodes:      successHTTPCodes,
@@ -273,7 +273,7 @@ func resourceCdmClusterV1Delete(d *schema.ResourceData, meta interface{}) error 
 		},
 	})
 	if r.Err != nil {
-		return fmt.Errorf("Error deleting Cluster %q, err=%s", d.Id(), r.Err)
+		return fmtp.Errorf("Error deleting Cluster %q, err=%s", d.Id(), r.Err)
 	}
 
 	_, err = waitToFinish(
@@ -558,7 +558,7 @@ func expandCdmClusterV1CreateClusterSysTags(d interface{}, arrayIndex map[string
 		return nil, err
 	}
 	if e, err := isEmptyValue(reflect.ValueOf(v)); err != nil {
-		return nil, fmt.Errorf("Error sys_tags enterprise_project_id, err = %s", err)
+		return nil, fmtp.Errorf("Error sys_tags enterprise_project_id, err = %s", err)
 	} else if !e {
 		sysTags := make([]interface{}, 1, 1)
 		sysTags[0] = map[string]string{
@@ -612,7 +612,7 @@ func sendCdmClusterV1CreateRequest(d *schema.ResourceData, params interface{},
 		},
 	})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(create), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(create), err=%s", r.Err)
 	}
 	return r.Body, nil
 }
@@ -627,7 +627,7 @@ func asyncWaitCdmClusterV1Create(d *schema.ResourceData, config *config.Config, 
 	for key, path := range pathParameters {
 		value, err := navigateValue(result, path, nil)
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving async operation path parameter, err=%s", err)
+			return nil, fmtp.Errorf("Error retrieving async operation path parameter, err=%s", err)
 		}
 		data[key] = value
 	}
@@ -684,7 +684,7 @@ func sendCdmClusterV1ReadRequest(d *schema.ResourceData, client *golangsdk.Servi
 			"X-Language":   "en-us",
 		}})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(read) for resource(CdmClusterV1), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(read) for resource(CdmClusterV1), err=%s", r.Err)
 	}
 
 	return r.Body, nil
@@ -1305,51 +1305,51 @@ func setCdmClusterV1Properties(d *schema.ResourceData, config *config.Config, re
 
 	v, err := navigateValue(response, []string{"read", "created"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:created, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:created, err: %s", err)
 	}
 	if err = d.Set("created", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:created, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:created, err: %s", err)
 	}
 
 	v, _ = opts["instances"]
 	v, err = flattenCdmClusterV1Instances(response, nil, v)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:instances, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:instances, err: %s", err)
 	}
 	if err = d.Set("instances", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:instances, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:instances, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "isAutoOff"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:is_auto_off, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:is_auto_off, err: %s", err)
 	}
 	if err = d.Set("is_auto_off", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:is_auto_off, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:is_auto_off, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "name"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:name, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:name, err: %s", err)
 	}
 	if err = d.Set("name", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:name, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:name, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "publicEndpoint"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:publid_ip, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:publid_ip, err: %s", err)
 	}
 	if err = d.Set("publid_ip", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:publid_ip, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:publid_ip, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "datastore", "version"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:version, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:version, err: %s", err)
 	}
 	if err = d.Set("version", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:version, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:version, err: %s", err)
 	}
 
 	return nil
@@ -1394,37 +1394,37 @@ func flattenCdmClusterV1Instances(d interface{}, arrayIndex map[string]int, curr
 
 		v, err := navigateValue(d, []string{"read", "instances", "id"}, newArrayIndex)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading Cluster:id, err: %s", err)
+			return nil, fmtp.Errorf("Error reading Cluster:id, err: %s", err)
 		}
 		r["id"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "name"}, newArrayIndex)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading Cluster:name, err: %s", err)
+			return nil, fmtp.Errorf("Error reading Cluster:name, err: %s", err)
 		}
 		r["name"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "publicIp"}, newArrayIndex)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading Cluster:public_ip, err: %s", err)
+			return nil, fmtp.Errorf("Error reading Cluster:public_ip, err: %s", err)
 		}
 		r["public_ip"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "role"}, newArrayIndex)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading Cluster:role, err: %s", err)
+			return nil, fmtp.Errorf("Error reading Cluster:role, err: %s", err)
 		}
 		r["role"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "trafficIp"}, newArrayIndex)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading Cluster:traffic_ip, err: %s", err)
+			return nil, fmtp.Errorf("Error reading Cluster:traffic_ip, err: %s", err)
 		}
 		r["traffic_ip"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "type"}, newArrayIndex)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading Cluster:type, err: %s", err)
+			return nil, fmtp.Errorf("Error reading Cluster:type, err: %s", err)
 		}
 		r["type"] = v
 

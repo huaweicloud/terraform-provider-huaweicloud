@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,6 +11,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/hw_snatrules"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceNatSnatRuleV2() *schema.Resource {
@@ -91,7 +91,7 @@ func resourceNatSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
 	var subnetID string
@@ -103,7 +103,7 @@ func resourceNatSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error
 
 	sourceType := d.Get("source_type").(int)
 	if sourceType == 1 && subnetID != "" {
-		return fmt.Errorf("source_type and subnet_id is incompatible in the Direct Connect scenario (source_type=1)")
+		return fmtp.Errorf("source_type and subnet_id is incompatible in the Direct Connect scenario (source_type=1)")
 	}
 
 	createOpts := &hw_snatrules.CreateOpts{
@@ -114,13 +114,13 @@ func resourceNatSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error
 		SourceType:   sourceType,
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	snatRule, err := hw_snatrules.Create(natClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creatting Snat Rule: %s", err)
+		return fmtp.Errorf("Error creatting Snat Rule: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for HuaweiCloud Snat Rule (%s) to become available.", snatRule.ID)
+	logp.Printf("[DEBUG] Waiting for HuaweiCloud Snat Rule (%s) to become available.", snatRule.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
@@ -132,7 +132,7 @@ func resourceNatSnatRuleV2Create(d *schema.ResourceData, meta interface{}) error
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Snat Rule: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud Snat Rule: %s", err)
 	}
 
 	d.SetId(snatRule.ID)
@@ -144,7 +144,7 @@ func resourceNatSnatRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
 	snatRule, err := hw_snatrules.Get(natClient, d.Id()).Extract()
@@ -168,7 +168,7 @@ func resourceNatSnatRuleV2Delete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
 	natGatewayID := d.Get("nat_gateway_id").(string)
@@ -184,7 +184,7 @@ func resourceNatSnatRuleV2Delete(d *schema.ResourceData, meta interface{}) error
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud Snat Rule: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud Snat Rule: %s", err)
 	}
 
 	d.SetId("")
@@ -198,7 +198,7 @@ func waitForSnatRuleActive(client *golangsdk.ServiceClient, nId string) resource
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud Snat Rule: %+v", n)
+		logp.Printf("[DEBUG] HuaweiCloud Snat Rule: %+v", n)
 		if n.Status == "ACTIVE" {
 			return n, "ACTIVE", nil
 		}
@@ -209,12 +209,12 @@ func waitForSnatRuleActive(client *golangsdk.ServiceClient, nId string) resource
 
 func waitForSnatRuleDelete(client *golangsdk.ServiceClient, nId, natGatewayID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Snat Rule %s.\n", nId)
+		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud Snat Rule %s.\n", nId)
 
 		n, err := hw_snatrules.Get(client, nId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Snat Rule %s", nId)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Snat Rule %s", nId)
 				return n, "DELETED", nil
 			}
 			return n, "ACTIVE", err
@@ -223,13 +223,13 @@ func waitForSnatRuleDelete(client *golangsdk.ServiceClient, nId, natGatewayID st
 		err = hw_snatrules.Delete(client, nId, natGatewayID).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Snat Rule %s", nId)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Snat Rule %s", nId)
 				return n, "DELETED", nil
 			}
 			return n, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud Snat Rule %s still active.\n", nId)
+		logp.Printf("[DEBUG] HuaweiCloud Snat Rule %s still active.\n", nId)
 		return n, "ACTIVE", nil
 	}
 }

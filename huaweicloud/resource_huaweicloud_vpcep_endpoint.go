@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -11,6 +9,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/endpoints"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceVPCEndpoint() *schema.Resource {
@@ -103,7 +103,7 @@ func resourceVPCEndpointCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
 	}
 
 	enableDNS := d.Get("enable_dns").(bool)
@@ -133,14 +133,14 @@ func resourceVPCEndpointCreate(d *schema.ResourceData, meta interface{}) error {
 		createOpts.Tags = taglist
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	ep, err := endpoints.Create(vpcepClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud VPC endpoint: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint: %s", err)
 	}
 
 	d.SetId(ep.ID)
-	log.Printf("[INFO] Waiting for Huaweicloud VPC endpoint(%s) to become accepted", ep.ID)
+	logp.Printf("[INFO] Waiting for Huaweicloud VPC endpoint(%s) to become accepted", ep.ID)
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"creating"},
 		Target:     []string{"accepted", "pendingAcceptance"},
@@ -152,7 +152,7 @@ func resourceVPCEndpointCreate(d *schema.ResourceData, meta interface{}) error {
 
 	_, stateErr := stateConf.WaitForState()
 	if stateErr != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for VPC endpoint(%s) to become accepted: %s",
 			ep.ID, stateErr)
 	}
@@ -164,7 +164,7 @@ func resourceVPCEndpointRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
 	}
 
 	ep, err := endpoints.Get(vpcepClient, d.Id()).Extract()
@@ -173,10 +173,10 @@ func resourceVPCEndpointRead(d *schema.ResourceData, meta interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error retrieving Huaweicloud VPC endpoint: %s", err)
+		return fmtp.Errorf("Error retrieving Huaweicloud VPC endpoint: %s", err)
 	}
 
-	log.Printf("[DEBUG] retrieving Huaweicloud VPC endpoint: %#v", ep)
+	logp.Printf("[DEBUG] retrieving Huaweicloud VPC endpoint: %#v", ep)
 	d.Set("region", GetRegion(d, config))
 	d.Set("status", ep.Status)
 	d.Set("service_id", ep.ServiceID)
@@ -210,14 +210,14 @@ func resourceVPCEndpointUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
 	}
 
 	//update tags
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(vpcepClient, d, tagVPCEP, d.Id())
 		if tagErr != nil {
-			return fmt.Errorf("Error updating tags of VPC endpoint service %s: %s", d.Id(), tagErr)
+			return fmtp.Errorf("Error updating tags of VPC endpoint service %s: %s", d.Id(), tagErr)
 		}
 	}
 	return resourceVPCEndpointRead(d, meta)
@@ -227,12 +227,12 @@ func resourceVPCEndpointDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vpcepClient, err := config.VPCEPClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud VPC endpoint client: %s", err)
 	}
 
 	err = endpoints.Delete(vpcepClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting Huaweicloud VPC endpoint %s: %s", d.Id(), err)
+		return fmtp.Errorf("Error deleting Huaweicloud VPC endpoint %s: %s", d.Id(), err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -246,7 +246,7 @@ func resourceVPCEndpointDelete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting Huaweicloud VPC endpoint %s: %s", d.Id(), err)
+		return fmtp.Errorf("Error deleting Huaweicloud VPC endpoint %s: %s", d.Id(), err)
 	}
 
 	d.SetId("")
@@ -258,7 +258,7 @@ func waitForVPCEndpointStatus(vpcepClient *golangsdk.ServiceClient, id string) r
 		ep, err := endpoints.Get(vpcepClient, id).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted Huaweicloud VPC endpoint %s", id)
+				logp.Printf("[INFO] Successfully deleted Huaweicloud VPC endpoint %s", id)
 				return ep, "deleted", nil
 			}
 			return ep, "error", err

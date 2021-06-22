@@ -1,14 +1,13 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceNetworkingVIPAssociateV2() *schema.Resource {
@@ -69,13 +68,13 @@ func updateNetworkingVIPAssociate(client *golangsdk.ServiceClient, vipID string,
 	for i, portid := range portIDs {
 		port, err := ports.Get(client, portid).Extract()
 		if err != nil {
-			return fmt.Errorf("Error fetching port %s: %s", portid, err)
+			return fmtp.Errorf("Error fetching port %s: %s", portid, err)
 		}
 
 		if len(port.FixedIPs) > 0 {
 			allAddrs[i] = port.FixedIPs[0].IPAddress
 		} else {
-			return fmt.Errorf("port %s has no ip address, Error associate it", portid)
+			return fmtp.Errorf("port %s has no ip address, Error associate it", portid)
 		}
 	}
 
@@ -90,10 +89,10 @@ func updateNetworkingVIPAssociate(client *golangsdk.ServiceClient, vipID string,
 	associateOpts := ports.UpdateOpts{
 		AllowedAddressPairs: &allowedPairs,
 	}
-	log.Printf("[DEBUG] VIP Associate %s with options: %#v", vipID, associateOpts)
+	logp.Printf("[DEBUG] VIP Associate %s with options: %#v", vipID, associateOpts)
 	_, err := ports.Update(client, vipID, associateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error associate vip: %s", err)
+		return fmtp.Errorf("Error associate vip: %s", err)
 	}
 
 	// Update the allowed-address-pairs of the port to 1.1.1.1/0
@@ -109,7 +108,7 @@ func updateNetworkingVIPAssociate(client *golangsdk.ServiceClient, vipID string,
 	for _, portid := range portIDs {
 		_, err = ports.Update(client, portid, portUpdateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error update port %s: %s", portid, err)
+			return fmtp.Errorf("Error update port %s: %s", portid, err)
 		}
 	}
 
@@ -120,14 +119,14 @@ func resourceNetworkingVIPAssociateV2Create(d *schema.ResourceData, meta interfa
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	// check the vip port
 	vipID := d.Get("vip_id").(string)
 	_, err = ports.Get(networkingClient, vipID).Extract()
 	if err != nil {
-		return fmt.Errorf("Error fetching vip %s: %s", vipID, err)
+		return fmtp.Errorf("Error fetching vip %s: %s", vipID, err)
 	}
 
 	portids := resourceNetworkingPortIDs(d)
@@ -144,14 +143,14 @@ func resourceNetworkingVIPAssociateV2Update(d *schema.ResourceData, meta interfa
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	// check the vip port
 	vipID := d.Get("vip_id").(string)
 	_, err = ports.Get(networkingClient, vipID).Extract()
 	if err != nil {
-		return fmt.Errorf("Error fetching vip %s: %s", vipID, err)
+		return fmtp.Errorf("Error fetching vip %s: %s", vipID, err)
 	}
 
 	portids := resourceNetworkingPortIDs(d)
@@ -166,7 +165,7 @@ func resourceNetworkingVIPAssociateV2Read(d *schema.ResourceData, meta interface
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	// check the vip port
@@ -183,7 +182,7 @@ func resourceNetworkingVIPAssociateV2Read(d *schema.ResourceData, meta interface
 	for _, portid := range portids {
 		p, err := ports.Get(networkingClient, portid).Extract()
 		if err != nil {
-			log.Printf("[WARN] failed to fetch port %s: %s", portid, err)
+			logp.Printf("[WARN] failed to fetch port %s: %s", portid, err)
 			continue
 		}
 
@@ -200,7 +199,7 @@ func resourceNetworkingVIPAssociateV2Read(d *schema.ResourceData, meta interface
 
 	// if no port is associated
 	if len(allPorts) == 0 {
-		log.Printf("[WARN] no port is associated with vip %s", vipID)
+		logp.Printf("[WARN] no port is associated with vip %s", vipID)
 		d.SetId("")
 		return nil
 	}
@@ -219,7 +218,7 @@ func resourceNetworkingVIPAssociateV2Delete(d *schema.ResourceData, meta interfa
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	// check the vip port
@@ -234,10 +233,10 @@ func resourceNetworkingVIPAssociateV2Delete(d *schema.ResourceData, meta interfa
 	disassociateOpts := ports.UpdateOpts{
 		AllowedAddressPairs: &allowedPairs,
 	}
-	log.Printf("[DEBUG] Disassociate all ports with %s", vipID)
+	logp.Printf("[DEBUG] Disassociate all ports with %s", vipID)
 	_, err = ports.Update(networkingClient, vipID, disassociateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error disassociate vip: %s", err)
+		return fmtp.Errorf("Error disassociate vip: %s", err)
 	}
 
 	d.SetId("")

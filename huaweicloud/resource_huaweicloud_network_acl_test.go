@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,7 +14,7 @@ import (
 )
 
 func TestAccNetworkACL_basic(t *testing.T) {
-	rName := fmt.Sprintf("acc-fw-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("acc-fw-%s", acctest.RandString(5))
 	resourceKey := "huaweicloud_network_acl.fw_1"
 	var fwGroup FirewallGroup
 
@@ -48,7 +49,7 @@ func TestAccNetworkACL_basic(t *testing.T) {
 }
 
 func TestAccNetworkACL_no_subnets(t *testing.T) {
-	rName := fmt.Sprintf("acc-fw-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("acc-fw-%s", acctest.RandString(5))
 	resourceKey := "huaweicloud_network_acl.fw_1"
 	var fwGroup FirewallGroup
 
@@ -72,7 +73,7 @@ func TestAccNetworkACL_no_subnets(t *testing.T) {
 }
 
 func TestAccNetworkACL_remove(t *testing.T) {
-	rName := fmt.Sprintf("acc-fw-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("acc-fw-%s", acctest.RandString(5))
 	resourceKey := "huaweicloud_network_acl.fw_1"
 	var fwGroup FirewallGroup
 
@@ -113,7 +114,7 @@ func testAccCheckNetworkACLDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	fwClient, err := config.FwV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_network_acl" {
@@ -122,7 +123,7 @@ func testAccCheckNetworkACLDestroy(s *terraform.State) error {
 
 		_, err = firewall_groups.Get(fwClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Firewall group (%s) still exists.", rs.Primary.ID)
+			return fmtp.Errorf("Firewall group (%s) still exists.", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -135,17 +136,17 @@ func testAccCheckNetworkACLExists(n string, fwGroup *FirewallGroup) resource.Tes
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set in %s", n)
+			return fmtp.Errorf("No ID is set in %s", n)
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		fwClient, err := config.FwV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 		}
 
 		var found FirewallGroup
@@ -155,7 +156,7 @@ func testAccCheckNetworkACLExists(n string, fwGroup *FirewallGroup) resource.Tes
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Firewall group not found")
+			return fmtp.Errorf("Firewall group not found")
 		}
 
 		*fwGroup = found
@@ -165,7 +166,7 @@ func testAccCheckNetworkACLExists(n string, fwGroup *FirewallGroup) resource.Tes
 }
 
 func testAccNetworkACLRules(name string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "vpc_1" {
   name = "%s_vpc"
   cidr = "192.168.0.0/16"
@@ -204,7 +205,7 @@ resource "huaweicloud_network_acl_rule" "rule_2" {
 }
 
 func testAccNetworkACL_basic(name string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_network_acl" "fw_1" {
@@ -218,7 +219,7 @@ resource "huaweicloud_network_acl" "fw_1" {
 }
 
 func testAccNetworkACL_basic_update(name string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_network_acl" "fw_1" {
@@ -234,7 +235,7 @@ resource "huaweicloud_network_acl" "fw_1" {
 }
 
 func testAccNetworkACL_no_subnets(name string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_network_acl" "fw_1" {
   name        = "%s"
   description = "network acl without subents"

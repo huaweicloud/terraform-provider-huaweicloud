@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccRTSStackV1_basic(t *testing.T) {
@@ -78,7 +78,7 @@ func testAccCheckRTSStackV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	orchestrationClient, err := config.OrchestrationV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating RTS client: %s", err)
+		return fmtp.Errorf("Error creating RTS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -90,7 +90,7 @@ func testAccCheckRTSStackV1Destroy(s *terraform.State) error {
 
 		if err == nil {
 			if stack.Status != "DELETE_COMPLETE" {
-				return fmt.Errorf("Stack still exists")
+				return fmtp.Errorf("Stack still exists")
 			}
 		}
 	}
@@ -102,17 +102,17 @@ func testAccCheckRTSStackV1Exists(n string, stack *stacks.RetrievedStack) resour
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		orchestrationClient, err := config.OrchestrationV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating RTS Client : %s", err)
+			return fmtp.Errorf("Error creating RTS Client : %s", err)
 		}
 
 		found, err := stacks.Get(orchestrationClient, "terraform_provider_stack").Extract()
@@ -121,7 +121,7 @@ func testAccCheckRTSStackV1Exists(n string, stack *stacks.RetrievedStack) resour
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("stack not found")
+			return fmtp.Errorf("stack not found")
 		}
 
 		*stack = *found

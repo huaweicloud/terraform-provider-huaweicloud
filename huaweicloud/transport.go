@@ -1,13 +1,14 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"net/url"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -33,7 +34,7 @@ func isEmptyValue(v reflect.Value) (bool, error) {
 	case reflect.Invalid:
 		return true, nil
 	}
-	return false, fmt.Errorf("isEmptyValue:: unknown type")
+	return false, fmtp.Errorf("isEmptyValue:: unknown type")
 }
 
 func addQueryParams(rawurl string, params map[string]string) (string, error) {
@@ -106,11 +107,11 @@ func navigateMap(d interface{}, index []string) (interface{}, error) {
 	for _, i := range index {
 		d1, ok := d.(map[string]interface{})
 		if !ok {
-			return nil, fmt.Errorf("navigateMap:: Can not convert to map")
+			return nil, fmtp.Errorf("navigateMap:: Can not convert to map")
 		}
 		d, ok = d1[i]
 		if !ok {
-			return nil, fmt.Errorf("navigateMap:: '%s' may not exist", i)
+			return nil, fmtp.Errorf("navigateMap:: '%s' may not exist", i)
 		}
 	}
 	return d, nil
@@ -124,12 +125,12 @@ func navigateValue(d interface{}, index []string, arrayIndex map[string]int) (in
 		if d1, ok := d.(map[string]interface{}); ok {
 			d, ok = d1[i]
 			if !ok {
-				msg := fmt.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
-				return nil, fmt.Errorf("%s: '%s' may not exist", msg, i)
+				msg := fmtp.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
+				return nil, fmtp.Errorf("%s: '%s' may not exist", msg, i)
 			}
 		} else {
-			msg := fmt.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
-			return nil, fmt.Errorf("%s: Can not convert (%s) to map", msg, reflect.TypeOf(d))
+			msg := fmtp.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
+			return nil, fmtp.Errorf("%s: Can not convert (%s) to map", msg, reflect.TypeOf(d))
 		}
 
 		if arrayIndex != nil {
@@ -142,14 +143,14 @@ func navigateValue(d interface{}, index []string, arrayIndex map[string]int) (in
 						return nil, nil
 					}
 					if j >= len(d2) {
-						msg := fmt.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
-						return nil, fmt.Errorf("%s: The index is out of array", msg)
+						msg := fmtp.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
+						return nil, fmtp.Errorf("%s: The index is out of array", msg)
 					}
 
 					d = d2[j]
 				} else {
-					msg := fmt.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
-					return nil, fmt.Errorf("%s: Can not convert (%s) to array, index=%s.%v", msg, reflect.TypeOf(d), i, j)
+					msg := fmtp.Sprintf("navigate value with index(%s)", strings.Join(index, "."))
+					return nil, fmtp.Errorf("%s: Can not convert (%s) to array, index=%s.%v", msg, reflect.TypeOf(d), i, j)
 				}
 			}
 		}
@@ -174,7 +175,7 @@ func isUserInput(d *schema.ResourceData, index []string, arrayIndex map[string]i
 }
 
 func convertToInt(v interface{}) (int64, error) {
-	s := fmt.Sprintf("%v", v)
+	s := fmtp.Sprintf("%v", v)
 	r, err := strconv.ParseInt(s, 10, 64)
 	if err == nil {
 		return r, err
@@ -190,11 +191,11 @@ func convertToInt(v interface{}) (int64, error) {
 		return int64(i), nil
 	}
 
-	return 0, fmt.Errorf("can not convert to integer")
+	return 0, fmtp.Errorf("can not convert to integer")
 }
 
 func convertToStr(v interface{}) string {
-	return fmt.Sprintf("%v", v)
+	return fmtp.Sprintf("%v", v)
 }
 
 func convertSeconds2Str(v int64) string {

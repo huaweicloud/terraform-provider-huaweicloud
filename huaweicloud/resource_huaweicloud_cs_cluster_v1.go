@@ -15,14 +15,14 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"reflect"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceCsClusterV1() *schema.Resource {
@@ -116,18 +116,18 @@ func resourceCsClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	opts := resourceCsClusterV1UserInputParams(d)
 
 	params, err := buildCsClusterV1CreateParameters(opts, nil)
 	if err != nil {
-		return fmt.Errorf("Error building the request body of api(create), err=%s", err)
+		return fmtp.Errorf("Error building the request body of api(create), err=%s", err)
 	}
 	r, err := sendCsClusterV1CreateRequest(d, params, client)
 	if err != nil {
-		return fmt.Errorf("Error creating CsClusterV1, err=%s", err)
+		return fmtp.Errorf("Error creating CsClusterV1, err=%s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutCreate)
@@ -138,7 +138,7 @@ func resourceCsClusterV1Create(d *schema.ResourceData, meta interface{}) error {
 	}
 	id, err := navigateValue(obj, []string{"payload", "cluster_id"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error constructing id, err=%s", err)
+		return fmtp.Errorf("Error constructing id, err=%s", err)
 	}
 	d.SetId(convertToStr(id))
 
@@ -149,7 +149,7 @@ func resourceCsClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	res := make(map[string]interface{})
@@ -173,19 +173,19 @@ func resourceCsClusterV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	opts := resourceCsClusterV1UserInputParams(d)
 
 	params, err := buildCsClusterV1UpdateParameters(opts, nil)
 	if err != nil {
-		return fmt.Errorf("Error building the request body of api(update), err=%s", err)
+		return fmtp.Errorf("Error building the request body of api(update), err=%s", err)
 	}
 	if e, _ := isEmptyValue(reflect.ValueOf(params)); !e {
 		_, err = sendCsClusterV1UpdateRequest(d, params, client)
 		if err != nil {
-			return fmt.Errorf("Error updating (CsClusterV1: %v), err=%s", d.Id(), err)
+			return fmtp.Errorf("Error updating (CsClusterV1: %v), err=%s", d.Id(), err)
 		}
 	}
 
@@ -196,7 +196,7 @@ func resourceCsClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CloudStreamV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	url, err := replaceVars(d, "reserved_cluster/{id}", nil)
@@ -205,7 +205,7 @@ func resourceCsClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 	url = client.ServiceURL(url)
 
-	log.Printf("[DEBUG] Deleting Cluster %q", d.Id())
+	logp.Printf("[DEBUG] Deleting Cluster %q", d.Id())
 	r := golangsdk.Result{}
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
 		OkCodes:      successHTTPCodes,
@@ -214,7 +214,7 @@ func resourceCsClusterV1Delete(d *schema.ResourceData, meta interface{}) error {
 		MoreHeaders:  map[string]string{"Content-Type": "application/json"},
 	})
 	if r.Err != nil {
-		return fmt.Errorf("Error deleting Cluster %q, err=%s", d.Id(), r.Err)
+		return fmtp.Errorf("Error deleting Cluster %q, err=%s", d.Id(), r.Err)
 	}
 
 	_, err = asyncWaitCsClusterV1Delete(d, config, r.Body, client, d.Timeout(schema.TimeoutDelete))
@@ -296,7 +296,7 @@ func sendCsClusterV1CreateRequest(d *schema.ResourceData, params interface{},
 		OkCodes: successHTTPCodes,
 	})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(create), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(create), err=%s", r.Err)
 	}
 	return r.Body, nil
 }
@@ -311,7 +311,7 @@ func asyncWaitCsClusterV1Create(d *schema.ResourceData, config *config.Config, r
 	for key, path := range pathParameters {
 		value, err := navigateValue(result, path, nil)
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving async operation path parameter, err=%s", err)
+			return nil, fmtp.Errorf("Error retrieving async operation path parameter, err=%s", err)
 		}
 		data[key] = value
 	}
@@ -392,7 +392,7 @@ func sendCsClusterV1UpdateRequest(d *schema.ResourceData, params interface{},
 		OkCodes: successHTTPCodes,
 	})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(update), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(update), err=%s", r.Err)
 	}
 	return r.Body, nil
 }
@@ -436,7 +436,7 @@ func sendCsClusterV1ReadRequest(d *schema.ResourceData, client *golangsdk.Servic
 	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(read) for resource(CsClusterV1), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(read) for resource(CsClusterV1), err=%s", r.Err)
 	}
 
 	v, err := navigateValue(r.Body, []string{"payload"}, nil)
@@ -515,55 +515,55 @@ func flattenCsClusterV1Options(response map[string]interface{}) (map[string]inte
 
 	v, err := flattenCsClusterV1CreatedAT(response, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Cluster:created_at, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Cluster:created_at, err: %s", err)
 	}
 	opts["created_at"] = v
 
 	v, err = navigateValue(response, []string{"read", "desc"}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Cluster:description, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Cluster:description, err: %s", err)
 	}
 	opts["description"] = v
 
 	v, err = flattenCsClusterV1ManagerNodeSpuNum(response, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Cluster:manager_node_spu_num, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Cluster:manager_node_spu_num, err: %s", err)
 	}
 	opts["manager_node_spu_num"] = v
 
 	v, err = flattenCsClusterV1MaxSpuNum(response, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Cluster:max_spu_num, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Cluster:max_spu_num, err: %s", err)
 	}
 	opts["max_spu_num"] = v
 
 	v, err = navigateValue(response, []string{"read", "name"}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Cluster:name, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Cluster:name, err: %s", err)
 	}
 	opts["name"] = v
 
 	v, err = navigateValue(response, []string{"read", "subnet_cidr"}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Cluster:subnet_cidr, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Cluster:subnet_cidr, err: %s", err)
 	}
 	opts["subnet_cidr"] = v
 
 	v, err = navigateValue(response, []string{"read", "subnet_gateway"}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Cluster:subnet_gateway, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Cluster:subnet_gateway, err: %s", err)
 	}
 	opts["subnet_gateway"] = v
 
 	v, err = flattenCsClusterV1UsedSpuNum(response, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Cluster:used_spu_num, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Cluster:used_spu_num, err: %s", err)
 	}
 	opts["used_spu_num"] = v
 
 	v, err = navigateValue(response, []string{"read", "vpc_cidr"}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Error flattening Cluster:vpc_cidr, err: %s", err)
+		return nil, fmtp.Errorf("Error flattening Cluster:vpc_cidr, err: %s", err)
 	}
 	opts["vpc_cidr"] = v
 
@@ -607,7 +607,7 @@ func setCsClusterV1States(d *schema.ResourceData, opts map[string]interface{}) e
 	for k, v := range opts {
 		//lintignore:R001
 		if err := d.Set(k, v); err != nil {
-			return fmt.Errorf("Error setting CsClusterV1:%s, err: %s", k, err)
+			return fmtp.Errorf("Error setting CsClusterV1:%s, err: %s", k, err)
 		}
 	}
 	return nil

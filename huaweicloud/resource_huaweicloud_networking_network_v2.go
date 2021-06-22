@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strconv"
 	"time"
 
@@ -13,6 +11,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/provider"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceNetworkingNetworkV2() *schema.Resource {
@@ -97,7 +97,7 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	createOpts := NetworkCreateOpts{
@@ -112,7 +112,7 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 	if asuRaw != "" {
 		asu, err := strconv.ParseBool(asuRaw)
 		if err != nil {
-			return fmt.Errorf("admin_state_up, if provided, must be either 'true' or 'false'")
+			return fmtp.Errorf("admin_state_up, if provided, must be either 'true' or 'false'")
 		}
 		createOpts.AdminStateUp = &asu
 	}
@@ -121,7 +121,7 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 	if sharedRaw != "" {
 		shared, err := strconv.ParseBool(sharedRaw)
 		if err != nil {
-			return fmt.Errorf("shared, if provided, must be either 'true' or 'false': %v", err)
+			return fmtp.Errorf("shared, if provided, must be either 'true' or 'false': %v", err)
 		}
 		createOpts.Shared = &shared
 	}
@@ -134,20 +134,20 @@ func resourceNetworkingNetworkV2Create(d *schema.ResourceData, meta interface{})
 			CreateOptsBuilder: createOpts,
 			Segments:          segments,
 		}
-		log.Printf("[DEBUG] Create Options: %#v", providerCreateOpts)
+		logp.Printf("[DEBUG] Create Options: %#v", providerCreateOpts)
 		n, err = networks.Create(networkingClient, providerCreateOpts).Extract()
 	} else {
-		log.Printf("[DEBUG] Create Options: %#v", createOpts)
+		logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 		n, err = networks.Create(networkingClient, createOpts).Extract()
 	}
 
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Neutron network: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud Neutron network: %s", err)
 	}
 
-	log.Printf("[INFO] Network ID: %s", n.ID)
+	logp.Printf("[INFO] Network ID: %s", n.ID)
 
-	log.Printf("[DEBUG] Waiting for Network (%s) to become available", n.ID)
+	logp.Printf("[DEBUG] Waiting for Network (%s) to become available", n.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"BUILD"},
@@ -169,7 +169,7 @@ func resourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	n, err := networks.Get(networkingClient, d.Id()).Extract()
@@ -177,7 +177,7 @@ func resourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{}) e
 		return CheckDeleted(d, err, "network")
 	}
 
-	log.Printf("[DEBUG] Retrieved Network %s: %+v", d.Id(), n)
+	logp.Printf("[DEBUG] Retrieved Network %s: %+v", d.Id(), n)
 
 	d.Set("name", n.Name)
 	d.Set("admin_state_up", strconv.FormatBool(n.AdminStateUp))
@@ -192,7 +192,7 @@ func resourceNetworkingNetworkV2Update(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var updateOpts networks.UpdateOpts
@@ -204,7 +204,7 @@ func resourceNetworkingNetworkV2Update(d *schema.ResourceData, meta interface{})
 		if asuRaw != "" {
 			asu, err := strconv.ParseBool(asuRaw)
 			if err != nil {
-				return fmt.Errorf("admin_state_up, if provided, must be either 'true' or 'false'")
+				return fmtp.Errorf("admin_state_up, if provided, must be either 'true' or 'false'")
 			}
 			updateOpts.AdminStateUp = &asu
 		}
@@ -214,17 +214,17 @@ func resourceNetworkingNetworkV2Update(d *schema.ResourceData, meta interface{})
 		if sharedRaw != "" {
 			shared, err := strconv.ParseBool(sharedRaw)
 			if err != nil {
-				return fmt.Errorf("shared, if provided, must be either 'true' or 'false': %v", err)
+				return fmtp.Errorf("shared, if provided, must be either 'true' or 'false': %v", err)
 			}
 			updateOpts.Shared = &shared
 		}
 	}
 
-	log.Printf("[DEBUG] Updating Network %s with options: %+v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating Network %s with options: %+v", d.Id(), updateOpts)
 
 	_, err = networks.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud Neutron Network: %s", err)
+		return fmtp.Errorf("Error updating HuaweiCloud Neutron Network: %s", err)
 	}
 
 	return resourceNetworkingNetworkV2Read(d, meta)
@@ -234,7 +234,7 @@ func resourceNetworkingNetworkV2Delete(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -248,7 +248,7 @@ func resourceNetworkingNetworkV2Delete(d *schema.ResourceData, meta interface{})
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud Neutron Network: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud Neutron Network: %s", err)
 	}
 
 	d.SetId("")
@@ -285,7 +285,7 @@ func waitForNetworkActive(networkingClient *golangsdk.ServiceClient, networkId s
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud Neutron Network: %+v", n)
+		logp.Printf("[DEBUG] HuaweiCloud Neutron Network: %+v", n)
 		if n.Status == "DOWN" || n.Status == "ACTIVE" {
 			return n, "ACTIVE", nil
 		}
@@ -296,12 +296,12 @@ func waitForNetworkActive(networkingClient *golangsdk.ServiceClient, networkId s
 
 func waitForNetworkDelete(networkingClient *golangsdk.ServiceClient, networkId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Network %s.\n", networkId)
+		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud Network %s.\n", networkId)
 
 		n, err := networks.Get(networkingClient, networkId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Network %s", networkId)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Network %s", networkId)
 				return n, "DELETED", nil
 			}
 			return n, "ACTIVE", err
@@ -310,7 +310,7 @@ func waitForNetworkDelete(networkingClient *golangsdk.ServiceClient, networkId s
 		err = networks.Delete(networkingClient, networkId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Network %s", networkId)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Network %s", networkId)
 				return n, "DELETED", nil
 			}
 			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
@@ -321,7 +321,7 @@ func waitForNetworkDelete(networkingClient *golangsdk.ServiceClient, networkId s
 			return n, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud Network %s still active.\n", networkId)
+		logp.Printf("[DEBUG] HuaweiCloud Network %s still active.\n", networkId)
 		return n, "ACTIVE", nil
 	}
 }

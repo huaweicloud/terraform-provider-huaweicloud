@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strings"
 	"sync"
 
@@ -11,12 +9,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const defaultCloud string = "myhuaweicloud.com"
 
 // This is a global MutexKV for use within this plugin.
 var osMutexKV = mutexkv.NewMutexKV()
+
+//store the provider config tobe used within this plugin.
+var providerCfg *config.Config
 
 // Provider returns a schema.Provider for HuaweiCloud.
 func Provider() terraform.ResourceProvider {
@@ -223,7 +226,7 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"HW_AUTH_URL",
 					"OS_AUTH_URL",
-				}, fmt.Sprintf("https://iam.%s:443/v3", defaultCloud)),
+				}, fmtp.Sprintf("https://iam.%s:443/v3", defaultCloud)),
 			},
 
 			"cloud": {
@@ -665,6 +668,8 @@ func init() {
 
 		"cloud": "The endpoint of cloud provider, defaults to myhuaweicloud.com",
 
+		"cloudName": "The endpoint of cloud provider name, defaults to empty",
+
 		"endpoints": "The custom endpoints used to override the default endpoint URL.",
 
 		"max_retries": "How many times HTTP connection should be retried until giving up.",
@@ -723,6 +728,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		AgencyDomainName:    d.Get("agency_domain_name").(string),
 		DelegatedProject:    delegated_project,
 		Cloud:               d.Get("cloud").(string),
+		CloudName:           d.Get("cloudName").(string),
 		MaxRetries:          d.Get("max_retries").(int),
 		EnterpriseProjectID: d.Get("enterprise_project_id").(string),
 		TerraformVersion:    terraformVersion,
@@ -741,6 +747,9 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		return nil, err
 	}
 
+	// store the config to Global
+	providerCfg = &config
+
 	return &config, nil
 }
 
@@ -752,15 +761,15 @@ func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error)
 		endpoint := strings.TrimSpace(val.(string))
 		// check empty string
 		if endpoint == "" {
-			return nil, fmt.Errorf("the value of customer endpoint %s must be specified", key)
+			return nil, fmtp.Errorf("the value of customer endpoint %s must be specified", key)
 		}
 
 		// add prefix "https://" and suffix "/"
 		if !strings.HasPrefix(endpoint, "http") {
-			endpoint = fmt.Sprintf("https://%s", endpoint)
+			endpoint = fmtp.Sprintf("https://%s", endpoint)
 		}
 		if !strings.HasSuffix(endpoint, "/") {
-			endpoint = fmt.Sprintf("%s/", endpoint)
+			endpoint = fmtp.Sprintf("%s/", endpoint)
 		}
 		epMap[key] = endpoint
 	}
@@ -784,6 +793,11 @@ func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error)
 		epMap["security_group"] = endpoint
 	}
 
-	log.Printf("[DEBUG] customer endpoints: %+v", epMap)
+	logp.Printf("[DEBUG] customer endpoints: %+v", epMap)
 	return epMap, nil
+}
+
+//
+func GetProviderCfg() *config.Config {
+	return providerCfg
 }

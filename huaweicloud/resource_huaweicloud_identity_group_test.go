@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccIdentityV3Group_basic(t *testing.T) {
 	var group groups.Group
-	var groupName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var groupName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_group.group_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -54,7 +55,7 @@ func testAccCheckIdentityV3GroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	identityClient, err := config.IdentityV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -64,7 +65,7 @@ func testAccCheckIdentityV3GroupDestroy(s *terraform.State) error {
 
 		_, err := groups.Get(identityClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Group still exists")
+			return fmtp.Errorf("Group still exists")
 		}
 	}
 
@@ -75,17 +76,17 @@ func testAccCheckIdentityV3GroupExists(n string, group *groups.Group) resource.T
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		identityClient, err := config.IdentityV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}
 
 		found, err := groups.Get(identityClient, rs.Primary.ID).Extract()
@@ -94,7 +95,7 @@ func testAccCheckIdentityV3GroupExists(n string, group *groups.Group) resource.T
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Group not found")
+			return fmtp.Errorf("Group not found")
 		}
 
 		*group = *found
@@ -104,7 +105,7 @@ func testAccCheckIdentityV3GroupExists(n string, group *groups.Group) resource.T
 }
 
 func testAccIdentityV3Group_basic(groupName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
   name        = "%s"
   description = "A ACC test group"
@@ -113,7 +114,7 @@ resource "huaweicloud_identity_group" "group_1" {
 }
 
 func testAccIdentityV3Group_update(groupName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
   name        = "%s"
   description = "Some Group"

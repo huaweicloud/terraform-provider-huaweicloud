@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"fmt"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
@@ -46,7 +46,7 @@ func dataSourceCdmFlavorV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CdmV11Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	dsid, err := getCdmDatastoreV1ID(client)
@@ -84,7 +84,7 @@ func getCdmDatastoreV1ID(client *golangsdk.ServiceClient) (string, error) {
 
 	ds, ok := v.([]interface{})
 	if !ok {
-		return "", fmt.Errorf("can not find datastore")
+		return "", fmtp.Errorf("can not find datastore")
 	}
 
 	for _, item := range ds {
@@ -101,7 +101,7 @@ func getCdmDatastoreV1ID(client *golangsdk.ServiceClient) (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("didn't find the datastore id")
+	return "", fmtp.Errorf("didn't find the datastore id")
 }
 
 func getCdmFlavorV1(client *golangsdk.ServiceClient, dsid string) (string, interface{}, error) {
@@ -122,7 +122,7 @@ func getCdmFlavorV1(client *golangsdk.ServiceClient, dsid string) (string, inter
 	}
 	vs, ok := v.([]interface{})
 	if !ok {
-		return "", nil, fmt.Errorf("can not find flavor")
+		return "", nil, fmtp.Errorf("can not find flavor")
 	}
 	for _, item := range vs {
 		version, err := navigateValue(item, []string{"name"}, nil)
@@ -136,7 +136,7 @@ func getCdmFlavorV1(client *golangsdk.ServiceClient, dsid string) (string, inter
 
 		fs, ok := flavors.([]interface{})
 		if !ok {
-			return "", nil, fmt.Errorf("can not find flavor")
+			return "", nil, fmtp.Errorf("can not find flavor")
 		}
 		num := len(fs)
 		r := make([]interface{}, num, num)
@@ -159,5 +159,5 @@ func getCdmFlavorV1(client *golangsdk.ServiceClient, dsid string) (string, inter
 		return version.(string), r, nil
 	}
 
-	return "", nil, fmt.Errorf("can not find flavor")
+	return "", nil, fmtp.Errorf("can not find flavor")
 }

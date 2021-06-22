@@ -1,13 +1,13 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/lts/huawei/logstreams"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccLogTankStreamV2_basic(t *testing.T) {
@@ -34,7 +34,7 @@ func testAccCheckLogTankStreamV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	ltsclient, err := config.LtsV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -45,7 +45,7 @@ func testAccCheckLogTankStreamV2Destroy(s *terraform.State) error {
 		group_id := rs.Primary.Attributes["group_id"]
 		_, err = logstreams.List(ltsclient, group_id).Extract()
 		if err == nil {
-			return fmt.Errorf("Log group (%s) still exists.", rs.Primary.ID)
+			return fmtp.Errorf("Log group (%s) still exists.", rs.Primary.ID)
 		}
 
 	}
@@ -56,23 +56,23 @@ func testAccCheckLogTankStreamV2Exists(n string, stream *logstreams.LogStream) r
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		ltsclient, err := config.LtsV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 		}
 
 		group_id := rs.Primary.Attributes["group_id"]
 		streams, err := logstreams.List(ltsclient, group_id).Extract()
 		if err != nil {
-			return fmt.Errorf("Log stream get list err: %s", err.Error())
+			return fmtp.Errorf("Log stream get list err: %s", err.Error())
 		}
 		for _, logstream := range streams.LogStreams {
 			if logstream.ID == rs.Primary.ID {
@@ -81,7 +81,7 @@ func testAccCheckLogTankStreamV2Exists(n string, stream *logstreams.LogStream) r
 			}
 		}
 
-		return fmt.Errorf("Error HuaweiCloud log stream %s: No Found", rs.Primary.ID)
+		return fmtp.Errorf("Error HuaweiCloud log stream %s: No Found", rs.Primary.ID)
 	}
 }
 

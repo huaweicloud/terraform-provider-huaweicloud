@@ -3,8 +3,6 @@ package huaweicloud
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -18,6 +16,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceEcsInstanceV1() *schema.Resource {
@@ -221,11 +221,11 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV11Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute V1.1 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute V1.1 client: %s", err)
 	}
 	computeV1Client, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute V1 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute V1 client: %s", err)
 	}
 
 	createOpts := &cloudservers.CreateOpts{
@@ -266,7 +266,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		createOpts.MetaData = &metadata
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.AdminPass = d.Get("password").(string)
 
@@ -274,11 +274,11 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 	if d.Get("charging_mode") == "prePaid" {
 		bssV1Client, err := config.BssV1Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud bss V1 client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud bss V1 client: %s", err)
 		}
 		n, err := cloudservers.CreatePrePaid(computeClient, createOpts).ExtractOrderResponse()
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud server: %s", err)
 		}
 
 		if err := cloudservers.WaitForOrderSuccess(bssV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.OrderID); err != nil {
@@ -293,7 +293,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 	} else {
 		n, err := cloudservers.Create(computeClient, createOpts).ExtractJobResponse()
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud server: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud server: %s", err)
 		}
 
 		if err := cloudservers.WaitForJobSuccess(computeV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
@@ -315,30 +315,30 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 			taglist := utils.ExpandResourceTags(tagRaw)
 			tagErr := tags.Create(computeV1Client, "cloudservers", instance_id, taglist).ExtractErr()
 			if tagErr != nil {
-				log.Printf("[WARN] Error setting tags of instance:%s, err=%s", instance_id, err)
+				logp.Printf("[WARN] Error setting tags of instance:%s, err=%s", instance_id, err)
 			}
 		}
 
 		if hasFilledOpt(d, "auto_recovery") {
 			ar := d.Get("auto_recovery").(bool)
-			log.Printf("[DEBUG] Set auto recovery of instance to %t", ar)
+			logp.Printf("[DEBUG] Set auto recovery of instance to %t", ar)
 			err = setAutoRecoveryForInstance(d, meta, instance_id, ar)
 			if err != nil {
-				log.Printf("[WARN] Error setting auto recovery of instance:%s, err=%s", instance_id, err)
+				logp.Printf("[WARN] Error setting auto recovery of instance:%s, err=%s", instance_id, err)
 			}
 		}
 
 		return resourceEcsInstanceV1Read(d, meta)
 	}
 
-	return fmt.Errorf("Unexpected conversion error in resourceEcsInstanceV1Create.")
+	return fmtp.Errorf("Unexpected conversion error in resourceEcsInstanceV1Create.")
 }
 
 func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	server, err := cloudservers.Get(computeClient, d.Id()).Extract()
@@ -350,7 +350,7 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	log.Printf("[DEBUG] Retrieved Server %s: %+v", d.Id(), server)
+	logp.Printf("[DEBUG] Retrieved Server %s: %+v", d.Id(), server)
 
 	d.Set("name", server.Name)
 	d.Set("image_id", server.Image.ID)
@@ -367,15 +367,15 @@ func resourceEcsInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
 	if resourceTags, err := tags.Get(computeClient, "cloudservers", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for ECS instance (%s): %s", d.Id(), err)
+			return fmtp.Errorf("Error saving tags to state for ECS instance (%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of ECS instance (%s): %s", d.Id(), err)
+		logp.Printf("[WARN] Error fetching tags of ECS instance (%s): %s", d.Id(), err)
 	}
 
 	ar, err := resourceECSAutoRecoveryV1Read(d, meta, d.Id())
 	if err != nil && !utils.IsResourceNotFound(err) {
-		return fmt.Errorf("Error reading auto recovery of instance:%s, err=%s", d.Id(), err)
+		return fmtp.Errorf("Error reading auto recovery of instance:%s, err=%s", d.Id(), err)
 	}
 	d.Set("auto_recovery", ar)
 
@@ -386,7 +386,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	var updateOpts servers.UpdateOpts
@@ -397,7 +397,7 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 	if updateOpts != (servers.UpdateOpts{}) {
 		_, err := servers.Update(computeClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating HuaweiCloud server: %s", err)
+			return fmtp.Errorf("Error updating HuaweiCloud server: %s", err)
 		}
 	}
 
@@ -408,9 +408,9 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 		secgroupsToAdd := newSGSet.Difference(oldSGSet)
 		secgroupsToRemove := oldSGSet.Difference(newSGSet)
 
-		log.Printf("[DEBUG] Security groups to add: %v", secgroupsToAdd)
+		logp.Printf("[DEBUG] Security groups to add: %v", secgroupsToAdd)
 
-		log.Printf("[DEBUG] Security groups to remove: %v", secgroupsToRemove)
+		logp.Printf("[DEBUG] Security groups to remove: %v", secgroupsToRemove)
 
 		for _, g := range secgroupsToRemove.List() {
 			err := secgroups.RemoveServer(computeClient, d.Id(), g.(string)).ExtractErr()
@@ -419,18 +419,18 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 					continue
 				}
 
-				return fmt.Errorf("Error removing security group (%s) from HuaweiCloud server (%s): %s", g, d.Id(), err)
+				return fmtp.Errorf("Error removing security group (%s) from HuaweiCloud server (%s): %s", g, d.Id(), err)
 			} else {
-				log.Printf("[DEBUG] Removed security group (%s) from instance (%s)", g, d.Id())
+				logp.Printf("[DEBUG] Removed security group (%s) from instance (%s)", g, d.Id())
 			}
 		}
 
 		for _, g := range secgroupsToAdd.List() {
 			err := secgroups.AddServer(computeClient, d.Id(), g.(string)).ExtractErr()
 			if err != nil && err.Error() != "EOF" {
-				return fmt.Errorf("Error adding security group (%s) to HuaweiCloud server (%s): %s", g, d.Id(), err)
+				return fmtp.Errorf("Error adding security group (%s) to HuaweiCloud server (%s): %s", g, d.Id(), err)
 			}
-			log.Printf("[DEBUG] Added security group (%s) to instance (%s)", g, d.Id())
+			logp.Printf("[DEBUG] Added security group (%s) to instance (%s)", g, d.Id())
 		}
 	}
 
@@ -440,14 +440,14 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 		resizeOpts := &servers.ResizeOpts{
 			FlavorRef: newFlavorId,
 		}
-		log.Printf("[DEBUG] Resize configuration: %#v", resizeOpts)
+		logp.Printf("[DEBUG] Resize configuration: %#v", resizeOpts)
 		err := servers.Resize(computeClient, d.Id(), resizeOpts).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error resizing HuaweiCloud server: %s", err)
+			return fmtp.Errorf("Error resizing HuaweiCloud server: %s", err)
 		}
 
 		// Wait for the instance to finish resizing.
-		log.Printf("[DEBUG] Waiting for instance (%s) to finish resizing", d.Id())
+		logp.Printf("[DEBUG] Waiting for instance (%s) to finish resizing", d.Id())
 
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"RESIZE"},
@@ -460,14 +460,14 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 
 		_, err = stateConf.WaitForState()
 		if err != nil {
-			return fmt.Errorf("Error waiting for instance (%s) to resize: %s", d.Id(), err)
+			return fmtp.Errorf("Error waiting for instance (%s) to resize: %s", d.Id(), err)
 		}
 
 		// Confirm resize.
-		log.Printf("[DEBUG] Confirming resize")
+		logp.Printf("[DEBUG] Confirming resize")
 		err = servers.ConfirmResize(computeClient, d.Id()).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error confirming resize of HuaweiCloud server: %s", err)
+			return fmtp.Errorf("Error confirming resize of HuaweiCloud server: %s", err)
 		}
 
 		stateConf = &resource.StateChangeConf{
@@ -481,28 +481,28 @@ func resourceEcsInstanceV1Update(d *schema.ResourceData, meta interface{}) error
 
 		_, err = stateConf.WaitForState()
 		if err != nil {
-			return fmt.Errorf("Error waiting for instance (%s) to confirm resize: %s", d.Id(), err)
+			return fmtp.Errorf("Error waiting for instance (%s) to confirm resize: %s", d.Id(), err)
 		}
 	}
 
 	if d.HasChange("tags") {
 		ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud compute v1 client: %s", err)
 		}
 
 		tagErr := utils.UpdateResourceTags(ecsClient, d, "cloudservers", d.Id())
 		if tagErr != nil {
-			return fmt.Errorf("Error updating tags of instance:%s, err:%s", d.Id(), err)
+			return fmtp.Errorf("Error updating tags of instance:%s, err:%s", d.Id(), err)
 		}
 	}
 
 	if d.HasChange("auto_recovery") {
 		ar := d.Get("auto_recovery").(bool)
-		log.Printf("[DEBUG] Update auto recovery of instance to %t", ar)
+		logp.Printf("[DEBUG] Update auto recovery of instance to %t", ar)
 		err = setAutoRecoveryForInstance(d, meta, d.Id(), ar)
 		if err != nil {
-			return fmt.Errorf("Error updating auto recovery of instance:%s, err:%s", d.Id(), err)
+			return fmtp.Errorf("Error updating auto recovery of instance:%s, err:%s", d.Id(), err)
 		}
 	}
 
@@ -513,17 +513,17 @@ func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	computeV1Client, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 	computeV2Client, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute V2 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute V2 client: %s", err)
 	}
 
 	if d.Get("charging_mode") == "prePaid" {
 		bssV1Client, err := config.BssV1Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud bss V1 client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud bss V1 client: %s", err)
 		}
 
 		resourceIds := []string{d.Id()}
@@ -533,7 +533,7 @@ func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error
 		}
 		n, err := cloudservers.DeleteOrder(bssV1Client, deleteOrderOpts).ExtractDeleteOrderResponse()
 		if err != nil {
-			return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
+			return fmtp.Errorf("Error deleting HuaweiCloud server: %s", err)
 		}
 
 		if err := cloudservers.WaitForOrderDeleteSuccess(bssV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.OrderIDs[0]); err != nil {
@@ -553,7 +553,7 @@ func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error
 
 		n, err := cloudservers.Delete(computeV1Client, deleteOpts).ExtractJobResponse()
 		if err != nil {
-			return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
+			return fmtp.Errorf("Error deleting HuaweiCloud server: %s", err)
 		}
 
 		if err := cloudservers.WaitForJobSuccess(computeV1Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
@@ -562,7 +562,7 @@ func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Wait for the instance to delete before moving on.
-	log.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
+	logp.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE", "SHUTOFF"},
@@ -575,7 +575,7 @@ func resourceEcsInstanceV1Delete(d *schema.ResourceData, meta interface{}) error
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for instance (%s) to delete: %s",
 			d.Id(), err)
 	}
@@ -651,7 +651,7 @@ func flattenInstanceNicsV1(
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		log.Printf("Error creating HuaweiCloud networking client: %s", err)
+		logp.Printf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var network string
@@ -667,7 +667,7 @@ func flattenInstanceNicsV1(
 			p, err := ports.Get(networkingClient, addr.PortID).Extract()
 			if err != nil {
 				network = ""
-				log.Printf("[DEBUG] flattenInstanceNicsV1: failed to fetch port %s", addr.PortID)
+				logp.Printf("[DEBUG] flattenInstanceNicsV1: failed to fetch port %s", addr.PortID)
 			} else {
 				network = p.NetworkID
 			}
@@ -682,6 +682,6 @@ func flattenInstanceNicsV1(
 		}
 	}
 
-	log.Printf("[DEBUG] flattenInstanceNicsV1: %#v", nics)
+	logp.Printf("[DEBUG] flattenInstanceNicsV1: %#v", nics)
 	return nics
 }

@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,8 +16,8 @@ import (
 
 func TestAccBCSV2Instance_basic(t *testing.T) {
 	var instance blockchains.BCSInstance
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(3, "!@$%^-_=+[{}]:,./?"),
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	password := fmtp.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(3, "!@$%^-_=+[{}]:,./?"),
 		acctest.RandIntRange(1, 3))
 	resourceName := "huaweicloud_bcs_instance.test"
 
@@ -50,8 +51,8 @@ func TestAccBCSV2Instance_basic(t *testing.T) {
 
 func TestAccBCSV2Instance_kafka(t *testing.T) {
 	var instance blockchains.BCSInstance
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(3, "!@$%^-_=+[{}]:,./?"),
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	password := fmtp.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(3, "!@$%^-_=+[{}]:,./?"),
 		acctest.RandIntRange(1, 3))
 	resourceName := "huaweicloud_bcs_instance.test"
 
@@ -96,7 +97,7 @@ func testAccCheckBCSInstanceV2Destroy() resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.BcsV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud BCS client: %s", err)
+			return fmtp.Errorf("Error creating huaweicloud BCS client: %s", err)
 		}
 
 		for _, rs := range s.RootModule().Resources {
@@ -113,7 +114,7 @@ func testAccCheckBCSInstanceV2Destroy() resource.TestCheckFunc {
 				return err
 			}
 			if instance.Basic.ID != "" {
-				return fmt.Errorf("%s (%s) still exists", rs.Type, id)
+				return fmtp.Errorf("%s (%s) still exists", rs.Type, id)
 			}
 		}
 		return nil
@@ -124,26 +125,26 @@ func testAccCheckBCSInstanceV2Exists(name string, instance *blockchains.BCSInsta
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
-			return fmt.Errorf("Not found: %s", name)
+			return fmtp.Errorf("Not found: %s", name)
 		}
 
 		id := rs.Primary.ID
 		if id == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.BcsV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud BCS client: %s", err)
+			return fmtp.Errorf("Error creating huaweicloud BCS client: %s", err)
 		}
 
 		found, err := blockchains.Get(client, id).Extract()
 		if err != nil {
-			return fmt.Errorf("Error checking %s exist, err=%s", name, err)
+			return fmtp.Errorf("Error checking %s exist, err=%s", name, err)
 		}
 		if found.Basic.ID == "" {
-			return fmt.Errorf("resource %s does not exist", name)
+			return fmtp.Errorf("resource %s does not exist", name)
 		}
 
 		instance = found
@@ -152,7 +153,7 @@ func testAccCheckBCSInstanceV2Exists(name string, instance *blockchains.BCSInsta
 }
 
 func testBCSInstanceV2_base(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_vpc" "test" {
@@ -217,7 +218,7 @@ resource "huaweicloud_cce_node" "test" {
 }
 
 func testBCSInstanceV2_basic(rName, password string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_bcs_instance" "test" {
@@ -251,7 +252,7 @@ resource "huaweicloud_bcs_instance" "test" {
 }
 
 func testBCSInstanceV2_kafka(rName, password string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_bcs_instance" "test" {

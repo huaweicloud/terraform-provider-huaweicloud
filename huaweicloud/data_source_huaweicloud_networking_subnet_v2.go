@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
@@ -65,7 +65,7 @@ func dataSourceNetworkingSubnetV2() *schema.Resource {
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(int)
 					if value != 4 && value != 6 {
-						errors = append(errors, fmt.Errorf(
+						errors = append(errors, fmtp.Errorf(
 							"Only 4 and 6 are supported values for 'ip_version'"))
 					}
 					return
@@ -156,7 +156,7 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	listOpts := subnets.ListOpts{}
@@ -209,27 +209,27 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 
 	pages, err := subnets.List(networkingClient, listOpts).AllPages()
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve subnets: %s", err)
+		return fmtp.Errorf("Unable to retrieve subnets: %s", err)
 	}
 
 	allSubnets, err := subnets.ExtractSubnets(pages)
 	if err != nil {
-		return fmt.Errorf("Unable to extract subnets: %s", err)
+		return fmtp.Errorf("Unable to extract subnets: %s", err)
 	}
 
 	if len(allSubnets) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(allSubnets) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	subnet := allSubnets[0]
 
-	log.Printf("[DEBUG] Retrieved Subnet %s: %+v", subnet.ID, subnet)
+	logp.Printf("[DEBUG] Retrieved Subnet %s: %+v", subnet.ID, subnet)
 	d.SetId(subnet.ID)
 
 	d.Set("name", subnet.Name)
@@ -245,7 +245,7 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 
 	err = d.Set("dns_nameservers", subnet.DNSNameservers)
 	if err != nil {
-		log.Printf("[DEBUG] Unable to set dns_nameservers: %s", err)
+		logp.Printf("[DEBUG] Unable to set dns_nameservers: %s", err)
 	}
 
 	// Set the host_routes
@@ -257,7 +257,7 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 		hostRoutes[i] = routes
 	}
 	if err = d.Set("host_routes", hostRoutes); err != nil {
-		return fmt.Errorf("Saving host_routes failed: %s", err)
+		return fmtp.Errorf("Saving host_routes failed: %s", err)
 	}
 
 	// Set the allocation_pools
@@ -271,7 +271,7 @@ func dataSourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) 
 	}
 	err = d.Set("allocation_pools", allocationPools)
 	if err != nil {
-		log.Printf("[DEBUG] Unable to set allocation_pools: %s", err)
+		logp.Printf("[DEBUG] Unable to set allocation_pools: %s", err)
 	}
 
 	return nil

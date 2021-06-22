@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/recordsets"
@@ -22,6 +20,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // FirewallGroup is an HuaweiCloud firewall group.
@@ -118,7 +117,7 @@ func (opts RecordSetCreateOpts) ToRecordSetCreateMap() (map[string]interface{}, 
 		return m, nil
 	}
 
-	return nil, fmt.Errorf("Expected map but got %T", b[""])
+	return nil, fmtp.Errorf("Expected map but got %T", b[""])
 }
 
 // RouterCreateOpts represents the attributes used when creating a new router.
@@ -197,7 +196,7 @@ func (opts ZoneCreateOpts) ToZoneCreateMap() (map[string]interface{}, error) {
 		return m, nil
 	}
 
-	return nil, fmt.Errorf("Expected map but got %T", b[""])
+	return nil, fmtp.Errorf("Expected map but got %T", b[""])
 }
 
 // EIPCreateOpts represents the attributes used when creating a new eip.

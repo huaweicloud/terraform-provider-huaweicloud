@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,7 +11,7 @@ import (
 )
 
 func TestAccVpcPeeringConnectionV2DataSource_basic(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -49,11 +50,11 @@ func testAccCheckVpcPeeringConnectionV2DataSourceID(n string) resource.TestCheck
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find vpc peering connection data source: %s", n)
+			return fmtp.Errorf("Can't find vpc peering connection data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("vpc peering connection data source ID not set")
+			return fmtp.Errorf("vpc peering connection data source ID not set")
 		}
 
 		return nil
@@ -61,7 +62,7 @@ func testAccCheckVpcPeeringConnectionV2DataSourceID(n string) resource.TestCheck
 }
 
 func testAccDataSourceVpcPeeringConnectionV2Config(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "vpc_1" {
   name = "%s_1"
   cidr = "192.168.0.0/16"

@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/publicips"
@@ -83,7 +83,7 @@ func dataSourceIECNetworkEipsRead(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	eipClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	listpts := publicips.ListOpts{
@@ -93,15 +93,15 @@ func dataSourceIECNetworkEipsRead(d *schema.ResourceData, meta interface{}) erro
 
 	allEips, err := publicips.List(eipClient, listpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to extract iec public ips: %s", err)
+		return fmtp.Errorf("Unable to extract iec public ips: %s", err)
 	}
 	total := len(allEips.PublicIPs)
 	if total < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
-	log.Printf("[INFO] Retrieved [%d] IEC public IPs using given filter", total)
+	logp.Printf("[INFO] Retrieved [%d] IEC public IPs using given filter", total)
 	firstEip := allEips.PublicIPs[0]
 	d.SetId(firstEip.ID)
 	d.Set("site_info", firstEip.SiteInfo)
@@ -129,7 +129,7 @@ func dataSourceIECNetworkEipsRead(d *schema.ResourceData, meta interface{}) erro
 		iecEips = append(iecEips, val)
 	}
 	if err := d.Set("eips", iecEips); err != nil {
-		return fmt.Errorf("Error saving IEC public IPs: %s", err)
+		return fmtp.Errorf("Error saving IEC public IPs: %s", err)
 	}
 
 	return nil

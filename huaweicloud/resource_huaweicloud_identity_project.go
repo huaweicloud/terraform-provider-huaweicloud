@@ -1,12 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/projects"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceIdentityProjectV3() *schema.Resource {
@@ -44,7 +43,7 @@ func resourceIdentityProjectV3Create(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud identity client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud identity client: %s", err)
 	}
 
 	createOpts := projects.CreateOpts{
@@ -52,10 +51,10 @@ func resourceIdentityProjectV3Create(d *schema.ResourceData, meta interface{}) e
 		Description: d.Get("description").(string),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	project, err := projects.Create(identityClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud project: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud project: %s", err)
 	}
 
 	d.SetId(project.ID)
@@ -67,7 +66,7 @@ func resourceIdentityProjectV3Read(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud identity client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud identity client: %s", err)
 	}
 
 	project, err := projects.Get(identityClient, d.Id()).Extract()
@@ -75,7 +74,7 @@ func resourceIdentityProjectV3Read(d *schema.ResourceData, meta interface{}) err
 		return CheckDeleted(d, err, "project")
 	}
 
-	log.Printf("[DEBUG] Retrieved Huaweicloud project: %#v", project)
+	logp.Printf("[DEBUG] Retrieved Huaweicloud project: %#v", project)
 
 	d.Set("name", project.Name)
 	d.Set("description", project.Description)
@@ -89,7 +88,7 @@ func resourceIdentityProjectV3Update(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud identity client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud identity client: %s", err)
 	}
 
 	var hasChange bool
@@ -109,7 +108,7 @@ func resourceIdentityProjectV3Update(d *schema.ResourceData, meta interface{}) e
 	if hasChange {
 		_, err := projects.Update(identityClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating Huaweicloud project: %s", err)
+			return fmtp.Errorf("Error updating Huaweicloud project: %s", err)
 		}
 	}
 
@@ -120,12 +119,12 @@ func resourceIdentityProjectV3Delete(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud identity client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud identity client: %s", err)
 	}
 
 	err = projects.Delete(identityClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting Huaweicloud project: %s", err)
+		return fmtp.Errorf("Error deleting Huaweicloud project: %s", err)
 	}
 
 	return nil

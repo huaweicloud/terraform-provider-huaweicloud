@@ -1,14 +1,14 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/configurations"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceRdsConfigurationV3() *schema.Resource {
@@ -121,7 +121,7 @@ func getDatastore(d *schema.ResourceData) configurations.DataStore {
 		Version: rawMap["version"].(string),
 	}
 
-	log.Printf("[DEBUG] getDatastore: %#v", datastore)
+	logp.Printf("[DEBUG] getDatastore: %#v", datastore)
 	return datastore
 }
 
@@ -130,7 +130,7 @@ func resourceRdsConfigurationV3Create(d *schema.ResourceData, meta interface{}) 
 
 	rdsClient, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud RDS Client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud RDS Client: %s", err)
 	}
 
 	createOpts := configurations.CreateOpts{
@@ -139,14 +139,14 @@ func resourceRdsConfigurationV3Create(d *schema.ResourceData, meta interface{}) 
 		Values:      getValues(d),
 		DataStore:   getDatastore(d),
 	}
-	log.Printf("[DEBUG] CreateOpts: %#v", createOpts)
+	logp.Printf("[DEBUG] CreateOpts: %#v", createOpts)
 
 	configuration, err := configurations.Create(rdsClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud RDS Configuration: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud RDS Configuration: %s", err)
 	}
 
-	log.Printf("[DEBUG] RDS configuration created: %#v", configuration)
+	logp.Printf("[DEBUG] RDS configuration created: %#v", configuration)
 	d.SetId(configuration.Id)
 
 	return resourceRdsConfigurationV3Read(d, meta)
@@ -157,7 +157,7 @@ func resourceRdsConfigurationV3Read(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	rdsClient, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud RDS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud RDS client: %s", err)
 	}
 	n, err := configurations.Get(rdsClient, d.Id()).Extract()
 
@@ -167,7 +167,7 @@ func resourceRdsConfigurationV3Read(d *schema.ResourceData, meta interface{}) er
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving HuaweiCloud RDS Configuration: %s", err)
+		return fmtp.Errorf("Error retrieving HuaweiCloud RDS Configuration: %s", err)
 	}
 
 	d.SetId(n.Id)
@@ -201,7 +201,7 @@ func resourceRdsConfigurationV3Update(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	rdsClient, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud RDS Client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud RDS Client: %s", err)
 	}
 	var updateOpts configurations.UpdateOpts
 
@@ -214,11 +214,11 @@ func resourceRdsConfigurationV3Update(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("values") {
 		updateOpts.Values = getValues(d)
 	}
-	log.Printf("[DEBUG] updateOpts: %#v", updateOpts)
+	logp.Printf("[DEBUG] updateOpts: %#v", updateOpts)
 
 	err = configurations.Update(rdsClient, d.Id(), updateOpts).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud RDS Configuration: %s", err)
+		return fmtp.Errorf("Error updating HuaweiCloud RDS Configuration: %s", err)
 	}
 	return resourceRdsConfigurationV3Read(d, meta)
 }
@@ -227,12 +227,12 @@ func resourceRdsConfigurationV3Delete(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	rdsClient, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud RDS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud RDS client: %s", err)
 	}
 
 	err = configurations.Delete(rdsClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud RDS Configuration: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud RDS Configuration: %s", err)
 	}
 
 	d.SetId("")

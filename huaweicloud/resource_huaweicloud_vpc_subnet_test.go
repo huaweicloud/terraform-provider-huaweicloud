@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
 
@@ -11,12 +10,13 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpcSubnetV1_basic(t *testing.T) {
 	var subnet subnets.Subnet
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_subnet.test"
 	rNameUpdate := rName + "-updated"
 
@@ -58,7 +58,7 @@ func TestAccVpcSubnetV1_basic(t *testing.T) {
 func TestAccVpcSubnetV1_ipv6(t *testing.T) {
 	var subnet subnets.Subnet
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_subnet.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -106,7 +106,7 @@ func testAccCheckVpcSubnetV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud vpc client: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud vpc client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -116,7 +116,7 @@ func testAccCheckVpcSubnetV1Destroy(s *terraform.State) error {
 
 		_, err := subnets.Get(subnetClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Subnet still exists")
+			return fmtp.Errorf("Subnet still exists")
 		}
 	}
 
@@ -126,17 +126,17 @@ func testAccCheckVpcSubnetV1Exists(n string, subnet *subnets.Subnet) resource.Te
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		subnetClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud Vpc client: %s", err)
+			return fmtp.Errorf("Error creating huaweicloud Vpc client: %s", err)
 		}
 
 		found, err := subnets.Get(subnetClient, rs.Primary.ID).Extract()
@@ -145,7 +145,7 @@ func testAccCheckVpcSubnetV1Exists(n string, subnet *subnets.Subnet) resource.Te
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Subnet not found")
+			return fmtp.Errorf("Subnet not found")
 		}
 
 		*subnet = *found
@@ -155,7 +155,7 @@ func testAccCheckVpcSubnetV1Exists(n string, subnet *subnets.Subnet) resource.Te
 }
 
 func testAccVpcSubnetV1_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_vpc" "test" {
@@ -180,7 +180,7 @@ resource "huaweicloud_vpc_subnet" "test" {
 }
 
 func testAccVpcSubnetV1_update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_vpc" "test" {
@@ -205,7 +205,7 @@ resource "huaweicloud_vpc_subnet" "test" {
 }
 
 func testAccVpcSubnetV1_ipv6(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_vpc" "test" {

@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -31,18 +32,18 @@ func testAccCheckDcsMaintainWindowV1DataSourceID(n string) resource.TestCheckFun
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find Dcs maintainwindow data source: %s", n)
+			return fmtp.Errorf("Can't find Dcs maintainwindow data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Dcs maintainwindow data source ID not set")
+			return fmtp.Errorf("Dcs maintainwindow data source ID not set")
 		}
 
 		return nil
 	}
 }
 
-var testAccDcsMaintainWindowV1DataSource_basic = fmt.Sprintf(`
+var testAccDcsMaintainWindowV1DataSource_basic = fmtp.Sprintf(`
 data "huaweicloud_dcs_maintainwindow_v1" "maintainwindow1" {
 seq = 1
 }

@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"fmt"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
@@ -92,7 +92,7 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
 
 	listOpts := flavors.ListOpts{}
@@ -107,7 +107,7 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 
 	allFlavors, err := flavors.ExtractFlavors(pages)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve flavors: %s", err)
+		return fmtp.Errorf("Unable to retrieve flavors: %s", err)
 	}
 
 	max_connections := d.Get("max_connections").(int)
@@ -152,7 +152,7 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if len(ids) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 

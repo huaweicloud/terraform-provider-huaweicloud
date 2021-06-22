@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"fmt"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -80,7 +80,7 @@ func dataSourceIECVpcSubnetIdsRead(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	vpcID := d.Get("vpc_id").(string)
@@ -91,12 +91,12 @@ func dataSourceIECVpcSubnetIdsRead(d *schema.ResourceData, meta interface{}) err
 
 	allSubnets, err := subnets.List(iecClient, listOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve subnets: %s", err)
+		return fmtp.Errorf("Unable to retrieve subnets: %s", err)
 	}
 
 	total := len(allSubnets.Subnets)
 	if total == 0 {
-		return fmt.Errorf("no matching subnet found for vpc with id %s", vpcID)
+		return fmtp.Errorf("no matching subnet found for vpc with id %s", vpcID)
 	}
 
 	iecSubnets := make([]map[string]interface{}, total)
@@ -116,7 +116,7 @@ func dataSourceIECVpcSubnetIdsRead(d *schema.ResourceData, meta interface{}) err
 		allIDs[i] = item.ID
 	}
 	if err := d.Set("subnets", iecSubnets); err != nil {
-		return fmt.Errorf("Error saving IEC subnets: %s", err)
+		return fmtp.Errorf("Error saving IEC subnets: %s", err)
 	}
 
 	// set id
