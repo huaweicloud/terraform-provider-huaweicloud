@@ -24,7 +24,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func resourceDliQueueV1() *schema.Resource {
+func ResourceDliQueueV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDliQueueV1Create,
 		Read:   resourceDliQueueV1Read,
