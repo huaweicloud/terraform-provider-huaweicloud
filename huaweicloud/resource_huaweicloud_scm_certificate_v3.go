@@ -192,7 +192,7 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 	}
 	oldPushCert, _ := parsePushCertificateToMap(oldVal.([]interface{}))
 
-	// extract the new push service
+	// extract the new push service 
 	for service, newProjects := range newPushCert {
 		oldProjects, ok := oldPushCert[service]
 		if strings.Compare(service, TARGET_SERVICE_CDN) == 0 && !ok {
