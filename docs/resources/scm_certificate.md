@@ -2,7 +2,7 @@
 subcategory: "SSL Certificate Manager (SCM)"
 ---
 
-# huaweicloud\_scm\_certificate
+# huaweicloud_scm_certificate
 
 SSL Certificate Manager (SCM) allows you to purchase Secure Sockets Layer (SSL) certificates from 
 the world's leading digital certificate authorities (CAs), upload existing SSL certificates, and 
@@ -82,13 +82,13 @@ The following arguments are supported:
     It can be extracted from the _server.crt_ file in the Nginx directory, 
     usually after the second paragraph is the certificate chain.
 * `private_key` - (Required, String, ForceNew) The private encrypted key of the Certificate, PEM format.
-* `push_certificate` - (Optional, List) The service to which the certificate needs to be pushed.The push_certificate
+* `target` - (Optional, List) The service to which the certificate needs to be pushed.The push_certificate
   structure is documented below.
 
-The `push_certificate` block supports:
-* `target_service` - (Required, String) Service to which the certificate is pushed.
+The `target` block supports:
+* `service` - (Required, String) Service to which the certificate is pushed.
   The options include `CDN`,`WAF` and `Enhance_ELB`.
-* `target_project` - (Optional, String) The project where the service you want to push a certificate to.
+* `project` - (Optional, String) The project where the service you want to push a certificate to.
   The same certificate can be pushed repeatedly to the same WAF or ELB service in the same `target_project`,
   but the CDN service can only be pushed once.
 
@@ -98,18 +98,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
 * `domain` - Domain name bound to a certificate.
-* `domain_type` - Domain type. The value can be:
-    * `SINGLE_DOMAIN` - single domain names
-    * `WILDCARD` - wildcard domains
-    * `MULTI_DOMAIN` - multiple domain names
-* `brand` - Certificate authority. The value can be: GLOBALSIGN, SYMANTEC, GEOTRUST or CFCA.
 * `domain_count` - Number of domain names can be bound to a certificate.
-* `order_id` - Order ID.
 * `push_support` - Whether a certificate can be pushed.
-* `revoke_reason` - Reason for certificate revocation.
-* `sans` - Additional domain name associated with the certificate.
-* `signature_algrithm` - Signature algorithm.
-* `issue_time` - Certificate issuance time. If no valid value is obtained, this parameter is left blank.
 * `not_before` - Time when the certificate takes effect. If no valid value is obtained, this parameter is left blank.
 * `not_after` - Time when the certificate becomes invalid. If no valid value is obtained, this parameter is left blank.
 * `status` - Certificate status. The value can be:
@@ -124,11 +114,6 @@ In addition to all arguments above, the following attributes are exported:
     * `UPLOAD` - The certificate is being hosted.
     * `SUPPLEMENTCHECKING` - The application for the new domain name of the multi-domain certificate is under review.
     * `CANCELSUPPLEMENTING` - The cancellation on additional domain names to be added is being reviewed.
-* `certificate_type` - Certificate type. The value can be: DV_SSL_CERT, DV_SSL_CERT_BASIC, EV_SSL_CERT, 
-    EV_SSL_CERT_PRO, OV_SSL_CERT, or OV_SSL_CERT_PRO.
-* `validation_method` - Domain ownership verification method. The value can be DNS, FILE, or EMAIL.
-* `validity_period` - Certificate validity period, in months.
-* `wildcard_count` - Number of domain names can be bound to a certificate.
 * `authentifications` - (List) Domain ownership verification information.
     This is a list, each item of data is as follows:
     * `record_name` - Name of a domain ownership verification value.
@@ -141,6 +126,3 @@ This resource provides the following timeouts configuration options:
 - `create` - Default is 10 minute.
 - `update` - Default is 10 minute.
 - `delete` - Default is 5 minute.
-
-## Error Codes
-See Error Codes and Solution: https://support.huaweicloud.com/intl/en-us/api-scm/PushCertificate.html
