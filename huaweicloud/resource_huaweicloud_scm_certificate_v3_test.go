@@ -50,9 +50,9 @@ func TestAccScmCertificationV3_push(t *testing.T) {
 	resourceName := "huaweicloud_scm_certificate.certificate_2"
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	targetService := HW_CERTIFICATE_TARGET_SERVICE
-	defaultTargetProject := HW_CERTIFICATE_TARGET_PROJECT
-	newTargetProject := HW_CERTIFICATE_TARGET_SERVICE_UPDATED
+	service := HW_CERTIFICATE_SERVICE
+	defaultProject := HW_CERTIFICATE_PROJECT
+	newProject := HW_CERTIFICATE_PROJECT_UPDATED
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckScm(t) },
@@ -60,19 +60,19 @@ func TestAccScmCertificationV3_push(t *testing.T) {
 		CheckDestroy: testAccCheckScmV3CertificateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScmCertificateV3_push(rName, defaultTargetProject, targetService),
+				Config: testAccScmCertificateV3_push(rName, defaultProject, service),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScmV3CertificateExists(resourceName, &certInfo),
-					testAccCheckScmV3CertificatePushExists(resourceName, targetService, defaultTargetProject),
+					testAccCheckScmV3CertificatePushExists(resourceName, service, defaultProject),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "UPLOAD"),
 				),
 			},
 			{
-				Config: testAccScmCertificateV3_push(rName, newTargetProject, targetService),
+				Config: testAccScmCertificateV3_push(rName, newProject, service),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScmV3CertificateExists(resourceName, &certInfo),
-					testAccCheckScmV3CertificatePushExists(resourceName, targetService, newTargetProject),
+					testAccCheckScmV3CertificatePushExists(resourceName, service, newProject),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "UPLOAD"),
 				),
@@ -86,8 +86,8 @@ func TestAccScmCertificationV3_batchPush(t *testing.T) {
 	resourceName := "huaweicloud_scm_certificate.certificate_3"
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	targetService := HW_CERTIFICATE_TARGET_SERVICE
-	defaultTargetProject := HW_CERTIFICATE_TARGET_PROJECT
+	service := HW_CERTIFICATE_SERVICE
+	defaultProject := HW_CERTIFICATE_PROJECT
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckScm(t) },
@@ -98,7 +98,7 @@ func TestAccScmCertificationV3_batchPush(t *testing.T) {
 				Config: testAccScmCertificateV3_batchPush(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScmV3CertificateExists(resourceName, &certInfo),
-					testAccCheckScmV3CertificatePushExists(resourceName, targetService, defaultTargetProject),
+					testAccCheckScmV3CertificatePushExists(resourceName, service, defaultProject),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "UPLOAD"),
 				),
@@ -153,12 +153,12 @@ func testAccCheckScmV3CertificatePushExists(
 			return fmt.Errorf("No id is set for the certificate resource: %s", certResourceName)
 		}
 
-		stateTargetService := certRs.Primary.Attributes["push_certificate.0.service"]
-		stateTargetProject := certRs.Primary.Attributes["push_certificate.0.project.0"]
+		stateService := certRs.Primary.Attributes["target.0.service"]
+		stateProject := certRs.Primary.Attributes["target.0.project.0"]
 
-		if strings.Compare(service, stateTargetService) != 0 ||
-			strings.Compare(project, stateTargetProject) != 0 {
-			return fmt.Errorf("Push certificate failed! targetService: %s, targetProject: %s",
+		if strings.Compare(service, stateService) != 0 ||
+			strings.Compare(project, stateProject) != 0 {
+			return fmt.Errorf("Push certificate failed! service: %s, project: %s",
 				service, project)
 		}
 
@@ -197,7 +197,7 @@ resource "huaweicloud_scm_certificate" "certificate_1" {
 }`, name, HW_CERTIFICATE_KEY_PATH, HW_CERTIFICATE_CHAIN_PATH, HW_CERTIFICATE_PRIVATE_KEY_PATH)
 }
 
-func testAccScmCertificateV3_push(name string, targetProject string, targetService string) string {
+func testAccScmCertificateV3_push(name string, project string, service string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_scm_certificate" "certificate_2" {
   name              = "%s"
@@ -210,7 +210,7 @@ resource "huaweicloud_scm_certificate" "certificate_2" {
     service  = "%s"
   }
 }`, name, HW_CERTIFICATE_KEY_PATH, HW_CERTIFICATE_CHAIN_PATH, HW_CERTIFICATE_PRIVATE_KEY_PATH,
-		targetProject, targetService)
+		project, service)
 }
 
 func testAccScmCertificateV3_batchPush(name string) string {
@@ -223,8 +223,8 @@ resource "huaweicloud_scm_certificate" "certificate_3" {
 
   target {
     project  = ["%s", "%s"]
-    service  = %s
+    service  = "%s"
   }
 }`, name, HW_CERTIFICATE_KEY_PATH, HW_CERTIFICATE_CHAIN_PATH, HW_CERTIFICATE_PRIVATE_KEY_PATH,
-		HW_CERTIFICATE_TARGET_PROJECT, HW_CERTIFICATE_TARGET_PROJECT_UPDATE, HW_CERTIFICATE_TARGET_SERVICE)
+		HW_CERTIFICATE_PROJECT, HW_CERTIFICATE_PROJECT_UPDATED, HW_CERTIFICATE_SERVICE)
 }
