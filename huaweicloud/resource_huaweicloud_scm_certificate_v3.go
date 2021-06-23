@@ -206,8 +206,6 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 				return err
 			}
 		} else {
-			log.Printf("[DEBUG] Difference newProjects. %s, %#v", service, newProjects)
-			log.Printf("[DEBUG] Difference oldProjects. %s, %#v", service, oldProjects)
 			projectToAdd := newProjects
 			if oldProjects != nil {
 				projectToAdd = newProjects.Difference(oldProjects)
@@ -264,7 +262,6 @@ func resourceScmCertificateV3Read(d *schema.ResourceData, meta interface{}) erro
 	d.Set("push_support", certDetail.PushSupport)
 	d.Set("not_before", certDetail.NotBefore)
 	d.Set("not_after", certDetail.NotAfter)
-
 	d.Set("domain", certDetail.Domain)
 	d.Set("domain_count", certDetail.DomainCount)
 
