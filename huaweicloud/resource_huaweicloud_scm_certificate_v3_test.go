@@ -50,9 +50,9 @@ func TestAccScmCertificationV3_push(t *testing.T) {
 	resourceName := "huaweicloud_scm_certificate.certificate_2"
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	targetService := "Enhance_ELB"
-	defaultTargetProject := "ap-southeast-1"
-	newTargetProject := "la-south-2"
+	targetService := HW_CERTIFICATE_TARGET_SERVICE
+	defaultTargetProject := HW_CERTIFICATE_TARGET_PROJECT
+	newTargetProject := HW_CERTIFICATE_TARGET_SERVICE_UPDATED
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckScm(t) },
@@ -86,8 +86,8 @@ func TestAccScmCertificationV3_batchPush(t *testing.T) {
 	resourceName := "huaweicloud_scm_certificate.certificate_3"
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	targetService := "Enhance_ELB"
-	defaultTargetProject := "ap-southeast-1"
+	targetService := HW_CERTIFICATE_TARGET_SERVICE
+	defaultTargetProject := HW_CERTIFICATE_TARGET_PROJECT
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckScm(t) },
@@ -140,7 +140,7 @@ func testAccCheckScmV3CertificateExists(n string, c *certificates.CertificateEsc
 }
 
 func testAccCheckScmV3CertificatePushExists(
-	certResourceName string, targetService string, targetProject string) resource.TestCheckFunc {
+	certResourceName string, service string, project string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		log.Printf("terraform.State: %#v", s)
 		// Get the resource info by certificateResorceName
@@ -153,13 +153,13 @@ func testAccCheckScmV3CertificatePushExists(
 			return fmt.Errorf("No id is set for the certificate resource: %s", certResourceName)
 		}
 
-		stateTargetService := certRs.Primary.Attributes["push_certificate.0.target_service"]
-		stateTargetProject := certRs.Primary.Attributes["push_certificate.0.target_project.0"]
+		stateTargetService := certRs.Primary.Attributes["push_certificate.0.service"]
+		stateTargetProject := certRs.Primary.Attributes["push_certificate.0.project.0"]
 
-		if strings.Compare(targetService, stateTargetService) != 0 ||
-			strings.Compare(targetProject, stateTargetProject) != 0 {
+		if strings.Compare(service, stateTargetService) != 0 ||
+			strings.Compare(project, stateTargetProject) != 0 {
 			return fmt.Errorf("Push certificate failed! targetService: %s, targetProject: %s",
-				targetService, targetProject)
+				service, project)
 		}
 
 		return nil
@@ -205,11 +205,12 @@ resource "huaweicloud_scm_certificate" "certificate_2" {
   certificate_chain = file("%s")
   private_key       = file("%s")
 
-  push_certificate {
-    target_project  = ["%s"]
-    target_service  = "%s"
+  target {
+    project  = ["%s"]
+    service  = "%s"
   }
-}`, name, HW_CERTIFICATE_KEY_PATH, HW_CERTIFICATE_CHAIN_PATH, HW_CERTIFICATE_PRIVATE_KEY_PATH, targetProject, targetService)
+}`, name, HW_CERTIFICATE_KEY_PATH, HW_CERTIFICATE_CHAIN_PATH, HW_CERTIFICATE_PRIVATE_KEY_PATH,
+		targetProject, targetService)
 }
 
 func testAccScmCertificateV3_batchPush(name string) string {
@@ -220,9 +221,10 @@ resource "huaweicloud_scm_certificate" "certificate_3" {
   certificate_chain = file("%s")
   private_key       = file("%s")
 
-  push_certificate {
-    target_project  = ["ap-southeast-1", "la-south-2"]
-    target_service  = "Enhance_ELB"
+  target {
+    project  = ["%s", "%s"]
+    service  = %s
   }
-}`, name, HW_CERTIFICATE_KEY_PATH, HW_CERTIFICATE_CHAIN_PATH, HW_CERTIFICATE_PRIVATE_KEY_PATH)
+}`, name, HW_CERTIFICATE_KEY_PATH, HW_CERTIFICATE_CHAIN_PATH, HW_CERTIFICATE_PRIVATE_KEY_PATH,
+		HW_CERTIFICATE_TARGET_PROJECT, HW_CERTIFICATE_TARGET_PROJECT_UPDATE, HW_CERTIFICATE_TARGET_SERVICE)
 }
