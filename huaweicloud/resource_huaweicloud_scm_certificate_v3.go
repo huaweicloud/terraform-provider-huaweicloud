@@ -66,19 +66,19 @@ func resourceScmCertificateV3() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: utils.SuppressNewLineDiffs,
 			},
-			"push_certificate": {
+			"target": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"target_service": {
+						"service": {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice([]string{
 								TARGET_SERVICE_CDN, TARGET_SERVICE_WAF, TARGET_SERVICE_ENHANCE_ELB,
 							}, false),
 						},
-						"target_project": {
+						"project": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
@@ -90,39 +90,11 @@ func resourceScmCertificateV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"brand": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"domain_count": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"domain_type": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"order_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"push_support": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"revoke_reason": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"sans": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"signature_algrithm": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"issue_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -136,22 +108,6 @@ func resourceScmCertificateV3() *schema.Resource {
 			},
 			"status": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"certificate_type": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"validation_method": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"validity_period": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"wildcard_count": {
-				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"authentifications": {
@@ -203,10 +159,10 @@ func resourceScmCertificateV3Create(d *schema.ResourceData, meta interface{}) er
 	d.SetId(c.CertificateId)
 	log.Printf("[DEBUG] Imported certificate %s: %#v", d.Id(), importOpts)
 
-	pushCert := d.Get("push_certificate").([]interface{})
+	pushCert := d.Get("target").([]interface{})
 	for _, pushInfo := range pushCert {
-		targetService := pushInfo.(map[string]interface{})["target_service"].(string)
-		targetProjectArr := pushInfo.(map[string]interface{})["target_project"].([]interface{})
+		targetService := pushInfo.(map[string]interface{})["service"].(string)
+		targetProjectArr := pushInfo.(map[string]interface{})["project"].([]interface{})
 
 		for _, targetProject := range targetProjectArr {
 			pushOpts := certificates.PushOpts{
@@ -216,6 +172,7 @@ func resourceScmCertificateV3Create(d *schema.ResourceData, meta interface{}) er
 			log.Printf("[DEBUG] Push certificate to services. %#v", pushOpts)
 			err := doPushCertificateToService(d.Id(), pushOpts, scmClient)
 			if err != nil {
+				d.SetId("")
 				return err
 			}
 		}
@@ -228,44 +185,45 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	scmClient, err := config.ScmV3Client(GetRegion(d, config))
 
-	oldVal, newVal := d.GetChange("push_certificate")
+	oldVal, newVal := d.GetChange("target")
 	newPushCert, err := parsePushCertificateToMap(newVal.([]interface{}))
 	if err != nil {
 		return err
 	}
-
 	oldPushCert, _ := parsePushCertificateToMap(oldVal.([]interface{}))
 
 	// extract the new push service
-	for targetService, newProjects := range newPushCert {
-		oldProjects, ok := oldPushCert[targetService]
-		if strings.Compare(targetService, TARGET_SERVICE_CDN) == 0 {
-			if !ok {
-				pushOpts := certificates.PushOpts{
-					TargetService: targetService,
-				}
-				log.Printf("[DEBUG] Find new services and start to push. %#v", pushOpts)
-				err := doPushCertificateToService(d.Id(), pushOpts, scmClient)
-				if err != nil {
-					return err
-				}
+	for service, newProjects := range newPushCert {
+		oldProjects, ok := oldPushCert[service]
+		if strings.Compare(service, TARGET_SERVICE_CDN) == 0 && !ok {
+			pushOpts := certificates.PushOpts{
+				TargetService: service,
 			}
-		} else if len(newProjects) == 0 {
-			return fmt.Errorf("the argument of \"target_project\" cannot be empty, "+
-				"it can be empty when pushed to the CDN service only. "+
-				"\r\ncertificate_id: %s, target_service: %s", d.Id(), targetService)
-		}
-		for project, _ := range newProjects {
-			if _, ok := oldProjects[project]; !ok {
+			log.Printf("[DEBUG] Find new services and start to push. %#v", pushOpts)
+			err := doPushCertificateToService(d.Id(), pushOpts, scmClient)
+			if err != nil {
+				d.SetId("")
+				return err
+			}
+		} else {
+			log.Printf("[DEBUG] Difference newProjects. %s, %#v", service, newProjects)
+			log.Printf("[DEBUG] Difference oldProjects. %s, %#v", service, oldProjects)
+			projectToAdd := newProjects
+			if oldProjects != nil {
+				projectToAdd = newProjects.Difference(oldProjects)
+			}
+			log.Printf("[DEBUG] Find new services to push. %s: %#v", service, projectToAdd)
+			for _, project := range projectToAdd.List() {
 				pushOpts := certificates.PushOpts{
-					TargetProject: project,
-					TargetService: targetService,
+					TargetProject: project.(string),
+					TargetService: service,
 				}
-				log.Printf("[DEBUG] Find new services and start to push. %#v", pushOpts)
 				err := doPushCertificateToService(d.Id(), pushOpts, scmClient)
 				if err != nil {
+					d.SetId("")
 					return err
 				}
+				log.Printf("[DEBUG] Successfully push the certificate to the %s of %s.", service, project)
 			}
 		}
 	}
@@ -275,9 +233,9 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 
 func doPushCertificateToService(id string, pushOpts certificates.PushOpts, scmClient *golangsdk.ServiceClient) error {
 	if strings.Compare(pushOpts.TargetService, TARGET_SERVICE_CDN) != 0 && len(pushOpts.TargetProject) == 0 {
-		return fmt.Errorf("the argument of \"target_project\" cannot be empty, "+
+		return fmt.Errorf("the argument of \"project\" cannot be empty, "+
 			"it can be empty when pushed to the CDN service only. "+
-			"\r\ncertificate_id: %s, target_service: %s", id, pushOpts.TargetService)
+			"\r\ncertificate_id: %s, service: %s", id, pushOpts.TargetService)
 	}
 	err := certificates.Push(scmClient, id, pushOpts).ExtractErr()
 	if err != nil {
@@ -302,24 +260,13 @@ func resourceScmCertificateV3Read(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("region", GetRegion(d, config))
 	d.Set("status", certDetail.Status)
-	d.Set("orderId", certDetail.OrderId)
 	d.Set("name", certDetail.Name)
-	d.Set("certificate_type", certDetail.CertificateType)
-	d.Set("brand", certDetail.Brand)
 	d.Set("push_support", certDetail.PushSupport)
-	d.Set("revoke_reason", certDetail.RevokeReason)
-	d.Set("signature_algrithm", certDetail.SignatureAlgrithm)
-	d.Set("issue_time", certDetail.IssueTime)
 	d.Set("not_before", certDetail.NotBefore)
 	d.Set("not_after", certDetail.NotAfter)
 
-	d.Set("validity_period", certDetail.ValidityPeriod)
-	d.Set("validation_method", certDetail.ValidationMethod)
-	d.Set("domain_type", certDetail.DomainType)
 	d.Set("domain", certDetail.Domain)
-	d.Set("sans", certDetail.Sans)
 	d.Set("domain_count", certDetail.DomainCount)
-	d.Set("wildcard_count", certDetail.WildcardCount)
 
 	// convert the type of 'certDetail.Authentifications' to TypeList
 	auths := convertAuthToArray(certDetail.Authentifications)
@@ -358,24 +305,25 @@ func convertAuthToArray(authArr []certificates.Authentification) []map[string]in
 	return auths
 }
 
-func parsePushCertificateToMap(pushCertificate []interface{}) (map[string]map[string]bool, error) {
-	serviceMapping := make(map[string]map[string]bool)
+func parsePushCertificateToMap(pushCertificate []interface{}) (map[string]*schema.Set, error) {
+	serviceMapping := map[string]*schema.Set{}
 
 	for _, pushInfo := range pushCertificate {
-		targetService := pushInfo.(map[string]interface{})["target_service"].(string)
-		targetProjectArr := pushInfo.(map[string]interface{})["target_project"].([]interface{})
+		targetService := pushInfo.(map[string]interface{})["service"].(string)
+		targetProjectArr := pushInfo.(map[string]interface{})["project"].([]interface{})
 
 		projects, ok := serviceMapping[targetService]
 		if !ok {
-			projects = make(map[string]bool)
+			projects = &schema.Set{F: schema.HashString}
 		}
 		for _, proj := range targetProjectArr {
 			projectName := proj.(string)
-			if _, ok := projects[projectName]; ok {
+			if projects.Contains(projectName) {
+				//if _, ok := projects[projectName]; ok {
 				return nil, fmt.Errorf("There are duplicate projects for the same service!\n"+
-					"target_service = %s, target_project = %s.", targetService, projectName)
+					"service = %s, project = %s.", targetService, projectName)
 			} else {
-				projects[projectName] = true
+				projects.Add(projectName)
 			}
 		}
 		serviceMapping[targetService] = projects
