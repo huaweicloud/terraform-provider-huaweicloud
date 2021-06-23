@@ -183,7 +183,7 @@ func resourceScmCertificateV3() *schema.Resource {
 
 func resourceScmCertificateV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ScmV3Client(GetRegion(d, config))
+	scmClient, err := config.ScmV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud SCM client: %s", err)
 	}
@@ -195,7 +195,7 @@ func resourceScmCertificateV3Create(d *schema.ResourceData, meta interface{}) er
 		CertificateChain: d.Get("certificate_chain").(string),
 	}
 
-	c, err := certificates.Import(elbClient, importOpts).Extract()
+	c, err := certificates.Import(scmClient, importOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error importing certificate: %s", err)
 	}
@@ -214,7 +214,7 @@ func resourceScmCertificateV3Create(d *schema.ResourceData, meta interface{}) er
 				TargetService: targetService,
 			}
 			log.Printf("[DEBUG] Push certificate to services. %#v", pushOpts)
-			err := doPushCertificateToService(d.Id(), pushOpts, elbClient)
+			err := doPushCertificateToService(d.Id(), pushOpts, scmClient)
 			if err != nil {
 				return err
 			}
@@ -226,7 +226,7 @@ func resourceScmCertificateV3Create(d *schema.ResourceData, meta interface{}) er
 
 func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	elbClient, err := config.ScmV3Client(GetRegion(d, config))
+	scmClient, err := config.ScmV3Client(GetRegion(d, config))
 
 	oldVal, newVal := d.GetChange("push_certificate")
 	newPushCert, err := parsePushCertificateToMap(newVal.([]interface{}))
@@ -245,7 +245,7 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 					TargetService: targetService,
 				}
 				log.Printf("[DEBUG] Find new services and start to push. %#v", pushOpts)
-				err := doPushCertificateToService(d.Id(), pushOpts, elbClient)
+				err := doPushCertificateToService(d.Id(), pushOpts, scmClient)
 				if err != nil {
 					return err
 				}
@@ -262,7 +262,7 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 					TargetService: targetService,
 				}
 				log.Printf("[DEBUG] Find new services and start to push. %#v", pushOpts)
-				err := doPushCertificateToService(d.Id(), pushOpts, elbClient)
+				err := doPushCertificateToService(d.Id(), pushOpts, scmClient)
 				if err != nil {
 					return err
 				}
@@ -273,13 +273,13 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 	return resourceScmCertificateV3Read(d, meta)
 }
 
-func doPushCertificateToService(id string, pushOpts certificates.PushOpts, elbClient *golangsdk.ServiceClient) error {
+func doPushCertificateToService(id string, pushOpts certificates.PushOpts, scmClient *golangsdk.ServiceClient) error {
 	if strings.Compare(pushOpts.TargetService, TARGET_SERVICE_CDN) != 0 && len(pushOpts.TargetProject) == 0 {
 		return fmt.Errorf("the argument of \"target_project\" cannot be empty, "+
 			"it can be empty when pushed to the CDN service only. "+
 			"\r\ncertificate_id: %s, target_service: %s", id, pushOpts.TargetService)
 	}
-	err := certificates.Push(elbClient, id, pushOpts).ExtractErr()
+	err := certificates.Push(scmClient, id, pushOpts).ExtractErr()
 	if err != nil {
 		// Parse 'err' to print more error messages.
 		errMsg := processErr(err)
