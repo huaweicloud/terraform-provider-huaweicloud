@@ -10,16 +10,17 @@ centrally manage all your SSL certificates in one place.
 
 ## Example Usage
 
+### Load the certificate contents from the local files.
 ```hcl
-# Load the certificate contents from the local files.
 resource "huaweicloud_scm_certificate" "certificate_1" {
   name              = "certificate_1"
   certificate       = file("/usr/local/data/certificate/cert_xxx/xxx_ca.crt")
   certificate_chain = file("/usr/local/data/certificate/cert_xxx/xxx_ca_chain.crt")
   private_key       = file("/usr/local/data/certificate/cert_xxx/xxx_server.key")
 }
-
-# Write the contents of the certificate into the Terrafrom script.
+```
+### Write the contents of the certificate into the Terrafrom script.
+```hcl
 resource "huaweicloud_scm_certificate" "certificate_2" {
   name              ="certificate_2"
   certificate       = <<EOT
@@ -46,10 +47,8 @@ EOT
 }
 ```
 
-It supports to push an SSL certificate to another HUAWEI CLOUD service, such as Elastic Load Balance (ELB),
-Web Application Firewall (WAF), and Content Delivery Network (CDN).
+### Push the SSL certificate to another HUAWEI CLOUD service.
 
-## Example Usage
 ```hcl
 # Load the certificate contents from the local files.
 resource "huaweicloud_scm_certificate" "certificate_3" {
@@ -58,13 +57,13 @@ resource "huaweicloud_scm_certificate" "certificate_3" {
   certificate_chain = file("/usr/local/data/certificate/cert_xxx/xxx_ca_chain.crt")
   private_key       = file("/usr/local/data/certificate/cert_xxx/xxx_server.key")
 
-  push_certificate {
-    target_project  = ["la-south-2"]
-    target_service  = "Enhance_ELB"
+  target {
+    project  = ["la-south-2"]
+    service  = "Enhance_ELB"
   }
 
-  push_certificate {
-    target_service  = "CDN"
+  target {
+    service  = "CDN"
   }
 }
 ```
