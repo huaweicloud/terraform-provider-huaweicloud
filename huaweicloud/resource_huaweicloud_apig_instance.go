@@ -75,10 +75,9 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"available_zone_ids": {
+			"available_zones": {
 				Type:     schema.TypeList,
 				Required: true,
-				MinItems: 1,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"description": {
@@ -99,7 +98,7 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"maintain_time": {
+			"maintain_begin": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -116,6 +115,10 @@ func ResourceApigInstanceV2() *schema.Resource {
 				Computed: true,
 			},
 			"create_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"maintain_end": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -154,8 +157,14 @@ func buildMaintainEndTime(maintainStart string) (string, error) {
 	return fmt.Sprintf("%02d:00:00", (num+4)%24), nil
 }
 
-func buildApigAvailableZoneIds(d *schema.ResourceData) []string {
-	ids := d.Get("available_zone_ids").([]interface{})
+// Method buildRFC3339Timestamp is used to unify the time format to RFC-3339 and return a time string.
+func buildRFC3339Timestamp(timestamp int64) string {
+	createTime := time.Unix(timestamp, 0)
+	return createTime.Format(time.RFC3339)
+}
+
+func buildApigAvailableZones(d *schema.ResourceData) []string {
+	ids := d.Get("available_zones").([]interface{}) // List of one or more available zone names (codes).
 	result := make([]string, len(ids))
 	for i, v := range ids {
 		result[i] = v.(string)
@@ -174,9 +183,9 @@ func buildApigInstanceParameters(d *schema.ResourceData, config *config.Config) 
 		EipId:               d.Get("eip_id").(string),
 		BandwidthSize:       d.Get("bandwidth_size").(int), // Bandwidth 0 means turn off the egress access.
 		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
-		AvailableZoneIds:    buildApigAvailableZoneIds(d),
+		AvailableZoneIds:    buildApigAvailableZones(d),
 	}
-	if v, ok := d.GetOk("maintain_time"); ok {
+	if v, ok := d.GetOk("maintain_begin"); ok {
 		startTime := v.(string)
 		opt.MaintainBegin = startTime
 		endTime, err := buildMaintainEndTime(startTime)
@@ -260,17 +269,14 @@ func resourceApigInstanceV2Create(d *schema.ResourceData, meta interface{}) erro
 	return resourceApigInstanceV2Read(d, meta)
 }
 
-func setApigAvailableZoneIds(d *schema.ResourceData, resp instances.Instance) error {
-	idsStr := strings.TrimLeft(resp.AvailableZoneIds, "[")
-	idsStr = strings.TrimRight(idsStr, "]")
-	idsStr = strings.ReplaceAll(idsStr, " ", "")
-	ids := strings.Split(idsStr, ",")
-	return d.Set("available_zone_ids", ids)
-}
-
-func setApigCreateTimestamp(d *schema.ResourceData, resp instances.Instance) error {
-	createTime := time.Unix(resp.CreateTimestamp, 0)
-	return d.Set("create_time", createTime.Format(time.RFC3339))
+// Method setApigAvailableZones is used to convert the string returned by the API which contains
+// brackets ([ and ]) and space into a list of strings (available_zone code) and save to state.
+func setApigAvailableZones(d *schema.ResourceData, resp instances.Instance) error {
+	codesStr := strings.TrimLeft(resp.AvailableZoneIds, "[")
+	codesStr = strings.TrimRight(codesStr, "]")
+	codesStr = strings.ReplaceAll(codesStr, " ", "")
+	codes := strings.Split(codesStr, ",")
+	return d.Set("available_zones", codes)
 }
 
 func setApigIngressAccess(d *schema.ResourceData, config *config.Config, resp instances.Instance) error {
@@ -317,7 +323,8 @@ func setApigInstanceParamters(d *schema.ResourceData, config *config.Config, res
 		d.Set("vpc_id", resp.VpcId),
 		d.Set("subnet_id", resp.SubnetId),
 		d.Set("security_group_id", resp.SecurityGroupId),
-		d.Set("maintain_time", resp.MaintainBegin),
+		d.Set("maintain_begin", resp.MaintainBegin),
+		d.Set("maintain_end", resp.MaintainEnd),
 		d.Set("description", resp.Description),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
 		d.Set("status", resp.Status),
@@ -325,8 +332,8 @@ func setApigInstanceParamters(d *schema.ResourceData, config *config.Config, res
 		d.Set("vpc_ingress_address", resp.Ipv4VpcIngressAddress),
 		d.Set("egress_address", resp.Ipv4EgressAddress),
 		d.Set("ingress_address", resp.Ipv4IngressEipAddress),
-		setApigAvailableZoneIds(d, resp),
-		setApigCreateTimestamp(d, resp),
+		setApigAvailableZones(d, resp),
+		d.Set("create_time", buildRFC3339Timestamp(resp.CreateTimestamp)),
 		setApigIngressAccess(d, config, resp),
 		setApigSupportedFeatures(d, resp),
 	)
@@ -366,8 +373,8 @@ func buildApigInstanceUpdateOpts(d *schema.ResourceData) (instances.UpdateOpts, 
 	if d.HasChange("description") {
 		opts.Description = d.Get("description").(string)
 	}
-	if d.HasChange("maintain_time") {
-		startTime := d.Get("maintain_time").(string)
+	if d.HasChange("maintain_begin") {
+		startTime := d.Get("maintain_begin").(string)
 		opts.MaintainBegin = startTime
 		endTime, err := buildMaintainEndTime(startTime)
 		if err != nil {

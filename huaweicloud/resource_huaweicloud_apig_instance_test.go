@@ -31,7 +31,8 @@ func TestAccApigInstanceV2_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(resourceName, "maintain_time", "14:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "18:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
 				),
@@ -43,7 +44,8 @@ func TestAccApigInstanceV2_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(resourceName, "maintain_time", "18:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "18:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "22:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "updated by acc test"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
 				),
@@ -76,7 +78,7 @@ func TestAccApigInstanceV2_egress(t *testing.T) {
 					testAccCheckApigInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_time", "14:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
 					resource.TestCheckResourceAttr(resourceName, "bandwidth_size", "0"),
@@ -139,7 +141,7 @@ func TestAccApigInstanceV2_ingress(t *testing.T) {
 					testAccCheckApigInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_time", "14:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_ingress_address"),
 				),
@@ -259,10 +261,10 @@ resource "huaweicloud_apig_instance" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "%s"
-  maintain_time         = "14:00:00"
+  maintain_begin        = "14:00:00"
   description           = "created by acc test"
 
-  available_zone_ids = [
+  available_zones = [
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
@@ -284,10 +286,10 @@ resource "huaweicloud_apig_instance" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.update.id
   enterprise_project_id = "%s"
-  maintain_time         = "18:00:00"
+  maintain_begin        = "18:00:00"
   description           = "updated by acc test"
 
-  available_zone_ids = [
+  available_zones = [
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
@@ -309,11 +311,11 @@ resource "huaweicloud_apig_instance" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "%s"
-  maintain_time         = "14:00:00"
+  maintain_begin        = "14:00:00"
   description           = "created by acc test"
   bandwidth_size        = 3
 
-  available_zone_ids = [
+  available_zones = [
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
@@ -335,11 +337,11 @@ resource "huaweicloud_apig_instance" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "%s"
-  maintain_time         = "14:00:00"
+  maintain_begin        = "14:00:00"
   description           = "created by acc test"
   bandwidth_size        = 5
 
-  available_zone_ids = [
+  available_zones = [
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
@@ -373,11 +375,11 @@ resource "huaweicloud_apig_instance" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "%s"
-  maintain_time         = "14:00:00"
+  maintain_begin        = "14:00:00"
   description           = "created by acc test"
   eip_id                = huaweicloud_vpc_eip.test.id
 
-  available_zone_ids = [
+  available_zones = [
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
@@ -411,11 +413,11 @@ resource "huaweicloud_apig_instance" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   security_group_id     = huaweicloud_networking_secgroup.test.id
   enterprise_project_id = "%s"
-  maintain_time         = "14:00:00"
+  maintain_begin        = "14:00:00"
   description           = "created by acc test"
   eip_id                = huaweicloud_vpc_eip.update.id
 
-  available_zone_ids = [
+  available_zones = [
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
