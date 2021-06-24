@@ -379,7 +379,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_cci_pvc":                         ResourceCCIPersistentVolumeClaimV1(),
 			"huaweicloud_cdm_cluster":                     ResourceCdmClusterV1(),
 			"huaweicloud_cdn_domain":                      resourceCdnDomainV1(),
-			"huaweicloud_ces_alarmrule":                   resourceAlarmRule(),
+			"huaweicloud_ces_alarmrule":                   ResourceAlarmRule(),
 			"huaweicloud_cloudtable_cluster":              resourceCloudtableClusterV2(),
 			"huaweicloud_compute_instance":                ResourceComputeInstanceV2(),
 			"huaweicloud_compute_interface_attach":        ResourceComputeInterfaceAttachV2(),
