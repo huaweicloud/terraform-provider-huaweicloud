@@ -352,4 +352,9 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "mls",
 		Version: "v1.0",
 	},
+	"scm": {
+		Name:             "scm",
+		Version:          "v3",
+		WithOutProjectID: true,
+	},
 }

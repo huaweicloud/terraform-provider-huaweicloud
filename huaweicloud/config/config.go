@@ -840,3 +840,7 @@ func (c *Config) OrchestrationV1Client(region string) (*golangsdk.ServiceClient,
 func (c *Config) MlsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("mls", region)
 }
+
+func (c *Config) ScmV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("scm", region)
+}
