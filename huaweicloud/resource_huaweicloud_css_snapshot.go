@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func resourceCssSnapshot() *schema.Resource {
+func ResourceCssSnapshot() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCssSnapshotCreate,
 		Read:   resourceCssSnapshotRead,
