@@ -202,7 +202,6 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 			log.Printf("[DEBUG] Find new services and start to push. %#v", pushOpts)
 			err := doPushCertificateToService(d.Id(), pushOpts, scmClient)
 			if err != nil {
-				//d.SetId("")
 				d.Set("target", oldVal)
 				return err
 			}
@@ -219,7 +218,6 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 				}
 				err := doPushCertificateToService(d.Id(), pushOpts, scmClient)
 				if err != nil {
-					//d.SetId("")
 					d.Set("target", oldVal)
 					return err
 				}
