@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceCdmFlavorV1() *schema.Resource {
+func DataSourceCdmFlavorV1() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceCdmFlavorV1Read,
 
