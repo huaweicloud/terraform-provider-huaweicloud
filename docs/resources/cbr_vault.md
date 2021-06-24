@@ -21,7 +21,7 @@ resource "huaweicloud_cbr_vault" "test" {
   name             = var.vault_name
   type             = "server"
   protection_type  = "backup"
-  consistent_level = "app_consistent"
+  consistent_level = "crash_consistent"
   size             = 100
 
   resources {
@@ -176,5 +176,5 @@ In addition to all arguments above, the following attributes are exported:
 
 Vaults can be imported by their `id`. For example,
 ```
-terraform import huaweicloud_cbr_vault.test 01c33779-7c83-4182-8b6b-24a671fcedf8
+$ terraform import huaweicloud_cbr_vault.test 01c33779-7c83-4182-8b6b-24a671fcedf8
 ```

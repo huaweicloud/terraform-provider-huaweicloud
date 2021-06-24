@@ -636,7 +636,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		if len(configParams) != len(instanceConfigParams) {
 			return fmtp.Errorf("Error updating configuration for instance: %s", d.Id())
 		}
-		for i, _ := range configParams {
+		for i := range configParams {
 			if !configParams[i].ReadOnly && configParams[i] != instanceConfigParams[i] {
 				return fmtp.Errorf("Error updating configuration for instance: %s", d.Id())
 			}
@@ -655,12 +655,30 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return fmtp.Errorf("Error extending huaweicloud_gaussdb_cassandra_instance %s size: %s", d.Id(), err)
 		}
-		// wait for order success
+		// 1. wait for order success
 		if n.OrderId != "" {
 			if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderId); err != nil {
 				return err
 			}
-			// check whether the order take effect
+		}
+
+		// 2. wait instance status
+		stateConf := &resource.StateChangeConf{
+			Pending:    []string{"RESIZE_VOLUME"},
+			Target:     []string{"available"},
+			Refresh:    GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_VOLUME"),
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			MinTimeout: 10 * time.Second,
+		}
+
+		_, err = stateConf.WaitForState()
+		if err != nil {
+			return fmtp.Errorf(
+				"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
+		}
+
+		// 3. check whether the order take effect
+		if n.OrderId != "" {
 			instance, err := instances.GetInstanceByID(client, d.Id())
 			if err != nil {
 				return err
@@ -674,20 +692,6 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			}
 			if volume_size != d.Get("volume_size").(int) {
 				return fmtp.Errorf("Error extending volume for instance %s: order failed", d.Id())
-			}
-		} else {
-			stateConf := &resource.StateChangeConf{
-				Pending:    []string{"RESIZE_VOLUME"},
-				Target:     []string{"available"},
-				Refresh:    GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_VOLUME"),
-				Timeout:    d.Timeout(schema.TimeoutUpdate),
-				MinTimeout: 10 * time.Second,
-			}
-
-			_, err = stateConf.WaitForState()
-			if err != nil {
-				return fmtp.Errorf(
-					"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
 			}
 		}
 	}
@@ -709,39 +713,43 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			if err != nil {
 				return fmtp.Errorf("Error enlarging huaweicloud_gaussdb_cassandra_instance %s node size: %s", d.Id(), err)
 			}
-			// wait for order success
+			// 1. wait for order success
 			if n.OrderId != "" {
 				if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderId); err != nil {
 					return err
 				}
-				// check whether the order take effect
+			}
+
+			// 2. wait instance status
+			stateConf := &resource.StateChangeConf{
+				Pending:      []string{"GROWING"},
+				Target:       []string{"available"},
+				Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "GROWING"),
+				Timeout:      d.Timeout(schema.TimeoutUpdate),
+				Delay:        15 * time.Second,
+				PollInterval: 20 * time.Second,
+			}
+
+			_, err = stateConf.WaitForState()
+			if err != nil {
+				return fmtp.Errorf(
+					"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
+			}
+
+			// 3. check whether the order take effect
+			if n.OrderId != "" {
 				instance, err := instances.GetInstanceByID(client, d.Id())
 				if err != nil {
 					return err
 				}
 				nodeNum := 0
 				for _, group := range instance.Groups {
-					for _, _ = range group.Nodes {
+					for range group.Nodes {
 						nodeNum += 1
 					}
 				}
 				if nodeNum != newnum.(int) {
 					return fmtp.Errorf("Error enlarging node for instance %s: order failed", d.Id())
-				}
-			} else {
-				stateConf := &resource.StateChangeConf{
-					Pending:      []string{"GROWING"},
-					Target:       []string{"available"},
-					Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "GROWING"),
-					Timeout:      d.Timeout(schema.TimeoutUpdate),
-					Delay:        15 * time.Second,
-					PollInterval: 20 * time.Second,
-				}
-
-				_, err = stateConf.WaitForState()
-				if err != nil {
-					return fmtp.Errorf(
-						"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
 				}
 			}
 		}
@@ -841,12 +849,30 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			if err != nil {
 				return fmtp.Errorf("Error resizing huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
 			}
-			// wait for order success
+			// 1. wait for order success
 			if n.OrderId != "" {
 				if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderId); err != nil {
 					return err
 				}
-				// check whether the order take effect
+			}
+
+			// 2. wait for instance status.
+			stateConf := &resource.StateChangeConf{
+				Pending:      []string{"RESIZE_FLAVOR"},
+				Target:       []string{"available"},
+				Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),
+				Timeout:      d.Timeout(schema.TimeoutUpdate),
+				PollInterval: 20 * time.Second,
+			}
+
+			_, err = stateConf.WaitForState()
+			if err != nil {
+				return fmtp.Errorf(
+					"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
+			}
+
+			// 3. check whether the order take effect
+			if n.OrderId != "" {
 				instance, err := instances.GetInstanceByID(client, d.Id())
 				if err != nil {
 					return err
@@ -862,20 +888,6 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 				}
 				if currFlavor != d.Get("flavor").(string) {
 					return fmtp.Errorf("Error updating flavor for instance %s: order failed", d.Id())
-				}
-			} else {
-				stateConf := &resource.StateChangeConf{
-					Pending:      []string{"RESIZE_FLAVOR"},
-					Target:       []string{"available"},
-					Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),
-					Timeout:      d.Timeout(schema.TimeoutUpdate),
-					PollInterval: 20 * time.Second,
-				}
-
-				_, err = stateConf.WaitForState()
-				if err != nil {
-					return fmtp.Errorf(
-						"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
 				}
 			}
 		}
