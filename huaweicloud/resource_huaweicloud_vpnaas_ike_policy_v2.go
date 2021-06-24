@@ -12,7 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func resourceVpnIKEPolicyV2() *schema.Resource {
+func ResourceVpnIKEPolicyV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVpnIKEPolicyV2Create,
 		Read:   resourceVpnIKEPolicyV2Read,

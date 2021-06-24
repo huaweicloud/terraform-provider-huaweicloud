@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func resourceVpnSiteConnectionV2() *schema.Resource {
+func ResourceVpnSiteConnectionV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVpnSiteConnectionV2Create,
 		Read:   resourceVpnSiteConnectionV2Read,
