@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceDisPartitionV2() *schema.Resource {
+func DataSourceDisPartitionV2() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceDisPartitionV2Read,
 
