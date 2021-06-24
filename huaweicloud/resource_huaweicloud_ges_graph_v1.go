@@ -25,7 +25,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func resourceGesGraphV1() *schema.Resource {
+func ResourceGesGraphV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGesGraphV1Create,
 		Read:   resourceGesGraphV1Read,
