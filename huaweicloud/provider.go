@@ -499,6 +499,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpnaas_ipsec_policy":             resourceVpnIPSecPolicyV2(),
 			"huaweicloud_vpnaas_service":                  resourceVpnServiceV2(),
 			"huaweicloud_vpnaas_site_connection":          resourceVpnSiteConnectionV2(),
+			"huaweicloud_scm_certificate":                 resourceScmCertificateV3(),
 			// Legacy
 			"huaweicloud_compute_instance_v2":                ResourceComputeInstanceV2(),
 			"huaweicloud_compute_interface_attach_v2":        ResourceComputeInterfaceAttachV2(),
@@ -601,7 +602,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_rts_stack_v1":                       resourceRTSStackV1(),
 			"huaweicloud_rts_software_config_v1":             resourceSoftwareConfigV1(),
 			"huaweicloud_cts_tracker":                        deprecated.ResourceCTSTrackerV1(),
-			"huaweicloud_scm_certificate":                    resourceScmCertificateV3(),
 		},
 	}
 
