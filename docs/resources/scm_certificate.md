@@ -81,14 +81,13 @@ The following arguments are supported:
     It can be extracted from the _server.crt_ file in the Nginx directory, 
     usually after the second paragraph is the certificate chain.
 * `private_key` - (Required, String, ForceNew) The private encrypted key of the Certificate, PEM format.
-* `target` - (Optional, List) The service to which the certificate needs to be pushed.The push_certificate
-  structure is documented below.
+* `target` - (Optional, List) The service to which the certificate needs to be pushed.
 
 The `target` block supports:
 * `service` - (Required, String) Service to which the certificate is pushed.
   The options include `CDN`,`WAF` and `Enhance_ELB`.
 * `project` - (Optional, String) The project where the service you want to push a certificate to.
-  The same certificate can be pushed repeatedly to the same WAF or ELB service in the same `target_project`,
+  The same certificate can be pushed repeatedly to the same WAF or ELB service in the same `project`,
   but the CDN service can only be pushed once.
 
 ## Attributes Reference
