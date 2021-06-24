@@ -1,3 +1,12 @@
+## 1.25.1 (June 24, 2021)
+
+FEATURES:
+* **New Resource:** `huaweicloud_scm_certificate` ([#1218](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1218))
+
+ENHANCEMENTS:
+* resource/huaweicloud_fgs_function: Add urn and version support ([#1203](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1203))
+* resource/huaweicloud_gaussdb_mysql_instance: Add volume_size support ([#1201](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1201))
+
 ## 1.25.0 (May 31, 2021)
 
 FEATURES:
