@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +16,7 @@ import (
 func TestAccCCEAddonV3_basic(t *testing.T) {
 	var addon addons.Addon
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_addon.test"
 	clusterName := "huaweicloud_cce_cluster.test"
 
@@ -45,7 +46,7 @@ func testAccCheckCCEAddonV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceAddonV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE Addon client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE Addon client: %s", err)
 	}
 
 	var clusterId string
@@ -62,7 +63,7 @@ func testAccCheckCCEAddonV3Destroy(s *terraform.State) error {
 		if clusterId != "" {
 			_, err := addons.Get(cceClient, rs.Primary.ID, clusterId).Extract()
 			if err == nil {
-				return fmt.Errorf("addon still exists")
+				return fmtp.Errorf("addon still exists")
 			}
 		}
 	}
@@ -73,24 +74,24 @@ func testAccCheckCCEAddonV3Exists(n string, cluster string, addon *addons.Addon)
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 		c, ok := s.RootModule().Resources[cluster]
 		if !ok {
-			return fmt.Errorf("Cluster not found: %s", c)
+			return fmtp.Errorf("Cluster not found: %s", c)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 		if c.Primary.ID == "" {
-			return fmt.Errorf("Cluster id is not set")
+			return fmtp.Errorf("Cluster id is not set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		cceClient, err := config.CceAddonV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud CCE Addon client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud CCE Addon client: %s", err)
 		}
 
 		found, err := addons.Get(cceClient, rs.Primary.ID, c.Primary.ID).Extract()
@@ -99,7 +100,7 @@ func testAccCheckCCEAddonV3Exists(n string, cluster string, addon *addons.Addon)
 		}
 
 		if found.Metadata.Id != rs.Primary.ID {
-			return fmt.Errorf("Addon not found")
+			return fmtp.Errorf("Addon not found")
 		}
 
 		*addon = *found
@@ -120,14 +121,14 @@ func testAccCCEAddonImportStateIdFunc() resource.ImportStateIdFunc {
 			}
 		}
 		if clusterID == "" || addonID == "" {
-			return "", fmt.Errorf("resource not found: %s/%s", clusterID, addonID)
+			return "", fmtp.Errorf("resource not found: %s/%s", clusterID, addonID)
 		}
-		return fmt.Sprintf("%s/%s", clusterID, addonID), nil
+		return fmtp.Sprintf("%s/%s", clusterID, addonID), nil
 	}
 }
 
 func testAccCCEAddonV3_Base(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node" "test" {
@@ -150,7 +151,7 @@ resource "huaweicloud_cce_node" "test" {
 }
 
 func testAccCCEAddonV3_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_cce_addon" "test" {

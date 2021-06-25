@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"fmt"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
@@ -70,10 +70,10 @@ func dataSourceGaussdbMysqlFlavorsRead(d *schema.ResourceData, meta interface{})
 
 	client, err := config.GaussdbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
 
-	link := fmt.Sprintf("flavors/%s?version_name=%s&availability_zone_mode=%s", d.Get("engine").(string), d.Get("version").(string), d.Get("availability_zone_mode").(string))
+	link := fmtp.Sprintf("flavors/%s?version_name=%s&availability_zone_mode=%s", d.Get("engine").(string), d.Get("version").(string), d.Get("availability_zone_mode").(string))
 	url := client.ServiceURL(link)
 
 	r, err := sendGaussdbMysqlFlavorsListRequest(client, url)
@@ -106,7 +106,7 @@ func sendGaussdbMysqlFlavorsListRequest(client *golangsdk.ServiceClient, url str
 			"X-Language":   "en-us",
 		}})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error fetching flavors for gaussdb mysql, error: %s", r.Err)
+		return nil, fmtp.Errorf("Error fetching flavors for gaussdb mysql, error: %s", r.Err)
 	}
 
 	v, err := navigateValue(r.Body, []string{"flavors"}, nil)

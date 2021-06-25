@@ -1,11 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func dataSourceVirtualPrivateCloudVpcIdsV1() *schema.Resource {
@@ -31,17 +30,17 @@ func dataSourceVirtualPrivateCloudIdsV1Read(d *schema.ResourceData, meta interfa
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}
 
 	listOpts := vpcs.ListOpts{}
 	refinedVpcs, err := vpcs.List(vpcClient, listOpts)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve vpcs: %s", err)
+		return fmtp.Errorf("Unable to retrieve vpcs: %s", err)
 	}
 
 	if len(refinedVpcs) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 

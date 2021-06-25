@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -12,6 +10,8 @@ import (
 	iec_common "github.com/huaweicloud/golangsdk/openstack/iec/v1/common"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceIecVipV1() *schema.Resource {
@@ -73,7 +73,7 @@ func resourceIecVIPV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	createOpts := ports.CreateOpts{
@@ -83,10 +83,10 @@ func resourceIecVIPV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	p, err := ports.Create(iecClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC port: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC port: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for HuaweiCloud IEC Port (%s) to become available.", p.ID)
+	logp.Printf("[DEBUG] Waiting for HuaweiCloud IEC Port (%s) to become available.", p.ID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitingForIECVIPActive(iecClient, p.ID),
@@ -112,7 +112,7 @@ func resourceIecVIPV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	vip, err := ports.Get(iecClient, d.Id()).Extract()
@@ -143,7 +143,7 @@ func resourceIecVIPV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	portids := getIecVipPortIDs(d)
@@ -158,7 +158,7 @@ func resourceIecVIPV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	if len(getIecVipPortIDs(d)) > 0 {
@@ -179,7 +179,7 @@ func resourceIecVIPV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud IEC Network: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud IEC Network: %s", err)
 	}
 	d.SetId("")
 	return nil
@@ -192,7 +192,7 @@ func waitingForIECVIPActive(client *golangsdk.ServiceClient, portID string) reso
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud Neutron Port: %+v", p)
+		logp.Printf("[DEBUG] HuaweiCloud Neutron Port: %+v", p)
 		if p.Status == "DOWN" || p.Status == "ACTIVE" {
 			return p, "ACTIVE", nil
 		}
@@ -204,11 +204,11 @@ func waitingForIECVIPActive(client *golangsdk.ServiceClient, portID string) reso
 func waitingForIECVIPDelete(client *golangsdk.ServiceClient, portID string) resource.StateRefreshFunc {
 
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete HuaweiCloud IEC Port %s", portID)
+		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud IEC Port %s", portID)
 		port, err := ports.Get(client, portID).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Port %s", portID)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Port %s", portID)
 				return port, "DELETED", nil
 			}
 			return port, "ACTIVATE", err
@@ -217,11 +217,11 @@ func waitingForIECVIPDelete(client *golangsdk.ServiceClient, portID string) reso
 
 		// remote service will return code 204 when delete success
 		if err == nil {
-			log.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Port %s", portID)
+			logp.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Port %s", portID)
 			return port, "DELETED", nil
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud IEC Port %s still active.\n", portID)
+		logp.Printf("[DEBUG] HuaweiCloud IEC Port %s still active.\n", portID)
 		return port, "ACTIVE", nil
 	}
 }
@@ -237,13 +237,13 @@ func updateIecVipAssociate(client *golangsdk.ServiceClient, vipID string, portID
 	for i, portid := range portIDs {
 		port, err := ports.Get(client, portid).Extract()
 		if err != nil {
-			return fmt.Errorf("Error fetching port %s: %s", portid, err)
+			return fmtp.Errorf("Error fetching port %s: %s", portid, err)
 		}
 
 		if len(port.FixedIPs) > 0 {
 			allAddrs[i] = port.FixedIPs[0].IpAddress
 		} else {
-			return fmt.Errorf("port %s has no ip address, Error associate it", portid)
+			return fmtp.Errorf("port %s has no ip address, Error associate it", portid)
 		}
 	}
 
@@ -258,10 +258,10 @@ func updateIecVipAssociate(client *golangsdk.ServiceClient, vipID string, portID
 	associateOpts := ports.UpdateOpts{
 		AllowedAddressPairs: &allowedPairs,
 	}
-	log.Printf("[DEBUG] VIP %s %s with options: %#v", action, vipID, associateOpts)
+	logp.Printf("[DEBUG] VIP %s %s with options: %#v", action, vipID, associateOpts)
 	_, err := ports.Update(client, vipID, associateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error %s vip: %s", action, err)
+		return fmtp.Errorf("Error %s vip: %s", action, err)
 	}
 
 	// Update the allowed-address-pairs of the port to 1.1.1.1/0
@@ -277,7 +277,7 @@ func updateIecVipAssociate(client *golangsdk.ServiceClient, vipID string, portID
 	for _, portid := range portIDs {
 		_, err = ports.Update(client, portid, portUpdateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error update port %s: %s", portid, err)
+			return fmtp.Errorf("Error update port %s: %s", portid, err)
 		}
 	}
 

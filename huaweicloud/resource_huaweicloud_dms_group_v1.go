@@ -1,12 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDmsGroupsV1() *schema.Resource {
@@ -63,7 +62,7 @@ func resourceDmsGroupsV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud dms group client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud dms group client: %s", err)
 	}
 
 	var getGroups []groups.GroupOps
@@ -77,13 +76,13 @@ func resourceDmsGroupsV1Create(d *schema.ResourceData, meta interface{}) error {
 		Groups: getGroups,
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	v, err := groups.Create(dmsV1Client, d.Get("queue_id").(string), createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud group: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud group: %s", err)
 	}
-	log.Printf("[INFO] group Name: %s", v[0].Name)
+	logp.Printf("[INFO] group Name: %s", v[0].Name)
 
 	// Store the group ID now
 	d.SetId(v[0].ID)
@@ -97,25 +96,25 @@ func resourceDmsGroupsV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud dms group client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud dms group client: %s", err)
 	}
 
 	queueID := d.Get("queue_id").(string)
 	page, err := groups.List(dmsV1Client, queueID, false).AllPages()
 	if err != nil {
-		return fmt.Errorf("Error getting groups in queue %s: %s", queueID, err)
+		return fmtp.Errorf("Error getting groups in queue %s: %s", queueID, err)
 	}
 	groupsList, err := groups.ExtractGroups(page)
 	if len(groupsList) < 1 {
-		return fmt.Errorf("No matching resource found.")
+		return fmtp.Errorf("No matching resource found.")
 	}
 
 	if len(groupsList) > 1 {
-		return fmt.Errorf("Multiple resources matched;")
+		return fmtp.Errorf("Multiple resources matched;")
 	}
 
 	group := groupsList[0]
-	log.Printf("[DEBUG] Dms group %s: %+v", d.Id(), group)
+	logp.Printf("[DEBUG] Dms group %s: %+v", d.Id(), group)
 
 	d.SetId(group.ID)
 	d.Set("name", group.Name)
@@ -132,15 +131,15 @@ func resourceDmsGroupsV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud dms group client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud dms group client: %s", err)
 	}
 
 	err = groups.Delete(dmsV1Client, d.Get("queue_id").(string), d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud group: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud group: %s", err)
 	}
 
-	log.Printf("[DEBUG] Dms group %s deactivated.", d.Id())
+	logp.Printf("[DEBUG] Dms group %s deactivated.", d.Id())
 	d.SetId("")
 	return nil
 }

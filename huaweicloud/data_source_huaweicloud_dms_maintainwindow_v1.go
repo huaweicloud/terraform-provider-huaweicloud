@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strconv"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/maintainwindows"
@@ -48,7 +49,7 @@ func dataSourceDmsMaintainWindowV1Read(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud dms client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud dms client: %s", err)
 	}
 
 	v, err := maintainwindows.Get(dmsV1Client).Extract()
@@ -80,14 +81,14 @@ func dataSourceDmsMaintainWindowV1Read(d *schema.ResourceData, meta interface{})
 		filteredMVs = append(filteredMVs, mv)
 	}
 	if len(filteredMVs) < 1 {
-		return fmt.Errorf("Your query returned no results. Please change your filters and try again.")
+		return fmtp.Errorf("Your query returned no results. Please change your filters and try again.")
 	}
 	mw := filteredMVs[0]
 	d.SetId(strconv.Itoa(mw.ID))
 	d.Set("begin", mw.Begin)
 	d.Set("end", mw.End)
 	d.Set("default", mw.Default)
-	log.Printf("[DEBUG] Dms MaintainWindow : %+v", mw)
+	logp.Printf("[DEBUG] Dms MaintainWindow : %+v", mw)
 
 	return nil
 }

@@ -1,13 +1,13 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccObsBucket_basic(t *testing.T) {
@@ -134,7 +134,7 @@ func TestAccObsBucket_versioning(t *testing.T) {
 
 func TestAccObsBucket_logging(t *testing.T) {
 	rInt := acctest.RandInt()
-	targetBucket := fmt.Sprintf("tf-test-log-bucket-%d", rInt)
+	targetBucket := fmtp.Sprintf("tf-test-log-bucket-%d", rInt)
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -269,7 +269,7 @@ func testAccCheckObsBucketDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -279,7 +279,7 @@ func testAccCheckObsBucketDestroy(s *terraform.State) error {
 
 		_, err := obsClient.HeadBucket(rs.Primary.ID)
 		if err == nil {
-			return fmt.Errorf("HuaweiCloud OBS Bucket %s still exists", rs.Primary.ID)
+			return fmtp.Errorf("HuaweiCloud OBS Bucket %s still exists", rs.Primary.ID)
 		}
 	}
 	return nil
@@ -289,22 +289,22 @@ func testAccCheckObsBucketExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}
 
 		_, err = obsClient.HeadBucket(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("HuaweiCloud OBS Bucket not found: %v", err)
+			return fmtp.Errorf("HuaweiCloud OBS Bucket not found: %v", err)
 		}
 		return nil
 	}
@@ -314,26 +314,26 @@ func testAccCheckObsBucketLogging(name, target, prefix string) resource.TestChec
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
-			return fmt.Errorf("Not found: %s", name)
+			return fmtp.Errorf("Not found: %s", name)
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}
 
 		output, err := obsClient.GetBucketLoggingConfiguration(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Error getting logging configuration of OBS bucket: %s", err)
+			return fmtp.Errorf("Error getting logging configuration of OBS bucket: %s", err)
 		}
 
 		if output.TargetBucket != target {
-			return fmt.Errorf("%s.logging: Attribute 'target_bucket' expected %s, got %s",
+			return fmtp.Errorf("%s.logging: Attribute 'target_bucket' expected %s, got %s",
 				name, output.TargetBucket, target)
 		}
 		if output.TargetPrefix != prefix {
-			return fmt.Errorf("%s.logging: Attribute 'target_prefix' expected %s, got %s",
+			return fmtp.Errorf("%s.logging: Attribute 'target_prefix' expected %s, got %s",
 				name, output.TargetPrefix, prefix)
 		}
 
@@ -343,15 +343,15 @@ func testAccCheckObsBucketLogging(name, target, prefix string) resource.TestChec
 
 // These need a bit of randomness as the name can only be used once globally
 func testAccObsBucketName(randInt int) string {
-	return fmt.Sprintf("tf-test-bucket-%d", randInt)
+	return fmtp.Sprintf("tf-test-bucket-%d", randInt)
 }
 
 func testAccObsBucketDomainName(randInt int) string {
-	return fmt.Sprintf("tf-test-bucket-%d.obs.%s.myhuaweicloud.com", randInt, HW_REGION_NAME)
+	return fmtp.Sprintf("tf-test-bucket-%d.obs.%s.myhuaweicloud.com", randInt, HW_REGION_NAME)
 }
 
 func testAccObsBucket_basic(randInt int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket        = "tf-test-bucket-%d"
   storage_class = "STANDARD"
@@ -366,7 +366,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucket_basic_update(randInt int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket        = "tf-test-bucket-%d"
   storage_class = "WARM"
@@ -381,7 +381,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucket_epsId(randInt int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket                = "tf-test-bucket-%d"
   storage_class         = "STANDARD"
@@ -392,7 +392,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketConfigMultiAZ(randInt int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket   = "tf-test-bucket-%d"
   acl      = "private"
@@ -407,7 +407,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketConfigWithVersioning(randInt int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket     = "tf-test-bucket-%d"
   acl        = "private"
@@ -417,7 +417,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketConfigWithDisableVersioning(randInt int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket     = "tf-test-bucket-%d"
   acl        = "private"
@@ -427,7 +427,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketConfigWithLogging(randInt int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "log_bucket" {
   bucket        = "tf-test-log-bucket-%d"
   acl           = "log-delivery-write"
@@ -447,7 +447,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketConfigWithQuota(randInt int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket = "tf-test-bucket-%d"
   acl    = "private"
@@ -457,7 +457,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketConfigWithLifecycle(randInt int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket     = "tf-test-bucket-%d"
   acl        = "private"
@@ -512,7 +512,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketWebsiteConfigWithRoutingRules(randInt int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket = "tf-test-bucket-%d"
   acl    = "public-read"
@@ -536,7 +536,7 @@ EOF
 }
 
 func testAccObsBucketConfigWithCORS(randInt int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket = "tf-test-bucket-%d"
   acl    = "public-read"

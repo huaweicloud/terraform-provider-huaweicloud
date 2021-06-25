@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/products"
@@ -90,12 +90,12 @@ func dataSourceDmsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error get HuaweiCloud dms product client: %s", err)
+		return fmtp.Errorf("Error get HuaweiCloud dms product client: %s", err)
 	}
 
 	instance_engine := d.Get("engine").(string)
 	if instance_engine != "rabbitmq" && instance_engine != "kafka" {
-		return fmt.Errorf("The instance_engine value should be 'rabbitmq' or 'kafka', not: %s", instance_engine)
+		return fmtp.Errorf("The instance_engine value should be 'rabbitmq' or 'kafka', not: %s", instance_engine)
 	}
 
 	v, err := products.Get(dmsV1Client, instance_engine).Extract()
@@ -104,10 +104,10 @@ func dataSourceDmsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 	}
 	Products := v.Hourly
 
-	log.Printf("[DEBUG] Dms get products : %+v", Products)
+	logp.Printf("[DEBUG] Dms get products : %+v", Products)
 	instance_type := d.Get("instance_type").(string)
 	if instance_type != "single" && instance_type != "cluster" {
-		return fmt.Errorf("The instance_type value should be 'single' or 'cluster', not: %s", instance_type)
+		return fmtp.Errorf("The instance_type value should be 'single' or 'cluster', not: %s", instance_type)
 	}
 	var FilteredPd []products.Detail
 	var FilteredPdInfo []products.ProductInfo
@@ -170,7 +170,7 @@ func dataSourceDmsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if len(FilteredPd) < 1 {
-		return fmt.Errorf("Your query returned no results. Please change your filters and try again.")
+		return fmtp.Errorf("Your query returned no results. Please change your filters and try again.")
 	}
 
 	pd := FilteredPd[0]
@@ -182,10 +182,10 @@ func dataSourceDmsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 		d.Set("bandwidth", pd.Bandwidth)
 		d.Set("storage_spec_code", pd.IOs[0].StorageSpecCode)
 		d.Set("io_type", pd.IOs[0].IOType)
-		log.Printf("[DEBUG] Dms product : %+v", pd)
+		logp.Printf("[DEBUG] Dms product : %+v", pd)
 	} else {
 		if len(pd.ProductInfos) < 1 {
-			return fmt.Errorf("Your query returned no results. Please change your filters and try again.")
+			return fmtp.Errorf("Your query returned no results. Please change your filters and try again.")
 		}
 		pdInfo := pd.ProductInfos[0]
 		d.SetId(pdInfo.ProductID)
@@ -193,7 +193,7 @@ func dataSourceDmsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 		d.Set("io_type", pdInfo.IOs[0].IOType)
 		d.Set("node_num", pdInfo.NodeNum)
 		d.Set("storage_spec_code", pdInfo.IOs[0].StorageSpecCode)
-		log.Printf("[DEBUG] Dms product : %+v", pdInfo)
+		logp.Printf("[DEBUG] Dms product : %+v", pdInfo)
 	}
 
 	return nil

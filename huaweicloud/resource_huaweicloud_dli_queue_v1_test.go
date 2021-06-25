@@ -15,9 +15,10 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -43,7 +44,7 @@ func TestAccDliQueueV1_basic(t *testing.T) {
 }
 
 func testAccDliQueueV1_basic(val string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_dli_queue_v1" "queue" {
   name = "terraform_dli_queue_v1_test%s"
   cu_count = 4
@@ -55,7 +56,7 @@ func testAccCheckDliQueueV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.DliV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -70,7 +71,7 @@ func testAccCheckDliQueueV1Destroy(s *terraform.State) error {
 			}
 			return err
 		}
-		return fmt.Errorf("huaweicloud_dli_queue_v1 still exists")
+		return fmtp.Errorf("huaweicloud_dli_queue_v1 still exists")
 	}
 
 	return nil
@@ -81,20 +82,20 @@ func testAccCheckDliQueueV1Exists() resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.DliV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating sdk client, err=%s", err)
+			return fmtp.Errorf("Error creating sdk client, err=%s", err)
 		}
 
 		rs, ok := s.RootModule().Resources["huaweicloud_dli_queue_v1.queue"]
 		if !ok {
-			return fmt.Errorf("Error checking huaweicloud_dli_queue_v1.queue exist, err=not found this resource")
+			return fmtp.Errorf("Error checking huaweicloud_dli_queue_v1.queue exist, err=not found this resource")
 		}
 
 		_, err = fetchDliQueueV1ByListOnTest(rs, client)
 		if err != nil {
 			if strings.Index(err.Error(), "Error finding the resource by list api") != -1 {
-				return fmt.Errorf("huaweicloud_dli_queue_v1 is not exist")
+				return fmtp.Errorf("huaweicloud_dli_queue_v1 is not exist")
 			}
-			return fmt.Errorf("Error checking huaweicloud_dli_queue_v1.queue exist, err=%s", err)
+			return fmtp.Errorf("Error checking huaweicloud_dli_queue_v1.queue exist, err=%s", err)
 		}
 		return nil
 	}

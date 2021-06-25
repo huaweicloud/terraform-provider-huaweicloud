@@ -15,8 +15,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"reflect"
 	"time"
 
@@ -26,6 +24,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/css/v1/snapshots"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceCssClusterV1() *schema.Resource {
@@ -224,7 +224,7 @@ func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	client, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	opts := resourceCssClusterV1UserInputParams(d)
@@ -236,11 +236,11 @@ func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 
 	params, err := buildCssClusterV1CreateParameters(opts, arrayIndex)
 	if err != nil {
-		return fmt.Errorf("Error building the request body of api(create), err=%s", err)
+		return fmtp.Errorf("Error building the request body of api(create), err=%s", err)
 	}
 	r, err := sendCssClusterV1CreateRequest(d, params, client)
 	if err != nil {
-		return fmt.Errorf("Error creating CssClusterV1, err=%s", err)
+		return fmtp.Errorf("Error creating CssClusterV1, err=%s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutCreate)
@@ -250,7 +250,7 @@ func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 	}
 	id, err := navigateValue(obj, []string{"id"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error constructing id, err=%s", err)
+		return fmtp.Errorf("Error constructing id, err=%s", err)
 	}
 	d.SetId(id.(string))
 
@@ -259,7 +259,7 @@ func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 	if len(backupRaw) == 1 {
 		err = snapshots.Enable(client, d.Id()).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error enable snapshot function: %s", err)
+			return fmtp.Errorf("Error enable snapshot function: %s", err)
 		}
 
 		raw := backupRaw[0].(map[string]interface{})
@@ -271,7 +271,7 @@ func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 		}
 		err := snapshots.PolicyCreate(client, &policyOpts, d.Id()).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error creating backup strategy: %s", err)
+			return fmtp.Errorf("Error creating backup strategy: %s", err)
 		}
 	}
 
@@ -282,7 +282,7 @@ func resourceCssClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	v, err := sendCssClusterV1ReadRequest(d, client)
@@ -299,7 +299,7 @@ func resourceCssClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	// set backup strategy property
 	policy, err := snapshots.PolicyGet(client, d.Id()).Extract()
 	if err != nil {
-		return fmt.Errorf("Error extracting Cluster:backup_strategy, err: %s", err)
+		return fmtp.Errorf("Error extracting Cluster:backup_strategy, err: %s", err)
 	}
 
 	if policy.Enable == "true" {
@@ -311,7 +311,7 @@ func resourceCssClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 			},
 		}
 		if err := d.Set("backup_strategy", strategy); err != nil {
-			return fmt.Errorf("Error setting Cluster:backup_strategy, err: %s", err)
+			return fmtp.Errorf("Error setting Cluster:backup_strategy, err: %s", err)
 		}
 	} else {
 		d.Set("backup_strategy", nil)
@@ -321,10 +321,10 @@ func resourceCssClusterV1Read(d *schema.ResourceData, meta interface{}) error {
 	if resourceTags, err := tags.Get(client, "css-cluster", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for CSS cluster (%s): %s", d.Id(), err)
+			return fmtp.Errorf("Error saving tags to state for CSS cluster (%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of CSS cluster (%s): %s", d.Id(), err)
+		logp.Printf("[WARN] Error fetching tags of CSS cluster (%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -334,7 +334,7 @@ func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	client, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	opts := resourceCssClusterV1UserInputParams(d)
@@ -346,7 +346,7 @@ func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error 
 
 	params, err := buildCssClusterV1ExtendClusterParameters(opts, arrayIndex)
 	if err != nil {
-		return fmt.Errorf("Error building the request body of api(extend_cluster), err=%s", err)
+		return fmtp.Errorf("Error building the request body of api(extend_cluster), err=%s", err)
 	}
 	if e, _ := isEmptyValue(reflect.ValueOf(params)); !e {
 		r, err := sendCssClusterV1ExtendClusterRequest(d, params, client)
@@ -375,12 +375,12 @@ func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error 
 			// check backup strategy, if the policy was disabled, we should enable it
 			policy, err := snapshots.PolicyGet(client, d.Id()).Extract()
 			if err != nil {
-				return fmt.Errorf("Error extracting Cluster backup_strategy, err: %s", err)
+				return fmtp.Errorf("Error extracting Cluster backup_strategy, err: %s", err)
 			}
 			if policy.Enable == "false" {
 				err = snapshots.Enable(client, d.Id()).ExtractErr()
 				if err != nil {
-					return fmt.Errorf("Error enable snapshot function: %s", err)
+					return fmtp.Errorf("Error enable snapshot function: %s", err)
 				}
 			}
 
@@ -394,14 +394,14 @@ func resourceCssClusterV1Update(d *schema.ResourceData, meta interface{}) error 
 		}
 		err := snapshots.PolicyCreate(client, &opts, d.Id()).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error updating backup strategy: %s", err)
+			return fmtp.Errorf("Error updating backup strategy: %s", err)
 		}
 	}
 
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "css-cluster", d.Id())
 		if tagErr != nil {
-			return fmt.Errorf("Error updating tags of CSS cluster:%s, err:%s", d.Id(), tagErr)
+			return fmtp.Errorf("Error updating tags of CSS cluster:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
@@ -412,7 +412,7 @@ func resourceCssClusterV1Delete(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	client, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	url, err := replaceVars(d, "clusters/{id}", nil)
@@ -421,7 +421,7 @@ func resourceCssClusterV1Delete(d *schema.ResourceData, meta interface{}) error 
 	}
 	url = client.ServiceURL(url)
 
-	log.Printf("[DEBUG] Deleting Cluster %q", d.Id())
+	logp.Printf("[DEBUG] Deleting Cluster %q", d.Id())
 	r := golangsdk.Result{}
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
 		OkCodes:      successHTTPCodes,
@@ -430,7 +430,7 @@ func resourceCssClusterV1Delete(d *schema.ResourceData, meta interface{}) error 
 		MoreHeaders:  map[string]string{"Content-Type": "application/json"},
 	})
 	if r.Err != nil {
-		return fmt.Errorf("Error deleting Cluster %q, err=%s", d.Id(), r.Err)
+		return fmtp.Errorf("Error deleting Cluster %q, err=%s", d.Id(), r.Err)
 	}
 
 	_, err = waitToFinish(
@@ -457,7 +457,7 @@ func buildCssClusterV1CreateParameters(opts map[string]interface{}, arrayIndex m
 
 	resourceData := opts["terraform_resource_data"].(*schema.ResourceData)
 	if resourceData == nil {
-		return nil, fmt.Errorf("failed to build parameters: Resource Data is null")
+		return nil, fmtp.Errorf("failed to build parameters: Resource Data is null")
 	}
 
 	v, err := expandCssClusterV1CreateDatastore(opts, arrayIndex)
@@ -491,7 +491,7 @@ func buildCssClusterV1CreateParameters(opts map[string]interface{}, arrayIndex m
 	if securityMode == true {
 		adminPassword := resourceData.Get("password").(string)
 		if adminPassword == "" {
-			return nil, fmt.Errorf("Administrator password is required in security mode")
+			return nil, fmtp.Errorf("Administrator password is required in security mode")
 		}
 		params["httpsEnable"] = true
 		params["authorityEnable"] = true
@@ -657,7 +657,7 @@ func sendCssClusterV1CreateRequest(d *schema.ResourceData, params interface{},
 		OkCodes: successHTTPCodes,
 	})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(create), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(create), err=%s", r.Err)
 	}
 	return r.Body, nil
 }
@@ -672,7 +672,7 @@ func asyncWaitCssClusterV1Create(d *schema.ResourceData, config *config.Config, 
 	for key, path := range pathParameters {
 		value, err := navigateValue(result, path, nil)
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving async operation path parameter, err=%s", err)
+			return nil, fmtp.Errorf("Error retrieving async operation path parameter, err=%s", err)
 		}
 		data[key] = value
 	}
@@ -748,7 +748,7 @@ func sendCssClusterV1ExtendClusterRequest(d *schema.ResourceData, params interfa
 		OkCodes: successHTTPCodes,
 	})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(extend_cluster), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(extend_cluster), err=%s", r.Err)
 	}
 	return r.Body, nil
 }
@@ -794,7 +794,7 @@ func sendCssClusterV1ReadRequest(d *schema.ResourceData, client *golangsdk.Servi
 	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(read) for resource(CssClusterV1), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(read) for resource(CssClusterV1), err=%s", r.Err)
 	}
 
 	return r.Body, nil
@@ -951,63 +951,63 @@ func setCssClusterV1Properties(d *schema.ResourceData, response map[string]inter
 
 	v, err := navigateValue(response, []string{"read", "created"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:created, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:created, err: %s", err)
 	}
 	if err = d.Set("created", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:created, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:created, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "endpoint"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:endpoint, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:endpoint, err: %s", err)
 	}
 	if err = d.Set("endpoint", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:endpoint, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:endpoint, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "datastore", "type"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:engine_type, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:engine_type, err: %s", err)
 	}
 	if err = d.Set("engine_type", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:engine_type, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:engine_type, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "datastore", "version"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:engine_version, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:engine_version, err: %s", err)
 	}
 	if err = d.Set("engine_version", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:engine_version, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:engine_version, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "name"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:name, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:name, err: %s", err)
 	}
 	if err = d.Set("name", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:name, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:name, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "security_mode"}, nil)
 	if err == nil {
 		if err = d.Set("security_mode", v); err != nil {
-			return fmt.Errorf("Error setting Cluster:security_mode, err: %s", err)
+			return fmtp.Errorf("Error setting Cluster:security_mode, err: %s", err)
 		}
 	}
 
 	v, _ = opts["nodes"]
 	v, err = flattenCssClusterV1Nodes(response, nil, v)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:nodes, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:nodes, err: %s", err)
 	}
 	if err = d.Set("nodes", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:nodes, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:nodes, err: %s", err)
 	}
 
 	nodeNum := len(v.([]interface{}))
 	if err = d.Set("expect_node_num", nodeNum); err != nil {
-		return fmt.Errorf("Error setting Cluster:expect_node_num, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:expect_node_num, err: %s", err)
 	}
 
 	return nil
@@ -1052,19 +1052,19 @@ func flattenCssClusterV1Nodes(d interface{}, arrayIndex map[string]int, currentV
 
 		v, err := navigateValue(d, []string{"read", "instances", "id"}, newArrayIndex)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading Cluster:id, err: %s", err)
+			return nil, fmtp.Errorf("Error reading Cluster:id, err: %s", err)
 		}
 		r["id"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "name"}, newArrayIndex)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading Cluster:name, err: %s", err)
+			return nil, fmtp.Errorf("Error reading Cluster:name, err: %s", err)
 		}
 		r["name"] = v
 
 		v, err = navigateValue(d, []string{"read", "instances", "type"}, newArrayIndex)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading Cluster:type, err: %s", err)
+			return nil, fmtp.Errorf("Error reading Cluster:type, err: %s", err)
 		}
 		r["type"] = v
 
@@ -1104,5 +1104,5 @@ func parseResponseToCssError(data interface{}) error {
 		return nil
 	}
 
-	return fmt.Errorf("error_code: %s, error_msg: %s", errorCode, errorMsg)
+	return fmtp.Errorf("error_code: %s, error_msg: %s", errorCode, errorMsg)
 }

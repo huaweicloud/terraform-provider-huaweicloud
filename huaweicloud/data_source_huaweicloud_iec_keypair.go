@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
@@ -36,20 +36,20 @@ func dataSourceIECKeypairRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	keyName := d.Get("name").(string)
 	kp, err := keypairs.Get(iecClient, keyName).Extract()
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			return fmt.Errorf("Your query returned no results. " +
+			return fmtp.Errorf("Your query returned no results. " +
 				"Please change your search criteria and try again.")
 		}
-		return fmt.Errorf("fetching IEC keypair error: %s", err)
+		return fmtp.Errorf("fetching IEC keypair error: %s", err)
 	}
 
-	log.Printf("[DEBUG] Retrieved IEC keypair %s: %+v", kp.Name, kp)
+	logp.Printf("[DEBUG] Retrieved IEC keypair %s: %+v", kp.Name, kp)
 	d.SetId(kp.Name)
 	d.Set("public_key", kp.PublicKey)
 	d.Set("fingerprint", kp.Fingerprint)

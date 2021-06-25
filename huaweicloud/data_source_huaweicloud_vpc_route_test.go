@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,7 +11,7 @@ import (
 )
 
 func TestAccVpcRouteV2DataSource_basic(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -39,11 +40,11 @@ func testAccCheckRouteV2DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find vpc route connection data source: %s", n)
+			return fmtp.Errorf("Can't find vpc route connection data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("vpc route connection data source ID not set")
+			return fmtp.Errorf("vpc route connection data source ID not set")
 		}
 
 		return nil
@@ -51,7 +52,7 @@ func testAccCheckRouteV2DataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccDataSourceRouteV2Config(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"

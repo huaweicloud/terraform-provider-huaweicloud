@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -9,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 var (
@@ -317,7 +317,7 @@ func TestAccProvider_clientCertString(t *testing.T) {
 func envVarContents(varName string) (string, error) {
 	contents, _, err := pathorcontents.Read(os.Getenv(varName))
 	if err != nil {
-		return "", fmt.Errorf("Error reading %s: %s", varName, err)
+		return "", fmtp.Errorf("Error reading %s: %s", varName, err)
 	}
 	return contents, nil
 }
@@ -330,15 +330,15 @@ func envVarFile(varName string) (string, error) {
 
 	tmpFile, err := ioutil.TempFile("", varName)
 	if err != nil {
-		return "", fmt.Errorf("Error creating temp file: %s", err)
+		return "", fmtp.Errorf("Error creating temp file: %s", err)
 	}
 	if _, err := tmpFile.Write([]byte(contents)); err != nil {
 		_ = os.Remove(tmpFile.Name())
-		return "", fmt.Errorf("Error writing temp file: %s", err)
+		return "", fmtp.Errorf("Error writing temp file: %s", err)
 	}
 	if err := tmpFile.Close(); err != nil {
 		_ = os.Remove(tmpFile.Name())
-		return "", fmt.Errorf("Error closing temp file: %s", err)
+		return "", fmtp.Errorf("Error closing temp file: %s", err)
 	}
 	return tmpFile.Name(), nil
 }

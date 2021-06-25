@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/huaweicloud/golangsdk"
@@ -10,6 +8,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/zones"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -132,7 +132,7 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	dnsClient, err := config.DnsV2Client(region)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	zoneType := d.Get("zone_type").(string)
@@ -141,12 +141,12 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 	// router is required when creating private zone
 	if zoneType == "private" {
 		if len(router) < 1 {
-			return fmt.Errorf("The argument (router) is required when creating HuaweiCloud DNS private zone")
+			return fmtp.Errorf("The argument (router) is required when creating HuaweiCloud DNS private zone")
 		}
 		// update the endpoint with region when creating private zone
 		dnsClient, err = config.DnsWithRegionClient(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud DNS region client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud DNS region client: %s", err)
 		}
 	}
 	vs := MapResourceProp(d, "value_specs")
@@ -164,14 +164,14 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 		vs,
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := zones.Create(dnsClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS zone: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS zone: %s", err)
 	}
 
 	d.SetId(n.ID)
-	log.Printf("[DEBUG] Waiting for DNS Zone (%s) to become available", n.ID)
+	logp.Printf("[DEBUG] Waiting for DNS Zone (%s) to become available", n.ID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Pending:    []string{"PENDING"},
@@ -183,7 +183,7 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for DNS Zone (%s) to become ACTIVE for creation: %s",
 			n.ID, err)
 	}
@@ -196,13 +196,13 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 			for i := range routerList {
 				// Skip the first router
 				if i > 0 {
-					log.Printf("[DEBUG] Creating AssociateZone Options: %#v", routerList[i])
+					logp.Printf("[DEBUG] Creating AssociateZone Options: %#v", routerList[i])
 					_, err := zones.AssociateZone(dnsClient, n.ID, routerList[i]).Extract()
 					if err != nil {
-						return fmt.Errorf("Error AssociateZone: %s", err)
+						return fmtp.Errorf("Error AssociateZone: %s", err)
 					}
 
-					log.Printf("[DEBUG] Waiting for AssociateZone (%s) to Router (%s) become ACTIVE",
+					logp.Printf("[DEBUG] Waiting for AssociateZone (%s) to Router (%s) become ACTIVE",
 						n.ID, routerList[i].RouterID)
 					stateRouterConf := &resource.StateChangeConf{
 						Target:     []string{"ACTIVE"},
@@ -215,11 +215,11 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 
 					_, err = stateRouterConf.WaitForState()
 					if err != nil {
-						return fmt.Errorf("Error waiting for AssociateZone (%s) to Router (%s) become ACTIVE: %s",
+						return fmtp.Errorf("Error waiting for AssociateZone (%s) to Router (%s) become ACTIVE: %s",
 							n.ID, routerList[i].RouterID, err)
 					}
 				} else {
-					log.Printf("[DEBUG] First Router Options: %#v", routerList[i])
+					logp.Printf("[DEBUG] First Router Options: %#v", routerList[i])
 				}
 			}
 		}
@@ -230,16 +230,16 @@ func resourceDNSZoneV2Create(d *schema.ResourceData, meta interface{}) error {
 	if len(tagRaw) > 0 {
 		resourceType, err := utils.GetDNSZoneTagType(zoneType)
 		if err != nil {
-			return fmt.Errorf("Error getting resource type of DNS zone %s: %s", n.ID, err)
+			return fmtp.Errorf("Error getting resource type of DNS zone %s: %s", n.ID, err)
 		}
 
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(dnsClient, resourceType, n.ID, taglist).ExtractErr(); tagErr != nil {
-			return fmt.Errorf("Error setting tags of DNS zone %s: %s", n.ID, tagErr)
+			return fmtp.Errorf("Error setting tags of DNS zone %s: %s", n.ID, tagErr)
 		}
 	}
 
-	log.Printf("[DEBUG] Created HuaweiCloud DNS Zone %s: %#v", n.ID, n)
+	logp.Printf("[DEBUG] Created HuaweiCloud DNS Zone %s: %#v", n.ID, n)
 	return resourceDNSZoneV2Read(d, meta)
 }
 
@@ -250,13 +250,13 @@ func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
 	// we can not get the corresponding client by zone type in import scene
 	dnsClient, err := config.DnsV2Client(region)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	var zoneInfo *zones.Zone
 	zoneInfo, err = zones.Get(dnsClient, d.Id()).Extract()
 	if err != nil {
-		log.Printf("[WARN] fetching zone failed with DNS global endpoint: %s", err)
+		logp.Printf("[WARN] fetching zone failed with DNS global endpoint: %s", err)
 		// an error occurred while fetching the zone with DNS global endpoint
 		// try to fetch it again with DNS region endpoint
 		dnsClient, clientErr := config.DnsWithRegionClient(GetRegion(d, config))
@@ -271,14 +271,14 @@ func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	log.Printf("[DEBUG] Retrieved Zone %s: %#v", d.Id(), zoneInfo)
+	logp.Printf("[DEBUG] Retrieved Zone %s: %#v", d.Id(), zoneInfo)
 
 	d.Set("name", zoneInfo.Name)
 	d.Set("email", zoneInfo.Email)
 	d.Set("description", zoneInfo.Description)
 	d.Set("ttl", zoneInfo.TTL)
 	if err = d.Set("masters", zoneInfo.Masters); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving masters to state for HuaweiCloud DNS zone (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving masters to state for HuaweiCloud DNS zone (%s): %s", d.Id(), err)
 	}
 	d.Set("region", region)
 	d.Set("zone_type", zoneInfo.ZoneType)
@@ -291,7 +291,7 @@ func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			d.Set("tags", tagmap)
 		} else {
-			log.Printf("[WARN] Error fetching HuaweiCloud DNS zone tags: %s", err)
+			logp.Printf("[WARN] Error fetching HuaweiCloud DNS zone tags: %s", err)
 		}
 	}
 
@@ -305,7 +305,7 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 
 	dnsClient, err := config.DnsV2Client(region)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	zoneType := d.Get("zone_type").(string)
@@ -314,12 +314,12 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 	// router is required when updating private zone
 	if zoneType == "private" {
 		if len(router) < 1 {
-			return fmt.Errorf("The argument (router) is required when updating HuaweiCloud DNS private zone")
+			return fmtp.Errorf("The argument (router) is required when updating HuaweiCloud DNS private zone")
 		}
 		// update the endpoint with region when creating private zone
 		dnsClient, err = config.DnsWithRegionClient(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud DNS region client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud DNS region client: %s", err)
 		}
 	}
 
@@ -334,14 +334,14 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.Description = d.Get("description").(string)
 	}
 
-	log.Printf("[DEBUG] Updating Zone %s with options: %#v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating Zone %s with options: %#v", d.Id(), updateOpts)
 
 	_, err = zones.Update(dnsClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud DNS Zone: %s", err)
+		return fmtp.Errorf("Error updating HuaweiCloud DNS Zone: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for DNS Zone (%s) to update", d.Id())
+	logp.Printf("[DEBUG] Waiting for DNS Zone (%s) to update", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Pending:    []string{"PENDING"},
@@ -358,18 +358,18 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 		if zoneType == "private" {
 			associateList, disassociateList, err := resourceGetDNSRouters(dnsClient, d, region)
 			if err != nil {
-				return fmt.Errorf("Error getting HuaweiCloud DNS Zone Router: %s", err)
+				return fmtp.Errorf("Error getting HuaweiCloud DNS Zone Router: %s", err)
 			}
 			if len(associateList) > 0 {
 				// AssociateZone
 				for i := range associateList {
-					log.Printf("[DEBUG] Updating AssociateZone Options: %#v", associateList[i])
+					logp.Printf("[DEBUG] Updating AssociateZone Options: %#v", associateList[i])
 					_, err := zones.AssociateZone(dnsClient, d.Id(), associateList[i]).Extract()
 					if err != nil {
-						return fmt.Errorf("Error AssociateZone: %s", err)
+						return fmtp.Errorf("Error AssociateZone: %s", err)
 					}
 
-					log.Printf("[DEBUG] Waiting for AssociateZone (%s) to Router (%s) become ACTIVE",
+					logp.Printf("[DEBUG] Waiting for AssociateZone (%s) to Router (%s) become ACTIVE",
 						d.Id(), associateList[i].RouterID)
 					stateRouterConf := &resource.StateChangeConf{
 						Target:     []string{"ACTIVE"},
@@ -382,7 +382,7 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 
 					_, err = stateRouterConf.WaitForState()
 					if err != nil {
-						return fmt.Errorf("Error waiting for AssociateZone (%s) to Router (%s) become ACTIVE: %s",
+						return fmtp.Errorf("Error waiting for AssociateZone (%s) to Router (%s) become ACTIVE: %s",
 							d.Id(), associateList[i].RouterID, err)
 					}
 				}
@@ -390,13 +390,13 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 			if len(disassociateList) > 0 {
 				// DisassociateZone
 				for j := range disassociateList {
-					log.Printf("[DEBUG] Updating DisassociateZone Options: %#v", disassociateList[j])
+					logp.Printf("[DEBUG] Updating DisassociateZone Options: %#v", disassociateList[j])
 					_, err := zones.DisassociateZone(dnsClient, d.Id(), disassociateList[j]).Extract()
 					if err != nil {
-						return fmt.Errorf("Error DisassociateZone: %s", err)
+						return fmtp.Errorf("Error DisassociateZone: %s", err)
 					}
 
-					log.Printf("[DEBUG] Waiting for DisassociateZone (%s) to Router (%s) become DELETED",
+					logp.Printf("[DEBUG] Waiting for DisassociateZone (%s) to Router (%s) become DELETED",
 						d.Id(), disassociateList[j].RouterID)
 					stateRouterConf := &resource.StateChangeConf{
 						Target:     []string{"DELETED"},
@@ -409,7 +409,7 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 
 					_, err = stateRouterConf.WaitForState()
 					if err != nil {
-						return fmt.Errorf("Error waiting for DisassociateZone (%s) to Router (%s) become DELETED: %s",
+						return fmtp.Errorf("Error waiting for DisassociateZone (%s) to Router (%s) become DELETED: %s",
 							d.Id(), disassociateList[j].RouterID, err)
 					}
 				}
@@ -420,12 +420,12 @@ func resourceDNSZoneV2Update(d *schema.ResourceData, meta interface{}) error {
 	// update tags
 	resourceType, err := utils.GetDNSZoneTagType(zoneType)
 	if err != nil {
-		return fmt.Errorf("Error getting resource type of DNS zone %s: %s", d.Id(), err)
+		return fmtp.Errorf("Error getting resource type of DNS zone %s: %s", d.Id(), err)
 	}
 
 	tagErr := utils.UpdateResourceTags(dnsClient, d, resourceType, d.Id())
 	if tagErr != nil {
-		return fmt.Errorf("Error updating tags of DNS zone %s: %s", d.Id(), tagErr)
+		return fmtp.Errorf("Error updating tags of DNS zone %s: %s", d.Id(), tagErr)
 	}
 
 	return resourceDNSZoneV2Read(d, meta)
@@ -444,15 +444,15 @@ func resourceDNSZoneV2Delete(d *schema.ResourceData, meta interface{}) error {
 		dnsClient, err = config.DnsV2Client(GetRegion(d, config))
 	}
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	_, err = zones.Delete(dnsClient, d.Id()).Extract()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud DNS Zone: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud DNS Zone: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for DNS Zone (%s) to become available", d.Id())
+	logp.Printf("[DEBUG] Waiting for DNS Zone (%s) to become available", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Target: []string{"DELETED"},
 		//we allow to try to delete ERROR zone
@@ -465,7 +465,7 @@ func resourceDNSZoneV2Delete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for DNS Zone (%s) to delete: %s",
 			d.Id(), err)
 	}
@@ -485,7 +485,7 @@ func waitForDNSZone(dnsClient *golangsdk.ServiceClient, zoneId string) resource.
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud DNS Zone (%s) current status: %s", zone.ID, zone.Status)
+		logp.Printf("[DEBUG] HuaweiCloud DNS Zone (%s) current status: %s", zone.ID, zone.Status)
 		return zone, parseStatus(zone.Status), nil
 	}
 }
@@ -522,7 +522,7 @@ func waitForDNSZoneRouter(dnsClient *golangsdk.ServiceClient, zoneId string, rou
 		}
 		for i := range zone.Routers {
 			if routerId == zone.Routers[i].RouterID {
-				log.Printf("[DEBUG] HuaweiCloud DNS Zone (%s) Router (%s) current status: %s",
+				logp.Printf("[DEBUG] HuaweiCloud DNS Zone (%s) Router (%s) current status: %s",
 					zoneId, routerId, zone.Routers[i].Status)
 				return zone, parseStatus(zone.Routers[i].Status), nil
 			}

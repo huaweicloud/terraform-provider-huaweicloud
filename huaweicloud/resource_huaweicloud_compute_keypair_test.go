@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccComputeV2Keypair_basic(t *testing.T) {
 	var keypair keypairs.KeyPair
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_keypair.kp_1"
 	publicKey, _, _ := acctest.RandSSHKeyPair("Generated-by-AccTest")
 
@@ -42,7 +43,7 @@ func testAccCheckComputeV2KeypairDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -52,7 +53,7 @@ func testAccCheckComputeV2KeypairDestroy(s *terraform.State) error {
 
 		_, err := keypairs.Get(computeClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Keypair still exists")
+			return fmtp.Errorf("Keypair still exists")
 		}
 	}
 
@@ -63,17 +64,17 @@ func testAccCheckComputeV2KeypairExists(n string, kp *keypairs.KeyPair) resource
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
 		found, err := keypairs.Get(computeClient, rs.Primary.ID).Extract()
@@ -82,7 +83,7 @@ func testAccCheckComputeV2KeypairExists(n string, kp *keypairs.KeyPair) resource
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("Keypair not found")
+			return fmtp.Errorf("Keypair not found")
 		}
 
 		*kp = *found
@@ -92,7 +93,7 @@ func testAccCheckComputeV2KeypairExists(n string, kp *keypairs.KeyPair) resource
 }
 
 func testAccComputeV2Keypair_basic(rName, keypair string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_compute_keypair" "kp_1" {
   name       = "%s"
   public_key = "%s"

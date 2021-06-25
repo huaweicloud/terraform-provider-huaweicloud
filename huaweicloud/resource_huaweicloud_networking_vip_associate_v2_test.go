@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +16,7 @@ import (
 )
 
 func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	var instance servers.Server
 	var vip ports.Port
 	var port ports.Port
@@ -42,7 +43,7 @@ func testAccCheckNetworkingV2VIPAssociateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -62,7 +63,7 @@ func testAccCheckNetworkingV2VIPAssociateDestroy(s *terraform.State) error {
 		}
 	}
 
-	log.Printf("[DEBUG] Destroy NetworkingVIPAssociated success!")
+	logp.Printf("[DEBUG] Destroy NetworkingVIPAssociated success!")
 	return nil
 }
 
@@ -71,18 +72,18 @@ func testAccCheckNetworkingV2VIPAssociated(p *ports.Port, vip *ports.Port) resou
 		for _, ip := range p.FixedIPs {
 			for _, addresspair := range vip.AllowedAddressPairs {
 				if ip.IPAddress == addresspair.IPAddress {
-					log.Printf("[DEBUG] Check NetworkingVIPAssociated success!")
+					logp.Printf("[DEBUG] Check NetworkingVIPAssociated success!")
 					return nil
 				}
 			}
 		}
 
-		return fmt.Errorf("VIP %s was not attached to port %s", vip.ID, p.ID)
+		return fmtp.Errorf("VIP %s was not attached to port %s", vip.ID, p.ID)
 	}
 }
 
 func testAccNetworkingV2VIPAssociateConfig_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_networking_port" "port" {

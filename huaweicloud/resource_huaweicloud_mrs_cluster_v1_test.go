@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -35,7 +36,7 @@ func testAccCheckMRSV1ClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	mrsClient, err := config.MrsV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud mrs: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud mrs: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -48,7 +49,7 @@ func testAccCheckMRSV1ClusterDestroy(s *terraform.State) error {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return nil
 			}
-			return fmt.Errorf("cluster still exists. err : %s", err)
+			return fmtp.Errorf("cluster still exists. err : %s", err)
 		}
 		if clusterGet.Clusterstate == "terminated" {
 			return nil
@@ -62,17 +63,17 @@ func testAccCheckMRSV1ClusterExists(n string, clusterGet *cluster.Cluster) resou
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s. ", n)
+			return fmtp.Errorf("Not found: %s. ", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set. ")
+			return fmtp.Errorf("No ID is set. ")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		mrsClient, err := config.MrsV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud mrs client: %s ", err)
+			return fmtp.Errorf("Error creating huaweicloud mrs client: %s ", err)
 		}
 
 		found, err := cluster.Get(mrsClient, rs.Primary.ID).Extract()
@@ -81,7 +82,7 @@ func testAccCheckMRSV1ClusterExists(n string, clusterGet *cluster.Cluster) resou
 		}
 
 		if found.Clusterid != rs.Primary.ID {
-			return fmt.Errorf("Cluster not found. ")
+			return fmtp.Errorf("Cluster not found. ")
 		}
 
 		*clusterGet = *found
@@ -90,7 +91,7 @@ func testAccCheckMRSV1ClusterExists(n string, clusterGet *cluster.Cluster) resou
 	}
 }
 
-var TestAccMRSV1ClusterConfig_basic = fmt.Sprintf(`
+var TestAccMRSV1ClusterConfig_basic = fmtp.Sprintf(`
 resource "huaweicloud_mrs_cluster_v1" "cluster1" {
   cluster_name = "mrs-cluster-acc"
   region = "%s"

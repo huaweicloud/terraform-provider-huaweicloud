@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -9,12 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccSFSFileSystemV2_basic(t *testing.T) {
 	var share shares.Share
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	updateName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	updateName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_sfs_file_system.sfs_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -55,7 +55,7 @@ func TestAccSFSFileSystemV2_basic(t *testing.T) {
 
 func TestAccSFSFileSystemV2_withEpsId(t *testing.T) {
 	var share shares.Share
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_sfs_file_system.sfs_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -77,7 +77,7 @@ func TestAccSFSFileSystemV2_withEpsId(t *testing.T) {
 
 func TestAccSFSFileSystemV2_withoutRule(t *testing.T) {
 	var share shares.Share
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_sfs_file_system.sfs_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -108,7 +108,7 @@ func testAccCheckSFSFileSystemV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	sfsClient, err := config.SfsV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud sfs client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud sfs client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -118,7 +118,7 @@ func testAccCheckSFSFileSystemV2Destroy(s *terraform.State) error {
 
 		_, err := shares.Get(sfsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Share File still exists")
+			return fmtp.Errorf("Share File still exists")
 		}
 	}
 
@@ -129,17 +129,17 @@ func testAccCheckSFSFileSystemV2Exists(n string, share *shares.Share) resource.T
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		sfsClient, err := config.SfsV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud sfs client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud sfs client: %s", err)
 		}
 
 		found, err := shares.Get(sfsClient, rs.Primary.ID).Extract()
@@ -148,7 +148,7 @@ func testAccCheckSFSFileSystemV2Exists(n string, share *shares.Share) resource.T
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("share file not found")
+			return fmtp.Errorf("share file not found")
 		}
 
 		*share = *found
@@ -158,7 +158,7 @@ func testAccCheckSFSFileSystemV2Exists(n string, share *shares.Share) resource.T
 }
 
 func testAccSFSFileSystemV2_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -184,7 +184,7 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
 }
 
 func testAccSFSFileSystemV2_epsId(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -207,7 +207,7 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
 }
 
 func testAccSFSFileSystemV2_update(rName, updateName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -233,7 +233,7 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
 }
 
 func testAccSFSFileSystemV2_withoutRule(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_sfs_file_system" "sfs_1" {
   share_proto = "NFS"
   size        = 10

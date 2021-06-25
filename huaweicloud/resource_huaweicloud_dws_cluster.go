@@ -15,10 +15,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"reflect"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
@@ -210,7 +211,7 @@ func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DwsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	opts := make(map[string]interface{})
@@ -322,7 +323,7 @@ func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	url = client.ServiceURL(url)
 
-	log.Printf("[DEBUG] Creating new Cluster: %#v", opts)
+	logp.Printf("[DEBUG] Creating new Cluster: %#v", opts)
 	r := golangsdk.Result{}
 	_, r.Err = client.Post(
 		url,
@@ -330,7 +331,7 @@ func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
 		&r.Body,
 		&golangsdk.RequestOpts{OkCodes: successHTTPCodes})
 	if r.Err != nil {
-		return fmt.Errorf("Error creating Cluster: %s", r.Err)
+		return fmtp.Errorf("Error creating Cluster: %s", r.Err)
 	}
 
 	pathParameters := map[string][]string{
@@ -340,7 +341,7 @@ func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	for key, path := range pathParameters {
 		value, err := navigateMap(r.Body, path)
 		if err != nil {
-			return fmt.Errorf("Error retrieving async operation path parameter: %s", err)
+			return fmtp.Errorf("Error retrieving async operation path parameter: %s", err)
 		}
 		data[key] = value
 	}
@@ -369,9 +370,9 @@ func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
 				if v, err := convertToInt(code); err == nil {
 					msg, err := navigateMap(r.Body, []string{"failed_reasons", "error_msg"})
 					if err != nil {
-						return nil, "", fmt.Errorf("async operation failed: %v", msg)
+						return nil, "", fmtp.Errorf("async operation failed: %v", msg)
 					}
-					return nil, "", fmt.Errorf("async operation failed: error code = %v", v)
+					return nil, "", fmtp.Errorf("async operation failed: error code = %v", v)
 				}
 			}
 
@@ -388,7 +389,7 @@ func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	id, err := navigateMap(obj, []string{"cluster", "id"})
 	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
+		return fmtp.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id.(string))
 
@@ -399,7 +400,7 @@ func resourceDwsClusterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DwsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	url, err := replaceVars(d, "clusters/{id}", nil)
@@ -413,95 +414,95 @@ func resourceDwsClusterRead(d *schema.ResourceData, meta interface{}) error {
 		url, &r.Body,
 		&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 	if r.Err != nil {
-		return fmt.Errorf("Error reading %s: %s", fmt.Sprintf("DwsCluster %q", d.Id()), r.Err)
+		return fmtp.Errorf("Error reading %s: %s", fmtp.Sprintf("DwsCluster %q", d.Id()), r.Err)
 	}
 	v, err := navigateMap(r.Body, []string{"cluster"})
 	if err != nil {
-		return fmt.Errorf("Error reading %s: the result does not contain cluster", fmt.Sprintf("DwsCluster %q", d.Id()))
+		return fmtp.Errorf("Error reading %s: the result does not contain cluster", fmtp.Sprintf("DwsCluster %q", d.Id()))
 	}
 	res := v.(map[string]interface{})
 
 	if v, ok := res["availability_zone"]; ok {
 		if err := d.Set("availability_zone", v); err != nil {
-			return fmt.Errorf("Error reading Cluster:availability_zone, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:availability_zone, err: %s", err)
 		}
 	}
 
 	if v, ok := res["created"]; ok {
 		if err := d.Set("created", v); err != nil {
-			return fmt.Errorf("Error reading Cluster:created, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:created, err: %s", err)
 		}
 	}
 
 	if v, ok := res["endpoints"]; ok {
 		endpointsProp, err := flattenDwsClusterEndpoints(v)
 		if err != nil {
-			return fmt.Errorf("Error reading Cluster:endpoints, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:endpoints, err: %s", err)
 		}
 		if err := d.Set("endpoints", endpointsProp); err != nil {
-			return fmt.Errorf("Error reading Cluster:endpoints, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:endpoints, err: %s", err)
 		}
 	}
 
 	if v, ok := res["port"]; ok {
 		if err := d.Set("port", v); err != nil {
-			return fmt.Errorf("Error reading Cluster:port, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:port, err: %s", err)
 		}
 	}
 
 	if v, ok := res["public_endpoints"]; ok {
 		publicEndpointsProp, err := flattenDwsClusterPublicEndpoints(v)
 		if err != nil {
-			return fmt.Errorf("Error reading Cluster:public_endpoints, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:public_endpoints, err: %s", err)
 		}
 		if err := d.Set("public_endpoints", publicEndpointsProp); err != nil {
-			return fmt.Errorf("Error reading Cluster:public_endpoints, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:public_endpoints, err: %s", err)
 		}
 	}
 
 	if v, ok := res["public_ip"]; ok {
 		publicIPProp, err := flattenDwsClusterPublicIP(v)
 		if err != nil {
-			return fmt.Errorf("Error reading Cluster:public_ip, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:public_ip, err: %s", err)
 		}
 		if err := d.Set("public_ip", publicIPProp); err != nil {
-			return fmt.Errorf("Error reading Cluster:public_ip, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:public_ip, err: %s", err)
 		}
 	}
 
 	if v, ok := res["recent_event"]; ok {
 		if err := d.Set("recent_event", v); err != nil {
-			return fmt.Errorf("Error reading Cluster:recent_event, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:recent_event, err: %s", err)
 		}
 	}
 
 	if v, ok := res["status"]; ok {
 		if err := d.Set("status", v); err != nil {
-			return fmt.Errorf("Error reading Cluster:status, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:status, err: %s", err)
 		}
 	}
 
 	if v, ok := res["sub_status"]; ok {
 		if err := d.Set("sub_status", v); err != nil {
-			return fmt.Errorf("Error reading Cluster:sub_status, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:sub_status, err: %s", err)
 		}
 	}
 
 	if v, ok := res["task_status"]; ok {
 		if err := d.Set("task_status", v); err != nil {
-			return fmt.Errorf("Error reading Cluster:task_status, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:task_status, err: %s", err)
 		}
 	}
 
 	if v, ok := res["updated"]; ok {
 		if err := d.Set("updated", v); err != nil {
-			return fmt.Errorf("Error reading Cluster:updated, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:updated, err: %s", err)
 		}
 	}
 
 	if v, ok := res["version"]; ok {
 		if err := d.Set("version", v); err != nil {
-			return fmt.Errorf("Error reading Cluster:version, err: %s", err)
+			return fmtp.Errorf("Error reading Cluster:version, err: %s", err)
 		}
 	}
 
@@ -512,7 +513,7 @@ func resourceDwsClusterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DwsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	url, err := replaceVars(d, "clusters/{id}", nil)
@@ -521,7 +522,7 @@ func resourceDwsClusterDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	url = client.ServiceURL(url)
 
-	log.Printf("[DEBUG] Deleting Cluster %q", d.Id())
+	logp.Printf("[DEBUG] Deleting Cluster %q", d.Id())
 	r := golangsdk.Result{}
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
 		OkCodes:      successHTTPCodes,
@@ -532,7 +533,7 @@ func resourceDwsClusterDelete(d *schema.ResourceData, meta interface{}) error {
 		},
 	})
 	if r.Err != nil {
-		return fmt.Errorf("Error deleting Cluster %q: %s", d.Id(), r.Err)
+		return fmtp.Errorf("Error deleting Cluster %q: %s", d.Id(), r.Err)
 	}
 
 	_, err = waitToFinish(

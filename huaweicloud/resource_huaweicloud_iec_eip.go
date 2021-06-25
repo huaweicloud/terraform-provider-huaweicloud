@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strconv"
 	"time"
 
@@ -12,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/publicips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceIecNetworkEip() *schema.Resource {
@@ -92,7 +92,7 @@ func resourceIecEipV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	eipClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	createOpts := publicips.CreateOpts{
@@ -106,24 +106,24 @@ func resourceIecEipV1Create(d *schema.ResourceData, meta interface{}) error {
 		createOpts.Publicip.IPVersion = strconv.Itoa(ipVersion)
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := publicips.Create(eipClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC public ip: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC public ip: %s", err)
 	}
 
-	log.Printf("[DEBUG] IEC publicips ID: %s", n.ID)
+	logp.Printf("[DEBUG] IEC publicips ID: %s", n.ID)
 	d.SetId(n.ID)
 
 	newPort := d.Get("port_id").(string)
 	if newPort != "" {
-		log.Printf("[DEBUG] bind public ip %s to port %s", d.Id(), newPort)
+		logp.Printf("[DEBUG] bind public ip %s to port %s", d.Id(), newPort)
 		if err := operateOnPort(d, eipClient, newPort); err != nil {
 			return err
 		}
 	}
 
-	log.Printf("[DEBUG] Waiting for public ip (%s) to become active", d.Id())
+	logp.Printf("[DEBUG] Waiting for public ip (%s) to become active", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE", "UNBOUND"},
 		Refresh:    waitForIecEipStatus(eipClient, d.Id()),
@@ -134,7 +134,7 @@ func resourceIecEipV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	_, stateErr := stateConf.WaitForState()
 	if stateErr != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for public ip (%s) to become ACTIVE: %s",
 			d.Id(), stateErr)
 	}
@@ -146,7 +146,7 @@ func resourceIecEipV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	eipClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	n, err := publicips.Get(eipClient, d.Id()).Extract()
@@ -160,10 +160,10 @@ func resourceIecEipV1Read(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving Huaweicloud IEC public ip: %s", err)
+		return fmtp.Errorf("Error retrieving Huaweicloud IEC public ip: %s", err)
 	}
 
-	log.Printf("[DEBUG] IEC public ip %s: %+v", d.Id(), n)
+	logp.Printf("[DEBUG] IEC public ip %s: %+v", d.Id(), n)
 
 	d.Set("site_id", n.SiteID)
 	d.Set("port_id", n.PortID)
@@ -190,19 +190,19 @@ func resourceIecEipV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	eipClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	if d.HasChange("port_id") {
 		var opErr error
 		oPort, nPort := d.GetChange("port_id")
 		if oldPort := oPort.(string); oldPort != "" {
-			log.Printf("[DEBUG] unbind public ip %s from port %s", d.Id(), oldPort)
+			logp.Printf("[DEBUG] unbind public ip %s from port %s", d.Id(), oldPort)
 			opErr = operateOnPort(d, eipClient, "")
 		}
 
 		if newPort := nPort.(string); newPort != "" {
-			log.Printf("[DEBUG] bind public ip %s to port %s", d.Id(), newPort)
+			logp.Printf("[DEBUG] bind public ip %s to port %s", d.Id(), newPort)
 			opErr = operateOnPort(d, eipClient, newPort)
 		}
 
@@ -218,12 +218,12 @@ func resourceIecEipV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	eipClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	// unbound the port before deleting the publicips
 	if port := d.Get("port_id").(string); port != "" {
-		log.Printf("[DEBUG] unbind public ip %s from port %s", d.Id(), port)
+		logp.Printf("[DEBUG] unbind public ip %s from port %s", d.Id(), port)
 		if err := operateOnPort(d, eipClient, ""); err != nil {
 			return err
 		}
@@ -245,7 +245,7 @@ func resourceIecEipV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	_, stateErr := stateConf.WaitForState()
 	if stateErr != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for Subnet (%s) to become deleted: %s",
 			d.Id(), stateErr)
 	}
@@ -264,7 +264,7 @@ func operateOnPort(d *schema.ResourceData, client *golangsdk.ServiceClient, port
 		if port == "" {
 			action = "unbinding"
 		}
-		return fmt.Errorf("Error %s Huaweicloud IEC public ip: %s", action, err)
+		return fmtp.Errorf("Error %s Huaweicloud IEC public ip: %s", action, err)
 	}
 	return nil
 }
@@ -274,11 +274,11 @@ func waitForIecEipStatus(subnetClient *golangsdk.ServiceClient, id string) resou
 		n, err := publicips.Get(subnetClient, id).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault400); ok {
-				log.Printf("[INFO] Successfully deleted Huaweicloud IEC public ip %s", id)
+				logp.Printf("[INFO] Successfully deleted Huaweicloud IEC public ip %s", id)
 				return n, "DELETED", nil
 			}
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted Huaweicloud IEC public ip %s", id)
+				logp.Printf("[INFO] Successfully deleted Huaweicloud IEC public ip %s", id)
 				return n, "DELETED", nil
 			}
 
@@ -286,7 +286,7 @@ func waitForIecEipStatus(subnetClient *golangsdk.ServiceClient, id string) resou
 		}
 
 		if n.Status == "ERROR" || n.Status == "BIND_ERROR" {
-			return n, n.Status, fmt.Errorf("got error status with the public ip")
+			return n, n.Status, fmtp.Errorf("got error status with the public ip")
 		}
 
 		// "DOWN" means the publicips is active but unbound

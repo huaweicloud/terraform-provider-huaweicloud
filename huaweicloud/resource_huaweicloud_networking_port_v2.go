@@ -2,9 +2,10 @@ package huaweicloud
 
 import (
 	"bytes"
-	"fmt"
-	"log"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -168,7 +169,7 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var securityGroups []string
@@ -178,7 +179,7 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 
 	// Check and make sure an invalid security group configuration wasn't given.
 	if noSecurityGroups && len(securityGroups) > 0 {
-		return fmt.Errorf("Cannot have both no_security_groups and security_group_ids set")
+		return fmtp.Errorf("Cannot have both no_security_groups and security_group_ids set")
 	}
 
 	createOpts := PortCreateOpts{
@@ -220,7 +221,7 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	log.Printf("[DEBUG] huaweicloud_networking_port_v2 create options: %#v", finalCreateOpts)
+	logp.Printf("[DEBUG] huaweicloud_networking_port_v2 create options: %#v", finalCreateOpts)
 
 	// Create a Neutron port and set extra DHCP options if they're specified.
 	var p struct {
@@ -230,11 +231,11 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 
 	err = ports.Create(networkingClient, finalCreateOpts).ExtractInto(&p)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Neutron port: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud Neutron port: %s", err)
 	}
-	log.Printf("[INFO] Network ID: %s", p.ID)
+	logp.Printf("[INFO] Network ID: %s", p.ID)
 
-	log.Printf("[DEBUG] Waiting for HuaweiCloud Neutron Port (%s) to become available.", p.ID)
+	logp.Printf("[DEBUG] Waiting for HuaweiCloud Neutron Port (%s) to become available.", p.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
@@ -255,7 +256,7 @@ func resourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var p struct {
@@ -268,7 +269,7 @@ func resourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) erro
 		return CheckDeleted(d, err, "port")
 	}
 
-	log.Printf("[DEBUG] Retrieved Port %s: %+v", d.Id(), p)
+	logp.Printf("[DEBUG] Retrieved Port %s: %+v", d.Id(), p)
 
 	d.Set("name", p.Name)
 	d.Set("admin_state_up", p.AdminStateUp)
@@ -312,7 +313,7 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	v := d.Get("security_group_ids").(*schema.Set)
@@ -321,7 +322,7 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 
 	// Check and make sure an invalid security group configuration wasn't given.
 	if noSecurityGroups && len(securityGroups) > 0 {
-		return fmt.Errorf("Cannot have both no_security_groups and security_group_ids set")
+		return fmtp.Errorf("Cannot have both no_security_groups and security_group_ids set")
 	}
 
 	var hasChange bool
@@ -374,11 +375,11 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if hasChange {
-		log.Printf("[DEBUG] Updating Port %s with options: %+v", d.Id(), updateOpts)
+		logp.Printf("[DEBUG] Updating Port %s with options: %+v", d.Id(), updateOpts)
 
 		_, err = ports.Update(networkingClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating HuaweiCloud Neutron Port: %s", err)
+			return fmtp.Errorf("Error updating HuaweiCloud Neutron Port: %s", err)
 		}
 	}
 
@@ -397,10 +398,10 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 				ExtraDHCPOpts:     deleteExtraDHCPOpts,
 			}
 
-			log.Printf("[DEBUG] Deleting old DHCP opts for huaweicloud_networking_port_v2 %s", d.Id())
+			logp.Printf("[DEBUG] Deleting old DHCP opts for huaweicloud_networking_port_v2 %s", d.Id())
 			_, err = ports.Update(networkingClient, d.Id(), dhcpUpdateOpts).Extract()
 			if err != nil {
-				return fmt.Errorf("Error updating HuaweiCloud Neutron Port: %s", err)
+				return fmtp.Errorf("Error updating HuaweiCloud Neutron Port: %s", err)
 			}
 		}
 
@@ -412,10 +413,10 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 				ExtraDHCPOpts:     updateExtraDHCPOpts,
 			}
 
-			log.Printf("[DEBUG] Updating huaweicloud_networking_port_v2 %s with options: %#v", d.Id(), dhcpUpdateOpts)
+			logp.Printf("[DEBUG] Updating huaweicloud_networking_port_v2 %s with options: %#v", d.Id(), dhcpUpdateOpts)
 			_, err = ports.Update(networkingClient, d.Id(), dhcpUpdateOpts).Extract()
 			if err != nil {
-				return fmt.Errorf("Error updating huaweicloud_networking_port_v2 %s: %s", d.Id(), err)
+				return fmtp.Errorf("Error updating huaweicloud_networking_port_v2 %s: %s", d.Id(), err)
 			}
 		}
 	}
@@ -427,7 +428,7 @@ func resourceNetworkingPortV2Delete(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -441,7 +442,7 @@ func resourceNetworkingPortV2Delete(d *schema.ResourceData, meta interface{}) er
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud Neutron Network: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud Neutron Network: %s", err)
 	}
 
 	d.SetId("")
@@ -502,7 +503,7 @@ func resourcePortAdminStateUpV2(d *schema.ResourceData) *bool {
 func allowedAddressPairsHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
-	buf.WriteString(fmt.Sprintf("%s-%s", m["ip_address"].(string), m["mac_address"].(string)))
+	buf.WriteString(fmtp.Sprintf("%s-%s", m["ip_address"].(string), m["mac_address"].(string)))
 
 	return hashcode.String(buf.String())
 }
@@ -514,7 +515,7 @@ func waitForNetworkPortActive(networkingClient *golangsdk.ServiceClient, portId 
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud Neutron Port: %+v", p)
+		logp.Printf("[DEBUG] HuaweiCloud Neutron Port: %+v", p)
 		if p.Status == "DOWN" || p.Status == "ACTIVE" {
 			return p, "ACTIVE", nil
 		}
@@ -525,12 +526,12 @@ func waitForNetworkPortActive(networkingClient *golangsdk.ServiceClient, portId 
 
 func waitForNetworkPortDelete(networkingClient *golangsdk.ServiceClient, portId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Neutron Port %s", portId)
+		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud Neutron Port %s", portId)
 
 		p, err := ports.Get(networkingClient, portId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Port %s", portId)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Port %s", portId)
 				return p, "DELETED", nil
 			}
 			return p, "ACTIVE", err
@@ -539,13 +540,13 @@ func waitForNetworkPortDelete(networkingClient *golangsdk.ServiceClient, portId 
 		err = ports.Delete(networkingClient, portId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Port %s", portId)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Port %s", portId)
 				return p, "DELETED", nil
 			}
 			return p, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud Port %s still active.\n", portId)
+		logp.Printf("[DEBUG] HuaweiCloud Port %s still active.\n", portId)
 		return p, "ACTIVE", nil
 	}
 }

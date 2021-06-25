@@ -1,10 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"sort"
 	"strings"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
@@ -191,7 +192,7 @@ func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) e
 	region := GetRegion(d, config)
 	client, err := config.OpenGaussV3Client(region)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
 
 	listOpts := instances.ListGaussDBInstanceOpts{
@@ -207,22 +208,22 @@ func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) e
 
 	allInstances, err := instances.ExtractGaussDBInstances(pages)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve instances: %s", err)
+		return fmtp.Errorf("Unable to retrieve instances: %s", err)
 	}
 
 	if allInstances.TotalCount < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if allInstances.TotalCount > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	instance := allInstances.Instances[0]
 
-	log.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
+	logp.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
 	d.SetId(instance.Id)
 
 	d.Set("region", region)

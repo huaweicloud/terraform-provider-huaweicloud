@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 func TestAccIdentityAgency_basic(t *testing.T) {
 	var agency agency.Agency
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_agency.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -59,7 +60,7 @@ func TestAccIdentityAgency_basic(t *testing.T) {
 func TestAccIdentityAgency_domain(t *testing.T) {
 	var agency agency.Agency
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_agency.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -105,7 +106,7 @@ func testAccCheckIdentityAgencyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.IAMV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -115,7 +116,7 @@ func testAccCheckIdentityAgencyDestroy(s *terraform.State) error {
 
 		v, err := agency.Get(client, rs.Primary.ID).Extract()
 		if err == nil && v.ID == rs.Primary.ID {
-			return fmt.Errorf("Identity Agency <%s> still exists", rs.Primary.ID)
+			return fmtp.Errorf("Identity Agency <%s> still exists", rs.Primary.ID)
 		}
 	}
 
@@ -126,17 +127,17 @@ func testAccCheckIdentityAgencyExists(n string, ag *agency.Agency) resource.Test
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.IAMV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud Identity Agency: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud Identity Agency: %s", err)
 		}
 
 		found, err := agency.Get(client, rs.Primary.ID).Extract()
@@ -144,7 +145,7 @@ func testAccCheckIdentityAgencyExists(n string, ag *agency.Agency) resource.Test
 			return err
 		}
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Identity Agency <%s> not found", rs.Primary.ID)
+			return fmtp.Errorf("Identity Agency <%s> not found", rs.Primary.ID)
 		}
 		ag = found
 
@@ -153,7 +154,7 @@ func testAccCheckIdentityAgencyExists(n string, ag *agency.Agency) resource.Test
 }
 
 func testAccIdentityAgency_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_agency" "test" {
   name                   = "%s"
   description            = "This is a test agency"
@@ -167,7 +168,7 @@ resource "huaweicloud_identity_agency" "test" {
 }
 
 func testAccIdentityAgency_update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_agency" "test" {
   name                   = "%s"
   description            = "This is a updated test agency"
@@ -181,7 +182,7 @@ resource "huaweicloud_identity_agency" "test" {
 }
 
 func testAccIdentityAgency_domain(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_agency" "test" {
   name                  = "%s"
   description           = "This is a test agency"
@@ -195,7 +196,7 @@ resource "huaweicloud_identity_agency" "test" {
 }
 
 func testAccIdentityAgency_domainUpdate(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_agency" "test" {
   name                  = "%s"
   description           = "This is a updated test agency"

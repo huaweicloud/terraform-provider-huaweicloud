@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"fmt"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
@@ -54,7 +54,7 @@ func dataSourceDisPartitionV2Read(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	client, err := config.DisV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	url, err := replaceVars(d, "streams/{stream_name}", nil)
@@ -70,7 +70,7 @@ func dataSourceDisPartitionV2Read(d *schema.ResourceData, meta interface{}) erro
 		_, r.Err = client.Get(url1, &r.Body, &golangsdk.RequestOpts{
 			MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 		if r.Err != nil {
-			return fmt.Errorf("Error running api(read) for resource(DisStreamV2), err=%s", r.Err)
+			return fmtp.Errorf("Error running api(read) for resource(DisStreamV2), err=%s", r.Err)
 		}
 
 		v, err := navigateValue(r.Body, []string{"partitions"}, nil)

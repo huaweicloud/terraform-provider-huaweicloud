@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -14,8 +15,8 @@ import (
 
 func TestAccDmsGroupsV1_basic(t *testing.T) {
 	var group groups.Group
-	var groupName = fmt.Sprintf("dms_group_%s", acctest.RandString(5))
-	var queueName = fmt.Sprintf("dms_queue_%s", acctest.RandString(5))
+	var groupName = fmtp.Sprintf("dms_group_%s", acctest.RandString(5))
+	var queueName = fmtp.Sprintf("dms_queue_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDms(t) },
@@ -38,7 +39,7 @@ func testAccCheckDmsV1GroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud group client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud group client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -51,12 +52,12 @@ func testAccCheckDmsV1GroupDestroy(s *terraform.State) error {
 		if err == nil {
 			groupsList, err := groups.ExtractGroups(page)
 			if err != nil {
-				return fmt.Errorf("Error getting groups in queue %s: %s", queueID, err)
+				return fmtp.Errorf("Error getting groups in queue %s: %s", queueID, err)
 			}
 			if len(groupsList) > 0 {
 				for _, group := range groupsList {
 					if group.ID == rs.Primary.ID {
-						return fmt.Errorf("The Dms group still exists.")
+						return fmtp.Errorf("The Dms group still exists.")
 					}
 				}
 			}
@@ -69,23 +70,23 @@ func testAccCheckDmsV1GroupExists(n string, group groups.Group) resource.TestChe
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud group client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud group client: %s", err)
 		}
 
 		queueID := rs.Primary.Attributes["queue_id"]
 		page, err := groups.List(dmsClient, queueID, false).AllPages()
 		if err != nil {
-			return fmt.Errorf("Error getting groups in queue %s: %s", queueID, err)
+			return fmtp.Errorf("Error getting groups in queue %s: %s", queueID, err)
 		}
 
 		groupsList, err := groups.ExtractGroups(page)
@@ -97,12 +98,12 @@ func testAccCheckDmsV1GroupExists(n string, group groups.Group) resource.TestChe
 				}
 			}
 		}
-		return fmt.Errorf("The Dms group not found.")
+		return fmtp.Errorf("The Dms group not found.")
 	}
 }
 
 func testAccDmsV1Group_basic(groupName string, queueName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 		resource "huaweicloud_dms_queue_v1" "queue_1" {
 			name  = "%s"
 		}

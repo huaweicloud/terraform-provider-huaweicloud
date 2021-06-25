@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -11,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccNetworkingV2Network_basic(t *testing.T) {
@@ -110,7 +110,7 @@ func testAccCheckNetworkingV2NetworkDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -120,7 +120,7 @@ func testAccCheckNetworkingV2NetworkDestroy(s *terraform.State) error {
 
 		_, err := networks.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Network still exists")
+			return fmtp.Errorf("Network still exists")
 		}
 	}
 
@@ -131,17 +131,17 @@ func testAccCheckNetworkingV2NetworkExists(n string, network *networks.Network) 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		found, err := networks.Get(networkingClient, rs.Primary.ID).Extract()
@@ -150,7 +150,7 @@ func testAccCheckNetworkingV2NetworkExists(n string, network *networks.Network) 
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Network not found")
+			return fmtp.Errorf("Network not found")
 		}
 
 		*network = *found

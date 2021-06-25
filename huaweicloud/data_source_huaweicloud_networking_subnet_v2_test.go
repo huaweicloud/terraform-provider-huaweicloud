@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -86,11 +87,11 @@ func testAccCheckNetworkingSubnetV2DataSourceID(n string) resource.TestCheckFunc
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find subnet data source: %s", n)
+			return fmtp.Errorf("Can't find subnet data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Subnet data source ID not set")
+			return fmtp.Errorf("Subnet data source ID not set")
 		}
 
 		return nil
@@ -101,11 +102,11 @@ func testAccCheckNetworkingPortV2ID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find port resource: %s", n)
+			return fmtp.Errorf("Can't find port resource: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Port resource ID not set")
+			return fmtp.Errorf("Port resource ID not set")
 		}
 
 		return nil
@@ -116,24 +117,24 @@ func testAccCheckNetworkingSubnetV2DataSourceGoodNetwork(n1, n2 string) resource
 	return func(s *terraform.State) error {
 		ds1, ok := s.RootModule().Resources[n1]
 		if !ok {
-			return fmt.Errorf("Can't find subnet data source: %s", n1)
+			return fmtp.Errorf("Can't find subnet data source: %s", n1)
 		}
 
 		if ds1.Primary.ID == "" {
-			return fmt.Errorf("Subnet data source ID not set")
+			return fmtp.Errorf("Subnet data source ID not set")
 		}
 
 		rs2, ok := s.RootModule().Resources[n2]
 		if !ok {
-			return fmt.Errorf("Can't find network resource: %s", n2)
+			return fmtp.Errorf("Can't find network resource: %s", n2)
 		}
 
 		if rs2.Primary.ID == "" {
-			return fmt.Errorf("Network resource ID not set")
+			return fmtp.Errorf("Network resource ID not set")
 		}
 
 		if rs2.Primary.ID != ds1.Primary.Attributes["network_id"] {
-			return fmt.Errorf("Network id and subnet network_id don't match")
+			return fmtp.Errorf("Network id and subnet network_id don't match")
 		}
 
 		return nil
@@ -153,7 +154,7 @@ resource "huaweicloud_networking_subnet_v2" "subnet_1" {
 }
 `
 
-var testAccHuaweiCloudNetworkingSubnetV2DataSource_basic = fmt.Sprintf(`
+var testAccHuaweiCloudNetworkingSubnetV2DataSource_basic = fmtp.Sprintf(`
 %s
 
 data "huaweicloud_networking_subnet_v2" "subnet_1" {
@@ -161,7 +162,7 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 }
 `, testAccHuaweiCloudNetworkingSubnetV2DataSource_subnet)
 
-var testAccHuaweiCloudNetworkingSubnetV2DataSource_cidr = fmt.Sprintf(`
+var testAccHuaweiCloudNetworkingSubnetV2DataSource_cidr = fmtp.Sprintf(`
 %s
 
 data "huaweicloud_networking_subnet_v2" "subnet_1" {
@@ -169,7 +170,7 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 }
 `, testAccHuaweiCloudNetworkingSubnetV2DataSource_subnet)
 
-var testAccHuaweiCloudNetworkingSubnetV2DataSource_dhcpEnabled = fmt.Sprintf(`
+var testAccHuaweiCloudNetworkingSubnetV2DataSource_dhcpEnabled = fmtp.Sprintf(`
 %s
 
 data "huaweicloud_networking_subnet_v2" "subnet_1" {
@@ -178,7 +179,7 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 }
 `, testAccHuaweiCloudNetworkingSubnetV2DataSource_subnet)
 
-var testAccHuaweiCloudNetworkingSubnetV2DataSource_ipVersion = fmt.Sprintf(`
+var testAccHuaweiCloudNetworkingSubnetV2DataSource_ipVersion = fmtp.Sprintf(`
 %s
 
 data "huaweicloud_networking_subnet_v2" "subnet_1" {
@@ -187,7 +188,7 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 }
 `, testAccHuaweiCloudNetworkingSubnetV2DataSource_subnet)
 
-var testAccHuaweiCloudNetworkingSubnetV2DataSource_gatewayIP = fmt.Sprintf(`
+var testAccHuaweiCloudNetworkingSubnetV2DataSource_gatewayIP = fmtp.Sprintf(`
 %s
 
 data "huaweicloud_networking_subnet_v2" "subnet_1" {
@@ -195,7 +196,7 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 }
 `, testAccHuaweiCloudNetworkingSubnetV2DataSource_subnet)
 
-var testAccHuaweiCloudNetworkingSubnetV2DataSource_networkIdAttribute = fmt.Sprintf(`
+var testAccHuaweiCloudNetworkingSubnetV2DataSource_networkIdAttribute = fmtp.Sprintf(`
 %s
 
 data "huaweicloud_networking_subnet_v2" "subnet_1" {

@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -11,6 +9,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/css/v1/snapshots"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceCssSnapshot() *schema.Resource {
@@ -70,7 +70,7 @@ func resourceCssSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cssClient, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CSS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CSS client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
@@ -80,16 +80,16 @@ func resourceCssSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
 		Indices:     d.Get("index").(string),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	snap, err := snapshots.Create(cssClient, createOpts, clusterID).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CSS snapshot: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CSS snapshot: %s", err)
 	}
 
 	// Store the snapshot ID
 	d.SetId(snap.ID)
 
-	log.Printf("[DEBUG] Waiting for snapshot (%s) to complete", d.Id())
+	logp.Printf("[DEBUG] Waiting for snapshot (%s) to complete", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"BUILDING"},
 		Target:     []string{"COMPLETED"},
@@ -101,7 +101,7 @@ func resourceCssSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for snapshot (%s) to complete: %s",
 			d.Id(), err)
 	}
@@ -113,7 +113,7 @@ func resourceCssSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cssClient, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CSS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CSS client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
@@ -131,12 +131,12 @@ func resourceCssSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	if snap.ID == "" {
-		log.Printf("[INFO] the snapshot %s does not exist", d.Id())
+		logp.Printf("[INFO] the snapshot %s does not exist", d.Id())
 		d.SetId("")
 		return nil
 	}
 
-	log.Printf("[DEBUG] Retrieved the sanpshot %s: %+v", d.Id(), snap)
+	logp.Printf("[DEBUG] Retrieved the sanpshot %s: %+v", d.Id(), snap)
 
 	d.Set("name", snap.Name)
 	d.Set("description", snap.Description)
@@ -154,7 +154,7 @@ func resourceCssSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cssClient, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CSS storage client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CSS storage client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
@@ -185,7 +185,7 @@ func cssSnapshotStateRefreshFunc(client *golangsdk.ServiceClient, clusterID, id 
 		}
 
 		if snap.ID == "" {
-			return nil, "NOTEXIST", fmt.Errorf("The specified snapshot %s not exist", id)
+			return nil, "NOTEXIST", fmtp.Errorf("The specified snapshot %s not exist", id)
 		}
 
 		return snap, snap.Status, nil
@@ -195,7 +195,7 @@ func cssSnapshotStateRefreshFunc(client *golangsdk.ServiceClient, clusterID, id 
 func resourceCssSnapshotImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		err := fmt.Errorf("Invalid format specified for CSS snapshot. Format must be <cluster id>/<snapshot id>")
+		err := fmtp.Errorf("Invalid format specified for CSS snapshot. Format must be <cluster id>/<snapshot id>")
 		return nil, err
 	}
 	clusterID := parts[0]
@@ -204,7 +204,7 @@ func resourceCssSnapshotImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	config := meta.(*config.Config)
 	client, err := config.CssV1Client(GetRegion(d, config))
 	if err != nil {
-		return nil, fmt.Errorf("Error creating css client, err=%s", err)
+		return nil, fmtp.Errorf("Error creating css client, err=%s", err)
 	}
 
 	// check the css cluster whether exists

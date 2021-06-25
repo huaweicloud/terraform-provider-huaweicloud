@@ -1,12 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceVirtualPrivateCloudVpcV1() *schema.Resource {
@@ -67,7 +66,7 @@ func dataSourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}
 
 	listOpts := vpcs.ListOpts{
@@ -85,16 +84,16 @@ func dataSourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{
 
 	refinedVpcs, err := vpcs.List(vpcClient, listOpts)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve vpcs: %s", err)
+		return fmtp.Errorf("Unable to retrieve vpcs: %s", err)
 	}
 
 	if len(refinedVpcs) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedVpcs) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
@@ -109,7 +108,7 @@ func dataSourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{
 		s = append(s, mapping)
 	}
 
-	log.Printf("[INFO] Retrieved Vpc using given filter %s: %+v", Vpc.ID, Vpc)
+	logp.Printf("[INFO] Retrieved Vpc using given filter %s: %+v", Vpc.ID, Vpc)
 	d.SetId(Vpc.ID)
 
 	d.Set("name", Vpc.Name)

@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,8 +14,8 @@ import (
 
 func TestAccElbV3Pool_basic(t *testing.T) {
 	var pool pools.Pool
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_pool.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -45,7 +46,7 @@ func testAccCheckElbV3PoolDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	elbClient, err := config.ElbV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -55,7 +56,7 @@ func testAccCheckElbV3PoolDestroy(s *terraform.State) error {
 
 		_, err := pools.Get(elbClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Pool still exists: %s", rs.Primary.ID)
+			return fmtp.Errorf("Pool still exists: %s", rs.Primary.ID)
 		}
 	}
 
@@ -66,17 +67,17 @@ func testAccCheckElbV3PoolExists(n string, pool *pools.Pool) resource.TestCheckF
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		elbClient, err := config.ElbV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
 
 		found, err := pools.Get(elbClient, rs.Primary.ID).Extract()
@@ -85,7 +86,7 @@ func testAccCheckElbV3PoolExists(n string, pool *pools.Pool) resource.TestCheckF
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Member not found")
+			return fmtp.Errorf("Member not found")
 		}
 
 		*pool = *found
@@ -95,7 +96,7 @@ func testAccCheckElbV3PoolExists(n string, pool *pools.Pool) resource.TestCheckF
 }
 
 func testAccElbV3PoolConfig_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -142,7 +143,7 @@ resource "huaweicloud_elb_pool" "test" {
 }
 
 func testAccElbV3PoolConfig_update(rName, rNameUpdate string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

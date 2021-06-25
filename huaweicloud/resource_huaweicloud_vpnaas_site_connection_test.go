@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -9,6 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/siteconnections"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpnSiteConnectionV2_basic(t *testing.T) {
@@ -45,7 +45,7 @@ func testAccCheckSiteConnectionV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_vpnaas_site_connection_v2" {
@@ -53,7 +53,7 @@ func testAccCheckSiteConnectionV2Destroy(s *terraform.State) error {
 		}
 		_, err = siteconnections.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Site connection (%s) still exists.", rs.Primary.ID)
+			return fmtp.Errorf("Site connection (%s) still exists.", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -66,17 +66,17 @@ func testAccCheckSiteConnectionV2Exists(n string, conn *siteconnections.Connecti
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		var found *siteconnections.Connection
@@ -91,7 +91,7 @@ func testAccCheckSiteConnectionV2Exists(n string, conn *siteconnections.Connecti
 	}
 }
 
-var testAccSiteConnectionV2_basic = fmt.Sprintf(`
+var testAccSiteConnectionV2_basic = fmtp.Sprintf(`
 	resource "huaweicloud_networking_network_v2" "network_1" {
 		name           = "tf_test_network"
   		admin_state_up = "true"

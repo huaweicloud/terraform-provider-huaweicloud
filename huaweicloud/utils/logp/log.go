@@ -2,13 +2,13 @@ package logp
 
 import (
 	"log"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"strings"
 )
 
 const REPLACE_STR = "huawei"
 
 func Printf(format string, v ...interface{}) {
-	newFormat := utils.BuildNewFormatByConfig(format)
+	newFormat := strings.Replace(format, REPLACE_STR, "", -1)
 	log.Printf(newFormat, v)
+
 }

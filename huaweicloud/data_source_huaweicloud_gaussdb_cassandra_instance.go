@@ -1,11 +1,12 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
@@ -168,7 +169,7 @@ func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 	region := GetRegion(d, config)
 	client, err := config.GeminiDBV3Client(region)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
 
 	listOpts := instances.ListGeminiDBInstanceOpts{
@@ -184,22 +185,22 @@ func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 
 	allInstances, err := instances.ExtractGeminiDBInstances(pages)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve instances: %s", err)
+		return fmtp.Errorf("Unable to retrieve instances: %s", err)
 	}
 
 	if allInstances.TotalCount < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if allInstances.TotalCount > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	instance := allInstances.Instances[0]
 
-	log.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
+	logp.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
 	d.SetId(instance.Id)
 
 	d.Set("name", instance.Name)
@@ -256,7 +257,7 @@ func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 			d.Set("volume_size", volSize)
 		}
 		if specCode != "" {
-			log.Printf("[DEBUG] Node SpecCode: %s", specCode)
+			logp.Printf("[DEBUG] Node SpecCode: %s", specCode)
 			d.Set("flavor", specCode)
 		}
 	}
@@ -281,10 +282,10 @@ func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for geminidb (%s): %s", d.Id(), err)
+			return fmtp.Errorf("Error saving tags to state for geminidb (%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of geminidb (%s): %s", d.Id(), err)
+		logp.Printf("[WARN] Error fetching tags of geminidb (%s): %s", d.Id(), err)
 	}
 
 	return nil

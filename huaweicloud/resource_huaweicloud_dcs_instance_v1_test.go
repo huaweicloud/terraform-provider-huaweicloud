@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,7 +14,7 @@ import (
 
 func TestAccDcsInstancesV1_basic(t *testing.T) {
 	var instance instances.Instance
-	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
+	var instanceName = fmtp.Sprintf("dcs_instance_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dcs_instance.instance_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -49,7 +50,7 @@ func TestAccDcsInstancesV1_basic(t *testing.T) {
 
 func TestAccDcsInstancesV1_withEpsId(t *testing.T) {
 	var instance instances.Instance
-	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
+	var instanceName = fmtp.Sprintf("dcs_instance_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dcs_instance.instance_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -71,7 +72,7 @@ func TestAccDcsInstancesV1_withEpsId(t *testing.T) {
 
 func TestAccDcsInstancesV1_whitelists(t *testing.T) {
 	var instance instances.Instance
-	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
+	var instanceName = fmtp.Sprintf("dcs_instance_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dcs_instance.instance_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -96,7 +97,7 @@ func TestAccDcsInstancesV1_whitelists(t *testing.T) {
 
 func TestAccDcsInstancesV1_tiny(t *testing.T) {
 	var instance instances.Instance
-	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
+	var instanceName = fmtp.Sprintf("dcs_instance_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dcs_instance.instance_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -120,7 +121,7 @@ func TestAccDcsInstancesV1_tiny(t *testing.T) {
 
 func TestAccDcsInstancesV1_single(t *testing.T) {
 	var instance instances.Instance
-	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
+	var instanceName = fmtp.Sprintf("dcs_instance_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dcs_instance.instance_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -146,7 +147,7 @@ func testAccCheckDcsV1InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	dcsClient, err := config.DcsV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud instance client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud instance client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -156,7 +157,7 @@ func testAccCheckDcsV1InstanceDestroy(s *terraform.State) error {
 
 		_, err := instances.Get(dcsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("the DCS instance still exists")
+			return fmtp.Errorf("the DCS instance still exists")
 		}
 	}
 	return nil
@@ -166,26 +167,26 @@ func testAccCheckDcsV1InstanceExists(n string, instance instances.Instance) reso
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		dcsClient, err := config.DcsV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud instance client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud instance client: %s", err)
 		}
 
 		v, err := instances.Get(dcsClient, rs.Primary.ID).Extract()
 		if err != nil {
-			return fmt.Errorf("Error getting Huaweicloud instance: %s, err: %s", rs.Primary.ID, err)
+			return fmtp.Errorf("Error getting Huaweicloud instance: %s, err: %s", rs.Primary.ID, err)
 		}
 
 		if v.InstanceID != rs.Primary.ID {
-			return fmt.Errorf("the DCS instance not found")
+			return fmtp.Errorf("the DCS instance not found")
 		}
 		instance = *v
 		return nil
@@ -193,7 +194,7 @@ func testAccCheckDcsV1InstanceExists(n string, instance instances.Instance) reso
 }
 
 func testAccDcsV1Instance_basic(instanceName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 	data "huaweicloud_availability_zones" "test" {}
 
 	data "huaweicloud_vpc" "test" {
@@ -235,7 +236,7 @@ func testAccDcsV1Instance_basic(instanceName string) string {
 }
 
 func testAccDcsV1Instance_updated(instanceName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 	data "huaweicloud_availability_zones" "test" {}
 
 	data "huaweicloud_vpc" "test" {
@@ -277,7 +278,7 @@ func testAccDcsV1Instance_updated(instanceName string) string {
 }
 
 func testAccDcsV1Instance_epsId(instanceName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 	data "huaweicloud_availability_zones" "test" {}
 
 	data "huaweicloud_vpc" "test" {
@@ -315,7 +316,7 @@ func testAccDcsV1Instance_epsId(instanceName string) string {
 }
 
 func testAccDcsV1Instance_tiny(instanceName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 	data "huaweicloud_availability_zones" "test" {}
 
 	data "huaweicloud_vpc" "test" {
@@ -352,7 +353,7 @@ func testAccDcsV1Instance_tiny(instanceName string) string {
 }
 
 func testAccDcsV1Instance_single(instanceName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 	data "huaweicloud_availability_zones" "test" {}
 
 	data "huaweicloud_vpc" "test" {
@@ -382,7 +383,7 @@ func testAccDcsV1Instance_single(instanceName string) string {
 }
 
 func testAccDcsV1Instance_whitelists(instanceName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 	data "huaweicloud_availability_zones" "test" {}
 
 	data "huaweicloud_vpc" "test" {

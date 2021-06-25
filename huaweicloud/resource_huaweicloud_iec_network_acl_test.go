@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,7 +14,7 @@ import (
 )
 
 func TestAccIecNetworkACLResource_basic(t *testing.T) {
-	rName := fmt.Sprintf("iec-acl-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("iec-acl-%s", acctest.RandString(5))
 	resourceKey := "huaweicloud_iec_network_acl.acl_demo"
 	var fwGroup firewalls.Firewall
 
@@ -50,7 +51,7 @@ func TestAccIecNetworkACLResource_basic(t *testing.T) {
 }
 
 func TestAccIecNetworkACLResource_no_subnets(t *testing.T) {
-	rName := fmt.Sprintf("acc-fw-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("acc-fw-%s", acctest.RandString(5))
 	resourceKey := "huaweicloud_iec_network_acl.acl_demo"
 	var fwGroup firewalls.Firewall
 
@@ -76,7 +77,7 @@ func testAccCheckIecNetworkACLDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -86,7 +87,7 @@ func testAccCheckIecNetworkACLDestroy(s *terraform.State) error {
 
 		_, err := firewalls.Get(iecV1Client, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("IEC network acl still exists")
+			return fmtp.Errorf("IEC network acl still exists")
 		}
 	}
 
@@ -97,17 +98,17 @@ func testAccCheckIecNetworkACLExists(n string, resource *firewalls.Firewall) res
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 		}
 
 		found, err := firewalls.Get(iecV1Client, rs.Primary.ID).Extract()
@@ -116,7 +117,7 @@ func testAccCheckIecNetworkACLExists(n string, resource *firewalls.Firewall) res
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("IEC Network ACL not found")
+			return fmtp.Errorf("IEC Network ACL not found")
 		}
 
 		*resource = *found
@@ -128,7 +129,7 @@ func testAccCheckIecNetworkACLExists(n string, resource *firewalls.Firewall) res
 func testAccCheckIecNetworkACLNetBlockExists(resource *firewalls.Firewall) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(resource.Subnets) == 0 {
-			return fmt.Errorf("The Subnet of IEC Network ACL is not set.")
+			return fmtp.Errorf("The Subnet of IEC Network ACL is not set.")
 		}
 		return nil
 	}
@@ -153,7 +154,7 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
 `
 
 func testAccIecNetworkACL_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_iec_network_acl" "acl_demo" {
@@ -168,7 +169,7 @@ resource "huaweicloud_iec_network_acl" "acl_demo" {
 }
 
 func testAccIecNetworkACL_basic_update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_iec_network_acl" "acl_demo" {
@@ -183,7 +184,7 @@ resource "huaweicloud_iec_network_acl" "acl_demo" {
 }
 
 func testAccIecNetworkACL_no_subnets(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_iec_network_acl" "acl_demo" {
   name        = "%s-noSubnet"
   description = "Iec network acl without subents"

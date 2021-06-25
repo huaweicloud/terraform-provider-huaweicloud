@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,12 +9,13 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpcV1_basic(t *testing.T) {
 	var vpc vpcs.Vpc
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc.test"
 	rNameUpdate := rName + "-updated"
 
@@ -55,7 +55,7 @@ func TestAccVpcV1_basic(t *testing.T) {
 func TestAccVpcV1_WithEpsId(t *testing.T) {
 	var vpc vpcs.Vpc
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -81,8 +81,8 @@ func TestAccVpcV1_WithEpsId(t *testing.T) {
 // you shoule set `HW_CUSTOM_REGION_NAME` in your system and it should be different from `HW_REGION_NAME`.
 func TestAccVpcV1_WithCustomRegion(t *testing.T) {
 
-	vpcName1 := fmt.Sprintf("test_vpc_region_%s", acctest.RandString(5))
-	vpcName2 := fmt.Sprintf("test_vpc_region_%s", acctest.RandString(5))
+	vpcName1 := fmtp.Sprintf("test_vpc_region_%s", acctest.RandString(5))
+	vpcName2 := fmtp.Sprintf("test_vpc_region_%s", acctest.RandString(5))
 
 	resName1 := "huaweicloud_vpc.test1"
 	resName2 := "huaweicloud_vpc.test2"
@@ -109,7 +109,7 @@ func testAccCheckVpcV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud vpc client: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud vpc client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -119,7 +119,7 @@ func testAccCheckVpcV1Destroy(s *terraform.State) error {
 
 		_, err := vpcs.Get(vpcClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Vpc still exists")
+			return fmtp.Errorf("Vpc still exists")
 		}
 	}
 
@@ -130,17 +130,17 @@ func testAccCheckCustomRegionVpcV1Exists(name string, vpc *vpcs.Vpc, region stri
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
-			return fmt.Errorf("Not found: %s", name)
+			return fmtp.Errorf("Not found: %s", name)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		vpcClient, err := config.NetworkingV1Client(region)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud vpc client: %s", err)
+			return fmtp.Errorf("Error creating huaweicloud vpc client: %s", err)
 		}
 
 		found, err := vpcs.Get(vpcClient, rs.Primary.ID).Extract()
@@ -149,7 +149,7 @@ func testAccCheckCustomRegionVpcV1Exists(name string, vpc *vpcs.Vpc, region stri
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("vpc not found")
+			return fmtp.Errorf("vpc not found")
 		}
 
 		*vpc = *found
@@ -161,17 +161,17 @@ func testAccCheckVpcV1Exists(n string, vpc *vpcs.Vpc) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		vpcClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud vpc client: %s", err)
+			return fmtp.Errorf("Error creating huaweicloud vpc client: %s", err)
 		}
 
 		found, err := vpcs.Get(vpcClient, rs.Primary.ID).Extract()
@@ -180,7 +180,7 @@ func testAccCheckVpcV1Exists(n string, vpc *vpcs.Vpc) resource.TestCheckFunc {
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("vpc not found")
+			return fmtp.Errorf("vpc not found")
 		}
 
 		*vpc = *found
@@ -190,7 +190,7 @@ func testAccCheckVpcV1Exists(n string, vpc *vpcs.Vpc) resource.TestCheckFunc {
 }
 
 func testAccVpcV1_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -204,7 +204,7 @@ resource "huaweicloud_vpc" "test" {
 }
 
 func testAccVpcV1_update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr="192.168.0.0/16"
@@ -218,7 +218,7 @@ resource "huaweicloud_vpc" "test" {
 }
 
 func testAccVpcV1_epsId(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -228,7 +228,7 @@ resource "huaweicloud_vpc" "test" {
 }
 
 func tesstAccVpcV1_WithCustomRegion(name1 string, name2 string, region string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "test1" {
   name = "%s"
   cidr = "192.168.0.0/16"

@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,7 +14,7 @@ import (
 
 func TestAccDDSV3Instance_basic(t *testing.T) {
 	var instance instances.Instance
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dds_instance.instance"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -48,7 +49,7 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 
 func TestAccDDSV3Instance_withEpsId(t *testing.T) {
 	var instance instances.Instance
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dds_instance.instance"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -72,7 +73,7 @@ func testAccCheckDDSV3InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.DdsV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DDS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -93,7 +94,7 @@ func testAccCheckDDSV3InstanceDestroy(s *terraform.State) error {
 		}
 
 		if instances.TotalCount > 0 {
-			return fmt.Errorf("Instance still exists. ")
+			return fmtp.Errorf("Instance still exists. ")
 		}
 	}
 
@@ -104,17 +105,17 @@ func testAccCheckDDSV3InstanceExists(n string, instance *instances.Instance) res
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s. ", n)
+			return fmtp.Errorf("Not found: %s. ", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set. ")
+			return fmtp.Errorf("No ID is set. ")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.DdsV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
+			return fmtp.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
 		}
 
 		opts := instances.ListInstanceOpts{
@@ -129,7 +130,7 @@ func testAccCheckDDSV3InstanceExists(n string, instance *instances.Instance) res
 			return err
 		}
 		if instances.TotalCount == 0 {
-			return fmt.Errorf("dds instance not found.")
+			return fmtp.Errorf("dds instance not found.")
 		}
 
 		return nil
@@ -137,7 +138,7 @@ func testAccCheckDDSV3InstanceExists(n string, instance *instances.Instance) res
 }
 
 func testAccDDSInstanceV3Config_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {
@@ -200,7 +201,7 @@ resource "huaweicloud_dds_instance" "instance" {
 }
 
 func testAccDDSInstanceV3Config_updateBackupStrategy(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {
@@ -263,7 +264,7 @@ resource "huaweicloud_dds_instance" "instance" {
 }
 
 func testAccDDSInstanceV3Config_withEpsId(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {

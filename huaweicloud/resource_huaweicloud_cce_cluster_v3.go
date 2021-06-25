@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -15,6 +13,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 var associateDeleteSchema *schema.Schema = &schema.Schema{
@@ -348,11 +348,11 @@ func resourceClusterMastersV3(d *schema.ResourceData) ([]clusters.MasterSpec, er
 		flavorId := d.Get("flavor_id").(string)
 		mastersRaw := v.([]interface{})
 		if strings.Contains(flavorId, "s1") && len(mastersRaw) != 1 {
-			return nil, fmt.Errorf("Error creating HuaweiCloud Cluster: "+
+			return nil, fmtp.Errorf("Error creating HuaweiCloud Cluster: "+
 				"single-master cluster need 1 az for master node, but got %d", len(mastersRaw))
 		}
 		if strings.Contains(flavorId, "s2") && len(mastersRaw) != 3 {
-			return nil, fmt.Errorf("Error creating HuaweiCloud Cluster: "+
+			return nil, fmtp.Errorf("Error creating HuaweiCloud Cluster: "+
 				"high-availability cluster need 3 az for master nodes, but got %d", len(mastersRaw))
 		}
 		masters := make([]clusters.MasterSpec, len(mastersRaw))
@@ -372,11 +372,11 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
+		return fmtp.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
 	icAgentClient, err := config.AomV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Unable to create HuaweiCloud AOM client : %s", err)
+		return fmtp.Errorf("Unable to create HuaweiCloud AOM client : %s", err)
 	}
 
 	authenticating_proxy := make(map[string]string)
@@ -440,12 +440,12 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 
 	s, err := clusters.Create(cceClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Cluster: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud Cluster: %s", err)
 	}
 
 	jobID := s.Status.JobID
 	if jobID == "" {
-		return fmt.Errorf("Error fetching job id after creating cce cluster: %s", clusterName)
+		return fmtp.Errorf("Error fetching job id after creating cce cluster: %s", clusterName)
 	}
 
 	clusterID, err := getCCEClusterIDFromJob(cceClient, jobID)
@@ -454,7 +454,7 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.SetId(clusterID)
 
-	log.Printf("[DEBUG] Waiting for HuaweiCloud CCE cluster (%s) to become available", clusterID)
+	logp.Printf("[DEBUG] Waiting for HuaweiCloud CCE cluster (%s) to become available", clusterID)
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Creating"},
 		Target:       []string{"Available"},
@@ -466,17 +466,17 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE cluster: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE cluster: %s", err)
 	}
 
-	log.Printf("[DEBUG] installing ICAgent for CCE cluster (%s)", d.Id())
+	logp.Printf("[DEBUG] installing ICAgent for CCE cluster (%s)", d.Id())
 	installParam := icagents.InstallParam{
 		ClusterId: d.Id(),
 		NameSpace: "default",
 	}
 	result := icagents.Create(icAgentClient, installParam)
 	if result.Err != nil {
-		log.Printf("Error installing ICAgent in CCE cluster: %s", result.Err)
+		logp.Printf("Error installing ICAgent in CCE cluster: %s", result.Err)
 	}
 
 	return resourceCCEClusterV3Read(d, meta)
@@ -486,7 +486,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 
 	n, err := clusters.Get(cceClient, d.Id()).Extract()
@@ -496,7 +496,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving HuaweiCloud CCE: %s", err)
+		return fmtp.Errorf("Error retrieving HuaweiCloud CCE: %s", err)
 	}
 
 	d.Set("name", n.Metadata.Name)
@@ -527,7 +527,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	kubeConfigRaw, err := utils.JsonMarshal(r.Body)
 
 	if err != nil {
-		log.Printf("Error marshaling r.Body: %s", err)
+		logp.Printf("Error marshaling r.Body: %s", err)
 	}
 
 	d.Set("kube_config_raw", string(kubeConfigRaw))
@@ -535,7 +535,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	cert, err := r.Extract()
 
 	if err != nil {
-		log.Printf("Error retrieving HuaweiCloud CCE cluster cert: %s", err)
+		logp.Printf("Error retrieving HuaweiCloud CCE cluster cert: %s", err)
 	}
 
 	//Set Certificate Clusters
@@ -576,7 +576,7 @@ func resourceCCEClusterV3Update(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE Client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE Client: %s", err)
 	}
 
 	var updateOpts clusters.UpdateOpts
@@ -587,7 +587,7 @@ func resourceCCEClusterV3Update(d *schema.ResourceData, meta interface{}) error 
 	_, err = clusters.Update(cceClient, d.Id(), updateOpts).Extract()
 
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud CCE: %s", err)
+		return fmtp.Errorf("Error updating HuaweiCloud CCE: %s", err)
 	}
 
 	return resourceCCEClusterV3Read(d, meta)
@@ -597,13 +597,13 @@ func resourceCCEClusterV3Delete(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE Client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE Client: %s", err)
 	}
 
 	// for prePaid mode, we should unsubscribe the resource
 	if d.Get("charging_mode").(string) == "prePaid" || d.Get("billing_mode").(int) == 1 {
 		if err := UnsubscribePrePaidResource(d, config, []string{d.Id()}); err != nil {
-			return fmt.Errorf("Error unsubscribing HuaweiCloud CCE cluster: %s", err)
+			return fmtp.Errorf("Error unsubscribing HuaweiCloud CCE cluster: %s", err)
 		}
 	} else {
 		deleteOpts := clusters.DeleteOpts{}
@@ -623,7 +623,7 @@ func resourceCCEClusterV3Delete(d *schema.ResourceData, meta interface{}) error 
 		}
 		err = clusters.DeleteWithOpts(cceClient, d.Id(), deleteOpts).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error deleting HuaweiCloud CCE Cluster: %s", err)
+			return fmtp.Errorf("Error deleting HuaweiCloud CCE Cluster: %s", err)
 		}
 	}
 
@@ -639,7 +639,7 @@ func resourceCCEClusterV3Delete(d *schema.ResourceData, meta interface{}) error 
 	_, err = stateConf.WaitForState()
 
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud CCE cluster: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud CCE cluster: %s", err)
 	}
 
 	d.SetId("")
@@ -659,20 +659,20 @@ func waitForCCEClusterActive(cceClient *golangsdk.ServiceClient, clusterId strin
 
 func waitForCCEClusterDelete(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete HuaweiCloud CCE cluster %s.\n", clusterId)
+		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud CCE cluster %s.\n", clusterId)
 
 		r, err := clusters.Get(cceClient, clusterId).Extract()
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud CCE cluster %s", clusterId)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud CCE cluster %s", clusterId)
 				return r, "Deleted", nil
 			}
 		}
 		if r.Status.Phase == "Deleting" {
 			return r, "Deleting", nil
 		}
-		log.Printf("[DEBUG] HuaweiCloud CCE cluster %s still available.\n", clusterId)
+		logp.Printf("[DEBUG] HuaweiCloud CCE cluster %s still available.\n", clusterId)
 		return r, "Available", nil
 	}
 }
@@ -690,13 +690,13 @@ func getCCEClusterIDFromJob(client *golangsdk.ServiceClient, jobID string) (stri
 
 	v, err := stateJob.WaitForState()
 	if err != nil {
-		return "", fmt.Errorf("Error waiting for job (%s) to become running: %s", jobID, err)
+		return "", fmtp.Errorf("Error waiting for job (%s) to become running: %s", jobID, err)
 	}
 
 	job := v.(*nodes.Job)
 	clusterID := job.Spec.ClusterID
 	if clusterID == "" {
-		return "", fmt.Errorf("Error fetching CCE cluster id")
+		return "", fmtp.Errorf("Error fetching CCE cluster id")
 	}
 	return clusterID, nil
 }

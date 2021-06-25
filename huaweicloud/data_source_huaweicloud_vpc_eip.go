@@ -1,11 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceVpcEip() *schema.Resource {
@@ -62,7 +61,7 @@ func dataSourceVpcEipRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating networking client: %s", err)
+		return fmtp.Errorf("Error creating networking client: %s", err)
 	}
 
 	listOpts := &eips.ListOpts{
@@ -82,16 +81,16 @@ func dataSourceVpcEipRead(d *schema.ResourceData, meta interface{}) error {
 
 	allEips, err := eips.ExtractPublicIPs(pages)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve eips: %s ", err)
+		return fmtp.Errorf("Unable to retrieve eips: %s ", err)
 	}
 
 	if len(allEips) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(allEips) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 

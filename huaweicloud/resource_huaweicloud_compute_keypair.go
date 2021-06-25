@@ -1,12 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceComputeKeypairV2() *schema.Resource {
@@ -43,7 +42,7 @@ func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	createOpts := keypairs.CreateOpts{
@@ -51,10 +50,10 @@ func resourceComputeKeypairV2Create(d *schema.ResourceData, meta interface{}) er
 		PublicKey: d.Get("public_key").(string),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	kp, err := keypairs.Create(computeClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud keypair: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud keypair: %s", err)
 	}
 
 	d.SetId(kp.Name)
@@ -66,7 +65,7 @@ func resourceComputeKeypairV2Read(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	kp, err := keypairs.Get(computeClient, d.Id()).Extract()
@@ -85,12 +84,12 @@ func resourceComputeKeypairV2Delete(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	err = keypairs.Delete(computeClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud keypair: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud keypair: %s", err)
 	}
 	d.SetId("")
 	return nil

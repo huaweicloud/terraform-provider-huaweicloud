@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,6 +11,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/elb/v3/loadbalancers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceLoadBalancerV3() *schema.Resource {
@@ -198,7 +198,7 @@ func resourceLoadBalancerV3Create(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
 
 	iPTargetEnable := d.Get("cross_vpc_backend").(bool)
@@ -237,10 +237,10 @@ func resourceLoadBalancerV3Create(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	lb, err := loadbalancers.Create(elbClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating LoadBalancer: %s", err)
+		return fmtp.Errorf("Error creating LoadBalancer: %s", err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing
@@ -258,11 +258,11 @@ func resourceLoadBalancerV3Create(d *schema.ResourceData, meta interface{}) erro
 	if len(tagRaw) > 0 {
 		elbV2Client, err := config.ElbV2Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud elb v2.0 client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud elb v2.0 client: %s", err)
 		}
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(elbV2Client, "loadbalancers", lb.ID, taglist).ExtractErr(); tagErr != nil {
-			return fmt.Errorf("Error setting tags of load balancer %s: %s", lb.ID, tagErr)
+			return fmtp.Errorf("Error setting tags of load balancer %s: %s", lb.ID, tagErr)
 		}
 	}
 
@@ -273,13 +273,13 @@ func resourceLoadBalancerV3Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
 
 	// client for fetching tags
 	elbV2Client, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb 2.0 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb 2.0 client: %s", err)
 	}
 
 	lb, err := loadbalancers.Get(elbClient, d.Id()).Extract()
@@ -287,7 +287,7 @@ func resourceLoadBalancerV3Read(d *schema.ResourceData, meta interface{}) error 
 		return CheckDeleted(d, err, "loadbalancer")
 	}
 
-	log.Printf("[DEBUG] Retrieved loadbalancer %s: %#v", d.Id(), lb)
+	logp.Printf("[DEBUG] Retrieved loadbalancer %s: %#v", d.Id(), lb)
 
 	d.Set("name", lb.Name)
 	d.Set("description", lb.Description)
@@ -318,7 +318,7 @@ func resourceLoadBalancerV3Read(d *schema.ResourceData, meta interface{}) error 
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		d.Set("tags", tagmap)
 	} else {
-		log.Printf("[WARN] fetching tags of elb loadbalancer failed: %s", err)
+		logp.Printf("[WARN] fetching tags of elb loadbalancer failed: %s", err)
 	}
 
 	return nil
@@ -328,7 +328,7 @@ func resourceLoadBalancerV3Update(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
 
 	//lintignore:R019
@@ -383,10 +383,10 @@ func resourceLoadBalancerV3Update(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 
-		log.Printf("[DEBUG] Updating loadbalancer %s with options: %#v", d.Id(), updateOpts)
+		logp.Printf("[DEBUG] Updating loadbalancer %s with options: %#v", d.Id(), updateOpts)
 		_, err = loadbalancers.Update(elbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating HuaweiCloud elb loadbalancer: %s", err)
+			return fmtp.Errorf("Error updating HuaweiCloud elb loadbalancer: %s", err)
 		}
 
 		// Wait for LoadBalancer to become active before continuing
@@ -400,11 +400,11 @@ func resourceLoadBalancerV3Update(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("tags") {
 		elbV2Client, err := config.ElbV2Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud elb 2.0 client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud elb 2.0 client: %s", err)
 		}
 		tagErr := utils.UpdateResourceTags(elbV2Client, d, "loadbalancers", d.Id())
 		if tagErr != nil {
-			return fmt.Errorf("Error updating tags of load balancer:%s, err:%s", d.Id(), tagErr)
+			return fmtp.Errorf("Error updating tags of load balancer:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
@@ -415,13 +415,13 @@ func resourceLoadBalancerV3Delete(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting loadbalancer %s", d.Id())
+	logp.Printf("[DEBUG] Deleting loadbalancer %s", d.Id())
 	timeout := d.Timeout(schema.TimeoutDelete)
 	if err = loadbalancers.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud elb loadbalancer: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud elb loadbalancer: %s", err)
 	}
 
 	// Wait for LoadBalancer to become delete
@@ -437,7 +437,7 @@ func resourceLoadBalancerV3Delete(d *schema.ResourceData, meta interface{}) erro
 func waitForElbV3LoadBalancer(elbClient *golangsdk.ServiceClient,
 	id string, target string, pending []string, timeout time.Duration) error {
 
-	log.Printf("[DEBUG] Waiting for loadbalancer %s to become %s", id, target)
+	logp.Printf("[DEBUG] Waiting for loadbalancer %s to become %s", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{target},
@@ -455,10 +455,10 @@ func waitForElbV3LoadBalancer(elbClient *golangsdk.ServiceClient,
 			case "DELETED":
 				return nil
 			default:
-				return fmt.Errorf("Error: loadbalancer %s not found: %s", id, err)
+				return fmtp.Errorf("Error: loadbalancer %s not found: %s", id, err)
 			}
 		}
-		return fmt.Errorf("Error waiting for loadbalancer %s to become %s: %s", id, target, err)
+		return fmtp.Errorf("Error waiting for loadbalancer %s to become %s: %s", id, target, err)
 	}
 
 	return nil

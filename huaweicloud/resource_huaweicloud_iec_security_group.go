@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strconv"
 	"time"
 
@@ -11,6 +9,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceIecSecurityGroup() *schema.Resource {
@@ -98,7 +98,7 @@ func resourceIecSecurityGroupV1Read(d *schema.ResourceData, meta interface{}) er
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	group, err := groups.Get(iecClient, d.Id()).Extract()
@@ -141,7 +141,7 @@ func resourceIecSecurityGroupV1Create(d *schema.ResourceData, meta interface{}) 
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	createOpts := groups.CreateOpts{
@@ -151,7 +151,7 @@ func resourceIecSecurityGroupV1Create(d *schema.ResourceData, meta interface{}) 
 
 	group, err := groups.Create(iecClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC Security Group: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC Security Group: %s", err)
 	}
 
 	d.SetId(group.ID)
@@ -163,7 +163,7 @@ func resourceIecSecurityGroupV1Delete(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -177,7 +177,7 @@ func resourceIecSecurityGroupV1Delete(d *schema.ResourceData, meta interface{}) 
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud IEC Security Group: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud IEC Security Group: %s", err)
 	}
 
 	d.SetId("")
@@ -188,11 +188,11 @@ func resourceIecSecurityGroupV1Delete(d *schema.ResourceData, meta interface{}) 
 func waitForSecurityGroupDelete(iecClient *golangsdk.ServiceClient, groupID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 
-		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Security Group %s.\n", groupID)
+		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud Security Group %s.\n", groupID)
 		sg, err := groups.Get(iecClient, groupID).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Security Group %s", groupID)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Security Group %s", groupID)
 				return sg, "DELETED", nil
 			}
 			return sg, "ACTIVE", err
@@ -201,7 +201,7 @@ func waitForSecurityGroupDelete(iecClient *golangsdk.ServiceClient, groupID stri
 		err = groups.Delete(iecClient, groupID).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Security Group %s", groupID)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Security Group %s", groupID)
 				return sg, "DELETED", nil
 			}
 			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
@@ -212,7 +212,7 @@ func waitForSecurityGroupDelete(iecClient *golangsdk.ServiceClient, groupID stri
 			return sg, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud IEC Security Group %s still active.\n", groupID)
+		logp.Printf("[DEBUG] HuaweiCloud IEC Security Group %s still active.\n", groupID)
 		return sg, "ACTIVE", nil
 	}
 }

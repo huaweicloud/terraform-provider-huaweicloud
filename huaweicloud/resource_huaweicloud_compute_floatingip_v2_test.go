@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/floatingips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccComputeV2FloatingIP_basic(t *testing.T) {
@@ -38,7 +38,7 @@ func testAccCheckComputeV2FloatingIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -48,7 +48,7 @@ func testAccCheckComputeV2FloatingIPDestroy(s *terraform.State) error {
 
 		_, err := floatingips.Get(computeClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("FloatingIP still exists")
+			return fmtp.Errorf("FloatingIP still exists")
 		}
 	}
 
@@ -59,17 +59,17 @@ func testAccCheckComputeV2FloatingIPExists(n string, kp *floatingips.FloatingIP)
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
 		found, err := floatingips.Get(computeClient, rs.Primary.ID).Extract()
@@ -78,7 +78,7 @@ func testAccCheckComputeV2FloatingIPExists(n string, kp *floatingips.FloatingIP)
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("FloatingIP not found")
+			return fmtp.Errorf("FloatingIP not found")
 		}
 
 		*kp = *found

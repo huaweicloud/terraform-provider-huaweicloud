@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccIdentityRole_basic(t *testing.T) {
 	var role policies.Role
-	var roleName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var roleName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	var roleNameUpdate = roleName + "update"
 	resourceName := "huaweicloud_identity_role.test"
 
@@ -57,7 +58,7 @@ func testAccCheckIdentityRoleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	identityClient, err := config.IAMV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -67,7 +68,7 @@ func testAccCheckIdentityRoleDestroy(s *terraform.State) error {
 
 		_, err := policies.Get(identityClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Role still exists")
+			return fmtp.Errorf("Role still exists")
 		}
 	}
 
@@ -78,17 +79,17 @@ func testAccCheckIdentityRoleExists(n string, role *policies.Role) resource.Test
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		identityClient, err := config.IAMV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}
 
 		found, err := policies.Get(identityClient, rs.Primary.ID).Extract()
@@ -97,7 +98,7 @@ func testAccCheckIdentityRoleExists(n string, role *policies.Role) resource.Test
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Role not found")
+			return fmtp.Errorf("Role not found")
 		}
 
 		*role = *found
@@ -107,7 +108,7 @@ func testAccCheckIdentityRoleExists(n string, role *policies.Role) resource.Test
 }
 
 func testAccIdentityRole_basic(roleName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_role" test {
   name        = "%s"
   description = "created by terraform"
@@ -133,7 +134,7 @@ EOF
 }
 
 func testAccIdentityRole_update(roleName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_role" test {
   name        = "%s"
   description = "created by terraform"

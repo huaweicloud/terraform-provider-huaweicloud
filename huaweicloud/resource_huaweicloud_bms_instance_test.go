@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 func TestAccBmsInstance_basic(t *testing.T) {
 	var instance baremetalservers.CloudServer
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_bms_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -41,7 +42,7 @@ func testAccCheckBmsInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	bmsClient, err := config.BmsV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud bms client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud bms client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -52,7 +53,7 @@ func testAccCheckBmsInstanceDestroy(s *terraform.State) error {
 		server, err := baremetalservers.Get(bmsClient, rs.Primary.ID).Extract()
 		if err == nil {
 			if server.Status != "DELETED" {
-				return fmt.Errorf("Instance still exists")
+				return fmtp.Errorf("Instance still exists")
 			}
 		}
 	}
@@ -64,17 +65,17 @@ func testAccCheckBmsInstanceExists(n string, instance *baremetalservers.CloudSer
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		bmsClient, err := config.BmsV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud bms client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud bms client: %s", err)
 		}
 
 		found, err := baremetalservers.Get(bmsClient, rs.Primary.ID).Extract()
@@ -83,7 +84,7 @@ func testAccCheckBmsInstanceExists(n string, instance *baremetalservers.CloudSer
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Instance not found")
+			return fmtp.Errorf("Instance not found")
 		}
 
 		*instance = *found
@@ -93,7 +94,7 @@ func testAccCheckBmsInstanceExists(n string, instance *baremetalservers.CloudSer
 }
 
 func testAccBmsInstance_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 
 data "huaweicloud_availability_zones" "test" {}
 

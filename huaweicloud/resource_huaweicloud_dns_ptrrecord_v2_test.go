@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,7 +14,7 @@ import (
 )
 
 func randomPtrName() string {
-	return fmt.Sprintf("acpttest-%s.com.", acctest.RandString(5))
+	return fmtp.Sprintf("acpttest-%s.com.", acctest.RandString(5))
 }
 
 func TestAccDNSV2PtrRecord_basic(t *testing.T) {
@@ -70,7 +71,7 @@ func testAccCheckDNSV2PtrRecordDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -80,7 +81,7 @@ func testAccCheckDNSV2PtrRecordDestroy(s *terraform.State) error {
 
 		_, err = ptrrecords.Get(dnsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Ptr record still exists")
+			return fmtp.Errorf("Ptr record still exists")
 		}
 	}
 
@@ -91,17 +92,17 @@ func testAccCheckDNSV2PtrRecordExists(n string, ptrrecord *ptrrecords.Ptr) resou
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 		}
 
 		found, err := ptrrecords.Get(dnsClient, rs.Primary.ID).Extract()
@@ -110,7 +111,7 @@ func testAccCheckDNSV2PtrRecordExists(n string, ptrrecord *ptrrecords.Ptr) resou
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Ptr record not found")
+			return fmtp.Errorf("Ptr record not found")
 		}
 
 		*ptrrecord = *found
@@ -120,7 +121,7 @@ func testAccCheckDNSV2PtrRecordExists(n string, ptrrecord *ptrrecords.Ptr) resou
 }
 
 func testAccDNSV2PtrRecord_basic(ptrName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc_eip" "eip_1" {
   publicip {
     type = "5_bgp"
@@ -143,7 +144,7 @@ resource "huaweicloud_dns_ptrrecord" "ptr_1" {
 }
 
 func testAccDNSV2PtrRecord_update(ptrName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc_eip" "eip_1" {
   publicip {
     type = "5_bgp"
@@ -170,7 +171,7 @@ resource "huaweicloud_dns_ptrrecord" "ptr_1" {
 }
 
 func testAccDNSV2PtrRecord_withEpsId(ptrName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc_eip" "eip_1" {
   publicip {
     type = "5_bgp"

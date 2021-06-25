@@ -1,11 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/routes"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func dataSourceVPCRouteIdsV2() *schema.Resource {
@@ -35,7 +34,7 @@ func dataSourceVpcRouteIdsV2Read(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	vpcRouteClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}
 
 	listOpts := routes.ListOpts{
@@ -46,11 +45,11 @@ func dataSourceVpcRouteIdsV2Read(d *schema.ResourceData, meta interface{}) error
 	refinedRoutes, err := routes.ExtractRoutes(pages)
 
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve vpc Routes: %s", err)
+		return fmtp.Errorf("Unable to retrieve vpc Routes: %s", err)
 	}
 
 	if len(refinedRoutes) == 0 {
-		return fmt.Errorf("no matching route found for vpc with id %s", d.Get("vpc_id").(string))
+		return fmtp.Errorf("no matching route found for vpc with id %s", d.Get("vpc_id").(string))
 	}
 
 	listRoutes := make([]string, 0)

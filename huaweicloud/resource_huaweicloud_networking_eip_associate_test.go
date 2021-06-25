@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +16,7 @@ import (
 func TestAccNetworkingV2EIPAssociate_basic(t *testing.T) {
 	var eip eips.PublicIp
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_networking_eip_associate.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -44,7 +45,7 @@ func testAccCheckNetworkingV2EIPAssociateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating EIP Client: %s", err)
+		return fmtp.Errorf("Error creating EIP Client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -54,7 +55,7 @@ func testAccCheckNetworkingV2EIPAssociateDestroy(s *terraform.State) error {
 
 		_, err := eips.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("EIP still exists")
+			return fmtp.Errorf("EIP still exists")
 		}
 	}
 
@@ -62,7 +63,7 @@ func testAccCheckNetworkingV2EIPAssociateDestroy(s *terraform.State) error {
 }
 
 func testAccNetworkingV2EIPAssociate_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_vpc_eip" "test" {

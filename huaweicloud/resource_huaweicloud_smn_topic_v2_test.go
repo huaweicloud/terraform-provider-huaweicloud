@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -9,13 +8,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/smn/v2/topics"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccSMNV2Topic_basic(t *testing.T) {
 	var topic topics.TopicGet
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	displayName := fmt.Sprintf("The display name of %s", rName)
-	update_displayName := fmt.Sprintf("The update display name of %s", rName)
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	displayName := fmtp.Sprintf("The display name of %s", rName)
+	update_displayName := fmtp.Sprintf("The update display name of %s", rName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -51,7 +51,7 @@ func testAccCheckSMNTopicV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	smnClient, err := config.SmnV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud smn: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud smn: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -61,7 +61,7 @@ func testAccCheckSMNTopicV2Destroy(s *terraform.State) error {
 
 		_, err := topics.Get(smnClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Topic still exists")
+			return fmtp.Errorf("Topic still exists")
 		}
 	}
 
@@ -72,17 +72,17 @@ func testAccCheckSMNV2TopicExists(n string, topic *topics.TopicGet) resource.Tes
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		smnClient, err := config.SmnV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud smn client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud smn client: %s", err)
 		}
 
 		found, err := topics.Get(smnClient, rs.Primary.ID).ExtractGet()
@@ -91,7 +91,7 @@ func testAccCheckSMNV2TopicExists(n string, topic *topics.TopicGet) resource.Tes
 		}
 
 		if found.TopicUrn != rs.Primary.ID {
-			return fmt.Errorf("Topic not found")
+			return fmtp.Errorf("Topic not found")
 		}
 
 		*topic = *found
@@ -101,7 +101,7 @@ func testAccCheckSMNV2TopicExists(n string, topic *topics.TopicGet) resource.Tes
 }
 
 func testAccSMNV2TopicConfig_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_smn_topic_v2" "topic_1" {
   name		  = "%s"
   display_name    = "The display name of %s"
@@ -110,7 +110,7 @@ resource "huaweicloud_smn_topic_v2" "topic_1" {
 }
 
 func testAccSMNV2TopicConfig_update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_smn_topic_v2" "topic_1" {
   name		  = "%s"
   display_name    = "The update display name of %s"

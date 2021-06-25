@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/firewalls"
@@ -68,7 +68,7 @@ func dataSourceIECNetworkACLRead(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	listOpts := firewalls.ListOpts{
@@ -76,24 +76,24 @@ func dataSourceIECNetworkACLRead(d *schema.ResourceData, meta interface{}) error
 		Name: d.Get("name").(string),
 	}
 
-	log.Printf("[DEBUG] query firewall using given filter: %+v", listOpts)
+	logp.Printf("[DEBUG] query firewall using given filter: %+v", listOpts)
 	allFWs, err := firewalls.List(iecClient, listOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve firewall: %s", err)
+		return fmtp.Errorf("Unable to retrieve firewall: %s", err)
 	}
 
 	total := len(allFWs.Firewalls)
 	if total < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 	if total > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	fwGroup := allFWs.Firewalls[0]
-	log.Printf("[DEBUG] Retrieved IEC firewall %s: %+v", fwGroup.ID, fwGroup)
+	logp.Printf("[DEBUG] Retrieved IEC firewall %s: %+v", fwGroup.ID, fwGroup)
 
 	d.SetId(fwGroup.ID)
 	d.Set("name", fwGroup.Name)

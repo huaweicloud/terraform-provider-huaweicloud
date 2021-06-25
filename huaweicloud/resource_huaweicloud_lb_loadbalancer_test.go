@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -17,8 +18,8 @@ import (
 
 func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_loadbalancer.loadbalancer_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -57,9 +58,9 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
 	var sg_1, sg_2 groups.SecGroup
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameSecg1 := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameSecg2 := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameSecg1 := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameSecg2 := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_loadbalancer.loadbalancer_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -115,7 +116,7 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 
 func TestAccLBV2LoadBalancer_withEpsId(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_loadbalancer.loadbalancer_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -144,7 +145,7 @@ func testAccCheckLBV2LoadBalancerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -154,7 +155,7 @@ func testAccCheckLBV2LoadBalancerDestroy(s *terraform.State) error {
 
 		_, err := loadbalancers.Get(elbClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("LoadBalancer still exists: %s", rs.Primary.ID)
+			return fmtp.Errorf("LoadBalancer still exists: %s", rs.Primary.ID)
 		}
 	}
 
@@ -166,17 +167,17 @@ func testAccCheckLBV2LoadBalancerExists(
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		elbClient, err := config.LoadBalancerClient(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		found, err := loadbalancers.Get(elbClient, rs.Primary.ID).Extract()
@@ -185,7 +186,7 @@ func testAccCheckLBV2LoadBalancerExists(
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Member not found")
+			return fmtp.Errorf("Member not found")
 		}
 
 		*lb = *found
@@ -200,7 +201,7 @@ func testAccCheckLBV2LoadBalancerHasSecGroup(
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		port, err := ports.Get(networkingClient, lb.VipPortID).Extract()
@@ -214,12 +215,12 @@ func testAccCheckLBV2LoadBalancerHasSecGroup(
 			}
 		}
 
-		return fmt.Errorf("LoadBalancer does not have the security group")
+		return fmtp.Errorf("LoadBalancer does not have the security group")
 	}
 }
 
 func testAccLBV2LoadBalancerConfig_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -243,7 +244,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 }
 
 func testAccLBV2LoadBalancerConfig_update(rNameUpdate string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -268,7 +269,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 }
 
 func testAccLBV2LoadBalancer_secGroup(rName, rNameSecg1, rNameSecg2 string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -294,7 +295,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 }
 
 func testAccLBV2LoadBalancer_secGroup_update1(rName, rNameSecg1, rNameSecg2 string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -321,7 +322,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 }
 
 func testAccLBV2LoadBalancer_secGroup_update2(rName, rNameSecg1, rNameSecg2 string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -347,7 +348,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 }
 
 func testAccLBV2LoadBalancerConfig_withEpsId(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

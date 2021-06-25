@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccIdentityAccessKey_basic(t *testing.T) {
 	var cred credentials.Credential
-	var userName = fmt.Sprintf("acc-user-%s", acctest.RandString(5))
+	var userName = fmtp.Sprintf("acc-user-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_access_key.key_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -49,7 +50,7 @@ func testAccCheckIdentityAccessKeyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	iamClient, err := config.IAMV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -59,7 +60,7 @@ func testAccCheckIdentityAccessKeyDestroy(s *terraform.State) error {
 
 		_, err := credentials.Get(iamClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Access Key still exists")
+			return fmtp.Errorf("Access Key still exists")
 		}
 	}
 
@@ -70,17 +71,17 @@ func testAccCheckIdentityAccessKeyExists(n string, cred *credentials.Credential)
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		iamClient, err := config.IAMV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}
 
 		found, err := credentials.Get(iamClient, rs.Primary.ID).Extract()
@@ -89,7 +90,7 @@ func testAccCheckIdentityAccessKeyExists(n string, cred *credentials.Credential)
 		}
 
 		if found.AccessKey != rs.Primary.ID {
-			return fmt.Errorf("Access Key not found")
+			return fmtp.Errorf("Access Key not found")
 		}
 
 		*cred = *found
@@ -99,7 +100,7 @@ func testAccCheckIdentityAccessKeyExists(n string, cred *credentials.Credential)
 }
 
 func testAccIdentityAccessKey_basic(userName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
   name        = "%s"
   password    = "password123@!"
@@ -116,7 +117,7 @@ resource "huaweicloud_identity_access_key" "key_1" {
 }
 
 func testAccIdentityAccessKey_update(userName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
   name        = "%s"
   password    = "password123@!"

@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,6 +8,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cci/v1/networks"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceCCINetworkV1() *schema.Resource {
@@ -100,7 +100,7 @@ func resourceCCINetworkV1Create(d *schema.ResourceData, meta interface{}) error 
 	cciClient, err := config.CciV1BetaClient(GetRegion(d, config))
 
 	if err != nil {
-		return fmt.Errorf("Unable to create HuaweiCloud CCI client : %s", err)
+		return fmtp.Errorf("Unable to create HuaweiCloud CCI client : %s", err)
 	}
 
 	createOpts := networks.CreateOpts{
@@ -124,10 +124,10 @@ func resourceCCINetworkV1Create(d *schema.ResourceData, meta interface{}) error 
 	create, err := networks.Create(cciClient, ns, createOpts).Extract()
 
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCI Network: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCI Network: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for HuaweiCloud CCI network (%s) to become available", create.Metadata.Name)
+	logp.Printf("[DEBUG] Waiting for HuaweiCloud CCI network (%s) to become available", create.Metadata.Name)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"Initializing", "Pending"},
@@ -140,7 +140,7 @@ func resourceCCINetworkV1Create(d *schema.ResourceData, meta interface{}) error 
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCI network: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCI network: %s", err)
 	}
 	d.SetId(create.Metadata.Name)
 
@@ -151,7 +151,7 @@ func resourceCCINetworkV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cciClient, err := config.CciV1BetaClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCI client: %s", err)
 	}
 
 	ns := d.Get("namespace").(string)
@@ -162,7 +162,7 @@ func resourceCCINetworkV1Read(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving HuaweiCloud CCI: %s", err)
+		return fmtp.Errorf("Error retrieving HuaweiCloud CCI: %s", err)
 	}
 
 	d.Set("name", n.Metadata.Name)
@@ -179,13 +179,13 @@ func resourceCCINetworkV1Delete(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	cciClient, err := config.CciV1BetaClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCI Client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCI Client: %s", err)
 	}
 
 	ns := d.Get("namespace").(string)
 	err = networks.Delete(cciClient, ns, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud CCI Network: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud CCI Network: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"Terminating", "Active"},
@@ -199,7 +199,7 @@ func resourceCCINetworkV1Delete(d *schema.ResourceData, meta interface{}) error 
 	_, err = stateConf.WaitForState()
 
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud CCI network: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud CCI network: %s", err)
 	}
 
 	d.SetId("")
@@ -219,19 +219,19 @@ func waitForCCINetworkActive(cciClient *golangsdk.ServiceClient, ns, name string
 
 func waitForCCINetworkDelete(cciClient *golangsdk.ServiceClient, ns, name string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete HuaweiCloud CCI network %s.\n", name)
+		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud CCI network %s.\n", name)
 
 		r, err := networks.Get(cciClient, ns, name).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud CCI network %s", name)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud CCI network %s", name)
 				return r, "Deleted", nil
 			}
 		}
 		if r.Status.State == "Terminating" {
 			return r, "Terminating", nil
 		}
-		log.Printf("[DEBUG] HuaweiCloud CCI network %s still available.\n", name)
+		logp.Printf("[DEBUG] HuaweiCloud CCI network %s still available.\n", name)
 		return r, "Active", nil
 	}
 }

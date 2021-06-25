@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/attachinterfaces"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -67,7 +68,7 @@ func resourceComputeInterfaceAttachV2Create(d *schema.ResourceData, meta interfa
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	instanceId := d.Get("instance_id").(string)
@@ -94,7 +95,7 @@ func resourceComputeInterfaceAttachV2Create(d *schema.ResourceData, meta interfa
 		FixedIPs:  fixedIPs,
 	}
 
-	log.Printf("[DEBUG] huaweicloud_compute_interface_attach attach options: %#v", attachOpts)
+	logp.Printf("[DEBUG] huaweicloud_compute_interface_attach attach options: %#v", attachOpts)
 	attachment, err := attachinterfaces.Create(computeClient, instanceId, attachOpts).Extract()
 	if err != nil {
 		return err
@@ -110,13 +111,13 @@ func resourceComputeInterfaceAttachV2Create(d *schema.ResourceData, meta interfa
 	}
 
 	if _, err = stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("Error creating huaweicloud_compute_interface_attach %s: %s", instanceId, err)
+		return fmtp.Errorf("Error creating huaweicloud_compute_interface_attach %s: %s", instanceId, err)
 	}
 
 	// Use the instance ID and port ID as the resource ID.
-	id := fmt.Sprintf("%s/%s", instanceId, attachment.PortID)
+	id := fmtp.Sprintf("%s/%s", instanceId, attachment.PortID)
 
-	log.Printf("[DEBUG] Created huaweicloud_compute_interface_attach %s: %#v", id, attachment)
+	logp.Printf("[DEBUG] Created huaweicloud_compute_interface_attach %s: %#v", id, attachment)
 
 	d.SetId(id)
 
@@ -127,7 +128,7 @@ func resourceComputeInterfaceAttachV2Read(d *schema.ResourceData, meta interface
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	instanceId, portId, err := computeInterfaceAttachV2ParseID(d.Id())
@@ -140,7 +141,7 @@ func resourceComputeInterfaceAttachV2Read(d *schema.ResourceData, meta interface
 		return CheckDeleted(d, err, "Error retrieving huaweicloud_compute_interface_attach")
 	}
 
-	log.Printf("[DEBUG] Retrieved huaweicloud_compute_interface_attach %s: %#v", d.Id(), attachment)
+	logp.Printf("[DEBUG] Retrieved huaweicloud_compute_interface_attach %s: %#v", d.Id(), attachment)
 
 	d.Set("instance_id", instanceId)
 	d.Set("port_id", attachment.PortID)
@@ -158,7 +159,7 @@ func resourceComputeInterfaceAttachV2Delete(d *schema.ResourceData, meta interfa
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	instanceId, portId, err := computeInterfaceAttachV2ParseID(d.Id())
@@ -176,7 +177,7 @@ func resourceComputeInterfaceAttachV2Delete(d *schema.ResourceData, meta interfa
 	}
 
 	if _, err = stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("Error detaching huaweicloud_compute_interface_attach %s: %s", d.Id(), err)
+		return fmtp.Errorf("Error detaching huaweicloud_compute_interface_attach %s: %s", d.Id(), err)
 	}
 
 	return nil

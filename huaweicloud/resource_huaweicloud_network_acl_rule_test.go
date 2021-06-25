@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccNetworkACLRule_basic(t *testing.T) {
 	resourceKey := "huaweicloud_network_acl_rule.rule_1"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -70,7 +71,7 @@ func TestAccNetworkACLRule_basic(t *testing.T) {
 
 func TestAccNetworkACLRule_anyProtocol(t *testing.T) {
 	resourceKey := "huaweicloud_network_acl_rule.rule_any"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -96,7 +97,7 @@ func testAccCheckNetworkACLRuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	fwClient, err := config.FwV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -105,7 +106,7 @@ func testAccCheckNetworkACLRuleDestroy(s *terraform.State) error {
 		}
 		_, err = rules.Get(fwClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Network ACL rule (%s) still exists.", rs.Primary.ID)
+			return fmtp.Errorf("Network ACL rule (%s) still exists.", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -118,17 +119,17 @@ func testAccCheckNetworkACLRuleExists(key string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[key]
 		if !ok {
-			return fmt.Errorf("Not found: %s", key)
+			return fmtp.Errorf("Not found: %s", key)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set in %s", key)
+			return fmtp.Errorf("No ID is set in %s", key)
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		fwClient, err := config.FwV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 		}
 
 		found, err := rules.Get(fwClient, rs.Primary.ID).Extract()
@@ -137,7 +138,7 @@ func testAccCheckNetworkACLRuleExists(key string) resource.TestCheckFunc {
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Network ACL rule not found")
+			return fmtp.Errorf("Network ACL rule not found")
 		}
 
 		return nil
@@ -145,7 +146,7 @@ func testAccCheckNetworkACLRuleExists(key string) resource.TestCheckFunc {
 }
 
 func testAccNetworkACLRule_basic_1(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_network_acl_rule" "rule_1" {
   name = "%s"
   protocol = "udp"
@@ -155,7 +156,7 @@ resource "huaweicloud_network_acl_rule" "rule_1" {
 }
 
 func testAccNetworkACLRule_basic_2(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_network_acl_rule" "rule_1" {
   name = "%s"
   description = "Terraform accept test"
@@ -171,7 +172,7 @@ resource "huaweicloud_network_acl_rule" "rule_1" {
 }
 
 func testAccNetworkACLRule_basic_3(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_network_acl_rule" "rule_1" {
   name = "%s"
   description = "Terraform accept test updated"
@@ -187,7 +188,7 @@ resource "huaweicloud_network_acl_rule" "rule_1" {
 }
 
 func testAccNetworkACLRule_anyProtocol(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_network_acl_rule" "rule_any" {
   name = "%s"
   description = "Allow any protocol"

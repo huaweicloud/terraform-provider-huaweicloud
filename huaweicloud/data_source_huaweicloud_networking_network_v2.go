@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strconv"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
@@ -65,7 +66,7 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	listOpts := networks.ListOpts{
@@ -85,7 +86,7 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 
 	allNetworks, err := networks.ExtractNetworks(pages)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve networks: %s", err)
+		return fmtp.Errorf("Unable to retrieve networks: %s", err)
 	}
 
 	var refinedNetworks []networks.Network
@@ -97,7 +98,7 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 					if _, ok := err.(golangsdk.ErrDefault404); ok {
 						continue
 					}
-					return fmt.Errorf("Unable to retrieve network subnet: %s", err)
+					return fmtp.Errorf("Unable to retrieve network subnet: %s", err)
 				}
 				if cidr == subnet.CIDR {
 					refinedNetworks = append(refinedNetworks, n)
@@ -109,18 +110,18 @@ func dataSourceNetworkingNetworkV2Read(d *schema.ResourceData, meta interface{})
 	}
 
 	if len(refinedNetworks) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedNetworks) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	network := refinedNetworks[0]
 
-	log.Printf("[DEBUG] Retrieved Network %s: %+v", network.ID, network)
+	logp.Printf("[DEBUG] Retrieved Network %s: %+v", network.ID, network)
 	d.SetId(network.ID)
 
 	d.Set("name", network.Name)

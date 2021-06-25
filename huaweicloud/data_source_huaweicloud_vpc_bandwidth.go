@@ -1,13 +1,12 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceBandWidth() *schema.Resource {
@@ -57,7 +56,7 @@ func dataSourceBandWidthRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud vpc client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud vpc client: %s", err)
 	}
 
 	listOpts := bandwidths.ListOpts{
@@ -69,10 +68,10 @@ func dataSourceBandWidthRead(d *schema.ResourceData, meta interface{}) error {
 
 	allBWs, err := bandwidths.List(vpcClient, listOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to list huaweicloud bandwidths: %s", err)
+		return fmtp.Errorf("Unable to list huaweicloud bandwidths: %s", err)
 	}
 	if len(allBWs) == 0 {
-		return fmt.Errorf("No huaweicloud bandwidth was found")
+		return fmtp.Errorf("No huaweicloud bandwidth was found")
 	}
 
 	// Filter bandwidths by "name"
@@ -84,7 +83,7 @@ func dataSourceBandWidthRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	if len(bandList) == 0 {
-		return fmt.Errorf("No huaweicloud bandwidth was found by name: %s", name)
+		return fmtp.Errorf("No huaweicloud bandwidth was found by name: %s", name)
 	}
 
 	// Filter bandwidths by "size"
@@ -99,11 +98,11 @@ func dataSourceBandWidthRead(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 		if !found {
-			return fmt.Errorf("No huaweicloud bandwidth was found by size: %d", v.(int))
+			return fmtp.Errorf("No huaweicloud bandwidth was found by size: %d", v.(int))
 		}
 	}
 
-	log.Printf("[DEBUG] Retrieved huaweicloud bandwidth %s: %+v", result.ID, result)
+	logp.Printf("[DEBUG] Retrieved huaweicloud bandwidth %s: %+v", result.ID, result)
 	d.SetId(result.ID)
 	d.Set("name", result.Name)
 	d.Set("size", result.Size)

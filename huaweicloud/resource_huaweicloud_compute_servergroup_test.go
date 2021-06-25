@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +16,7 @@ import (
 
 func TestAccComputeV2ServerGroup_basic(t *testing.T) {
 	var sg servergroups.ServerGroup
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -40,7 +41,7 @@ func TestAccComputeV2ServerGroup_basic(t *testing.T) {
 func TestAccComputeV2ServerGroup_affinity(t *testing.T) {
 	var instance servers.Server
 	var sg servergroups.ServerGroup
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -62,7 +63,7 @@ func TestAccComputeV2ServerGroup_affinity(t *testing.T) {
 func TestAccComputeV2ServerGroup_members(t *testing.T) {
 	var instance servers.Server
 	var sg servergroups.ServerGroup
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -85,7 +86,7 @@ func testAccCheckComputeV2ServerGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -95,7 +96,7 @@ func testAccCheckComputeV2ServerGroupDestroy(s *terraform.State) error {
 
 		_, err := servergroups.Get(computeClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("ServerGroup still exists")
+			return fmtp.Errorf("ServerGroup still exists")
 		}
 	}
 
@@ -106,17 +107,17 @@ func testAccCheckComputeV2ServerGroupExists(n string, kp *servergroups.ServerGro
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
 		found, err := servergroups.Get(computeClient, rs.Primary.ID).Extract()
@@ -125,7 +126,7 @@ func testAccCheckComputeV2ServerGroupExists(n string, kp *servergroups.ServerGro
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("ServerGroup not found")
+			return fmtp.Errorf("ServerGroup not found")
 		}
 
 		*kp = *found
@@ -144,12 +145,12 @@ func testAccCheckComputeV2InstanceInServerGroup(instance *servers.Server, sg *se
 			}
 		}
 
-		return fmt.Errorf("Instance %s is not part of Server Group %s", instance.ID, sg.ID)
+		return fmtp.Errorf("Instance %s is not part of Server Group %s", instance.ID, sg.ID)
 	}
 }
 
 func testAccComputeV2ServerGroup_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_compute_servergroup" "sg_1" {
   name = "%s"
   policies = ["affinity"]
@@ -158,7 +159,7 @@ resource "huaweicloud_compute_servergroup" "sg_1" {
 }
 
 func testAccComputeV2ServerGroup_affinity(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_compute_servergroup" "sg_1" {
@@ -183,7 +184,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
 }
 
 func testAccComputeV2ServerGroup_members(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_compute_servergroup" "sg_1" {

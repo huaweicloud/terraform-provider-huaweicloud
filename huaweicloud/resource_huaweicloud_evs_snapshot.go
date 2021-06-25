@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,6 +8,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/evs/v2/snapshots"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceEvsSnapshotV2() *schema.Resource {
@@ -68,7 +68,7 @@ func resourceEvsSnapshotV2Create(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	evsClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
 
 	createOpts := &snapshots.CreateOpts{
@@ -78,14 +78,14 @@ func resourceEvsSnapshotV2Create(d *schema.ResourceData, meta interface{}) error
 		Force:       d.Get("force").(bool),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := snapshots.Create(evsClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud EVS snapshot: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud EVS snapshot: %s", err)
 	}
 
 	// Wait for the snapshot to become available.
-	log.Printf("[DEBUG] Waiting for volume to become available")
+	logp.Printf("[DEBUG] Waiting for volume to become available")
 	err = snapshots.WaitForStatus(evsClient, v.ID, "available", int(d.Timeout(schema.TimeoutCreate)/time.Second))
 	if err != nil {
 		return err
@@ -100,7 +100,7 @@ func resourceEvsSnapshotV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	evsClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
 
 	v, err := snapshots.Get(evsClient, d.Id()).Extract()
@@ -108,7 +108,7 @@ func resourceEvsSnapshotV2Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "snapshot")
 	}
 
-	log.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), v)
+	logp.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), v)
 
 	d.Set("volume_id", v.VolumeID)
 	d.Set("name", v.Name)
@@ -123,7 +123,7 @@ func resourceEvsSnapshotV2Update(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	evsClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
 
 	updateOpts := snapshots.UpdateOpts{
@@ -133,7 +133,7 @@ func resourceEvsSnapshotV2Update(d *schema.ResourceData, meta interface{}) error
 
 	_, err = snapshots.Update(evsClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud EVS snapshot: %s", err)
+		return fmtp.Errorf("Error updating HuaweiCloud EVS snapshot: %s", err)
 	}
 
 	return resourceEvsSnapshotV2Read(d, meta)
@@ -143,7 +143,7 @@ func resourceEvsSnapshotV2Delete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	evsClient, err := config.BlockStorageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
 	}
 
 	if err := snapshots.Delete(evsClient, d.Id()).ExtractErr(); err != nil {
@@ -151,7 +151,7 @@ func resourceEvsSnapshotV2Delete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Wait for the snapshot to delete before moving on.
-	log.Printf("[DEBUG] Waiting for snapshot (%s) to delete", d.Id())
+	logp.Printf("[DEBUG] Waiting for snapshot (%s) to delete", d.Id())
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"available", "deleting"},
@@ -164,7 +164,7 @@ func resourceEvsSnapshotV2Delete(d *schema.ResourceData, meta interface{}) error
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for snapshot (%s) to delete: %s",
 			d.Id(), err)
 	}
@@ -186,7 +186,7 @@ func snapshotStateRefreshFunc(client *golangsdk.ServiceClient, id string) resour
 		}
 
 		if v.Status == "error" || v.Status == "error_deleting" {
-			return v, v.Status, fmt.Errorf("There was an error creating or deleting the snapshot. " +
+			return v, v.Status, fmtp.Errorf("There was an error creating or deleting the snapshot. " +
 				"Please check with your cloud admin or check the API logs " +
 				"to see why this error occurred.")
 		}

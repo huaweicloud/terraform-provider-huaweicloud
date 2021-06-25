@@ -1,10 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccNetworkingV2PortDataSource_basic(t *testing.T) {
@@ -28,7 +28,7 @@ func TestAccNetworkingV2PortDataSource_basic(t *testing.T) {
 }
 
 func testAccNetworkingV2PortDataSource_basic() string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "mynet" {
   name = "subnet-default"
 }

@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 func TestAccIecSecurityGroupResource_basic(t *testing.T) {
 
 	resourceName := "huaweicloud_iec_security_group.my_group"
-	rName := fmt.Sprintf("iec-secgroup-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("iec-secgroup-%s", acctest.RandString(5))
 	description := "This is a test of iec security group"
 
 	var group groups.RespSecurityGroupEntity
@@ -48,7 +49,7 @@ func testAccCheckIecSecurityGroupV1RuleCount(group *groups.RespSecurityGroupEnti
 			return nil
 		}
 
-		return fmt.Errorf("Unexpected number of rules in group %s. Expected %d, got %d",
+		return fmtp.Errorf("Unexpected number of rules in group %s. Expected %d, got %d",
 			group.ID, count, len(group.SecurityGroupRules))
 	}
 }
@@ -58,17 +59,17 @@ func testAccCheckIecSecurityGroupV1Exists(n string, group *groups.RespSecurityGr
 	return func(state *terraform.State) error {
 		rs, ok := state.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID has been seted")
+			return fmtp.Errorf("No ID has been seted")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		iecClient, err := config.IECV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 		}
 
 		found, err := groups.Get(iecClient, rs.Primary.ID).Extract()
@@ -77,7 +78,7 @@ func testAccCheckIecSecurityGroupV1Exists(n string, group *groups.RespSecurityGr
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("IEC Security group not found")
+			return fmtp.Errorf("IEC Security group not found")
 		}
 		*group = *found
 		return nil
@@ -89,7 +90,7 @@ func testAccCheckIecSecurityGroupV1Destory(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	iecClient, err := config.IECV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -98,7 +99,7 @@ func testAccCheckIecSecurityGroupV1Destory(s *terraform.State) error {
 		}
 		_, err := groups.Get(iecClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("IEC Security group still exists")
+			return fmtp.Errorf("IEC Security group still exists")
 		}
 	}
 
@@ -106,7 +107,7 @@ func testAccCheckIecSecurityGroupV1Destory(s *terraform.State) error {
 }
 
 func testAccIecSecurityGroupV1_Basic(rName, description string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_iec_security_group" "my_group" {
   name        = "%s"
   description = "%s"

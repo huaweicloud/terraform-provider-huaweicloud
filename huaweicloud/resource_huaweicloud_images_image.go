@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,6 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	imageservice_v2 "github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images"
 	"github.com/huaweicloud/golangsdk/openstack/ims/v2/cloudimages"
@@ -152,11 +152,11 @@ func resourceImsImageCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	ims_Client, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	if !hasFilledOpt(d, "instance_id") && !hasFilledOpt(d, "image_url") {
-		return fmt.Errorf("Error creating HuaweiCloud IMS: " +
+		return fmtp.Errorf("Error creating HuaweiCloud IMS: " +
 			"Either 'instance_id' or 'image_url' must be specified")
 	}
 
@@ -172,11 +172,11 @@ func resourceImsImageCreate(d *schema.ResourceData, meta interface{}) error {
 			ImageTags:           image_tags,
 			EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 		}
-		log.Printf("[DEBUG] Create Options: %#v", createOpts)
+		logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 		v, err = cloudimages.CreateImageByServer(ims_Client, createOpts).ExtractJobResponse()
 	} else {
 		if !hasFilledOpt(d, "min_disk") {
-			return fmt.Errorf("Error creating HuaweiCloud IMS: 'min_disk' must be specified")
+			return fmtp.Errorf("Error creating HuaweiCloud IMS: 'min_disk' must be specified")
 		}
 
 		createOpts := &cloudimages.CreateByOBSOpts{
@@ -193,17 +193,17 @@ func resourceImsImageCreate(d *schema.ResourceData, meta interface{}) error {
 			ImageTags:           image_tags,
 			EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 		}
-		log.Printf("[DEBUG] Create Options: %#v", createOpts)
+		logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 		v, err = cloudimages.CreateImageByOBS(ims_Client, createOpts).ExtractJobResponse()
 	}
 
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IMS: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IMS: %s", err)
 	}
-	log.Printf("[INFO] IMS Job ID: %s", v.JobID)
+	logp.Printf("[INFO] IMS Job ID: %s", v.JobID)
 
 	// Wait for the ims to become available.
-	log.Printf("[DEBUG] Waiting for IMS to become available")
+	logp.Printf("[DEBUG] Waiting for IMS to become available")
 	err = cloudimages.WaitForJobSuccess(ims_Client, int(d.Timeout(schema.TimeoutCreate)/time.Second), v.JobID)
 	if err != nil {
 		return err
@@ -215,12 +215,12 @@ func resourceImsImageCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if id, ok := entity.(string); ok {
-		log.Printf("[INFO] IMS ID: %s", id)
+		logp.Printf("[INFO] IMS ID: %s", id)
 		// Store the ID now
 		d.SetId(id)
 		return resourceImsImageRead(d, meta)
 	}
-	return fmt.Errorf("Unexpected conversion error in resourceImsImageCreate.")
+	return fmtp.Errorf("Unexpected conversion error in resourceImsImageCreate.")
 }
 
 func getCloudimage(client *golangsdk.ServiceClient, id string) (*cloudimages.Image, error) {
@@ -230,23 +230,23 @@ func getCloudimage(client *golangsdk.ServiceClient, id string) (*cloudimages.Ima
 	}
 	allPages, err := cloudimages.List(client, listOpts).AllPages()
 	if err != nil {
-		return nil, fmt.Errorf("Unable to query images: %s", err)
+		return nil, fmtp.Errorf("Unable to query images: %s", err)
 	}
 
 	allImages, err := cloudimages.ExtractImages(allPages)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to retrieve images: %s", err)
+		return nil, fmtp.Errorf("Unable to retrieve images: %s", err)
 	}
 
 	if len(allImages) < 1 {
-		return nil, fmt.Errorf("Unable to find images %s: Maybe not existed", id)
+		return nil, fmtp.Errorf("Unable to find images %s: Maybe not existed", id)
 	}
 
 	img := allImages[0]
 	if img.ID != id {
-		return nil, fmt.Errorf("Unexpected images ID")
+		return nil, fmtp.Errorf("Unexpected images ID")
 	}
-	log.Printf("[DEBUG] Retrieved Image %s: %#v", id, img)
+	logp.Printf("[DEBUG] Retrieved Image %s: %#v", id, img)
 	return &img, nil
 }
 
@@ -254,14 +254,14 @@ func resourceImsImageRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	ims_Client, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	img, err := getCloudimage(ims_Client, d.Id())
 	if err != nil {
-		return fmt.Errorf("Image %s not found: %s", d.Id(), err)
+		return fmtp.Errorf("Image %s not found: %s", d.Id(), err)
 	}
-	log.Printf("[DEBUG] Retrieved Image %s: %#v", d.Id(), img)
+	logp.Printf("[DEBUG] Retrieved Image %s: %#v", d.Id(), img)
 
 	d.Set("name", img.Name)
 	d.Set("visibility", img.Visibility)
@@ -284,10 +284,10 @@ func resourceImsImageRead(d *schema.ResourceData, meta interface{}) error {
 			tagmap[val.Key] = val.Value
 		}
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("[DEBUG] Error saving tags for HuaweiCloud image (%s): %s", d.Id(), err)
+			return fmtp.Errorf("[DEBUG] Error saving tags for HuaweiCloud image (%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] fetching tags of image failed: %s", err)
+		logp.Printf("[WARN] fetching tags of image failed: %s", err)
 	}
 
 	return nil
@@ -297,7 +297,7 @@ func setTagForImage(d *schema.ResourceData, meta interface{}, imageID string, ta
 	config := meta.(*config.Config)
 	client, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	rId := imageID
@@ -313,7 +313,7 @@ func setTagForImage(d *schema.ResourceData, meta interface{}, imageID string, ta
 	createOpts := tags.BatchOpts{Action: tags.ActionCreate, Tags: taglist}
 	createTags := tags.BatchAction(client, rId, createOpts)
 	if createTags.Err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud image tags: %s", createTags.Err)
+		return fmtp.Errorf("Error creating HuaweiCloud image tags: %s", createTags.Err)
 	}
 
 	return nil
@@ -323,7 +323,7 @@ func resourceImsImageUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	ims_Client, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	if d.HasChange("name") {
@@ -331,33 +331,33 @@ func resourceImsImageUpdate(d *schema.ResourceData, meta interface{}) error {
 		v := imageservice_v2.ReplaceImageName{NewName: d.Get("name").(string)}
 		updateOpts = append(updateOpts, v)
 
-		log.Printf("[DEBUG] Update Options: %#v", updateOpts)
+		logp.Printf("[DEBUG] Update Options: %#v", updateOpts)
 		_, err = imageservice_v2.Update(ims_Client, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating image: %s", err)
+			return fmtp.Errorf("Error updating image: %s", err)
 		}
 	}
 
 	if d.HasChange("tags") {
 		oldTags, err := tags.Get(ims_Client, d.Id()).Extract()
 		if err != nil {
-			return fmt.Errorf("Error fetching HuaweiCloud image tags: %s", err)
+			return fmtp.Errorf("Error fetching HuaweiCloud image tags: %s", err)
 		}
 		if len(oldTags.Tags) > 0 {
 			deleteopts := tags.BatchOpts{Action: tags.ActionDelete, Tags: oldTags.Tags}
 			deleteTags := tags.BatchAction(ims_Client, d.Id(), deleteopts)
 			if deleteTags.Err != nil {
-				return fmt.Errorf("Error deleting HuaweiCloud image tags: %s", deleteTags.Err)
+				return fmtp.Errorf("Error deleting HuaweiCloud image tags: %s", deleteTags.Err)
 			}
 		}
 
 		if hasFilledOpt(d, "tags") {
 			tagmap := d.Get("tags").(map[string]interface{})
 			if len(tagmap) > 0 {
-				log.Printf("[DEBUG] Setting tags: %v", tagmap)
+				logp.Printf("[DEBUG] Setting tags: %v", tagmap)
 				err = setTagForImage(d, meta, d.Id(), tagmap)
 				if err != nil {
-					return fmt.Errorf("Error updating HuaweiCloud tags of image:%s", err)
+					return fmtp.Errorf("Error updating HuaweiCloud tags of image:%s", err)
 				}
 			}
 		}
@@ -370,12 +370,12 @@ func resourceImsImageDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	imageClient, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting Image %s", d.Id())
+	logp.Printf("[DEBUG] Deleting Image %s", d.Id())
 	if err := imageservice_v2.Delete(imageClient, d.Id()).Err; err != nil {
-		return fmt.Errorf("Error deleting Image: %s", err)
+		return fmtp.Errorf("Error deleting Image: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -389,7 +389,7 @@ func resourceImsImageDelete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting Huaweicloud Image: %s", err)
+		return fmtp.Errorf("Error deleting Huaweicloud Image: %s", err)
 	}
 
 	d.SetId("")
@@ -402,7 +402,7 @@ func waitForImageDelete(imageClient *golangsdk.ServiceClient, imageId string) re
 		r, err := imageservice_v2.Get(imageClient, imageId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted Huaweicloud image %s", imageId)
+				logp.Printf("[INFO] Successfully deleted Huaweicloud image %s", imageId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err

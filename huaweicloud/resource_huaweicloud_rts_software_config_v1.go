@@ -1,14 +1,14 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/softwareconfig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceSoftwareConfigV1() *schema.Resource {
@@ -89,7 +89,7 @@ func resourceSoftwareConfigV1Create(d *schema.ResourceData, meta interface{}) er
 	orchastrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud RTS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud RTS client: %s", err)
 	}
 	input := d.Get("input_values").([]interface{})
 
@@ -116,7 +116,7 @@ func resourceSoftwareConfigV1Create(d *schema.ResourceData, meta interface{}) er
 	n, err := softwareconfig.Create(orchastrationClient, createOpts).Extract()
 
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud RTS Software Config: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud RTS Software Config: %s", err)
 	}
 	d.SetId(n.Id)
 
@@ -127,7 +127,7 @@ func resourceSoftwareConfigV1Read(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	orchastrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud RTS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud RTS client: %s", err)
 	}
 
 	n, err := softwareconfig.Get(orchastrationClient, d.Id()).Extract()
@@ -137,7 +137,7 @@ func resourceSoftwareConfigV1Read(d *schema.ResourceData, meta interface{}) erro
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving HuaweiCloud Vpc: %s", err)
+		return fmtp.Errorf("Error retrieving HuaweiCloud Vpc: %s", err)
 	}
 
 	d.Set("name", n.Name)
@@ -146,10 +146,10 @@ func resourceSoftwareConfigV1Read(d *schema.ResourceData, meta interface{}) erro
 	d.Set("options", n.Options)
 	d.Set("region", GetRegion(d, config))
 	if err := d.Set("input_values", n.Inputs); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving inputs to state for HuaweiCloud RTS Software Config (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving inputs to state for HuaweiCloud RTS Software Config (%s): %s", d.Id(), err)
 	}
 	if err := d.Set("output_values", n.Outputs); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving outputs to state for HuaweiCloud RTS Software Config (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving outputs to state for HuaweiCloud RTS Software Config (%s): %s", d.Id(), err)
 	}
 	return nil
 }
@@ -158,21 +158,21 @@ func resourceSoftwareConfigV1Delete(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	orchastrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud vpc: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud vpc: %s", err)
 	}
 	err = softwareconfig.Delete(orchastrationClient, d.Id()).ExtractErr()
 
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			log.Printf("[INFO] Successfully deleted HuaweiCloud RTS Software Config %s", d.Id())
+			logp.Printf("[INFO] Successfully deleted HuaweiCloud RTS Software Config %s", d.Id())
 
 		}
 		if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
 			if errCode.Actual == 409 {
-				log.Printf("[INFO] Error deleting HuaweiCloud RTS Software Config %s", d.Id())
+				logp.Printf("[INFO] Error deleting HuaweiCloud RTS Software Config %s", d.Id())
 			}
 		}
-		log.Printf("[INFO] Successfully deleted HuaweiCloud RTS Software Config %s", d.Id())
+		logp.Printf("[INFO] Successfully deleted HuaweiCloud RTS Software Config %s", d.Id())
 	}
 
 	d.SetId("")

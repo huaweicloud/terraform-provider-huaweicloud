@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,7 +11,7 @@ import (
 )
 
 func TestAccIECSubnetsDataSource_basic(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	allSubnets := "data.huaweicloud_iec_vpc_subnets.all"
 	siteSubnets := "data.huaweicloud_iec_vpc_subnets.site"
 
@@ -42,11 +43,11 @@ func testAccIECSubnetsDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find IEC VPC subnets data source: %s", n)
+			return fmtp.Errorf("Can't find IEC VPC subnets data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("IEC VPC subnets data source ID not set")
+			return fmtp.Errorf("IEC VPC subnets data source ID not set")
 		}
 
 		return nil
@@ -54,7 +55,7 @@ func testAccIECSubnetsDataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccIECNetworkConfig_base(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_iec_sites" "sites_test" {}
 
 resource "huaweicloud_iec_vpc" "vpc_test" {
@@ -82,7 +83,7 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_2" {
 }
 
 func testAccIECSubnetsDataSource_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_iec_vpc_subnets" "all" {

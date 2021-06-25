@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,11 +9,12 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccSFSAccessRuleV2_basic(t *testing.T) {
 	var rule shares.AccessRight
-	shareName := fmt.Sprintf("sfs-acc-%s", acctest.RandString(5))
+	shareName := fmtp.Sprintf("sfs-acc-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -47,7 +47,7 @@ func testAccCheckSFSAccessRuleV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	sfsClient, err := config.SfsV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud sfs client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud sfs client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -57,7 +57,7 @@ func testAccCheckSFSAccessRuleV2Destroy(s *terraform.State) error {
 
 		sfsID := rs.Primary.Attributes["sfs_id"]
 		if sfsID == "" {
-			return fmt.Errorf("No SFSID is set in huaweicloud_sfs_access_rule_v2")
+			return fmtp.Errorf("No SFSID is set in huaweicloud_sfs_access_rule_v2")
 		}
 		rules, err := shares.ListAccessRights(sfsClient, sfsID).ExtractAccessRights()
 		if err != nil {
@@ -70,7 +70,7 @@ func testAccCheckSFSAccessRuleV2Destroy(s *terraform.State) error {
 
 		for _, v := range rules {
 			if v.ID == rs.Primary.ID {
-				return fmt.Errorf("resource huaweicloud_sfs_access_rule_v2 still exists")
+				return fmtp.Errorf("resource huaweicloud_sfs_access_rule_v2 still exists")
 			}
 		}
 	}
@@ -82,22 +82,22 @@ func testAccCheckSFSAccessRuleV2Exists(n string, rule *shares.AccessRight) resou
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set in %s", n)
+			return fmtp.Errorf("No ID is set in %s", n)
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		sfsClient, err := config.SfsV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud sfs client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud sfs client: %s", err)
 		}
 
 		sfsID := rs.Primary.Attributes["sfs_id"]
 		if sfsID == "" {
-			return fmt.Errorf("No SFSID is set in %s", n)
+			return fmtp.Errorf("No SFSID is set in %s", n)
 		}
 
 		rules, err := shares.ListAccessRights(sfsClient, sfsID).ExtractAccessRights()
@@ -112,12 +112,12 @@ func testAccCheckSFSAccessRuleV2Exists(n string, rule *shares.AccessRight) resou
 			}
 		}
 
-		return fmt.Errorf("sfs access rule %s was not found", n)
+		return fmtp.Errorf("sfs access rule %s was not found", n)
 	}
 }
 
 func configAccSFSAccessRuleV2_basic(sfsName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc" "vpc_default" {
   name = "vpc-default"
   enterprise_project_id = "0"
@@ -137,7 +137,7 @@ resource "huaweicloud_sfs_access_rule_v2" "rule_1" {
 }
 
 func configAccSFSAccessRuleV2_ipAuth(sfsName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc" "vpc_default" {
   name = "vpc-default"
   enterprise_project_id = "0"

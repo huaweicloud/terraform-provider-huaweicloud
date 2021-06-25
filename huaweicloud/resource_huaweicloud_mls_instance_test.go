@@ -15,8 +15,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -42,7 +43,7 @@ func TestAccMlsInstance_basic(t *testing.T) {
 }
 
 func testAccMlsInstance_basic(val string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_mrs_cluster_v1" "cluster1" {
   cluster_name = "mrs-cluster-acc%s"
   region = "en-HW_REGION_NAME"
@@ -102,7 +103,7 @@ func testAccCheckMlsInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.MlsV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -120,7 +121,7 @@ func testAccCheckMlsInstanceDestroy(s *terraform.State) error {
 			url, nil,
 			&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 		if err == nil {
-			return fmt.Errorf("huaweicloud_mls_instance still exists at %s", url)
+			return fmtp.Errorf("huaweicloud_mls_instance still exists at %s", url)
 		}
 	}
 
@@ -132,17 +133,17 @@ func testAccCheckMlsInstanceExists() resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.MlsV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating sdk client, err=%s", err)
+			return fmtp.Errorf("Error creating sdk client, err=%s", err)
 		}
 
 		rs, ok := s.RootModule().Resources["huaweicloud_mls_instance.instance"]
 		if !ok {
-			return fmt.Errorf("Error checking huaweicloud_mls_instance.instance exist, err=not found huaweicloud_mls_instance.instance")
+			return fmtp.Errorf("Error checking huaweicloud_mls_instance.instance exist, err=not found huaweicloud_mls_instance.instance")
 		}
 
 		url, err := replaceVarsForTest(rs, "instances/{id}")
 		if err != nil {
-			return fmt.Errorf("Error checking huaweicloud_mls_instance.instance exist, err=building url failed: %s", err)
+			return fmtp.Errorf("Error checking huaweicloud_mls_instance.instance exist, err=building url failed: %s", err)
 		}
 		url = client.ServiceURL(url)
 
@@ -151,9 +152,9 @@ func testAccCheckMlsInstanceExists() resource.TestCheckFunc {
 			&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return fmt.Errorf("huaweicloud_mls_instance.instance is not exist")
+				return fmtp.Errorf("huaweicloud_mls_instance.instance is not exist")
 			}
-			return fmt.Errorf("Error checking huaweicloud_mls_instance.instance exist, err=send request failed: %s", err)
+			return fmtp.Errorf("Error checking huaweicloud_mls_instance.instance exist, err=send request failed: %s", err)
 		}
 		return nil
 	}

@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -15,6 +13,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/ptrrecords"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDNSPtrRecordV2() *schema.Resource {
@@ -78,7 +78,7 @@ func resourceDNSPtrRecordV2Create(d *schema.ResourceData, meta interface{}) erro
 	region := GetRegion(d, config)
 	dnsClient, err := config.DnsV2Client(region)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	tagmap := d.Get("tags").(map[string]interface{})
@@ -99,14 +99,14 @@ func resourceDNSPtrRecordV2Create(d *schema.ResourceData, meta interface{}) erro
 		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	fip_id := d.Get("floatingip_id").(string)
 	n, err := ptrrecords.Create(dnsClient, region, fip_id, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS PTR record: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS PTR record: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become available", n.ID)
+	logp.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become available", n.ID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Pending:    []string{"PENDING_CREATE"},
@@ -119,13 +119,13 @@ func resourceDNSPtrRecordV2Create(d *schema.ResourceData, meta interface{}) erro
 	_, err = stateConf.WaitForState()
 
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for PTR record (%s) to become ACTIVE for creation: %s",
 			n.ID, err)
 	}
 	d.SetId(n.ID)
 
-	log.Printf("[DEBUG] Created HuaweiCloud DNS PTR record %s: %#v", n.ID, n)
+	logp.Printf("[DEBUG] Created HuaweiCloud DNS PTR record %s: %#v", n.ID, n)
 	return resourceDNSPtrRecordV2Read(d, meta)
 }
 
@@ -133,7 +133,7 @@ func resourceDNSPtrRecordV2Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	dnsClient, err := config.DnsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	n, err := ptrrecords.Get(dnsClient, d.Id()).Extract()
@@ -141,7 +141,7 @@ func resourceDNSPtrRecordV2Read(d *schema.ResourceData, meta interface{}) error 
 		return CheckDeleted(d, err, "ptr_record")
 	}
 
-	log.Printf("[DEBUG] Retrieved PTR record %s: %#v", d.Id(), n)
+	logp.Printf("[DEBUG] Retrieved PTR record %s: %#v", d.Id(), n)
 
 	// Obtain relevant info from parsing the ID
 	fipID, err := parseDNSV2PtrRecordID(d.Id())
@@ -160,10 +160,10 @@ func resourceDNSPtrRecordV2Read(d *schema.ResourceData, meta interface{}) error 
 	if resourceTags, err := tags.Get(dnsClient, "DNS-ptr_record", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for DNS ptr record (%s): %s", d.Id(), err)
+			return fmtp.Errorf("Error saving tags to state for DNS ptr record (%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of DNS ptr record (%s): %s", d.Id(), err)
+		logp.Printf("[WARN] Error fetching tags of DNS ptr record (%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -174,7 +174,7 @@ func resourceDNSPtrRecordV2Update(d *schema.ResourceData, meta interface{}) erro
 	region := GetRegion(d, config)
 	dnsClient, err := config.DnsV2Client(region)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	if d.HasChanges("name", "description", "ttl") {
@@ -184,14 +184,14 @@ func resourceDNSPtrRecordV2Update(d *schema.ResourceData, meta interface{}) erro
 			TTL:         d.Get("ttl").(int),
 		}
 
-		log.Printf("[DEBUG] Update Options: %#v", updateOpts)
+		logp.Printf("[DEBUG] Update Options: %#v", updateOpts)
 		fip_id := d.Get("floatingip_id").(string)
 		n, err := ptrrecords.Create(dnsClient, region, fip_id, updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating HuaweiCloud DNS PTR record: %s", err)
+			return fmtp.Errorf("Error updating HuaweiCloud DNS PTR record: %s", err)
 		}
 
-		log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become available", n.ID)
+		logp.Printf("[DEBUG] Waiting for DNS PTR record (%s) to become available", n.ID)
 		stateConf := &resource.StateChangeConf{
 			Target:     []string{"ACTIVE"},
 			Pending:    []string{"PENDING_CREATE"},
@@ -203,18 +203,18 @@ func resourceDNSPtrRecordV2Update(d *schema.ResourceData, meta interface{}) erro
 
 		_, err = stateConf.WaitForState()
 		if err != nil {
-			return fmt.Errorf(
+			return fmtp.Errorf(
 				"Error waiting for PTR record (%s) to become ACTIVE for update: %s",
 				n.ID, err)
 		}
 
-		log.Printf("[DEBUG] Updated HuaweiCloud DNS PTR record %s: %#v", n.ID, n)
+		logp.Printf("[DEBUG] Updated HuaweiCloud DNS PTR record %s: %#v", n.ID, n)
 	}
 
 	// update tags
 	tagErr := utils.UpdateResourceTags(dnsClient, d, "DNS-ptr_record", d.Id())
 	if tagErr != nil {
-		return fmt.Errorf("Error updating tags of DNS PTR record %s: %s", d.Id(), tagErr)
+		return fmtp.Errorf("Error updating tags of DNS PTR record %s: %s", d.Id(), tagErr)
 	}
 
 	return resourceDNSPtrRecordV2Read(d, meta)
@@ -225,15 +225,15 @@ func resourceDNSPtrRecordV2Delete(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	dnsClient, err := config.DnsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	err = ptrrecords.Delete(dnsClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud DNS PTR record: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud DNS PTR record: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for DNS PTR record (%s) to be deleted", d.Id())
+	logp.Printf("[DEBUG] Waiting for DNS PTR record (%s) to be deleted", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"DELETED"},
 		Pending:    []string{"ACTIVE", "PENDING_DELETE", "ERROR"},
@@ -245,7 +245,7 @@ func resourceDNSPtrRecordV2Delete(d *schema.ResourceData, meta interface{}) erro
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for PTR record (%s) to become DELETED for deletion: %s",
 			d.Id(), err)
 	}
@@ -265,7 +265,7 @@ func waitForDNSPtrRecord(dnsClient *golangsdk.ServiceClient, id string) resource
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud DNS PTR record (%s) current status: %s", ptrrecord.ID, ptrrecord.Status)
+		logp.Printf("[DEBUG] HuaweiCloud DNS PTR record (%s) current status: %s", ptrrecord.ID, ptrrecord.Status)
 		return ptrrecord, ptrrecord.Status, nil
 	}
 }
@@ -273,7 +273,7 @@ func waitForDNSPtrRecord(dnsClient *golangsdk.ServiceClient, id string) resource
 func parseDNSV2PtrRecordID(id string) (string, error) {
 	idParts := strings.Split(id, ":")
 	if len(idParts) != 2 {
-		return "", fmt.Errorf("Unable to determine DNS PTR record ID from raw ID: %s", id)
+		return "", fmtp.Errorf("Unable to determine DNS PTR record ID from raw ID: %s", id)
 	}
 
 	fipID := idParts[1]

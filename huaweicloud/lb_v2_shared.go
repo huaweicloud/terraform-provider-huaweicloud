@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,6 +13,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/monitors"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/lbaas_v2/pools"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // lbPendingStatuses are the valid statuses a LoadBalancer will be in while
@@ -27,7 +27,7 @@ var lbPendingDeleteStatuses = []string{"ERROR", "PENDING_UPDATE", "PENDING_DELET
 var lbSkipLBStatuses = []string{"ERROR", "ACTIVE"}
 
 func waitForLBV2Listener(networkingClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
-	log.Printf("[DEBUG] Waiting for listener %s to become %s.", id, target)
+	logp.Printf("[DEBUG] Waiting for listener %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
@@ -45,10 +45,10 @@ func waitForLBV2Listener(networkingClient *golangsdk.ServiceClient, id string, t
 			case "DELETED":
 				return nil
 			default:
-				return fmt.Errorf("Error: listener %s not found: %s", id, err)
+				return fmtp.Errorf("Error: listener %s not found: %s", id, err)
 			}
 		}
-		return fmt.Errorf("Error waiting for listener %s to become %s: %s", id, target, err)
+		return fmtp.Errorf("Error waiting for listener %s to become %s: %s", id, target, err)
 	}
 
 	return nil
@@ -67,7 +67,7 @@ func resourceLBV2ListenerRefreshFunc(networkingClient *golangsdk.ServiceClient, 
 }
 
 func waitForLBV2LoadBalancer(networkingClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
-	log.Printf("[DEBUG] Waiting for loadbalancer %s to become %s.", id, target)
+	logp.Printf("[DEBUG] Waiting for loadbalancer %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
@@ -85,10 +85,10 @@ func waitForLBV2LoadBalancer(networkingClient *golangsdk.ServiceClient, id strin
 			case "DELETED":
 				return nil
 			default:
-				return fmt.Errorf("Error: loadbalancer %s not found: %s", id, err)
+				return fmtp.Errorf("Error: loadbalancer %s not found: %s", id, err)
 			}
 		}
-		return fmt.Errorf("Error waiting for loadbalancer %s to become %s: %s", id, target, err)
+		return fmtp.Errorf("Error waiting for loadbalancer %s to become %s: %s", id, target, err)
 	}
 
 	return nil
@@ -98,7 +98,7 @@ func waitForLBV2LoadBalancer(networkingClient *golangsdk.ServiceClient, id strin
 func waitForLBV2LoadBalancer_v2(networkingClient *golangsdk.ServiceClient,
 	id string, target string, pending []string, timeout time.Duration) error {
 
-	log.Printf("[DEBUG] Waiting for loadbalancer %s to become %s", id, target)
+	logp.Printf("[DEBUG] Waiting for loadbalancer %s to become %s", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
@@ -116,10 +116,10 @@ func waitForLBV2LoadBalancer_v2(networkingClient *golangsdk.ServiceClient,
 			case "DELETED":
 				return nil
 			default:
-				return fmt.Errorf("Error: loadbalancer %s not found: %s", id, err)
+				return fmtp.Errorf("Error: loadbalancer %s not found: %s", id, err)
 			}
 		}
-		return fmt.Errorf("Error waiting for loadbalancer %s to become %s: %s", id, target, err)
+		return fmtp.Errorf("Error waiting for loadbalancer %s to become %s: %s", id, target, err)
 	}
 
 	return nil
@@ -152,7 +152,7 @@ func resourceLBV2LoadBalancerRefreshFunc(networkingClient *golangsdk.ServiceClie
 }
 
 func waitForLBV2Member(networkingClient *golangsdk.ServiceClient, poolID, memberID string, target string, pending []string, timeout time.Duration) error {
-	log.Printf("[DEBUG] Waiting for member %s to become %s.", memberID, target)
+	logp.Printf("[DEBUG] Waiting for member %s to become %s.", memberID, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
@@ -170,10 +170,10 @@ func waitForLBV2Member(networkingClient *golangsdk.ServiceClient, poolID, member
 			case "DELETED":
 				return nil
 			default:
-				return fmt.Errorf("Error: member %s not found: %s", memberID, err)
+				return fmtp.Errorf("Error: member %s not found: %s", memberID, err)
 			}
 		}
-		return fmt.Errorf("Error waiting for member %s to become %s: %s", memberID, target, err)
+		return fmtp.Errorf("Error waiting for member %s to become %s: %s", memberID, target, err)
 	}
 
 	return nil
@@ -192,7 +192,7 @@ func resourceLBV2MemberRefreshFunc(networkingClient *golangsdk.ServiceClient, po
 }
 
 func waitForLBV2Monitor(networkingClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
-	log.Printf("[DEBUG] Waiting for monitor %s to become %s.", id, target)
+	logp.Printf("[DEBUG] Waiting for monitor %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
@@ -210,10 +210,10 @@ func waitForLBV2Monitor(networkingClient *golangsdk.ServiceClient, id string, ta
 			case "DELETED":
 				return nil
 			default:
-				return fmt.Errorf("Error: monitor %s not found: %s", id, err)
+				return fmtp.Errorf("Error: monitor %s not found: %s", id, err)
 			}
 		}
-		return fmt.Errorf("Error waiting for monitor %s to become %s: %s", id, target, err)
+		return fmtp.Errorf("Error waiting for monitor %s to become %s: %s", id, target, err)
 	}
 
 	return nil
@@ -232,7 +232,7 @@ func resourceLBV2MonitorRefreshFunc(networkingClient *golangsdk.ServiceClient, i
 }
 
 func waitForLBV2Pool(networkingClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
-	log.Printf("[DEBUG] Waiting for pool %s to become %s.", id, target)
+	logp.Printf("[DEBUG] Waiting for pool %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
@@ -250,10 +250,10 @@ func waitForLBV2Pool(networkingClient *golangsdk.ServiceClient, id string, targe
 			case "DELETED":
 				return nil
 			default:
-				return fmt.Errorf("Error: pool %s not found: %s", id, err)
+				return fmtp.Errorf("Error: pool %s not found: %s", id, err)
 			}
 		}
-		return fmt.Errorf("Error waiting for pool %s to become %s: %s", id, target, err)
+		return fmtp.Errorf("Error waiting for pool %s to become %s: %s", id, target, err)
 	}
 
 	return nil
@@ -297,14 +297,14 @@ func waitForLBV2viaPool(networkingClient *golangsdk.ServiceClient, id string, ta
 	}
 
 	// got a pool but no LB - this is wrong
-	return fmt.Errorf("No Load Balancer on pool %s", id)
+	return fmtp.Errorf("No Load Balancer on pool %s", id)
 }
 
 func resourceLBV2LoadBalancerStatusRefreshFuncNeutron(lbClient *golangsdk.ServiceClient, lbID, resourceType, resourceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		statuses, err := loadbalancers.GetStatuses(lbClient, lbID).Extract()
 		if err != nil {
-			return nil, "", fmt.Errorf("Unable to get statuses from the Load Balancer %s statuses tree: %s", lbID, err)
+			return nil, "", fmtp.Errorf("Unable to get statuses from the Load Balancer %s statuses tree: %s", lbID, err)
 		}
 
 		if !utils.StrSliceContains(lbSkipLBStatuses, statuses.Loadbalancer.ProvisioningStatus) {
@@ -385,7 +385,7 @@ func resourceLBV2LoadBalancerStatusRefreshFuncNeutron(lbClient *golangsdk.Servic
 			return "", "DELETED", nil
 		}
 
-		return nil, "", fmt.Errorf("An unexpected error occurred querying the status of %s %s by loadbalancer %s", resourceType, resourceID, lbID)
+		return nil, "", fmtp.Errorf("An unexpected error occurred querying the status of %s %s by loadbalancer %s", resourceType, resourceID, lbID)
 	}
 }
 
@@ -413,10 +413,10 @@ func resourceLBV2L7PolicyRefreshFunc(lbClient *golangsdk.ServiceClient, lbID str
 }
 
 func waitForLBV2L7Policy(lbClient *golangsdk.ServiceClient, parentListener *listeners.Listener, l7policy *l7policies.L7Policy, target string, pending []string, timeout time.Duration) error {
-	log.Printf("[DEBUG] Waiting for l7policy %s to become %s.", l7policy.ID, target)
+	logp.Printf("[DEBUG] Waiting for l7policy %s to become %s.", l7policy.ID, target)
 
 	if len(parentListener.Loadbalancers) == 0 {
-		return fmt.Errorf("Unable to determine loadbalancer ID from listener %s", parentListener.ID)
+		return fmtp.Errorf("Unable to determine loadbalancer ID from listener %s", parentListener.ID)
 	}
 
 	lbID := parentListener.Loadbalancers[0].ID
@@ -438,28 +438,28 @@ func waitForLBV2L7Policy(lbClient *golangsdk.ServiceClient, parentListener *list
 			}
 		}
 
-		return fmt.Errorf("Error waiting for l7policy %s to become %s: %s", l7policy.ID, target, err)
+		return fmtp.Errorf("Error waiting for l7policy %s to become %s: %s", l7policy.ID, target, err)
 	}
 
 	return nil
 }
 
 func getListenerIDForL7Policy(lbClient *golangsdk.ServiceClient, id string) (string, error) {
-	log.Printf("[DEBUG] Trying to get Listener ID associated with the %s L7 Policy ID", id)
+	logp.Printf("[DEBUG] Trying to get Listener ID associated with the %s L7 Policy ID", id)
 	lbsPages, err := loadbalancers.List(lbClient, loadbalancers.ListOpts{}).AllPages()
 	if err != nil {
-		return "", fmt.Errorf("No Load Balancers were found: %s", err)
+		return "", fmtp.Errorf("No Load Balancers were found: %s", err)
 	}
 
 	lbs, err := loadbalancers.ExtractLoadBalancers(lbsPages)
 	if err != nil {
-		return "", fmt.Errorf("Unable to extract Load Balancers list: %s", err)
+		return "", fmtp.Errorf("Unable to extract Load Balancers list: %s", err)
 	}
 
 	for _, lb := range lbs {
 		statuses, err := loadbalancers.GetStatuses(lbClient, lb.ID).Extract()
 		if err != nil {
-			return "", fmt.Errorf("Failed to get Load Balancer statuses: %s", err)
+			return "", fmtp.Errorf("Failed to get Load Balancer statuses: %s", err)
 		}
 		for _, listener := range statuses.Loadbalancer.Listeners {
 			for _, l7policy := range listener.L7Policies {
@@ -470,7 +470,7 @@ func getListenerIDForL7Policy(lbClient *golangsdk.ServiceClient, id string) (str
 		}
 	}
 
-	return "", fmt.Errorf("Unable to find Listener ID associated with the %s L7 Policy ID", id)
+	return "", fmtp.Errorf("Unable to find Listener ID associated with the %s L7 Policy ID", id)
 }
 
 func resourceLBV2L7RuleRefreshFunc(lbClient *golangsdk.ServiceClient, lbID string, l7policyID string, l7rule *l7policies.Rule) resource.StateRefreshFunc {
@@ -497,10 +497,10 @@ func resourceLBV2L7RuleRefreshFunc(lbClient *golangsdk.ServiceClient, lbID strin
 }
 
 func waitForLBV2L7Rule(lbClient *golangsdk.ServiceClient, parentListener *listeners.Listener, parentL7policy *l7policies.L7Policy, l7rule *l7policies.Rule, target string, pending []string, timeout time.Duration) error {
-	log.Printf("[DEBUG] Waiting for l7rule %s to become %s.", l7rule.ID, target)
+	logp.Printf("[DEBUG] Waiting for l7rule %s to become %s.", l7rule.ID, target)
 
 	if len(parentListener.Loadbalancers) == 0 {
-		return fmt.Errorf("Unable to determine loadbalancer ID from listener %s", parentListener.ID)
+		return fmtp.Errorf("Unable to determine loadbalancer ID from listener %s", parentListener.ID)
 	}
 
 	lbID := parentListener.Loadbalancers[0].ID
@@ -522,7 +522,7 @@ func waitForLBV2L7Rule(lbClient *golangsdk.ServiceClient, parentListener *listen
 			}
 		}
 
-		return fmt.Errorf("Error waiting for l7rule %s to become %s: %s", l7rule.ID, target, err)
+		return fmtp.Errorf("Error waiting for l7rule %s to become %s: %s", l7rule.ID, target, err)
 	}
 
 	return nil

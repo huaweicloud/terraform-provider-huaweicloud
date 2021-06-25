@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -55,7 +56,7 @@ func testAccCheckEcsV1InstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -66,7 +67,7 @@ func testAccCheckEcsV1InstanceDestroy(s *terraform.State) error {
 		server, err := cloudservers.Get(computeClient, rs.Primary.ID).Extract()
 		if err == nil {
 			if server.Status != "DELETED" {
-				return fmt.Errorf("Instance still exists")
+				return fmtp.Errorf("Instance still exists")
 			}
 		}
 	}
@@ -78,17 +79,17 @@ func testAccCheckEcsV1InstanceExists(n string, instance *cloudservers.CloudServe
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		computeClient, err := config.ComputeV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
 		found, err := cloudservers.Get(computeClient, rs.Primary.ID).Extract()
@@ -97,7 +98,7 @@ func testAccCheckEcsV1InstanceExists(n string, instance *cloudservers.CloudServe
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Instance not found")
+			return fmtp.Errorf("Instance not found")
 		}
 
 		*instance = *found
@@ -106,7 +107,7 @@ func testAccCheckEcsV1InstanceExists(n string, instance *cloudservers.CloudServe
 	}
 }
 
-var testAccEcsV1Instance_basic = fmt.Sprintf(`
+var testAccEcsV1Instance_basic = fmtp.Sprintf(`
 resource "huaweicloud_ecs_instance_v1" "instance_1" {
   name     = "server_1"
   image_id = "%s"
@@ -129,7 +130,7 @@ resource "huaweicloud_ecs_instance_v1" "instance_1" {
 }
 `, HW_IMAGE_ID, HW_FLAVOR_NAME, HW_VPC_ID, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)
 
-var testAccEcsV1Instance_update = fmt.Sprintf(`
+var testAccEcsV1Instance_update = fmtp.Sprintf(`
 resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
   name        = "secgroup_ecs"
   description = "a security group"

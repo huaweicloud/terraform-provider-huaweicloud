@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -11,6 +9,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceIecSubnetDNSListV1(d *schema.ResourceData) []string {
@@ -104,7 +104,7 @@ func resourceIecSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 	subnetClient, err := config.IECV1Client(GetRegion(d, config))
 
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	dhcp := d.Get("dhcp_enable").(bool)
@@ -118,14 +118,14 @@ func resourceIecSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 		DNSList:    resourceIecSubnetDNSListV1(d),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := subnets.Create(subnetClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC subnets: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC subnets: %s", err)
 	}
 
 	d.SetId(n.ID)
-	log.Printf("[DEBUG] Waiting for IEC subnets (%s) to become active", n.ID)
+	logp.Printf("[DEBUG] Waiting for IEC subnets (%s) to become active", n.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"UNKNOWN"},
@@ -138,7 +138,7 @@ func resourceIecSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	_, stateErr := stateConf.WaitForState()
 	if stateErr != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for IEC subnets (%s) to become ACTIVE: %s",
 			n.ID, stateErr)
 	}
@@ -150,7 +150,7 @@ func resourceIecSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	subnetClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	n, err := subnets.Get(subnetClient, d.Id()).Extract()
@@ -158,7 +158,7 @@ func resourceIecSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "Error retrieving Huaweicloud IEC subnets")
 	}
 
-	log.Printf("[DEBUG] IEC subnets %s: %+v", d.Id(), n)
+	logp.Printf("[DEBUG] IEC subnets %s: %+v", d.Id(), n)
 
 	d.Set("name", n.Name)
 	d.Set("cidr", n.Cidr)
@@ -177,7 +177,7 @@ func resourceIecSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	subnetClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	var updateOpts subnets.UpdateOpts
@@ -196,7 +196,7 @@ func resourceIecSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = subnets.Update(subnetClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating Huaweicloud IEC subnets: %s", err)
+		return fmtp.Errorf("Error updating Huaweicloud IEC subnets: %s", err)
 	}
 
 	return resourceIecSubnetV1Read(d, meta)
@@ -206,7 +206,7 @@ func resourceIecSubnetV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	subnetClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	err = subnets.Delete(subnetClient, d.Id()).ExtractErr()
@@ -226,7 +226,7 @@ func resourceIecSubnetV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	_, stateErr := stateConf.WaitForState()
 	if stateErr != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for IEC subnets (%s) to become deleted: %s",
 			d.Id(), stateErr)
 	}
@@ -240,7 +240,7 @@ func waitForIecSubnetStatus(subnetClient *golangsdk.ServiceClient, id string) re
 		n, err := subnets.Get(subnetClient, id).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted Huaweicloud IEC subnets %s", id)
+				logp.Printf("[INFO] Successfully deleted Huaweicloud IEC subnets %s", id)
 				return n, "DELETED", nil
 			}
 			return n, "ERROR", err

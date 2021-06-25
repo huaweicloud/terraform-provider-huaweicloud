@@ -1,10 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // tagsSchema returns the schema to use for tags.
@@ -85,7 +84,7 @@ func schemaAutoRenew(conflicts []string) *schema.Schema {
 
 func validatePrePaidChargeInfo(d *schema.ResourceData) error {
 	if _, ok := d.GetOk("period_unit"); !ok {
-		return fmt.Errorf("both of `period, period_unit` must be specified in prePaid charging mode")
+		return fmtp.Errorf("both of `period, period_unit` must be specified in prePaid charging mode")
 	}
 	return nil
 }

@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -41,7 +41,7 @@ func dataSourceNetworkingSecGroupV2Read(d *schema.ResourceData, meta interface{}
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	listOpts := groups.ListOpts{
@@ -57,20 +57,20 @@ func dataSourceNetworkingSecGroupV2Read(d *schema.ResourceData, meta interface{}
 
 	allSecGroups, err := groups.ExtractGroups(pages)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve security groups: %s", err)
+		return fmtp.Errorf("Unable to retrieve security groups: %s", err)
 	}
 
 	if len(allSecGroups) < 1 {
-		return fmt.Errorf("No Security Group found with name: %s", d.Get("name"))
+		return fmtp.Errorf("No Security Group found with name: %s", d.Get("name"))
 	}
 
 	if len(allSecGroups) > 1 {
-		return fmt.Errorf("More than one Security Group found with name: %s", d.Get("name"))
+		return fmtp.Errorf("More than one Security Group found with name: %s", d.Get("name"))
 	}
 
 	secGroup := allSecGroups[0]
 
-	log.Printf("[DEBUG] Retrieved Security Group %s: %+v", secGroup.ID, secGroup)
+	logp.Printf("[DEBUG] Retrieved Security Group %s: %+v", secGroup.ID, secGroup)
 	d.SetId(secGroup.ID)
 
 	d.Set("name", secGroup.Name)

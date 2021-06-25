@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -11,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/networks"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccNetworkingV2RouterRoute_basic(t *testing.T) {
@@ -71,17 +71,17 @@ func testAccCheckNetworkingV2RouterRouteEmpty(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		router, err := routers.Get(networkingClient, rs.Primary.ID).Extract()
@@ -90,11 +90,11 @@ func testAccCheckNetworkingV2RouterRouteEmpty(n string) resource.TestCheckFunc {
 		}
 
 		if router.ID != rs.Primary.ID {
-			return fmt.Errorf("Router not found")
+			return fmtp.Errorf("Router not found")
 		}
 
 		if len(router.Routes) != 0 {
-			return fmt.Errorf("Invalid number of route entries: %d", len(router.Routes))
+			return fmtp.Errorf("Invalid number of route entries: %d", len(router.Routes))
 		}
 
 		return nil
@@ -105,17 +105,17 @@ func testAccCheckNetworkingV2RouterRouteExists(n string) resource.TestCheckFunc 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		router, err := routers.Get(networkingClient, rs.Primary.Attributes["router_id"]).Extract()
@@ -124,7 +124,7 @@ func testAccCheckNetworkingV2RouterRouteExists(n string) resource.TestCheckFunc 
 		}
 
 		if router.ID != rs.Primary.Attributes["router_id"] {
-			return fmt.Errorf("Router for route not found")
+			return fmtp.Errorf("Router for route not found")
 		}
 
 		var found bool = false
@@ -134,7 +134,7 @@ func testAccCheckNetworkingV2RouterRouteExists(n string) resource.TestCheckFunc 
 			}
 		}
 		if !found {
-			return fmt.Errorf("Could not find route for destination CIDR: %s, next hop: %s", rs.Primary.Attributes["destination_cidr"], rs.Primary.Attributes["next_hop"])
+			return fmtp.Errorf("Could not find route for destination CIDR: %s, next hop: %s", rs.Primary.Attributes["destination_cidr"], rs.Primary.Attributes["next_hop"])
 		}
 
 		return nil
@@ -145,7 +145,7 @@ func testAccCheckNetworkingV2RouterRouteDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -169,7 +169,7 @@ func testAccCheckNetworkingV2RouterRouteDestroy(s *terraform.State) error {
 		}
 
 		if routeExists {
-			return fmt.Errorf("Route still exists")
+			return fmtp.Errorf("Route still exists")
 		}
 	}
 

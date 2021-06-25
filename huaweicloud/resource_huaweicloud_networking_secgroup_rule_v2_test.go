@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,12 +9,13 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/rules"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccNetworkingV2SecGroupRule_basic(t *testing.T) {
 	var secgroupRule rules.SecGroupRule
 	var resourceRuleName string = "huaweicloud_networking_secgroup_rule.secgroup_rule_test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -47,7 +47,7 @@ func TestAccNetworkingV2SecGroupRule_basic(t *testing.T) {
 func TestAccNetworkingV2SecGroupRule_remoteGroup(t *testing.T) {
 	var secgroupRule rules.SecGroupRule
 	var resourceRuleName string = "huaweicloud_networking_secgroup_rule.secgroup_rule_test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -77,7 +77,7 @@ func TestAccNetworkingV2SecGroupRule_remoteGroup(t *testing.T) {
 func TestAccNetworkingV2SecGroupRule_lowerCaseCIDR(t *testing.T) {
 	var secgroupRule rules.SecGroupRule
 	var resourceRuleName string = "huaweicloud_networking_secgroup_rule.secgroup_rule_test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -103,7 +103,7 @@ func TestAccNetworkingV2SecGroupRule_lowerCaseCIDR(t *testing.T) {
 func TestAccNetworkingV2SecGroupRule_numericProtocol(t *testing.T) {
 	var secgroupRule rules.SecGroupRule
 	var resourceRuleName string = "huaweicloud_networking_secgroup_rule.secgroup_rule_test"
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -130,7 +130,7 @@ func testAccCheckNetworkingV2SecGroupRuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -140,7 +140,7 @@ func testAccCheckNetworkingV2SecGroupRuleDestroy(s *terraform.State) error {
 
 		_, err := rules.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Security group rule still exists")
+			return fmtp.Errorf("Security group rule still exists")
 		}
 	}
 
@@ -151,17 +151,17 @@ func testAccCheckNetworkingV2SecGroupRuleExists(n string, secGroupRule *rules.Se
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		found, err := rules.Get(networkingClient, rs.Primary.ID).Extract()
@@ -170,7 +170,7 @@ func testAccCheckNetworkingV2SecGroupRuleExists(n string, secGroupRule *rules.Se
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Security group rule not found")
+			return fmtp.Errorf("Security group rule not found")
 		}
 
 		*secGroupRule = *found
@@ -180,7 +180,7 @@ func testAccCheckNetworkingV2SecGroupRuleExists(n string, secGroupRule *rules.Se
 }
 
 func testAccNetworkingV2SecGroupRule_base(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup_test" {
   name        = "%s-secgroup"
   description = "terraform security group rule acceptance test"
@@ -189,7 +189,7 @@ resource "huaweicloud_networking_secgroup" "secgroup_test" {
 }
 
 func testAccNetworkingV2SecGroupRule_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_test" {
@@ -206,7 +206,7 @@ resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_test" {
 }
 
 func testAccNetworkingV2SecGroupRule_remoteGroup(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_test" {
@@ -222,7 +222,7 @@ resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_test" {
 }
 
 func testAccNetworkingV2SecGroupRule_lowerCaseCIDR(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_test" {
@@ -238,7 +238,7 @@ resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_test" {
 }
 
 func testAccNetworkingV2SecGroupRule_numericProtocol(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_networking_secgroup_rule" "secgroup_rule_test" {

@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,7 +11,7 @@ import (
 )
 
 func TestAccIECVpcDataSource_basic(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-vpc-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-vpc-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -36,18 +37,18 @@ func testAccDataSourceIECVpcCheck(n, rName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("root module has no resource called %s", n)
+			return fmtp.Errorf("root module has no resource called %s", n)
 		}
 
 		vpcRs, ok := s.RootModule().Resources["huaweicloud_iec_vpc.test"]
 		if !ok {
-			return fmt.Errorf("can't find huaweicloud_iec_vpc.test in state")
+			return fmtp.Errorf("can't find huaweicloud_iec_vpc.test in state")
 		}
 
 		attr := rs.Primary.Attributes
 
 		if attr["id"] != vpcRs.Primary.Attributes["id"] {
-			return fmt.Errorf(
+			return fmtp.Errorf(
 				"id is %s; want %s",
 				attr["id"],
 				vpcRs.Primary.Attributes["id"],
@@ -55,7 +56,7 @@ func testAccDataSourceIECVpcCheck(n, rName string) resource.TestCheckFunc {
 		}
 
 		if attr["name"] != rName {
-			return fmt.Errorf("bad iec vpc name %s", attr["name"])
+			return fmtp.Errorf("bad iec vpc name %s", attr["name"])
 		}
 
 		return nil
@@ -63,7 +64,7 @@ func testAccDataSourceIECVpcCheck(n, rName string) resource.TestCheckFunc {
 }
 
 func testAccDataSourceIECVpc_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_iec_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"

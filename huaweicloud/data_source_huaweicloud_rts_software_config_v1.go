@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
@@ -65,7 +65,7 @@ func dataSourceRtsSoftwareConfigV1Read(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud rts client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud rts client: %s", err)
 	}
 
 	n, err := softwareconfig.Get(orchestrationClient, d.Get("id").(string)).Extract()
@@ -75,10 +75,10 @@ func dataSourceRtsSoftwareConfigV1Read(d *schema.ResourceData, meta interface{})
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving HuaweiCloud RTS Config: %s", err)
+		return fmtp.Errorf("Error retrieving HuaweiCloud RTS Config: %s", err)
 	}
 
-	log.Printf("[INFO] Retrieved RTS Software Config using given id %s", n.Id)
+	logp.Printf("[INFO] Retrieved RTS Software Config using given id %s", n.Id)
 	d.SetId(n.Id)
 
 	d.Set("name", n.Name)
@@ -88,10 +88,10 @@ func dataSourceRtsSoftwareConfigV1Read(d *schema.ResourceData, meta interface{})
 	d.Set("options", n.Options)
 
 	if err := d.Set("input_values", n.Inputs); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving inputs to state for HuaweiCloud RTS Software Config (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving inputs to state for HuaweiCloud RTS Software Config (%s): %s", d.Id(), err)
 	}
 	if err := d.Set("output_values", n.Outputs); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving outputs to state for HuaweiCloud RTS Software Config (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving outputs to state for HuaweiCloud RTS Software Config (%s): %s", d.Id(), err)
 	}
 
 	return nil

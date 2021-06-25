@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -120,7 +121,7 @@ func testAccCheckBlockStorageV2VolumeDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	blockStorageClient, err := config.BlockStorageV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -130,7 +131,7 @@ func testAccCheckBlockStorageV2VolumeDestroy(s *terraform.State) error {
 
 		_, err := volumes.Get(blockStorageClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Volume still exists")
+			return fmtp.Errorf("Volume still exists")
 		}
 	}
 
@@ -141,17 +142,17 @@ func testAccCheckBlockStorageV2VolumeExists(n string, volume *volumes.Volume) re
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		blockStorageClient, err := config.BlockStorageV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 		}
 
 		found, err := volumes.Get(blockStorageClient, rs.Primary.ID).Extract()
@@ -160,7 +161,7 @@ func testAccCheckBlockStorageV2VolumeExists(n string, volume *volumes.Volume) re
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Volume not found")
+			return fmtp.Errorf("Volume not found")
 		}
 
 		*volume = *found
@@ -174,7 +175,7 @@ func testAccCheckBlockStorageV2VolumeDoesNotExist(t *testing.T, n string, volume
 		config := testAccProvider.Meta().(*config.Config)
 		blockStorageClient, err := config.BlockStorageV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 		}
 
 		_, err = volumes.Get(blockStorageClient, volume.ID).Extract()
@@ -185,7 +186,7 @@ func testAccCheckBlockStorageV2VolumeDoesNotExist(t *testing.T, n string, volume
 			return err
 		}
 
-		return fmt.Errorf("Volume still exists")
+		return fmtp.Errorf("Volume still exists")
 	}
 }
 
@@ -193,7 +194,7 @@ func testAccCheckBlockStorageV2VolumeMetadata(
 	volume *volumes.Volume, k string, v string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if volume.Metadata == nil {
-			return fmt.Errorf("No metadata")
+			return fmtp.Errorf("No metadata")
 		}
 
 		for key, value := range volume.Metadata {
@@ -205,10 +206,10 @@ func testAccCheckBlockStorageV2VolumeMetadata(
 				return nil
 			}
 
-			return fmt.Errorf("Bad value for %s: %s", k, value)
+			return fmtp.Errorf("Bad value for %s: %s", k, value)
 		}
 
-		return fmt.Errorf("Metadata not found: %s", k)
+		return fmtp.Errorf("Metadata not found: %s", k)
 	}
 }
 
@@ -235,7 +236,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 `
 
 //NOTE: Volume size cannot be smaller than the image minDisk size.
-var testAccBlockStorageV2Volume_image = fmt.Sprintf(`
+var testAccBlockStorageV2Volume_image = fmtp.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 40
@@ -256,7 +257,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 }
 `
 
-var testAccBlockStorageV2Volume_online_resize = fmt.Sprintf(`
+var testAccBlockStorageV2Volume_online_resize = fmtp.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "basic" {
   name            = "instance_1"
   security_groups = ["default"]
@@ -279,7 +280,7 @@ resource "huaweicloud_compute_volume_attach_v2" "va_1" {
 }
 `, HW_AVAILABILITY_ZONE, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)
 
-var testAccBlockStorageV2Volume_online_resize_update = fmt.Sprintf(`
+var testAccBlockStorageV2Volume_online_resize_update = fmtp.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "basic" {
   name            = "instance_1"
   security_groups = ["default"]

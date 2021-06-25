@@ -1,12 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/keypairs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceIecKeypair() *schema.Resource {
@@ -48,7 +47,7 @@ func resourceIecKeypairCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	createOpts := keypairs.CreateOpts{
@@ -56,10 +55,10 @@ func resourceIecKeypairCreate(d *schema.ResourceData, meta interface{}) error {
 		PublicKey: d.Get("public_key").(string),
 	}
 
-	log.Printf("[DEBUG] Create iec keypair Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create iec keypair Options: %#v", createOpts)
 	kp, err := keypairs.Create(iecClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud iec keypair: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud iec keypair: %s", err)
 	}
 
 	d.SetId(kp.Name)
@@ -71,7 +70,7 @@ func resourceIecKeypairRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	kp, err := keypairs.Get(iecClient, d.Id()).Extract()
@@ -90,12 +89,12 @@ func resourceIecKeypairDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	err = keypairs.Delete(iecClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud iec keypair: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud iec keypair: %s", err)
 	}
 	d.SetId("")
 	return nil

@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
 
@@ -11,6 +10,7 @@ import (
 	iec_common "github.com/huaweicloud/golangsdk/openstack/iec/v1/common"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/publicips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccIecEIPResource_basic(t *testing.T) {
@@ -47,7 +47,7 @@ func testAccCheckIecEIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -57,7 +57,7 @@ func testAccCheckIecEIPDestroy(s *terraform.State) error {
 
 		_, err := publicips.Get(iecV1Client, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("IEC EIP still exists")
+			return fmtp.Errorf("IEC EIP still exists")
 		}
 	}
 
@@ -68,17 +68,17 @@ func testAccCheckIecEIPExists(n string, resource *iec_common.PublicIP) resource.
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 		}
 
 		found, err := publicips.Get(iecV1Client, rs.Primary.ID).Extract()
@@ -87,7 +87,7 @@ func testAccCheckIecEIPExists(n string, resource *iec_common.PublicIP) resource.
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("IEC EIP not found")
+			return fmtp.Errorf("IEC EIP not found")
 		}
 
 		*resource = *found

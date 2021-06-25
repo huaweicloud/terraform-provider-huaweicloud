@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"fmt"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stackresources"
@@ -60,7 +60,7 @@ func dataSourceRTSStackResourcesV1Read(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud rts client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud rts client: %s", err)
 	}
 
 	listOpts := stackresources.ListOpts{
@@ -71,16 +71,16 @@ func dataSourceRTSStackResourcesV1Read(d *schema.ResourceData, meta interface{})
 
 	refinedResources, err := stackresources.List(orchestrationClient, d.Get("stack_name").(string), listOpts)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve Stack Resources: %s", err)
+		return fmtp.Errorf("Unable to retrieve Stack Resources: %s", err)
 	}
 
 	if len(refinedResources) < 1 {
-		return fmt.Errorf("No matching resource found. " +
+		return fmtp.Errorf("No matching resource found. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedResources) > 1 {
-		return fmt.Errorf("Multiple resources matched; use additional constraints to reduce matches to a single resource")
+		return fmtp.Errorf("Multiple resources matched; use additional constraints to reduce matches to a single resource")
 	}
 
 	stackResource := refinedResources[0]

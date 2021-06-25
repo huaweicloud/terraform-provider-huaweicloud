@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -43,11 +44,11 @@ func testAccIECPublicIPsDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find IEC public IPs data source: %s", n)
+			return fmtp.Errorf("Can't find IEC public IPs data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("IEC public IPs data source ID not set")
+			return fmtp.Errorf("IEC public IPs data source ID not set")
 		}
 
 		return nil
@@ -67,7 +68,7 @@ resource "huaweicloud_iec_eip" "eip_test2" {
 `
 
 func testAccIECEipsDataSource_basic() string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_iec_eips" "site" {

@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"reflect"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -80,7 +81,7 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	kmsRegion := GetRegion(d, config)
 	kmsKeyV1Client, err := config.KmsKeyV1Client(kmsRegion)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
 
 	is_list_key := true
@@ -150,17 +151,17 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if len(allKeys) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(allKeys) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	key := allKeys[0]
-	log.Printf("[DEBUG] Kms key : %+v", key)
+	logp.Printf("[DEBUG] Kms key : %+v", key)
 
 	d.SetId(key.KeyID)
 	d.Set("key_id", key.KeyID)
@@ -178,10 +179,10 @@ func dataSourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	if resourceTags, err := tags.Get(kmsKeyV1Client, "kms", key.KeyID).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for kms key(%s): %s", key.KeyID, err)
+			return fmtp.Errorf("Error saving tags to state for kms key(%s): %s", key.KeyID, err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of kms key(%s): %s", key.KeyID, err)
+		logp.Printf("[WARN] Error fetching tags of kms key(%s): %s", key.KeyID, err)
 	}
 
 	return nil

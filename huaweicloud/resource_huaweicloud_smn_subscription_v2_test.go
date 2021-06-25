@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -9,12 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/smn/v2/subscriptions"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccSMNV2Subscription_basic(t *testing.T) {
 	var subscription1 subscriptions.SubscriptionGet
 	var subscription2 subscriptions.SubscriptionGet
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -42,7 +42,7 @@ func testAccCheckSMNSubscriptionV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	smnClient, err := config.SmnV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud smn: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud smn: %s", err)
 	}
 	var subscription *subscriptions.SubscriptionGet
 	for _, rs := range s.RootModule().Resources {
@@ -59,7 +59,7 @@ func testAccCheckSMNSubscriptionV2Destroy(s *terraform.State) error {
 			}
 		}
 		if subscription != nil {
-			return fmt.Errorf("subscription still exists")
+			return fmtp.Errorf("subscription still exists")
 		}
 	}
 
@@ -70,17 +70,17 @@ func testAccCheckSMNV2SubscriptionExists(n string, subscription *subscriptions.S
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		smnClient, err := config.SmnV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud smn client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud smn client: %s", err)
 		}
 
 		foundList, err := subscriptions.List(smnClient).Extract()
@@ -93,7 +93,7 @@ func testAccCheckSMNV2SubscriptionExists(n string, subscription *subscriptions.S
 			}
 		}
 		if subscription == nil {
-			return fmt.Errorf("subscription not found")
+			return fmtp.Errorf("subscription not found")
 		}
 
 		return nil
@@ -101,7 +101,7 @@ func testAccCheckSMNV2SubscriptionExists(n string, subscription *subscriptions.S
 }
 
 func testAccSMNV2SubscriptionConfig_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_smn_topic_v2" "topic_1" {
   name		  = "%s"
   display_name    = "The display name of topic_1"

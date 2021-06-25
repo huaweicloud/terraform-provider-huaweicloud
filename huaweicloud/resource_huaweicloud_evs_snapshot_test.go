@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +16,7 @@ import (
 func TestAccEvsSnapshotV2_basic(t *testing.T) {
 	var snapshot snapshots.Snapshot
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_snapshot.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -40,7 +41,7 @@ func testAccCheckEvsSnapshotV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	evsClient, err := config.BlockStorageV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud EVS storage client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud EVS storage client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -50,7 +51,7 @@ func testAccCheckEvsSnapshotV2Destroy(s *terraform.State) error {
 
 		_, err := snapshots.Get(evsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("EVS snapshot still exists")
+			return fmtp.Errorf("EVS snapshot still exists")
 		}
 	}
 
@@ -61,17 +62,17 @@ func testAccCheckEvsSnapshotV2Exists(n string, sp *snapshots.Snapshot) resource.
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		evsClient, err := config.BlockStorageV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud EVS storage client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud EVS storage client: %s", err)
 		}
 
 		found, err := snapshots.Get(evsClient, rs.Primary.ID).Extract()
@@ -80,7 +81,7 @@ func testAccCheckEvsSnapshotV2Exists(n string, sp *snapshots.Snapshot) resource.
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("EVS snapshot not found")
+			return fmtp.Errorf("EVS snapshot not found")
 		}
 
 		*sp = *found
@@ -90,7 +91,7 @@ func testAccCheckEvsSnapshotV2Exists(n string, sp *snapshots.Snapshot) resource.
 }
 
 func testAccEvsSnapshotV2_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_evs_snapshot" "test" {
