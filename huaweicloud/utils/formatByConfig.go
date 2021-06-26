@@ -4,14 +4,14 @@ import "regexp"
 
 const REPLACE_REG = "(?i)huaweicloud"
 
-var buildCloudCompany string
+var PackageName string
 
 var re = regexp.MustCompile(REPLACE_REG)
 
 func BuildNewFormatByConfig(format string) string {
 	newFormat := format
-	if buildCloudCompany != "" {
-		newFormat = re.ReplaceAllString(format, buildCloudCompany)
+	if PackageName != "" {
+		newFormat = re.ReplaceAllString(format, PackageName)
 	}
 	return newFormat
 }
