@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/antiddos/v1/antiddos"
@@ -112,7 +112,7 @@ func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	antiddosClient, err := config.AntiDDosV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating antiddos client: %s", err)
+		return fmtp.Errorf("Error creating antiddos client: %s", err)
 	}
 
 	listStatusOpts := antiddos.ListStatusOpts{
@@ -123,22 +123,22 @@ func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	refinedAntiddos, err := antiddos.ListStatus(antiddosClient, listStatusOpts)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve the defense status of  EIP, defense is not configured.: %s", err)
+		return fmtp.Errorf("Unable to retrieve the defense status of  EIP, defense is not configured.: %s", err)
 	}
 
 	if len(refinedAntiddos) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedAntiddos) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	ddosStatus := refinedAntiddos[0]
 
-	log.Printf("[INFO] Retrieved defense status of  EIP %s using given filter", ddosStatus.FloatingIpId)
+	logp.Printf("[INFO] Retrieved defense status of  EIP %s using given filter", ddosStatus.FloatingIpId)
 
 	d.SetId(ddosStatus.FloatingIpId)
 
@@ -150,9 +150,9 @@ func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("region", GetRegion(d, config))
 
 	traffic, err := antiddos.DailyReport(antiddosClient, ddosStatus.FloatingIpId).Extract()
-	log.Printf("traffic %#v", traffic)
+	logp.Printf("traffic %#v", traffic)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve the traffic of a specified EIP, defense is not configured: %s", err)
+		return fmtp.Errorf("Unable to retrieve the traffic of a specified EIP, defense is not configured: %s", err)
 	}
 
 	period_start := make([]int, 0)
@@ -199,9 +199,9 @@ func dataSourceAntiDdosV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	listEventOpts := antiddos.ListLogsOpts{}
 	event, err := antiddos.ListLogs(antiddosClient, ddosStatus.FloatingIpId, listEventOpts).Extract()
-	log.Printf("event %#v", event)
+	logp.Printf("event %#v", event)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve the event of a specified EIP, defense is not configured: %s", err)
+		return fmtp.Errorf("Unable to retrieve the event of a specified EIP, defense is not configured: %s", err)
 	}
 
 	start_time := make([]int, 0)

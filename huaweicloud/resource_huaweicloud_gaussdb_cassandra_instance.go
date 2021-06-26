@@ -2,7 +2,6 @@ package huaweicloud
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 
@@ -17,6 +16,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/geminidb/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceGeminiDBInstanceV3() *schema.Resource {
@@ -308,12 +309,12 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	client, err := config.GeminiDBV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud GeminiDB client: %s ", err)
+		return fmtp.Errorf("Error creating HuaweiCloud GeminiDB client: %s ", err)
 	}
 
 	// If force_import set, try to import it instead of creating
 	if hasFilledOpt(d, "force_import") {
-		log.Printf("[DEBUG] Gaussdb cassandra instance force_import is set, try to import it instead of creating")
+		logp.Printf("[DEBUG] Gaussdb cassandra instance force_import is set, try to import it instead of creating")
 		listOpts := instances.ListGeminiDBInstanceOpts{
 			Name: d.Get("name").(string),
 		}
@@ -324,11 +325,11 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 
 		allInstances, err := instances.ExtractGeminiDBInstances(pages)
 		if err != nil {
-			return fmt.Errorf("Unable to retrieve instances: %s ", err)
+			return fmtp.Errorf("Unable to retrieve instances: %s ", err)
 		}
 		if allInstances.TotalCount > 0 {
 			instance := allInstances.Instances[0]
-			log.Printf("[DEBUG] Found existing cassandra instance %s with name %s", instance.Id, instance.Name)
+			logp.Printf("[DEBUG] Found existing cassandra instance %s with name %s", instance.Id, instance.Name)
 			d.SetId(instance.Id)
 			return resourceGeminiDBInstanceV3Read(d, meta)
 		}
@@ -367,13 +368,13 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 		}
 		createOpts.ChargeInfo = chargeInfo
 	}
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
 	instance, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating GeminiDB instance : %s", err)
+		return fmtp.Errorf("Error creating GeminiDB instance : %s", err)
 	}
 
 	d.SetId(instance.Id)
@@ -389,7 +390,7 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for instance (%s) to become ready: %s",
 			instance.Id, err)
 	}
@@ -399,7 +400,7 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(client, "instances", d.Id(), taglist).ExtractErr(); tagErr != nil {
-			return fmt.Errorf("Error setting tags of GeminiDB %s: %s", d.Id(), tagErr)
+			return fmtp.Errorf("Error setting tags of GeminiDB %s: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -413,7 +414,7 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	client, err := config.GeminiDBV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
 	}
 
 	instanceID := d.Id()
@@ -423,11 +424,11 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	}
 	if instance.Id == "" {
 		d.SetId("")
-		log.Printf("[WARN] failed to fetch GeminiDB instance: deleted")
+		logp.Printf("[WARN] failed to fetch GeminiDB instance: deleted")
 		return nil
 	}
 
-	log.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
+	logp.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
 
 	d.Set("name", instance.Name)
 	d.Set("region", instance.Region)
@@ -479,7 +480,7 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 			d.Set("volume_size", volSize)
 		}
 		if specCode != "" {
-			log.Printf("[DEBUG] Node SpecCode: %s", specCode)
+			logp.Printf("[DEBUG] Node SpecCode: %s", specCode)
 			d.Set("flavor", specCode)
 		}
 	}
@@ -499,10 +500,10 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for geminidb (%s): %s", d.Id(), err)
+			return fmtp.Errorf("Error saving tags to state for geminidb (%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of geminidb (%s): %s", d.Id(), err)
+		logp.Printf("[WARN] Error fetching tags of geminidb (%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -512,7 +513,7 @@ func resourceGeminiDBInstanceV3Delete(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	client, err := config.GeminiDBV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud GeminiDB client: %s ", err)
+		return fmtp.Errorf("Error creating HuaweiCloud GeminiDB client: %s ", err)
 	}
 
 	instanceId := d.Id()
@@ -542,11 +543,11 @@ func resourceGeminiDBInstanceV3Delete(d *schema.ResourceData, meta interface{}) 
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for instance (%s) to be deleted: %s ",
 			instanceId, err)
 	}
-	log.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
+	logp.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
 	d.SetId("")
 	return nil
 }
@@ -555,17 +556,17 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	client, err := config.GeminiDBV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud Vpc: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud Vpc: %s", err)
 	}
 	bssClient, err := config.BssV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
 	}
 	//update tags
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
 		if tagErr != nil {
-			return fmt.Errorf("Error updating tags of GeminiDB %q: %s", d.Id(), tagErr)
+			return fmtp.Errorf("Error updating tags of GeminiDB %q: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -576,7 +577,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 		err := instances.UpdateName(client, d.Id(), updateNameOpts).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error updating name for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
+			return fmtp.Errorf("Error updating name for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
 		}
 
 	}
@@ -588,7 +589,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 		err := instances.UpdatePass(client, d.Id(), updatePassOpts).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error updating password for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
+			return fmtp.Errorf("Error updating password for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
 		}
 	}
 
@@ -601,7 +602,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		configId := d.Get("configuration_id").(string)
 		ret, err := configurations.Apply(client, configId, applyOpts).Extract()
 		if err != nil || !ret.Success {
-			return fmt.Errorf("Error updating configuration_id for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
+			return fmtp.Errorf("Error updating configuration_id for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
 		}
 
 		stateConf := &resource.StateChangeConf{
@@ -614,31 +615,31 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 		_, err = stateConf.WaitForState()
 		if err != nil {
-			return fmt.Errorf(
+			return fmtp.Errorf(
 				"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
 		}
 
 		// Compare the target configuration and the instance configuration
 		config, err := configurations.Get(client, configId).Extract()
 		if err != nil {
-			return fmt.Errorf("Error fetching configuration %s: %s", configId, err)
+			return fmtp.Errorf("Error fetching configuration %s: %s", configId, err)
 		}
 		configParams := config.Parameters
-		log.Printf("[DEBUG] Configuration Parameters %#v", configParams)
+		logp.Printf("[DEBUG] Configuration Parameters %#v", configParams)
 
 		instanceConfig, err := configurations.GetInstanceConfig(client, d.Id()).Extract()
 		if err != nil {
-			return fmt.Errorf("Error fetching instance configuration for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
+			return fmtp.Errorf("Error fetching instance configuration for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
 		}
 		instanceConfigParams := instanceConfig.Parameters
-		log.Printf("[DEBUG] Instance Configuration Parameters %#v", instanceConfigParams)
+		logp.Printf("[DEBUG] Instance Configuration Parameters %#v", instanceConfigParams)
 
 		if len(configParams) != len(instanceConfigParams) {
-			return fmt.Errorf("Error updating configuration for instance: %s", d.Id())
+			return fmtp.Errorf("Error updating configuration for instance: %s", d.Id())
 		}
 		for i, _ := range configParams {
 			if !configParams[i].ReadOnly && configParams[i] != instanceConfigParams[i] {
-				return fmt.Errorf("Error updating configuration for instance: %s", d.Id())
+				return fmtp.Errorf("Error updating configuration for instance: %s", d.Id())
 			}
 		}
 	}
@@ -653,7 +654,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 		n, err := instances.ExtendVolume(client, d.Id(), extendOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error extending huaweicloud_gaussdb_cassandra_instance %s size: %s", d.Id(), err)
+			return fmtp.Errorf("Error extending huaweicloud_gaussdb_cassandra_instance %s size: %s", d.Id(), err)
 		}
 		// 1. wait for order success
 		if n.OrderId != "" {
@@ -691,7 +692,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 				}
 			}
 			if volume_size != d.Get("volume_size").(int) {
-				return fmt.Errorf("Error extending volume for instance %s: order failed", d.Id())
+				return fmtp.Errorf("Error extending volume for instance %s: order failed", d.Id())
 			}
 		}
 	}
@@ -707,11 +708,11 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			if d.Get("charging_mode") == "prePaid" {
 				enlargeNodeOpts.IsAutoPay = "true"
 			}
-			log.Printf("[DEBUG] Enlarge Node Options: %+v", enlargeNodeOpts)
+			logp.Printf("[DEBUG] Enlarge Node Options: %+v", enlargeNodeOpts)
 
 			n, err := instances.EnlargeNode(client, d.Id(), enlargeNodeOpts).Extract()
 			if err != nil {
-				return fmt.Errorf("Error enlarging huaweicloud_gaussdb_cassandra_instance %s node size: %s", d.Id(), err)
+				return fmtp.Errorf("Error enlarging huaweicloud_gaussdb_cassandra_instance %s node size: %s", d.Id(), err)
 			}
 			// 1. wait for order success
 			if n.OrderId != "" {
@@ -749,7 +750,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 					}
 				}
 				if nodeNum != newnum.(int) {
-					return fmt.Errorf("Error enlarging node for instance %s: order failed", d.Id())
+					return fmtp.Errorf("Error enlarging node for instance %s: order failed", d.Id())
 				}
 			}
 		}
@@ -759,12 +760,12 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			reduceNodeOpts := instances.ReduceNodeOpts{
 				Num: 1,
 			}
-			log.Printf("[DEBUG] Reduce Node Options: %+v", reduceNodeOpts)
+			logp.Printf("[DEBUG] Reduce Node Options: %+v", reduceNodeOpts)
 
 			for i := 0; i < shrink_size; i++ {
 				result := instances.ReduceNode(client, d.Id(), reduceNodeOpts)
 				if result.Err != nil {
-					return fmt.Errorf("Error shrinking huaweicloud_gaussdb_cassandra_instance %s node size: %s", d.Id(), result.Err)
+					return fmtp.Errorf("Error shrinking huaweicloud_gaussdb_cassandra_instance %s node size: %s", d.Id(), result.Err)
 				}
 
 				stateConf := &resource.StateChangeConf{
@@ -778,7 +779,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 				_, err := stateConf.WaitForState()
 				if err != nil {
-					return fmt.Errorf(
+					return fmtp.Errorf(
 						"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
 				}
 			}
@@ -788,7 +789,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("flavor") {
 		instance, err := instances.GetInstanceByID(client, d.Id())
 		if err != nil {
-			return fmt.Errorf(
+			return fmtp.Errorf(
 				"Error fetching huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
 		}
 
@@ -806,13 +807,13 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 				_, err = stateConf.WaitForState()
 				if err != nil {
-					return fmt.Errorf(
+					return fmtp.Errorf(
 						"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
 				}
 
 				instance, err := instances.GetInstanceByID(client, d.Id())
 				if err != nil {
-					return fmt.Errorf(
+					return fmtp.Errorf(
 						"Error fetching huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
 				}
 
@@ -833,7 +834,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 		flavor := d.Get("flavor").(string)
 		if specCode != flavor {
-			log.Printf("[DEBUG] Inconsistent Node SpecCode: %s, Flavor: %s", specCode, flavor)
+			logp.Printf("[DEBUG] Inconsistent Node SpecCode: %s, Flavor: %s", specCode, flavor)
 			// Do resize action
 			resizeOpts := instances.ResizeOpts{
 				Resize: instances.ResizeOpt{
@@ -847,7 +848,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 			n, err := instances.Resize(client, d.Id(), resizeOpts).Extract()
 			if err != nil {
-				return fmt.Errorf("Error resizing huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
+				return fmtp.Errorf("Error resizing huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), err)
 			}
 			// 1. wait for order success
 			if n.OrderId != "" {
@@ -887,7 +888,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 					}
 				}
 				if currFlavor != d.Get("flavor").(string) {
-					return fmt.Errorf("Error updating flavor for instance %s: order failed", d.Id())
+					return fmtp.Errorf("Error updating flavor for instance %s: order failed", d.Id())
 				}
 			}
 		}
@@ -900,7 +901,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 		result := instances.UpdateSg(client, d.Id(), updateSgOpts)
 		if result.Err != nil {
-			return fmt.Errorf("Error updating security group for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), result.Err)
+			return fmtp.Errorf("Error updating security group for huaweicloud_gaussdb_cassandra_instance %s: %s", d.Id(), result.Err)
 		}
 
 		stateConf := &resource.StateChangeConf{
@@ -913,7 +914,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 
 		_, err := stateConf.WaitForState()
 		if err != nil {
-			return fmt.Errorf(
+			return fmtp.Errorf(
 				"Error waiting for huaweicloud_gaussdb_cassandra_instance %s to become ready: %s", d.Id(), err)
 		}
 	}
@@ -927,11 +928,11 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		updateOpts.StartTime = rawMap["start_time"].(string)
 		// Fixed to "1,2,3,4,5,6,7"
 		updateOpts.Period = "1,2,3,4,5,6,7"
-		log.Printf("[DEBUG] Update backup_strategy: %#v", updateOpts)
+		logp.Printf("[DEBUG] Update backup_strategy: %#v", updateOpts)
 
 		err = backups.Update(client, d.Id(), updateOpts).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error updating backup_strategy: %s", err)
+			return fmtp.Errorf("Error updating backup_strategy: %s", err)
 		}
 	}
 

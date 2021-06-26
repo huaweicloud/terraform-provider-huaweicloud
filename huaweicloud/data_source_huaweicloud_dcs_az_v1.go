@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v1/availablezones"
@@ -42,7 +42,7 @@ func dataSourceDcsAZV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating dcs key client: %s", err)
+		return fmtp.Errorf("Error creating dcs key client: %s", err)
 	}
 
 	v, err := availablezones.Get(dcsV1Client).Extract()
@@ -50,7 +50,7 @@ func dataSourceDcsAZV1Read(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] Dcs az : %+v", v)
+	logp.Printf("[DEBUG] Dcs az : %+v", v)
 	var filteredAZs []availablezones.AvailableZone
 	if v.RegionID == GetRegion(d, config) {
 		AZs := v.AvailableZones
@@ -78,11 +78,11 @@ func dataSourceDcsAZV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if len(filteredAZs) < 1 {
-		return fmt.Errorf("Not found any available zones")
+		return fmtp.Errorf("Not found any available zones")
 	}
 
 	az := filteredAZs[0]
-	log.Printf("[DEBUG] Dcs az : %+v", az)
+	logp.Printf("[DEBUG] Dcs az : %+v", az)
 
 	d.SetId(az.ID)
 	d.Set("code", az.Code)

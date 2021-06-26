@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,12 +9,13 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVPCEPService_Basic(t *testing.T) {
 	var service services.Service
 
-	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
+	rName := fmtp.Sprintf("acc-test-%s", acctest.RandString(4))
 	resourceName := "huaweicloud_vpcep_service.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -62,7 +62,7 @@ func TestAccVPCEPService_Basic(t *testing.T) {
 func TestAccVPCEPService_Permission(t *testing.T) {
 	var service services.Service
 
-	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
+	rName := fmtp.Sprintf("acc-test-%s", acctest.RandString(4))
 	resourceName := "huaweicloud_vpcep_service.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -95,7 +95,7 @@ func testAccCheckVPCEPServiceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	vpcepClient, err := config.VPCEPClient(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating VPC endpoint client: %s", err)
+		return fmtp.Errorf("Error creating VPC endpoint client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -105,7 +105,7 @@ func testAccCheckVPCEPServiceDestroy(s *terraform.State) error {
 
 		_, err := services.Get(vpcepClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("VPC endpoint service still exists")
+			return fmtp.Errorf("VPC endpoint service still exists")
 		}
 	}
 
@@ -116,17 +116,17 @@ func testAccCheckVPCEPServiceExists(n string, service *services.Service) resourc
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		vpcepClient, err := config.VPCEPClient(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating VPC endpoint client: %s", err)
+			return fmtp.Errorf("Error creating VPC endpoint client: %s", err)
 		}
 
 		found, err := services.Get(vpcepClient, rs.Primary.ID).Extract()
@@ -135,7 +135,7 @@ func testAccCheckVPCEPServiceExists(n string, service *services.Service) resourc
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("VPC endpoint service not found")
+			return fmtp.Errorf("VPC endpoint service not found")
 		}
 
 		*service = *found
@@ -145,7 +145,7 @@ func testAccCheckVPCEPServiceExists(n string, service *services.Service) resourc
 }
 
 func testAccVPCEPService_Precondition(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_vpc" "myvpc" {
@@ -167,7 +167,7 @@ resource "huaweicloud_compute_instance" "ecs" {
 }
 
 func testAccVPCEPService_Basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {
@@ -189,7 +189,7 @@ resource "huaweicloud_vpcep_service" "test" {
 }
 
 func testAccVPCEPService_Update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {
@@ -211,7 +211,7 @@ resource "huaweicloud_vpcep_service" "test" {
 }
 
 func testAccVPCEPService_Permission(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {
@@ -231,7 +231,7 @@ resource "huaweicloud_vpcep_service" "test" {
 }
 
 func testAccVPCEPService_PermissionUpdate(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {

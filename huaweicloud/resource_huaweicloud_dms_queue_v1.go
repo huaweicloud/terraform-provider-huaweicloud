@@ -1,12 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/queues"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDmsQueuesV1() *schema.Resource {
@@ -88,7 +87,7 @@ func resourceDmsQueuesV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
 	}
 
 	createOpts := &queues.CreateOps{
@@ -100,12 +99,12 @@ func resourceDmsQueuesV1Create(d *schema.ResourceData, meta interface{}) error {
 		RetentionHours:  d.Get("retention_hours").(int),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := queues.Create(dmsV1Client, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud queue: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud queue: %s", err)
 	}
-	log.Printf("[INFO] Queue ID: %s", v.ID)
+	logp.Printf("[INFO] Queue ID: %s", v.ID)
 
 	// Store the queue ID now
 	d.SetId(v.ID)
@@ -118,14 +117,14 @@ func resourceDmsQueuesV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
 	}
 	v, err := queues.Get(dmsV1Client, d.Id(), true).Extract()
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Dms queue %s: %+v", d.Id(), v)
+	logp.Printf("[DEBUG] Dms queue %s: %+v", d.Id(), v)
 
 	d.SetId(v.ID)
 	d.Set("name", v.Name)
@@ -146,7 +145,7 @@ func resourceDmsQueuesV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	dmsV1Client, err := config.DmsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud dms queue client: %s", err)
 	}
 
 	v, err := queues.Get(dmsV1Client, d.Id(), false).Extract()
@@ -156,10 +155,10 @@ func resourceDmsQueuesV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	err = queues.Delete(dmsV1Client, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud queue: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud queue: %s", err)
 	}
 
-	log.Printf("[DEBUG] Dms queue %s: %+v deactivated.", d.Id(), v)
+	logp.Printf("[DEBUG] Dms queue %s: %+v deactivated.", d.Id(), v)
 	d.SetId("")
 	return nil
 }

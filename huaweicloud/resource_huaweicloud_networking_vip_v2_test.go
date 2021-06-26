@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,10 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func TestAccNetworkingV2VIP_basic(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	updateName := rName + "update"
 	resourceName := "huaweicloud_networking_vip.vip_1"
 	var vip ports.Port
@@ -49,7 +49,7 @@ func testAccCheckNetworkingV2VIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -59,11 +59,11 @@ func testAccCheckNetworkingV2VIPDestroy(s *terraform.State) error {
 
 		_, err := ports.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("VIP still exists")
+			return fmtp.Errorf("VIP still exists")
 		}
 	}
 
-	log.Printf("[DEBUG] testAccCheckNetworkingV2VIPDestroy success!")
+	logp.Printf("[DEBUG] testAccCheckNetworkingV2VIPDestroy success!")
 
 	return nil
 }
@@ -72,17 +72,17 @@ func testAccCheckNetworkingV2VIPExists(n string, vip *ports.Port) resource.TestC
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		found, err := ports.Get(networkingClient, rs.Primary.ID).Extract()
@@ -91,9 +91,9 @@ func testAccCheckNetworkingV2VIPExists(n string, vip *ports.Port) resource.TestC
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("VIP not found")
+			return fmtp.Errorf("VIP not found")
 		}
-		log.Printf("[DEBUG] test found is: %#v", found)
+		logp.Printf("[DEBUG] test found is: %#v", found)
 		*vip = *found
 
 		return nil
@@ -101,7 +101,7 @@ func testAccCheckNetworkingV2VIPExists(n string, vip *ports.Port) resource.TestC
 }
 
 func testAccNetworkingV2VIPConfig_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "vpc_1" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -122,7 +122,7 @@ resource "huaweicloud_networking_vip" "vip_1" {
 }
 
 func testAccNetworkingV2VIPConfig_update(updateName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "vpc_1" {
   name = "%s"
   cidr = "192.168.0.0/16"

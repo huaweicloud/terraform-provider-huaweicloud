@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,7 +11,7 @@ import (
 )
 
 func TestAccImsImageDataSource_basic(t *testing.T) {
-	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var rName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	dataSourceName := "data.huaweicloud_images_image.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -35,7 +36,7 @@ func TestAccImsImageDataSource_basic(t *testing.T) {
 }
 
 func TestAccImsImageDataSource_testQueries(t *testing.T) {
-	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var rName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	dataSourceName := "data.huaweicloud_images_image.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -71,11 +72,11 @@ func testAccCheckImagesV2DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find image data source: %s", n)
+			return fmtp.Errorf("Can't find image data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Image data source ID not set")
+			return fmtp.Errorf("Image data source ID not set")
 		}
 
 		return nil
@@ -83,7 +84,7 @@ func testAccCheckImagesV2DataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccImsImageDataSource_ubuntu(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {
@@ -124,7 +125,7 @@ resource "huaweicloud_images_image" "test" {
 }
 
 func testAccImsImageDataSource_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_images_image" "test" {
@@ -135,7 +136,7 @@ data "huaweicloud_images_image" "test" {
 }
 
 func testAccImsImageDataSource_queryTag(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_images_image" "test" {
@@ -147,7 +148,7 @@ data "huaweicloud_images_image" "test" {
 }
 
 func testAccImsImageDataSource_querySizeMin(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_images_image" "test" {
@@ -159,7 +160,7 @@ data "huaweicloud_images_image" "test" {
 }
 
 func testAccImsImageDataSource_querySizeMax(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_images_image" "test" {

@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -51,18 +52,18 @@ func testAccCheckIECFlavorsDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Root module has no resource called %s", n)
+			return fmtp.Errorf("Root module has no resource called %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("IEC flavors data source ID not set")
+			return fmtp.Errorf("IEC flavors data source ID not set")
 		}
 		return nil
 	}
 }
 
 func testAccIECFlavorsConfig() string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_iec_flavors" "flavors_test" {
   region = "%s"
 }
@@ -70,7 +71,7 @@ data "huaweicloud_iec_flavors" "flavors_test" {
 }
 
 func testAccIECFlavorsWithName() string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_iec_flavors" "flavors_test" {
   region = "%s"
   name   = "c6.large.2"

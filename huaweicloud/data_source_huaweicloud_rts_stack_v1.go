@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"reflect"
 	"unsafe"
 
@@ -12,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacktemplates"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func dataSourceRTSStackV1() *schema.Resource {
@@ -78,16 +78,16 @@ func dataSourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud rts client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud rts client: %s", err)
 	}
 	stackName := d.Get("name").(string)
 
 	stack, err := stacks.Get(orchestrationClient, stackName).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve stack %s: %s", stackName, err)
+		return fmtp.Errorf("Unable to retrieve stack %s: %s", stackName, err)
 	}
 
-	log.Printf("[INFO] Retrieved Stack %s", stackName)
+	logp.Printf("[INFO] Retrieved Stack %s", stackName)
 	d.SetId(stack.ID)
 
 	d.Set("disable_rollback", stack.DisableRollback)

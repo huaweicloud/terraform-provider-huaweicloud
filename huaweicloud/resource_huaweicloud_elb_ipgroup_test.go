@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccElbV3IpGroup_basic(t *testing.T) {
 	var c ipgroups.IpGroup
-	name := fmt.Sprintf("tf-acc-%s", acctest.RandString(5))
+	name := fmtp.Sprintf("tf-acc-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_ipgroup.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -34,7 +35,7 @@ func TestAccElbV3IpGroup_basic(t *testing.T) {
 			{
 				Config: testAccElbV3IpGroupConfig_update(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s_updated", name)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("%s_updated", name)),
 					resource.TestCheckResourceAttr(resourceName, "description", "terraform test updated"),
 					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
 				),
@@ -45,7 +46,7 @@ func TestAccElbV3IpGroup_basic(t *testing.T) {
 
 func TestAccElbV3IpGroup_withEpsId(t *testing.T) {
 	var c ipgroups.IpGroup
-	name := fmt.Sprintf("tf-acc-%s", acctest.RandString(5))
+	name := fmtp.Sprintf("tf-acc-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_ipgroup.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -69,7 +70,7 @@ func testAccCheckElbV3IpGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	elbClient, err := config.ElbV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -79,7 +80,7 @@ func testAccCheckElbV3IpGroupDestroy(s *terraform.State) error {
 
 		_, err := ipgroups.Get(elbClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("IpGroup still exists: %s", rs.Primary.ID)
+			return fmtp.Errorf("IpGroup still exists: %s", rs.Primary.ID)
 		}
 	}
 
@@ -91,17 +92,17 @@ func testAccCheckElbV3IpGroupExists(
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		elbClient, err := config.ElbV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
 
 		found, err := ipgroups.Get(elbClient, rs.Primary.ID).Extract()
@@ -110,7 +111,7 @@ func testAccCheckElbV3IpGroupExists(
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("IpGroup not found")
+			return fmtp.Errorf("IpGroup not found")
 		}
 
 		*c = *found
@@ -120,7 +121,7 @@ func testAccCheckElbV3IpGroupExists(
 }
 
 func testAccElbV3IpGroupConfig_basic(name string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_elb_ipgroup" "test"{
   name        = "%s"
   description = "terraform test"
@@ -134,7 +135,7 @@ resource "huaweicloud_elb_ipgroup" "test"{
 }
 
 func testAccElbV3IpGroupConfig_update(name string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_elb_ipgroup" "test"{
   name        = "%s_updated"
   description = "terraform test updated"
@@ -153,7 +154,7 @@ resource "huaweicloud_elb_ipgroup" "test"{
 }
 
 func testAccElbV3IpGroupConfig_withEpsId(name string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_elb_ipgroup" "test"{
   name        = "%s"
   description = "terraform test"

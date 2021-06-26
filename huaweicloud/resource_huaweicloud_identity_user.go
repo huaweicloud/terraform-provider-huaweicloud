@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"regexp"
 	"strings"
 
@@ -11,6 +9,8 @@ import (
 	iam_users "github.com/huaweicloud/golangsdk/openstack/identity/v3.0/users"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/users"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceIdentityUserV3() *schema.Resource {
@@ -87,11 +87,11 @@ func resourceIdentityUserV3Create(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud iam client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud iam client: %s", err)
 	}
 
 	if config.DomainID == "" {
-		return fmt.Errorf("the domain_id must be specified in the provider configuration")
+		return fmtp.Errorf("the domain_id must be specified in the provider configuration")
 	}
 
 	enabled := d.Get("enabled").(bool)
@@ -106,13 +106,13 @@ func resourceIdentityUserV3Create(d *schema.ResourceData, meta interface{}) erro
 		DomainID:    config.DomainID,
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
 	user, err := iam_users.Create(iamClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud iam user: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud iam user: %s", err)
 	}
 
 	d.SetId(user.ID)
@@ -124,7 +124,7 @@ func resourceIdentityUserV3Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud iam client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud iam client: %s", err)
 	}
 
 	user, err := iam_users.Get(iamClient, d.Id()).Extract()
@@ -132,7 +132,7 @@ func resourceIdentityUserV3Read(d *schema.ResourceData, meta interface{}) error 
 		return CheckDeleted(d, err, "user")
 	}
 
-	log.Printf("[DEBUG] Retrieved HuaweiCloud user: %#v", user)
+	logp.Printf("[DEBUG] Retrieved HuaweiCloud user: %#v", user)
 
 	d.Set("enabled", user.Enabled)
 	d.Set("name", user.Name)
@@ -158,7 +158,7 @@ func resourceIdentityUserV3Update(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud iam client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud iam client: %s", err)
 	}
 
 	var updateOpts iam_users.UpdateOpts
@@ -189,7 +189,7 @@ func resourceIdentityUserV3Update(d *schema.ResourceData, meta interface{}) erro
 		updateOpts.Enabled = &enabled
 	}
 
-	log.Printf("[DEBUG] Update Options: %#v", updateOpts)
+	logp.Printf("[DEBUG] Update Options: %#v", updateOpts)
 
 	// Add password here so it wouldn't go in the above log entry
 	if d.HasChange("password") {
@@ -198,7 +198,7 @@ func resourceIdentityUserV3Update(d *schema.ResourceData, meta interface{}) erro
 
 	_, err = iam_users.Update(iamClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud user: %s", err)
+		return fmtp.Errorf("Error updating HuaweiCloud user: %s", err)
 	}
 
 	return resourceIdentityUserV3Read(d, meta)
@@ -208,12 +208,12 @@ func resourceIdentityUserV3Delete(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	err = users.Delete(identityClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud user: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud user: %s", err)
 	}
 
 	return nil

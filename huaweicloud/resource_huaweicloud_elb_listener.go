@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,6 +12,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/elb/v3/listeners"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceListenerV3() *schema.Resource {
@@ -151,7 +151,7 @@ func resourceListenerV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	http2_enable := d.Get("http2_enable").(bool)
@@ -204,7 +204,7 @@ func resourceListenerV3Create(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	// Wait for LoadBalancer to become active before continuing
 	lbID := createOpts.LoadbalancerID
@@ -214,10 +214,10 @@ func resourceListenerV3Create(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] Attempting to create listener")
+	logp.Printf("[DEBUG] Attempting to create listener")
 	listener, err := listeners.Create(elbClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating listener: %s", err)
+		return fmtp.Errorf("Error creating listener: %s", err)
 	}
 
 	// Wait for LoadBalancer to become active again before continuing
@@ -233,11 +233,11 @@ func resourceListenerV3Create(d *schema.ResourceData, meta interface{}) error {
 	if len(tagRaw) > 0 {
 		elbV2Client, err := config.ElbV2Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud elb v2.0 client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud elb v2.0 client: %s", err)
 		}
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(elbV2Client, "listeners", listener.ID, taglist).ExtractErr(); tagErr != nil {
-			return fmt.Errorf("Error setting tags of elb listener %s: %s", listener.ID, tagErr)
+			return fmtp.Errorf("Error setting tags of elb listener %s: %s", listener.ID, tagErr)
 		}
 	}
 
@@ -248,13 +248,13 @@ func resourceListenerV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// client for fetching tags
 	elbV2Client, err := config.ElbV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb 2.0 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb 2.0 client: %s", err)
 	}
 
 	listener, err := listeners.Get(elbClient, d.Id()).Extract()
@@ -262,7 +262,7 @@ func resourceListenerV3Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "listener")
 	}
 
-	log.Printf("[DEBUG] Retrieved listener %s: %#v", d.Id(), listener)
+	logp.Printf("[DEBUG] Retrieved listener %s: %#v", d.Id(), listener)
 
 	d.Set("name", listener.Name)
 	d.Set("protocol", listener.Protocol)
@@ -293,7 +293,7 @@ func resourceListenerV3Read(d *schema.ResourceData, meta interface{}) error {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		d.Set("tags", tagmap)
 	} else {
-		log.Printf("[WARN] fetching tags of elb listener failed: %s", err)
+		logp.Printf("[WARN] fetching tags of elb listener failed: %s", err)
 	}
 
 	return nil
@@ -303,7 +303,7 @@ func resourceListenerV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	//lintignore:R019
@@ -382,10 +382,10 @@ func resourceListenerV3Update(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 
-		log.Printf("[DEBUG] Updating listener %s with options: %#v", d.Id(), updateOpts)
+		logp.Printf("[DEBUG] Updating listener %s with options: %#v", d.Id(), updateOpts)
 		_, err = listeners.Update(elbClient, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating listener %s: %s", d.Id(), err)
+			return fmtp.Errorf("Error updating listener %s: %s", d.Id(), err)
 		}
 
 		// Wait for LoadBalancer to become active again before continuing
@@ -399,11 +399,11 @@ func resourceListenerV3Update(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("tags") {
 		elbV2Client, err := config.ElbV2Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud elb 2.0 client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud elb 2.0 client: %s", err)
 		}
 		tagErr := utils.UpdateResourceTags(elbV2Client, d, "listeners", d.Id())
 		if tagErr != nil {
-			return fmt.Errorf("Error updating tags of elb listener:%s, err:%s", d.Id(), tagErr)
+			return fmtp.Errorf("Error updating tags of elb listener:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
@@ -415,7 +415,7 @@ func resourceListenerV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	// Wait for LoadBalancer to become active before continuing
@@ -426,9 +426,9 @@ func resourceListenerV3Delete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] Deleting listener %s", d.Id())
+	logp.Printf("[DEBUG] Deleting listener %s", d.Id())
 	if err = listeners.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
-		return fmt.Errorf("Error deleting listener %s: %s", d.Id(), err)
+		return fmtp.Errorf("Error deleting listener %s: %s", d.Id(), err)
 	}
 
 	// Wait for LoadBalancer to become active again before continuing
@@ -447,7 +447,7 @@ func resourceListenerV3Delete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func waitForELBV3Listener(elbClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
-	log.Printf("[DEBUG] Waiting for listener %s to become %s.", id, target)
+	logp.Printf("[DEBUG] Waiting for listener %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
@@ -465,10 +465,10 @@ func waitForELBV3Listener(elbClient *golangsdk.ServiceClient, id string, target 
 			case "DELETED":
 				return nil
 			default:
-				return fmt.Errorf("Error: listener %s not found: %s", id, err)
+				return fmtp.Errorf("Error: listener %s not found: %s", id, err)
 			}
 		}
-		return fmt.Errorf("Error waiting for listener %s to become %s: %s", id, target, err)
+		return fmtp.Errorf("Error waiting for listener %s to become %s: %s", id, target, err)
 	}
 
 	return nil

@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/servers"
@@ -105,7 +105,7 @@ func dataSourceIECServerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	listOpts := &servers.ListOpts{
@@ -114,7 +114,7 @@ func dataSourceIECServerRead(d *schema.ResourceData, meta interface{}) error {
 		EdgeCloudID: d.Get("edgecloud_id").(string),
 	}
 
-	log.Printf("[DEBUG] searching the IEC server by filter: %#v", listOpts)
+	logp.Printf("[DEBUG] searching the IEC server by filter: %#v", listOpts)
 	allServers, err := servers.List(iecClient, listOpts).Extract()
 	if err != nil {
 		return err
@@ -122,16 +122,16 @@ func dataSourceIECServerRead(d *schema.ResourceData, meta interface{}) error {
 
 	total := len(allServers.Servers)
 	if total < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 	if total > 1 {
-		return fmt.Errorf("Your query returned more than one result. " +
+		return fmtp.Errorf("Your query returned more than one result. " +
 			"Please try a more specific search criteria.")
 	}
 
 	server := allServers.Servers[0]
-	log.Printf("[DEBUG] fetching the IEC server: %#v", server)
+	logp.Printf("[DEBUG] fetching the IEC server: %#v", server)
 
 	d.SetId(server.ID)
 	d.Set("name", server.Name)
@@ -169,7 +169,7 @@ func dataSourceIECServerRead(d *schema.ResourceData, meta interface{}) error {
 
 	// set IEC fields
 	location := server.Location
-	siteInfo := fmt.Sprintf("%s/%s/%s/%s", location.Country, location.Area, location.Province, location.City)
+	siteInfo := fmtp.Sprintf("%s/%s/%s/%s", location.Country, location.Area, location.Province, location.City)
 	siteItem := map[string]interface{}{
 		"site_id":   location.ID,
 		"site_info": siteInfo,

@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -12,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/elb/v3/pools"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourcePoolV3() *schema.Resource {
@@ -109,7 +109,7 @@ func resourcePoolV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var persistence pools.SessionPersistence
@@ -122,13 +122,13 @@ func resourcePoolV3Create(d *schema.ResourceData, meta interface{}) error {
 
 		if persistence.Type == "APP_COOKIE" {
 			if pV["cookie_name"].(string) == "" {
-				return fmt.Errorf(
+				return fmtp.Errorf(
 					"Persistence cookie_name needs to be set if using 'APP_COOKIE' persistence type")
 			}
 			persistence.CookieName = pV["cookie_name"].(string)
 		} else {
 			if pV["cookie_name"].(string) != "" {
-				return fmt.Errorf(
+				return fmtp.Errorf(
 					"Persistence cookie_name can only be set if using 'APP_COOKIE' persistence type")
 			}
 		}
@@ -148,10 +148,10 @@ func resourcePoolV3Create(d *schema.ResourceData, meta interface{}) error {
 		createOpts.Persistence = &persistence
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	pool, err := pools.Create(elbClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating pool: %s", err)
+		return fmtp.Errorf("Error creating pool: %s", err)
 	}
 
 	d.SetId(pool.ID)
@@ -169,7 +169,7 @@ func resourcePoolV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	pool, err := pools.Get(elbClient, d.Id()).Extract()
@@ -177,7 +177,7 @@ func resourcePoolV3Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "pool")
 	}
 
-	log.Printf("[DEBUG] Retrieved pool %s: %#v", d.Id(), pool)
+	logp.Printf("[DEBUG] Retrieved pool %s: %#v", d.Id(), pool)
 
 	d.Set("lb_method", pool.LBMethod)
 	d.Set("protocol", pool.Protocol)
@@ -192,7 +192,7 @@ func resourcePoolV3Read(d *schema.ResourceData, meta interface{}) error {
 		params["type"] = pool.Persistence.Type
 		persistence[0] = params
 		if err = d.Set("persistence", persistence); err != nil {
-			return fmt.Errorf("Load balance persistence set error: %s", err)
+			return fmtp.Errorf("Load balance persistence set error: %s", err)
 		}
 	}
 
@@ -203,7 +203,7 @@ func resourcePoolV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var updateOpts pools.UpdateOpts
@@ -217,10 +217,10 @@ func resourcePoolV3Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.Description = d.Get("description").(string)
 	}
 
-	log.Printf("[DEBUG] Updating pool %s with options: %#v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating pool %s with options: %#v", d.Id(), updateOpts)
 	_, err = pools.Update(elbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to update pool %s: %s", d.Id(), err)
+		return fmtp.Errorf("Unable to update pool %s: %s", d.Id(), err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutUpdate)
@@ -236,13 +236,13 @@ func resourcePoolV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Attempting to delete pool %s", d.Id())
+	logp.Printf("[DEBUG] Attempting to delete pool %s", d.Id())
 	err = pools.Delete(elbClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Unable to delete pool %s: %s", d.Id(), err)
+		return fmtp.Errorf("Unable to delete pool %s: %s", d.Id(), err)
 	}
 
 	// Wait for Pool to delete
@@ -256,7 +256,7 @@ func resourcePoolV3Delete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func waitForElbV3Pool(elbClient *golangsdk.ServiceClient, id string, target string, pending []string, timeout time.Duration) error {
-	log.Printf("[DEBUG] Waiting for pool %s to become %s.", id, target)
+	logp.Printf("[DEBUG] Waiting for pool %s to become %s.", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
@@ -274,10 +274,10 @@ func waitForElbV3Pool(elbClient *golangsdk.ServiceClient, id string, target stri
 			case "DELETED":
 				return nil
 			default:
-				return fmt.Errorf("Error: pool %s not found: %s", id, err)
+				return fmtp.Errorf("Error: pool %s not found: %s", id, err)
 			}
 		}
-		return fmt.Errorf("Error waiting for pool %s to become %s: %s", id, target, err)
+		return fmtp.Errorf("Error waiting for pool %s to become %s: %s", id, target, err)
 	}
 
 	return nil

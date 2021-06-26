@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
@@ -130,7 +130,7 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
+		return fmtp.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
 
 	listOpts := nodes.ListOpts{
@@ -154,16 +154,16 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	refinedNodes, err := nodes.List(cceClient, d.Get("cluster_id").(string), listOpts)
 
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve Nodes: %s", err)
+		return fmtp.Errorf("Unable to retrieve Nodes: %s", err)
 	}
 
 	if len(refinedNodes) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedNodes) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
@@ -184,7 +184,7 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	for i, val := range pids {
 		PublicIDs[i] = val
 	}
-	log.Printf("[DEBUG] Retrieved Nodes using given filter %s: %+v", Node.Metadata.Id, Node)
+	logp.Printf("[DEBUG] Retrieved Nodes using given filter %s: %+v", Node.Metadata.Id, Node)
 	d.SetId(Node.Metadata.Id)
 	d.Set("node_id", Node.Metadata.Id)
 	d.Set("name", Node.Metadata.Name)
@@ -210,7 +210,7 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 		volumes = append(volumes, volume)
 	}
 	if err := d.Set("data_volumes", volumes); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving dataVolumes to state for HuaweiCloud Node (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving dataVolumes to state for HuaweiCloud Node (%s): %s", d.Id(), err)
 	}
 
 	rootVolume := []map[string]interface{}{
@@ -221,13 +221,13 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 		},
 	}
 	if err := d.Set("root_volume", rootVolume); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node (%s): %s", d.Id(), err)
 	}
 
 	// fetch tags from ECS instance
 	computeClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	serverId := Node.Status.ServerID
@@ -237,10 +237,10 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 		// ignore "CCE-Dynamic-Provisioning-Node"
 		delete(tagmap, "CCE-Dynamic-Provisioning-Node")
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for CCE Node (%s): %s", serverId, err)
+			return fmtp.Errorf("Error saving tags to state for CCE Node (%s): %s", serverId, err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of CCE Node (%s): %s", serverId, err)
+		logp.Printf("[WARN] Error fetching tags of CCE Node (%s): %s", serverId, err)
 	}
 
 	return nil

@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -95,7 +95,7 @@ func dataSourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	listOpts := ports.ListOpts{}
@@ -135,18 +135,18 @@ func dataSourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) er
 
 	allPages, err := ports.List(networkingClient, listOpts).AllPages()
 	if err != nil {
-		return fmt.Errorf("Unable to list huaweicloud_networking_ports_v2: %s", err)
+		return fmtp.Errorf("Unable to list huaweicloud_networking_ports_v2: %s", err)
 	}
 
 	var allPorts []ports.Port
 
 	err = ports.ExtractPortsInto(allPages, &allPorts)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve huaweicloud_networking_ports_v2: %s", err)
+		return fmtp.Errorf("Unable to retrieve huaweicloud_networking_ports_v2: %s", err)
 	}
 
 	if len(allPorts) == 0 {
-		return fmt.Errorf("No huaweicloud_networking_port found")
+		return fmtp.Errorf("No huaweicloud_networking_port found")
 	}
 
 	var portsList []ports.Port
@@ -161,8 +161,8 @@ func dataSourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) er
 			}
 		}
 		if len(portsList) == 0 {
-			log.Printf("No huaweicloud_networking_port found after the 'fixed_ip' filter")
-			return fmt.Errorf("No huaweicloud_networking_port found")
+			logp.Printf("No huaweicloud_networking_port found after the 'fixed_ip' filter")
+			return fmtp.Errorf("No huaweicloud_networking_port found")
 		}
 	} else {
 		portsList = allPorts
@@ -180,19 +180,19 @@ func dataSourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) er
 			}
 		}
 		if len(sgPorts) == 0 {
-			log.Printf("[DEBUG] No huaweicloud_networking_port found after the 'security_group_ids' filter")
-			return fmt.Errorf("No huaweicloud_networking_port found")
+			logp.Printf("[DEBUG] No huaweicloud_networking_port found after the 'security_group_ids' filter")
+			return fmtp.Errorf("No huaweicloud_networking_port found")
 		}
 		portsList = sgPorts
 	}
 
 	if len(portsList) > 1 {
-		return fmt.Errorf("More than one huaweicloud_networking_port found (%d)", len(portsList))
+		return fmtp.Errorf("More than one huaweicloud_networking_port found (%d)", len(portsList))
 	}
 
 	port := portsList[0]
 
-	log.Printf("[DEBUG] Retrieved huaweicloud_networking_port %s: %+v", port.ID, port)
+	logp.Printf("[DEBUG] Retrieved huaweicloud_networking_port %s: %+v", port.ID, port)
 	d.SetId(port.ID)
 
 	d.Set("port_id", port.ID)

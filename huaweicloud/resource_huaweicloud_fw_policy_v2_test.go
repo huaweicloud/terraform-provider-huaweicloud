@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccFWPolicyV2_basic(t *testing.T) {
@@ -89,7 +89,7 @@ func testAccCheckFWPolicyV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	fwClient, err := config.FwV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_fw_policy_v2" {
@@ -97,7 +97,7 @@ func testAccCheckFWPolicyV2Destroy(s *terraform.State) error {
 		}
 		_, err = policies.Get(fwClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Firewall policy (%s) still exists.", rs.Primary.ID)
+			return fmtp.Errorf("Firewall policy (%s) still exists.", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -110,17 +110,17 @@ func testAccCheckFWPolicyV2Exists(n, name, description string, ruleCount int) re
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		fwClient, err := config.FwV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 		}
 
 		var found *policies.Policy
@@ -141,11 +141,11 @@ func testAccCheckFWPolicyV2Exists(n, name, description string, ruleCount int) re
 
 		switch {
 		case name != found.Name:
-			err = fmt.Errorf("Expected name <%s>, but found <%s>", name, found.Name)
+			err = fmtp.Errorf("Expected name <%s>, but found <%s>", name, found.Name)
 		case description != found.Description:
-			err = fmt.Errorf("Expected description <%s>, but found <%s>", description, found.Description)
+			err = fmtp.Errorf("Expected description <%s>, but found <%s>", description, found.Description)
 		case ruleCount != len(found.Rules):
-			err = fmt.Errorf("Expected rule count <%d>, but found <%d>", ruleCount, len(found.Rules))
+			err = fmtp.Errorf("Expected rule count <%d>, but found <%d>", ruleCount, len(found.Rules))
 		}
 
 		if err != nil {

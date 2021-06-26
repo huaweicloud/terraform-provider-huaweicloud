@@ -15,8 +15,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -42,7 +43,7 @@ func TestAccDwsCluster_basic(t *testing.T) {
 }
 
 func testAccDwsCluster_basic(val string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup" {
   name = "security_group_2%s"
   description = "terraform security group"
@@ -71,7 +72,7 @@ func testAccCheckDwsClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.DwsV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -89,7 +90,7 @@ func testAccCheckDwsClusterDestroy(s *terraform.State) error {
 			url, nil,
 			&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 		if err == nil {
-			return fmt.Errorf("huaweicloud_dws_cluster still exists at %s", url)
+			return fmtp.Errorf("huaweicloud_dws_cluster still exists at %s", url)
 		}
 	}
 
@@ -101,17 +102,17 @@ func testAccCheckDwsClusterExists() resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.DwsV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating sdk client, err=%s", err)
+			return fmtp.Errorf("Error creating sdk client, err=%s", err)
 		}
 
 		rs, ok := s.RootModule().Resources["huaweicloud_dws_cluster.cluster"]
 		if !ok {
-			return fmt.Errorf("Error checking huaweicloud_dws_cluster.cluster exist, err=not found huaweicloud_dws_cluster.cluster")
+			return fmtp.Errorf("Error checking huaweicloud_dws_cluster.cluster exist, err=not found huaweicloud_dws_cluster.cluster")
 		}
 
 		url, err := replaceVarsForTest(rs, "clusters/{id}")
 		if err != nil {
-			return fmt.Errorf("Error checking huaweicloud_dws_cluster.cluster exist, err=building url failed: %s", err)
+			return fmtp.Errorf("Error checking huaweicloud_dws_cluster.cluster exist, err=building url failed: %s", err)
 		}
 		url = client.ServiceURL(url)
 
@@ -120,9 +121,9 @@ func testAccCheckDwsClusterExists() resource.TestCheckFunc {
 			&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return fmt.Errorf("huaweicloud_dws_cluster.cluster is not exist")
+				return fmtp.Errorf("huaweicloud_dws_cluster.cluster is not exist")
 			}
-			return fmt.Errorf("Error checking huaweicloud_dws_cluster.cluster exist, err=send request failed: %s", err)
+			return fmtp.Errorf("Error checking huaweicloud_dws_cluster.cluster exist, err=send request failed: %s", err)
 		}
 		return nil
 	}

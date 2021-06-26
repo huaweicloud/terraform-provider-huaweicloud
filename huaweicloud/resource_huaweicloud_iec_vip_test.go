@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +16,7 @@ import (
 
 func TestAccIecVipResource_basic(t *testing.T) {
 	var iecPort iec_common.Port
-	rName := fmt.Sprintf("iec-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("iec-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_vip.vip_test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -42,7 +43,7 @@ func TestAccIecVipResource_basic(t *testing.T) {
 
 func TestAccIecVipResource_associate(t *testing.T) {
 	var iecPort iec_common.Port
-	rName := fmt.Sprintf("iec-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("iec-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_vip.vip_test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -71,7 +72,7 @@ func testAccCheckIecVipDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -81,7 +82,7 @@ func testAccCheckIecVipDestroy(s *terraform.State) error {
 
 		_, err := ports.Get(iecV1Client, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("IEC Vip still exists")
+			return fmtp.Errorf("IEC Vip still exists")
 		}
 	}
 
@@ -92,17 +93,17 @@ func testAccCheckIecVipExists(n string, resource *iec_common.Port) resource.Test
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 		}
 
 		found, err := ports.Get(iecV1Client, rs.Primary.ID).Extract()
@@ -111,7 +112,7 @@ func testAccCheckIecVipExists(n string, resource *iec_common.Port) resource.Test
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("IEC Vip not found")
+			return fmtp.Errorf("IEC Vip not found")
 		}
 
 		*resource = *found
@@ -121,7 +122,7 @@ func testAccCheckIecVipExists(n string, resource *iec_common.Port) resource.Test
 }
 
 func testAccIecVip_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_iec_sites" "sites_test" {}
 
 resource "huaweicloud_iec_vpc" "vpc_test" {
@@ -145,7 +146,7 @@ resource "huaweicloud_iec_vip" "vip_test" {
 }
 
 func testAccIecVip_associate(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_iec_vip" "vip_test" {
@@ -156,7 +157,7 @@ resource "huaweicloud_iec_vip" "vip_test" {
 }
 
 func testAccIecVip_disassociate(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_iec_vip" "vip_test" {

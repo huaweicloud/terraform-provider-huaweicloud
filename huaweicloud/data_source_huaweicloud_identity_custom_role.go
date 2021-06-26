@@ -2,8 +2,9 @@ package huaweicloud
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3.0/policies"
@@ -57,12 +58,12 @@ func dataSourceIdentityCustomRoleRead(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	identityClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	allPages, err := policies.List(identityClient).AllPages()
 	if err != nil {
-		return fmt.Errorf("Unable to query roles: %s", err)
+		return fmtp.Errorf("Unable to query roles: %s", err)
 	}
 
 	roles, err := policies.ExtractPageRoles(allPages)
@@ -97,13 +98,13 @@ func dataSourceIdentityCustomRoleRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if len(allRoles) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(allRoles) > 1 {
-		log.Printf("[DEBUG] Multiple results found: %#v", allRoles)
-		return fmt.Errorf("Your query returned more than one result. " +
+		logp.Printf("[DEBUG] Multiple results found: %#v", allRoles)
+		return fmtp.Errorf("Your query returned more than one result. " +
 			"Please try a more specific search criteria.")
 	}
 	role := allRoles[0]
@@ -113,7 +114,7 @@ func dataSourceIdentityCustomRoleRead(d *schema.ResourceData, meta interface{}) 
 
 // dataSourceIdentityRoleV3Attributes populates the fields of an Role resource.
 func dataSourceIdentityCustomRoleAttributes(d *schema.ResourceData, config *config.Config, role *policies.Role) error {
-	log.Printf("[DEBUG] huaweicloud_identity_role details: %#v", role)
+	logp.Printf("[DEBUG] huaweicloud_identity_role details: %#v", role)
 
 	d.SetId(role.ID)
 	d.Set("name", role.Name)
@@ -125,7 +126,7 @@ func dataSourceIdentityCustomRoleAttributes(d *schema.ResourceData, config *conf
 
 	policy, err := json.Marshal(role.Policy)
 	if err != nil {
-		return fmt.Errorf("Error marshalling policy: %s", err)
+		return fmtp.Errorf("Error marshalling policy: %s", err)
 	}
 
 	d.Set("policy", string(policy))

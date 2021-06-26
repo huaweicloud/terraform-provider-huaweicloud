@@ -1,10 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -12,14 +13,14 @@ import (
 )
 
 func TestAccVpcSubnetV1DataSource_basic(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	dNameByID := "data.huaweicloud_vpc_subnet.by_id"
 	dNameByCIDR := "data.huaweicloud_vpc_subnet.by_cidr"
 	dNameByName := "data.huaweicloud_vpc_subnet.by_name"
 	dNameByVpcID := "data.huaweicloud_vpc_subnet.by_vpc_id"
 	tmp := strconv.Itoa(acctest.RandIntRange(1, 254))
-	cidr := fmt.Sprintf("172.16.%s.0/24", string(tmp))
-	gateway := fmt.Sprintf("172.16.%s.1", string(tmp))
+	cidr := fmtp.Sprintf("172.16.%s.0/24", string(tmp))
+	gateway := fmtp.Sprintf("172.16.%s.1", string(tmp))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -59,10 +60,10 @@ func TestAccVpcSubnetV1DataSource_basic(t *testing.T) {
 }
 
 func TestAccVpcSubnetV1DataSource_ipv6(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	tmp := strconv.Itoa(acctest.RandIntRange(1, 254))
-	cidr := fmt.Sprintf("172.16.%s.0/24", string(tmp))
-	gateway := fmt.Sprintf("172.16.%s.1", string(tmp))
+	cidr := fmtp.Sprintf("172.16.%s.0/24", string(tmp))
+	gateway := fmtp.Sprintf("172.16.%s.1", string(tmp))
 	dName := "data.huaweicloud_vpc_subnet.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -94,11 +95,11 @@ func testAccCheckVpcSubnetV1DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find %s in state", n)
+			return fmtp.Errorf("Can't find %s in state", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Vpc Subnet data source ID not set")
+			return fmtp.Errorf("Vpc Subnet data source ID not set")
 		}
 
 		return nil
@@ -106,7 +107,7 @@ func testAccCheckVpcSubnetV1DataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccVpcSubnetV1DataSource_basic(rName, cidr, gateway string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_vpc" "test" {
@@ -141,7 +142,7 @@ data "huaweicloud_vpc_subnet" "by_vpc_id" {
 }
 
 func testAccVpcSubnetV1DataSource_ipv6(rName, cidr, gateway string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_vpc" "test" {

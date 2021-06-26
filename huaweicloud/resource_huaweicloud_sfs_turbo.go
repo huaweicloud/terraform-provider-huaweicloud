@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strconv"
 	"time"
 
@@ -12,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/sfs_turbo/v1/shares"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceSFSTurbo() *schema.Resource {
@@ -119,7 +119,7 @@ func resourceSFSTurboCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud SFS Turbo client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud SFS Turbo client: %s", err)
 	}
 
 	createOpts := shares.CreateOpts{
@@ -143,10 +143,10 @@ func resourceSFSTurboCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	createOpts.Metadata = metaOpts
 
-	log.Printf("[DEBUG] create sfs turbo with option: %+v", createOpts)
+	logp.Printf("[DEBUG] create sfs turbo with option: %+v", createOpts)
 	create, err := shares.Create(sfsClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud SFS Turbo: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud SFS Turbo: %s", err)
 	}
 	d.SetId(create.ID)
 
@@ -160,7 +160,7 @@ func resourceSFSTurboCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	_, StateErr := stateConf.WaitForState()
 	if StateErr != nil {
-		return fmt.Errorf("Error waiting for SFS Turbo (%s) to become ready: %s ", d.Id(), StateErr)
+		return fmtp.Errorf("Error waiting for SFS Turbo (%s) to become ready: %s ", d.Id(), StateErr)
 	}
 
 	return resourceSFSTurboRead(d, meta)
@@ -170,7 +170,7 @@ func resourceSFSTurboRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud SFS Turbo client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud SFS Turbo client: %s", err)
 	}
 
 	n, err := shares.Get(sfsClient, d.Id()).Extract()
@@ -195,7 +195,7 @@ func resourceSFSTurboRead(d *schema.ResourceData, meta interface{}) error {
 	// n.Size is a string of float64, should convert it to int
 	if fsize, err := strconv.ParseFloat(n.Size, 64); err == nil {
 		if err = d.Set("size", int(fsize)); err != nil {
-			return fmt.Errorf("Error reading size of SFS Turbo: %s", err)
+			return fmtp.Errorf("Error reading size of SFS Turbo: %s", err)
 		}
 	}
 
@@ -219,13 +219,13 @@ func resourceSFSTurboUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud SFS Turbo client: %s", err)
+		return fmtp.Errorf("Error updating HuaweiCloud SFS Turbo client: %s", err)
 	}
 
 	if d.HasChange("size") {
 		old, newsize := d.GetChange("size")
 		if old.(int) > newsize.(int) {
-			return fmt.Errorf("Shrinking HuaweiCloud SFS Turbo size is not supported")
+			return fmtp.Errorf("Shrinking HuaweiCloud SFS Turbo size is not supported")
 		}
 
 		expandOpts := shares.ExpandOpts{
@@ -233,7 +233,7 @@ func resourceSFSTurboUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 		expand := shares.Expand(sfsClient, d.Id(), expandOpts)
 		if expand.Err != nil {
-			return fmt.Errorf("Error Expanding HuaweiCloud Share File size: %s", expand.Err)
+			return fmtp.Errorf("Error Expanding HuaweiCloud Share File size: %s", expand.Err)
 		}
 
 		stateConf := &resource.StateChangeConf{
@@ -247,7 +247,7 @@ func resourceSFSTurboUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		_, err = stateConf.WaitForState()
 		if err != nil {
-			return fmt.Errorf("Error deleting HuaweiCloud SFS Turbo: %s", err)
+			return fmtp.Errorf("Error deleting HuaweiCloud SFS Turbo: %s", err)
 		}
 	}
 
@@ -258,7 +258,7 @@ func resourceSFSTurboDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	sfsClient, err := config.SfsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud SFS Turbo client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud SFS Turbo client: %s", err)
 	}
 
 	err = shares.Delete(sfsClient, d.Id()).ExtractErr()
@@ -277,7 +277,7 @@ func resourceSFSTurboDelete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud SFS Turbo: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud SFS Turbo: %s", err)
 	}
 
 	d.SetId("")
@@ -289,7 +289,7 @@ func waitForSFSTurboStatus(sfsClient *golangsdk.ServiceClient, shareId string) r
 		r, err := shares.Get(sfsClient, shareId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted HuaweiCloud shared File %s", shareId)
+				logp.Printf("[INFO] Successfully deleted HuaweiCloud shared File %s", shareId)
 				return r, "deleted", nil
 			}
 			return r, "error", err
@@ -304,7 +304,7 @@ func waitForSFSTurboSubStatus(sfsClient *golangsdk.ServiceClient, shareId string
 		r, err := shares.Get(sfsClient, shareId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted HuaweiCloud shared File %s", shareId)
+				logp.Printf("[INFO] Successfully deleted HuaweiCloud shared File %s", shareId)
 				return r, "deleted", nil
 			}
 			return r, "error", err

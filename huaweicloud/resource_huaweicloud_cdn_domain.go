@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -11,6 +9,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cdn/v1/domains"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceCdnDomainV1() *schema.Resource {
@@ -119,7 +119,7 @@ func resourceCdnDomainV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
 	}
 
 	createOpts := &domains.CreateOpts{
@@ -129,14 +129,14 @@ func resourceCdnDomainV1Create(d *schema.ResourceData, meta interface{}) error {
 		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := domains.Create(cdnClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CDN Domain: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CDN Domain: %s", err)
 	}
 
 	// Wait for CDN domain to become active again before continuing
-	log.Printf("[INFO] Waiting for CDN domain %s to become online.", v.ID)
+	logp.Printf("[INFO] Waiting for CDN domain %s to become online.", v.ID)
 	wait := &WaitDomainStatus{
 		ID:      v.ID,
 		Penging: []string{"configuring"},
@@ -146,7 +146,7 @@ func resourceCdnDomainV1Create(d *schema.ResourceData, meta interface{}) error {
 	timeout := d.Timeout(schema.TimeoutCreate)
 	err = waitforCDNV1DomainStatus(cdnClient, wait, timeout)
 	if err != nil {
-		return fmt.Errorf("Error waiting for CDN domain %s to become online: %s", v.ID, err)
+		return fmtp.Errorf("Error waiting for CDN domain %s to become online: %s", v.ID, err)
 	}
 
 	// Store the ID now
@@ -167,7 +167,7 @@ func waitforCDNV1DomainStatus(c *golangsdk.ServiceClient, waitstatus *WaitDomain
 
 	_, err := stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for CDN domain %s to become %s: %s",
+		return fmtp.Errorf("Error waiting for CDN domain %s to become %s: %s",
 			waitstatus.ID, waitstatus.Target, err)
 	}
 	return nil
@@ -189,16 +189,16 @@ func resourceCdnDomainV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
 	}
 
 	opts := getResourceExtensionOpts(d, config)
 	v, err := domains.Get(cdnClient, d.Id(), opts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error reading CDN Domain: %s", err)
+		return fmtp.Errorf("Error reading CDN Domain: %s", err)
 	}
 
-	log.Printf("[DEBUG] Retrieved CDN domain %s: %+v", d.Id(), v)
+	logp.Printf("[DEBUG] Retrieved CDN domain %s: %+v", d.Id(), v)
 
 	d.Set("name", v.DomainName)
 	d.Set("type", v.BusinessType)
@@ -223,7 +223,7 @@ func resourceCdnDomainV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
 	}
 
 	if d.HasChange("sources") {
@@ -233,12 +233,12 @@ func resourceCdnDomainV1Update(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		if err = domains.Origin(cdnClient, d.Id(), opts, updateOpts).Err; err != nil {
-			return fmt.Errorf("Error updating CDN Domain orgin servers: %s", err)
+			return fmtp.Errorf("Error updating CDN Domain orgin servers: %s", err)
 		}
 
 		// Wait for CDN domain to become active again before continuing
 		id := d.Id()
-		log.Printf("[INFO] Waiting for CDN domain %s to become online.", id)
+		logp.Printf("[INFO] Waiting for CDN domain %s to become online.", id)
 		wait := &WaitDomainStatus{
 			ID:      id,
 			Penging: []string{"configuring"},
@@ -248,7 +248,7 @@ func resourceCdnDomainV1Update(d *schema.ResourceData, meta interface{}) error {
 		timeout := d.Timeout(schema.TimeoutCreate)
 		err = waitforCDNV1DomainStatus(cdnClient, wait, timeout)
 		if err != nil {
-			return fmt.Errorf("Error waiting for CDN domain %s to become online: %s", id, err)
+			return fmtp.Errorf("Error waiting for CDN domain %s to become online: %s", id, err)
 		}
 	}
 
@@ -259,7 +259,7 @@ func resourceCdnDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cdnClient, err := config.CdnV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CDN v1 client: %s", err)
 	}
 
 	id := d.Id()
@@ -268,12 +268,12 @@ func resourceCdnDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	if d.Get("domain_status").(string) == "online" {
 		// make sure the status has changed to offline
-		log.Printf("[INFO] Disable CDN domain %s.", id)
+		logp.Printf("[INFO] Disable CDN domain %s.", id)
 		if err = domains.Disable(cdnClient, id, opts).Err; err != nil {
-			return fmt.Errorf("Error disable  HuaweiCloud CDN Domain %s: %s", id, err)
+			return fmtp.Errorf("Error disable  HuaweiCloud CDN Domain %s: %s", id, err)
 		}
 
-		log.Printf("[INFO] Waiting for disabling CDN domain %s.", id)
+		logp.Printf("[INFO] Waiting for disabling CDN domain %s.", id)
 		wait := &WaitDomainStatus{
 			ID:      id,
 			Penging: []string{"configuring", "online"},
@@ -283,14 +283,14 @@ func resourceCdnDomainV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 		err = waitforCDNV1DomainStatus(cdnClient, wait, timeout)
 		if err != nil {
-			return fmt.Errorf("Error waiting for CDN domain %s to become offline: %s", id, err)
+			return fmtp.Errorf("Error waiting for CDN domain %s to become offline: %s", id, err)
 		}
 	}
 
-	log.Printf("[INFO] Waiting for deleting CDN domain %s.", id)
+	logp.Printf("[INFO] Waiting for deleting CDN domain %s.", id)
 	_, err = domains.Delete(cdnClient, id, opts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error deleting CDN Domain %s: %s", id, err)
+		return fmtp.Errorf("Error deleting CDN Domain %s: %s", id, err)
 	}
 
 	// an API issue will be raised in ForceNew scene, so wait for a while

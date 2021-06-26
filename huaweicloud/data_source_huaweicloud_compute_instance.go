@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
@@ -169,7 +169,7 @@ func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud ECS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud ECS client: %s", err)
 	}
 
 	epsID := GetEnterpriseProjectID(d, config)
@@ -187,20 +187,20 @@ func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) err
 
 	allServers, err := cloudservers.ExtractServers(pages)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve cloud servers: %s ", err)
+		return fmtp.Errorf("Unable to retrieve cloud servers: %s ", err)
 	}
 
 	if len(allServers) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 	if len(allServers) > 1 {
-		return fmt.Errorf("Your query returned more than one result. " +
+		return fmtp.Errorf("Your query returned more than one result. " +
 			"Please try a more specific search criteria.")
 	}
 
 	server := allServers[0]
-	log.Printf("[DEBUG] fetching the ecs instance: %#v", server)
+	logp.Printf("[DEBUG] fetching the ecs instance: %#v", server)
 
 	d.SetId(server.ID)
 	d.Set("region", GetRegion(d, config))
@@ -255,7 +255,7 @@ func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) err
 	// Set the instance network and address information
 	networks, eip := flattenComputeNetworks(d, meta, &server)
 	if err := d.Set("network", networks); err != nil {
-		log.Printf("[WARN] Error setting network of ecs instance %s: %s", d.Id(), err)
+		logp.Printf("[WARN] Error setting network of ecs instance %s: %s", d.Id(), err)
 	}
 	if eip != "" {
 		d.Set("public_ip", eip)
@@ -265,7 +265,7 @@ func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) err
 	if len(server.VolumeAttached) > 0 {
 		blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud EVS client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud EVS client: %s", err)
 		}
 
 		bds := make([]map[string]interface{}, len(server.VolumeAttached))
@@ -275,14 +275,14 @@ func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) err
 			if err != nil {
 				return err
 			}
-			log.Printf("[DEBUG] Retrieved volume %s: %#v", b.ID, volumeInfo)
+			logp.Printf("[DEBUG] Retrieved volume %s: %#v", b.ID, volumeInfo)
 
 			// retrieve volume `pci_address`
 			va, err := block_devices.Get(ecsClient, d.Id(), b.ID).Extract()
 			if err != nil {
 				return err
 			}
-			log.Printf("[DEBUG] Retrieved block device %s: %#v", b.ID, va)
+			logp.Printf("[DEBUG] Retrieved block device %s: %#v", b.ID, va)
 
 			bds[i] = map[string]interface{}{
 				"volume_id":   b.ID,
@@ -305,7 +305,7 @@ func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) err
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		d.Set("tags", tagmap)
 	} else {
-		log.Printf("[WARN] Error fetching tags of ecs instance %s: %s", d.Id(), err)
+		logp.Printf("[WARN] Error fetching tags of ecs instance %s: %s", d.Id(), err)
 	}
 
 	return nil
@@ -318,7 +318,7 @@ func flattenComputeNetworks(
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		log.Printf("[ERROR] failed to create HuaweiCloud networking client: %s", err)
+		logp.Printf("[ERROR] failed to create HuaweiCloud networking client: %s", err)
 		return nil, ""
 	}
 
@@ -337,7 +337,7 @@ func flattenComputeNetworks(
 			p, err := ports.Get(networkingClient, addr.PortID).Extract()
 			if err != nil {
 				networkID = ""
-				log.Printf("[DEBUG] failed to fetch port %s", addr.PortID)
+				logp.Printf("[DEBUG] failed to fetch port %s", addr.PortID)
 			} else {
 				networkID = p.NetworkID
 			}
@@ -357,6 +357,6 @@ func flattenComputeNetworks(
 		}
 	}
 
-	log.Printf("[DEBUG] flatten Instance Networks: %#v", networks)
+	logp.Printf("[DEBUG] flatten Instance Networks: %#v", networks)
 	return networks, publicIP
 }

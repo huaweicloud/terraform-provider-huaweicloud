@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccComputeV2VolumeAttach_basic(t *testing.T) {
 	var va volumeattach.VolumeAttachment
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_volume_attach.va_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -39,7 +40,7 @@ func TestAccComputeV2VolumeAttach_basic(t *testing.T) {
 
 func TestAccComputeV2VolumeAttach_device(t *testing.T) {
 	var va volumeattach.VolumeAttachment
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -60,7 +61,7 @@ func testAccCheckComputeV2VolumeAttachDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -75,7 +76,7 @@ func testAccCheckComputeV2VolumeAttachDestroy(s *terraform.State) error {
 
 		_, err = volumeattach.Get(computeClient, instanceId, volumeId).Extract()
 		if err == nil {
-			return fmt.Errorf("Volume attachment still exists")
+			return fmtp.Errorf("Volume attachment still exists")
 		}
 	}
 
@@ -86,17 +87,17 @@ func testAccCheckComputeV2VolumeAttachExists(n string, va *volumeattach.VolumeAt
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
 		instanceId, volumeId, err := parseComputeVolumeAttachmentId(rs.Primary.ID)
@@ -110,7 +111,7 @@ func testAccCheckComputeV2VolumeAttachExists(n string, va *volumeattach.VolumeAt
 		}
 
 		if found.ServerID != instanceId || found.VolumeID != volumeId {
-			return fmt.Errorf("VolumeAttach not found")
+			return fmtp.Errorf("VolumeAttach not found")
 		}
 
 		*va = *found
@@ -123,7 +124,7 @@ func testAccCheckComputeV2VolumeAttachDevice(
 	va *volumeattach.VolumeAttachment, device string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if va.Device != device {
-			return fmt.Errorf("Requested device of volume attachment (%s) does not match: %s",
+			return fmtp.Errorf("Requested device of volume attachment (%s) does not match: %s",
 				device, va.Device)
 		}
 
@@ -132,7 +133,7 @@ func testAccCheckComputeV2VolumeAttachDevice(
 }
 
 func testAccComputeV2VolumeAttach_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_evs_volume" "test" {
@@ -161,7 +162,7 @@ resource "huaweicloud_compute_volume_attach" "va_1" {
 }
 
 func testAccComputeV2VolumeAttach_device(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_evs_volume" "test" {

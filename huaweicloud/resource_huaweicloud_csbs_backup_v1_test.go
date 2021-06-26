@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"fmt"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +15,7 @@ import (
 
 func TestAccCSBSBackupV1_basic(t *testing.T) {
 	var backups backup.Backup
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -43,7 +43,7 @@ func TestAccCSBSBackupV1_basic(t *testing.T) {
 
 func TestAccCSBSBackupV1_timeout(t *testing.T) {
 	var backups backup.Backup
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -64,7 +64,7 @@ func testAccCSBSBackupV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	backupClient, err := config.CsbsV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating csbs client: %s", err)
+		return fmtp.Errorf("Error creating csbs client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -74,7 +74,7 @@ func testAccCSBSBackupV1Destroy(s *terraform.State) error {
 
 		_, err := backup.Get(backupClient, rs.Primary.ID).ExtractBackup()
 		if err == nil {
-			return fmt.Errorf("Backup still exists")
+			return fmtp.Errorf("Backup still exists")
 		}
 	}
 
@@ -85,17 +85,17 @@ func testAccCSBSBackupV1Exists(n string, backups *backup.Backup) resource.TestCh
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Backup not found: %s", n)
+			return fmtp.Errorf("Backup not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		backupClient, err := config.CsbsV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating csbs client: %s", err)
+			return fmtp.Errorf("Error creating csbs client: %s", err)
 		}
 
 		found, err := backup.Get(backupClient, rs.Primary.ID).ExtractBackup()
@@ -104,7 +104,7 @@ func testAccCSBSBackupV1Exists(n string, backups *backup.Backup) resource.TestCh
 		}
 
 		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("backup not found")
+			return fmtp.Errorf("backup not found")
 		}
 
 		*backups = *found
@@ -114,7 +114,7 @@ func testAccCSBSBackupV1Exists(n string, backups *backup.Backup) resource.TestCh
 }
 
 func testAccCSBSBackupV1_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
@@ -142,7 +142,7 @@ resource "huaweicloud_csbs_backup" "csbs" {
 }
 
 func testAccCSBSBackupV1_timeout(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }

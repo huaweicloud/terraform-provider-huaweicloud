@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -25,7 +26,7 @@ func TestAccCssSnapshot_basic(t *testing.T) {
 				Config: testAccCssSnapshot_basic(rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCssSnapshotExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("snapshot-%s", rand)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("snapshot-%s", rand)),
 					resource.TestCheckResourceAttr(resourceName, "status", "COMPLETED"),
 					resource.TestCheckResourceAttr(resourceName, "backup_type", "manual"),
 				),
@@ -38,7 +39,7 @@ func testAccCheckCssSnapshotDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.CssV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating css client, err=%s", err)
+		return fmtp.Errorf("Error creating css client, err=%s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -58,7 +59,7 @@ func testAccCheckCssSnapshotDestroy(s *terraform.State) error {
 
 		for _, v := range snapList {
 			if v.ID == rs.Primary.ID {
-				return fmt.Errorf("huaweicloud css snapshot %s still exists", rs.Primary.ID)
+				return fmtp.Errorf("huaweicloud css snapshot %s still exists", rs.Primary.ID)
 			}
 		}
 	}
@@ -71,12 +72,12 @@ func testAccCheckCssSnapshotExists() resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.CssV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating css client, err=%s", err)
+			return fmtp.Errorf("Error creating css client, err=%s", err)
 		}
 
 		rs, ok := s.RootModule().Resources["huaweicloud_css_snapshot.snapshot"]
 		if !ok {
-			return fmt.Errorf("Error checking huaweicloud css snapshot.snapshot exist, err=not found this resource")
+			return fmtp.Errorf("Error checking huaweicloud css snapshot.snapshot exist, err=not found this resource")
 		}
 
 		clusterID := rs.Primary.Attributes["cluster_id"]
@@ -91,12 +92,12 @@ func testAccCheckCssSnapshotExists() resource.TestCheckFunc {
 			}
 		}
 
-		return fmt.Errorf("huaweicloud css snapshot %s is not exist", rs.Primary.ID)
+		return fmtp.Errorf("huaweicloud css snapshot %s is not exist", rs.Primary.ID)
 	}
 }
 
 func testAccCssSnapshot_basic(val string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup" {
   name = "terraform_test_sg-%s"
   description = "terraform security group acceptance test"

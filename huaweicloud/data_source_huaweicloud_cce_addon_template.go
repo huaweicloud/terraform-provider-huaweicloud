@@ -2,8 +2,9 @@ package huaweicloud
 
 import (
 	"encoding/json"
-	"fmt"
 	"reflect"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -89,20 +90,20 @@ func dataSourceCCEAddonTemplateV3Read(d *schema.ResourceData, meta interface{}) 
 	region := GetRegion(d, config)
 	client, err := config.CceAddonV3Client(region)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE client : %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE client : %s", err)
 	}
 	// Get all addon templates by List function
 	cluster_id := d.Get("cluster_id").(string)
 	templateList, err := templates.List(client, cluster_id).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve template list: %s", err)
+		return fmtp.Errorf("Unable to retrieve template list: %s", err)
 	}
 
 	name := d.Get("name").(string)
 	version := d.Get("version").(string)
 	template, err := getTemplateByNameAndVersion(templateList, name, version)
 	if err != nil {
-		return fmt.Errorf("Unable to find specifies template by name (%s) and version (%s): %s", name, version, err)
+		return fmtp.Errorf("Unable to find specifies template by name (%s) and version (%s): %s", name, version, err)
 	}
 
 	d.SetId(template.UID)
@@ -139,7 +140,7 @@ func getTemplateByNameAndVersion(templateList []templates.Template, specName, sp
 				// Return a json string to the user, which contains the contents of the basic and custom fields.
 				specBytes, err := json.Marshal(ver.Input)
 				if err != nil {
-					return result, fmt.Errorf("Error converting input struct")
+					return result, fmtp.Errorf("Error converting input struct")
 				}
 				result.Spec = string(specBytes)
 				result.Stable = ver.Stable
@@ -152,7 +153,7 @@ func getTemplateByNameAndVersion(templateList []templates.Template, specName, sp
 		}
 	}
 	if result.IsEmpty() {
-		return result, fmt.Errorf("Your query returned no results, please change your search criteria and try again")
+		return result, fmtp.Errorf("Your query returned no results, please change your search criteria and try again")
 	}
 
 	return result, nil

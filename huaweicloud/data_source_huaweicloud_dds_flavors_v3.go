@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -74,7 +74,7 @@ func dataSourceDDSFlavorV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	ddsClient, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DDS client: %s", err)
 	}
 
 	listOpts := flavors.ListOpts{
@@ -84,12 +84,12 @@ func dataSourceDDSFlavorV3Read(d *schema.ResourceData, meta interface{}) error {
 
 	pages, err := flavors.List(ddsClient, listOpts).AllPages()
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve flavors: %s", err)
+		return fmtp.Errorf("Unable to retrieve flavors: %s", err)
 	}
 
 	allFlavors, err := flavors.ExtractFlavors(pages)
 	if err != nil {
-		return fmt.Errorf("Unable to extract flavors: %s", err)
+		return fmtp.Errorf("Unable to extract flavors: %s", err)
 	}
 
 	flavorList := make([]map[string]interface{}, 0)
@@ -111,9 +111,9 @@ func dataSourceDDSFlavorV3Read(d *schema.ResourceData, meta interface{}) error {
 		flavorList = append(flavorList, flavor)
 	}
 
-	log.Printf("Extract %d/%d flavors by filters.", len(flavorList), len(allFlavors))
+	logp.Printf("Extract %d/%d flavors by filters.", len(flavorList), len(allFlavors))
 	if len(flavorList) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 

@@ -1,14 +1,14 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strconv"
 	"time"
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/maas/v1/task"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -176,7 +176,7 @@ func getSrcNode(d *schema.ResourceData) task.SrcNodeOpts {
 		CloudType: srcNode["cloud_type"].(string),
 	}
 
-	log.Printf("[DEBUG] getSrcNode: %#v", srcNodeOpts)
+	logp.Printf("[DEBUG] getSrcNode: %#v", srcNodeOpts)
 	return srcNodeOpts
 }
 
@@ -192,7 +192,7 @@ func getDstNode(d *schema.ResourceData) task.DstNodeOpts {
 		Bucket:    dstNode["bucket"].(string),
 	}
 
-	log.Printf("[DEBUG] getDstNode: %#v", dstNodeOpts)
+	logp.Printf("[DEBUG] getDstNode: %#v", dstNodeOpts)
 	return dstNodeOpts
 }
 
@@ -215,7 +215,7 @@ func getSmnInfo(d *schema.ResourceData) task.SmnInfoOpts {
 		Language:          smnInfo["language"].(string),
 		TriggerConditions: getTriggerConditions(triggerConditions),
 	}
-	log.Printf("[DEBUG] getSmnInfo: %#v", smnInfoOpts)
+	logp.Printf("[DEBUG] getSmnInfo: %#v", smnInfoOpts)
 	return smnInfoOpts
 }
 
@@ -223,7 +223,7 @@ func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	maasClient, err := config.MaasV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating maas client: %s", err)
+		return fmtp.Errorf("Error creating maas client: %s", err)
 	}
 
 	enableKMS := d.Get("enable_kms").(bool)
@@ -248,10 +248,10 @@ func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
 		createOpts.SmnInfo = &smnInfoOpts
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	taskCreate, err := task.Create(maasClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating Task: %s", err)
+		return fmtp.Errorf("Error creating Task: %s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutCreate)
@@ -259,7 +259,7 @@ func resourceMaasTaskV1Create(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(taskID)
 	err = waitForTaskCompleted(maasClient, taskID, timeout)
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for task (%s) completed: %s",
 			taskID, err)
 	}
@@ -271,14 +271,14 @@ func resourceMaasTaskV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	maasClient, err := config.MaasV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating maas client: %s", err)
+		return fmtp.Errorf("Error creating maas client: %s", err)
 	}
 
 	taskGet, err := task.Get(maasClient, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "task")
 	}
-	log.Printf("[DEBUG] Retrieved Task %s: %#v", d.Id(), taskGet)
+	logp.Printf("[DEBUG] Retrieved Task %s: %#v", d.Id(), taskGet)
 	d.Set("name", taskGet.Name)
 	d.Set("status", taskGet.Status)
 	d.Set("enable_kms", taskGet.EnableKMS)
@@ -313,13 +313,13 @@ func resourceMaasTaskV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	maasClient, err := config.MaasV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating maas client: %s", err)
+		return fmtp.Errorf("Error creating maas client: %s", err)
 	}
 
 	id := d.Id()
 	err = task.Delete(maasClient, id).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting task %s: %s", id, err)
+		return fmtp.Errorf("Error deleting task %s: %s", id, err)
 	}
 	d.SetId("")
 
@@ -333,7 +333,7 @@ func getTaskStatus(maasClient *golangsdk.ServiceClient, taskId string) resource.
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] Task: %+v", taskGet)
+		logp.Printf("[DEBUG] Task: %+v", taskGet)
 		status := strconv.Itoa(taskGet.Status)
 		return taskGet, status, nil
 	}

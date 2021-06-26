@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -15,6 +13,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceCCENodePool() *schema.Resource {
@@ -269,7 +269,7 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
 	}
 
 	// wait for the cce cluster to become available
@@ -327,7 +327,7 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add loginSpec here so it wouldn't go in the above log entry
 	var loginSpec nodes.LoginSpec
 	if hasFilledOpt(d, "key_pair") {
@@ -349,16 +349,16 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 		if _, ok := err.(golangsdk.ErrDefault403); ok {
 			retryNode, err := recursiveNodePoolCreate(nodePoolClient, createOpts, clusterid, 403)
 			if err == "fail" {
-				return fmt.Errorf("Error creating HuaweiCloud Node Pool")
+				return fmtp.Errorf("Error creating HuaweiCloud Node Pool")
 			}
 			s = retryNode
 		} else {
-			return fmt.Errorf("Error creating HuaweiCloud Node Pool: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud Node Pool: %s", err)
 		}
 	}
 
 	if len(s.Metadata.Id) == 0 {
-		return fmt.Errorf("Error fetching CreateNodePool id")
+		return fmtp.Errorf("Error fetching CreateNodePool id")
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -371,10 +371,10 @@ func resourceCCENodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE Node Pool: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE Node Pool: %s", err)
 	}
 
-	log.Printf("[DEBUG] Create node pool: %v", s)
+	logp.Printf("[DEBUG] Create node pool: %v", s)
 
 	d.SetId(s.Metadata.Id)
 	return resourceCCENodePoolRead(d, meta)
@@ -384,7 +384,7 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE Node Pool client: %s", err)
 	}
 	clusterid := d.Get("cluster_id").(string)
 	s, err := nodepools.Get(nodePoolClient, clusterid, d.Id()).Extract()
@@ -395,7 +395,7 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving HuaweiCloud Node Pool: %s", err)
+		return fmtp.Errorf("Error retrieving HuaweiCloud Node Pool: %s", err)
 	}
 
 	d.Set("name", s.Metadata.Name)
@@ -442,7 +442,7 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 		volumes = append(volumes, volume)
 	}
 	if err := d.Set("data_volumes", volumes); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving dataVolumes to state for HuaweiCloud Node Pool (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving dataVolumes to state for HuaweiCloud Node Pool (%s): %s", d.Id(), err)
 	}
 
 	rootVolume := []map[string]interface{}{
@@ -455,14 +455,14 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 		},
 	}
 	if err := d.Set("root_volume", rootVolume); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node Pool (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving root Volume to state for HuaweiCloud Node Pool (%s): %s", d.Id(), err)
 	}
 
 	tagmap := utils.TagsToMap(s.Spec.NodeTemplate.UserTags)
 	// ignore "CCE-Dynamic-Provisioning-Node"
 	delete(tagmap, "CCE-Dynamic-Provisioning-Node")
 	if err := d.Set("tags", tagmap); err != nil {
-		return fmt.Errorf("Error saving tags to state for CCE Node Pool(%s): %s", d.Id(), err)
+		return fmtp.Errorf("Error saving tags to state for CCE Node Pool(%s): %s", d.Id(), err)
 	}
 
 	d.Set("status", s.Status.Phase)
@@ -474,7 +474,7 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 
 	initialNodeCount := d.Get("initial_node_count").(int)
@@ -521,7 +521,7 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	clusterid := d.Get("cluster_id").(string)
 	_, err = nodepools.Update(nodePoolClient, clusterid, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud Node Node Pool: %s", err)
+		return fmtp.Errorf("Error updating HuaweiCloud Node Node Pool: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -534,7 +534,7 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE Node Pool: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE Node Pool: %s", err)
 	}
 
 	return resourceCCENodePoolRead(d, meta)
@@ -544,12 +544,12 @@ func resourceCCENodePoolDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	nodePoolClient, err := config.CceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 	clusterid := d.Get("cluster_id").(string)
 	err = nodepools.Delete(nodePoolClient, clusterid, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud CCE Node Pool: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud CCE Node Pool: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"Deleting"},
@@ -562,7 +562,7 @@ func resourceCCENodePoolDelete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud CCE Node Pool: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud CCE Node Pool: %s", err)
 	}
 
 	d.SetId("")
@@ -581,19 +581,19 @@ func waitForCceNodePoolActive(cceClient *golangsdk.ServiceClient, clusterId, nod
 
 func waitForCceNodePoolDelete(cceClient *golangsdk.ServiceClient, clusterId, nodePoolId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete HuaweiCloud CCE Node Pool %s.\n", nodePoolId)
+		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud CCE Node Pool %s.\n", nodePoolId)
 
 		r, err := nodepools.Get(cceClient, clusterId, nodePoolId).Extract()
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud CCE Node Pool %s", nodePoolId)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud CCE Node Pool %s", nodePoolId)
 				return r, "Deleted", nil
 			}
 			return r, "Deleting", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud CCE Node Pool %s still available.\n", nodePoolId)
+		logp.Printf("[DEBUG] HuaweiCloud CCE Node Pool %s still available.\n", nodePoolId)
 		return r, r.Status.Phase, nil
 	}
 }
@@ -609,7 +609,7 @@ func recursiveNodePoolCreate(cceClient *golangsdk.ServiceClient, opts nodepools.
 		}
 		_, stateErr := stateCluster.WaitForState()
 		if stateErr != nil {
-			log.Printf("[INFO] Cluster Unavailable %s.\n", stateErr)
+			logp.Printf("[INFO] Cluster Unavailable %s.\n", stateErr)
 		}
 		s, err := nodepools.Create(cceClient, ClusterID, opts).Extract()
 		if err != nil {
@@ -628,7 +628,7 @@ func recursiveNodePoolCreate(cceClient *golangsdk.ServiceClient, opts nodepools.
 func resourceCCENodePoolV3Import(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		err := fmt.Errorf("Invalid format specified for CCE Node Pool. Format must be <cluster id>/<node pool id>")
+		err := fmtp.Errorf("Invalid format specified for CCE Node Pool. Format must be <cluster id>/<node pool id>")
 		return nil, err
 	}
 

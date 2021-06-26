@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -14,7 +15,7 @@ import (
 
 func TestAccDmsQueuesV1_basic(t *testing.T) {
 	var queue queues.Queue
-	var queueName = fmt.Sprintf("dms_queue_%s", acctest.RandString(5))
+	var queueName = fmtp.Sprintf("dms_queue_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDms(t) },
@@ -37,7 +38,7 @@ func TestAccDmsQueuesV1_basic(t *testing.T) {
 
 func TestAccDmsQueuesV1_FIFOmode(t *testing.T) {
 	var queue queues.Queue
-	var queueName = fmt.Sprintf("dms_queue_%s", acctest.RandString(5))
+	var queueName = fmtp.Sprintf("dms_queue_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDms(t) },
@@ -68,7 +69,7 @@ func testAccCheckDmsV1QueueDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud queue client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud queue client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -78,7 +79,7 @@ func testAccCheckDmsV1QueueDestroy(s *terraform.State) error {
 
 		_, err := queues.Get(dmsClient, rs.Primary.ID, false).Extract()
 		if err == nil {
-			return fmt.Errorf("The Dms queue still exists.")
+			return fmtp.Errorf("The Dms queue still exists.")
 		}
 	}
 	return nil
@@ -88,25 +89,25 @@ func testAccCheckDmsV1QueueExists(n string, queue queues.Queue) resource.TestChe
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		dmsClient, err := config.DmsV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud queue client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud queue client: %s", err)
 		}
 
 		v, err := queues.Get(dmsClient, rs.Primary.ID, false).Extract()
 		if err != nil {
-			return fmt.Errorf("Error getting HuaweiCloud queue: %s, err: %s", rs.Primary.ID, err)
+			return fmtp.Errorf("Error getting HuaweiCloud queue: %s, err: %s", rs.Primary.ID, err)
 		}
 		if v.ID != rs.Primary.ID {
-			return fmt.Errorf("The Dms queue not found.")
+			return fmtp.Errorf("The Dms queue not found.")
 		}
 		queue = *v
 		return nil
@@ -114,7 +115,7 @@ func testAccCheckDmsV1QueueExists(n string, queue queues.Queue) resource.TestChe
 }
 
 func testAccDmsV1Queue_basic(queueName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 		resource "huaweicloud_dms_queue_v1" "queue_1" {
 			name  = "%s"
 		}
@@ -122,7 +123,7 @@ func testAccDmsV1Queue_basic(queueName string) string {
 }
 
 func testAccDmsV1Queue_FIFOmode(queueName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 		resource "huaweicloud_dms_queue_v1" "queue_1" {
 			name  = "%s"
 			description  = "test create dms queue"

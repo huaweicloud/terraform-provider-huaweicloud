@@ -1,13 +1,12 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/peerings"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func dataSourceVpcPeeringConnectionV2() *schema.Resource {
@@ -53,7 +52,7 @@ func dataSourceVpcPeeringConnectionV2Read(d *schema.ResourceData, meta interface
 	config := meta.(*config.Config)
 	peeringClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}
 
 	listOpts := peerings.ListOpts{
@@ -67,22 +66,22 @@ func dataSourceVpcPeeringConnectionV2Read(d *schema.ResourceData, meta interface
 
 	refinedPeering, err := peerings.List(peeringClient, listOpts)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve vpc peering connections: %s", err)
+		return fmtp.Errorf("Unable to retrieve vpc peering connections: %s", err)
 	}
 
 	if len(refinedPeering) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedPeering) > 1 {
-		return fmt.Errorf("Multiple VPC peering connections matched." +
+		return fmtp.Errorf("Multiple VPC peering connections matched." +
 			" Use additional constraints to reduce matches to a single VPC peering connection")
 	}
 
 	Peering := refinedPeering[0]
 
-	log.Printf("[INFO] Retrieved Vpc peering Connections using given filter %s: %+v", Peering.ID, Peering)
+	logp.Printf("[INFO] Retrieved Vpc peering Connections using given filter %s: %+v", Peering.ID, Peering)
 	d.SetId(Peering.ID)
 
 	d.Set("id", Peering.ID)

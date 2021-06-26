@@ -1,11 +1,12 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -114,14 +115,14 @@ func resourceCBRPolicyV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud CBR client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud CBR client: %s", err)
 	}
 
 	enabled := d.Get("enabled").(bool)
 
 	schedule, err := resourceCBRPolicyV3BackupSchedule(d)
 	if err != nil {
-		return fmt.Errorf("Error to parse the format of backup cycle: %s", err)
+		return fmtp.Errorf("Error to parse the format of backup cycle: %s", err)
 	}
 	createOpts := policies.CreateOpts{
 		Name:                d.Get("name").(string),
@@ -137,7 +138,7 @@ func resourceCBRPolicyV3Create(d *schema.ResourceData, meta interface{}) error {
 
 	cbrPolicy, err := policies.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud CBR policy: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud CBR policy: %s", err)
 	}
 
 	d.SetId(cbrPolicy.ID)
@@ -149,7 +150,7 @@ func resourceCBRPolicyV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud CBR client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud CBR client: %s", err)
 	}
 
 	cbrPolicy, err := policies.Get(client, d.Id()).Extract()
@@ -157,7 +158,7 @@ func resourceCBRPolicyV3Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "Error retrieving CBRv3 policy")
 	}
 
-	log.Printf("[DEBUG] Retrieved policy %s: %+v", d.Id(), cbrPolicy)
+	logp.Printf("[DEBUG] Retrieved policy %s: %+v", d.Id(), cbrPolicy)
 	operationDefinition := cbrPolicy.OperationDefinition
 	mErr := multierror.Append(nil,
 		d.Set("region", GetRegion(d, config)),
@@ -185,7 +186,7 @@ func resourceCBRPolicyV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud CBR client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud CBR client: %s", err)
 	}
 
 	var updateOpts policies.UpdateOpts
@@ -201,7 +202,7 @@ func resourceCBRPolicyV3Update(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("backup_cycle") {
 		schedule, err := resourceCBRPolicyV3BackupSchedule(d)
 		if err != nil {
-			return fmt.Errorf("Error to parse the format of backup cycle: %s", err)
+			return fmtp.Errorf("Error to parse the format of backup cycle: %s", err)
 		}
 		updateOpts.Trigger = &policies.Trigger{
 			Properties: policies.TriggerProperties{
@@ -216,7 +217,7 @@ func resourceCBRPolicyV3Update(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = policies.Update(client, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating Huaweicloud CBR policy: %s", err)
+		return fmtp.Errorf("Error updating Huaweicloud CBR policy: %s", err)
 	}
 
 	return resourceCBRPolicyV3Read(d, meta)
@@ -226,11 +227,11 @@ func resourceCBRPolicyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud CBR client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud CBR client: %s", err)
 	}
 
 	if err = policies.Delete(client, d.Id()).ExtractErr(); err != nil {
-		return fmt.Errorf("Error deleting Huaweicloud CBR policy: %s", err)
+		return fmtp.Errorf("Error deleting Huaweicloud CBR policy: %s", err)
 	}
 
 	d.SetId("")
@@ -262,9 +263,9 @@ func resourceCBRPolicyV3OpDefinition(d *schema.ResourceData) *policies.PolicyODC
 func makeSchedule(frequency, backupType, duration, time string) (string, error) {
 	timeSlice := strings.Split(time, ":")
 	if len(timeSlice) != 2 {
-		return "", fmt.Errorf("Wrong time format (%s), should be HH:MM", time)
+		return "", fmtp.Errorf("Wrong time format (%s), should be HH:MM", time)
 	}
-	schedule := fmt.Sprintf("FREQ=%s;%s=%s;BYHOUR=%s;BYMINUTE=%s",
+	schedule := fmtp.Sprintf("FREQ=%s;%s=%s;BYHOUR=%s;BYMINUTE=%s",
 		frequency, backupType, duration, timeSlice[0], timeSlice[1])
 	return schedule, nil
 }
@@ -307,14 +308,14 @@ func setCBRPolicyV3BackupCycle(d *schema.ResourceData, schedules []string) error
 		//The right length of the string match is two, first is the match result of the regex string,
 		//second is the match result of the regex group.
 		if len(result) != 2 {
-			return fmt.Errorf("Wrong weekly days format in API response")
+			return fmtp.Errorf("Wrong weekly days format in API response")
 		}
 		schedule["days"] = result[1]
 	} else {
 		regexExp := regexp.MustCompile("INTERVAL=([\\d]+);")
 		result := regexExp.FindStringSubmatch(schedules[0])
 		if len(result) != 2 {
-			return fmt.Errorf("Wrong backup interval format in API response")
+			return fmtp.Errorf("Wrong backup interval format in API response")
 		}
 		num, err := strconv.Atoi(result[1])
 		if err != nil {
@@ -327,7 +328,7 @@ func setCBRPolicyV3BackupCycle(d *schema.ResourceData, schedules []string) error
 		regexExp := regexp.MustCompile("BYHOUR=(\\d+);BYMINUTE=(\\d+)")
 		times := regexExp.FindStringSubmatch(v)
 		if len(times) != 3 {
-			return fmt.Errorf("Wrong backup time format in API response")
+			return fmtp.Errorf("Wrong backup time format in API response")
 		}
 		backupTimeList[i] = strings.Join([]string{times[1], times[2]}, ":")
 	}

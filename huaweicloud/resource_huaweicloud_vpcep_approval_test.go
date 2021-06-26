@@ -1,20 +1,20 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/endpoints"
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVPCEndpointApproval_Basic(t *testing.T) {
 	var service services.Service
 	var endpoint endpoints.Endpoint
 
-	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
+	rName := fmtp.Sprintf("acc-test-%s", acctest.RandString(4))
 	resourceName := "huaweicloud_vpcep_approval.approval"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -44,7 +44,7 @@ func TestAccVPCEndpointApproval_Basic(t *testing.T) {
 }
 
 func testAccVPCEndpointApproval_Basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {
@@ -85,7 +85,7 @@ resource "huaweicloud_vpcep_approval" "approval" {
 }
 
 func testAccVPCEndpointApproval_Update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {

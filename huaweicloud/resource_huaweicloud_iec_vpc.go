@@ -1,13 +1,13 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/vpcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceIecVpc() *schema.Resource {
@@ -58,7 +58,7 @@ func resourceIecVpcV1Create(d *schema.ResourceData, meta interface{}) error {
 	iecV1Client, err := config.IECV1Client(GetRegion(d, config))
 
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	createOpts := vpcs.CreateOpts{
@@ -69,10 +69,10 @@ func resourceIecVpcV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	n, err := vpcs.Create(iecV1Client, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC VPC: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC VPC: %s", err)
 	}
 
-	log.Printf("[INFO] IEC VPC ID: %s", n.ID)
+	logp.Printf("[INFO] IEC VPC ID: %s", n.ID)
 	d.SetId(n.ID)
 
 	return resourceIecVpcV1Read(d, meta)
@@ -82,7 +82,7 @@ func resourceIecVpcV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecV1Client, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	n, err := vpcs.Get(iecV1Client, d.Id()).Extract()
@@ -102,7 +102,7 @@ func resourceIecVpcV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecV1Client, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	var updateOpts vpcs.UpdateOpts
@@ -116,7 +116,7 @@ func resourceIecVpcV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = vpcs.Update(iecV1Client, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating Huaweicloud IEC VPC: %s", err)
+		return fmtp.Errorf("Error updating Huaweicloud IEC VPC: %s", err)
 	}
 
 	return resourceIecVpcV1Read(d, meta)
@@ -126,7 +126,7 @@ func resourceIecVpcV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecV1Client, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	err = vpcs.Delete(iecV1Client, d.Id()).ExtractErr()

@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -9,6 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/vpnaas/ipsecpolicies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpnIPSecPolicyV2_basic(t *testing.T) {
@@ -76,7 +76,7 @@ func testAccCheckIPSecPolicyV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_vpnaas_ipsec_policy_v2" {
@@ -84,7 +84,7 @@ func testAccCheckIPSecPolicyV2Destroy(s *terraform.State) error {
 		}
 		_, err = ipsecpolicies.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("IPSec policy (%s) still exists.", rs.Primary.ID)
+			return fmtp.Errorf("IPSec policy (%s) still exists.", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -97,17 +97,17 @@ func testAccCheckIPSecPolicyV2Exists(n string, policy *ipsecpolicies.Policy) res
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		found, err := ipsecpolicies.Get(networkingClient, rs.Primary.ID).Extract()

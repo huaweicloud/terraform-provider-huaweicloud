@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -12,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceVirtualPrivateCloudV1() *schema.Resource {
@@ -86,7 +86,7 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud vpc client: %s", err)
 	}
 
 	createOpts := vpcs.CreateOpts{
@@ -103,11 +103,11 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 	n, err := vpcs.Create(vpcClient, createOpts).Extract()
 
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud VPC: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud VPC: %s", err)
 	}
 	d.SetId(n.ID)
 
-	log.Printf("[INFO] Vpc ID: %s", n.ID)
+	logp.Printf("[INFO] Vpc ID: %s", n.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"CREATING"},
@@ -120,7 +120,7 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 
 	_, stateErr := stateConf.WaitForState()
 	if stateErr != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for Vpc (%s) to become ACTIVE: %s",
 			n.ID, stateErr)
 	}
@@ -130,11 +130,11 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 	if len(tagRaw) > 0 {
 		vpcV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud vpc client: %s", err)
 		}
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(vpcV2Client, "vpcs", n.ID, taglist).ExtractErr(); tagErr != nil {
-			return fmt.Errorf("Error setting tags of VirtualPrivateCloud %q: %s", n.ID, tagErr)
+			return fmtp.Errorf("Error setting tags of VirtualPrivateCloud %q: %s", n.ID, tagErr)
 		}
 	}
 
@@ -145,7 +145,7 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}
 
 	n, err := vpcs.Get(vpcClient, d.Id()).Extract()
@@ -155,7 +155,7 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving Huaweicloud Vpc: %s", err)
+		return fmtp.Errorf("Error retrieving Huaweicloud Vpc: %s", err)
 	}
 
 	d.Set("name", n.Name)
@@ -180,13 +180,13 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 		if resourceTags, err := tags.Get(vpcV2Client, "vpcs", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
-				return fmt.Errorf("Error saving tags to state for VPC (%s): %s", d.Id(), err)
+				return fmtp.Errorf("Error saving tags to state for VPC (%s): %s", d.Id(), err)
 			}
 		} else {
-			log.Printf("[WARN] Error fetching tags of VPC (%s): %s", d.Id(), err)
+			logp.Printf("[WARN] Error fetching tags of VPC (%s): %s", d.Id(), err)
 		}
 	} else {
-		return fmt.Errorf("Error creating vpc client: %s", err)
+		return fmtp.Errorf("Error creating vpc client: %s", err)
 	}
 
 	return nil
@@ -196,7 +196,7 @@ func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud Vpc: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud Vpc: %s", err)
 	}
 
 	var updateOpts vpcs.UpdateOpts
@@ -210,19 +210,19 @@ func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{
 
 	_, err = vpcs.Update(vpcClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating Huaweicloud Vpc: %s", err)
+		return fmtp.Errorf("Error updating Huaweicloud Vpc: %s", err)
 	}
 
 	//update tags
 	if d.HasChange("tags") {
 		vpcV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud vpc client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud vpc client: %s", err)
 		}
 
 		tagErr := utils.UpdateResourceTags(vpcV2Client, d, "vpcs", d.Id())
 		if tagErr != nil {
-			return fmt.Errorf("Error updating tags of VPC %s: %s", d.Id(), tagErr)
+			return fmtp.Errorf("Error updating tags of VPC %s: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -234,7 +234,7 @@ func resourceVirtualPrivateCloudV1Delete(d *schema.ResourceData, meta interface{
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud vpc: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud vpc: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -248,7 +248,7 @@ func resourceVirtualPrivateCloudV1Delete(d *schema.ResourceData, meta interface{
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting Huaweicloud Vpc: %s", err)
+		return fmtp.Errorf("Error deleting Huaweicloud Vpc: %s", err)
 	}
 
 	d.SetId("")
@@ -268,7 +268,7 @@ func waitForVpcActive(vpcClient *golangsdk.ServiceClient, vpcId string) resource
 
 		//If vpc status is other than Ok, send error
 		if n.Status == "DOWN" {
-			return nil, "", fmt.Errorf("Vpc status: '%s'", n.Status)
+			return nil, "", fmtp.Errorf("Vpc status: '%s'", n.Status)
 		}
 
 		return n, n.Status, nil
@@ -281,7 +281,7 @@ func waitForVpcDelete(vpcClient *golangsdk.ServiceClient, vpcId string) resource
 		r, err := vpcs.Get(vpcClient, vpcId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted Huaweicloud vpc %s", vpcId)
+				logp.Printf("[INFO] Successfully deleted Huaweicloud vpc %s", vpcId)
 				return r, "DELETED", nil
 			}
 			return r, "ACTIVE", err
@@ -291,7 +291,7 @@ func waitForVpcDelete(vpcClient *golangsdk.ServiceClient, vpcId string) resource
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted Huaweicloud vpc %s", vpcId)
+				logp.Printf("[INFO] Successfully deleted Huaweicloud vpc %s", vpcId)
 				return r, "DELETED", nil
 			}
 			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {

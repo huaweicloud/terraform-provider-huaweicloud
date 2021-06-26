@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"strings"
 
@@ -50,7 +50,7 @@ func resourceIdentityRoleAssignmentV3Create(d *schema.ResourceData, meta interfa
 	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	roleID := d.Get("role_id").(string)
@@ -66,7 +66,7 @@ func resourceIdentityRoleAssignmentV3Create(d *schema.ResourceData, meta interfa
 
 	err = roles.Assign(identityClient, roleID, opts).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error assigning role: %s", err)
+		return fmtp.Errorf("Error assigning role: %s", err)
 	}
 
 	d.SetId(buildRoleAssignmentID(domainID, projectID, groupID, roleID))
@@ -78,16 +78,16 @@ func resourceIdentityRoleAssignmentV3Read(d *schema.ResourceData, meta interface
 	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	roleAssignment, err := getRoleAssignment(identityClient, d)
 	if err != nil {
-		return fmt.Errorf("Error getting role assignment: %s", err)
+		return fmtp.Errorf("Error getting role assignment: %s", err)
 	}
 	domainID, projectID, groupID, _ := extractRoleAssignmentID(d.Id())
 
-	log.Printf("[DEBUG] Retrieved HuaweiCloud role assignment: %#v", roleAssignment)
+	logp.Printf("[DEBUG] Retrieved HuaweiCloud role assignment: %#v", roleAssignment)
 	d.Set("role_id", roleAssignment.ID)
 	d.Set("group_id", groupID)
 	d.Set("domain_id", domainID)
@@ -100,7 +100,7 @@ func resourceIdentityRoleAssignmentV3Delete(d *schema.ResourceData, meta interfa
 	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	domainID, projectID, groupID, roleID := extractRoleAssignmentID(d.Id())
@@ -112,7 +112,7 @@ func resourceIdentityRoleAssignmentV3Delete(d *schema.ResourceData, meta interfa
 	}
 	roles.Unassign(identityClient, roleID, opts).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error unassigning role: %s", err)
+		return fmtp.Errorf("Error unassigning role: %s", err)
 	}
 
 	return nil
@@ -152,7 +152,7 @@ func getRoleAssignment(identityClient *golangsdk.ServiceClient, d *schema.Resour
 
 // Role assignments have no ID in HuaweiCloud. Build an ID out of the IDs that make up the role assignment
 func buildRoleAssignmentID(domainID, projectID, groupID, roleID string) string {
-	return fmt.Sprintf("%s/%s/%s/%s", domainID, projectID, groupID, roleID)
+	return fmtp.Sprintf("%s/%s/%s/%s", domainID, projectID, groupID, roleID)
 }
 
 func extractRoleAssignmentID(roleAssignmentID string) (string, string, string, string) {

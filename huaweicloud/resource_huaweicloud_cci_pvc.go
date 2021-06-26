@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -13,6 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cci/v1/persistentvolumeclaims"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 var (
@@ -126,7 +126,7 @@ func buildCCIPersistentVolumeClaimV1CreateParams(d *schema.ResourceData) (persis
 	volumeType := d.Get("volume_type").(string)
 	fsType, ok := fsType[volumeType]
 	if !ok {
-		return createOpts, fmt.Errorf("The volume type (%s) is not available", volumeType)
+		return createOpts, fmtp.Errorf("The volume type (%s) is not available", volumeType)
 	}
 	createOpts.Metadata = persistentvolumeclaims.Metadata{
 		Namespace: d.Get("namespace").(string),
@@ -154,17 +154,17 @@ func resourceCCIPersistentVolumeClaimV1Create(d *schema.ResourceData, meta inter
 	config := meta.(*config.Config)
 	client, err := config.CciV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCI client: %s", err)
 	}
 
 	createOpts, err := buildCCIPersistentVolumeClaimV1CreateParams(d)
 	if err != nil {
-		return fmt.Errorf("Unable to build createOpts of the PVC: %s", err)
+		return fmtp.Errorf("Unable to build createOpts of the PVC: %s", err)
 	}
 	ns := d.Get("namespace").(string)
 	create, err := persistentvolumeclaims.Create(client, createOpts, ns).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCI PVC: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCI PVC: %s", err)
 	}
 	d.SetId(create.Metadata.UID)
 	stateRef := StateRefresh{
@@ -175,7 +175,7 @@ func resourceCCIPersistentVolumeClaimV1Create(d *schema.ResourceData, meta inter
 		PollInterval: 5 * time.Second,
 	}
 	if err := waitForCCIPersistentVolumeClaimStateRefresh(d, client, ns, stateRef); err != nil {
-		return fmt.Errorf("Create the specifies PVC (%s) timed out: %s", d.Id(), err)
+		return fmtp.Errorf("Create the specifies PVC (%s) timed out: %s", d.Id(), err)
 	}
 
 	return resourceCCIPersistentVolumeClaimV1Read(d, meta)
@@ -207,7 +207,7 @@ func resourceCCIPersistentVolumeClaimV1Read(d *schema.ResourceData, meta interfa
 	region := GetRegion(d, config)
 	client, err := config.CciV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCI client: %s", err)
 	}
 
 	ns := d.Get("namespace").(string)
@@ -219,7 +219,7 @@ func resourceCCIPersistentVolumeClaimV1Read(d *schema.ResourceData, meta interfa
 	if response != nil {
 		d.Set("region", region)
 		if err := saveCCIPersistentVolumeClaimV1State(d, response); err != nil {
-			return fmt.Errorf("Error saving the specifies PVC (%s) to state: %s", d.Id(), err)
+			return fmtp.Errorf("Error saving the specifies PVC (%s) to state: %s", d.Id(), err)
 		}
 	}
 
@@ -230,14 +230,14 @@ func resourceCCIPersistentVolumeClaimV1Delete(d *schema.ResourceData, meta inter
 	config := meta.(*config.Config)
 	client, err := config.CciV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCI Client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCI Client: %s", err)
 	}
 
 	name := d.Get("name").(string)
 	ns := d.Get("namespace").(string)
 	_, err = persistentvolumeclaims.Delete(client, ns, name).Extract()
 	if err != nil {
-		return fmt.Errorf("Error deleting the specifies PVC (%s): %s", d.Id(), err)
+		return fmtp.Errorf("Error deleting the specifies PVC (%s): %s", d.Id(), err)
 	}
 
 	stateRef := StateRefresh{
@@ -248,7 +248,7 @@ func resourceCCIPersistentVolumeClaimV1Delete(d *schema.ResourceData, meta inter
 		PollInterval: 2 * time.Second,
 	}
 	if err := waitForCCIPersistentVolumeClaimStateRefresh(d, client, ns, stateRef); err != nil {
-		return fmt.Errorf("Delete the specifies PVC (%s) timed out: %s", d.Id(), err)
+		return fmtp.Errorf("Delete the specifies PVC (%s) timed out: %s", d.Id(), err)
 	}
 
 	d.SetId("")
@@ -267,7 +267,7 @@ func waitForCCIPersistentVolumeClaimStateRefresh(d *schema.ResourceData, client 
 	}
 	_, err := stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Waiting for the status of the PVC (%s) to complete timeout: %s", d.Id(), err)
+		return fmtp.Errorf("Waiting for the status of the PVC (%s) to complete timeout: %s", d.Id(), err)
 	}
 	return nil
 }
@@ -292,18 +292,18 @@ func getCCIPvcInfoById(client *golangsdk.ServiceClient, ns, volumeType,
 	// If the storage of listOpts is not set, the list method will search for all PVCs of evs type.
 	storageType, ok := volumeTypeForList[volumeType]
 	if !ok {
-		return nil, fmt.Errorf("The volume type (%s) is not available", volumeType)
+		return nil, fmtp.Errorf("The volume type (%s) is not available", volumeType)
 	}
 	listOpts := persistentvolumeclaims.ListOpts{
 		StorageType: storageType,
 	}
 	pages, err := persistentvolumeclaims.List(client, listOpts, ns).AllPages()
 	if err != nil {
-		return nil, fmt.Errorf("Error finding the PVCs from the server: %s", err)
+		return nil, fmtp.Errorf("Error finding the PVCs from the server: %s", err)
 	}
 	responses, err := persistentvolumeclaims.ExtractPersistentVolumeClaims(pages)
 	if err != nil {
-		return nil, fmt.Errorf("Error extracting HuaweiCloud CCI PVC list: %s", err)
+		return nil, fmtp.Errorf("Error extracting HuaweiCloud CCI PVC list: %s", err)
 	}
 	for _, v := range responses {
 		if v.PersistentVolumeClaim.Metadata.UID == id {
@@ -316,7 +316,7 @@ func getCCIPvcInfoById(client *golangsdk.ServiceClient, ns, volumeType,
 func resourceCCIPvcImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 3)
 	if len(parts) != 3 {
-		return nil, fmt.Errorf("Invalid format specified for CCI PVC, must be <namespace>/<volume type>/<pvc id>")
+		return nil, fmtp.Errorf("Invalid format specified for CCI PVC, must be <namespace>/<volume type>/<pvc id>")
 	}
 	d.SetId(parts[2])
 	mErr := multierror.Append(nil,

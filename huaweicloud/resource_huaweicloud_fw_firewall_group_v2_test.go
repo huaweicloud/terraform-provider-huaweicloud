@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -138,7 +139,7 @@ func testAccCheckFWFirewallGroupV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	fwClient, err := config.FwV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_firewall_group" {
@@ -147,7 +148,7 @@ func testAccCheckFWFirewallGroupV2Destroy(s *terraform.State) error {
 
 		_, err = firewall_groups.Get(fwClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Firewall group (%s) still exists.", rs.Primary.ID)
+			return fmtp.Errorf("Firewall group (%s) still exists.", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -160,17 +161,17 @@ func testAccCheckFWFirewallGroupV2Exists(n string, firewall_group *FirewallGroup
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		fwClient, err := config.FwV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Exists) Error creating HuaweiCloud fw client: %s", err)
+			return fmtp.Errorf("Exists) Error creating HuaweiCloud fw client: %s", err)
 		}
 
 		var found FirewallGroup
@@ -180,7 +181,7 @@ func testAccCheckFWFirewallGroupV2Exists(n string, firewall_group *FirewallGroup
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Firewall group not found")
+			return fmtp.Errorf("Firewall group not found")
 		}
 
 		*firewall_group = found
@@ -192,7 +193,7 @@ func testAccCheckFWFirewallGroupV2Exists(n string, firewall_group *FirewallGroup
 func testAccCheckFWFirewallPortCount(firewall_group *FirewallGroup, expected int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(firewall_group.PortIDs) != expected {
-			return fmt.Errorf("Expected %d Ports, got %d", expected, len(firewall_group.PortIDs))
+			return fmtp.Errorf("Expected %d Ports, got %d", expected, len(firewall_group.PortIDs))
 		}
 
 		return nil
@@ -203,17 +204,17 @@ func testAccCheckFWFirewallGroupV2(n, expectedName, expectedDescription string, 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		fwClient, err := config.FwV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Exists) Error creating HuaweiCloud fw client: %s", err)
+			return fmtp.Errorf("Exists) Error creating HuaweiCloud fw client: %s", err)
 		}
 
 		var found *firewall_groups.FirewallGroup
@@ -234,19 +235,19 @@ func testAccCheckFWFirewallGroupV2(n, expectedName, expectedDescription string, 
 
 		switch {
 		case found.Name != expectedName:
-			err = fmt.Errorf("Expected Name to be <%s> but found <%s>", expectedName, found.Name)
+			err = fmtp.Errorf("Expected Name to be <%s> but found <%s>", expectedName, found.Name)
 		case found.Description != expectedDescription:
-			err = fmt.Errorf("Expected Description to be <%s> but found <%s>",
+			err = fmtp.Errorf("Expected Description to be <%s> but found <%s>",
 				expectedDescription, found.Description)
 		case found.IngressPolicyID == "":
-			err = fmt.Errorf("Ingress Policy should not be empty")
+			err = fmtp.Errorf("Ingress Policy should not be empty")
 		case found.EgressPolicyID == "":
-			err = fmt.Errorf("Egress Policy should not be empty")
+			err = fmtp.Errorf("Egress Policy should not be empty")
 		case ipolicyID != nil && found.IngressPolicyID == *ipolicyID:
-			err = fmt.Errorf("Ingress Policy had not been correctly updated. Went from <%s> to <%s>",
+			err = fmtp.Errorf("Ingress Policy had not been correctly updated. Went from <%s> to <%s>",
 				expectedName, found.Name)
 		case epolicyID != nil && found.EgressPolicyID == *epolicyID:
-			err = fmt.Errorf("Egress Policy had not been correctly updated. Went from <%s> to <%s>",
+			err = fmtp.Errorf("Egress Policy had not been correctly updated. Went from <%s> to <%s>",
 				expectedName, found.Name)
 		}
 
@@ -298,7 +299,7 @@ resource "huaweicloud_fw_policy_v2" "policy_2" {
 }
 `
 
-var testAccFWFirewallV2_port = fmt.Sprintf(`
+var testAccFWFirewallV2_port = fmtp.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
@@ -350,7 +351,7 @@ resource "huaweicloud_fw_firewall_group_v2" "fw_1" {
 }
 `, HW_EXTGW_ID)
 
-var testAccFWFirewallV2_port_add = fmt.Sprintf(`
+var testAccFWFirewallV2_port_add = fmtp.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"

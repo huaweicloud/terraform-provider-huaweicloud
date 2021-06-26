@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestAccComputeInstanceDataSource_basic(t *testing.T) {
-	rName := fmt.Sprintf("ecs-data-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("ecs-data-test-%s", acctest.RandString(5))
 	resourceName := "data.huaweicloud_compute_instance.this"
 	var instance servers.Server
 
@@ -41,11 +42,11 @@ func testAccCheckComputeInstanceDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find compute instance data source: %s", n)
+			return fmtp.Errorf("Can't find compute instance data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Compute instance data source ID not set")
+			return fmtp.Errorf("Compute instance data source ID not set")
 		}
 
 		return nil
@@ -53,7 +54,7 @@ func testAccCheckComputeInstanceDataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccComputeInstanceDataSource_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "test" {

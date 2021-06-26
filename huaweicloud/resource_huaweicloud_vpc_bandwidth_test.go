@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,12 +9,13 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpcBandWidthV2_basic(t *testing.T) {
 	var bandwidth bandwidths.BandWidth
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_bandwidth.test"
 	rNameUpdate := rName + "-updated"
 
@@ -49,7 +49,7 @@ func TestAccVpcBandWidthV2_basic(t *testing.T) {
 func TestAccVpcBandWidthV2_WithEpsId(t *testing.T) {
 	var bandwidth bandwidths.BandWidth
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_bandwidth.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -73,7 +73,7 @@ func testAccCheckVpcBandWidthV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud networking client: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -83,7 +83,7 @@ func testAccCheckVpcBandWidthV2Destroy(s *terraform.State) error {
 
 		_, err := bandwidths.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("BandWidth still exists")
+			return fmtp.Errorf("BandWidth still exists")
 		}
 	}
 
@@ -94,17 +94,17 @@ func testAccCheckVpcBandWidthV2Exists(n string, bandwidth *bandwidths.BandWidth)
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud networking client: %s", err)
+			return fmtp.Errorf("Error creating huaweicloud networking client: %s", err)
 		}
 
 		found, err := bandwidths.Get(networkingClient, rs.Primary.ID).Extract()
@@ -113,7 +113,7 @@ func testAccCheckVpcBandWidthV2Exists(n string, bandwidth *bandwidths.BandWidth)
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("bandwidth not found")
+			return fmtp.Errorf("bandwidth not found")
 		}
 
 		*bandwidth = found
@@ -123,7 +123,7 @@ func testAccCheckVpcBandWidthV2Exists(n string, bandwidth *bandwidths.BandWidth)
 }
 
 func testAccVpcBandWidthV2_basic(rName string, size int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc_bandwidth" "test" {
 	name = "%s"
 	size = "%d"
@@ -132,7 +132,7 @@ resource "huaweicloud_vpc_bandwidth" "test" {
 }
 
 func testAccVpcBandWidthV2_epsId(rName string, size int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc_bandwidth" "test" {
 	name = "%s"
 	size = "%d"

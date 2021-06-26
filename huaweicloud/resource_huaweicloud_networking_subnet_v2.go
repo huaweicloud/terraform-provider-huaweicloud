@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -12,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceNetworkingSubnetV2() *schema.Resource {
@@ -149,7 +149,7 @@ func resourceNetworkingSubnetV2Create(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	createOpts := SubnetCreateOpts{
@@ -189,10 +189,10 @@ func resourceNetworkingSubnetV2Create(d *schema.ResourceData, meta interface{}) 
 
 	s, err := subnets.Create(networkingClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Neutron subnet: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud Neutron subnet: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for Subnet (%s) to become available", s.ID)
+	logp.Printf("[DEBUG] Waiting for Subnet (%s) to become available", s.ID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Refresh:    waitForSubnetActive(networkingClient, s.ID),
@@ -205,7 +205,7 @@ func resourceNetworkingSubnetV2Create(d *schema.ResourceData, meta interface{}) 
 
 	d.SetId(s.ID)
 
-	log.Printf("[DEBUG] Created Subnet %s: %#v", s.ID, s)
+	logp.Printf("[DEBUG] Created Subnet %s: %#v", s.ID, s)
 	return resourceNetworkingSubnetV2Read(d, meta)
 }
 
@@ -213,7 +213,7 @@ func resourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	s, err := subnets.Get(networkingClient, d.Id()).Extract()
@@ -221,7 +221,7 @@ func resourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) er
 		return CheckDeleted(d, err, "subnet")
 	}
 
-	log.Printf("[DEBUG] Retrieved Subnet %s: %#v", d.Id(), s)
+	logp.Printf("[DEBUG] Retrieved Subnet %s: %#v", d.Id(), s)
 
 	d.Set("network_id", s.NetworkID)
 	d.Set("cidr", s.CIDR)
@@ -243,7 +243,7 @@ func resourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) er
 		hostRoutes[i] = routes
 	}
 	if err = d.Set("host_routes", hostRoutes); err != nil {
-		return fmt.Errorf("Saving host_routes failed: %s", err)
+		return fmtp.Errorf("Saving host_routes failed: %s", err)
 	}
 
 	// Set the allocation_pools
@@ -277,7 +277,7 @@ func resourceNetworkingSubnetV2Update(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	var updateOpts subnets.UpdateOpts
@@ -318,11 +318,11 @@ func resourceNetworkingSubnetV2Update(d *schema.ResourceData, meta interface{}) 
 		updateOpts.AllocationPools = resourceSubnetAllocationPoolsV2(d)
 	}
 
-	log.Printf("[DEBUG] Updating Subnet %s with options: %+v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating Subnet %s with options: %+v", d.Id(), updateOpts)
 
 	_, err = subnets.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud Neutron Subnet: %s", err)
+		return fmtp.Errorf("Error updating HuaweiCloud Neutron Subnet: %s", err)
 	}
 
 	return resourceNetworkingSubnetV2Read(d, meta)
@@ -332,7 +332,7 @@ func resourceNetworkingSubnetV2Delete(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -346,7 +346,7 @@ func resourceNetworkingSubnetV2Delete(d *schema.ResourceData, meta interface{}) 
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud Neutron Subnet: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud Neutron Subnet: %s", err)
 	}
 
 	d.SetId("")
@@ -407,19 +407,19 @@ func waitForSubnetActive(networkingClient *golangsdk.ServiceClient, subnetId str
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud Neutron Subnet: %+v", s)
+		logp.Printf("[DEBUG] HuaweiCloud Neutron Subnet: %+v", s)
 		return s, "ACTIVE", nil
 	}
 }
 
 func waitForSubnetDelete(networkingClient *golangsdk.ServiceClient, subnetId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Subnet %s.\n", subnetId)
+		logp.Printf("[DEBUG] Attempting to delete HuaweiCloud Subnet %s.\n", subnetId)
 
 		s, err := subnets.Get(networkingClient, subnetId).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Subnet %s", subnetId)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Subnet %s", subnetId)
 				return s, "DELETED", nil
 			}
 			return s, "ACTIVE", err
@@ -428,7 +428,7 @@ func waitForSubnetDelete(networkingClient *golangsdk.ServiceClient, subnetId str
 		err = subnets.Delete(networkingClient, subnetId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Subnet %s", subnetId)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Subnet %s", subnetId)
 				return s, "DELETED", nil
 			}
 			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
@@ -439,7 +439,7 @@ func waitForSubnetDelete(networkingClient *golangsdk.ServiceClient, subnetId str
 			return s, "ACTIVE", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud Subnet %s still active.\n", subnetId)
+		logp.Printf("[DEBUG] HuaweiCloud Subnet %s still active.\n", subnetId)
 		return s, "ACTIVE", nil
 	}
 }

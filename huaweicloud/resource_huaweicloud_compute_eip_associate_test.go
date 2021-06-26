@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -18,7 +19,7 @@ func TestAccComputeV2EIPAssociate_basic(t *testing.T) {
 	var instance servers.Server
 	var eip eips.PublicIp
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_eip_associate.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -47,7 +48,7 @@ func TestAccComputeV2EIPAssociate_fixedIP(t *testing.T) {
 	var instance servers.Server
 	var eip eips.PublicIp
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_eip_associate.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -76,7 +77,7 @@ func testAccCheckComputeV2EIPAssociateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -105,7 +106,7 @@ func testAccCheckComputeV2EIPAssociateDestroy(s *terraform.State) error {
 			for _, element := range networkAddresses.([]interface{}) {
 				address := element.(map[string]interface{})
 				if address["OS-EXT-IPS:type"] == "floating" || address["OS-EXT-IPS:type"] == "fixed" {
-					return fmt.Errorf("EIP %s is still attached to instance %s", floatingIP, instanceId)
+					return fmtp.Errorf("EIP %s is still attached to instance %s", floatingIP, instanceId)
 				}
 			}
 		}
@@ -139,12 +140,12 @@ func testAccCheckComputeV2EIPAssociateAssociated(
 				}
 			}
 		}
-		return fmt.Errorf("EIP %s was not attached to instance %s", eip.PublicAddress, instance.ID)
+		return fmtp.Errorf("EIP %s was not attached to instance %s", eip.PublicAddress, instance.ID)
 	}
 }
 
 func testAccComputeV2EIPAssociate_Base(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "test" {
@@ -173,7 +174,7 @@ resource "huaweicloud_vpc_eip" "test" {
 }
 
 func testAccComputeV2EIPAssociate_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_compute_eip_associate" "test" {
@@ -184,7 +185,7 @@ resource "huaweicloud_compute_eip_associate" "test" {
 }
 
 func testAccComputeV2EIPAssociate_fixedIP(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_compute_eip_associate" "test" {

@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -35,7 +36,7 @@ func testAccCheckCCINetworkV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	cciClient, err := config.CciV1BetaClient(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CCI client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -45,7 +46,7 @@ func testAccCheckCCINetworkV1Destroy(s *terraform.State) error {
 
 		_, err := networks.Get(cciClient, "test_ns", rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Network still exists")
+			return fmtp.Errorf("Network still exists")
 		}
 	}
 
@@ -56,17 +57,17 @@ func testAccCheckCCINetworkV1Exists(n string, network *networks.Network) resourc
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		cciClient, err := config.CciV1BetaClient(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud CCI client: %s", err)
 		}
 
 		found, err := networks.Get(cciClient, "test_ns", rs.Primary.ID).Extract()
@@ -75,7 +76,7 @@ func testAccCheckCCINetworkV1Exists(n string, network *networks.Network) resourc
 		}
 
 		if found.Metadata.Name != rs.Primary.ID {
-			return fmt.Errorf("Network not found")
+			return fmtp.Errorf("Network not found")
 		}
 
 		*network = *found
@@ -84,7 +85,7 @@ func testAccCheckCCINetworkV1Exists(n string, network *networks.Network) resourc
 	}
 }
 
-var testAccCCINetworkV1_basic = fmt.Sprintf(`
+var testAccCCINetworkV1_basic = fmtp.Sprintf(`
 resource "huaweicloud_cci_network_v1" "net_1" {
   name = "cci-net"
   namespace = "test-ns"

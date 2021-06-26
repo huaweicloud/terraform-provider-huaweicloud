@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/vpcs"
@@ -48,7 +48,7 @@ func dataSourceIECVpcRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	listOpts := vpcs.ListOpts{
@@ -56,24 +56,24 @@ func dataSourceIECVpcRead(d *schema.ResourceData, meta interface{}) error {
 		Name: d.Get("name").(string),
 	}
 
-	log.Printf("[DEBUG] query VPCs using given filter: %+v", listOpts)
+	logp.Printf("[DEBUG] query VPCs using given filter: %+v", listOpts)
 	allVpcs, err := vpcs.List(iecClient, listOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve vpcs: %s", err)
+		return fmtp.Errorf("Unable to retrieve vpcs: %s", err)
 	}
 
 	total := len(allVpcs.Vpcs)
 	if total < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 	if total > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	vpcInfo := allVpcs.Vpcs[0]
-	log.Printf("[DEBUG] Retrieved IEC VPC %s: %+v", vpcInfo.ID, vpcInfo)
+	logp.Printf("[DEBUG] Retrieved IEC VPC %s: %+v", vpcInfo.ID, vpcInfo)
 
 	d.SetId(vpcInfo.ID)
 	d.Set("name", vpcInfo.Name)

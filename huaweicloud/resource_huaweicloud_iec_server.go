@@ -3,8 +3,6 @@ package huaweicloud
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -17,6 +15,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/common"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/servers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 var iecServerNicsSchema = &schema.Schema{
@@ -326,7 +326,7 @@ func buildServerCoverage(d *schema.ResourceData) common.Coverage {
 		CoverageLevel:  d.Get("coverage_level").(string),
 		CoverageSites:  sitesList,
 	}
-	log.Printf("[DEBUG] servers coverage options: %+v", coverageOpts)
+	logp.Printf("[DEBUG] servers coverage options: %+v", coverageOpts)
 
 	return coverageOpts
 }
@@ -335,7 +335,7 @@ func resourceIecServerV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	resourceOpts := common.ResourceOpts{
@@ -358,7 +358,7 @@ func resourceIecServerV1Create(d *schema.ResourceData, meta interface{}) error {
 		ResourceOpts: resourceOpts,
 		Coverage:     buildServerCoverage(d),
 	}
-	log.Printf("[DEBUG] Create IEC servers options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create IEC servers options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	if v, ok := d.GetOk("admin_pass"); ok {
 		createOpts.AdminPass = v.(string)
@@ -368,17 +368,17 @@ func resourceIecServerV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	resp, err := servers.CreateServer(iecClient, createOpts)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC server: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC server: %s", err)
 	}
 
 	jobID := resp.Job.Id
 	serverID := resp.ServerIDs.IDs[0]
-	log.Printf("[INFO] job ID: %s, servers ID: %s", jobID, serverID)
+	logp.Printf("[INFO] job ID: %s, servers ID: %s", jobID, serverID)
 	// Store the ID now
 	d.SetId(serverID)
 
 	// Wait for the servers to become running
-	log.Printf("[DEBUG] waiting for IEC server (%s) to become running", serverID)
+	logp.Printf("[DEBUG] waiting for IEC server (%s) to become running", serverID)
 
 	// Pending state "DELETED" means the instance has not be ready
 	stateConf := &resource.StateChangeConf{
@@ -392,7 +392,7 @@ func resourceIecServerV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for IEC server (%s) to become ready: %s", serverID, err)
+		return fmtp.Errorf("Error waiting for IEC server (%s) to become ready: %s", serverID, err)
 	}
 
 	// CreateServer will add an prefix "IEC-xxx-" for the instance name, we should update it.
@@ -404,7 +404,7 @@ func resourceIecServerV1Create(d *schema.ResourceData, meta interface{}) error {
 	}
 	_, err = servers.UpdateServer(iecClient, updateOpts, d.Id()).ExtractUpdateToServer()
 	if err != nil {
-		log.Printf("[WARN] Updating name of HuaweiCloud IEC server (%s) failed: %s", serverID, err)
+		logp.Printf("[WARN] Updating name of HuaweiCloud IEC server (%s) failed: %s", serverID, err)
 	}
 
 	return resourceIecServerV1Read(d, meta)
@@ -414,7 +414,7 @@ func resourceIecServerV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	servers, err := servers.GetServer(iecClient, d.Id()).ExtractServerDetail()
@@ -423,7 +423,7 @@ func resourceIecServerV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	edgeServer := servers.Server
-	log.Printf("[DEBUG] Retrieved server %s: %+v", d.Id(), edgeServer)
+	logp.Printf("[DEBUG] Retrieved server %s: %+v", d.Id(), edgeServer)
 
 	allNics, eip := expandIecServerNics(edgeServer)
 	allVolumes, sysDiskID := expandIecServerVolumeAttached(iecClient, edgeServer)
@@ -443,7 +443,7 @@ func resourceIecServerV1Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("system_disk_id", sysDiskID),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmt.Errorf("Error setting fields: %s", err)
+		return fmtp.Errorf("Error setting fields: %s", err)
 	}
 
 	if vpcID := edgeServer.Metadata.VpcID; vpcID != "" {
@@ -460,7 +460,7 @@ func resourceIecServerV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	if d.HasChange("name") {
@@ -473,7 +473,7 @@ func resourceIecServerV1Update(d *schema.ResourceData, meta interface{}) error {
 
 		_, err := servers.UpdateServer(iecClient, updateOpts, d.Id()).ExtractUpdateToServer()
 		if err != nil {
-			return fmt.Errorf("Error updating HuaweiCloud IEC server: %s", err)
+			return fmtp.Errorf("Error updating HuaweiCloud IEC server: %s", err)
 		}
 
 		return resourceIecServerV1Read(d, meta)
@@ -486,10 +486,10 @@ func resourceIecServerV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting HuaweiCloud servers %s", d.Id())
+	logp.Printf("[DEBUG] Deleting HuaweiCloud servers %s", d.Id())
 	deleteOpts := servers.DeleteOpts{
 		Servers: []cloudservers.Server{
 			{
@@ -499,11 +499,11 @@ func resourceIecServerV1Delete(d *schema.ResourceData, meta interface{}) error {
 	}
 	err = servers.DeleteServers(iecClient, deleteOpts).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud server: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud server: %s", err)
 	}
 
 	// Wait for the servers to delete before moving on.
-	log.Printf("[DEBUG] Waiting for servers (%s) to delete", d.Id())
+	logp.Printf("[DEBUG] Waiting for servers (%s) to delete", d.Id())
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE", "SHUTOFF"},
 		Target:     []string{"DELETED", "SOFT_DELETED"},
@@ -515,7 +515,7 @@ func resourceIecServerV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for servers (%s) to delete: %s", d.Id(), err)
+		return fmtp.Errorf("Error waiting for servers (%s) to delete: %s", d.Id(), err)
 	}
 
 	d.SetId("")
@@ -536,7 +536,7 @@ func serverStateRefreshFunc(client *golangsdk.ServiceClient, id string) resource
 
 		// get fault message when status is ERROR
 		if s.Server.Status == "ERROR" {
-			return s, "ERROR", fmt.Errorf("the edge instance is error")
+			return s, "ERROR", fmtp.Errorf("the edge instance is error")
 		}
 		return s, s.Server.Status, nil
 	}
@@ -575,11 +575,11 @@ func expandIecServerVolumeAttached(client *golangsdk.ServiceClient, edgeServer *
 
 		volumeInfo, err := cloudvolumes.Get(client, disk.ID).Extract()
 		if err != nil {
-			log.Printf("[WARN] failed to retrieve volume %s: %s", disk.ID, err)
+			logp.Printf("[WARN] failed to retrieve volume %s: %s", disk.ID, err)
 			continue
 		}
 
-		log.Printf("[DEBUG] Retrieved volume %s: %#v", disk.ID, volumeInfo)
+		logp.Printf("[DEBUG] Retrieved volume %s: %#v", disk.ID, volumeInfo)
 		volumeItem := map[string]interface{}{
 			"volume_id":  disk.ID,
 			"boot_index": disk.BootIndex,

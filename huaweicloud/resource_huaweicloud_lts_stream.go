@@ -1,12 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/lts/huawei/logstreams"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceLTSStreamV2() *schema.Resource {
@@ -48,7 +47,7 @@ func resourceStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
 
 	groupId := d.Get("group_id").(string)
@@ -56,11 +55,11 @@ func resourceStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 		LogStreamName: d.Get("stream_name").(string),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	streamCreate, err := logstreams.Create(client, groupId, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating log stream: %s", err)
+		return fmtp.Errorf("Error creating log stream: %s", err)
 	}
 
 	d.SetId(streamCreate.ID)
@@ -71,18 +70,18 @@ func resourceStreamV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
 
 	groupId := d.Get("group_id").(string)
 	streams, err := logstreams.List(client, groupId).Extract()
 	if err != nil {
-		return fmt.Errorf("Error getting HuaweiCloud log stream %s: %s", d.Id(), err)
+		return fmtp.Errorf("Error getting HuaweiCloud log stream %s: %s", d.Id(), err)
 	}
 
 	for _, stream := range streams.LogStreams {
 		if stream.ID == d.Id() {
-			log.Printf("[DEBUG] Retrieved log stream %s: %#v", d.Id(), stream)
+			logp.Printf("[DEBUG] Retrieved log stream %s: %#v", d.Id(), stream)
 			d.SetId(stream.ID)
 			d.Set("stream_name", stream.Name)
 			d.Set("filter_count", stream.FilterCount)
@@ -90,14 +89,14 @@ func resourceStreamV2Read(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	return fmt.Errorf("Error HuaweiCloud log group stream %s: No Found", d.Id())
+	return fmtp.Errorf("Error HuaweiCloud log group stream %s: No Found", d.Id())
 }
 
 func resourceStreamV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
 
 	groupId := d.Get("group_id").(string)

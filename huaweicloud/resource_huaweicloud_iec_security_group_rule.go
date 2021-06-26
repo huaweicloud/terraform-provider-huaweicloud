@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strconv"
 	"time"
 
@@ -13,6 +11,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/common"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/rules"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceIecSecurityGroupRule() *schema.Resource {
@@ -94,11 +94,11 @@ func resourceIecSecurityGroupRuleV1Create(d *schema.ResourceData, meta interface
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	if d.Get("protocol").(string) != "icmp" && d.Get("port_range_min").(int) > d.Get("port_range_max").(int) {
-		return fmt.Errorf("The value of `port_range_min` can not be greater than the value of `port_range_max`")
+		return fmtp.Errorf("The value of `port_range_min` can not be greater than the value of `port_range_max`")
 	}
 
 	sgRule := common.ReqSecurityGroupRuleEntity{
@@ -122,7 +122,7 @@ func resourceIecSecurityGroupRuleV1Create(d *schema.ResourceData, meta interface
 
 	rule, err := rules.Create(iecClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC Security Group Rule: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC Security Group Rule: %s", err)
 	}
 
 	d.SetId(rule.SecurityGroupRule.ID)
@@ -134,7 +134,7 @@ func resourceIecSecurityGroupRuleV1Read(d *schema.ResourceData, meta interface{}
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	rule, err := rules.Get(iecClient, d.Id()).Extract()
@@ -165,7 +165,7 @@ func resourceIecSecurityGroupRuleV1Delete(d *schema.ResourceData, meta interface
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -179,7 +179,7 @@ func resourceIecSecurityGroupRuleV1Delete(d *schema.ResourceData, meta interface
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud IEC Security Group Rule: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud IEC Security Group Rule: %s", err)
 	}
 
 	d.SetId("")
@@ -192,7 +192,7 @@ func waitForSecurityGroupRuleDelete(client *golangsdk.ServiceClient, ruleID stri
 		rule, err := rules.Get(client, ruleID).Extract()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Security Group Rule %s", ruleID)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Security Group Rule %s", ruleID)
 				return rule, "DELETED", nil
 			}
 			return err, "ACTIVE", err
@@ -201,12 +201,12 @@ func waitForSecurityGroupRuleDelete(client *golangsdk.ServiceClient, ruleID stri
 		err = rules.Delete(client, ruleID).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Security Group Rule %s", ruleID)
+				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud IEC Security Group Rule %s", ruleID)
 				return rule, "DELETED", nil
 			}
 			return rule, "ACTIVE", err
 		}
-		log.Printf("[DEBUG] HuaweiCloud IEC Security Group Rule %s still active.\n", ruleID)
+		logp.Printf("[DEBUG] HuaweiCloud IEC Security Group Rule %s still active.\n", ruleID)
 		return rule, "ACTIVE", nil
 	}
 }

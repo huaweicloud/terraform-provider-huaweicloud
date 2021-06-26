@@ -15,8 +15,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -42,7 +43,7 @@ func TestAccCloudtableClusterV2_basic(t *testing.T) {
 }
 
 func testAccCloudtableClusterV2_basic(val string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup" {
   name = "terraform_test_security_group%s"
   description = "terraform security group acceptance test"
@@ -67,7 +68,7 @@ func testAccCheckCloudtableClusterV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.CloudtableV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -87,7 +88,7 @@ func testAccCheckCloudtableClusterV2Destroy(s *terraform.State) error {
 				"X-Language":   "en-us",
 			}})
 		if err == nil {
-			return fmt.Errorf("huaweicloud_cloudtable_cluster_v2 still exists at %s", url)
+			return fmtp.Errorf("huaweicloud_cloudtable_cluster_v2 still exists at %s", url)
 		}
 	}
 
@@ -99,17 +100,17 @@ func testAccCheckCloudtableClusterV2Exists() resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.CloudtableV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating sdk client, err=%s", err)
+			return fmtp.Errorf("Error creating sdk client, err=%s", err)
 		}
 
 		rs, ok := s.RootModule().Resources["huaweicloud_cloudtable_cluster_v2.cluster"]
 		if !ok {
-			return fmt.Errorf("Error checking huaweicloud_cloudtable_cluster_v2.cluster exist, err=not found this resource")
+			return fmtp.Errorf("Error checking huaweicloud_cloudtable_cluster_v2.cluster exist, err=not found this resource")
 		}
 
 		url, err := replaceVarsForTest(rs, "clusters/{id}")
 		if err != nil {
-			return fmt.Errorf("Error checking huaweicloud_cloudtable_cluster_v2.cluster exist, err=building url failed: %s", err)
+			return fmtp.Errorf("Error checking huaweicloud_cloudtable_cluster_v2.cluster exist, err=building url failed: %s", err)
 		}
 		url = client.ServiceURL(url)
 
@@ -120,9 +121,9 @@ func testAccCheckCloudtableClusterV2Exists() resource.TestCheckFunc {
 			}})
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return fmt.Errorf("huaweicloud_cloudtable_cluster_v2.cluster is not exist")
+				return fmtp.Errorf("huaweicloud_cloudtable_cluster_v2.cluster is not exist")
 			}
-			return fmt.Errorf("Error checking huaweicloud_cloudtable_cluster_v2.cluster exist, err=send request failed: %s", err)
+			return fmtp.Errorf("Error checking huaweicloud_cloudtable_cluster_v2.cluster exist, err=send request failed: %s", err)
 		}
 		return nil
 	}

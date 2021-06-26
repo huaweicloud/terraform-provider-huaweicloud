@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccFWRuleV2_basic(t *testing.T) {
@@ -110,7 +110,7 @@ func testAccCheckFWRuleV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	fwClient, err := config.FwV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -119,7 +119,7 @@ func testAccCheckFWRuleV2Destroy(s *terraform.State) error {
 		}
 		_, err = rules.Get(fwClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Firewall rule (%s) still exists.", rs.Primary.ID)
+			return fmtp.Errorf("Firewall rule (%s) still exists.", rs.Primary.ID)
 		}
 		if _, ok := err.(golangsdk.ErrDefault404); !ok {
 			return err
@@ -132,17 +132,17 @@ func testAccCheckFWRuleV2Exists(n string, expected *rules.Rule) resource.TestChe
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		fwClient, err := config.FwV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 		}
 
 		var found *rules.Rule
@@ -167,7 +167,7 @@ func testAccCheckFWRuleV2Exists(n string, expected *rules.Rule) resource.TestChe
 		found.TenantID = ""
 
 		if !reflect.DeepEqual(expected, found) {
-			return fmt.Errorf("Expected:\n%#v\nFound:\n%#v", expected, found)
+			return fmtp.Errorf("Expected:\n%#v\nFound:\n%#v", expected, found)
 		}
 
 		return nil
