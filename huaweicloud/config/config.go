@@ -3,11 +3,10 @@ package config
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
+	"log"
 	"net/http"
 	"sync"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
@@ -69,10 +68,10 @@ type Config struct {
 
 func (c *Config) LoadAndValidate() error {
 	if c.MaxRetries < 0 {
-		return fmtp.Errorf("max_retries should be a positive value")
+		return fmt.Errorf("max_retries should be a positive value")
 	}
 
-	err := fmtp.Errorf("Must config token or aksk or username password to be authorized")
+	err := fmt.Errorf("Must config token or aksk or username password to be authorized")
 
 	if c.Token != "" {
 		err = buildClientByToken(c)
@@ -82,7 +81,7 @@ func (c *Config) LoadAndValidate() error {
 
 	} else if c.Password != "" {
 		if c.Username == "" && c.UserID == "" {
-			err = fmtp.Errorf("\"password\": one of `user_name, user_id` must be specified")
+			err = fmt.Errorf("\"password\": one of `user_name, user_id` must be specified")
 		} else {
 			err = buildClientByPassword(c)
 		}
@@ -101,7 +100,7 @@ func (c *Config) LoadAndValidate() error {
 		if domainID, err := c.getDomainID(); err == nil {
 			c.DomainID = domainID
 		} else {
-			logp.Printf("[WARN] get domain id failed: %s", err)
+			log.Printf("[WARN] get domain id failed: %s", err)
 		}
 	}
 
@@ -113,7 +112,7 @@ func generateTLSConfig(c *Config) (*tls.Config, error) {
 	if c.CACertFile != "" {
 		caCert, _, err := pathorcontents.Read(c.CACertFile)
 		if err != nil {
-			return nil, fmtp.Errorf("Error reading CA Cert: %s", err)
+			return nil, fmt.Errorf("Error reading CA Cert: %s", err)
 		}
 
 		caCertPool := x509.NewCertPool()
@@ -128,11 +127,11 @@ func generateTLSConfig(c *Config) (*tls.Config, error) {
 	if c.ClientCertFile != "" && c.ClientKeyFile != "" {
 		clientCert, _, err := pathorcontents.Read(c.ClientCertFile)
 		if err != nil {
-			return nil, fmtp.Errorf("Error reading Client Cert: %s", err)
+			return nil, fmt.Errorf("Error reading Client Cert: %s", err)
 		}
 		clientKey, _, err := pathorcontents.Read(c.ClientKeyFile)
 		if err != nil {
-			return nil, fmtp.Errorf("Error reading Client Key: %s", err)
+			return nil, fmt.Errorf("Error reading Client Key: %s", err)
 		}
 
 		cert, err := tls.X509KeyPair([]byte(clientCert), []byte(clientKey))
@@ -327,18 +326,18 @@ func getObsEndpoint(c *Config, region string) string {
 	if endpoint, ok := c.Endpoints["obs"]; ok {
 		return endpoint
 	}
-	return fmtp.Sprintf("https://obs.%s.%s/", region, c.Cloud)
+	return fmt.Sprintf("https://obs.%s.%s/", region, c.Cloud)
 }
 
 func (c *Config) ObjectStorageClientWithSignature(region string) (*obs.ObsClient, error) {
 	if c.AccessKey == "" || c.SecretKey == "" {
-		return nil, fmtp.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
+		return nil, fmt.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
 	}
 
 	// init log
 	if logging.IsDebugOrHigher() {
 		if err := obs.InitLog(obsLogFile, obsLogFileSize10MB, 10, obs.LEVEL_DEBUG, false); err != nil {
-			logp.Printf("[WARN] initial obs sdk log failed: %s", err)
+			log.Printf("[WARN] initial obs sdk log failed: %s", err)
 		}
 	}
 
@@ -352,13 +351,13 @@ func (c *Config) ObjectStorageClientWithSignature(region string) (*obs.ObsClient
 
 func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 	if c.AccessKey == "" || c.SecretKey == "" {
-		return nil, fmtp.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
+		return nil, fmt.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
 	}
 
 	// init log
 	if logging.IsDebugOrHigher() {
 		if err := obs.InitLog(obsLogFile, obsLogFileSize10MB, 10, obs.LEVEL_DEBUG, false); err != nil {
-			logp.Printf("[WARN] initial obs sdk log failed: %s", err)
+			log.Printf("[WARN] initial obs sdk log failed: %s", err)
 		}
 	}
 
@@ -375,7 +374,7 @@ func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient, error) {
 	serviceCatalog, ok := allServiceCatalog[srv]
 	if !ok {
-		return nil, fmtp.Errorf("service type %s is invalid or not supportted", srv)
+		return nil, fmt.Errorf("service type %s is invalid or not supportted", srv)
 	}
 
 	client := c.HwClient
@@ -391,13 +390,13 @@ func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient,
 
 func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalog ServiceCatalog, region string) (*golangsdk.ServiceClient, error) {
 	if catalog.Name == "" || catalog.Version == "" {
-		return nil, fmtp.Errorf("must specify the service name and api version")
+		return nil, fmt.Errorf("must specify the service name and api version")
 	}
 
 	// Custom Resource-level region only supports AK/SK authentication.
 	// If set it when using non AK/SK authentication, then it must be the same as Provider-level region.
 	if region != c.Region && (c.AccessKey == "" || c.SecretKey == "") {
-		return nil, fmtp.Errorf("Resource-level region must be the same as Provider-level region when using non AK/SK authentication if Resource-level region set")
+		return nil, fmt.Errorf("Resource-level region must be the same as Provider-level region when using non AK/SK authentication if Resource-level region set")
 	}
 
 	c.RPLock.Lock()
@@ -422,9 +421,9 @@ func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalo
 	sc.ProviderClient = clone
 
 	if catalog.Scope == "global" && !c.RegionClient {
-		sc.Endpoint = fmtp.Sprintf("https://%s.%s/", catalog.Name, c.Cloud)
+		sc.Endpoint = fmt.Sprintf("https://%s.%s/", catalog.Name, c.Cloud)
 	} else {
-		sc.Endpoint = fmtp.Sprintf("https://%s.%s.%s/", catalog.Name, region, c.Cloud)
+		sc.Endpoint = fmt.Sprintf("https://%s.%s.%s/", catalog.Name, region, c.Cloud)
 	}
 
 	sc.ResourceBase = sc.Endpoint + catalog.Version + "/"
@@ -443,7 +442,7 @@ func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalo
 func (c *Config) newServiceClientByEndpoint(client *golangsdk.ProviderClient, srv, endpoint string) (*golangsdk.ServiceClient, error) {
 	catalog, ok := allServiceCatalog[srv]
 	if !ok {
-		return nil, fmtp.Errorf("service type %s is invalid or not supportted", srv)
+		return nil, fmt.Errorf("service type %s is invalid or not supportted", srv)
 	}
 
 	sc := &golangsdk.ServiceClient{
@@ -463,7 +462,7 @@ func (c *Config) newServiceClientByEndpoint(client *golangsdk.ProviderClient, sr
 func (c *Config) getDomainID() (string, error) {
 	identityClient, err := c.IdentityV3Client(c.Region)
 	if err != nil {
-		return "", fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return "", fmt.Errorf("Error creating IAM client: %s", err)
 	}
 	// ResourceBase: https://iam.{CLOUD}/v3/auth/
 	identityClient.ResourceBase += "auth/"
@@ -473,16 +472,16 @@ func (c *Config) getDomainID() (string, error) {
 	}
 	allPages, err := domains.List(identityClient, &opts).AllPages()
 	if err != nil {
-		return "", fmtp.Errorf("List domains failed, err=%s", err)
+		return "", fmt.Errorf("List domains failed, err=%s", err)
 	}
 
 	all, err := domains.ExtractDomains(allPages)
 	if err != nil {
-		return "", fmtp.Errorf("Extract domains failed, err=%s", err)
+		return "", fmt.Errorf("Extract domains failed, err=%s", err)
 	}
 
 	if len(all) == 0 {
-		return "", fmtp.Errorf("domain was not found")
+		return "", fmt.Errorf("domain was not found")
 	}
 
 	return all[0].ID, nil
@@ -491,7 +490,7 @@ func (c *Config) getDomainID() (string, error) {
 // loadUserProjects will query the region-projectId pair and store it into RegionProjectIDMap
 func (c *Config) loadUserProjects(client *golangsdk.ProviderClient, region string) error {
 
-	logp.Printf("Load projectID for region: %s", region)
+	log.Printf("Load projectID for region: %s", region)
 	domainID := client.DomainID
 	opts := projects.ListOpts{
 		DomainID: domainID,
@@ -502,16 +501,16 @@ func (c *Config) loadUserProjects(client *golangsdk.ProviderClient, region strin
 	sc.ProviderClient = client
 	allPages, err := projects.List(sc, &opts).AllPages()
 	if err != nil {
-		return fmtp.Errorf("List projects failed, err=%s", err)
+		return fmt.Errorf("List projects failed, err=%s", err)
 	}
 
 	all, err := projects.ExtractProjects(allPages)
 	if err != nil {
-		return fmtp.Errorf("Extract projects failed, err=%s", err)
+		return fmt.Errorf("Extract projects failed, err=%s", err)
 	}
 
 	if len(all) == 0 {
-		return fmtp.Errorf("Wrong name or no access to the region: %s", region)
+		return fmt.Errorf("Wrong name or no access to the region: %s", region)
 	}
 
 	for _, item := range all {
