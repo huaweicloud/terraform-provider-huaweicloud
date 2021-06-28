@@ -8,5 +8,5 @@ import (
 
 func Sprintf(format string, a ...interface{}) string {
 	newFormat := utils.BuildNewFormatByConfig(format)
-	return fmt.Sprintf(newFormat, a)
+	return fmt.Sprintf(newFormat, a...)
 }
