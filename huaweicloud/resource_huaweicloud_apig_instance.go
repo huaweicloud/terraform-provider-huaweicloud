@@ -2,7 +2,6 @@ package huaweicloud
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -16,6 +15,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/apigw/v2/instances"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 type Refresh struct {
@@ -143,16 +144,16 @@ func buildMaintainEndTime(maintainStart string) (string, error) {
 	regex := regexp.MustCompile("^(02|06|10|14|18|22):00:00$")
 	isMatched := regex.MatchString(maintainStart)
 	if !isMatched {
-		return "", fmt.Errorf("The start-time format of maintenance window is not 'xx:00:00' or " +
+		return "", fmtp.Errorf("The start-time format of maintenance window is not 'xx:00:00' or " +
 			"the hour is not 02, 06, 10, 14, 18 or 22.")
 	}
 	result := regex.FindStringSubmatch(maintainStart)
 	if len(result) < 2 {
-		return "", fmt.Errorf("The hour is missing")
+		return "", fmtp.Errorf("The hour is missing")
 	}
 	num, err := strconv.Atoi(result[1])
 	if err != nil {
-		return "", fmt.Errorf("The number (%s) cannot be converted to string", result[1])
+		return "", fmtp.Errorf("The number (%s) cannot be converted to string", result[1])
 	}
 	return fmt.Sprintf("%02d:00:00", (num+4)%24), nil
 }
@@ -224,7 +225,7 @@ func ApigInstanceV2StateRefreshFunc(client *golangsdk.ServiceClient, id string) 
 		// GET method will link to other table (vpc) for query. The response time is not as good as the LIST method.
 		allPages, err := instances.List(client, opt).AllPages()
 		if err != nil {
-			return allPages, "", fmt.Errorf("Error getting APIG v2 dedicated instance by ID (%s): %s", id, err)
+			return allPages, "", fmtp.Errorf("Error getting APIG v2 dedicated instance by ID (%s): %s", id, err)
 		}
 		instances, err := instances.ExtractInstances(allPages)
 		if len(instances) == 0 {
@@ -249,22 +250,22 @@ func resourceApigInstanceV2Create(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	opts, err := buildApigInstanceParameters(d, config)
 	if err != nil {
-		return fmt.Errorf("Error craeting APIG v2 dedicated instance options: %s", err)
+		return fmtp.Errorf("Error craeting APIG v2 dedicated instance options: %s", err)
 	}
-	log.Printf("[DEBUG] Create APIG v2 dedicated instance options: %#v", opts)
+	logp.Printf("[DEBUG] Create APIG v2 dedicated instance options: %#v", opts)
 
 	client, err := config.ApigV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
 	v, err := instances.Create(client, opts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud APIG v2 dedicated instance: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 dedicated instance: %s", err)
 	}
 	d.SetId(v.Id)
 	err = waitForApigInstanceCreateCompleted(d, client)
 	if err != nil {
-		return fmt.Errorf("Error waiting for APIG v2 dedicated instance (%s) to become running: %s", d.Id(), err)
+		return fmtp.Errorf("Error waiting for APIG v2 dedicated instance (%s) to become running: %s", d.Id(), err)
 	}
 	return resourceApigInstanceV2Read(d, meta)
 }
@@ -285,7 +286,7 @@ func setApigIngressAccess(d *schema.ResourceData, config *config.Config, resp in
 		publicAddress := resp.Ipv4IngressEipAddress
 		client, err := config.NetworkingV1Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating VPC client: %s", err)
+			return fmtp.Errorf("Error creating VPC client: %s", err)
 		}
 		opt := eips.ListOpts{
 			PublicIp: publicAddress,
@@ -299,7 +300,7 @@ func setApigIngressAccess(d *schema.ResourceData, config *config.Config, resp in
 			return err
 		}
 		if len(publicIps) == 0 {
-			return fmt.Errorf("Error getting eip id from server by ip address (%s): %s", publicAddress, err)
+			return fmtp.Errorf("Error getting eip id from server by ip address (%s): %s", publicAddress, err)
 		}
 		return d.Set("eip_id", publicIps[0].ID)
 	}
@@ -348,7 +349,7 @@ func getApigInstanceFromServer(d *schema.ResourceData, client *golangsdk.Service
 	if err != nil {
 		return resp, CheckDeleted(d, err, "APIG v2 dedicated instance")
 	}
-	log.Printf("[DEBUG] Retrieved APIG v2 dedicated instance (%s): %+v", d.Id(), resp)
+	logp.Printf("[DEBUG] Retrieved APIG v2 dedicated instance (%s): %+v", d.Id(), resp)
 	return resp, nil
 }
 
@@ -356,11 +357,11 @@ func resourceApigInstanceV2Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud APIG client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud APIG client: %s", err)
 	}
 	resp, err := getApigInstanceFromServer(d, client)
 	if err != nil {
-		return fmt.Errorf("Error getting APIG v2 dedicated instance (%s) form server: %s", d.Id(), err)
+		return fmtp.Errorf("Error getting APIG v2 dedicated instance (%s) form server: %s", d.Id(), err)
 	}
 	return setApigInstanceParamters(d, config, *resp)
 }
@@ -385,7 +386,7 @@ func buildApigInstanceUpdateOpts(d *schema.ResourceData) (instances.UpdateOpts, 
 	if d.HasChange("security_group_id") {
 		opts.SecurityGroupId = d.Get("security_group_id").(string)
 	}
-	log.Printf("[DEBUG] Update options of APIG v2 dedicated instance is: %#v", opts)
+	logp.Printf("[DEBUG] Update options of APIG v2 dedicated instance is: %#v", opts)
 	return opts, nil
 }
 
@@ -410,17 +411,17 @@ func updateApigInstanceEgressAccess(d *schema.ResourceData, client *golangsdk.Se
 		}
 		egress, err := instances.EnableEgressAccess(client, d.Id(), opts).Extract()
 		if err != nil {
-			return fmt.Errorf("Unable to enable egress access of the dedicated instance (%s), size: %d", d.Id(), size)
+			return fmtp.Errorf("Unable to enable egress access of the dedicated instance (%s), size: %d", d.Id(), size)
 		}
 		if egress.BandwidthSize != size {
-			return fmt.Errorf("Wrong bandwidth size is enabled, size: %d", size)
+			return fmtp.Errorf("Wrong bandwidth size is enabled, size: %d", size)
 		}
 	}
 	// Disable the egress access.
 	if newVal.(int) == 0 {
 		err := instances.DisableEgressAccess(client, d.Id()).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Unable to disable egress bandwidth of the dedicated instance (%s)", d.Id())
+			return fmtp.Errorf("Unable to disable egress bandwidth of the dedicated instance (%s)", d.Id())
 		}
 		return nil
 	}
@@ -431,10 +432,10 @@ func updateApigInstanceEgressAccess(d *schema.ResourceData, client *golangsdk.Se
 	}
 	egress, err := instances.UpdateEgressBandwidth(client, d.Id(), opts).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to update egress bandwidth of the dedicated instance (%s), size: %d", d.Id(), size)
+		return fmtp.Errorf("Unable to update egress bandwidth of the dedicated instance (%s), size: %d", d.Id(), size)
 	}
 	if egress.BandwidthSize != size {
-		return fmt.Errorf("Wrong bandwidth size is set, size: %d", size)
+		return fmtp.Errorf("Wrong bandwidth size is set, size: %d", size)
 	}
 	return nil
 }
@@ -465,34 +466,34 @@ func resourceApigInstanceV2Update(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
 
 	// Update egress access
 	if d.HasChange("bandwidth_size") {
 		if err = updateApigInstanceEgressAccess(d, client); err != nil {
-			return fmt.Errorf("Update egress access failed: %s", err)
+			return fmtp.Errorf("Update egress access failed: %s", err)
 		}
 	}
 	// Update ingerss access
 	if d.HasChange("eip_id") {
 		if err = updateApigInstanceIngressAccess(d, client); err != nil {
-			return fmt.Errorf("Update ingress access failed: %s", err)
+			return fmtp.Errorf("Update ingress access failed: %s", err)
 		}
 	}
 	// Update APIG v2 instance name, maintain window, description and security group id
 	updateOpts, err := buildApigInstanceUpdateOpts(d)
 	if err != nil {
-		return fmt.Errorf("Unable to get the update options of APIG v2 dedicated instance: %s", err)
+		return fmtp.Errorf("Unable to get the update options of APIG v2 dedicated instance: %s", err)
 	}
 	if updateOpts != (instances.UpdateOpts{}) {
 		_, err = instances.Update(client, d.Id(), updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating APIG v2 dedicated instance: %s", err)
+			return fmtp.Errorf("Error updating APIG v2 dedicated instance: %s", err)
 		}
 		err = waitForApigInstanceUpdateCompleted(d, client)
 		if err != nil {
-			return fmt.Errorf("Error waiting for APIG dedicated instance (%s) to become running: %s", d.Id(), err)
+			return fmtp.Errorf("Error waiting for APIG dedicated instance (%s) to become running: %s", d.Id(), err)
 		}
 	}
 	return resourceApigInstanceV2Read(d, meta)
@@ -513,14 +514,14 @@ func resourceApigInstanceV2Delete(d *schema.ResourceData, meta interface{}) erro
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
 	if err = instances.Delete(client, d.Id()).ExtractErr(); err != nil {
-		return fmt.Errorf("Unable to delete the APIG v2 dedicated instance (%s): %s", d.Id(), err)
+		return fmtp.Errorf("Unable to delete the APIG v2 dedicated instance (%s): %s", d.Id(), err)
 	}
 	err = waitForApigInstanceDeleteCompleted(d, client)
 	if err != nil {
-		return fmt.Errorf("Error deleting APIG v2 dedicated instance (%s): %s", d.Id(), err)
+		return fmtp.Errorf("Error deleting APIG v2 dedicated instance (%s): %s", d.Id(), err)
 	}
 	d.SetId("")
 	return nil

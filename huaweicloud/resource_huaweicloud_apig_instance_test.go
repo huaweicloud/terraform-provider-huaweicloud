@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/apigw/v2/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccApigInstanceV2_basic(t *testing.T) {
@@ -187,7 +188,7 @@ func testAccCheckApigInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.ApigV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -196,7 +197,7 @@ func testAccCheckApigInstanceDestroy(s *terraform.State) error {
 		}
 		_, err := instances.Get(client, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("APIG v2 instance (%s) is still exists", rs.Primary.ID)
+			return fmtp.Errorf("APIG v2 instance (%s) is still exists", rs.Primary.ID)
 		}
 	}
 
@@ -207,16 +208,16 @@ func testAccCheckApigInstanceExists(n string, instance *instances.Instance) reso
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Resource %s not found", n)
+			return fmtp.Errorf("Resource %s not found", n)
 		}
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.ApigV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 		}
 
 		found, err := instances.Get(client, rs.Primary.ID).Extract()
