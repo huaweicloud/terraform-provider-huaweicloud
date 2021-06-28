@@ -409,7 +409,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dns_ptrrecord":                   ResourceDNSPtrRecordV2(),
 			"huaweicloud_dns_recordset":                   ResourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone":                        ResourceDNSZoneV2(),
-			"huaweicloud_dws_cluster":                     resourceDwsCluster(),
+			"huaweicloud_dws_cluster":                     ResourceDwsCluster(),
 			"huaweicloud_elb_certificate":                 ResourceCertificateV3(),
 			"huaweicloud_elb_l7policy":                    ResourceL7PolicyV3(),
 			"huaweicloud_elb_l7rule":                      ResourceL7RuleV3(),
