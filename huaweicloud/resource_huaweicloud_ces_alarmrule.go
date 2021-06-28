@@ -42,7 +42,7 @@ var cesAlarmActions = schema.Schema{
 	},
 }
 
-func resourceAlarmRule() *schema.Resource {
+func ResourceAlarmRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAlarmRuleCreate,
 		Read:   resourceAlarmRuleRead,
