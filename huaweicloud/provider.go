@@ -669,8 +669,6 @@ func init() {
 
 		"cloud": "The endpoint of cloud provider, defaults to myhuaweicloud.com",
 
-		"cloudName": "The endpoint of cloud provider name, defaults to empty",
-
 		"endpoints": "The custom endpoints used to override the default endpoint URL.",
 
 		"max_retries": "How many times HTTP connection should be retried until giving up.",
@@ -729,7 +727,6 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		AgencyDomainName:    d.Get("agency_domain_name").(string),
 		DelegatedProject:    delegated_project,
 		Cloud:               d.Get("cloud").(string),
-		CloudName:           d.Get("cloudName").(string),
 		MaxRetries:          d.Get("max_retries").(int),
 		EnterpriseProjectID: d.Get("enterprise_project_id").(string),
 		TerraformVersion:    terraformVersion,
