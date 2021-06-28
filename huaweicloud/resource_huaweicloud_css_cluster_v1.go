@@ -28,7 +28,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceCssClusterV1() *schema.Resource {
+func ResourceCssClusterV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCssClusterV1Create,
 		Read:   resourceCssClusterV1Read,
