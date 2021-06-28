@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccCCIPersistentVolumeClaims_basic(t *testing.T) {
 	var pvc persistentvolumeclaims.ListResp
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cci_pvc.test"
 	volumeType := "ssd"
 
@@ -49,7 +50,7 @@ func TestAccCCIPersistentVolumeClaims_basic(t *testing.T) {
 func TestAccCCIPersistentVolumeClaims_obs(t *testing.T) {
 	var pvc persistentvolumeclaims.ListResp
 	rInt := acctest.RandInt()
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cci_pvc.test"
 	volumeType := "obs"
 
@@ -83,7 +84,7 @@ func TestAccCCIPersistentVolumeClaims_obs(t *testing.T) {
 
 func TestAccCCIPersistentVolumeClaims_nfs(t *testing.T) {
 	var pvc persistentvolumeclaims.ListResp
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cci_pvc.test"
 	volumeType := "nfs-rw"
 
@@ -118,7 +119,7 @@ func TestAccCCIPersistentVolumeClaims_nfs(t *testing.T) {
 func TestAccCCIPersistentVolumeClaims_efs(t *testing.T) {
 	var pvc persistentvolumeclaims.ListResp
 	suffix := acctest.RandString(5)
-	rName := fmt.Sprintf("tf-acc-test-%s", suffix)
+	rName := fmtp.Sprintf("tf-acc-test-%s", suffix)
 	resourceName := "huaweicloud_cci_pvc.test"
 	volumeType := "efs-standard"
 
@@ -154,7 +155,7 @@ func testAccCheckCCIPersistentVolumeClaimsDestroy(volumeType string) resource.Te
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.CciV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud CCI client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud CCI client: %s", err)
 		}
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "huaweicloud_cci_pvc" {
@@ -162,7 +163,7 @@ func testAccCheckCCIPersistentVolumeClaimsDestroy(volumeType string) resource.Te
 			}
 			response, err := getCCIPvcInfoById(client, HW_CCI_NAMESPACE, volumeType, rs.Primary.ID)
 			if err == nil && response != nil {
-				return fmt.Errorf("The PVC (%s) still exist", rs.Primary.ID)
+				return fmtp.Errorf("The PVC (%s) still exist", rs.Primary.ID)
 			}
 		}
 		return nil
@@ -174,26 +175,26 @@ func testAccCheckCCIPersistentVolumeClaimsExists(n, volumeType string,
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.CciV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud CCI Client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud CCI Client: %s", err)
 		}
 		response, err := getCCIPvcInfoById(client, HW_CCI_NAMESPACE, volumeType, rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Unable to find the specifies PVC (%s) form server: %s", rs.Primary.ID, err)
+			return fmtp.Errorf("Unable to find the specifies PVC (%s) form server: %s", rs.Primary.ID, err)
 		}
 		if response != nil {
 			*pvc = *response
 			return nil
 		}
 
-		return fmt.Errorf("PVC (%s) not found", rs.Primary.ID)
+		return fmtp.Errorf("PVC (%s) not found", rs.Primary.ID)
 	}
 }
 
@@ -201,18 +202,18 @@ func testAccCCIPvcImportStateIdFunc(pvcRes string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		pvc, ok := s.RootModule().Resources[pvcRes]
 		if !ok {
-			return "", fmt.Errorf("Auto Scaling lifecycle hook not found: %s", pvc)
+			return "", fmtp.Errorf("Auto Scaling lifecycle hook not found: %s", pvc)
 		}
 		if pvc.Primary.Attributes["volume_type"] == "" || pvc.Primary.ID == "" {
-			return "", fmt.Errorf("Unable to find the resource by import infos: %s/%s/%s",
+			return "", fmtp.Errorf("Unable to find the resource by import infos: %s/%s/%s",
 				HW_CCI_NAMESPACE, pvc.Primary.Attributes["volume_type"], pvc.Primary.ID)
 		}
-		return fmt.Sprintf("%s/%s/%s", HW_CCI_NAMESPACE, pvc.Primary.Attributes["volume_type"], pvc.Primary.ID), nil
+		return fmtp.Sprintf("%s/%s/%s", HW_CCI_NAMESPACE, pvc.Primary.Attributes["volume_type"], pvc.Primary.ID), nil
 	}
 }
 
 func testAccCCIPersistentVolumeClaims_basic(rName, volumeType string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_cci_pvc" "test" {
@@ -225,7 +226,7 @@ resource "huaweicloud_cci_pvc" "test" {
 }
 
 func testAccCCIPersistentVolumeClaims_obs(rName, volumeType string, suffix int) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_cci_pvc" "test" {
@@ -238,7 +239,7 @@ resource "huaweicloud_cci_pvc" "test" {
 }
 
 func testAccCCIPersistentVolumeClaims_nfs(rName, volumeType string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_cci_pvc" "test" {
@@ -252,7 +253,7 @@ resource "huaweicloud_cci_pvc" "test" {
 }
 
 func testAccCCIPersistentVolumeClaims_efs(rName, volumeType, suffix string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_cci_pvc" "test" {

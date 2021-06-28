@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -10,6 +8,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceRdsReadReplicaInstance() *schema.Resource {
@@ -169,7 +169,7 @@ func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface
 	config := meta.(*config.Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud rds client: %s ", err)
+		return fmtp.Errorf("Error creating huaweicloud rds client: %s ", err)
 	}
 
 	createOpts := instances.CreateReplicaOpts{
@@ -182,18 +182,18 @@ func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface
 		DiskEncryptionId:    d.Get("volume.0.disk_encryption_id").(string),
 		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
 	}
-	log.Printf("[DEBUG] Create replica instance Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create replica instance Options: %#v", createOpts)
 
 	resp, err := instances.CreateReplica(client, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating replica instance: %s ", err)
+		return fmtp.Errorf("Error creating replica instance: %s ", err)
 	}
 
 	instance := resp.Instance
 	d.SetId(instance.Id)
 	instanceID := d.Id()
 	if err := checkRDSInstanceJobFinish(client, resp.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
-		return fmt.Errorf("Error creating instance (%s): %s", instanceID, err)
+		return fmtp.Errorf("Error creating instance (%s): %s", instanceID, err)
 	}
 
 	tagRaw := d.Get("tags").(map[string]interface{})
@@ -201,7 +201,7 @@ func resourceRdsReadReplicaInstanceCreate(d *schema.ResourceData, meta interface
 		tagList := utils.ExpandResourceTags(tagRaw)
 		err := tags.Create(client, "instances", instanceID, tagList).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error setting tags of Rds read replica instance %s: %s", instanceID, err)
+			return fmtp.Errorf("Error setting tags of Rds read replica instance %s: %s", instanceID, err)
 		}
 	}
 
@@ -212,7 +212,7 @@ func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}
 	config := meta.(*config.Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud rds client: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud rds client: %s", err)
 	}
 
 	instanceID := d.Id()
@@ -225,7 +225,7 @@ func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}
 		return nil
 	}
 
-	log.Printf("[DEBUG] Retrieved rds read replica instance %s: %#v", instanceID, instance)
+	logp.Printf("[DEBUG] Retrieved rds read replica instance %s: %#v", instanceID, instance)
 	d.Set("name", instance.Name)
 	d.Set("flavor", instance.FlavorRef)
 	d.Set("region", instance.Region)
@@ -256,7 +256,7 @@ func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}
 	}
 	volumeList = append(volumeList, volume)
 	if err := d.Set("volume", volumeList); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving volume to RDS read replica instance (%s): %s", instanceID, err)
+		return fmtp.Errorf("[DEBUG] Error saving volume to RDS read replica instance (%s): %s", instanceID, err)
 	}
 
 	dbList := make([]map[string]interface{}, 0, 1)
@@ -268,7 +268,7 @@ func resourceRdsReadReplicaInstanceRead(d *schema.ResourceData, meta interface{}
 	}
 	dbList = append(dbList, database)
 	if err := d.Set("db", dbList); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving data base to RDS read replica instance (%s): %s", instanceID, err)
+		return fmtp.Errorf("[DEBUG] Error saving data base to RDS read replica instance (%s): %s", instanceID, err)
 	}
 
 	return nil
@@ -278,18 +278,18 @@ func resourceRdsReadReplicaInstanceUpdate(d *schema.ResourceData, meta interface
 	config := meta.(*config.Config)
 	client, err := config.RdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud rds v3 client: %s ", err)
+		return fmtp.Errorf("Error creating huaweicloud rds v3 client: %s ", err)
 	}
 
 	instanceID := d.Id()
 	if err := updateRdsInstanceFlavor(d, client, instanceID); err != nil {
-		return fmt.Errorf("[ERROR] %s", err)
+		return fmtp.Errorf("[ERROR] %s", err)
 	}
 
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceID)
 		if tagErr != nil {
-			return fmt.Errorf("Error updating tags of RDS read replica instance: %s, err: %s", instanceID, tagErr)
+			return fmtp.Errorf("Error updating tags of RDS read replica instance: %s, err: %s", instanceID, tagErr)
 		}
 	}
 
@@ -308,7 +308,7 @@ func expandPrimaryInstanceID(resp *instances.RdsInstanceResponse) (string, error
 			return relate.Id, nil
 		}
 	}
-	return "", fmt.Errorf("Error when get primary instance id for replica %s", resp.Id)
+	return "", fmtp.Errorf("Error when get primary instance id for replica %s", resp.Id)
 }
 
 func buildRdsReplicaInstanceVolume(d *schema.ResourceData) *instances.Volume {
@@ -325,6 +325,6 @@ func buildRdsReplicaInstanceVolume(d *schema.ResourceData) *instances.Volume {
 			volume.Size = 100
 		}
 	}
-	log.Printf("[DEBUG] volume: %+v", volume)
+	logp.Printf("[DEBUG] volume: %+v", volume)
 	return volume
 }

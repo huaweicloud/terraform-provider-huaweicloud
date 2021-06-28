@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,7 +14,7 @@ import (
 
 func TestAccApiGatewayAPI_basic(t *testing.T) {
 	var resName = "huaweicloud_api_gateway_api.acc_apigw_api"
-	rName := fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -57,7 +58,7 @@ func testAccCheckApiGatewayApiDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	apigwClient, err := config.ApiGatewayV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -67,7 +68,7 @@ func testAccCheckApiGatewayApiDestroy(s *terraform.State) error {
 
 		_, err := apis.Get(apigwClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("api gateway API still exists")
+			return fmtp.Errorf("api gateway API still exists")
 		}
 	}
 
@@ -78,17 +79,17 @@ func testAccCheckApiGatewayApiExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Resource %s not found", n)
+			return fmtp.Errorf("Resource %s not found", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		apigwClient, err := config.ApiGatewayV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 		}
 
 		found, err := apis.Get(apigwClient, rs.Primary.ID).Extract()
@@ -97,7 +98,7 @@ func testAccCheckApiGatewayApiExists(n string) resource.TestCheckFunc {
 		}
 
 		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("apigateway API not found")
+			return fmtp.Errorf("apigateway API not found")
 		}
 
 		return nil
@@ -105,7 +106,7 @@ func testAccCheckApiGatewayApiExists(n string) resource.TestCheckFunc {
 }
 
 func testAccApigwAPI_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_api_gateway_group" "acc_apigw_group" {
   name        = "%s"
   description = "created by acc test"
@@ -137,7 +138,7 @@ resource "huaweicloud_api_gateway_api" "acc_apigw_api" {
 }
 
 func testAccApigwAPI_update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_api_gateway_group" "acc_apigw_group" {
   name        = "%s"
   description = "created by acc test"

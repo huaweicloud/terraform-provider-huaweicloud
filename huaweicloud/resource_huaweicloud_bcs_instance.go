@@ -2,10 +2,11 @@ package huaweicloud
 
 import (
 	"bytes"
-	"fmt"
-	"log"
 	"strings"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -351,7 +352,7 @@ func resourceBCSInstanceV2Create(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	client, err := config.BcsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Blockchain client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud Blockchain client: %s", err)
 	}
 	createOpts := blockchains.CreateOpts{
 		CreateNewCluster:    &newCluster,
@@ -379,7 +380,7 @@ func resourceBCSInstanceV2Create(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if v, err := resourceClusterInfo(config, d.Get("cce_cluster_id").(string), GetRegion(d, config)); err != nil {
-		return fmt.Errorf("Get cluster information failed: %s ", err)
+		return fmtp.Errorf("Get cluster information failed: %s ", err)
 	} else {
 		createOpts.ClusterType = "cce"
 		createOpts.CCEClusterInfo = v
@@ -387,7 +388,7 @@ func resourceBCSInstanceV2Create(d *schema.ResourceData, meta interface{}) error
 
 	res, err := blockchains.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating Blockchain instance: %s ", err)
+		return fmtp.Errorf("Error creating Blockchain instance: %s ", err)
 	}
 
 	d.SetId(res.ID)
@@ -402,7 +403,7 @@ func resourceBCSInstanceV2Create(d *schema.ResourceData, meta interface{}) error
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for blockchain instance (%s) status to Normal: %s ", instanceID, err)
+		return fmtp.Errorf("Error waiting for blockchain instance (%s) status to Normal: %s ", instanceID, err)
 	}
 
 	return resourceBCSInstanceV2Read(d, meta)
@@ -412,15 +413,15 @@ func resourceBCSInstanceV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.BcsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Blockchain client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud Blockchain client: %s", err)
 	}
 
 	instanceID := d.Id()
 	instance, err := blockchains.Get(client, instanceID).Extract()
 	if err != nil {
-		return fmt.Errorf("Error getting Blockchain instance (%s): %s", instanceID, err)
+		return fmtp.Errorf("Error getting Blockchain instance (%s): %s", instanceID, err)
 	}
-	log.Printf("[DEBUG] Retrieved Blockchain instance %s: %#v", instanceID, instance)
+	logp.Printf("[DEBUG] Retrieved Blockchain instance %s: %#v", instanceID, instance)
 
 	d.Set("name", instance.Basic.Name)
 	d.Set("edition", instance.Basic.VersionType)
@@ -511,12 +512,12 @@ func resourceBCSInstanceV2Delete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	bcsClient, err := config.BcsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Blockchain client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud Blockchain client: %s", err)
 	}
 	if d.Get("consensus").(string) == "kafka" {
 		dmsClient, err := config.DmsV2Client(GetRegion(d, config))
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud Kafka client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud Kafka client: %s", err)
 		}
 		kafkaName := d.Get("kafka.0.name").(string)
 		listOpts := instances.ListDmsInstanceOpts{
@@ -525,21 +526,21 @@ func resourceBCSInstanceV2Delete(d *schema.ResourceData, meta interface{}) error
 		}
 		pages, err := instances.List(dmsClient, listOpts).AllPages()
 		if err != nil {
-			return fmt.Errorf("Error getting kafka instance in queue (%s): %s", kafkaName, err)
+			return fmtp.Errorf("Error getting kafka instance in queue (%s): %s", kafkaName, err)
 		}
 		res, err := instances.ExtractDmsInstances(pages)
 		if err != nil {
-			return fmt.Errorf("Error quering HuaweiCloud kafka instances: %s", err)
+			return fmtp.Errorf("Error quering HuaweiCloud kafka instances: %s", err)
 		}
 		if len(res.Instances) < 1 {
-			return fmt.Errorf("Error quering kafka, returned no results")
+			return fmtp.Errorf("Error quering kafka, returned no results")
 		}
 		if len(res.Instances) > 1 {
-			return fmt.Errorf("Error quering kafka, returned more than one result")
+			return fmtp.Errorf("Error quering kafka, returned more than one result")
 		}
 		kafkaID := res.Instances[0].InstanceID
 		if r := instances.Delete(dmsClient, kafkaID); r.Result.Err != nil {
-			return fmt.Errorf("Error deleting kafka instance (%s): %s ", kafkaID, r.Result.Err)
+			return fmtp.Errorf("Error deleting kafka instance (%s): %s ", kafkaID, r.Result.Err)
 		}
 
 		stateConf := &resource.StateChangeConf{
@@ -551,7 +552,7 @@ func resourceBCSInstanceV2Delete(d *schema.ResourceData, meta interface{}) error
 			MinTimeout: 3 * time.Second,
 		}
 		if _, err = stateConf.WaitForState(); err != nil {
-			return fmt.Errorf("Error waiting for instance (%s) to delete: %s", kafkaID, err)
+			return fmtp.Errorf("Error waiting for instance (%s) to delete: %s", kafkaID, err)
 		}
 	}
 
@@ -565,7 +566,7 @@ func resourceBCSInstanceV2Delete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if err := blockchains.Delete(bcsClient, deleteOpts, blockchainID).Extract(); err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud Blockchain instance (%s): %s", blockchainID, err)
+		return fmtp.Errorf("Error deleting HuaweiCloud Blockchain instance (%s): %s", blockchainID, err)
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"IsDeleting"},
@@ -577,7 +578,7 @@ func resourceBCSInstanceV2Delete(d *schema.ResourceData, meta interface{}) error
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for blockchain instance (%s) status to deleted: %s ", blockchainID, err)
+		return fmtp.Errorf("Error waiting for blockchain instance (%s) status to deleted: %s ", blockchainID, err)
 	}
 	d.SetId("")
 
@@ -609,11 +610,11 @@ func resourceClusterInfo(config *config.Config, clusterID, region string) (*bloc
 
 	client, err := config.CceV3Client(region)
 	if err != nil {
-		return clusterInfo, fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
+		return clusterInfo, fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 	n, err := clusters.Get(client, clusterID).Extract()
 	if err != nil {
-		return clusterInfo, fmt.Errorf("Error retrieving HuaweiCloud CCE: %s", err)
+		return clusterInfo, fmtp.Errorf("Error retrieving HuaweiCloud CCE: %s", err)
 	}
 	clusterInfo.ID = clusterID
 	clusterInfo.Name = n.Metadata.Name
@@ -723,7 +724,7 @@ func resourceChannelsHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if m["name"] != nil {
-		buf.WriteString(fmt.Sprintf("%s-", m["name"].(string)))
+		buf.WriteString(fmtp.Sprintf("%s-", m["name"].(string)))
 	}
 
 	return hashcode.String(buf.String())
@@ -734,7 +735,7 @@ func resourcePeerOrgsHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if m["org_name"] != nil {
-		buf.WriteString(fmt.Sprintf("%s-", m["org_name"].(string)))
+		buf.WriteString(fmtp.Sprintf("%s-", m["org_name"].(string)))
 	}
 
 	return hashcode.String(buf.String())

@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"fmt"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
@@ -44,15 +44,15 @@ func dataSourceGaussdbMysqlConfigurationsRead(d *schema.ResourceData, meta inter
 
 	client, err := config.GaussdbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
 
 	configsList, err := configurations.List(client).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve configurations: %s", err)
+		return fmtp.Errorf("Unable to retrieve configurations: %s", err)
 	}
 	if len(configsList) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
@@ -67,7 +67,7 @@ func dataSourceGaussdbMysqlConfigurationsRead(d *schema.ResourceData, meta inter
 	}
 
 	if len(configsList) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 	Configuration := configsList[0]

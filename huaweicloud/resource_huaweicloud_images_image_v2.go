@@ -3,13 +3,14 @@ package huaweicloud
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -75,7 +76,7 @@ func resourceImagesImageV2() *schema.Resource {
 			"image_cache_path": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  fmt.Sprintf("%s/.terraform/image_cache", os.Getenv("HOME")),
+				Default:  fmtp.Sprintf("%s/.terraform/image_cache", os.Getenv("HOME")),
 			},
 
 			"image_source_url": {
@@ -173,7 +174,7 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	imageClient, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	protected := d.Get("protected").(bool)
@@ -193,10 +194,10 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 		createOpts.Tags = resourceImagesImageV2BuildTags(tags)
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	newImg, err := images.Create(imageClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating Image: %s", err)
+		return fmtp.Errorf("Error creating Image: %s", err)
 	}
 
 	d.SetId(newImg.ID)
@@ -204,25 +205,25 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 	// downloading/getting image file props
 	imgFilePath, err := resourceImagesImageV2File(d)
 	if err != nil {
-		return fmt.Errorf("Error opening file for Image: %s", err)
+		return fmtp.Errorf("Error opening file for Image: %s", err)
 
 	}
 	fileSize, fileChecksum, err := resourceImagesImageV2FileProps(imgFilePath)
 	if err != nil {
-		return fmt.Errorf("Error getting file props: %s", err)
+		return fmtp.Errorf("Error getting file props: %s", err)
 	}
 
 	// upload
 	imgFile, err := os.Open(imgFilePath)
 	if err != nil {
-		return fmt.Errorf("Error opening file %q: %s", imgFilePath, err)
+		return fmtp.Errorf("Error opening file %q: %s", imgFilePath, err)
 	}
 	defer imgFile.Close()
-	log.Printf("[WARN] Uploading image %s (%d bytes). This can be pretty long.", d.Id(), fileSize)
+	logp.Printf("[WARN] Uploading image %s (%d bytes). This can be pretty long.", d.Id(), fileSize)
 
 	res := imagedata.Upload(imageClient, d.Id(), imgFile)
 	if res.Err != nil {
-		return fmt.Errorf("Error while uploading file %q: %s", imgFilePath, res.Err)
+		return fmtp.Errorf("Error while uploading file %q: %s", imgFilePath, res.Err)
 	}
 
 	//wait for active
@@ -236,7 +237,7 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if _, err = stateConf.WaitForState(); err != nil {
-		return fmt.Errorf("Error waiting for Image: %s", err)
+		return fmtp.Errorf("Error waiting for Image: %s", err)
 	}
 
 	return resourceImagesImageV2Read(d, meta)
@@ -246,7 +247,7 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	imageClient, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	img, err := images.Get(imageClient, d.Id()).Extract()
@@ -254,7 +255,7 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "image")
 	}
 
-	log.Printf("[DEBUG] Retrieved Image %s: %#v", d.Id(), img)
+	logp.Printf("[DEBUG] Retrieved Image %s: %#v", d.Id(), img)
 
 	d.Set("owner", img.Owner)
 	d.Set("status", img.Status)
@@ -263,7 +264,7 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("checksum", img.Checksum)
 	d.Set("size_bytes", img.SizeBytes)
 	if err := d.Set("metadata", img.Metadata); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving metadata to state for HuaweiCloud image (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving metadata to state for HuaweiCloud image (%s): %s", d.Id(), err)
 	}
 	d.Set("created_at", img.CreatedAt.Format(time.RFC3339))
 	d.Set("update_at", img.UpdatedAt.Format(time.RFC3339))
@@ -276,7 +277,7 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("protected", img.Protected)
 	d.Set("size_bytes", img.SizeBytes)
 	if err := d.Set("tags", img.Tags); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving tags to state for HuaweiCloud image (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving tags to state for HuaweiCloud image (%s): %s", d.Id(), err)
 	}
 	d.Set("visibility", img.Visibility)
 	d.Set("region", GetRegion(d, config))
@@ -288,7 +289,7 @@ func resourceImagesImageV2Update(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	imageClient, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	updateOpts := make(images.UpdateOpts, 0)
@@ -312,11 +313,11 @@ func resourceImagesImageV2Update(d *schema.ResourceData, meta interface{}) error
 		updateOpts = append(updateOpts, v)
 	}
 
-	log.Printf("[DEBUG] Update Options: %#v", updateOpts)
+	logp.Printf("[DEBUG] Update Options: %#v", updateOpts)
 
 	_, err = images.Update(imageClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating image: %s", err)
+		return fmtp.Errorf("Error updating image: %s", err)
 	}
 
 	return resourceImagesImageV2Read(d, meta)
@@ -326,12 +327,12 @@ func resourceImagesImageV2Delete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	imageClient, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting Image %s", d.Id())
+	logp.Printf("[DEBUG] Deleting Image %s", d.Id())
 	if err := images.Delete(imageClient, d.Id()).Err; err != nil {
-		return fmt.Errorf("Error deleting Image: %s", err)
+		return fmtp.Errorf("Error deleting Image: %s", err)
 	}
 
 	d.SetId("")
@@ -350,7 +351,7 @@ func resourceImagesImageV2ValidateVisibility(v interface{}, k string) (ws []stri
 		}
 	}
 
-	err := fmt.Errorf("%s must be one of %s", k, validVisibilities)
+	err := fmtp.Errorf("%s must be one of %s", k, validVisibilities)
 	errors = append(errors, err)
 	return
 }
@@ -360,7 +361,7 @@ func validatePositiveInt(v interface{}, k string) (ws []string, errors []error) 
 	if value > 0 {
 		return
 	}
-	errors = append(errors, fmt.Errorf("%q must be a positive integer", k))
+	errors = append(errors, fmtp.Errorf("%q must be a positive integer", k))
 	return
 }
 
@@ -373,7 +374,7 @@ func resourceImagesImageV2ValidateDiskFormat(v interface{}, k string) (ws []stri
 			return
 		}
 	}
-	errors = append(errors, fmt.Errorf("%q must be one of %v", k, DiskFormats))
+	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, DiskFormats))
 	return
 }
 
@@ -386,7 +387,7 @@ func resourceImagesImageV2ValidateContainerFormat(v interface{}, k string) (ws [
 			return
 		}
 	}
-	errors = append(errors, fmt.Errorf("%q must be one of %v", k, ContainerFormats))
+	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, ContainerFormats))
 	return
 }
 
@@ -419,21 +420,21 @@ func resourceImagesImageV2FileProps(filename string) (int64, string, error) {
 
 	file, err := os.Open(filename)
 	if err != nil {
-		return -1, "", fmt.Errorf("Error opening file for Image: %s", err)
+		return -1, "", fmtp.Errorf("Error opening file for Image: %s", err)
 
 	}
 	defer file.Close()
 
 	fstat, err := file.Stat()
 	if err != nil {
-		return -1, "", fmt.Errorf("Error reading image file %q: %s", file.Name(), err)
+		return -1, "", fmtp.Errorf("Error reading image file %q: %s", file.Name(), err)
 	}
 
 	filesize = fstat.Size()
 	filechecksum, err = fileMD5Checksum(file)
 
 	if err != nil {
-		return -1, "", fmt.Errorf("Error computing image file %q checksum: %s", file.Name(), err)
+		return -1, "", fmtp.Errorf("Error computing image file %q checksum: %s", file.Name(), err)
 	}
 
 	return filesize, filechecksum, nil
@@ -445,34 +446,34 @@ func resourceImagesImageV2File(d *schema.ResourceData) (string, error) {
 	} else if furl := d.Get("image_source_url").(string); furl != "" {
 		dir := d.Get("image_cache_path").(string)
 		os.MkdirAll(dir, 0700)
-		filename := filepath.Join(dir, fmt.Sprintf("%x.img", md5.Sum([]byte(furl))))
+		filename := filepath.Join(dir, fmtp.Sprintf("%x.img", md5.Sum([]byte(furl))))
 
 		if _, err := os.Stat(filename); err != nil {
 			if !os.IsNotExist(err) {
-				return "", fmt.Errorf("Error while trying to access file %q: %s", filename, err)
+				return "", fmtp.Errorf("Error while trying to access file %q: %s", filename, err)
 			}
-			log.Printf("[DEBUG] File doens't exists %s. will download from %s", filename, furl)
+			logp.Printf("[DEBUG] File doens't exists %s. will download from %s", filename, furl)
 			file, err := os.Create(filename)
 			if err != nil {
-				return "", fmt.Errorf("Error creating file %q: %s", filename, err)
+				return "", fmtp.Errorf("Error creating file %q: %s", filename, err)
 			}
 			defer file.Close()
 			resp, err := http.Get(furl)
 			if err != nil {
-				return "", fmt.Errorf("Error downloading image from %q", furl)
+				return "", fmtp.Errorf("Error downloading image from %q", furl)
 			}
 			defer resp.Body.Close()
 
 			if _, err = io.Copy(file, resp.Body); err != nil {
-				return "", fmt.Errorf("Error downloading image %q to file %q: %s", furl, filename, err)
+				return "", fmtp.Errorf("Error downloading image %q to file %q: %s", furl, filename, err)
 			}
 			return filename, nil
 		} else {
-			log.Printf("[DEBUG] File exists %s", filename)
+			logp.Printf("[DEBUG] File exists %s", filename)
 			return filename, nil
 		}
 	} else {
-		return "", fmt.Errorf("Error in config. no file specified")
+		return "", fmtp.Errorf("Error in config. no file specified")
 	}
 }
 
@@ -482,15 +483,15 @@ func resourceImagesImageV2RefreshFunc(client *golangsdk.ServiceClient, id string
 		if err != nil {
 			return nil, "", err
 		}
-		log.Printf("[DEBUG] HuaweiCloud image status is: %s", img.Status)
+		logp.Printf("[DEBUG] HuaweiCloud image status is: %s", img.Status)
 
 		// Huawei Provider doesn't have this set initially.
 		/*
 			if img.Checksum != checksum || int64(img.SizeBytes) != fileSize {
-				return img, fmt.Sprintf("%s", img.Status), fmt.Errorf("Error wrong size %v or checksum %q", img.SizeBytes, img.Checksum)
+				return img, fmtp.Sprintf("%s", img.Status), fmtp.Errorf("Error wrong size %v or checksum %q", img.SizeBytes, img.Checksum)
 			}
 		*/
-		return img, fmt.Sprintf("%s", img.Status), nil
+		return img, fmtp.Sprintf("%s", img.Status), nil
 	}
 }
 

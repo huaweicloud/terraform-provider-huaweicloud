@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccIdentityV3Project_basic(t *testing.T) {
 	var project projects.Project
-	var projectName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
+	var projectName = fmtp.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_project.project_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -59,7 +60,7 @@ func testAccCheckIdentityV3ProjectDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	identityClient, err := config.IdentityV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -69,7 +70,7 @@ func testAccCheckIdentityV3ProjectDestroy(s *terraform.State) error {
 
 		_, err := projects.Get(identityClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Project still exists")
+			return fmtp.Errorf("Project still exists")
 		}
 	}
 
@@ -80,17 +81,17 @@ func testAccCheckIdentityV3ProjectExists(n string, project *projects.Project) re
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		identityClient, err := config.IdentityV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}
 
 		found, err := projects.Get(identityClient, rs.Primary.ID).Extract()
@@ -99,7 +100,7 @@ func testAccCheckIdentityV3ProjectExists(n string, project *projects.Project) re
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Project not found")
+			return fmtp.Errorf("Project not found")
 		}
 
 		*project = *found
@@ -109,7 +110,7 @@ func testAccCheckIdentityV3ProjectExists(n string, project *projects.Project) re
 }
 
 func testAccIdentityV3Project_basic(projectName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_project" "project_1" {
   name        = "%s_%s"
   description = "A project"
@@ -118,7 +119,7 @@ resource "huaweicloud_identity_project" "project_1" {
 }
 
 func testAccIdentityV3Project_update(projectName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_project" "project_1" {
   name        = "%s_%s"
   description = "An updated project"

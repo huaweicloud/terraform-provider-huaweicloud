@@ -1,14 +1,13 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceNetworkingFloatingIPAssociateV2() *schema.Resource {
@@ -47,7 +46,7 @@ func resourceNetworkingFloatingIPAssociateV2Create(d *schema.ResourceData, meta 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	floatingIP := d.Get("public_ip").(string)
@@ -55,17 +54,17 @@ func resourceNetworkingFloatingIPAssociateV2Create(d *schema.ResourceData, meta 
 
 	floatingIPID, err := resourceNetworkingFloatingIPAssociateV2IP2ID(networkingClient, floatingIP)
 	if err != nil {
-		return fmt.Errorf("Unable to get ID of floating IP: %s", err)
+		return fmtp.Errorf("Unable to get ID of floating IP: %s", err)
 	}
 
 	updateOpts := floatingips.UpdateOpts{
 		PortID: &portID,
 	}
 
-	log.Printf("[DEBUG] Floating IP Associate Create Options: %#v", updateOpts)
+	logp.Printf("[DEBUG] Floating IP Associate Create Options: %#v", updateOpts)
 	_, err = floatingips.Update(networkingClient, floatingIPID, updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error associating floating IP %s to port %s: %s",
+		return fmtp.Errorf("Error associating floating IP %s to port %s: %s",
 			floatingIPID, portID, err)
 	}
 
@@ -78,7 +77,7 @@ func resourceNetworkingFloatingIPAssociateV2Read(d *schema.ResourceData, meta in
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	floatingIP, err := floatingips.Get(networkingClient, d.Id()).Extract()
@@ -97,7 +96,7 @@ func resourceNetworkingFloatingIPAssociateV2Delete(d *schema.ResourceData, meta 
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud network client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud network client: %s", err)
 	}
 
 	portID := d.Get("port_id").(string)
@@ -105,10 +104,10 @@ func resourceNetworkingFloatingIPAssociateV2Delete(d *schema.ResourceData, meta 
 		PortID: nil,
 	}
 
-	log.Printf("[DEBUG] Floating IP Delete Options: %#v", updateOpts)
+	logp.Printf("[DEBUG] Floating IP Delete Options: %#v", updateOpts)
 	_, err = floatingips.Update(networkingClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error disassociating floating IP %s from port %s: %s",
+		return fmtp.Errorf("Error disassociating floating IP %s from port %s: %s",
 			d.Id(), portID, err)
 	}
 
@@ -131,7 +130,7 @@ func resourceNetworkingFloatingIPAssociateV2IP2ID(client *golangsdk.ServiceClien
 	}
 
 	if len(allFloatingIPs) != 1 {
-		return "", fmt.Errorf("unable to determine the ID of %s", floatingIP)
+		return "", fmtp.Errorf("unable to determine the ID of %s", floatingIP)
 	}
 
 	return allFloatingIPs[0].ID, nil

@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +16,7 @@ import (
 
 func TestAccCBRV3Policy_basic(t *testing.T) {
 	var asPolicy policies.Policy
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cbr_policy.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -60,7 +61,7 @@ func TestAccCBRV3Policy_basic(t *testing.T) {
 
 func TestAccCBRV3Policy_replication(t *testing.T) {
 	var asPolicy policies.Policy
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cbr_policy.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -99,7 +100,7 @@ func testAccCheckCBRV3PolicyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.CbrV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("error creating Huaweicloud CBR client: %s", err)
+		return fmtp.Errorf("error creating Huaweicloud CBR client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -109,7 +110,7 @@ func testAccCheckCBRV3PolicyDestroy(s *terraform.State) error {
 
 		_, err := policies.Get(client, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("policy still exists")
+			return fmtp.Errorf("policy still exists")
 		}
 	}
 	return nil
@@ -119,17 +120,17 @@ func testAccCheckCBRV3PolicyExists(n string, policy *policies.Policy) resource.T
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.CbrV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("error creating Huaweicloud CBR client: %s", err)
+			return fmtp.Errorf("error creating Huaweicloud CBR client: %s", err)
 		}
 
 		found, err := policies.Get(client, rs.Primary.ID).Extract()
@@ -137,7 +138,7 @@ func testAccCheckCBRV3PolicyExists(n string, policy *policies.Policy) resource.T
 			return err
 		}
 
-		log.Printf("[DEBUG] test found is: %#v", found)
+		logp.Printf("[DEBUG] test found is: %#v", found)
 		policy = found
 
 		return nil
@@ -145,7 +146,7 @@ func testAccCheckCBRV3PolicyExists(n string, policy *policies.Policy) resource.T
 }
 
 func testCBRV3Policy_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
   name        = "%s"
   type        = "backup"
@@ -160,7 +161,7 @@ resource "huaweicloud_cbr_policy" "test" {
 }
 
 func testCBRV3Policy_update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
   name            = "%s-update"
   type            = "backup"
@@ -175,7 +176,7 @@ resource "huaweicloud_cbr_policy" "test" {
 }
 
 func testCBRV3Policy_replication(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
   name                   = "%s"
   type                   = "replication"

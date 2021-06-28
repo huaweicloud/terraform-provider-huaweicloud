@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/natgateways"
@@ -71,7 +71,7 @@ func dataSourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	natClient, err := config.NatGatewayClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
 	var vpcID, subnetID string
@@ -105,22 +105,22 @@ func dataSourceNatGatewayV2Read(d *schema.ResourceData, meta interface{}) error 
 	allNatGateways, err := natgateways.ExtractNatGateways(pages)
 
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve natgateways: %s", err)
+		return fmtp.Errorf("Unable to retrieve natgateways: %s", err)
 	}
 
 	if len(allNatGateways) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(allNatGateways) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	natgateway := allNatGateways[0]
 
-	log.Printf("[DEBUG] Retrieved Natgateway %s: %+v", natgateway.ID, natgateway)
+	logp.Printf("[DEBUG] Retrieved Natgateway %s: %+v", natgateway.ID, natgateway)
 
 	d.SetId(natgateway.ID)
 	d.Set("name", natgateway.Name)

@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,8 +15,8 @@ import (
 
 func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_loadbalancer.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -48,7 +49,7 @@ func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 
 func TestAccElbV3LoadBalancer_withEpsId(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_loadbalancer.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -72,7 +73,7 @@ func testAccCheckElbV3LoadBalancerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	elbClient, err := config.ElbV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -82,7 +83,7 @@ func testAccCheckElbV3LoadBalancerDestroy(s *terraform.State) error {
 
 		_, err := loadbalancers.Get(elbClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("LoadBalancer still exists: %s", rs.Primary.ID)
+			return fmtp.Errorf("LoadBalancer still exists: %s", rs.Primary.ID)
 		}
 	}
 
@@ -94,17 +95,17 @@ func testAccCheckElbV3LoadBalancerExists(
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		elbClient, err := config.ElbV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
 
 		found, err := loadbalancers.Get(elbClient, rs.Primary.ID).Extract()
@@ -113,7 +114,7 @@ func testAccCheckElbV3LoadBalancerExists(
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Member not found")
+			return fmtp.Errorf("Member not found")
 		}
 
 		*lb = *found
@@ -123,7 +124,7 @@ func testAccCheckElbV3LoadBalancerExists(
 }
 
 func testAccElbV3LoadBalancerConfig_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -148,7 +149,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 }
 
 func testAccElbV3LoadBalancerConfig_update(rNameUpdate string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -174,7 +175,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 }
 
 func testAccElbV3LoadBalancerConfig_withEpsId(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

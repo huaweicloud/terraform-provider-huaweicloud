@@ -2,10 +2,11 @@ package huaweicloud
 
 import (
 	"bytes"
-	"fmt"
-	"log"
 	"strings"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -96,7 +97,7 @@ func resourceComputeSecGroupV2Create(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	// Before creating the security group, make sure all rules are valid.
@@ -110,10 +111,10 @@ func resourceComputeSecGroupV2Create(d *schema.ResourceData, meta interface{}) e
 		Description: d.Get("description").(string),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	sg, err := secgroups.Create(computeClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud security group: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud security group: %s", err)
 	}
 
 	d.SetId(sg.ID)
@@ -123,7 +124,7 @@ func resourceComputeSecGroupV2Create(d *schema.ResourceData, meta interface{}) e
 	for _, createRuleOpts := range createRuleOptsList {
 		_, err := secgroups.CreateRule(computeClient, createRuleOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud security group rule: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud security group rule: %s", err)
 		}
 	}
 
@@ -134,7 +135,7 @@ func resourceComputeSecGroupV2Read(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	sg, err := secgroups.Get(computeClient, d.Id()).Extract()
@@ -149,7 +150,7 @@ func resourceComputeSecGroupV2Read(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	log.Printf("[DEBUG] rulesToMap(sg.Rules): %+v", rtm)
+	logp.Printf("[DEBUG] rulesToMap(sg.Rules): %+v", rtm)
 	d.Set("rule", rtm)
 
 	d.Set("region", GetRegion(d, config))
@@ -161,7 +162,7 @@ func resourceComputeSecGroupV2Update(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	updateOpts := secgroups.UpdateOpts{
@@ -169,11 +170,11 @@ func resourceComputeSecGroupV2Update(d *schema.ResourceData, meta interface{}) e
 		Description: d.Get("description").(string),
 	}
 
-	log.Printf("[DEBUG] Updating Security Group (%s) with options: %+v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating Security Group (%s) with options: %+v", d.Id(), updateOpts)
 
 	_, err = secgroups.Update(computeClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud security group (%s): %s", d.Id(), err)
+		return fmtp.Errorf("Error updating HuaweiCloud security group (%s): %s", d.Id(), err)
 	}
 
 	if d.HasChange("rule") {
@@ -182,16 +183,16 @@ func resourceComputeSecGroupV2Update(d *schema.ResourceData, meta interface{}) e
 		secgrouprulesToAdd := newSGRSet.Difference(oldSGRSet)
 		secgrouprulesToRemove := oldSGRSet.Difference(newSGRSet)
 
-		log.Printf("[DEBUG] Security group rules to add: %v", secgrouprulesToAdd)
-		log.Printf("[DEBUG] Security groups rules to remove: %v", secgrouprulesToRemove)
+		logp.Printf("[DEBUG] Security group rules to add: %v", secgrouprulesToAdd)
+		logp.Printf("[DEBUG] Security groups rules to remove: %v", secgrouprulesToRemove)
 
 		for _, rawRule := range secgrouprulesToAdd.List() {
 			createRuleOpts := resourceSecGroupRuleCreateOptsV2(d, rawRule)
 			rule, err := secgroups.CreateRule(computeClient, createRuleOpts).Extract()
 			if err != nil {
-				return fmt.Errorf("Error adding rule to HuaweiCloud security group (%s): %s", d.Id(), err)
+				return fmtp.Errorf("Error adding rule to HuaweiCloud security group (%s): %s", d.Id(), err)
 			}
-			log.Printf("[DEBUG] Added rule (%s) to HuaweiCloud security group (%s) ", rule.ID, d.Id())
+			logp.Printf("[DEBUG] Added rule (%s) to HuaweiCloud security group (%s) ", rule.ID, d.Id())
 		}
 
 		for _, r := range secgrouprulesToRemove.List() {
@@ -202,9 +203,9 @@ func resourceComputeSecGroupV2Update(d *schema.ResourceData, meta interface{}) e
 					continue
 				}
 
-				return fmt.Errorf("Error removing rule (%s) from HuaweiCloud security group (%s)", rule.ID, d.Id())
+				return fmtp.Errorf("Error removing rule (%s) from HuaweiCloud security group (%s)", rule.ID, d.Id())
 			} else {
-				log.Printf("[DEBUG] Removed rule (%s) from HuaweiCloud security group (%s): %s", rule.ID, d.Id(), err)
+				logp.Printf("[DEBUG] Removed rule (%s) from HuaweiCloud security group (%s): %s", rule.ID, d.Id(), err)
 			}
 		}
 	}
@@ -216,7 +217,7 @@ func resourceComputeSecGroupV2Delete(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -230,7 +231,7 @@ func resourceComputeSecGroupV2Delete(d *schema.ResourceData, meta interface{}) e
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud security group: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud security group: %s", err)
 	}
 
 	d.SetId("")
@@ -271,7 +272,7 @@ func checkSecGroupV2RulesForErrors(d *schema.ResourceData) error {
 		cidr := rawRuleMap["cidr"].(string)
 		groupId := rawRuleMap["from_group_id"].(string)
 		self := rawRuleMap["self"].(bool)
-		errorMessage := fmt.Errorf("Only one of cidr, from_group_id, or self can be set.")
+		errorMessage := fmtp.Errorf("Only one of cidr, from_group_id, or self can be set.")
 
 		// if cidr is set, from_group_id and self cannot be set
 		if cidr != "" {
@@ -356,19 +357,19 @@ func rulesToMap(computeClient *golangsdk.ServiceClient, d *schema.ResourceData, 
 func secgroupRuleV2Hash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
-	buf.WriteString(fmt.Sprintf("%d-", m["from_port"].(int)))
-	buf.WriteString(fmt.Sprintf("%d-", m["to_port"].(int)))
-	buf.WriteString(fmt.Sprintf("%s-", m["ip_protocol"].(string)))
-	buf.WriteString(fmt.Sprintf("%s-", strings.ToLower(m["cidr"].(string))))
-	buf.WriteString(fmt.Sprintf("%s-", m["from_group_id"].(string)))
-	buf.WriteString(fmt.Sprintf("%t-", m["self"].(bool)))
+	buf.WriteString(fmtp.Sprintf("%d-", m["from_port"].(int)))
+	buf.WriteString(fmtp.Sprintf("%d-", m["to_port"].(int)))
+	buf.WriteString(fmtp.Sprintf("%s-", m["ip_protocol"].(string)))
+	buf.WriteString(fmtp.Sprintf("%s-", strings.ToLower(m["cidr"].(string))))
+	buf.WriteString(fmtp.Sprintf("%s-", m["from_group_id"].(string)))
+	buf.WriteString(fmtp.Sprintf("%t-", m["self"].(bool)))
 
 	return hashcode.String(buf.String())
 }
 
 func SecGroupV2StateRefreshFunc(computeClient *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete Security Group %s.\n", d.Id())
+		logp.Printf("[DEBUG] Attempting to delete Security Group %s.\n", d.Id())
 
 		err := secgroups.Delete(computeClient, d.Id()).ExtractErr()
 		if err != nil {
@@ -381,12 +382,12 @@ func SecGroupV2StateRefreshFunc(computeClient *golangsdk.ServiceClient, d *schem
 			if err != nil {
 				return s, "", err
 			} else {
-				log.Printf("[DEBUG] Successfully deleted Security Group %s", d.Id())
+				logp.Printf("[DEBUG] Successfully deleted Security Group %s", d.Id())
 				return s, "DELETED", nil
 			}
 		}
 
-		log.Printf("[DEBUG] Security Group %s still active.\n", d.Id())
+		logp.Printf("[DEBUG] Security Group %s still active.\n", d.Id())
 		return s, "ACTIVE", nil
 	}
 }

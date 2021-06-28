@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/softwareconfig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccRtsSoftwareConfigV1_basic(t *testing.T) {
@@ -62,7 +62,7 @@ func testAccCheckRtsSoftwareConfigV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	orchestrationClient, err := config.OrchestrationV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud orchestration client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud orchestration client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -72,7 +72,7 @@ func testAccCheckRtsSoftwareConfigV1Destroy(s *terraform.State) error {
 
 		_, err := softwareconfig.Get(orchestrationClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("RTS Software Config still exists")
+			return fmtp.Errorf("RTS Software Config still exists")
 		}
 	}
 
@@ -83,17 +83,17 @@ func testAccCheckRtsSoftwareConfigV1Exists(n string, configs *softwareconfig.Sof
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		orchestrationClient, err := config.OrchestrationV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud orchestration client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud orchestration client: %s", err)
 		}
 
 		found, err := softwareconfig.Get(orchestrationClient, rs.Primary.ID).Extract()
@@ -102,7 +102,7 @@ func testAccCheckRtsSoftwareConfigV1Exists(n string, configs *softwareconfig.Sof
 		}
 
 		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("RTS Software Config not found")
+			return fmtp.Errorf("RTS Software Config not found")
 		}
 
 		*configs = *found

@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strconv"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -187,7 +188,7 @@ func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{
 	region := GetRegion(d, config)
 	client, err := config.GaussdbV3Client(region)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
 
 	listOpts := instances.ListTaurusDBInstanceOpts{
@@ -204,7 +205,7 @@ func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{
 	allInstances, err := instances.ExtractTaurusDBInstances(pages)
 
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve instances: %s", err)
+		return fmtp.Errorf("Unable to retrieve instances: %s", err)
 	}
 
 	var instancesToSet []map[string]interface{}
@@ -262,7 +263,7 @@ func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
-		log.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
+		logp.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
 
 		instanceToSet["configuration_id"] = instance.ConfigurationId
 		instanceToSet["availability_zone_mode"] = instance.AZMode
@@ -298,7 +299,7 @@ func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{
 		instanceToSet["nodes"] = nodesList
 		instanceToSet["read_replicas"] = slave_count
 		if flavor != "" {
-			log.Printf("[DEBUG] Node Flavor: %s", flavor)
+			logp.Printf("[DEBUG] Node Flavor: %s", flavor)
 			instanceToSet["flavor"] = flavor
 		}
 

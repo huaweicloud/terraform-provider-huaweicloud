@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +16,7 @@ import (
 func TestAccEvsVolume_basic(t *testing.T) {
 	var volume volumes.Volume
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_volume.test"
 	rNameUpdate := rName + "-updated"
 
@@ -53,7 +54,7 @@ func TestAccEvsVolume_basic(t *testing.T) {
 }
 
 func TestAccEvsVolume_tags(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_volume.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -82,7 +83,7 @@ func TestAccEvsVolume_tags(t *testing.T) {
 func TestAccEvsVolume_image(t *testing.T) {
 	var volume volumes.Volume
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_volume.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -104,7 +105,7 @@ func TestAccEvsVolume_image(t *testing.T) {
 func TestAccEvsVolume_withEpsId(t *testing.T) {
 	var volume volumes.Volume
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_volume.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -128,7 +129,7 @@ func testAccCheckEvsVolumeDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	blockStorageClient, err := config.BlockStorageV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud evs storage client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud evs storage client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -138,7 +139,7 @@ func testAccCheckEvsVolumeDestroy(s *terraform.State) error {
 
 		_, err := volumes.Get(blockStorageClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Volume still exists")
+			return fmtp.Errorf("Volume still exists")
 		}
 	}
 
@@ -149,17 +150,17 @@ func testAccCheckEvsVolumeExists(n string, volume *volumes.Volume) resource.Test
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		blockStorageClient, err := config.BlockStorageV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud evs storage client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud evs storage client: %s", err)
 		}
 
 		found, err := volumes.Get(blockStorageClient, rs.Primary.ID).Extract()
@@ -168,7 +169,7 @@ func testAccCheckEvsVolumeExists(n string, volume *volumes.Volume) resource.Test
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Volume not found")
+			return fmtp.Errorf("Volume not found")
 		}
 
 		*volume = *found
@@ -181,17 +182,17 @@ func testAccCheckEvsVolumeTags(n string, k string, v string) resource.TestCheckF
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		blockStorageClient, err := config.BlockStorageV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud block storage client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud block storage client: %s", err)
 		}
 
 		found, err := volumes.Get(blockStorageClient, rs.Primary.ID).Extract()
@@ -200,11 +201,11 @@ func testAccCheckEvsVolumeTags(n string, k string, v string) resource.TestCheckF
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Volume not found")
+			return fmtp.Errorf("Volume not found")
 		}
 
 		if found.Tags == nil {
-			return fmt.Errorf("No Tags")
+			return fmtp.Errorf("No Tags")
 		}
 
 		for key, value := range found.Tags {
@@ -215,14 +216,14 @@ func testAccCheckEvsVolumeTags(n string, k string, v string) resource.TestCheckF
 			if v == value {
 				return nil
 			}
-			return fmt.Errorf("Bad value for %s: %s", k, value)
+			return fmtp.Errorf("Bad value for %s: %s", k, value)
 		}
-		return fmt.Errorf("Tag not found: %s", k)
+		return fmtp.Errorf("Tag not found: %s", k)
 	}
 }
 
 func testAccEvsVolume_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_evs_volume" "test" {
@@ -236,7 +237,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 func testAccEvsVolume_update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_evs_volume" "test" {
@@ -250,7 +251,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 func testAccEvsVolume_tags(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_evs_volume" "test" {
@@ -269,7 +270,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 func testAccEvsVolume_tags_update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_evs_volume" "test" {
@@ -288,7 +289,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 func testAccEvsVolume_image(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_images_image_v2" "test" {
@@ -307,7 +308,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 func testAccEvsVolume_epsID(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_evs_volume" "test" {

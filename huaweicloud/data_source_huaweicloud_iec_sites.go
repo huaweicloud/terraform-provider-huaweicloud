@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/sites"
@@ -84,7 +84,7 @@ func dataSourceIecSitesV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	listOpts := sites.ListSiteOpts{
@@ -95,20 +95,20 @@ func dataSourceIecSitesV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	pages, err := sites.List(iecClient, listOpts).AllPages()
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve iec sites: %s", err)
+		return fmtp.Errorf("Unable to retrieve iec sites: %s", err)
 	}
 
 	allSites, err := sites.ExtractSites(pages)
 	if err != nil {
-		return fmt.Errorf("Unable to extract iec sites: %s", err)
+		return fmtp.Errorf("Unable to extract iec sites: %s", err)
 	}
 	total := len(allSites.Sites)
 	if total < 1 {
-		return fmt.Errorf("Your query returned no results of huaweicloud_iec_sites. " +
+		return fmtp.Errorf("Your query returned no results of huaweicloud_iec_sites. " +
 			"Please change your search criteria and try again.")
 	}
 
-	log.Printf("[INFO] Retrieved [%d] IEC sites using given filter", total)
+	logp.Printf("[INFO] Retrieved [%d] IEC sites using given filter", total)
 	iecSites := make([]map[string]interface{}, 0, total)
 	for _, item := range allSites.Sites {
 		val := map[string]interface{}{
@@ -123,7 +123,7 @@ func dataSourceIecSitesV1Read(d *schema.ResourceData, meta interface{}) error {
 		iecSites = append(iecSites, val)
 	}
 	if err := d.Set("sites", iecSites); err != nil {
-		return fmt.Errorf("Error saving IEC sites: %s", err)
+		return fmtp.Errorf("Error saving IEC sites: %s", err)
 	}
 
 	site := allSites.Sites[0]

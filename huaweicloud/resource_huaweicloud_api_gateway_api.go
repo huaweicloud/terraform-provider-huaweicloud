@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -10,6 +8,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/apigw/apis"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceAPIGatewayAPI() *schema.Resource {
@@ -272,7 +272,7 @@ func resourceAPIGatewayAPICreate(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 	}
 
 	createOpts, err := buildApiParameter(d)
@@ -280,10 +280,10 @@ func resourceAPIGatewayAPICreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	log.Printf("[DEBUG] Create API Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create API Options: %#v", createOpts)
 	v, err := apis.Create(apigwClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud api gateway api: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud api gateway api: %s", err)
 	}
 
 	// Store the ID now
@@ -296,7 +296,7 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 	}
 
 	v, err := apis.Get(apigwClient, d.Id()).Extract()
@@ -304,7 +304,7 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "API GateWay api")
 	}
 
-	log.Printf("[DEBUG] Retrieved api gateway api %s: %+v", d.Id(), v)
+	logp.Printf("[DEBUG] Retrieved api gateway api %s: %+v", d.Id(), v)
 
 	d.Set("group_id", v.GroupId)
 	d.Set("group_name", v.GroupName)
@@ -338,7 +338,7 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 		requestParameters = append(requestParameters, parameters)
 	}
 	if err = d.Set("request_parameter", requestParameters); err != nil {
-		return fmt.Errorf("Saving request parameters failed: %s", err)
+		return fmtp.Errorf("Saving request parameters failed: %s", err)
 	}
 	var backendParameters []map[string]interface{}
 	for _, val := range v.BackendParams {
@@ -351,7 +351,7 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 		backendParameters = append(backendParameters, parameters)
 	}
 	if err = d.Set("backend_parameter", backendParameters); err != nil {
-		return fmt.Errorf("Saving backend parameters failed: %s", err)
+		return fmtp.Errorf("Saving backend parameters failed: %s", err)
 	}
 
 	backend := make([]map[string]interface{}, 0, 1)
@@ -367,7 +367,7 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		backend = append(backend, httpInfo)
 		if err := d.Set("http_backend", backend); err != nil {
-			return fmt.Errorf("failed to save http_backend: %s", err)
+			return fmtp.Errorf("failed to save http_backend: %s", err)
 		}
 	case "FUNCTION":
 		functionInfo := map[string]interface{}{
@@ -378,7 +378,7 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		backend = append(backend, functionInfo)
 		if err := d.Set("function_backend", backend); err != nil {
-			return fmt.Errorf("failed to save function_backend: %s", err)
+			return fmtp.Errorf("failed to save function_backend: %s", err)
 		}
 	case "MOCK":
 		mockInfo := map[string]interface{}{
@@ -388,7 +388,7 @@ func resourceAPIGatewayAPIRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		backend = append(backend, mockInfo)
 		if err := d.Set("mock_backend", backend); err != nil {
-			return fmt.Errorf("failed to save mock_backend: %s", err)
+			return fmtp.Errorf("failed to save mock_backend: %s", err)
 		}
 	}
 
@@ -399,7 +399,7 @@ func resourceAPIGatewayAPIUpdate(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 	}
 
 	updateOpts, err := buildApiParameter(d)
@@ -407,10 +407,10 @@ func resourceAPIGatewayAPIUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	log.Printf("[DEBUG] Update API Options: %#v", updateOpts)
+	logp.Printf("[DEBUG] Update API Options: %#v", updateOpts)
 	_, err = apis.Update(apigwClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud api gateway api: %s", err)
+		return fmtp.Errorf("Error updating HuaweiCloud api gateway api: %s", err)
 	}
 
 	return resourceAPIGatewayAPIRead(d, meta)
@@ -420,7 +420,7 @@ func resourceAPIGatewayAPIDelete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	apigwClient, err := config.ApiGatewayV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud api gateway client: %s", err)
 	}
 
 	if err := apis.Delete(apigwClient, d.Id()).ExtractErr(); err != nil {
@@ -456,19 +456,19 @@ func buildApiParameter(d *schema.ResourceData) (*apis.CreateOpts, error) {
 	case "HTTP":
 		httpBackend := buildHttpBackendParam(d)
 		if httpBackend == nil {
-			return nil, fmt.Errorf("The argument \"http_backend\" is required under HTTP backend type")
+			return nil, fmtp.Errorf("The argument \"http_backend\" is required under HTTP backend type")
 		}
 		opts.BackendOpts = *httpBackend
 	case "FUNCTION":
 		funcBackend := buildFunctionBackendParam(d)
 		if funcBackend == nil {
-			return nil, fmt.Errorf("The argument \"function_backend\" is required under FUNCTION backend type")
+			return nil, fmtp.Errorf("The argument \"function_backend\" is required under FUNCTION backend type")
 		}
 		opts.FunctionOpts = *funcBackend
 	case "MOCK":
 		mockBackend := buildMockBackendParam(d)
 		if mockBackend == nil {
-			return nil, fmt.Errorf("The argument \"mock_backend\" is required under MOCK backend type")
+			return nil, fmtp.Errorf("The argument \"mock_backend\" is required under MOCK backend type")
 		}
 		opts.MockOpts = *mockBackend
 	}

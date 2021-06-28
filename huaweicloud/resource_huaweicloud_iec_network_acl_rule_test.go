@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -47,7 +48,7 @@ func testAccCheckIecNetworkACLRuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -57,7 +58,7 @@ func testAccCheckIecNetworkACLRuleDestroy(s *terraform.State) error {
 
 		_, err := firewalls.Get(iecV1Client, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("IEC network acl still exists")
+			return fmtp.Errorf("IEC network acl still exists")
 		}
 	}
 
@@ -68,17 +69,17 @@ func testAccCheckIecNetworkACLRuleExists(n, direction string, resource *firewall
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		iecV1Client, err := config.IECV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud IEC client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud IEC client: %s", err)
 		}
 
 		found, err := firewalls.Get(iecV1Client, rs.Primary.ID).Extract()
@@ -91,7 +92,7 @@ func testAccCheckIecNetworkACLRuleExists(n, direction string, resource *firewall
 		} else if direction == "egress" {
 			*resource = found.EgressFWPolicy.FirewallRules[0]
 		} else {
-			return fmt.Errorf("IEC Network ACL Rule not found")
+			return fmtp.Errorf("IEC Network ACL Rule not found")
 		}
 
 		return nil
@@ -99,7 +100,7 @@ func testAccCheckIecNetworkACLRuleExists(n, direction string, resource *firewall
 }
 
 func testAccIecNetworkACLRule_basic() string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_iec_network_acl" "acl_test" {
   name = "iec-acl-basic"
 }
@@ -118,7 +119,7 @@ resource "huaweicloud_iec_network_acl_rule" "rule_test" {
 }
 
 func testAccIecNetworkACLRule_basic_update() string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_iec_network_acl" "acl_test" {
   name = "iec-acl-update"
 }

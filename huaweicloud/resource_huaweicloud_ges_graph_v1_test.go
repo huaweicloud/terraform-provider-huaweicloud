@@ -15,8 +15,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -42,7 +43,7 @@ func TestAccGesGraphV1_basic(t *testing.T) {
 }
 
 func testAccGesGraphV1_basic(val string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup" {
   name = "terraform_test_security_group%s"
   description = "terraform security group acceptance test"
@@ -64,7 +65,7 @@ func testAccCheckGesGraphV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.GesV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -81,7 +82,7 @@ func testAccCheckGesGraphV1Destroy(s *terraform.State) error {
 		_, err = client.Get(url, nil, &golangsdk.RequestOpts{
 			MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 		if err == nil {
-			return fmt.Errorf("huaweicloud_ges_graph_v1 still exists at %s", url)
+			return fmtp.Errorf("huaweicloud_ges_graph_v1 still exists at %s", url)
 		}
 	}
 
@@ -93,17 +94,17 @@ func testAccCheckGesGraphV1Exists() resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.GesV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating sdk client, err=%s", err)
+			return fmtp.Errorf("Error creating sdk client, err=%s", err)
 		}
 
 		rs, ok := s.RootModule().Resources["huaweicloud_ges_graph_v1.graph"]
 		if !ok {
-			return fmt.Errorf("Error checking huaweicloud_ges_graph_v1.graph exist, err=not found this resource")
+			return fmtp.Errorf("Error checking huaweicloud_ges_graph_v1.graph exist, err=not found this resource")
 		}
 
 		url, err := replaceVarsForTest(rs, "graphs/{id}")
 		if err != nil {
-			return fmt.Errorf("Error checking huaweicloud_ges_graph_v1.graph exist, err=building url failed: %s", err)
+			return fmtp.Errorf("Error checking huaweicloud_ges_graph_v1.graph exist, err=building url failed: %s", err)
 		}
 		url = client.ServiceURL(url)
 
@@ -111,9 +112,9 @@ func testAccCheckGesGraphV1Exists() resource.TestCheckFunc {
 			MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return fmt.Errorf("huaweicloud_ges_graph_v1.graph is not exist")
+				return fmtp.Errorf("huaweicloud_ges_graph_v1.graph is not exist")
 			}
-			return fmt.Errorf("Error checking huaweicloud_ges_graph_v1.graph exist, err=send request failed: %s", err)
+			return fmtp.Errorf("Error checking huaweicloud_ges_graph_v1.graph exist, err=send request failed: %s", err)
 		}
 		return nil
 	}

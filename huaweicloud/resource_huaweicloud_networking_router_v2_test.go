@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccNetworkingV2Router_basic(t *testing.T) {
@@ -88,7 +88,7 @@ func testAccCheckNetworkingV2RouterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -98,7 +98,7 @@ func testAccCheckNetworkingV2RouterDestroy(s *terraform.State) error {
 
 		_, err := routers.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Router still exists")
+			return fmtp.Errorf("Router still exists")
 		}
 	}
 
@@ -109,17 +109,17 @@ func testAccCheckNetworkingV2RouterExists(n string, router *routers.Router) reso
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 
 		found, err := routers.Get(networkingClient, rs.Primary.ID).Extract()
@@ -128,7 +128,7 @@ func testAccCheckNetworkingV2RouterExists(n string, router *routers.Router) reso
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Router not found")
+			return fmtp.Errorf("Router not found")
 		}
 
 		*router = *found
@@ -161,7 +161,7 @@ resource "huaweicloud_networking_router_v2" "router_1" {
 }
 `
 
-var testAccNetworkingV2Router_updateExternalGateway2 = fmt.Sprintf(`
+var testAccNetworkingV2Router_updateExternalGateway2 = fmtp.Sprintf(`
 resource "huaweicloud_networking_router_v2" "router_1" {
 	name = "router"
 	admin_state_up = "true"

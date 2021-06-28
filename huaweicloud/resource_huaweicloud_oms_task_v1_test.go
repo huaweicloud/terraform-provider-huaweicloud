@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"strconv"
 	"testing"
 
@@ -10,6 +9,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/maas/v1/task"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccMaasTask_basic(t *testing.T) {
@@ -33,7 +33,7 @@ func testAccCheckMaasTaskV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	maasClient, err := config.MaasV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud maas client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud maas client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -43,7 +43,7 @@ func testAccCheckMaasTaskV1Destroy(s *terraform.State) error {
 
 		_, err := task.Get(maasClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Maas task still exists")
+			return fmtp.Errorf("Maas task still exists")
 		}
 	}
 
@@ -54,17 +54,17 @@ func testAccCheckMaasTaskV1Exists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		maasClient, err := config.MaasV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud maas client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud maas client: %s", err)
 		}
 
 		found, err := task.Get(maasClient, rs.Primary.ID).Extract()
@@ -73,14 +73,14 @@ func testAccCheckMaasTaskV1Exists(n string) resource.TestCheckFunc {
 		}
 
 		if strconv.FormatInt(found.ID, 10) != rs.Primary.ID {
-			return fmt.Errorf("Task not found")
+			return fmtp.Errorf("Task not found")
 		}
 
 		return nil
 	}
 }
 
-var testAccMaasTaskV1_basic = fmt.Sprintf(`
+var testAccMaasTaskV1_basic = fmtp.Sprintf(`
 resource "huaweicloud_oms_task" "task_1" {
   description = "migration task"
   enable_kms = false

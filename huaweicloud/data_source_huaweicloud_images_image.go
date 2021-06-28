@@ -1,10 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"sort"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -146,7 +147,7 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	imageClient, err := config.ImageV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud image client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	visibility := resourceImagesImageV2VisibilityFromString(d.Get("visibility").(string))
@@ -163,45 +164,45 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 		Tag:        d.Get("tag").(string),
 	}
 
-	log.Printf("[DEBUG] List Options: %#v", listOpts)
+	logp.Printf("[DEBUG] List Options: %#v", listOpts)
 
 	var image images.Image
 	allPages, err := images.List(imageClient, listOpts).AllPages()
 	if err != nil {
-		return fmt.Errorf("Unable to query images: %s", err)
+		return fmtp.Errorf("Unable to query images: %s", err)
 	}
 
 	allImages, err := images.ExtractImages(allPages)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve images: %s", err)
+		return fmtp.Errorf("Unable to retrieve images: %s", err)
 	}
 
 	if len(allImages) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(allImages) > 1 {
 		recent := d.Get("most_recent").(bool)
-		log.Printf("[DEBUG] Multiple results found and `most_recent` is set to: %t", recent)
+		logp.Printf("[DEBUG] Multiple results found and `most_recent` is set to: %t", recent)
 		if recent {
 			image = mostRecentImage(allImages)
 		} else {
-			log.Printf("[DEBUG] Multiple results found: %#v", allImages)
-			return fmt.Errorf("Your query returned more than one result. Please try a more " +
+			logp.Printf("[DEBUG] Multiple results found: %#v", allImages)
+			return fmtp.Errorf("Your query returned more than one result. Please try a more " +
 				"specific search criteria, or set `most_recent` attribute to true.")
 		}
 	} else {
 		image = allImages[0]
 	}
 
-	log.Printf("[DEBUG] Single Image found: %s", image.ID)
+	logp.Printf("[DEBUG] Single Image found: %s", image.ID)
 	return dataSourceImagesImageV2Attributes(d, &image)
 }
 
 // dataSourceImagesImageV2Attributes populates the fields of an Image resource.
 func dataSourceImagesImageV2Attributes(d *schema.ResourceData, image *images.Image) error {
-	log.Printf("[DEBUG] huaweicloud_images_image details: %#v", image)
+	logp.Printf("[DEBUG] huaweicloud_images_image details: %#v", image)
 
 	d.SetId(image.ID)
 	d.Set("name", image.Name)
@@ -216,7 +217,7 @@ func dataSourceImagesImageV2Attributes(d *schema.ResourceData, image *images.Ima
 	d.Set("checksum", image.Checksum)
 	d.Set("size_bytes", image.SizeBytes)
 	if err := d.Set("metadata", image.Metadata); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving metadata to state for HuaweiCloud image (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving metadata to state for HuaweiCloud image (%s): %s", d.Id(), err)
 	}
 	d.Set("file", image.File)
 	d.Set("schema", image.Schema)

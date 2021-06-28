@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,7 +11,7 @@ import (
 )
 
 func TestAccHuaweiCloudNetworkingSecGroupV2DataSource_basic(t *testing.T) {
-	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var rName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -32,7 +33,7 @@ func TestAccHuaweiCloudNetworkingSecGroupV2DataSource_basic(t *testing.T) {
 }
 
 func TestAccHuaweiCloudNetworkingSecGroupV2DataSource_secGroupID(t *testing.T) {
-	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var rName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -57,11 +58,11 @@ func testAccCheckNetworkingSecGroupV2DataSourceID(n string) resource.TestCheckFu
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find security group data source: %s", n)
+			return fmtp.Errorf("Can't find security group data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Security group data source ID not set")
+			return fmtp.Errorf("Security group data source ID not set")
 		}
 
 		return nil
@@ -69,7 +70,7 @@ func testAccCheckNetworkingSecGroupV2DataSourceID(n string) resource.TestCheckFu
 }
 
 func testAccHuaweiCloudNetworkingSecGroupV2DataSource_group(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name        = "%s"
   description = "My neutron security group"
@@ -78,7 +79,7 @@ resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
 }
 
 func testAccHuaweiCloudNetworkingSecGroupV2DataSource_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_networking_secgroup_v2" "secgroup_1" {
@@ -88,7 +89,7 @@ data "huaweicloud_networking_secgroup_v2" "secgroup_1" {
 }
 
 func testAccHuaweiCloudNetworkingSecGroupV2DataSource_secGroupID(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_networking_secgroup_v2" "secgroup_1" {

@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -11,6 +9,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/elb/v3/l7policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceL7PolicyV3() *schema.Resource {
@@ -62,7 +62,7 @@ func resourceL7PolicyV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	createOpts := l7policies.CreateOpts{
@@ -73,10 +73,10 @@ func resourceL7PolicyV3Create(d *schema.ResourceData, meta interface{}) error {
 		RedirectPoolID: d.Get("redirect_pool_id").(string),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	l7Policy, err := l7policies.Create(lbClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating L7 Policy: %s", err)
+		return fmtp.Errorf("Error creating L7 Policy: %s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutCreate)
@@ -95,7 +95,7 @@ func resourceL7PolicyV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	l7Policy, err := l7policies.Get(lbClient, d.Id()).Extract()
@@ -103,7 +103,7 @@ func resourceL7PolicyV3Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "L7 Policy")
 	}
 
-	log.Printf("[DEBUG] Retrieved L7 Policy %s: %#v", d.Id(), l7Policy)
+	logp.Printf("[DEBUG] Retrieved L7 Policy %s: %#v", d.Id(), l7Policy)
 
 	d.Set("description", l7Policy.Description)
 	d.Set("name", l7Policy.Name)
@@ -118,7 +118,7 @@ func resourceL7PolicyV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var updateOpts l7policies.UpdateOpts
@@ -136,10 +136,10 @@ func resourceL7PolicyV3Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.RedirectPoolID = &redirectPoolID
 	}
 
-	log.Printf("[DEBUG] Updating L7 Policy %s with options: %#v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating L7 Policy %s with options: %#v", d.Id(), updateOpts)
 	_, err = l7policies.Update(lbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to update L7 Policy %s: %s", d.Id(), err)
+		return fmtp.Errorf("Unable to update L7 Policy %s: %s", d.Id(), err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutUpdate)
@@ -155,10 +155,10 @@ func resourceL7PolicyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	lbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Attempting to delete L7 Policy %s", d.Id())
+	logp.Printf("[DEBUG] Attempting to delete L7 Policy %s", d.Id())
 	err = l7policies.Delete(lbClient, d.Id()).ExtractErr()
 	if err != nil {
 		return CheckDeleted(d, err, "Error deleting L7 Policy")
@@ -176,7 +176,7 @@ func resourceL7PolicyV3Delete(d *schema.ResourceData, meta interface{}) error {
 func waitForElbV3Policy(elbClient *golangsdk.ServiceClient,
 	id string, target string, pending []string, timeout time.Duration) error {
 
-	log.Printf("[DEBUG] Waiting for policy %s to become %s", id, target)
+	logp.Printf("[DEBUG] Waiting for policy %s to become %s", id, target)
 
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{target},
@@ -194,10 +194,10 @@ func waitForElbV3Policy(elbClient *golangsdk.ServiceClient,
 			case "DELETED":
 				return nil
 			default:
-				return fmt.Errorf("Error: policy %s not found: %s", id, err)
+				return fmtp.Errorf("Error: policy %s not found: %s", id, err)
 			}
 		}
-		return fmt.Errorf("Error waiting for policy %s to become %s: %s", id, target, err)
+		return fmtp.Errorf("Error waiting for policy %s to become %s: %s", id, target, err)
 	}
 
 	return nil

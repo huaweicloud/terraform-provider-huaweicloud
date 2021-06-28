@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"reflect"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -71,7 +72,7 @@ func expandCssClusterV1ExtendClusterNodeNum(d interface{}, arrayIndex map[string
 	oldv, newv := rd.GetChange("expect_node_num")
 	v := newv.(int) - oldv.(int)
 	if v < 0 {
-		return 0, fmt.Errorf("expect_node_num only supports to be extended")
+		return 0, fmtp.Errorf("expect_node_num only supports to be extended")
 	}
 	return v, nil
 }
@@ -84,7 +85,7 @@ func expandCssClusterV1ExtendClusterVolumeSize(d interface{}, arrayIndex map[str
 	oldv, newv := rd.GetChange("node_config.0.volume.0.size")
 	v := newv.(int) - oldv.(int)
 	if v < 0 {
-		return 0, fmt.Errorf("volume size only supports to be extended")
+		return 0, fmtp.Errorf("volume size only supports to be extended")
 	}
 	return v, nil
 }

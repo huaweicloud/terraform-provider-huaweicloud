@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccLBV2Certificate_basic(t *testing.T) {
 	var c certificates.Certificate
-	name := fmt.Sprintf("tf-cert-%s", acctest.RandString(5))
+	name := fmtp.Sprintf("tf-cert-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_certificate.certificate_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -33,7 +34,7 @@ func TestAccLBV2Certificate_basic(t *testing.T) {
 			{
 				Config: testAccLBV2CertificateConfig_update(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s_updated", name)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("%s_updated", name)),
 				),
 			},
 		},
@@ -42,7 +43,7 @@ func TestAccLBV2Certificate_basic(t *testing.T) {
 
 func TestAccLBV2Certificate_client(t *testing.T) {
 	var c certificates.Certificate
-	name := fmt.Sprintf("tf-cert-%s", acctest.RandString(5))
+	name := fmtp.Sprintf("tf-cert-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_certificate.certificate_client"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -66,7 +67,7 @@ func testAccCheckLBV2CertificateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	elbClient, err := config.ElbV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -76,7 +77,7 @@ func testAccCheckLBV2CertificateDestroy(s *terraform.State) error {
 
 		_, err := certificates.Get(elbClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Certificate still exists: %s", rs.Primary.ID)
+			return fmtp.Errorf("Certificate still exists: %s", rs.Primary.ID)
 		}
 	}
 
@@ -88,17 +89,17 @@ func testAccCheckLBV2CertificateExists(
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		elbClient, err := config.ElbV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
 
 		found, err := certificates.Get(elbClient, rs.Primary.ID).Extract()
@@ -107,7 +108,7 @@ func testAccCheckLBV2CertificateExists(
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Certificate not found")
+			return fmtp.Errorf("Certificate not found")
 		}
 
 		*c = *found
@@ -117,7 +118,7 @@ func testAccCheckLBV2CertificateExists(
 }
 
 func testAccLBV2CertificateConfig_basic(name string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_lb_certificate" "certificate_1" {
   name        = "%s"
   description = "terraform test certificate"
@@ -187,7 +188,7 @@ EOT
 }
 
 func testAccLBV2CertificateConfig_update(name string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_lb_certificate" "certificate_1" {
   name        = "%s_updated"
   description = "terraform test certificate"
@@ -257,7 +258,7 @@ EOT
 }
 
 func testAccLBV2CertificateConfig_client(name string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_lb_certificate" "certificate_client" {
   name        = "%s"
   description = "terraform CA certificate"

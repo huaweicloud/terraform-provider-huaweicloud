@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -11,12 +9,13 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/vbs/v2/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
 	var policy policies.Policy
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	updateName := fmt.Sprintf("tf-acc-test-update-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	updateName := fmtp.Sprintf("tf-acc-test-update-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -56,7 +55,7 @@ func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
 
 func TestAccVBSBackupPolicyV2_rentention_day(t *testing.T) {
 	var policy policies.Policy
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -83,7 +82,7 @@ func testAccVBSBackupPolicyV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud sfs client: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud sfs client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -93,7 +92,7 @@ func testAccVBSBackupPolicyV2Destroy(s *terraform.State) error {
 
 		_, err := policies.List(vbsClient, policies.ListOpts{ID: rs.Primary.ID})
 		if err != nil {
-			return fmt.Errorf("Backup Policy still exists")
+			return fmtp.Errorf("Backup Policy still exists")
 		}
 	}
 
@@ -104,17 +103,17 @@ func testAccVBSBackupPolicyV2Exists(n string, policy *policies.Policy) resource.
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud vbs client: %s", err)
+			return fmtp.Errorf("Error creating huaweicloud vbs client: %s", err)
 		}
 
 		policyList, err := policies.List(vbsClient, policies.ListOpts{ID: rs.Primary.ID})
@@ -123,7 +122,7 @@ func testAccVBSBackupPolicyV2Exists(n string, policy *policies.Policy) resource.
 		}
 		found := policyList[0]
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("backup policy not found")
+			return fmtp.Errorf("backup policy not found")
 		}
 
 		*policy = found
@@ -133,7 +132,7 @@ func testAccVBSBackupPolicyV2Exists(n string, policy *policies.Policy) resource.
 }
 
 func testAccVBSBackupPolicyV2_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vbs_backup_policy" "vbs" {
   name                = "%s"
   start_time          = "12:00"
@@ -150,7 +149,7 @@ resource "huaweicloud_vbs_backup_policy" "vbs" {
 }
 
 func testAccVBSBackupPolicyV2_update(updateName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vbs_backup_policy" "vbs" {
   name                = "%s"
   start_time          = "12:00"
@@ -167,7 +166,7 @@ resource "huaweicloud_vbs_backup_policy" "vbs" {
 }
 
 func testAccVBSBackupPolicyV2_rentention_day(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vbs_backup_policy" "vbs" {
   name                = "%s"
   start_time          = "00:00,12:00"

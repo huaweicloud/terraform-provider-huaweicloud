@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,7 +11,7 @@ import (
 )
 
 func TestAccGaussdbMysqlInstanceDataSource_basic(t *testing.T) {
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -30,11 +31,11 @@ func testAccCheckGaussdbMysqlInstanceDataSourceID(n string) resource.TestCheckFu
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find GaussDB mysql instance data source: %s ", n)
+			return fmtp.Errorf("Can't find GaussDB mysql instance data source: %s ", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("GaussDB mysql instance data source ID not set ")
+			return fmtp.Errorf("GaussDB mysql instance data source ID not set ")
 		}
 
 		return nil
@@ -42,7 +43,7 @@ func testAccCheckGaussdbMysqlInstanceDataSourceID(n string) resource.TestCheckFu
 }
 
 func testAccGaussdbMysqlInstanceDataSource_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_availability_zones" "test" {}

@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -9,12 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/vpcep/v1/endpoints"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVPCEndpoint_Basic(t *testing.T) {
 	var endpoint endpoints.Endpoint
 
-	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
+	rName := fmtp.Sprintf("acc-test-%s", acctest.RandString(4))
 	resourceName := "huaweicloud_vpcep_endpoint.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -82,7 +82,7 @@ func testAccCheckVPCEndpointDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	vpcepClient, err := config.VPCEPClient(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating VPC endpoint client: %s", err)
+		return fmtp.Errorf("Error creating VPC endpoint client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -92,7 +92,7 @@ func testAccCheckVPCEndpointDestroy(s *terraform.State) error {
 
 		_, err := endpoints.Get(vpcepClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("VPC endpoint still exists")
+			return fmtp.Errorf("VPC endpoint still exists")
 		}
 	}
 
@@ -103,17 +103,17 @@ func testAccCheckVPCEndpointExists(n string, endpoint *endpoints.Endpoint) resou
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		vpcepClient, err := config.VPCEPClient(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating VPC endpoint client: %s", err)
+			return fmtp.Errorf("Error creating VPC endpoint client: %s", err)
 		}
 
 		found, err := endpoints.Get(vpcepClient, rs.Primary.ID).Extract()
@@ -122,7 +122,7 @@ func testAccCheckVPCEndpointExists(n string, endpoint *endpoints.Endpoint) resou
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("VPC endpoint not found")
+			return fmtp.Errorf("VPC endpoint not found")
 		}
 
 		*endpoint = *found
@@ -132,7 +132,7 @@ func testAccCheckVPCEndpointExists(n string, endpoint *endpoints.Endpoint) resou
 }
 
 func testAccVPCEndpoint_Precondition(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_vpc" "myvpc" {
@@ -154,7 +154,7 @@ resource "huaweicloud_compute_instance" "ecs" {
 }
 
 func testAccVPCEndpoint_Basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {
@@ -187,7 +187,7 @@ resource "huaweicloud_vpcep_endpoint" "test" {
 }
 
 func testAccVPCEndpoint_Update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {

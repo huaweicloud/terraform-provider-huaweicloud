@@ -1,12 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/lts/huawei/loggroups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceLTSGroupV2() *schema.Resource {
@@ -43,7 +42,7 @@ func resourceGroupV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
 
 	createOpts := &loggroups.CreateOpts{
@@ -51,11 +50,11 @@ func resourceGroupV2Create(d *schema.ResourceData, meta interface{}) error {
 		TTL:          d.Get("ttl_in_days").(int),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 
 	groupCreate, err := loggroups.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating log group: %s", err)
+		return fmtp.Errorf("Error creating log group: %s", err)
 	}
 
 	d.SetId(groupCreate.ID)
@@ -66,12 +65,12 @@ func resourceGroupV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
 
 	groups, err := loggroups.List(client).Extract()
 	if err != nil {
-		return fmt.Errorf("Error getting HuaweiCloud log group list: %s", err)
+		return fmtp.Errorf("Error getting HuaweiCloud log group list: %s", err)
 	}
 	for _, group := range groups.LogGroups {
 		if group.ID == d.Id() {
@@ -82,25 +81,25 @@ func resourceGroupV2Read(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	return fmt.Errorf("Error HuaweiCloud log group %s: No Found", d.Id())
+	return fmtp.Errorf("Error HuaweiCloud log group %s: No Found", d.Id())
 }
 
 func resourceGroupV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
 
 	updateOpts := &loggroups.UpdateOpts{
 		TTL: d.Get("ttl_in_days").(int),
 	}
 
-	log.Printf("[DEBUG] Update Options: %#v", updateOpts)
+	logp.Printf("[DEBUG] Update Options: %#v", updateOpts)
 
 	_, err = loggroups.Update(client, updateOpts, d.Id()).Extract()
 	if err != nil {
-		return fmt.Errorf("Error update log group: %s", err)
+		return fmtp.Errorf("Error update log group: %s", err)
 	}
 
 	return resourceGroupV2Read(d, meta)
@@ -110,7 +109,7 @@ func resourceGroupV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.LtsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud LTS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud LTS client: %s", err)
 	}
 
 	err = loggroups.Delete(client, d.Id()).ExtractErr()

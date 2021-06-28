@@ -11,14 +11,13 @@ package huaweicloud
 // understandable network information within the instance resource.
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // InstanceNIC is a structured representation of a servers.Server virtual NIC
@@ -54,13 +53,13 @@ func expandInstanceNetworks(d *schema.ResourceData) ([]servers.Network, error) {
 			FixedIP: nic["fixed_ip_v4"].(string),
 		}
 		if network.UUID == "" && network.Port == "" {
-			return nil, fmt.Errorf(
+			return nil, fmtp.Errorf(
 				"At least one of network.uuid or network.port must be set.")
 		}
 		instanceNetworks = append(instanceNetworks, network)
 	}
 
-	log.Printf("[DEBUG] expand Instance Networks opts: %#v", instanceNetworks)
+	logp.Printf("[DEBUG] expand Instance Networks opts: %#v", instanceNetworks)
 	return instanceNetworks, nil
 }
 
@@ -70,7 +69,7 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return nil, fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return nil, fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	allInstanceNics := make([]InstanceNIC, 0)
@@ -85,7 +84,7 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 			p, err := ports.Get(networkingClient, addr.PortID).Extract()
 			if err != nil {
 				networkID = ""
-				log.Printf("[DEBUG] getInstanceAddresses: failed to fetch port %s", addr.PortID)
+				logp.Printf("[DEBUG] getInstanceAddresses: failed to fetch port %s", addr.PortID)
 			} else {
 				networkID = p.NetworkID
 			}
@@ -105,7 +104,7 @@ func getInstanceAddresses(d *schema.ResourceData, meta interface{}, server *clou
 		}
 	}
 
-	log.Printf("[DEBUG] get all of the Instance Addresses: %#v", allInstanceNics)
+	logp.Printf("[DEBUG] get all of the Instance Addresses: %#v", allInstanceNics)
 
 	return allInstanceNics, nil
 }
@@ -127,7 +126,7 @@ func getAllInstanceNetworks(d *schema.ResourceData) []InstanceNetwork {
 		instanceNetworks = append(instanceNetworks, network)
 	}
 
-	log.Printf("[DEBUG] get all of the Instance Networks: %#v", instanceNetworks)
+	logp.Printf("[DEBUG] get all of the Instance Networks: %#v", instanceNetworks)
 	return instanceNetworks
 }
 
@@ -171,7 +170,7 @@ func flattenInstanceNetworks(
 		}
 	}
 
-	log.Printf("[DEBUG] flatten Instance Networks: %#v", networks)
+	logp.Printf("[DEBUG] flatten Instance Networks: %#v", networks)
 	return networks, nil
 }
 
@@ -208,7 +207,7 @@ func getInstanceAccessAddresses(
 		}
 	}
 
-	log.Printf("[DEBUG] compute instance Network Access Addresses: %s, %s", hostv4, hostv6)
+	logp.Printf("[DEBUG] compute instance Network Access Addresses: %s, %s", hostv4, hostv6)
 
 	return hostv4, hostv6
 }

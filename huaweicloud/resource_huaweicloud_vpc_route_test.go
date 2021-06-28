@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,12 +9,13 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/routes"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpcRouteV2_basic(t *testing.T) {
 	var route routes.Route
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_route.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -44,7 +44,7 @@ func testAccCheckRouteV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	routeClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud route client: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud route client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -54,7 +54,7 @@ func testAccCheckRouteV2Destroy(s *terraform.State) error {
 
 		_, err := routes.Get(routeClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Route still exists")
+			return fmtp.Errorf("Route still exists")
 		}
 	}
 
@@ -65,17 +65,17 @@ func testAccCheckRouteV2Exists(n string, route *routes.Route) resource.TestCheck
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		routeClient, err := config.NetworkingV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud route client: %s", err)
+			return fmtp.Errorf("Error creating huaweicloud route client: %s", err)
 		}
 
 		found, err := routes.Get(routeClient, rs.Primary.ID).Extract()
@@ -84,7 +84,7 @@ func testAccCheckRouteV2Exists(n string, route *routes.Route) resource.TestCheck
 		}
 
 		if found.RouteID != rs.Primary.ID {
-			return fmt.Errorf("route not found")
+			return fmtp.Errorf("route not found")
 		}
 
 		*route = *found
@@ -94,7 +94,7 @@ func testAccCheckRouteV2Exists(n string, route *routes.Route) resource.TestCheck
 }
 
 func testAccRouteV2_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"

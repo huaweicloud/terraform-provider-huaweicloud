@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -12,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cloudeyeservice/alarmrule"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const nameCESAR = "CES-AlarmRule"
@@ -228,7 +228,7 @@ func resourceAlarmRule() *schema.Resource {
 func getMetricOpts(d *schema.ResourceData) (alarmrule.MetricOpts, error) {
 	mos, ok := d.Get("metric").([]interface{})
 	if !ok {
-		return alarmrule.MetricOpts{}, fmt.Errorf("Error converting opt of metric:%v", d.Get("metric"))
+		return alarmrule.MetricOpts{}, fmtp.Errorf("Error converting opt of metric:%v", d.Get("metric"))
 	}
 	mo := mos[0].(map[string]interface{})
 
@@ -293,7 +293,7 @@ func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CesV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Cloud Eye Service client: %s", err)
+		return fmtp.Errorf("Error creating Cloud Eye Service client: %s", err)
 	}
 
 	metric, err := getMetricOpts(d)
@@ -314,13 +314,13 @@ func resourceAlarmRuleCreate(d *schema.ResourceData, meta interface{}) error {
 		AlarmActionEnabled:      d.Get("alarm_action_enabled").(bool),
 		EnterpriseProjectID:     GetEnterpriseProjectID(d, config),
 	}
-	log.Printf("[DEBUG] Create %s Options: %#v", nameCESAR, createOpts)
+	logp.Printf("[DEBUG] Create %s Options: %#v", nameCESAR, createOpts)
 
 	r, err := alarmrule.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating %s: %s", nameCESAR, err)
+		return fmtp.Errorf("Error creating %s: %s", nameCESAR, err)
 	}
-	log.Printf("[DEBUG] Create %s: %#v", nameCESAR, *r)
+	logp.Printf("[DEBUG] Create %s: %#v", nameCESAR, *r)
 
 	d.SetId(r.AlarmID)
 
@@ -331,14 +331,14 @@ func resourceAlarmRuleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CesV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Cloud Eye Service client: %s", err)
+		return fmtp.Errorf("Error creating Cloud Eye Service client: %s", err)
 	}
 
 	r, err := alarmrule.Get(client, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "alarmrule")
 	}
-	log.Printf("[DEBUG] Retrieved %s %s: %#v", nameCESAR, d.Id(), r)
+	logp.Printf("[DEBUG] Retrieved %s %s: %#v", nameCESAR, d.Id(), r)
 
 	m, err := utils.ConvertStructToMap(r, map[string]string{"notificationList": "notification_list"})
 	if err != nil {
@@ -375,7 +375,7 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CesV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Cloud Eye Service client: %s", err)
+		return fmtp.Errorf("Error creating Cloud Eye Service client: %s", err)
 	}
 
 	arId := d.Id()
@@ -385,7 +385,7 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 		enableOpts := alarmrule.EnableOpts{
 			AlarmEnabled: enabled,
 		}
-		log.Printf("[DEBUG] Updating %s %s to %#v", nameCESAR, arId, enabled)
+		logp.Printf("[DEBUG] Updating %s %s to %#v", nameCESAR, arId, enabled)
 
 		timeout := d.Timeout(schema.TimeoutUpdate)
 		//lintignore:R006
@@ -397,7 +397,7 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		})
 		if err != nil {
-			return fmt.Errorf("Error updating %s %s: %s", nameCESAR, arId, err)
+			return fmtp.Errorf("Error updating %s %s: %s", nameCESAR, arId, err)
 		}
 	}
 
@@ -423,10 +423,10 @@ func resourceAlarmRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if changed {
-		log.Printf("[DEBUG] Updating %s %s opts: %#v", nameCESAR, arId, updateOpts)
+		logp.Printf("[DEBUG] Updating %s %s opts: %#v", nameCESAR, arId, updateOpts)
 		err := alarmrule.Update(client, arId, updateOpts).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error updating %s %s: %s", nameCESAR, arId, err)
+			return fmtp.Errorf("Error updating %s %s: %s", nameCESAR, arId, err)
 		}
 	}
 
@@ -437,11 +437,11 @@ func resourceAlarmRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CesV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Cloud Eye Service client: %s", err)
+		return fmtp.Errorf("Error creating Cloud Eye Service client: %s", err)
 	}
 
 	arId := d.Id()
-	log.Printf("[DEBUG] Deleting %s %s", nameCESAR, arId)
+	logp.Printf("[DEBUG] Deleting %s %s", nameCESAR, arId)
 
 	timeout := d.Timeout(schema.TimeoutDelete)
 	//lintignore:R006
@@ -454,10 +454,10 @@ func resourceAlarmRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	})
 	if err != nil {
 		if utils.IsResourceNotFound(err) {
-			log.Printf("[INFO] deleting an unavailable %s: %s", nameCESAR, arId)
+			logp.Printf("[INFO] deleting an unavailable %s: %s", nameCESAR, arId)
 			return nil
 		}
-		return fmt.Errorf("Error deleting %s %s: %s", nameCESAR, arId, err)
+		return fmtp.Errorf("Error deleting %s %s: %s", nameCESAR, arId, err)
 	}
 
 	return nil

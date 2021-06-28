@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/hashicorp/go-multierror"
@@ -13,6 +12,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 var resourceType map[string]string = map[string]string{
@@ -162,7 +162,7 @@ func resourceCBRVaultV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
 	}
 
 	opts := vaults.CreateOpts{
@@ -176,14 +176,14 @@ func resourceCBRVaultV3Create(d *schema.ResourceData, meta interface{}) error {
 
 	vault, err := vaults.Create(client, opts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating vaults: %s", err)
+		return fmtp.Errorf("Error creating vaults: %s", err)
 	}
 	d.SetId(vault.ID)
 
 	if policy, ok := d.GetOk("policy_id"); ok {
 		_, err := vaults.BindPolicy(client, d.Id(), vaults.BindPolicyOpts{PolicyID: policy.(string)}).Extract()
 		if err != nil {
-			return fmt.Errorf("Error binding policy to vault: %s", err)
+			return fmtp.Errorf("Error binding policy to vault: %s", err)
 		}
 	}
 
@@ -192,7 +192,7 @@ func resourceCBRVaultV3Create(d *schema.ResourceData, meta interface{}) error {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		tagErr := tags.Create(client, "vault", d.Id(), taglist).ExtractErr()
 		if tagErr != nil {
-			return fmt.Errorf("Error setting tags of CBR vault: %s", tagErr)
+			return fmtp.Errorf("Error setting tags of CBR vault: %s", tagErr)
 		}
 	}
 
@@ -203,12 +203,12 @@ func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
 	}
 
 	vault, err := vaults.Get(client, d.Id()).Extract()
 	if err != nil {
-		return fmt.Errorf("Error getting vault details: %s", err)
+		return fmtp.Errorf("Error getting vault details: %s", err)
 	}
 
 	resourceList := make([]map[string]interface{}, len(vault.Resources))
@@ -255,14 +255,14 @@ func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("storage", vault.Billing.StorageUnit),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmt.Errorf("Error setting vault fields: %s", err)
+		return fmtp.Errorf("Error setting vault fields: %s", err)
 	}
 	listOpts := policies.ListOpts{
 		VaultID: d.Id(),
 	}
 	allPages, err := policies.List(client, listOpts).AllPages()
 	if err != nil {
-		return fmt.Errorf("Error getting policy by ID (%s): %s", d.Id(), err)
+		return fmtp.Errorf("Error getting policy by ID (%s): %s", d.Id(), err)
 	}
 	policyList, err := policies.ExtractPolicies(allPages)
 	if len(policyList) == 1 {
@@ -276,7 +276,7 @@ func resourceCBRVaultV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
 	}
 
 	if d.HasChanges("name", "size", "auto_expand") {
@@ -290,7 +290,7 @@ func resourceCBRVaultV3Update(d *schema.ResourceData, meta interface{}) error {
 
 		_, err := vaults.Update(client, d.Id(), opts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating the vault: %s", err)
+			return fmtp.Errorf("Error updating the vault: %s", err)
 		}
 	}
 
@@ -307,7 +307,7 @@ func resourceCBRVaultV3Update(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("tags") {
 		if err = utils.UpdateResourceTags(client, d, "vault", d.Id()); err != nil {
-			return fmt.Errorf("Failed to update tags: %s", err)
+			return fmtp.Errorf("Failed to update tags: %s", err)
 		}
 	}
 
@@ -318,11 +318,11 @@ func resourceCBRVaultV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.CbrV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
 	}
 
 	if err := vaults.Delete(client, d.Id()).ExtractErr(); err != nil {
-		return fmt.Errorf("Error deleting CBR v3 vault: %s", err)
+		return fmtp.Errorf("Error deleting CBR v3 vault: %s", err)
 	}
 
 	d.SetId("")
@@ -416,7 +416,7 @@ func updateResources(d *schema.ResourceData, client *golangsdk.ServiceClient) er
 			ResourceIDs: getResourceIDs(removeRaws.List()),
 		}).Extract()
 		if err != nil {
-			return fmt.Errorf("Error unbinding resources: %s", err)
+			return fmtp.Errorf("Error unbinding resources: %s", err)
 		}
 	}
 
@@ -425,7 +425,7 @@ func updateResources(d *schema.ResourceData, client *golangsdk.ServiceClient) er
 			Resources: getResources(addRaws.List(), resourceType[vaultType]),
 		}).Extract()
 		if err != nil {
-			return fmt.Errorf("Error binding resources: %s", err)
+			return fmtp.Errorf("Error binding resources: %s", err)
 		}
 	}
 
@@ -439,14 +439,14 @@ func updatePolicy(d *schema.ResourceData, client *golangsdk.ServiceClient) error
 			PolicyID: newP.(string),
 		}).Extract()
 		if err != nil {
-			return fmt.Errorf("Error binding policy to vault: %s", err)
+			return fmtp.Errorf("Error binding policy to vault: %s", err)
 		}
 	} else {
 		_, err := vaults.UnbindPolicy(client, d.Id(), vaults.BindPolicyOpts{
 			PolicyID: oldP.(string),
 		}).Extract()
 		if err != nil {
-			return fmt.Errorf("Error unbinding policy from vault: %s", err)
+			return fmtp.Errorf("Error unbinding policy from vault: %s", err)
 		}
 	}
 	return nil

@@ -15,14 +15,14 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"reflect"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceCloudtableClusterV2() *schema.Resource {
@@ -189,18 +189,18 @@ func resourceCloudtableClusterV2Create(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	client, err := config.CloudtableV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	opts := resourceCloudtableClusterV2UserInputParams(d)
 
 	params, err := buildCloudtableClusterV2CreateParameters(opts, nil)
 	if err != nil {
-		return fmt.Errorf("Error building the request body of api(create), err=%s", err)
+		return fmtp.Errorf("Error building the request body of api(create), err=%s", err)
 	}
 	r, err := sendCloudtableClusterV2CreateRequest(d, params, client)
 	if err != nil {
-		return fmt.Errorf("Error creating CloudtableClusterV2, err=%s", err)
+		return fmtp.Errorf("Error creating CloudtableClusterV2, err=%s", err)
 	}
 
 	timeout := d.Timeout(schema.TimeoutCreate)
@@ -210,7 +210,7 @@ func resourceCloudtableClusterV2Create(d *schema.ResourceData, meta interface{})
 	}
 	id, err := navigateValue(obj, []string{"cluster_id"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error constructing id, err=%s", err)
+		return fmtp.Errorf("Error constructing id, err=%s", err)
 	}
 	d.SetId(id.(string))
 
@@ -221,7 +221,7 @@ func resourceCloudtableClusterV2Read(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	client, err := config.CloudtableV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	res := make(map[string]interface{})
@@ -239,7 +239,7 @@ func resourceCloudtableClusterV2Delete(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	client, err := config.CloudtableV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	url, err := replaceVars(d, "clusters/{id}", nil)
@@ -248,7 +248,7 @@ func resourceCloudtableClusterV2Delete(d *schema.ResourceData, meta interface{})
 	}
 	url = client.ServiceURL(url)
 
-	log.Printf("[DEBUG] Deleting Cluster %q", d.Id())
+	logp.Printf("[DEBUG] Deleting Cluster %q", d.Id())
 	r := golangsdk.Result{}
 	_, r.Err = client.Delete(url, &golangsdk.RequestOpts{
 		OkCodes:      successHTTPCodes,
@@ -260,7 +260,7 @@ func resourceCloudtableClusterV2Delete(d *schema.ResourceData, meta interface{})
 		},
 	})
 	if r.Err != nil {
-		return fmt.Errorf("Error deleting Cluster %q, err=%s", d.Id(), r.Err)
+		return fmtp.Errorf("Error deleting Cluster %q, err=%s", d.Id(), r.Err)
 	}
 
 	_, err = waitToFinish(
@@ -579,7 +579,7 @@ func sendCloudtableClusterV2CreateRequest(d *schema.ResourceData, params interfa
 		},
 	})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(create), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(create), err=%s", r.Err)
 	}
 	return r.Body, nil
 }
@@ -594,7 +594,7 @@ func asyncWaitCloudtableClusterV2Create(d *schema.ResourceData, config *config.C
 	for key, path := range pathParameters {
 		value, err := navigateValue(result, path, nil)
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving async operation path parameter, err=%s", err)
+			return nil, fmtp.Errorf("Error retrieving async operation path parameter, err=%s", err)
 		}
 		data[key] = value
 	}
@@ -643,7 +643,7 @@ func sendCloudtableClusterV2ReadRequest(d *schema.ResourceData, client *golangsd
 			"X-Language":   "en-us",
 		}})
 	if r.Err != nil {
-		return nil, fmt.Errorf("Error running api(read) for resource(CloudtableClusterV2), err=%s", r.Err)
+		return nil, fmtp.Errorf("Error running api(read) for resource(CloudtableClusterV2), err=%s", r.Err)
 	}
 
 	return r.Body, nil
@@ -808,143 +808,143 @@ func setCloudtableClusterV2Properties(d *schema.ResourceData, response map[strin
 
 	v, err := navigateValue(response, []string{"read", "created"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:created, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:created, err: %s", err)
 	}
 	if err = d.Set("created", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:created, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:created, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "auth_mode"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:enable_iam_auth, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:enable_iam_auth, err: %s", err)
 	}
 	if err = d.Set("enable_iam_auth", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:enable_iam_auth, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:enable_iam_auth, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "hbase_public_endpoint"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:hbase_public_endpoint, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:hbase_public_endpoint, err: %s", err)
 	}
 	if err = d.Set("hbase_public_endpoint", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:hbase_public_endpoint, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:hbase_public_endpoint, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "lemon_link"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:lemon_link, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:lemon_link, err: %s", err)
 	}
 	if err = d.Set("lemon_link", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:lemon_link, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:lemon_link, err: %s", err)
 	}
 
 	v, _ = opts["lemon_num"]
 	v, err = flattenCloudtableClusterV2LemonNum(response, nil, v)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:lemon_num, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:lemon_num, err: %s", err)
 	}
 	if err = d.Set("lemon_num", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:lemon_num, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:lemon_num, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "cluster_name"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:name, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:name, err: %s", err)
 	}
 	if err = d.Set("name", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:name, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:name, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "openTSDB_link"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:open_tsdb_link, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:open_tsdb_link, err: %s", err)
 	}
 	if err = d.Set("open_tsdb_link", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:open_tsdb_link, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:open_tsdb_link, err: %s", err)
 	}
 
 	v, _ = opts["opentsdb_num"]
 	v, err = flattenCloudtableClusterV2OpentsdbNum(response, nil, v)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:opentsdb_num, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:opentsdb_num, err: %s", err)
 	}
 	if err = d.Set("opentsdb_num", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:opentsdb_num, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:opentsdb_num, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "tsd_public_endpoint"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:opentsdb_public_endpoint, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:opentsdb_public_endpoint, err: %s", err)
 	}
 	if err = d.Set("opentsdb_public_endpoint", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:opentsdb_public_endpoint, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:opentsdb_public_endpoint, err: %s", err)
 	}
 
 	v, _ = opts["rs_num"]
 	v, err = flattenCloudtableClusterV2RsNum(response, nil, v)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:rs_num, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:rs_num, err: %s", err)
 	}
 	if err = d.Set("rs_num", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:rs_num, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:rs_num, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "security_group_id"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:security_group_id, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:security_group_id, err: %s", err)
 	}
 	if err = d.Set("security_group_id", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:security_group_id, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:security_group_id, err: %s", err)
 	}
 
 	v, _ = opts["storage_quota"]
 	v, err = flattenCloudtableClusterV2StorageQuota(response, nil, v)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:storage_quota, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:storage_quota, err: %s", err)
 	}
 	if err = d.Set("storage_quota", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:storage_quota, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:storage_quota, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "storage_type"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:storage_type, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:storage_type, err: %s", err)
 	}
 	if err = d.Set("storage_type", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:storage_type, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:storage_type, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "sub_net_id"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:subnet_id, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:subnet_id, err: %s", err)
 	}
 	if err = d.Set("subnet_id", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:subnet_id, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:subnet_id, err: %s", err)
 	}
 
 	v, _ = opts["used_storage_size"]
 	v, err = flattenCloudtableClusterV2UsedStorageSize(response, nil, v)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:used_storage_size, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:used_storage_size, err: %s", err)
 	}
 	if err = d.Set("used_storage_size", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:used_storage_size, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:used_storage_size, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "vpc_id"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:vpc_id, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:vpc_id, err: %s", err)
 	}
 	if err = d.Set("vpc_id", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:vpc_id, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:vpc_id, err: %s", err)
 	}
 
 	v, err = navigateValue(response, []string{"read", "zookeeper_link"}, nil)
 	if err != nil {
-		return fmt.Errorf("Error reading Cluster:zookeeper_link, err: %s", err)
+		return fmtp.Errorf("Error reading Cluster:zookeeper_link, err: %s", err)
 	}
 	if err = d.Set("zookeeper_link", v); err != nil {
-		return fmt.Errorf("Error setting Cluster:zookeeper_link, err: %s", err)
+		return fmtp.Errorf("Error setting Cluster:zookeeper_link, err: %s", err)
 	}
 
 	return nil

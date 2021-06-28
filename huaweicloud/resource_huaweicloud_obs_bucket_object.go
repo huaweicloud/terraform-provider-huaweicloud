@@ -2,8 +2,6 @@ package huaweicloud
 
 import (
 	"bytes"
-	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -11,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceObsBucketObject() *schema.Resource {
@@ -110,7 +110,7 @@ func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -118,9 +118,9 @@ func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error 
 	_, err = obsClient.HeadBucket(bucket)
 	if err != nil {
 		if obsError, ok := err.(obs.ObsError); ok && obsError.StatusCode == 404 {
-			return fmt.Errorf("OBS bucket(%s) not found", bucket)
+			return fmtp.Errorf("OBS bucket(%s) not found", bucket)
 		}
-		return fmt.Errorf("error reading OBS bucket %s: %s", bucket, err)
+		return fmtp.Errorf("error reading OBS bucket %s: %s", bucket, err)
 	}
 
 	source := d.Get("source").(string)
@@ -130,7 +130,7 @@ func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error 
 		_, err := os.Stat(source)
 		if err != nil {
 			if os.IsNotExist(err) {
-				return fmt.Errorf("source file %s is not exist", source)
+				return fmtp.Errorf("source file %s is not exist", source)
 			}
 			return err
 		}
@@ -148,10 +148,10 @@ func resourceObsBucketObjectPut(d *schema.ResourceData, meta interface{}) error 
 		return getObsError("Error putting object to OBS bucket", bucket, err)
 	}
 	if resp == nil {
-		return fmt.Errorf("putting object to OBS bucket %s without null response", bucket)
+		return fmtp.Errorf("putting object to OBS bucket %s without null response", bucket)
 	}
 
-	log.Printf("[DEBUG] Response of putting %s to OBS Bucket %s: %#v", key, bucket, resp)
+	logp.Printf("[DEBUG] Response of putting %s to OBS Bucket %s: %#v", key, bucket, resp)
 	if resp.VersionId != "null" {
 		d.Set("version_id", resp.VersionId)
 	} else {
@@ -188,7 +188,7 @@ func putContentToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.
 		putInput.SseHeader = sseKmsHeader
 	}
 
-	log.Printf("[DEBUG] putting %s to OBS Bucket %s, opts: %#v", key, bucket, putInput)
+	logp.Printf("[DEBUG] putting %s to OBS Bucket %s, opts: %#v", key, bucket, putInput)
 	// do not log content
 	body := bytes.NewReader([]byte(content))
 	putInput.Body = body
@@ -222,7 +222,7 @@ func putFileToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.Put
 		putInput.SseHeader = sseKmsHeader
 	}
 
-	log.Printf("[DEBUG] putting %s to OBS Bucket %s, opts: %#v", key, bucket, putInput)
+	logp.Printf("[DEBUG] putting %s to OBS Bucket %s, opts: %#v", key, bucket, putInput)
 	return obsClient.PutFile(putInput)
 }
 
@@ -230,7 +230,7 @@ func resourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -255,10 +255,10 @@ func resourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if !exist {
 		d.SetId("")
-		log.Printf("[WARN] object %s not found in bucket %s", key, bucket)
+		logp.Printf("[WARN] object %s not found in bucket %s", key, bucket)
 		return nil
 	}
-	log.Printf("[DEBUG] Reading OBS Bucket Object %s: %#v", key, object)
+	logp.Printf("[DEBUG] Reading OBS Bucket Object %s: %#v", key, object)
 
 	class := string(object.StorageClass)
 	if class == "" {
@@ -276,7 +276,7 @@ func resourceObsBucketObjectDelete(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -286,7 +286,7 @@ func resourceObsBucketObjectDelete(d *schema.ResourceData, meta interface{}) err
 		Key:    key,
 	}
 
-	log.Printf("[DEBUG] Object %s will be deleted with all versions", key)
+	logp.Printf("[DEBUG] Object %s will be deleted with all versions", key)
 	_, err = obsClient.DeleteObject(input)
 	if err != nil {
 		return getObsError("Error deleting object of OBS bucket", bucket, err)

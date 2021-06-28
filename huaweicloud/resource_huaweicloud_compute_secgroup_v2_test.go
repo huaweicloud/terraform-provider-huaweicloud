@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccComputeV2SecGroup_basic(t *testing.T) {
@@ -152,7 +152,7 @@ func testAccCheckComputeV2SecGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -162,7 +162,7 @@ func testAccCheckComputeV2SecGroupDestroy(s *terraform.State) error {
 
 		_, err := secgroups.Get(computeClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Security group still exists")
+			return fmtp.Errorf("Security group still exists")
 		}
 	}
 
@@ -173,17 +173,17 @@ func testAccCheckComputeV2SecGroupExists(n string, secgroup *secgroups.SecurityG
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
 		found, err := secgroups.Get(computeClient, rs.Primary.ID).Extract()
@@ -192,7 +192,7 @@ func testAccCheckComputeV2SecGroupExists(n string, secgroup *secgroups.SecurityG
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Security group not found")
+			return fmtp.Errorf("Security group not found")
 		}
 
 		*secgroup = *found
@@ -204,7 +204,7 @@ func testAccCheckComputeV2SecGroupExists(n string, secgroup *secgroups.SecurityG
 func testAccCheckComputeV2SecGroupRuleCount(secgroup *secgroups.SecurityGroup, count int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(secgroup.Rules) != count {
-			return fmt.Errorf("Security group rule count does not match. Expected %d, got %d", count, len(secgroup.Rules))
+			return fmtp.Errorf("Security group rule count does not match. Expected %d, got %d", count, len(secgroup.Rules))
 		}
 
 		return nil
@@ -215,10 +215,10 @@ func testAccCheckComputeV2SecGroupGroupIDMatch(sg1, sg2 *secgroups.SecurityGroup
 	return func(s *terraform.State) error {
 		if len(sg2.Rules) == 1 {
 			if sg1.Name != sg2.Rules[0].Group.Name || sg1.TenantID != sg2.Rules[0].Group.TenantID {
-				return fmt.Errorf("%s was not correctly applied to %s", sg1.Name, sg2.Name)
+				return fmtp.Errorf("%s was not correctly applied to %s", sg1.Name, sg2.Name)
 			}
 		} else {
-			return fmt.Errorf("%s rule count is incorrect", sg2.Name)
+			return fmtp.Errorf("%s rule count is incorrect", sg2.Name)
 		}
 
 		return nil

@@ -3,15 +3,16 @@ package config
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"math"
 	"net/http"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/unknwon/com"
 )
@@ -49,8 +50,8 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 	var err error
 
 	if lrt.OsDebug {
-		log.Printf("[DEBUG] API Request URL: %s %s", request.Method, request.URL)
-		log.Printf("[DEBUG] API Request Headers:\n%s", FormatHeaders(request.Header, "\n"))
+		logp.Printf("[DEBUG] API Request URL: %s %s", request.Method, request.URL)
+		logp.Printf("[DEBUG] API Request Headers:\n%s", FormatHeaders(request.Header, "\n"))
 
 		if request.Body != nil {
 			request.Body, err = lrt.logRequest(request.Body, request.Header.Get("Content-Type"))
@@ -74,14 +75,14 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 
 		if retry > lrt.MaxRetries {
 			if lrt.OsDebug {
-				log.Printf("[DEBUG] connection error, retries exhausted. Aborting")
+				logp.Printf("[DEBUG] connection error, retries exhausted. Aborting")
 			}
-			err = fmt.Errorf("connection error, retries exhausted. Aborting. Last error was: %s", err)
+			err = fmtp.Errorf("connection error, retries exhausted. Aborting. Last error was: %s", err)
 			return nil, err
 		}
 
 		if lrt.OsDebug {
-			log.Printf("[DEBUG] connection error, retry number %d: %s", retry, err)
+			logp.Printf("[DEBUG] connection error, retry number %d: %s", retry, err)
 		}
 		//lintignore:R018
 		time.Sleep(retryTimeout(retry))
@@ -90,8 +91,8 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 	}
 
 	if lrt.OsDebug {
-		log.Printf("[DEBUG] API Response Code: %d", response.StatusCode)
-		log.Printf("[DEBUG] API Response Headers:\n%s", FormatHeaders(response.Header, "\n"))
+		logp.Printf("[DEBUG] API Response Code: %d", response.StatusCode)
+		logp.Printf("[DEBUG] API Response Headers:\n%s", FormatHeaders(response.Header, "\n"))
 
 		response.Body, err = lrt.logResponse(response.Body, response.Header.Get("Content-Type"))
 	}
@@ -113,9 +114,9 @@ func (lrt *LogRoundTripper) logRequest(original io.ReadCloser, contentType strin
 	// Handle request contentType
 	if strings.HasPrefix(contentType, "application/json") {
 		debugInfo := lrt.formatJSON(bs.Bytes(), true)
-		log.Printf("[DEBUG] API Request Body: %s", debugInfo)
+		logp.Printf("[DEBUG] API Request Body: %s", debugInfo)
 	} else {
-		log.Printf("[DEBUG] API Request Body: %s", bs.String())
+		logp.Printf("[DEBUG] API Request Body: %s", bs.String())
 	}
 
 	return ioutil.NopCloser(strings.NewReader(bs.String())), nil
@@ -133,12 +134,12 @@ func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType stri
 		}
 		debugInfo := lrt.formatJSON(bs.Bytes(), false)
 		if debugInfo != "" {
-			log.Printf("[DEBUG] API Response Body: %s", debugInfo)
+			logp.Printf("[DEBUG] API Response Body: %s", debugInfo)
 		}
 		return ioutil.NopCloser(strings.NewReader(bs.String())), nil
 	}
 
-	log.Printf("[DEBUG] Not logging because response body isn't JSON")
+	logp.Printf("[DEBUG] Not logging because response body isn't JSON")
 	return original, nil
 }
 
@@ -149,7 +150,7 @@ func (lrt *LogRoundTripper) formatJSON(raw []byte, maskBody bool) string {
 
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
-		log.Printf("[DEBUG] Unable to parse JSON: %s", err)
+		logp.Printf("[DEBUG] Unable to parse JSON: %s", err)
 		return string(raw)
 	}
 
@@ -170,7 +171,7 @@ func (lrt *LogRoundTripper) formatJSON(raw []byte, maskBody bool) string {
 
 	pretty, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		log.Printf("[DEBUG] Unable to re-marshal JSON: %s", err)
+		logp.Printf("[DEBUG] Unable to re-marshal JSON: %s", err)
 		return string(raw)
 	}
 
@@ -188,9 +189,9 @@ func RedactHeaders(headers http.Header) (processedHeaders []string) {
 	for name, header := range headers {
 		for _, v := range header {
 			if com.IsSliceContainsStr(REDACT_HEADERS, name) {
-				processedHeaders = append(processedHeaders, fmt.Sprintf("%v: %v", name, "***"))
+				processedHeaders = append(processedHeaders, fmtp.Sprintf("%v: %v", name, "***"))
 			} else {
-				processedHeaders = append(processedHeaders, fmt.Sprintf("%v: %v", name, v))
+				processedHeaders = append(processedHeaders, fmtp.Sprintf("%v: %v", name, v))
 			}
 		}
 	}

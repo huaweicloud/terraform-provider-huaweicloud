@@ -1,14 +1,14 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/huaweicloud/golangsdk/openstack/elb/v3/pools"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceMemberV3() *schema.Resource {
@@ -56,7 +56,7 @@ func ResourceMemberV3() *schema.Resource {
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(int)
 					if value < 1 {
-						errors = append(errors, fmt.Errorf(
+						errors = append(errors, fmtp.Errorf(
 							"Only numbers greater than 0 are supported values for 'weight'"))
 					}
 					return
@@ -82,7 +82,7 @@ func resourceMemberV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	createOpts := pools.CreateMemberOpts{
@@ -97,11 +97,11 @@ func resourceMemberV3Create(d *schema.ResourceData, meta interface{}) error {
 		createOpts.SubnetID = v.(string)
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	poolID := d.Get("pool_id").(string)
 	member, err := pools.CreateMember(elbClient, poolID, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating member: %s", err)
+		return fmtp.Errorf("Error creating member: %s", err)
 	}
 
 	d.SetId(member.ID)
@@ -113,7 +113,7 @@ func resourceMemberV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	member, err := pools.GetMember(elbClient, d.Get("pool_id").(string), d.Id()).Extract()
@@ -121,7 +121,7 @@ func resourceMemberV3Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "member")
 	}
 
-	log.Printf("[DEBUG] Retrieved member %s: %#v", d.Id(), member)
+	logp.Printf("[DEBUG] Retrieved member %s: %#v", d.Id(), member)
 
 	d.Set("name", member.Name)
 	d.Set("weight", member.Weight)
@@ -137,7 +137,7 @@ func resourceMemberV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	var updateOpts pools.UpdateMemberOpts
@@ -148,11 +148,11 @@ func resourceMemberV3Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.Weight = d.Get("weight").(int)
 	}
 
-	log.Printf("[DEBUG] Updating member %s with options: %#v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating member %s with options: %#v", d.Id(), updateOpts)
 	poolID := d.Get("pool_id").(string)
 	_, err = pools.UpdateMember(elbClient, poolID, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Unable to update member %s: %s", d.Id(), err)
+		return fmtp.Errorf("Unable to update member %s: %s", d.Id(), err)
 	}
 
 	return resourceMemberV3Read(d, meta)
@@ -162,13 +162,13 @@ func resourceMemberV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	poolID := d.Get("pool_id").(string)
 	err = pools.DeleteMember(elbClient, poolID, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Unable to delete member %s: %s", d.Id(), err)
+		return fmtp.Errorf("Unable to delete member %s: %s", d.Id(), err)
 	}
 	return nil
 }

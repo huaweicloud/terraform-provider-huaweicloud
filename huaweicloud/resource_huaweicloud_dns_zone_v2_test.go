@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +16,7 @@ import (
 
 func TestAccDNSV2Zone_basic(t *testing.T) {
 	var zone zones.Zone
-	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
+	var zoneName = fmtp.Sprintf("acpttest%s.com.", acctest.RandString(5))
 	resourceName := "huaweicloud_dns_zone.zone_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -57,7 +58,7 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 
 func TestAccDNSV2Zone_private(t *testing.T) {
 	var zone zones.Zone
-	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
+	var zoneName = fmtp.Sprintf("acpttest%s.com.", acctest.RandString(5))
 	resourceName := "huaweicloud_dns_zone.zone_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -84,7 +85,7 @@ func TestAccDNSV2Zone_private(t *testing.T) {
 
 func TestAccDNSV2Zone_readTTL(t *testing.T) {
 	var zone zones.Zone
-	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
+	var zoneName = fmtp.Sprintf("acpttest%s.com.", acctest.RandString(5))
 	resourceName := "huaweicloud_dns_zone.zone_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -105,7 +106,7 @@ func TestAccDNSV2Zone_readTTL(t *testing.T) {
 
 func TestAccDNSV2Zone_withEpsId(t *testing.T) {
 	var zone zones.Zone
-	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
+	var zoneName = fmtp.Sprintf("acpttest%s.com.", acctest.RandString(5))
 	resourceName := "huaweicloud_dns_zone.zone_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -130,7 +131,7 @@ func testAccCheckDNSV2ZoneDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -140,7 +141,7 @@ func testAccCheckDNSV2ZoneDestroy(s *terraform.State) error {
 
 		_, err := zones.Get(dnsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Zone still exists")
+			return fmtp.Errorf("Zone still exists")
 		}
 	}
 
@@ -151,17 +152,17 @@ func testAccCheckDNSV2ZoneExists(n string, zone *zones.Zone) resource.TestCheckF
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		dnsClient, err := config.DnsV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 		}
 
 		found, err := zones.Get(dnsClient, rs.Primary.ID).Extract()
@@ -170,7 +171,7 @@ func testAccCheckDNSV2ZoneExists(n string, zone *zones.Zone) resource.TestCheckF
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Zone not found")
+			return fmtp.Errorf("Zone not found")
 		}
 
 		*zone = *found
@@ -180,7 +181,7 @@ func testAccCheckDNSV2ZoneExists(n string, zone *zones.Zone) resource.TestCheckF
 }
 
 func testAccDNSV2Zone_basic(zoneName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
   email       = "email1@example.com"
@@ -196,7 +197,7 @@ resource "huaweicloud_dns_zone" "zone_1" {
 }
 
 func testAccDNSV2Zone_update(zoneName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
   email       = "email2@example.com"
@@ -212,7 +213,7 @@ resource "huaweicloud_dns_zone" "zone_1" {
 }
 
 func testAccDNSV2Zone_readTTL(zoneName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name  = "%s"
   email = "email1@example.com"
@@ -221,7 +222,7 @@ resource "huaweicloud_dns_zone" "zone_1" {
 }
 
 func testAccDNSV2Zone_private(zoneName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc" "default" {
   name = "vpc-default"
 }
@@ -244,7 +245,7 @@ resource "huaweicloud_dns_zone" "zone_1" {
 }
 
 func testAccDNSV2Zone_withEpsId(zoneName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc" "default" {
   name = "vpc-default"
 }

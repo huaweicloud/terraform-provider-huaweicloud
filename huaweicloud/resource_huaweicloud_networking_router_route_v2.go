@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strings"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
@@ -60,7 +61,7 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	n, err := routers.Get(networkingClient, routerId).Extract()
@@ -70,7 +71,7 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving HuaweiCloud Neutron Router: %s", err)
+		return fmtp.Errorf("Error retrieving HuaweiCloud Neutron Router: %s", err)
 	}
 
 	var updateOpts routers.UpdateOpts
@@ -89,23 +90,23 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 
 		if destCidr != "" && nextHop != "" {
 			r := routers.Route{DestinationCIDR: destCidr, NextHop: nextHop}
-			log.Printf(
+			logp.Printf(
 				"[INFO] Adding route %s", r)
 			rts = append(rts, r)
 		}
 
 		updateOpts.Routes = rts
 
-		log.Printf("[DEBUG] Updating Router %s with options: %+v", routerId, updateOpts)
+		logp.Printf("[DEBUG] Updating Router %s with options: %+v", routerId, updateOpts)
 
 		_, err = routers.Update(networkingClient, routerId, updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating HuaweiCloud Neutron Router: %s", err)
+			return fmtp.Errorf("Error updating HuaweiCloud Neutron Router: %s", err)
 		}
-		d.SetId(fmt.Sprintf("%s-route-%s-%s", routerId, destCidr, nextHop))
+		d.SetId(fmtp.Sprintf("%s-route-%s-%s", routerId, destCidr, nextHop))
 
 	} else {
-		log.Printf("[DEBUG] Router %s has route already", routerId)
+		logp.Printf("[DEBUG] Router %s has route already", routerId)
 	}
 
 	return resourceNetworkingRouterRouteV2Read(d, meta)
@@ -118,7 +119,7 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 	config := meta.(*config.Config)
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	destCidr := d.Get("destination_cidr").(string)
@@ -148,10 +149,10 @@ func resourceNetworkingRouterRouteV2Read(d *schema.ResourceData, meta interface{
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving HuaweiCloud Neutron Router: %s", err)
+		return fmtp.Errorf("Error retrieving HuaweiCloud Neutron Router: %s", err)
 	}
 
-	log.Printf("[DEBUG] Retrieved Router %s: %+v", routerId, n)
+	logp.Printf("[DEBUG] Retrieved Router %s: %+v", routerId, n)
 
 	d.Set("next_hop", "")
 	d.Set("destination_cidr", "")
@@ -180,7 +181,7 @@ func resourceNetworkingRouterRouteV2Delete(d *schema.ResourceData, meta interfac
 
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud networking client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	n, err := routers.Get(networkingClient, routerId).Extract()
@@ -189,7 +190,7 @@ func resourceNetworkingRouterRouteV2Delete(d *schema.ResourceData, meta interfac
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving HuaweiCloud Neutron Router: %s", err)
+		return fmtp.Errorf("Error retrieving HuaweiCloud Neutron Router: %s", err)
 	}
 
 	var updateOpts routers.UpdateOpts
@@ -209,18 +210,18 @@ func resourceNetworkingRouterRouteV2Delete(d *schema.ResourceData, meta interfac
 
 	if len(oldRts) != len(newRts) {
 		r := routers.Route{DestinationCIDR: destCidr, NextHop: nextHop}
-		log.Printf(
+		logp.Printf(
 			"[INFO] Deleting route %s", r)
 		updateOpts.Routes = newRts
 
-		log.Printf("[DEBUG] Updating Router %s with options: %+v", routerId, updateOpts)
+		logp.Printf("[DEBUG] Updating Router %s with options: %+v", routerId, updateOpts)
 
 		_, err = routers.Update(networkingClient, routerId, updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating HuaweiCloud Neutron Router: %s", err)
+			return fmtp.Errorf("Error updating HuaweiCloud Neutron Router: %s", err)
 		}
 	} else {
-		return fmt.Errorf("Route did not exist already")
+		return fmtp.Errorf("Route did not exist already")
 	}
 
 	return nil

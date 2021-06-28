@@ -9,6 +9,7 @@ import (
 
 	"github.com/huaweicloud/golangsdk"
 	th "github.com/huaweicloud/golangsdk/testhelper"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func testRequestRetry(t *testing.T, count int) {
@@ -44,7 +45,7 @@ func testRequestRetry(t *testing.T, count int) {
 
 	cfg := &Config{MaxRetries: retryCount}
 	_, err := genClient(cfg, golangsdk.AuthOptions{
-		IdentityEndpoint: fmt.Sprintf("%s/route", th.Endpoint()),
+		IdentityEndpoint: fmtp.Sprintf("%s/route", th.Endpoint()),
 	})
 	_, ok := err.(golangsdk.ErrDefault500)
 	th.AssertEquals(t, true, ok)

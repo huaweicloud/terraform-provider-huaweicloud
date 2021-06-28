@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +16,7 @@ import (
 
 func TestAccASV1Policy_basic(t *testing.T) {
 	var asPolicy policies.Policy
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -36,7 +37,7 @@ func testAccCheckASV1PolicyDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud autoscaling client: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -46,11 +47,11 @@ func testAccCheckASV1PolicyDestroy(s *terraform.State) error {
 
 		_, err := policies.Get(asClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("AS policy still exists")
+			return fmtp.Errorf("AS policy still exists")
 		}
 	}
 
-	log.Printf("[DEBUG] testCheckASV1PolicyDestroy success!")
+	logp.Printf("[DEBUG] testCheckASV1PolicyDestroy success!")
 
 	return nil
 }
@@ -59,17 +60,17 @@ func testAccCheckASV1PolicyExists(n string, policy *policies.Policy) resource.Te
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud autoscaling client: %s", err)
+			return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 		}
 
 		found, err := policies.Get(asClient, rs.Primary.ID).Extract()
@@ -77,7 +78,7 @@ func testAccCheckASV1PolicyExists(n string, policy *policies.Policy) resource.Te
 			return err
 		}
 
-		log.Printf("[DEBUG] test found is: %#v", found)
+		logp.Printf("[DEBUG] test found is: %#v", found)
 		policy = &found
 
 		return nil
@@ -85,7 +86,7 @@ func testAccCheckASV1PolicyExists(n string, policy *policies.Policy) resource.Te
 }
 
 func testASV1Policy_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {

@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"fmt"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/eps/v1/enterpriseprojects"
@@ -48,7 +48,7 @@ func dataSourceEnterpriseProjectRead(d *schema.ResourceData, meta interface{}) e
 	region := GetRegion(d, config)
 	epsClient, err := config.EnterpriseProjectClient(region)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud eps client %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud eps client %s", err)
 	}
 
 	listOpts := enterpriseprojects.ListOpts{
@@ -59,16 +59,16 @@ func dataSourceEnterpriseProjectRead(d *schema.ResourceData, meta interface{}) e
 	projects, err := enterpriseprojects.List(epsClient, listOpts).Extract()
 
 	if err != nil {
-		return fmt.Errorf("Error retriving enterprise projects %s", err)
+		return fmtp.Errorf("Error retriving enterprise projects %s", err)
 	}
 
 	if len(projects) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(projects) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 

@@ -1,10 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -12,8 +13,8 @@ import (
 
 func TestAccNetworkingNetworkV2DataSource_basic(t *testing.T) {
 	rand.Seed(time.Now().UTC().UnixNano())
-	network := fmt.Sprintf("acc_test_network-%06x", rand.Int31n(1000000))
-	cidr := fmt.Sprintf("192.168.%d.0/24", rand.Intn(200))
+	network := fmtp.Sprintf("acc_test_network-%06x", rand.Int31n(1000000))
+	cidr := fmtp.Sprintf("192.168.%d.0/24", rand.Intn(200))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheckDeprecated(t) },
@@ -47,11 +48,11 @@ func testAccCheckNetworkingNetworkV2DataSourceID(n string) resource.TestCheckFun
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find network data source: %s", n)
+			return fmtp.Errorf("Can't find network data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Network data source ID not set")
+			return fmtp.Errorf("Network data source ID not set")
 		}
 
 		return nil
@@ -59,7 +60,7 @@ func testAccCheckNetworkingNetworkV2DataSourceID(n string) resource.TestCheckFun
 }
 
 func testAccNetworkingNetworkV2DataSource_basic(name, cidr string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_networking_network_v2" "net" {
   name = "%s"
   admin_state_up = "true"

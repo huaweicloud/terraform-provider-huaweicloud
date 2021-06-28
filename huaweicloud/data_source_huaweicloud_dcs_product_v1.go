@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v1/products"
@@ -32,14 +32,14 @@ func dataSourceDcsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*config.Config)
 	dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error get dcs product client: %s", err)
+		return fmtp.Errorf("Error get dcs product client: %s", err)
 	}
 
 	v, err := products.Get(dcsV1Client).Extract()
 	if err != nil {
 		return err
 	}
-	log.Printf("[DEBUG] Dcs get products : %+v", v)
+	logp.Printf("[DEBUG] Dcs get products : %+v", v)
 	var FilteredPd []products.Product
 	for _, pd := range v.Products {
 		spec_code := d.Get("spec_code").(string)
@@ -50,13 +50,13 @@ func dataSourceDcsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if len(FilteredPd) < 1 {
-		return fmt.Errorf("Your query returned no results. Please change your filters and try again.")
+		return fmtp.Errorf("Your query returned no results. Please change your filters and try again.")
 	}
 
 	pd := FilteredPd[0]
 	d.SetId(pd.ProductID)
 	d.Set("spec_code", pd.SpecCode)
-	log.Printf("[DEBUG] Dcs product : %+v", pd)
+	logp.Printf("[DEBUG] Dcs product : %+v", pd)
 
 	return nil
 }

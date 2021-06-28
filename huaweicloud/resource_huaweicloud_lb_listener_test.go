@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,8 +14,8 @@ import (
 
 func TestAccLBV2Listener_basic(t *testing.T) {
 	var listener listeners.Listener
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_listener.listener_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -48,7 +49,7 @@ func testAccCheckLBV2ListenerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	elbClient, err := config.ElbV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -58,7 +59,7 @@ func testAccCheckLBV2ListenerDestroy(s *terraform.State) error {
 
 		_, err := listeners.Get(elbClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Listener still exists: %s", rs.Primary.ID)
+			return fmtp.Errorf("Listener still exists: %s", rs.Primary.ID)
 		}
 	}
 
@@ -69,17 +70,17 @@ func testAccCheckLBV2ListenerExists(n string, listener *listeners.Listener) reso
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		elbClient, err := config.ElbV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud elb client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
 		}
 
 		found, err := listeners.Get(elbClient, rs.Primary.ID).Extract()
@@ -88,7 +89,7 @@ func testAccCheckLBV2ListenerExists(n string, listener *listeners.Listener) reso
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Member not found")
+			return fmtp.Errorf("Member not found")
 		}
 
 		*listener = *found
@@ -98,7 +99,7 @@ func testAccCheckLBV2ListenerExists(n string, listener *listeners.Listener) reso
 }
 
 func testAccLBV2ListenerConfig_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -123,7 +124,7 @@ resource "huaweicloud_lb_listener" "listener_1" {
 }
 
 func testAccLBV2ListenerConfig_update(rName, rNameUpdate string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

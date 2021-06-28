@@ -1,13 +1,12 @@
 package huaweicloud
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/bss/v2/orders"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // GetRegion returns the region that was specified in the resource. If a
@@ -40,7 +39,7 @@ func CheckDeleted(d *schema.ResourceData, err error, msg string) error {
 		return nil
 	}
 
-	return fmt.Errorf("%s: %s", msg, err)
+	return fmtp.Errorf("%s: %s", msg, err)
 }
 
 func checkForRetryableError(err error) *resource.RetryError {
@@ -68,7 +67,7 @@ func hasFilledOpt(d *schema.ResourceData, param string) bool {
 func UnsubscribePrePaidResource(d *schema.ResourceData, config *config.Config, resourceIDs []string) error {
 	bssV2Client, err := config.BssV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
 	}
 
 	unsubscribeOpts := orders.UnsubscribeOpts{

@@ -1,15 +1,14 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/rules"
 	"github.com/huaweicloud/golangsdk/pagination"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceFWRuleV2() *schema.Resource {
@@ -92,7 +91,7 @@ func resourceFWRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	enabled := d.Get("enabled").(bool)
@@ -116,7 +115,7 @@ func resourceFWRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 		MapValueSpecs(d),
 	}
 
-	log.Printf("[DEBUG] Create firewall rule: %#v", ruleConfiguration)
+	logp.Printf("[DEBUG] Create firewall rule: %#v", ruleConfiguration)
 
 	rule, err := rules.Create(fwClient, ruleConfiguration).Extract()
 
@@ -124,7 +123,7 @@ func resourceFWRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] Firewall rule with id %s : %#v", rule.ID, rule)
+	logp.Printf("[DEBUG] Firewall rule with id %s : %#v", rule.ID, rule)
 
 	d.SetId(rule.ID)
 
@@ -132,12 +131,12 @@ func resourceFWRuleV2Create(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceFWRuleV2Read(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Retrieve information about firewall rule: %s", d.Id())
+	logp.Printf("[DEBUG] Retrieve information about firewall rule: %s", d.Id())
 
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	rule, err := rules.Get(fwClient, d.Id()).Extract()
@@ -145,7 +144,7 @@ func resourceFWRuleV2Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "FW rule")
 	}
 
-	log.Printf("[DEBUG] Read HuaweiCloud Firewall Rule %s: %#v", d.Id(), rule)
+	logp.Printf("[DEBUG] Read HuaweiCloud Firewall Rule %s: %#v", d.Id(), rule)
 
 	d.Set("action", rule.Action)
 	d.Set("name", rule.Name)
@@ -172,7 +171,7 @@ func resourceFWRuleV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	var updateOpts rules.UpdateOpts
@@ -217,7 +216,7 @@ func resourceFWRuleV2Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.Enabled = &enabled
 	}
 
-	log.Printf("[DEBUG] Updating firewall rules: %#v", updateOpts)
+	logp.Printf("[DEBUG] Updating firewall rules: %#v", updateOpts)
 	err = rules.Update(fwClient, d.Id(), updateOpts).Err
 	if err != nil {
 		return err
@@ -227,12 +226,12 @@ func resourceFWRuleV2Update(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceFWRuleV2Delete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Destroy firewall rule: %s", d.Id())
+	logp.Printf("[DEBUG] Destroy firewall rule: %s", d.Id())
 
 	config := meta.(*config.Config)
 	fwClient, err := config.FwV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	rule, err := rules.Get(fwClient, d.Id()).Extract()

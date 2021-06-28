@@ -1,10 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strings"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -111,16 +112,16 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 		MapValueSpecs(d),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := recordsets.Create(dnsClient, zoneID, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DNS record set: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DNS record set: %s", err)
 	}
 
-	id := fmt.Sprintf("%s/%s", zoneID, n.ID)
+	id := fmtp.Sprintf("%s/%s", zoneID, n.ID)
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Waiting for DNS record set (%s) to become available", n.ID)
+	logp.Printf("[DEBUG] Waiting for DNS record set (%s) to become available", n.ID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Pending:    []string{"PENDING"},
@@ -133,7 +134,7 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 	_, err = stateConf.WaitForState()
 
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for record set (%s) to become ACTIVE for creation: %s",
 			n.ID, err)
 	}
@@ -143,16 +144,16 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 	if len(tagRaw) > 0 {
 		resourceType, err := utils.GetDNSRecordSetTagType(zoneType)
 		if err != nil {
-			return fmt.Errorf("Error getting resource type of DNS record set %s: %s", n.ID, err)
+			return fmtp.Errorf("Error getting resource type of DNS record set %s: %s", n.ID, err)
 		}
 
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(dnsClient, resourceType, n.ID, taglist).ExtractErr(); tagErr != nil {
-			return fmt.Errorf("Error setting tags of DNS record set %s: %s", n.ID, tagErr)
+			return fmtp.Errorf("Error setting tags of DNS record set %s: %s", n.ID, tagErr)
 		}
 	}
 
-	log.Printf("[DEBUG] Created HuaweiCloud DNS record set %s: %#v", n.ID, n)
+	logp.Printf("[DEBUG] Created HuaweiCloud DNS record set %s: %#v", n.ID, n)
 	return resourceDNSRecordSetV2Read(d, meta)
 }
 
@@ -174,14 +175,14 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 		return CheckDeleted(d, err, "record_set")
 	}
 
-	log.Printf("[DEBUG] Retrieved  record set %s: %#v", recordsetID, n)
+	logp.Printf("[DEBUG] Retrieved  record set %s: %#v", recordsetID, n)
 
 	d.Set("name", n.Name)
 	d.Set("description", n.Description)
 	d.Set("ttl", n.TTL)
 	d.Set("type", n.Type)
 	if err := d.Set("records", n.Records); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving records to state for HuaweiCloud DNS record set (%s): %s", d.Id(), err)
+		return fmtp.Errorf("[DEBUG] Error saving records to state for HuaweiCloud DNS record set (%s): %s", d.Id(), err)
 	}
 	d.Set("region", GetRegion(d, config))
 	d.Set("zone_id", zoneID)
@@ -189,15 +190,15 @@ func resourceDNSRecordSetV2Read(d *schema.ResourceData, meta interface{}) error 
 	// save tags
 	resourceType, err := utils.GetDNSRecordSetTagType(zoneType)
 	if err != nil {
-		return fmt.Errorf("Error getting resource type of DNS record set %s: %s", recordsetID, err)
+		return fmtp.Errorf("Error getting resource type of DNS record set %s: %s", recordsetID, err)
 	}
 	if resourceTags, err := tags.Get(dnsClient, resourceType, recordsetID).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for DNS record set (%s): %s", recordsetID, err)
+			return fmtp.Errorf("Error saving tags to state for DNS record set (%s): %s", recordsetID, err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of DNS record set (%s): %s", recordsetID, err)
+		logp.Printf("[WARN] Error fetching tags of DNS record set (%s): %s", recordsetID, err)
 	}
 
 	return nil
@@ -233,14 +234,14 @@ func resourceDNSRecordSetV2Update(d *schema.ResourceData, meta interface{}) erro
 		updateOpts.Description = d.Get("description").(string)
 	}
 
-	log.Printf("[DEBUG] Updating  record set %s with options: %#v", recordsetID, updateOpts)
+	logp.Printf("[DEBUG] Updating  record set %s with options: %#v", recordsetID, updateOpts)
 
 	_, err = recordsets.Update(dnsClient, zoneID, recordsetID, updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud DNS  record set: %s", err)
+		return fmtp.Errorf("Error updating HuaweiCloud DNS  record set: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for DNS record set (%s) to update", recordsetID)
+	logp.Printf("[DEBUG] Waiting for DNS record set (%s) to update", recordsetID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"ACTIVE"},
 		Pending:    []string{"PENDING"},
@@ -252,7 +253,7 @@ func resourceDNSRecordSetV2Update(d *schema.ResourceData, meta interface{}) erro
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for record set (%s) to become ACTIVE for updation: %s",
 			recordsetID, err)
 	}
@@ -260,12 +261,12 @@ func resourceDNSRecordSetV2Update(d *schema.ResourceData, meta interface{}) erro
 	// update tags
 	resourceType, err := utils.GetDNSRecordSetTagType(zoneType)
 	if err != nil {
-		return fmt.Errorf("Error getting resource type of DNS record set %s: %s", d.Id(), err)
+		return fmtp.Errorf("Error getting resource type of DNS record set %s: %s", d.Id(), err)
 	}
 
 	tagErr := utils.UpdateResourceTags(dnsClient, d, resourceType, recordsetID)
 	if tagErr != nil {
-		return fmt.Errorf("Error updating tags of DNS record set %s: %s", d.Id(), tagErr)
+		return fmtp.Errorf("Error updating tags of DNS record set %s: %s", d.Id(), tagErr)
 	}
 
 	return resourceDNSRecordSetV2Read(d, meta)
@@ -285,10 +286,10 @@ func resourceDNSRecordSetV2Delete(d *schema.ResourceData, meta interface{}) erro
 
 	err = recordsets.Delete(dnsClient, zoneID, recordsetID).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud DNS record set: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud DNS record set: %s", err)
 	}
 
-	log.Printf("[DEBUG] Waiting for DNS record set (%s) to be deleted", recordsetID)
+	logp.Printf("[DEBUG] Waiting for DNS record set (%s) to be deleted", recordsetID)
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{"DELETED"},
 		Pending:    []string{"ACTIVE", "PENDING", "ERROR"},
@@ -300,7 +301,7 @@ func resourceDNSRecordSetV2Delete(d *schema.ResourceData, meta interface{}) erro
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for record set (%s) to become DELETED for deletion: %s",
 			recordsetID, err)
 	}
@@ -326,7 +327,7 @@ func waitForDNSRecordSet(dnsClient *golangsdk.ServiceClient, zoneID, recordsetId
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] HuaweiCloud DNS record set (%s) current status: %s", recordset.ID, recordset.Status)
+		logp.Printf("[DEBUG] HuaweiCloud DNS record set (%s) current status: %s", recordset.ID, recordset.Status)
 		return recordset, parseStatus(recordset.Status), nil
 	}
 }
@@ -334,7 +335,7 @@ func waitForDNSRecordSet(dnsClient *golangsdk.ServiceClient, zoneID, recordsetId
 func parseDNSV2RecordSetID(id string) (string, string, error) {
 	idParts := strings.Split(id, "/")
 	if len(idParts) != 2 {
-		return "", "", fmt.Errorf("Unable to determine DNS record set ID from raw ID: %s", id)
+		return "", "", fmtp.Errorf("Unable to determine DNS record set ID from raw ID: %s", id)
 	}
 
 	zoneID := idParts[0]
@@ -352,13 +353,13 @@ func chooseDNSClientbyZoneID(d *schema.ResourceData, zoneID string, meta interfa
 	// Firstly, try to ues the DNS global endpoint
 	client, err := config.DnsV2Client(region)
 	if err != nil {
-		return nil, "", fmt.Errorf("Error creating HuaweiCloud DNS client: %s", err)
+		return nil, "", fmtp.Errorf("Error creating HuaweiCloud DNS client: %s", err)
 	}
 
 	// get zone with DNS global endpoint
 	zoneInfo, err = zones.Get(client, zoneID).Extract()
 	if err != nil {
-		log.Printf("[WARN] fetching zone failed with DNS global endpoint: %s", err)
+		logp.Printf("[WARN] fetching zone failed with DNS global endpoint: %s", err)
 
 		// try to ues the DNS region endpoint
 		client, clientErr := config.DnsWithRegionClient(region)

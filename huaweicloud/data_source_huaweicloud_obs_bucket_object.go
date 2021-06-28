@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strings"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
@@ -64,7 +65,7 @@ func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	obsClient, err := config.ObjectStorageClient(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -90,10 +91,10 @@ func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 	if !exist {
-		return fmt.Errorf("object %s not found in bucket %s", key, bucket)
+		return fmtp.Errorf("object %s not found in bucket %s", key, bucket)
 	}
 
-	log.Printf("[DEBUG] Data Source Reading OBS Bucket Object %s: %#v", key, objectContent)
+	logp.Printf("[DEBUG] Data Source Reading OBS Bucket Object %s: %#v", key, objectContent)
 
 	object, err := obsClient.GetObject(&obs.GetObjectInput{
 		GetObjectMetadataInput: obs.GetObjectMetadataInput{
@@ -105,7 +106,7 @@ func dataSourceObsBucketObjectRead(d *schema.ResourceData, meta interface{}) err
 		return getObsError("Error get object info of OBS bucket", bucket, err)
 	}
 
-	log.Printf("[DEBUG] Data Source Reading OBS Bucket Object : %#v", object)
+	logp.Printf("[DEBUG] Data Source Reading OBS Bucket Object : %#v", object)
 
 	d.SetId(key)
 	d.Set("size", objectContent.Size)

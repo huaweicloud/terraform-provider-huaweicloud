@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -29,18 +30,18 @@ func testAccCheckCSBSBackupV1DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find backup data source: %s ", n)
+			return fmtp.Errorf("Can't find backup data source: %s ", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("backup data source ID not set ")
+			return fmtp.Errorf("backup data source ID not set ")
 		}
 
 		return nil
 	}
 }
 
-var testAccCSBSBackupV1DataSource_basic = fmt.Sprintf(`
+var testAccCSBSBackupV1DataSource_basic = fmtp.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   image_id = "%s"

@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -82,15 +83,15 @@ func testAccCheckIdentityACLExists(n string, ac *acl.ACLPolicy) resource.TestChe
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.IAMV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
 		}
 
 		switch rs.Primary.Attributes["type"] {
@@ -101,7 +102,7 @@ func testAccCheckIdentityACLExists(n string, ac *acl.ACLPolicy) resource.TestChe
 			}
 			if len(v.AllowAddressNetmasks) == 0 && len(v.AllowIPRanges) == 1 &&
 				v.AllowIPRanges[0].IPRange == "0.0.0.0-255.255.255.255" {
-				return fmt.Errorf("Identity ACL for console access <%s> not exists", rs.Primary.ID)
+				return fmtp.Errorf("Identity ACL for console access <%s> not exists", rs.Primary.ID)
 			}
 			ac = v
 		case "api":
@@ -111,7 +112,7 @@ func testAccCheckIdentityACLExists(n string, ac *acl.ACLPolicy) resource.TestChe
 			}
 			if len(v.AllowAddressNetmasks) == 0 && len(v.AllowIPRanges) == 1 &&
 				v.AllowIPRanges[0].IPRange == "0.0.0.0-255.255.255.255" {
-				return fmt.Errorf("Identity ACL for console access <%s> not exists", rs.Primary.ID)
+				return fmtp.Errorf("Identity ACL for console access <%s> not exists", rs.Primary.ID)
 			}
 			ac = v
 		}
@@ -124,7 +125,7 @@ func testAccCheckIdentityACLDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.IAMV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -137,14 +138,14 @@ func testAccCheckIdentityACLDestroy(s *terraform.State) error {
 			if err == nil && len(v.AllowAddressNetmasks) == len(rs.Primary.Attributes["ip_cidrs.#"]) &&
 				(len(v.AllowIPRanges) > 1 || (len(v.AllowIPRanges) == 1 &&
 					v.AllowIPRanges[0].IPRange != "0.0.0.0-255.255.255.255")) {
-				return fmt.Errorf("Identity ACL for console access <%s> still exists", rs.Primary.ID)
+				return fmtp.Errorf("Identity ACL for console access <%s> still exists", rs.Primary.ID)
 			}
 		case "api":
 			v, err := acl.APIACLPolicyGet(client, rs.Primary.ID).APIExtract()
 			if err == nil && len(v.AllowAddressNetmasks) == len(rs.Primary.Attributes["ip_cidrs.#"]) &&
 				(len(v.AllowIPRanges) > 1 || (len(v.AllowIPRanges) == 1 &&
 					v.AllowIPRanges[0].IPRange != "0.0.0.0-255.255.255.255")) {
-				return fmt.Errorf("Identity ACL for api access <%s> still exists", rs.Primary.ID)
+				return fmtp.Errorf("Identity ACL for api access <%s> still exists", rs.Primary.ID)
 			}
 		}
 	}
@@ -153,7 +154,7 @@ func testAccCheckIdentityACLDestroy(s *terraform.State) error {
 }
 
 func testAccIdentityACL_basic() string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_acl" "test" {
   type = "console"
 
@@ -171,7 +172,7 @@ resource "huaweicloud_identity_acl" "test" {
 }
 
 func testAccIdentityACL_update() string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_acl" "test" {
   type = "console"
 
@@ -197,7 +198,7 @@ resource "huaweicloud_identity_acl" "test" {
 }
 
 func testAccIdentityACL_apiAccess() string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_acl" "test" {
   type = "api"
 
@@ -215,7 +216,7 @@ resource "huaweicloud_identity_acl" "test" {
 }
 
 func testAccIdentityACL_apiUpdate() string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_identity_acl" "test" {
   type = "api"
 

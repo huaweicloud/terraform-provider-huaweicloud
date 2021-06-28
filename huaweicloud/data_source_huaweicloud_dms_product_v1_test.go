@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -81,18 +82,18 @@ func testAccCheckDmsProductV1DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find Dms product data source: %s", n)
+			return fmtp.Errorf("Can't find Dms product data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Dms product data source ID not set")
+			return fmtp.Errorf("Dms product data source ID not set")
 		}
 
 		return nil
 	}
 }
 
-var testAccDmsProductV1DataSource_basic = fmt.Sprintf(`
+var testAccDmsProductV1DataSource_basic = fmtp.Sprintf(`
 data "huaweicloud_dms_product_v1" "product1" {
 engine = "kafka"
 version = "1.1.0"
@@ -103,7 +104,7 @@ storage_spec_code = "dms.physical.storage.high"
 }
 `)
 
-var testAccDmsProductV1DataSource_rabbitmqSingle = fmt.Sprintf(`
+var testAccDmsProductV1DataSource_rabbitmqSingle = fmtp.Sprintf(`
 data "huaweicloud_dms_product_v1" "product1" {
 engine = "rabbitmq"
 version = "3.7.0"
@@ -114,7 +115,7 @@ storage_spec_code = "dms.physical.storage.normal"
 }
 `)
 
-var testAccDmsProductV1DataSource_rabbitmqCluster = fmt.Sprintf(`
+var testAccDmsProductV1DataSource_rabbitmqCluster = fmtp.Sprintf(`
 data "huaweicloud_dms_product_v1" "product1" {
 engine = "rabbitmq"
 version = "3.7.0"

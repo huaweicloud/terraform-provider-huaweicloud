@@ -1,13 +1,13 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/firewalls"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceIecNetworkACL() *schema.Resource {
@@ -87,17 +87,17 @@ func resourceIecNetworkACLCreate(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	createOpts := firewalls.CreateOpts{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 	}
-	log.Printf("[DEBUG] Create IEC network acl: %#v", createOpts)
+	logp.Printf("[DEBUG] Create IEC network acl: %#v", createOpts)
 	group, err := firewalls.Create(iecClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating IEC network acl: %s", err)
+		return fmtp.Errorf("Error creating IEC network acl: %s", err)
 	}
 	d.SetId(group.ID)
 
@@ -108,10 +108,10 @@ func resourceIecNetworkACLCreate(d *schema.ResourceData, meta interface{}) error
 			Name:    d.Get("name").(string),
 			Subnets: &subnetsOpts,
 		}
-		log.Printf("[DEBUG] attempt to associate IEC network acl with subnets: %#v", updateOpts)
+		logp.Printf("[DEBUG] attempt to associate IEC network acl with subnets: %#v", updateOpts)
 		_, err := firewalls.Update(iecClient, group.ID, updateOpts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error associating subnets with IEC network acl: %s", err)
+			return fmtp.Errorf("Error associating subnets with IEC network acl: %s", err)
 		}
 	}
 
@@ -122,7 +122,7 @@ func resourceIecNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	fwGroup, err := firewalls.Get(iecClient, d.Id()).Extract()
@@ -130,7 +130,7 @@ func resourceIecNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "iec network acl")
 	}
 
-	log.Printf("[DEBUG] Read HuaweiCloud IEC network acl %s: %#v", d.Id(), fwGroup)
+	logp.Printf("[DEBUG] Read HuaweiCloud IEC network acl %s: %#v", d.Id(), fwGroup)
 	d.Set("name", fwGroup.Name)
 	d.Set("status", fwGroup.Status)
 	d.Set("description", fwGroup.Description)
@@ -144,7 +144,7 @@ func resourceIecNetworkACLRead(d *schema.ResourceData, meta interface{}) error {
 		networkSet = append(networkSet, subnet)
 	}
 	if err = d.Set("networks", networkSet); err != nil {
-		return fmt.Errorf("Saving iec networks failed: %s", err)
+		return fmtp.Errorf("Saving iec networks failed: %s", err)
 	}
 
 	return nil
@@ -154,7 +154,7 @@ func resourceIecNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	if d.HasChanges("name", "description", "networks") {
@@ -172,10 +172,10 @@ func resourceIecNetworkACLUpdate(d *schema.ResourceData, meta interface{}) error
 			opts.Subnets = &subnetsOpts
 		}
 
-		log.Printf("[DEBUG] Updating IEC network acl with id %s: %#v", d.Id(), opts)
+		logp.Printf("[DEBUG] Updating IEC network acl with id %s: %#v", d.Id(), opts)
 		_, err := firewalls.Update(iecClient, d.Id(), opts).Extract()
 		if err != nil {
-			return fmt.Errorf("Error updating IEC network acl: %s", err)
+			return fmtp.Errorf("Error updating IEC network acl: %s", err)
 		}
 	}
 
@@ -186,7 +186,7 @@ func resourceIecNetworkACLDelete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	// unbind subents before deleting the network acl
@@ -199,13 +199,13 @@ func resourceIecNetworkACLDelete(d *schema.ResourceData, meta interface{}) error
 		}
 		err = firewalls.Update(iecClient, d.Id(), opts).Err
 		if err != nil {
-			return fmt.Errorf("Error disassociating all subents with IEC network acl: %s", err)
+			return fmtp.Errorf("Error disassociating all subents with IEC network acl: %s", err)
 		}
 	}
 
 	err = firewalls.Delete(iecClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud iec firewall: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud iec firewall: %s", err)
 	}
 
 	d.SetId("")

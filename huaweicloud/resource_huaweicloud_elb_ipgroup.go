@@ -1,14 +1,14 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/huaweicloud/golangsdk/openstack/elb/v3/ipgroups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceIpGroupV3() *schema.Resource {
@@ -89,7 +89,7 @@ func resourceIpGroupV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
 
 	ipList := resourceIpGroupAddresses(d)
@@ -101,10 +101,10 @@ func resourceIpGroupV3Create(d *schema.ResourceData, meta interface{}) error {
 		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	ig, err := ipgroups.Create(elbClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating IpGroup: %s", err)
+		return fmtp.Errorf("Error creating IpGroup: %s", err)
 	}
 	d.SetId(ig.ID)
 
@@ -115,7 +115,7 @@ func resourceIpGroupV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
 
 	ig, err := ipgroups.Get(elbClient, d.Id()).Extract()
@@ -123,7 +123,7 @@ func resourceIpGroupV3Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "ipgroup")
 	}
 
-	log.Printf("[DEBUG] Retrieved ip group %s: %#v", d.Id(), ig)
+	logp.Printf("[DEBUG] Retrieved ip group %s: %#v", d.Id(), ig)
 
 	d.Set("name", ig.Name)
 	d.Set("description", ig.Description)
@@ -145,7 +145,7 @@ func resourceIpGroupV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
 
 	var updateOpts ipgroups.UpdateOpts
@@ -161,10 +161,10 @@ func resourceIpGroupV3Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.IpList = &ipList
 	}
 
-	log.Printf("[DEBUG] Updating ipgroup %s with options: %#v", d.Id(), updateOpts)
+	logp.Printf("[DEBUG] Updating ipgroup %s with options: %#v", d.Id(), updateOpts)
 	_, err = ipgroups.Update(elbClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating HuaweiCloud elb ip group: %s", err)
+		return fmtp.Errorf("Error updating HuaweiCloud elb ip group: %s", err)
 	}
 
 	return resourceIpGroupV3Read(d, meta)
@@ -174,12 +174,12 @@ func resourceIpGroupV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	elbClient, err := config.ElbV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud elb v3 client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting ip group %s", d.Id())
+	logp.Printf("[DEBUG] Deleting ip group %s", d.Id())
 	if err = ipgroups.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud elb ip group: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud elb ip group: %s", err)
 	}
 
 	return nil

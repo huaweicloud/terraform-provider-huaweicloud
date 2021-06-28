@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,11 +9,12 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/vbs/v2/backups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVBSBackupV2_basic(t *testing.T) {
 	var config backups.Backup
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -42,7 +42,7 @@ func TestAccVBSBackupV2_basic(t *testing.T) {
 
 func TestAccVBSBackupV2_timeout(t *testing.T) {
 	var config backups.Backup
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -63,7 +63,7 @@ func testAccCheckVBSBackupV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud vbs client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud vbs client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -73,7 +73,7 @@ func testAccCheckVBSBackupV2Destroy(s *terraform.State) error {
 
 		_, err := backups.Get(vbsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("VBS backup still exists")
+			return fmtp.Errorf("VBS backup still exists")
 		}
 	}
 
@@ -84,17 +84,17 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		vbsClient, err := config.VbsV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud vbs client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud vbs client: %s", err)
 		}
 
 		found, err := backups.Get(vbsClient, rs.Primary.ID).Extract()
@@ -103,7 +103,7 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 		}
 
 		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("VBS backup not found")
+			return fmtp.Errorf("VBS backup not found")
 		}
 
 		*configs = *found
@@ -113,7 +113,7 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 }
 
 func testAccVBSBackupV2_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_evs_volume" "volume" {
   name              = "%s"
   description       = "my volume"
@@ -137,7 +137,7 @@ resource "huaweicloud_vbs_backup" "backup_1" {
 }
 
 func testAccVBSBackupV2_timeout(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_evs_volume" "volume" {
   name              = "%s"
   description       = "my volume"

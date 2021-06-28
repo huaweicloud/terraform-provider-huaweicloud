@@ -1,12 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceVpcSubnetV1() *schema.Resource {
@@ -94,7 +93,7 @@ func dataSourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}
 
 	listOpts := subnets.ListOpts{
@@ -111,21 +110,21 @@ func dataSourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	refinedSubnets, err := subnets.List(subnetClient, listOpts)
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve subnets: %s", err)
+		return fmtp.Errorf("Unable to retrieve subnets: %s", err)
 	}
 
 	if refinedSubnets == nil || len(refinedSubnets) == 0 {
-		return fmt.Errorf("No matching subnet found. " +
+		return fmtp.Errorf("No matching subnet found. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedSubnets) > 1 {
-		return fmt.Errorf("multiple subnets matched; use additional constraints to reduce matches to a single subnet")
+		return fmtp.Errorf("multiple subnets matched; use additional constraints to reduce matches to a single subnet")
 	}
 
 	Subnets := refinedSubnets[0]
 
-	log.Printf("[INFO] Retrieved Subnet using given filter %s: %+v", Subnets.ID, Subnets)
+	logp.Printf("[INFO] Retrieved Subnet using given filter %s: %+v", Subnets.ID, Subnets)
 	d.SetId(Subnets.ID)
 
 	d.Set("name", Subnets.Name)

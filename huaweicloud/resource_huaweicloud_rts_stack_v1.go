@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -12,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacktemplates"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/errwrap"
 )
@@ -160,7 +160,7 @@ func resourceRTSStackV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating RTS client: %s", err)
+		return fmtp.Errorf("Error creating RTS client: %s", err)
 	}
 
 	rollback := d.Get("disable_rollback").(bool)
@@ -175,11 +175,11 @@ func resourceRTSStackV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	n, err := stacks.Create(orchestrationClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating stack: %s", err)
+		return fmtp.Errorf("Error creating stack: %s", err)
 	}
 	d.SetId(n.ID)
 
-	log.Printf("[INFO] Stack %s created successfully", stackName)
+	logp.Printf("[INFO] Stack %s created successfully", stackName)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"CREATE_IN_PROGRESS"},
@@ -193,7 +193,7 @@ func resourceRTSStackV1Create(d *schema.ResourceData, meta interface{}) error {
 	_, stateErr := stateConf.WaitForState()
 
 	if stateErr != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for Stack (%s) to become ACTIVE: %s",
 			stackName, stateErr)
 	}
@@ -206,26 +206,26 @@ func resourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating RTS Client: %s", err)
+		return fmtp.Errorf("Error creating RTS Client: %s", err)
 	}
 
 	stack, err := stacks.Get(orchestrationClient, d.Id()).Extract()
 	if err != nil {
 
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			log.Printf("[WARN] Removing stack %s as it's already gone", d.Id())
+			logp.Printf("[WARN] Removing stack %s as it's already gone", d.Id())
 			d.SetId("")
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving Stack: %s", err)
+		return fmtp.Errorf("Error retrieving Stack: %s", err)
 
 	}
 
 	//Checking for stack status explicitly as Get API reports 404 or
 	// gets stack with DELETE_COMPLETE status if the stack is not available depending on what is passed in Get (stackname or id)
 	if stack.Status == "DELETE_COMPLETE" {
-		log.Printf("[WARN] Removing stack %s as it's already gone", d.Id())
+		logp.Printf("[WARN] Removing stack %s as it's already gone", d.Id())
 		d.SetId("")
 		return nil
 	}
@@ -269,7 +269,7 @@ func resourceRTSStackV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating RTS Client: %s", err)
+		return fmtp.Errorf("Error creating RTS Client: %s", err)
 	}
 
 	var updateOpts stacks.UpdateOpts
@@ -290,7 +290,7 @@ func resourceRTSStackV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	err = stacks.Update(orchestrationClient, d.Get("name").(string), d.Id(), updateOpts).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error updating Stack: %s", err)
+		return fmtp.Errorf("Error updating Stack: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"UPDATE_IN_PROGRESS",
@@ -306,11 +306,11 @@ func resourceRTSStackV1Update(d *schema.ResourceData, meta interface{}) error {
 	_, stateErr := stateConf.WaitForState()
 
 	if stateErr != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for updating stack: %s", stateErr)
 	}
 
-	log.Printf("[INFO] Successfully updated stack %s", d.Get("name").(string))
+	logp.Printf("[INFO] Successfully updated stack %s", d.Get("name").(string))
 
 	return resourceRTSStackV1Read(d, meta)
 }
@@ -320,7 +320,7 @@ func resourceRTSStackV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	orchestrationClient, err := config.OrchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating RTS Client: %s", err)
+		return fmtp.Errorf("Error creating RTS Client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -342,7 +342,7 @@ func resourceRTSStackV1Delete(d *schema.ResourceData, meta interface{}) error {
 	_, stateErr := stateConf.WaitForState()
 
 	if stateErr != nil {
-		return fmt.Errorf("Error deleting Stack: %s", stateErr)
+		return fmtp.Errorf("Error deleting Stack: %s", stateErr)
 	}
 
 	d.SetId("")
@@ -361,7 +361,7 @@ func waitForRTSStackActive(orchestrationClient *golangsdk.ServiceClient, stackNa
 		}
 
 		if n.Status == "CREATE_FAILED" {
-			return nil, "", fmt.Errorf("%s: %s", n.Status, n.StatusReason)
+			return nil, "", fmtp.Errorf("%s: %s", n.Status, n.StatusReason)
 		}
 		return n, n.Status, nil
 	}
@@ -373,7 +373,7 @@ func waitForRTSStackDelete(orchestrationClient *golangsdk.ServiceClient, stackNa
 
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[INFO] Successfully deleted stack %s", stackName)
+				logp.Printf("[INFO] Successfully deleted stack %s", stackName)
 				return r, "DELETE_COMPLETE", nil
 			}
 			return r, "DELETE_IN_PROGRESS", err
@@ -382,7 +382,7 @@ func waitForRTSStackDelete(orchestrationClient *golangsdk.ServiceClient, stackNa
 		//Checking for target status explicitly as Get API reports 404 or
 		// gets stack with DELETE_COMPLETE status if the stack is not available depending on what is passed in Get (stackname or id)
 		if r.Status == "DELETE_COMPLETE" {
-			log.Printf("[INFO] Successfully deleted stack %s", stackName)
+			logp.Printf("[INFO] Successfully deleted stack %s", stackName)
 			return r, r.Status, nil
 		}
 
@@ -399,7 +399,7 @@ func waitForRTSStackDelete(orchestrationClient *golangsdk.ServiceClient, stackNa
 		}
 
 		if r.Status == "DELETE_FAILED" {
-			return r, "", fmt.Errorf("%s: %q", r.Status, r.StatusReason)
+			return r, "", fmtp.Errorf("%s: %q", r.Status, r.StatusReason)
 		}
 
 		return r, r.Status, nil
@@ -418,7 +418,7 @@ func waitForRTSStackUpdate(orchestrationClient *golangsdk.ServiceClient, stackNa
 		}
 		if n.Status == "ROLLBACK_COMPLETE" || n.Status == "ROLLBACK_FAILED" || n.Status == "UPDATE_FAILED" {
 
-			return nil, "", fmt.Errorf("%s: %s", n.Status, n.StatusReason)
+			return nil, "", fmtp.Errorf("%s: %s", n.Status, n.StatusReason)
 		}
 
 		return n, n.Status, nil

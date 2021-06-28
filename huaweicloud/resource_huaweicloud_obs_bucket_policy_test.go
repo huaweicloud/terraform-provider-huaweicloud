@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -9,14 +8,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccObsBucketPolicy_basic(t *testing.T) {
-	name := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	name := fmtp.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	obsName := "huaweicloud_obs_bucket.bucket"
 	policyName := "huaweicloud_obs_bucket_policy.policy"
 
-	expectedPolicyText := fmt.Sprintf(
+	expectedPolicyText := fmtp.Sprintf(
 		`{"Statement":[{"Sid":"test1","Effect":"Allow","Principal":{"ID":["*"]},"Action":["GetObject"],"Resource":["%s/*"]}]}`,
 		name)
 
@@ -43,15 +43,15 @@ func TestAccObsBucketPolicy_basic(t *testing.T) {
 }
 
 func TestAccObsBucketPolicy_update(t *testing.T) {
-	name := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	name := fmtp.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	obsName := "huaweicloud_obs_bucket.bucket"
 	policyName := "huaweicloud_obs_bucket_policy.policy"
 
-	expectedPolicyText1 := fmt.Sprintf(
+	expectedPolicyText1 := fmtp.Sprintf(
 		`{"Statement":[{"Sid":"test1","Effect":"Allow","Principal":{"ID":["*"]},"Action":["GetObject"],"Resource":["%s/*"]}]}`,
 		name)
 
-	expectedPolicyText2 := fmt.Sprintf(
+	expectedPolicyText2 := fmtp.Sprintf(
 		`{"Statement":[{"Sid":"test2","Effect":"Allow","Principal":{"ID":["*"]},"Action":["GetObject","PutObject","DeleteObject"],"Resource":["%s/*"]}]}`,
 		name)
 
@@ -81,11 +81,11 @@ func TestAccObsBucketPolicy_update(t *testing.T) {
 }
 
 func TestAccObsBucketPolicy_s3(t *testing.T) {
-	name := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt())
+	name := fmtp.Sprintf("tf-test-bucket-%d", acctest.RandInt())
 	obsName := "huaweicloud_obs_bucket.bucket"
 	policyName := "huaweicloud_obs_bucket_policy.s3_policy"
 
-	expectedPolicyText := fmt.Sprintf(
+	expectedPolicyText := fmtp.Sprintf(
 		`{"Version":"2008-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:*"],"Resource":["arn:aws:s3:::%s","arn:aws:s3:::%s/*"]}]}`,
 		name, name)
 
@@ -116,11 +116,11 @@ func testAccCheckObsBucketHasPolicy(n string, expectedPolicyText string) resourc
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No OBS Bucket ID is set")
+			return fmtp.Errorf("No OBS Bucket ID is set")
 		}
 
 		var err error
@@ -134,17 +134,17 @@ func testAccCheckObsBucketHasPolicy(n string, expectedPolicyText string) resourc
 			obsClient, err = config.ObjectStorageClient(HW_REGION_NAME)
 		}
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}
 
 		policy, err := obsClient.GetBucketPolicy(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("GetBucketPolicy error: %v", err)
+			return fmtp.Errorf("GetBucketPolicy error: %v", err)
 		}
 
 		actualPolicyText := policy.Policy
 		if actualPolicyText != expectedPolicyText {
-			return fmt.Errorf("non-equivalent policy error:\n\nexpected: %s\n\n     got: %s",
+			return fmtp.Errorf("non-equivalent policy error:\n\nexpected: %s\n\n     got: %s",
 				expectedPolicyText, actualPolicyText)
 		}
 
@@ -156,15 +156,15 @@ func testAccOBSPolicyImportStateIDFunc() resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		policyRes, ok := s.RootModule().Resources["huaweicloud_obs_bucket_policy.s3_policy"]
 		if !ok {
-			return "", fmt.Errorf("huaweicloud_obs_bucket_policy resource not found")
+			return "", fmtp.Errorf("huaweicloud_obs_bucket_policy resource not found")
 		}
 
-		return fmt.Sprintf("%s/s3", policyRes.Primary.ID), nil
+		return fmtp.Sprintf("%s/s3", policyRes.Primary.ID), nil
 	}
 }
 
 func testAccObsBucketPolicyConfig(bucketName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
 	bucket = "%s"
 	tags = {
@@ -192,7 +192,7 @@ POLICY
 }
 
 func testAccObsBucketPolicyConfig_updated(bucketName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
 	bucket = "%s"
 	tags = {
@@ -220,7 +220,7 @@ POLICY
 }
 
 func testAccObsBucketPolicyS3Foramt(bucketName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
 	bucket = "%s"
 	tags = {

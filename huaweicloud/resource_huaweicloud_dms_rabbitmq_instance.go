@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -12,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/dms/v2/rabbitmq/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDmsRabbitmqInstance() *schema.Resource {
@@ -172,7 +172,7 @@ func resourceDmsRabbitmqInstanceCreate(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	dmsV2Client, err := config.DmsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud dms instance client: %s", err)
+		return fmtp.Errorf("error creating HuaweiCloud dms instance client: %s", err)
 	}
 
 	createOpts := &instances.CreateOps{
@@ -206,15 +206,15 @@ func resourceDmsRabbitmqInstanceCreate(d *schema.ResourceData, meta interface{})
 		createOpts.Tags = taglist
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
 	v, err := instances.Create(dmsV2Client, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud dms rabbitmq instance: %s", err)
+		return fmtp.Errorf("error creating HuaweiCloud dms rabbitmq instance: %s", err)
 	}
-	log.Printf("[INFO] instance ID: %s", v.InstanceID)
+	logp.Printf("[INFO] instance ID: %s", v.InstanceID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"CREATING"},
@@ -227,7 +227,7 @@ func resourceDmsRabbitmqInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"error waiting for instance (%s) to become ready: %s",
 			v.InstanceID, err)
 	}
@@ -243,14 +243,14 @@ func resourceDmsRabbitmqInstanceRead(d *schema.ResourceData, meta interface{}) e
 
 	dmsV2Client, err := config.DmsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud dms instance client: %s", err)
+		return fmtp.Errorf("error creating HuaweiCloud dms instance client: %s", err)
 	}
 	v, err := instances.Get(dmsV2Client, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "DMS instance")
 	}
 
-	log.Printf("[DEBUG] Dms rabbitmq instance %s: %+v", d.Id(), v)
+	logp.Printf("[DEBUG] Dms rabbitmq instance %s: %+v", d.Id(), v)
 
 	d.SetId(v.InstanceID)
 	d.Set("region", GetRegion(d, config))
@@ -291,10 +291,10 @@ func resourceDmsRabbitmqInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if resourceTags, err := tags.Get(dmsV2Client, engine, d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("error saving tags to state for dms rabbitmq instance (%s): %s", d.Id(), err)
+			return fmtp.Errorf("error saving tags to state for dms rabbitmq instance (%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] error fetching tags of dms rabbitmq instance (%s): %s", d.Id(), err)
+		logp.Printf("[WARN] error fetching tags of dms rabbitmq instance (%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -304,7 +304,7 @@ func resourceDmsRabbitmqInstanceUpdate(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	dmsV2Client, err := config.DmsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud dms instance client: %s", err)
+		return fmtp.Errorf("error creating HuaweiCloud dms instance client: %s", err)
 	}
 
 	//lintignore:R019
@@ -336,7 +336,7 @@ func resourceDmsRabbitmqInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 		err = instances.Update(dmsV2Client, d.Id(), updateOpts).Err
 		if err != nil {
-			return fmt.Errorf("error updating HuaweiCloud Dms rabbitmq Instance: %s", err)
+			return fmtp.Errorf("error updating HuaweiCloud Dms rabbitmq Instance: %s", err)
 		}
 	}
 
@@ -345,7 +345,7 @@ func resourceDmsRabbitmqInstanceUpdate(d *schema.ResourceData, meta interface{})
 		engine := "rabbitmq"
 		tagErr := utils.UpdateResourceTags(dmsV2Client, d, engine, d.Id())
 		if tagErr != nil {
-			return fmt.Errorf("error updating tags of dms rabbitmq instance:%s, err:%s", d.Id(), tagErr)
+			return fmtp.Errorf("error updating tags of dms rabbitmq instance:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
@@ -356,16 +356,16 @@ func resourceDmsRabbitmqInstanceDelete(d *schema.ResourceData, meta interface{})
 	config := meta.(*config.Config)
 	dmsV2Client, err := config.DmsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud dms instance client: %s", err)
+		return fmtp.Errorf("error creating HuaweiCloud dms instance client: %s", err)
 	}
 
 	err = instances.Delete(dmsV2Client, d.Id()).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("error deleting HuaweiCloud instance: %s", err)
+		return fmtp.Errorf("error deleting HuaweiCloud instance: %s", err)
 	}
 
 	// Wait for the instance to delete before moving on.
-	log.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
+	logp.Printf("[DEBUG] Waiting for instance (%s) to delete", d.Id())
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"DELETING", "RUNNING"},
@@ -379,12 +379,12 @@ func resourceDmsRabbitmqInstanceDelete(d *schema.ResourceData, meta interface{})
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"error waiting for instance (%s) to delete: %s",
 			d.Id(), err)
 	}
 
-	log.Printf("[DEBUG] Dms instance %s deactivated", d.Id())
+	logp.Printf("[DEBUG] Dms instance %s deactivated", d.Id())
 	d.SetId("")
 	return nil
 }

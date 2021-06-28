@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -13,6 +11,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/dds/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDdsInstanceV3() *schema.Resource {
@@ -234,20 +234,20 @@ func ResourceDdsInstanceV3() *schema.Resource {
 func resourceDdsDataStore(d *schema.ResourceData) instances.DataStore {
 	var dataStore instances.DataStore
 	datastoreRaw := d.Get("datastore").([]interface{})
-	log.Printf("[DEBUG] datastoreRaw: %+v", datastoreRaw)
+	logp.Printf("[DEBUG] datastoreRaw: %+v", datastoreRaw)
 	if len(datastoreRaw) == 1 {
 		dataStore.Type = datastoreRaw[0].(map[string]interface{})["type"].(string)
 		dataStore.Version = datastoreRaw[0].(map[string]interface{})["version"].(string)
 		dataStore.StorageEngine = datastoreRaw[0].(map[string]interface{})["storage_engine"].(string)
 	}
-	log.Printf("[DEBUG] datastore: %+v", dataStore)
+	logp.Printf("[DEBUG] datastore: %+v", dataStore)
 	return dataStore
 }
 
 func resourceDdsFlavors(d *schema.ResourceData) []instances.Flavor {
 	var flavors []instances.Flavor
 	flavorRaw := d.Get("flavor").([]interface{})
-	log.Printf("[DEBUG] flavorRaw: %+v", flavorRaw)
+	logp.Printf("[DEBUG] flavorRaw: %+v", flavorRaw)
 	for i := range flavorRaw {
 		flavor := flavorRaw[i].(map[string]interface{})
 		flavorReq := instances.Flavor{
@@ -259,14 +259,14 @@ func resourceDdsFlavors(d *schema.ResourceData) []instances.Flavor {
 		}
 		flavors = append(flavors, flavorReq)
 	}
-	log.Printf("[DEBUG] flavors: %+v", flavors)
+	logp.Printf("[DEBUG] flavors: %+v", flavors)
 	return flavors
 }
 
 func resourceDdsBackupStrategy(d *schema.ResourceData) instances.BackupStrategy {
 	var backupStrategy instances.BackupStrategy
 	backupStrategyRaw := d.Get("backup_strategy").([]interface{})
-	log.Printf("[DEBUG] backupStrategyRaw: %+v", backupStrategyRaw)
+	logp.Printf("[DEBUG] backupStrategyRaw: %+v", backupStrategyRaw)
 	startTime := "00:00-01:00"
 	keepDays := 7
 	if len(backupStrategyRaw) == 1 {
@@ -275,7 +275,7 @@ func resourceDdsBackupStrategy(d *schema.ResourceData) instances.BackupStrategy 
 	}
 	backupStrategy.StartTime = startTime
 	backupStrategy.KeepDays = &keepDays
-	log.Printf("[DEBUG] backupStrategy: %+v", backupStrategy)
+	logp.Printf("[DEBUG] backupStrategy: %+v", backupStrategy)
 	return backupStrategy
 }
 
@@ -312,7 +312,7 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	client, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
 	}
 
 	createOpts := instances.CreateOpts{
@@ -334,15 +334,15 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 	} else {
 		createOpts.Ssl = "0"
 	}
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	// Add password here so it wouldn't go in the above log entry
 	createOpts.Password = d.Get("password").(string)
 
 	instance, err := instances.Create(client, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error getting instance from result: %s ", err)
+		return fmtp.Errorf("Error getting instance from result: %s ", err)
 	}
-	log.Printf("[DEBUG] Create : instance %s: %#v", instance.Id, instance)
+	logp.Printf("[DEBUG] Create : instance %s: %#v", instance.Id, instance)
 
 	d.SetId(instance.Id)
 	stateConf := &resource.StateChangeConf{
@@ -356,7 +356,7 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for instance (%s) to become ready: %s ",
 			instance.Id, err)
 	}
@@ -366,7 +366,7 @@ func resourceDdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(client, "instances", instance.Id, taglist).ExtractErr(); tagErr != nil {
-			return fmt.Errorf("Error setting tags of DDS instance %s: %s", instance.Id, tagErr)
+			return fmtp.Errorf("Error setting tags of DDS instance %s: %s", instance.Id, tagErr)
 		}
 	}
 
@@ -377,7 +377,7 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DDS client: %s", err)
 	}
 
 	instanceID := d.Id()
@@ -386,21 +386,21 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	allPages, err := instances.List(client, &opts).AllPages()
 	if err != nil {
-		return fmt.Errorf("Error fetching DDS instance: %s", err)
+		return fmtp.Errorf("Error fetching DDS instance: %s", err)
 	}
 	instances, err := instances.ExtractInstances(allPages)
 	if err != nil {
-		return fmt.Errorf("Error extracting DDS instance: %s", err)
+		return fmtp.Errorf("Error extracting DDS instance: %s", err)
 	}
 	if instances.TotalCount == 0 {
-		log.Printf("[WARN] DDS instance (%s) was not found", instanceID)
+		logp.Printf("[WARN] DDS instance (%s) was not found", instanceID)
 		d.SetId("")
 		return nil
 	}
 	insts := instances.Instances
 	instance := insts[0]
 
-	log.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
+	logp.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
 
 	d.Set("region", instance.Region)
 	d.Set("name", instance.Name)
@@ -440,17 +440,17 @@ func resourceDdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	// save nodes attribute
 	err = d.Set("nodes", flattenDdsInstanceV3Nodes(instance))
 	if err != nil {
-		return fmt.Errorf("Error setting nodes of DDS instance, err: %s", err)
+		return fmtp.Errorf("Error setting nodes of DDS instance, err: %s", err)
 	}
 
 	// save tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for DDS instance (%s): %s", d.Id(), err)
+			return fmtp.Errorf("Error saving tags to state for DDS instance (%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of DDS instance (%s): %s", d.Id(), err)
+		logp.Printf("[WARN] Error fetching tags of DDS instance (%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -460,7 +460,7 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	client, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
 	}
 
 	var opts []instances.UpdateOpt
@@ -522,7 +522,7 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 
 	r := instances.Update(client, d.Id(), opts)
 	if r.Err != nil {
-		return fmt.Errorf("Error updating instance from result: %s ", r.Err)
+		return fmtp.Errorf("Error updating instance from result: %s ", r.Err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -536,7 +536,7 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for instance (%s) to become ready: %s ",
 			d.Id(), err)
 	}
@@ -544,7 +544,7 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
 		if tagErr != nil {
-			return fmt.Errorf("Error updating tags of DDS instance:%s, err:%s", d.Id(), tagErr)
+			return fmtp.Errorf("Error updating tags of DDS instance:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
@@ -555,7 +555,7 @@ func resourceDdsInstanceV3Delete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	client, err := config.DdsV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
+		return fmtp.Errorf("Error creating HuaweiCloud DDS client: %s ", err)
 	}
 
 	instanceId := d.Id()
@@ -574,11 +574,11 @@ func resourceDdsInstanceV3Delete(d *schema.ResourceData, meta interface{}) error
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for instance (%s) to be deleted: %s ",
 			instanceId, err)
 	}
-	log.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
+	logp.Printf("[DEBUG] Successfully deleted instance %s", instanceId)
 	return nil
 }
 

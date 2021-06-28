@@ -1,13 +1,12 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/firewalls"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceIecNetworkACLRule() *schema.Resource {
@@ -110,13 +109,13 @@ func resourceIecNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	aclID := d.Get("network_acl_id").(string)
 	fwGroup, err := firewalls.Get(iecClient, aclID).Extract()
 	if err != nil {
-		return fmt.Errorf("Error retrieving IEC network acl %s: %s", aclID, err)
+		return fmtp.Errorf("Error retrieving IEC network acl %s: %s", aclID, err)
 	}
 
 	var oldRules, newRules []string
@@ -135,10 +134,10 @@ func resourceIecNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) e
 		opts.ReqFirewallOutPolicy = &ruleOpts
 	}
 
-	log.Printf("[DEBUG] Create IEC Network ACL rule: %#v", opts)
+	logp.Printf("[DEBUG] Create IEC Network ACL rule: %#v", opts)
 	fwGroup, err = firewalls.UpdateRule(iecClient, aclID, opts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating IEC Network ACL rule: %s", err)
+		return fmtp.Errorf("Error creating IEC Network ACL rule: %s", err)
 	}
 
 	if d.Get("direction").(string) == "ingress" {
@@ -149,10 +148,10 @@ func resourceIecNetworkACLRuleCreate(d *schema.ResourceData, meta interface{}) e
 
 	ruleID := getNewFirewallRuleID(oldRules, newRules)
 	if ruleID == "" {
-		return fmt.Errorf("Error creating IEC Network ACL rule: not found")
+		return fmtp.Errorf("Error creating IEC Network ACL rule: not found")
 	}
 
-	log.Printf("[DEBUG] Create Network IEC ACL rule with id %s", ruleID)
+	logp.Printf("[DEBUG] Create Network IEC ACL rule with id %s", ruleID)
 	d.SetId(ruleID)
 
 	return resourceIecNetworkACLRuleRead(d, meta)
@@ -162,7 +161,7 @@ func resourceIecNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IEC client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IEC client: %s", err)
 	}
 
 	aclID := d.Get("network_acl_id").(string)
@@ -182,11 +181,11 @@ func resourceIecNetworkACLRuleRead(d *schema.ResourceData, meta interface{}) err
 	ruleEntity := getFirewallRuleEntity(fwPolicy, ruleID)
 	if ruleEntity.ID == "" {
 		d.SetId("")
-		log.Printf("[WARN] the IEC Network ACL rule: %s can not be found", ruleID)
+		logp.Printf("[WARN] the IEC Network ACL rule: %s can not be found", ruleID)
 		return nil
 	}
 
-	log.Printf("[DEBUG] Retrieve IEC Network ACL rule %s: %#v", ruleID, ruleEntity)
+	logp.Printf("[DEBUG] Retrieve IEC Network ACL rule %s: %#v", ruleID, ruleEntity)
 	d.Set("policy_id", fwPolicy.ID)
 	d.Set("description", ruleEntity.Description)
 	d.Set("enabled", ruleEntity.Enabled)
@@ -210,13 +209,13 @@ func resourceIecNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	aclID := d.Get("network_acl_id").(string)
 	fwGroup, err := firewalls.Get(iecClient, aclID).Extract()
 	if err != nil {
-		return fmt.Errorf("Error retrieving IEC network acl %s: %s", aclID, err)
+		return fmtp.Errorf("Error retrieving IEC network acl %s: %s", aclID, err)
 	}
 
 	var opts firewalls.UpdateRuleOpts
@@ -233,11 +232,11 @@ func resourceIecNetworkACLRuleUpdate(d *schema.ResourceData, meta interface{}) e
 		opts.ReqFirewallOutPolicy = &ruleOpts
 	}
 
-	log.Printf("[DEBUG] Updating IEC Network ACL rule %s: %#v", d.Id(), opts)
+	logp.Printf("[DEBUG] Updating IEC Network ACL rule %s: %#v", d.Id(), opts)
 	fwGroup, err = firewalls.UpdateRule(iecClient, aclID, opts).Extract()
 
 	if err != nil {
-		return fmt.Errorf("Error updating IEC Network ACL rule: %s", err)
+		return fmtp.Errorf("Error updating IEC Network ACL rule: %s", err)
 	}
 
 	return resourceIecNetworkACLRuleRead(d, meta)
@@ -247,13 +246,13 @@ func resourceIecNetworkACLRuleDelete(d *schema.ResourceData, meta interface{}) e
 	config := meta.(*config.Config)
 	iecClient, err := config.IECV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud fw client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud fw client: %s", err)
 	}
 
 	aclID := d.Get("network_acl_id").(string)
 	fwGroup, err := firewalls.Get(iecClient, aclID).Extract()
 	if err != nil {
-		return fmt.Errorf("Error retrieving IEC network acl %s: %s", aclID, err)
+		return fmtp.Errorf("Error retrieving IEC network acl %s: %s", aclID, err)
 	}
 
 	var opts firewalls.UpdateRuleOpts
@@ -270,10 +269,10 @@ func resourceIecNetworkACLRuleDelete(d *schema.ResourceData, meta interface{}) e
 		opts.ReqFirewallOutPolicy = &ruleOpts
 	}
 
-	log.Printf("[DEBUG] Destroy IEC Network ACL rule: %s", d.Id())
+	logp.Printf("[DEBUG] Destroy IEC Network ACL rule: %s", d.Id())
 	fwGroup, err = firewalls.UpdateRule(iecClient, aclID, opts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error deleting IEC Network ACL rule: %s", err)
+		return fmtp.Errorf("Error deleting IEC Network ACL rule: %s", err)
 	}
 
 	d.SetId("")

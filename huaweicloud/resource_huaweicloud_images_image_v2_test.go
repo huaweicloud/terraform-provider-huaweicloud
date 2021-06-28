@@ -1,11 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -161,7 +161,7 @@ func testAccCheckImagesImageV2Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	imageClient, err := config.ImageV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -171,7 +171,7 @@ func testAccCheckImagesImageV2Destroy(s *terraform.State) error {
 
 		_, err := images.Get(imageClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Image still exists")
+			return fmtp.Errorf("Image still exists")
 		}
 	}
 
@@ -182,17 +182,17 @@ func testAccCheckImagesImageV2Exists(n string, image *images.Image) resource.Tes
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
 
 		found, err := images.Get(imageClient, rs.Primary.ID).Extract()
@@ -201,7 +201,7 @@ func testAccCheckImagesImageV2Exists(n string, image *images.Image) resource.Tes
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Image not found")
+			return fmtp.Errorf("Image not found")
 		}
 
 		*image = *found
@@ -214,17 +214,17 @@ func testAccCheckImagesImageV2HasTag(n, tag string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
 
 		found, err := images.Get(imageClient, rs.Primary.ID).Extract()
@@ -233,7 +233,7 @@ func testAccCheckImagesImageV2HasTag(n, tag string) resource.TestCheckFunc {
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Image not found")
+			return fmtp.Errorf("Image not found")
 		}
 
 		for _, v := range found.Tags {
@@ -242,7 +242,7 @@ func testAccCheckImagesImageV2HasTag(n, tag string) resource.TestCheckFunc {
 			}
 		}
 
-		return fmt.Errorf("Tag not found: %s", tag)
+		return fmtp.Errorf("Tag not found: %s", tag)
 	}
 }
 
@@ -250,17 +250,17 @@ func testAccCheckImagesImageV2TagCount(n string, expected int) resource.TestChec
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
 
 		found, err := images.Get(imageClient, rs.Primary.ID).Extract()
@@ -269,11 +269,11 @@ func testAccCheckImagesImageV2TagCount(n string, expected int) resource.TestChec
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Image not found")
+			return fmtp.Errorf("Image not found")
 		}
 
 		if len(found.Tags) != expected {
-			return fmt.Errorf("Expecting %d tags, found %d", expected, len(found.Tags))
+			return fmtp.Errorf("Expecting %d tags, found %d", expected, len(found.Tags))
 		}
 
 		return nil

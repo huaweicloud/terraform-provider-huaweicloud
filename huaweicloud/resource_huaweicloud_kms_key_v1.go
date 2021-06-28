@@ -1,8 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -12,6 +10,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/kms/v1/keys"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const WaitingForEnableState = "1"
@@ -98,7 +98,7 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	kmsKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
 
 	createOpts := &keys.CreateOpts{
@@ -107,15 +107,15 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	v, err := keys.Create(kmsKeyV1Client, createOpts).ExtractKeyInfo()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud key: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud key: %s", err)
 	}
-	log.Printf("[INFO] Key ID: %s", v.KeyID)
+	logp.Printf("[INFO] Key ID: %s", v.KeyID)
 
 	// Wait for the key to become enabled.
-	log.Printf("[DEBUG] Waiting for key (%s) to become enabled", v.KeyID)
+	logp.Printf("[DEBUG] Waiting for key (%s) to become enabled", v.KeyID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{WaitingForEnableState, DisabledState},
@@ -128,7 +128,7 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	_, err = stateConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf(
+		return fmtp.Errorf(
 			"Error waiting for key (%s) to become ready: %s",
 			v.KeyID, err)
 	}
@@ -136,11 +136,11 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 	if !d.Get("is_enabled").(bool) {
 		key, err := keys.DisableKey(kmsKeyV1Client, v.KeyID).ExtractKeyInfo()
 		if err != nil {
-			return fmt.Errorf("Error disabling key: %s.", err)
+			return fmtp.Errorf("Error disabling key: %s.", err)
 		}
 
 		if key.KeyState != DisabledState {
-			return fmt.Errorf("Error disabling key, the key state is: %s", key.KeyState)
+			return fmtp.Errorf("Error disabling key, the key state is: %s", key.KeyState)
 		}
 	}
 
@@ -149,7 +149,7 @@ func resourceKmsKeyV1Create(d *schema.ResourceData, meta interface{}) error {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		tagErr := tags.Create(kmsKeyV1Client, "kms", v.KeyID, taglist).ExtractErr()
 		if tagErr != nil {
-			log.Printf("Error creating tags for kms key(%s): %s", v.KeyID, err)
+			logp.Printf("Error creating tags for kms key(%s): %s", v.KeyID, err)
 		}
 	}
 
@@ -166,16 +166,16 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	kmsRegion := GetRegion(d, config)
 	kmsKeyV1Client, err := config.KmsKeyV1Client(kmsRegion)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
 	v, err := keys.Get(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Kms key %s: %+v", d.Id(), v)
+	logp.Printf("[DEBUG] Kms key %s: %+v", d.Id(), v)
 	if v.KeyState == PendingDeletionState {
-		log.Printf("[WARN] Removing KMS key %s because it's already gone", d.Id())
+		logp.Printf("[WARN] Removing KMS key %s because it's already gone", d.Id())
 		d.SetId("")
 		return nil
 	}
@@ -197,10 +197,10 @@ func resourceKmsKeyV1Read(d *schema.ResourceData, meta interface{}) error {
 	if resourceTags, err := tags.Get(kmsKeyV1Client, "kms", d.Id()).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for kms key(%s): %s", d.Id(), err)
+			return fmtp.Errorf("Error saving tags to state for kms key(%s): %s", d.Id(), err)
 		}
 	} else {
-		log.Printf("[WARN] Error fetching tags of kms key(%s): %s", d.Id(), err)
+		logp.Printf("[WARN] Error fetching tags of kms key(%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -210,7 +210,7 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	kmsKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
 
 	if d.HasChange("key_alias") {
@@ -220,7 +220,7 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 		}
 		_, err = keys.UpdateAlias(kmsKeyV1Client, updateAliasOpts).ExtractKeyInfo()
 		if err != nil {
-			return fmt.Errorf("Error updating HuaweiCloud key: %s", err)
+			return fmtp.Errorf("Error updating HuaweiCloud key: %s", err)
 		}
 	}
 
@@ -231,33 +231,33 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 		}
 		_, err = keys.UpdateDes(kmsKeyV1Client, updateDesOpts).ExtractKeyInfo()
 		if err != nil {
-			return fmt.Errorf("Error updating HuaweiCloud key: %s", err)
+			return fmtp.Errorf("Error updating HuaweiCloud key: %s", err)
 		}
 	}
 
 	if d.HasChange("is_enabled") {
 		v, err := keys.Get(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 		if err != nil {
-			return fmt.Errorf("DescribeKey got an error: %s.", err)
+			return fmtp.Errorf("DescribeKey got an error: %s.", err)
 		}
 
 		if d.Get("is_enabled").(bool) && v.KeyState == DisabledState {
 			key, err := keys.EnableKey(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 			if err != nil {
-				return fmt.Errorf("Error enabling key: %s.", err)
+				return fmtp.Errorf("Error enabling key: %s.", err)
 			}
 			if key.KeyState != EnabledState {
-				return fmt.Errorf("Error enabling key, the key state is: %s", key.KeyState)
+				return fmtp.Errorf("Error enabling key, the key state is: %s", key.KeyState)
 			}
 		}
 
 		if !d.Get("is_enabled").(bool) && v.KeyState == EnabledState {
 			key, err := keys.DisableKey(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
 			if err != nil {
-				return fmt.Errorf("Error disabling key: %s.", err)
+				return fmtp.Errorf("Error disabling key: %s.", err)
 			}
 			if key.KeyState != DisabledState {
-				return fmt.Errorf("Error disabling key, the key state is: %s", key.KeyState)
+				return fmtp.Errorf("Error disabling key, the key state is: %s", key.KeyState)
 			}
 		}
 	}
@@ -265,7 +265,7 @@ func resourceKmsKeyV1Update(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(kmsKeyV1Client, d, "kms", d.Id())
 		if tagErr != nil {
-			return fmt.Errorf("Error updating tags of kms:%s, err:%s", d.Id(), err)
+			return fmtp.Errorf("Error updating tags of kms:%s, err:%s", d.Id(), err)
 		}
 	}
 
@@ -276,7 +276,7 @@ func resourceKmsKeyV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	kmsKeyV1Client, err := config.KmsKeyV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud kms key client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud kms key client: %s", err)
 	}
 
 	v, err := keys.Get(kmsKeyV1Client, d.Id()).ExtractKeyInfo()
@@ -301,11 +301,11 @@ func resourceKmsKeyV1Delete(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		if v.KeyState != PendingDeletionState {
-			return fmt.Errorf("failed to delete key")
+			return fmtp.Errorf("failed to delete key")
 		}
 	}
 
-	log.Printf("[DEBUG] KMS Key %s deactivated.", d.Id())
+	logp.Printf("[DEBUG] KMS Key %s deactivated.", d.Id())
 	d.SetId("")
 	return nil
 }

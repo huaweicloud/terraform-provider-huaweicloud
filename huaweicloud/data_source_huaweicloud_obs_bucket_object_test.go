@@ -1,10 +1,11 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -117,11 +118,11 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find Obs object data source: %s", n)
+			return fmtp.Errorf("Can't find Obs object data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Obs object data source ID not set")
+			return fmtp.Errorf("Obs object data source ID not set")
 		}
 
 		bucket := rs.Primary.Attributes["bucket"]
@@ -130,7 +131,7 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*config.Config)
 		obsClient, err := config.ObjectStorageClient(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 		}
 
 		respList, err := obsClient.ListObjects(&obs.ListObjectsInput{
@@ -151,7 +152,7 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 			}
 		}
 		if !exist {
-			return fmt.Errorf("object %s not found in bucket %s", key, bucket)
+			return fmtp.Errorf("object %s not found in bucket %s", key, bucket)
 		}
 
 		return nil
@@ -159,7 +160,7 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 }
 
 func testAccObsBucketObjectDataSource_content(randInt int) (string, string) {
-	resource := fmt.Sprintf(`
+	resource := fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
   bucket = "tf-acc-test-bucket-%d"
 }
@@ -171,7 +172,7 @@ resource "huaweicloud_obs_bucket_object" "object" {
 }
 `, randInt, randInt)
 
-	dataSource := fmt.Sprintf(`
+	dataSource := fmtp.Sprintf(`
 %s
 
 data "huaweicloud_obs_bucket_object" "obj" {
@@ -183,7 +184,7 @@ data "huaweicloud_obs_bucket_object" "obj" {
 }
 
 func testAccObsBucketObjectDataSource_source(randInt int, source string) (string, string) {
-	resource := fmt.Sprintf(`
+	resource := fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
   bucket = "tf-acc-test-bucket-%d"
 }
@@ -196,7 +197,7 @@ resource "huaweicloud_obs_bucket_object" "object" {
 }
 `, randInt, randInt, source)
 
-	dataSource := fmt.Sprintf(`
+	dataSource := fmtp.Sprintf(`
 %s
 
 data "huaweicloud_obs_bucket_object" "obj" {
@@ -208,7 +209,7 @@ data "huaweicloud_obs_bucket_object" "obj" {
 }
 
 func testAccObsBucketObjectDataSource_allParams(randInt int) (string, string) {
-	resource := fmt.Sprintf(`
+	resource := fmtp.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
   bucket = "tf-acc-test-bucket-%d"
 }
@@ -226,7 +227,7 @@ CONTENT
 }
 `, randInt, randInt)
 
-	dataSource := fmt.Sprintf(`
+	dataSource := fmtp.Sprintf(`
 %s
 
 data "huaweicloud_obs_bucket_object" "obj" {

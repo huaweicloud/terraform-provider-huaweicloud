@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -9,11 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/sfs_turbo/v1/shares"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccSFSTurbo_basic(t *testing.T) {
 	randSuffix := acctest.RandString(5)
-	turboName := fmt.Sprintf("sfs-turbo-acc-%s", randSuffix)
+	turboName := fmtp.Sprintf("sfs-turbo-acc-%s", randSuffix)
 	resourceName := "huaweicloud_sfs_turbo.sfs-turbo1"
 	var turbo shares.Turbo
 
@@ -53,7 +53,7 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 
 func TestAccSFSTurbo_crypt(t *testing.T) {
 	randSuffix := acctest.RandString(5)
-	turboName := fmt.Sprintf("sfs-turbo-acc-%s", randSuffix)
+	turboName := fmtp.Sprintf("sfs-turbo-acc-%s", randSuffix)
 	resourceName := "huaweicloud_sfs_turbo.sfs-turbo1"
 	var turbo shares.Turbo
 
@@ -81,7 +81,7 @@ func TestAccSFSTurbo_crypt(t *testing.T) {
 
 func TestAccSFSTurbo_withEpsId(t *testing.T) {
 	randSuffix := acctest.RandString(5)
-	turboName := fmt.Sprintf("sfs-turbo-acc-%s", randSuffix)
+	turboName := fmtp.Sprintf("sfs-turbo-acc-%s", randSuffix)
 	resourceName := "huaweicloud_sfs_turbo.sfs-turbo1"
 	var turbo shares.Turbo
 
@@ -106,7 +106,7 @@ func testAccCheckSFSTurboDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	sfsClient, err := config.SfsV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating Huaweicloud sfs turbo client: %s", err)
+		return fmtp.Errorf("Error creating Huaweicloud sfs turbo client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -116,7 +116,7 @@ func testAccCheckSFSTurboDestroy(s *terraform.State) error {
 
 		_, err := shares.Get(sfsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("SFS Turbo still exists")
+			return fmtp.Errorf("SFS Turbo still exists")
 		}
 	}
 
@@ -127,17 +127,17 @@ func testAccCheckSFSTurboExists(n string, share *shares.Turbo) resource.TestChec
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		sfsClient, err := config.SfsV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating Huaweicloud sfs turbo client: %s", err)
+			return fmtp.Errorf("Error creating Huaweicloud sfs turbo client: %s", err)
 		}
 
 		found, err := shares.Get(sfsClient, rs.Primary.ID).Extract()
@@ -146,7 +146,7 @@ func testAccCheckSFSTurboExists(n string, share *shares.Turbo) resource.TestChec
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("sfs turbo not found")
+			return fmtp.Errorf("sfs turbo not found")
 		}
 
 		*share = *found
@@ -155,7 +155,7 @@ func testAccCheckSFSTurboExists(n string, share *shares.Turbo) resource.TestChec
 }
 
 func testAccNetworkPreConditions(suffix string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc_v1" "test" {
   name = "tf-acc-vpc-%s"
   cidr = "192.168.0.0/16"
@@ -176,7 +176,7 @@ resource "huaweicloud_networking_secgroup_v2" "secgroup" {
 }
 
 func testAccSFSTurbo_basic(suffix string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 data "huaweicloud_availability_zones" "myaz" {}
 
@@ -193,7 +193,7 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
 }
 
 func testAccSFSTurbo_update(suffix string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 data "huaweicloud_availability_zones" "myaz" {}
 
@@ -210,7 +210,7 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
 }
 
 func testAccSFSTurbo_crypt(suffix string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 data "huaweicloud_availability_zones" "myaz" {}
 
@@ -233,7 +233,7 @@ resource "huaweicloud_sfs_turbo" "sfs-turbo1" {
 }
 
 func testAccSFSTurbo_withEpsId(suffix string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 data "huaweicloud_availability_zones" "myaz" {}
 

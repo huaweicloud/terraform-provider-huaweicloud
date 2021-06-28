@@ -1,14 +1,14 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceObsBucketPolicy() *schema.Resource {
@@ -61,12 +61,12 @@ func resourceObsBucketPolicyPut(d *schema.ResourceData, meta interface{}) error 
 		obsClient, err = config.ObjectStorageClient(GetRegion(d, config))
 	}
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
 	policy := d.Get("policy").(string)
-	log.Printf("[DEBUG] OBS bucket: %s, set policy: %s", bucket, policy)
+	logp.Printf("[DEBUG] OBS bucket: %s, set policy: %s", bucket, policy)
 
 	params := &obs.SetBucketPolicyInput{
 		Bucket: bucket,
@@ -87,20 +87,20 @@ func resourceObsBucketPolicyRead(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 
 	format := d.Get("policy_format").(string)
-	log.Printf("[DEBUG] obs bucket policy format: %s", format)
+	logp.Printf("[DEBUG] obs bucket policy format: %s", format)
 	if format == "obs" {
 		obsClient, err = config.ObjectStorageClientWithSignature(GetRegion(d, config))
 	} else {
 		obsClient, err = config.ObjectStorageClient(GetRegion(d, config))
 	}
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
 
 	// set bucket from the policy id
 	d.Set("bucket", d.Id())
 
-	log.Printf("[DEBUG] read policy for obs bucket: %s", d.Id())
+	logp.Printf("[DEBUG] read policy for obs bucket: %s", d.Id())
 	output, err := obsClient.GetBucketPolicy(d.Id())
 
 	var pol string
@@ -126,12 +126,12 @@ func resourceObsBucketPolicyDelete(d *schema.ResourceData, meta interface{}) err
 		obsClient, err = config.ObjectStorageClient(GetRegion(d, config))
 	}
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud OBS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud OBS client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
 
-	log.Printf("[DEBUG] OBS bucket: %s, delete policy", bucket)
+	logp.Printf("[DEBUG] OBS bucket: %s, delete policy", bucket)
 	_, err = obsClient.DeleteBucketPolicy(bucket)
 	if err != nil {
 		return getObsError("Error deleting policy of OBS bucket %s: %s", bucket, err)

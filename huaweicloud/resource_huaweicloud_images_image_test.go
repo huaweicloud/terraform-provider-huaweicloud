@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/huaweicloud/golangsdk/openstack/ims/v2/cloudimages"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -15,7 +16,7 @@ import (
 func TestAccImsImage_basic(t *testing.T) {
 	var image cloudimages.Image
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	rNameUpdate := rName + "-update"
 	resourceName := "huaweicloud_images_image.test"
 
@@ -52,7 +53,7 @@ func TestAccImsImage_basic(t *testing.T) {
 func TestAccImsImage_withEpsId(t *testing.T) {
 	var image cloudimages.Image
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_images_image.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -76,7 +77,7 @@ func testAccCheckImsImageDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	imageClient, err := config.ImageV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -86,7 +87,7 @@ func testAccCheckImsImageDestroy(s *terraform.State) error {
 
 		_, err := getCloudimage(imageClient, rs.Primary.ID)
 		if err == nil {
-			return fmt.Errorf("Image still exists")
+			return fmtp.Errorf("Image still exists")
 		}
 	}
 
@@ -97,17 +98,17 @@ func testAccCheckImsImageExists(n string, image *cloudimages.Image) resource.Tes
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("IMS Resource not found: %s", n)
+			return fmtp.Errorf("IMS Resource not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud Image: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
 
 		found, err := getCloudimage(imageClient, rs.Primary.ID)
@@ -121,7 +122,7 @@ func testAccCheckImsImageExists(n string, image *cloudimages.Image) resource.Tes
 }
 
 func testAccImsImage_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {
@@ -165,7 +166,7 @@ resource "huaweicloud_images_image" "test" {
 }
 
 func testAccImsImage_update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {
@@ -210,7 +211,7 @@ resource "huaweicloud_images_image" "test" {
 }
 
 func testAccImsImage_withEpsId(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {

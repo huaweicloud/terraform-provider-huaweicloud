@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,12 +9,13 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpcV1EIP_basic(t *testing.T) {
 	var eip eips.PublicIp
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_eip.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -41,7 +41,7 @@ func TestAccVpcV1EIP_basic(t *testing.T) {
 func TestAccVpcV1EIP_share(t *testing.T) {
 	var eip eips.PublicIp
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_eip.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -67,7 +67,7 @@ func TestAccVpcV1EIP_share(t *testing.T) {
 func TestAccVpcV1EIP_WithEpsId(t *testing.T) {
 	var eip eips.PublicIp
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_eip.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -90,7 +90,7 @@ func testAccCheckVpcV1EIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating EIP Client: %s", err)
+		return fmtp.Errorf("Error creating EIP Client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -100,7 +100,7 @@ func testAccCheckVpcV1EIPDestroy(s *terraform.State) error {
 
 		_, err := eips.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("EIP still exists")
+			return fmtp.Errorf("EIP still exists")
 		}
 	}
 
@@ -111,17 +111,17 @@ func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheck
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating networking client: %s", err)
+			return fmtp.Errorf("Error creating networking client: %s", err)
 		}
 
 		found, err := eips.Get(networkingClient, rs.Primary.ID).Extract()
@@ -130,7 +130,7 @@ func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheck
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("EIP not found")
+			return fmtp.Errorf("EIP not found")
 		}
 
 		*eip = found
@@ -140,7 +140,7 @@ func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheck
 }
 
 func testAccVpcV1EIP_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type = "5_bgp"
@@ -156,7 +156,7 @@ resource "huaweicloud_vpc_eip" "test" {
 }
 
 func testAccVpcV1EIP_epsId(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type = "5_bgp"
@@ -173,7 +173,7 @@ resource "huaweicloud_vpc_eip" "test" {
 }
 
 func testAccVpcV1EIP_share(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc_bandwidth" "test" {
 	name = "%s"
 	size = 5

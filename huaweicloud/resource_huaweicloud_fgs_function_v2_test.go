@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 
 func TestAccFgsV2Function_basic(t *testing.T) {
 	var f function.Function
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_fgs_function.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -45,7 +46,7 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 
 func TestAccFgsV2Function_withEpsId(t *testing.T) {
 	var f function.Function
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_fgs_function.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -66,7 +67,7 @@ func TestAccFgsV2Function_withEpsId(t *testing.T) {
 
 func TestAccFgsV2Function_text(t *testing.T) {
 	var f function.Function
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_fgs_function.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -86,7 +87,7 @@ func TestAccFgsV2Function_text(t *testing.T) {
 
 func TestAccFgsV2Function_agency(t *testing.T) {
 	var f function.Function
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_fgs_function.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -111,7 +112,7 @@ func testAccCheckFgsV2FunctionDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	fgsClient, err := config.FgsV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -121,7 +122,7 @@ func testAccCheckFgsV2FunctionDestroy(s *terraform.State) error {
 
 		_, err := function.GetMetadata(fgsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("Function still exists")
+			return fmtp.Errorf("Function still exists")
 		}
 	}
 
@@ -132,17 +133,17 @@ func testAccCheckFgsV2FunctionExists(n string, ft *function.Function) resource.T
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		fgsClient, err := config.FgsV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 		}
 
 		found, err := function.GetMetadata(fgsClient, rs.Primary.ID).Extract()
@@ -151,7 +152,7 @@ func testAccCheckFgsV2FunctionExists(n string, ft *function.Function) resource.T
 		}
 
 		if found.FuncUrn != rs.Primary.ID {
-			return fmt.Errorf("Function not found")
+			return fmtp.Errorf("Function not found")
 		}
 
 		*ft = *found
@@ -161,7 +162,7 @@ func testAccCheckFgsV2FunctionExists(n string, ft *function.Function) resource.T
 }
 
 func testAccFgsV2Function_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name        = "%s"
   app         = "default"
@@ -177,7 +178,7 @@ resource "huaweicloud_fgs_function" "test" {
 }
 
 func testAccFgsV2Function_update(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name        = "%s"
   app         = "default"
@@ -193,7 +194,7 @@ resource "huaweicloud_fgs_function" "test" {
 }
 
 func testAccFgsV2Function_text(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name        = "%s"
   app         = "default"
@@ -222,7 +223,7 @@ EOF
 }
 
 func testAccFgsV2Function_withEpsId(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name                  = "%s"
   app                   = "default"
@@ -239,7 +240,7 @@ resource "huaweicloud_fgs_function" "test" {
 }
 
 func testAccFgsV2Function_agency(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"

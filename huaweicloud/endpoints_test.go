@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 const (
@@ -18,11 +19,11 @@ const (
 )
 
 func green(str interface{}) string {
-	return fmt.Sprintf("%s%#v%s", greenCode, str, resetCode)
+	return fmtp.Sprintf("%s%#v%s", greenCode, str, resetCode)
 }
 
 func yellow(str interface{}) string {
-	return fmt.Sprintf("%s%#v%s", yellowCode, str, resetCode)
+	return fmtp.Sprintf("%s%#v%s", yellowCode, str, resetCode)
 }
 
 func testAccPreCheckServiceEndpoints(t *testing.T) {
@@ -55,7 +56,7 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud IAM client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://iam.%s/v3.0/", config.Cloud)
+	expectedURL = fmtp.Sprintf("https://iam.%s/v3.0/", config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("IAM endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -67,7 +68,7 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud identity client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://iam.%s/v3/", config.Cloud)
+	expectedURL = fmtp.Sprintf("https://iam.%s/v3/", config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("Identity endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -79,7 +80,7 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud CDN client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://cdn.%s/v1.0/", config.Cloud)
+	expectedURL = fmtp.Sprintf("https://cdn.%s/v1.0/", config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("CDN endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -91,7 +92,7 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud BSS v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://bss.%s/v1.0/", config.Cloud)
+	expectedURL = fmtp.Sprintf("https://bss.%s/v1.0/", config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("BSS v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -103,7 +104,7 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud BSS v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://bss.%s/v2/", config.Cloud)
+	expectedURL = fmtp.Sprintf("https://bss.%s/v2/", config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("BSS v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -130,7 +131,7 @@ func TestAccServiceEndpoints_Management(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud CTS client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://cts.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://cts.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("CTS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -142,7 +143,7 @@ func TestAccServiceEndpoints_Management(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud LTS client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://lts.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://lts.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("LTS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -154,7 +155,7 @@ func TestAccServiceEndpoints_Management(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud CES client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://ces.%s.%s/V1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://ces.%s.%s/V1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("CES endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -181,7 +182,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud RDS v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://rds.%s.%s/rds/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://rds.%s.%s/rds/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("RDS v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -193,7 +194,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud RDS v3 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://rds.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://rds.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("RDS v3 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -205,7 +206,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DDS v3 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dds.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://dds.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("DDS v3 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -217,7 +218,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud GeminiDB client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://gaussdb-nosql.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://gaussdb-nosql.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("GeminiDB endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -229,7 +230,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud gaussdb client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://gaussdb.%s.%s/mysql/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://gaussdb.%s.%s/mysql/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("gaussdb endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -241,7 +242,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud openGauss client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://gaussdb.%s.%s/opengauss/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://gaussdb.%s.%s/opengauss/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("openGauss endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -268,7 +269,7 @@ func TestAccServiceEndpoints_Security(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud anti-ddos client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://antiddos.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://antiddos.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("anti-ddos endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -280,7 +281,7 @@ func TestAccServiceEndpoints_Security(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud KMS client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://kms.%s.%s/v1.0/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://kms.%s.%s/v1.0/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("KMS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -319,7 +320,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud API-GW client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://apig.%s.%s/v1.0/apigw/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://apig.%s.%s/v1.0/apigw/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("API-GW endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -331,7 +332,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud BCS v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://bcs.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://bcs.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("BCS v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -343,7 +344,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud dcs v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dcs.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://dcs.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("DCS v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -355,7 +356,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud dcs v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dcs.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://dcs.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("DCS v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -367,7 +368,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DMS v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dms.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://dms.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("DMS v1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -379,7 +380,7 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DMS v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dms.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://dms.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("DMS v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -410,7 +411,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ecs v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://ecs.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://ecs.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "ecs", "v1", t)
 
@@ -420,7 +421,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ecs v1.1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://ecs.%s.%s/v1.1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://ecs.%s.%s/v1.1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "ecs", "v1.1", t)
 
@@ -430,7 +431,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ecs v2.1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://ecs.%s.%s/v2.1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://ecs.%s.%s/v2.1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "ecs", "v2.1", t)
 
@@ -440,7 +441,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud autoscaling v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://as.%s.%s/autoscaling-api/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://as.%s.%s/autoscaling-api/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "autoscaling", "v1", t)
 
@@ -450,7 +451,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud image v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://ims.%s.%s/v2/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://ims.%s.%s/v2/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "image", "v2", t)
 
@@ -460,7 +461,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cce v3 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://cce.%s.%s/api/v3/projects/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://cce.%s.%s/api/v3/projects/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "cce", "v3", t)
 
@@ -470,7 +471,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cceAddon v3 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://cce.%s.%s/api/v3/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://cce.%s.%s/api/v3/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "cceAddon", "v3", t)
 
@@ -480,7 +481,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cci v1 beta1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://cci.%s.%s/api/v1/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://cci.%s.%s/api/v1/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "cci", "v1", t)
 
@@ -490,7 +491,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cci v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://cci.%s.%s/apis/networking.cci.io/v1beta1/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://cci.%s.%s/apis/networking.cci.io/v1beta1/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "cci", "v1", t)
 
@@ -500,7 +501,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud fgs v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://functiongraph.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://functiongraph.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "fgs", "v2", t)
 
@@ -510,7 +511,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud swr v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://swr-api.%s.%s/v2/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://swr-api.%s.%s/v2/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "swr", "v2", t)
 
@@ -520,7 +521,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud BMS v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://bms.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://bms.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "bms", "v1", t)
 }
@@ -549,7 +550,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud blockStorage v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://evs.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://evs.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "blockStorage", "v2", t)
 
@@ -559,7 +560,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud blockStorage v3 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://evs.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://evs.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "blockStorage", "v3", t)
 
@@ -569,7 +570,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cbr v3 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://cbr.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://cbr.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "cbr", "v3", t)
 
@@ -579,7 +580,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud sfsV2 v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://sfs.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://sfs.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "sfsV2", "v2", t)
 
@@ -589,7 +590,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud sfsV1 v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://sfs-turbo.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://sfs-turbo.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "sfsV1", "v1", t)
 
@@ -599,7 +600,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud csbsV1 v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://csbs.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://csbs.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "csbsV1", "v1", t)
 
@@ -609,7 +610,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud vbsV2 v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://vbs.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://vbs.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "vbsV2", "v2", t)
 }
@@ -635,7 +636,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud networking v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://vpc.%s.%s/v1/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://vpc.%s.%s/v1/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "vpc", "v1", t)
 
@@ -645,7 +646,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud networking v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://vpc.%s.%s/v2.0/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://vpc.%s.%s/v2.0/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "networking", "v2.0", t)
 
@@ -655,7 +656,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud nat gateway client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://nat.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://nat.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "nat", "v2", t)
 
@@ -665,7 +666,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud security_group v1 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://vpc.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://vpc.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "security group", "v1", t)
 
@@ -675,7 +676,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ELB v1.0 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://elb.%s.%s/v1.0/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://elb.%s.%s/v1.0/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "elb", "v1.0", t)
 
@@ -685,7 +686,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ELB v2.0 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://elb.%s.%s/v2.0/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://elb.%s.%s/v2.0/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "elb", "v2.0", t)
 
@@ -695,7 +696,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ELB v3 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://elb.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://elb.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "elb", "v3", t)
 
@@ -705,7 +706,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud ELB v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://elb.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://elb.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "elb", "v2", t)
 
@@ -714,7 +715,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud fw v2 client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://vpc.%s.%s/v2.0/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://vpc.%s.%s/v2.0/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	compareURL(expectedURL, actualURL, "fw", "v2.0", t)
 
@@ -723,7 +724,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DNS client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dns.%s/v2/", config.Cloud)
+	expectedURL = fmtp.Sprintf("https://dns.%s/v2/", config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("DNS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -735,7 +736,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud DNS region client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dns.%s.%s/v2/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmtp.Sprintf("https://dns.%s.%s/v2/", HW_REGION_NAME, config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("DNS region endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -747,7 +748,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud VPC endpoint client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://vpcep.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://vpcep.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("VPCEP endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -774,7 +775,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud MRS client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://mrs.%s.%s/v1.1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://mrs.%s.%s/v1.1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("MRS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -786,7 +787,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud SMN client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://smn.%s.%s/v2/%s/notifications/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://smn.%s.%s/v2/%s/notifications/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("SMN endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -797,7 +798,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cdm client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://cdm.%s.%s/v1.1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://cdm.%s.%s/v1.1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("cdm endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -808,7 +809,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud dis client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dis.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://dis.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("dis endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -819,7 +820,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cloudtable client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://cloudtable.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://cloudtable.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("cloudtable endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -830,7 +831,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cloudStream client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://cs.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://cs.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("cloudStream endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -841,7 +842,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud css client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://css.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://css.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("css endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -852,7 +853,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating dli css client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dli.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://dli.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("dli endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -863,7 +864,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating dws css client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://dws.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://dws.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("dws endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -874,7 +875,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating ges css client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://ges.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://ges.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("ges endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -885,7 +886,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating mls css client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://mls.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://mls.%s.%s/v1.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("mls endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -912,7 +913,7 @@ func TestAccServiceEndpoints_Edge(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud IEC client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://iecs.%s/v1/", config.Cloud)
+	expectedURL = fmtp.Sprintf("https://iecs.%s/v1/", config.Cloud)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("IEC endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -939,7 +940,7 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud MAAS client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://oms.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://oms.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("MAAS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -951,7 +952,7 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud RTS client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://rts.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://rts.%s.%s/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("RTS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -963,7 +964,7 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud AOM client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://aom.%s.%s/svcstg/icmgr/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	expectedURL = fmtp.Sprintf("https://aom.%s.%s/svcstg/icmgr/v1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("AOM endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))

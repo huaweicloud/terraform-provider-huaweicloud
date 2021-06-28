@@ -1,9 +1,10 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +16,7 @@ import (
 
 func TestAccASV1Group_basic(t *testing.T) {
 	var asGroup groups.Group
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_as_group.hth_as_group"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -60,7 +61,7 @@ func TestAccASV1Group_basic(t *testing.T) {
 
 func TestAccASV1Group_withEpsId(t *testing.T) {
 	var asGroup groups.Group
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_as_group.hth_as_group"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -83,7 +84,7 @@ func testAccCheckASV1GroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating huaweicloud autoscaling client: %s", err)
+		return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -93,11 +94,11 @@ func testAccCheckASV1GroupDestroy(s *terraform.State) error {
 
 		_, err := groups.Get(asClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmt.Errorf("AS group still exists")
+			return fmtp.Errorf("AS group still exists")
 		}
 	}
 
-	log.Printf("[DEBUG] testCheckASV1GroupDestroy success!")
+	logp.Printf("[DEBUG] testCheckASV1GroupDestroy success!")
 
 	return nil
 }
@@ -106,17 +107,17 @@ func testAccCheckASV1GroupExists(n string, group *groups.Group) resource.TestChe
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmtp.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmtp.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		asClient, err := config.AutoscalingV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating huaweicloud autoscaling client: %s", err)
+			return fmtp.Errorf("Error creating huaweicloud autoscaling client: %s", err)
 		}
 
 		found, err := groups.Get(asClient, rs.Primary.ID).Extract()
@@ -125,9 +126,9 @@ func testAccCheckASV1GroupExists(n string, group *groups.Group) resource.TestChe
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("Autoscaling Group not found")
+			return fmtp.Errorf("Autoscaling Group not found")
 		}
-		log.Printf("[DEBUG] test found is: %#v", found)
+		logp.Printf("[DEBUG] test found is: %#v", found)
 		group = &found
 
 		return nil
@@ -135,7 +136,7 @@ func testAccCheckASV1GroupExists(n string, group *groups.Group) resource.TestChe
 }
 
 func testASV1Group_Base(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {
@@ -203,7 +204,7 @@ resource "huaweicloud_as_configuration" "hth_as_config"{
 }
 
 func testASV1Group_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_as_group" "hth_as_group"{
@@ -230,7 +231,7 @@ resource "huaweicloud_as_group" "hth_as_group"{
 }
 
 func testASV1Group_basic_disable(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_as_group" "hth_as_group"{
@@ -258,7 +259,7 @@ resource "huaweicloud_as_group" "hth_as_group"{
 }
 
 func testASV1Group_basic_enable(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_as_group" "hth_as_group"{
@@ -286,7 +287,7 @@ resource "huaweicloud_as_group" "hth_as_group"{
 }
 
 func testASV1Group_withEpsId(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 resource "huaweicloud_as_group" "hth_as_group"{

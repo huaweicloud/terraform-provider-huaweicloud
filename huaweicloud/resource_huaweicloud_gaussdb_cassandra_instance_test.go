@@ -1,8 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,7 +15,7 @@ import (
 func TestAccGeminiDBInstance_basic(t *testing.T) {
 	var instance instances.GeminiDBInstance
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_gaussdb_cassandra_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -38,7 +39,7 @@ func testAccCheckGeminiDBInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.GeminiDBV3Client(HW_REGION_NAME)
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -51,7 +52,7 @@ func testAccCheckGeminiDBInstanceDestroy(s *terraform.State) error {
 			return err
 		}
 		if found.Id != "" {
-			return fmt.Errorf("Instance <%s> still exists.", rs.Primary.ID)
+			return fmtp.Errorf("Instance <%s> still exists.", rs.Primary.ID)
 		}
 	}
 
@@ -62,17 +63,17 @@ func testAccCheckGeminiDBInstanceExists(n string, instance *instances.GeminiDBIn
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s.", n)
+			return fmtp.Errorf("Not found: %s.", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set.")
+			return fmtp.Errorf("No ID is set.")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.GeminiDBV3Client(HW_REGION_NAME)
 		if err != nil {
-			return fmt.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
+			return fmtp.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
 		}
 
 		found, err := instances.GetInstanceByID(client, rs.Primary.ID)
@@ -80,7 +81,7 @@ func testAccCheckGeminiDBInstanceExists(n string, instance *instances.GeminiDBIn
 			return err
 		}
 		if found.Id == "" {
-			return fmt.Errorf("Instance <%s> not found.", rs.Primary.ID)
+			return fmtp.Errorf("Instance <%s> not found.", rs.Primary.ID)
 		}
 		instance = &found
 
@@ -89,7 +90,7 @@ func testAccCheckGeminiDBInstanceExists(n string, instance *instances.GeminiDBIn
 }
 
 func testAccVpcConfig_Base(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -108,7 +109,7 @@ resource "huaweicloud_vpc_subnet" "test" {
 }
 
 func testAccGeminiDBInstanceConfig_basic(rName string) string {
-	return fmt.Sprintf(`
+	return fmtp.Sprintf(`
 %s
 
 data "huaweicloud_availability_zones" "test" {}

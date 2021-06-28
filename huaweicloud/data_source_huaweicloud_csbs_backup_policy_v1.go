@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
-	"fmt"
-	"log"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/csbs/v1/policies"
@@ -131,7 +131,7 @@ func dataSourceCSBSBackupPolicyV1Read(d *schema.ResourceData, meta interface{}) 
 	config := meta.(*config.Config)
 	policyClient, err := config.CsbsV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating csbs client: %s", err)
+		return fmtp.Errorf("Error creating csbs client: %s", err)
 	}
 
 	listOpts := policies.ListOpts{
@@ -143,22 +143,22 @@ func dataSourceCSBSBackupPolicyV1Read(d *schema.ResourceData, meta interface{}) 
 	refinedPolicies, err := policies.List(policyClient, listOpts)
 
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve backup policies: %s", err)
+		return fmtp.Errorf("Unable to retrieve backup policies: %s", err)
 	}
 
 	if len(refinedPolicies) < 1 {
-		return fmt.Errorf("Your query returned no results. " +
+		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	if len(refinedPolicies) > 1 {
-		return fmt.Errorf("Your query returned more than one result." +
+		return fmtp.Errorf("Your query returned more than one result." +
 			" Please try a more specific search criteria")
 	}
 
 	backupPolicy := refinedPolicies[0]
 
-	log.Printf("[INFO] Retrieved backup policy %s using given filter", backupPolicy.ID)
+	logp.Printf("[INFO] Retrieved backup policy %s using given filter", backupPolicy.ID)
 
 	d.SetId(backupPolicy.ID)
 

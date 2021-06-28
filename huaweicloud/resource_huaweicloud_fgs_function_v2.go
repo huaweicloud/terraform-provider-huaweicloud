@@ -4,8 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"encoding/hex"
-	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -13,6 +11,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/fgs/v2/function"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceFgsFunctionV2() *schema.Resource {
@@ -205,14 +205,14 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	fgsClient, err := config.FgsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 	}
 
 	// check app and package
 	app, app_ok := d.GetOk("app")
 	pkg, pkg_ok := d.GetOk("package")
 	if !app_ok && !pkg_ok {
-		return fmt.Errorf("One of app or package must be configured")
+		return fmtp.Errorf("One of app or package must be configured")
 	}
 	pack_v := ""
 	if app_ok {
@@ -253,10 +253,10 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 		createOpts.FuncCode = func_code
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	f, err := function.Create(fgsClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud function: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud function: %s", err)
 	}
 
 	// The "func_urn" is the unique identifier of the function
@@ -285,7 +285,7 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	fgsClient, err := config.FgsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 	}
 
 	f, err := function.GetMetadata(fgsClient, d.Id()).Extract()
@@ -293,7 +293,7 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "function")
 	}
 
-	log.Printf("[DEBUG] Retrieved Function %s: %+v", d.Id(), f)
+	logp.Printf("[DEBUG] Retrieved Function %s: %+v", d.Id(), f)
 
 	d.Set("name", f.FuncName)
 	d.Set("code_type", f.CodeType)
@@ -358,7 +358,7 @@ func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	fgsClient, err := config.FgsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 	}
 
 	urn := resourceFgsFunctionUrn(d.Id())
@@ -387,14 +387,14 @@ func resourceFgsFunctionV2Delete(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*config.Config)
 	fgsClient, err := config.FgsV2Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 	}
 
 	urn := resourceFgsFunctionUrn(d.Id())
 
 	err = function.Delete(fgsClient, urn).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error deleting HuaweiCloud function: %s", err)
+		return fmtp.Errorf("Error deleting HuaweiCloud function: %s", err)
 	}
 	d.SetId("")
 	return nil
@@ -405,7 +405,7 @@ func resourceFgsFunctionV2MetadataUpdate(fgsClient *golangsdk.ServiceClient, urn
 	app, app_ok := d.GetOk("app")
 	pkg, pkg_ok := d.GetOk("package")
 	if !app_ok && !pkg_ok {
-		return fmt.Errorf("One of app or package must be configured")
+		return fmtp.Errorf("One of app or package must be configured")
 	}
 	pack_v := ""
 	if app_ok {
@@ -444,10 +444,10 @@ func resourceFgsFunctionV2MetadataUpdate(fgsClient *golangsdk.ServiceClient, urn
 		updateMetadateOpts.MountConfig = resourceFgsFunctionMountConfig(d)
 	}
 
-	log.Printf("[DEBUG] Metaddata Update Options: %#v", updateMetadateOpts)
+	logp.Printf("[DEBUG] Metaddata Update Options: %#v", updateMetadateOpts)
 	_, err := function.UpdateMetadata(fgsClient, urn, updateMetadateOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating metadata of HuaweiCloud function: %s", err)
+		return fmtp.Errorf("Error updating metadata of HuaweiCloud function: %s", err)
 	}
 
 	return nil
@@ -477,10 +477,10 @@ func resourceFgsFunctionV2CodeUpdate(fgsClient *golangsdk.ServiceClient, urn str
 		updateCodeOpts.FuncCode = func_code
 	}
 
-	log.Printf("[DEBUG] Code Update Options: %#v", updateCodeOpts)
+	logp.Printf("[DEBUG] Code Update Options: %#v", updateCodeOpts)
 	_, err := function.UpdateCode(fgsClient, urn, updateCodeOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error updating code of HuaweiCloud function: %s", err)
+		return fmtp.Errorf("Error updating code of HuaweiCloud function: %s", err)
 	}
 
 	return nil

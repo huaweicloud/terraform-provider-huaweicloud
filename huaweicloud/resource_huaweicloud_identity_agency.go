@@ -2,11 +2,12 @@ package huaweicloud
 
 import (
 	"bytes"
-	"fmt"
-	"log"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -109,7 +110,7 @@ func ResourceIAMAgencyV3() *schema.Resource {
 func resourceIAMAgencyProRoleHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
-	buf.WriteString(fmt.Sprintf("%s-", m["project"].(string)))
+	buf.WriteString(fmtp.Sprintf("%s-", m["project"].(string)))
 
 	r := m["roles"].(*schema.Set).List()
 	s := make([]string, len(r))
@@ -128,16 +129,16 @@ func getProjectIDOfDomain(client *golangsdk.ServiceClient, domainID, name string
 	}
 	allPages, err := projects.List(client, &opts).AllPages()
 	if err != nil {
-		return "", fmt.Errorf("List projects failed, err=%s", err)
+		return "", fmtp.Errorf("List projects failed, err=%s", err)
 	}
 
 	all, err := projects.ExtractProjects(allPages)
 	if err != nil {
-		return "", fmt.Errorf("Extract projects failed, err=%s", err)
+		return "", fmtp.Errorf("Extract projects failed, err=%s", err)
 	}
 
 	if len(all) == 0 {
-		return "", fmt.Errorf("Wrong name or no access to the project: %s", name)
+		return "", fmtp.Errorf("Wrong name or no access to the project: %s", name)
 	}
 
 	item := all[0]
@@ -150,19 +151,19 @@ func listProjectsOfDomain(domainID string, client *golangsdk.ServiceClient) (map
 	}
 	allPages, err := projects.List(client, &opts).AllPages()
 	if err != nil {
-		return nil, fmt.Errorf("List projects failed, err=%s", err)
+		return nil, fmtp.Errorf("List projects failed, err=%s", err)
 	}
 
 	all, err := projects.ExtractProjects(allPages)
 	if err != nil {
-		return nil, fmt.Errorf("Extract projects failed, err=%s", err)
+		return nil, fmtp.Errorf("Extract projects failed, err=%s", err)
 	}
 
 	r := make(map[string]string, len(all))
 	for _, item := range all {
 		r[item.Name] = item.ID
 	}
-	log.Printf("[TRACE] projects = %#v\n", r)
+	logp.Printf("[TRACE] projects = %#v\n", r)
 	return r, nil
 }
 
@@ -172,12 +173,12 @@ func listRolesOfDomain(domainID string, client *golangsdk.ServiceClient) (map[st
 	}
 	allPages, err := roles.List(client, &opts).AllPages()
 	if err != nil {
-		return nil, fmt.Errorf("List roles failed, err=%s", err)
+		return nil, fmtp.Errorf("List roles failed, err=%s", err)
 	}
 
 	all, err := roles.ExtractRoles(allPages)
 	if err != nil {
-		return nil, fmt.Errorf("Extract roles failed, err=%s", err)
+		return nil, fmtp.Errorf("Extract roles failed, err=%s", err)
 	}
 	if len(all) == 0 {
 		return nil, nil
@@ -188,22 +189,22 @@ func listRolesOfDomain(domainID string, client *golangsdk.ServiceClient) (map[st
 		if name := item.DisplayName; name != "" {
 			r[name] = item.ID
 		} else {
-			log.Printf("[WARN] role %s without displayname", item.Name)
+			logp.Printf("[WARN] role %s without displayname", item.Name)
 		}
 	}
-	log.Printf("[TRACE] list roles = %#v, len=%d\n", r, len(r))
+	logp.Printf("[TRACE] list roles = %#v, len=%d\n", r, len(r))
 	return r, nil
 }
 
 func getAllRolesOfDomain(domainID string, client *golangsdk.ServiceClient) (map[string]string, error) {
 	roles, err := listRolesOfDomain("", client)
 	if err != nil {
-		return nil, fmt.Errorf("Error listing system-defined roles, err=%s", err)
+		return nil, fmtp.Errorf("Error listing system-defined roles, err=%s", err)
 	}
 
 	customRoles, err := listRolesOfDomain(domainID, client)
 	if err != nil {
-		return nil, fmt.Errorf("Error listing domain's custom roles, err=%s", err)
+		return nil, fmtp.Errorf("Error listing domain's custom roles, err=%s", err)
 	}
 
 	if roles == nil {
@@ -259,16 +260,16 @@ func resourceIAMAgencyV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
 	}
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	domainID := config.DomainID
 	if domainID == "" {
-		return fmt.Errorf("the domain_id must be specified in the provider configuration")
+		return fmtp.Errorf("the domain_id must be specified in the provider configuration")
 	}
 
 	opts := agency.CreateOpts{
@@ -282,11 +283,11 @@ func resourceIAMAgencyV3Create(d *schema.ResourceData, meta interface{}) error {
 	} else {
 		opts.DelegatedDomain = d.Get("delegated_service_name").(string)
 	}
-	log.Printf("[DEBUG] Create IAM-Agency Options: %#v", opts)
+	logp.Printf("[DEBUG] Create IAM-Agency Options: %#v", opts)
 
 	a, err := agency.Create(iamClient, opts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating IAM-Agency: %s", err)
+		return fmtp.Errorf("Error creating IAM-Agency: %s", err)
 	}
 
 	agencyID := a.ID
@@ -294,7 +295,7 @@ func resourceIAMAgencyV3Create(d *schema.ResourceData, meta interface{}) error {
 
 	roles, err := getAllRolesOfDomain(domainID, identityClient)
 	if err != nil {
-		return fmt.Errorf("Error querying the roles, err=%s", err)
+		return fmtp.Errorf("Error querying the roles, err=%s", err)
 	}
 
 	prs := d.Get("project_role").(*schema.Set)
@@ -303,7 +304,7 @@ func resourceIAMAgencyV3Create(d *schema.ResourceData, meta interface{}) error {
 		pname := pr["project"].(string)
 		pid, err := getProjectIDOfDomain(identityClient, domainID, pname)
 		if err != nil {
-			return fmt.Errorf("The project(%s) is not exist", pname)
+			return fmtp.Errorf("The project(%s) is not exist", pname)
 		}
 
 		rs := pr["roles"].(*schema.Set)
@@ -311,12 +312,12 @@ func resourceIAMAgencyV3Create(d *schema.ResourceData, meta interface{}) error {
 			r := role.(string)
 			rid, ok := roles[r]
 			if !ok {
-				return fmt.Errorf("The project role(%s) is not exist", r)
+				return fmtp.Errorf("The project role(%s) is not exist", r)
 			}
 
 			err = agency.AttachRoleByProject(iamClient, agencyID, pid, rid).ExtractErr()
 			if err != nil {
-				return fmt.Errorf("Error attaching role(%s) by project(%s) to agency(%s), err=%s",
+				return fmtp.Errorf("Error attaching role(%s) by project(%s) to agency(%s), err=%s",
 					rid, pid, agencyID, err)
 			}
 		}
@@ -327,12 +328,12 @@ func resourceIAMAgencyV3Create(d *schema.ResourceData, meta interface{}) error {
 		r := role.(string)
 		rid, ok := roles[r]
 		if !ok {
-			return fmt.Errorf("The domain role(%s) is not exist", r)
+			return fmtp.Errorf("The domain role(%s) is not exist", r)
 		}
 
 		err = agency.AttachRoleByDomain(iamClient, agencyID, domainID, rid).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("Error attaching role(%s) by domain(%s) to agency(%s), err=%s",
+			return fmtp.Errorf("Error attaching role(%s) by domain(%s) to agency(%s), err=%s",
 				rid, domainID, agencyID, err)
 		}
 	}
@@ -344,18 +345,18 @@ func resourceIAMAgencyV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
 	}
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	a, err := agency.Get(iamClient, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "IAM-Agency")
 	}
-	log.Printf("[DEBUG] Retrieved IAM-Agency %s: %#v", d.Id(), a)
+	logp.Printf("[DEBUG] Retrieved IAM-Agency %s: %#v", d.Id(), a)
 
 	d.Set("name", a.Name)
 	d.Set("description", a.Description)
@@ -368,7 +369,7 @@ func resourceIAMAgencyV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if ok, err := regexp.MatchString("^op_svc_[A-Za-z]+$", a.DelegatedDomainName); err != nil {
-		log.Printf("[ERROR] Regexp error, err= %s", err)
+		logp.Printf("[ERROR] Regexp error, err= %s", err)
 	} else if ok {
 		d.Set("delegated_service_name", a.DelegatedDomainName)
 	} else {
@@ -377,14 +378,14 @@ func resourceIAMAgencyV3Read(d *schema.ResourceData, meta interface{}) error {
 
 	projects, err := listProjectsOfDomain(a.DomainID, identityClient)
 	if err != nil {
-		return fmt.Errorf("Error querying the projects, err=%s", err)
+		return fmtp.Errorf("Error querying the projects, err=%s", err)
 	}
 	agencyID := d.Id()
 	prs := schema.Set{F: resourceIAMAgencyProRoleHash}
 	for pn, pid := range projects {
 		roles, err := agency.ListRolesAttachedOnProject(iamClient, agencyID, pid).ExtractRoles()
 		if err != nil && !utils.IsResourceNotFound(err) {
-			return fmt.Errorf("Error querying the roles attached on project(%s), err=%s", pn, err)
+			return fmtp.Errorf("Error querying the roles attached on project(%s), err=%s", pn, err)
 		}
 		if len(roles) == 0 {
 			continue
@@ -400,12 +401,12 @@ func resourceIAMAgencyV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	err = d.Set("project_role", &prs)
 	if err != nil {
-		log.Printf("[ERROR]Set project_role failed, err=%s", err)
+		logp.Printf("[ERROR]Set project_role failed, err=%s", err)
 	}
 
 	roles, err := agency.ListRolesAttachedOnDomain(iamClient, agencyID, a.DomainID).ExtractRoles()
 	if err != nil && !utils.IsResourceNotFound(err) {
-		return fmt.Errorf("Error querying the roles attached on domain, err=%s", err)
+		return fmtp.Errorf("Error querying the roles attached on domain, err=%s", err)
 	}
 	if len(roles) != 0 {
 		v := schema.Set{F: schema.HashString}
@@ -414,7 +415,7 @@ func resourceIAMAgencyV3Read(d *schema.ResourceData, meta interface{}) error {
 		}
 		err = d.Set("domain_roles", &v)
 		if err != nil {
-			log.Printf("[ERROR]Set domain_roles failed, err=%s", err)
+			logp.Printf("[ERROR]Set domain_roles failed, err=%s", err)
 		}
 	}
 
@@ -425,17 +426,17 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
 	}
 	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	agencyID := d.Id()
 	domainID := config.DomainID
 	if domainID == "" {
-		return fmt.Errorf("the domain_id must be specified in the provider configuration")
+		return fmtp.Errorf("the domain_id must be specified in the provider configuration")
 	}
 
 	if d.HasChanges("delegated_domain_name", "delegated_service_name", "description", "duration") {
@@ -448,7 +449,7 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 		} else {
 			updateOpts.DelegatedDomain = d.Get("delegated_service_name").(string)
 		}
-		log.Printf("[DEBUG] Updating IAM-Agency %s with options: %#v", agencyID, updateOpts)
+		logp.Printf("[DEBUG] Updating IAM-Agency %s with options: %#v", agencyID, updateOpts)
 		timeout := d.Timeout(schema.TimeoutUpdate)
 		//lintignore:R006
 		err = resource.Retry(timeout, func() *resource.RetryError {
@@ -459,7 +460,7 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		})
 		if err != nil {
-			return fmt.Errorf("Error updating IAM-Agency %s: %s", agencyID, err)
+			return fmtp.Errorf("Error updating IAM-Agency %s: %s", agencyID, err)
 		}
 	}
 
@@ -467,7 +468,7 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChanges("project_role", "domain_roles") {
 		roles, err = getAllRolesOfDomain(domainID, identityClient)
 		if err != nil {
-			return fmt.Errorf("Error querying the roles, err=%s", err)
+			return fmtp.Errorf("Error querying the roles, err=%s", err)
 		}
 	}
 
@@ -478,16 +479,16 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 			pr := strings.Split(v, "|")
 			pid, err := getProjectIDOfDomain(identityClient, domainID, pr[0])
 			if err != nil {
-				return fmt.Errorf("The project(%s) is not exist", pr[0])
+				return fmtp.Errorf("The project(%s) is not exist", pr[0])
 			}
 			rid, ok := roles[pr[1]]
 			if !ok {
-				return fmt.Errorf("The role(%s) is not exist", pr[1])
+				return fmtp.Errorf("The role(%s) is not exist", pr[1])
 			}
 
 			err = agency.DetachRoleByProject(iamClient, agencyID, pid, rid).ExtractErr()
 			if err != nil && !utils.IsResourceNotFound(err) {
-				return fmt.Errorf("Error detaching role(%s) by project{%s} from agency(%s), err=%s",
+				return fmtp.Errorf("Error detaching role(%s) by project{%s} from agency(%s), err=%s",
 					rid, pid, agencyID, err)
 			}
 		}
@@ -496,16 +497,16 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 			pr := strings.Split(v, "|")
 			pid, err := getProjectIDOfDomain(identityClient, domainID, pr[0])
 			if err != nil {
-				return fmt.Errorf("The project(%s) is not exist", pr[0])
+				return fmtp.Errorf("The project(%s) is not exist", pr[0])
 			}
 			rid, ok := roles[pr[1]]
 			if !ok {
-				return fmt.Errorf("The role(%s) is not exist", pr[1])
+				return fmtp.Errorf("The role(%s) is not exist", pr[1])
 			}
 
 			err = agency.AttachRoleByProject(iamClient, agencyID, pid, rid).ExtractErr()
 			if err != nil {
-				return fmt.Errorf("Error attaching role(%s) by project{%s} to agency(%s), err=%s",
+				return fmtp.Errorf("Error attaching role(%s) by project{%s} to agency(%s), err=%s",
 					rid, pid, agencyID, err)
 			}
 		}
@@ -519,12 +520,12 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 		for _, r := range oldr.Difference(newr).List() {
 			rid, ok := roles[r.(string)]
 			if !ok {
-				return fmt.Errorf("The role(%s) is not exist", r.(string))
+				return fmtp.Errorf("The role(%s) is not exist", r.(string))
 			}
 
 			err = agency.DetachRoleByDomain(iamClient, agencyID, domainID, rid).ExtractErr()
 			if err != nil && !utils.IsResourceNotFound(err) {
-				return fmt.Errorf("Error detaching role(%s) by domain{%s} from agency(%s), err=%s",
+				return fmtp.Errorf("Error detaching role(%s) by domain{%s} from agency(%s), err=%s",
 					rid, domainID, agencyID, err)
 			}
 		}
@@ -532,12 +533,12 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 		for _, r := range newr.Difference(oldr).List() {
 			rid, ok := roles[r.(string)]
 			if !ok {
-				return fmt.Errorf("The role(%s) is not exist", r.(string))
+				return fmtp.Errorf("The role(%s) is not exist", r.(string))
 			}
 
 			err = agency.AttachRoleByDomain(iamClient, agencyID, domainID, rid).ExtractErr()
 			if err != nil {
-				return fmt.Errorf("Error attaching role(%s) by domain{%s} to agency(%s), err=%s",
+				return fmtp.Errorf("Error attaching role(%s) by domain{%s} to agency(%s), err=%s",
 					rid, domainID, agencyID, err)
 			}
 		}
@@ -549,11 +550,11 @@ func resourceIAMAgencyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	iamClient, err := config.IAMV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
 	}
 
 	rID := d.Id()
-	log.Printf("[DEBUG] Deleting IAM-Agency %s", rID)
+	logp.Printf("[DEBUG] Deleting IAM-Agency %s", rID)
 
 	timeout := d.Timeout(schema.TimeoutDelete)
 	//lintignore:R006
@@ -566,10 +567,10 @@ func resourceIAMAgencyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	})
 	if err != nil {
 		if utils.IsResourceNotFound(err) {
-			log.Printf("[INFO] deleting an unavailable IAM-Agency: %s", rID)
+			logp.Printf("[INFO] deleting an unavailable IAM-Agency: %s", rID)
 			return nil
 		}
-		return fmt.Errorf("Error deleting IAM-Agency %s: %s", rID, err)
+		return fmtp.Errorf("Error deleting IAM-Agency %s: %s", rID, err)
 	}
 
 	return nil
