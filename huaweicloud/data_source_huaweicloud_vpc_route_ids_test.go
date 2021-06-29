@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestAccVpcRouteIdsV2DataSource_basic(t *testing.T) {
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -47,7 +48,7 @@ func testAccRouteIdV2DataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccRouteIdV2DataSource_vpcroute(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -74,7 +75,7 @@ resource "huaweicloud_vpc_route" "test" {
 }
 
 func testAccRouteIdV2DataSource_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_vpc_route_ids" "route_ids" {

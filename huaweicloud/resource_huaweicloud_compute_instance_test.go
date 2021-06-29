@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -17,7 +18,7 @@ import (
 func TestAccComputeV2Instance_basic(t *testing.T) {
 	var instance servers.Server
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -52,7 +53,7 @@ func TestAccComputeV2Instance_basic(t *testing.T) {
 func TestAccComputeV2Instance_disks(t *testing.T) {
 	var instance servers.Server
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -74,7 +75,7 @@ func TestAccComputeV2Instance_disks(t *testing.T) {
 func TestAccComputeV2Instance_prePaid(t *testing.T) {
 	var instance servers.Server
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -96,7 +97,7 @@ func TestAccComputeV2Instance_prePaid(t *testing.T) {
 func TestAccComputeV2Instance_tags(t *testing.T) {
 	var instance servers.Server
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -142,7 +143,7 @@ func TestAccComputeV2Instance_tags(t *testing.T) {
 func TestAccComputeV2Instance_powerAction(t *testing.T) {
 	var instance servers.Server
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -336,7 +337,7 @@ data "huaweicloud_networking_secgroup" "test" {
 `
 
 func testAccComputeV2Instance_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "test" {
@@ -354,7 +355,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 func testAccComputeV2Instance_disks(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "test" {
@@ -381,7 +382,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 func testAccComputeV2Instance_prePaid(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "test" {
@@ -403,7 +404,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 func testAccComputeV2Instance_tags(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "test" {
@@ -426,7 +427,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 func testAccComputeV2Instance_tags2(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "test" {
@@ -449,7 +450,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 func testAccComputeV2Instance_notags(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "test" {
@@ -467,7 +468,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 func testAccComputeV2Instance_powerAction(rName, powerAction string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "test" {

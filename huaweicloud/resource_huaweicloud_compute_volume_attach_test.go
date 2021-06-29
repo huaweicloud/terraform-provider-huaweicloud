@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 
 func TestAccComputeV2VolumeAttach_basic(t *testing.T) {
 	var va volumeattach.VolumeAttachment
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_volume_attach.va_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -40,7 +41,7 @@ func TestAccComputeV2VolumeAttach_basic(t *testing.T) {
 
 func TestAccComputeV2VolumeAttach_device(t *testing.T) {
 	var va volumeattach.VolumeAttachment
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -133,7 +134,7 @@ func testAccCheckComputeV2VolumeAttachDevice(
 }
 
 func testAccComputeV2VolumeAttach_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_evs_volume" "test" {
@@ -162,7 +163,7 @@ resource "huaweicloud_compute_volume_attach" "va_1" {
 }
 
 func testAccComputeV2VolumeAttach_device(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_evs_volume" "test" {

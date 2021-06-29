@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -236,7 +237,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 `
 
 //NOTE: Volume size cannot be smaller than the image minDisk size.
-var testAccBlockStorageV2Volume_image = fmtp.Sprintf(`
+var testAccBlockStorageV2Volume_image = fmt.Sprintf(`
 resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
   name = "volume_1"
   size = 40
@@ -257,7 +258,7 @@ resource "huaweicloud_blockstorage_volume_v2" "volume_1" {
 }
 `
 
-var testAccBlockStorageV2Volume_online_resize = fmtp.Sprintf(`
+var testAccBlockStorageV2Volume_online_resize = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "basic" {
   name            = "instance_1"
   security_groups = ["default"]
@@ -280,7 +281,7 @@ resource "huaweicloud_compute_volume_attach_v2" "va_1" {
 }
 `, HW_AVAILABILITY_ZONE, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)
 
-var testAccBlockStorageV2Volume_online_resize_update = fmtp.Sprintf(`
+var testAccBlockStorageV2Volume_online_resize_update = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "basic" {
   name            = "instance_1"
   security_groups = ["default"]

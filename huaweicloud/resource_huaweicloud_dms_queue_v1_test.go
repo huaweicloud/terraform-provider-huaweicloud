@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 
 func TestAccDmsQueuesV1_basic(t *testing.T) {
 	var queue queues.Queue
-	var queueName = fmtp.Sprintf("dms_queue_%s", acctest.RandString(5))
+	var queueName = fmt.Sprintf("dms_queue_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDms(t) },
@@ -38,7 +39,7 @@ func TestAccDmsQueuesV1_basic(t *testing.T) {
 
 func TestAccDmsQueuesV1_FIFOmode(t *testing.T) {
 	var queue queues.Queue
-	var queueName = fmtp.Sprintf("dms_queue_%s", acctest.RandString(5))
+	var queueName = fmt.Sprintf("dms_queue_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDms(t) },
@@ -115,7 +116,7 @@ func testAccCheckDmsV1QueueExists(n string, queue queues.Queue) resource.TestChe
 }
 
 func testAccDmsV1Queue_basic(queueName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 		resource "huaweicloud_dms_queue_v1" "queue_1" {
 			name  = "%s"
 		}
@@ -123,7 +124,7 @@ func testAccDmsV1Queue_basic(queueName string) string {
 }
 
 func testAccDmsV1Queue_FIFOmode(queueName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 		resource "huaweicloud_dms_queue_v1" "queue_1" {
 			name  = "%s"
 			description  = "test create dms queue"

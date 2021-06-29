@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -13,7 +14,7 @@ import (
 )
 
 func TestAccNetworkingV2VIP_basic(t *testing.T) {
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	updateName := rName + "update"
 	resourceName := "huaweicloud_networking_vip.vip_1"
 	var vip ports.Port
@@ -101,7 +102,7 @@ func testAccCheckNetworkingV2VIPExists(n string, vip *ports.Port) resource.TestC
 }
 
 func testAccNetworkingV2VIPConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "vpc_1" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -122,7 +123,7 @@ resource "huaweicloud_networking_vip" "vip_1" {
 }
 
 func testAccNetworkingV2VIPConfig_update(updateName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "vpc_1" {
   name = "%s"
   cidr = "192.168.0.0/16"

@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -161,7 +162,7 @@ resource "huaweicloud_networking_router_v2" "router_1" {
 }
 `
 
-var testAccNetworkingV2Router_updateExternalGateway2 = fmtp.Sprintf(`
+var testAccNetworkingV2Router_updateExternalGateway2 = fmt.Sprintf(`
 resource "huaweicloud_networking_router_v2" "router_1" {
 	name = "router"
 	admin_state_up = "true"

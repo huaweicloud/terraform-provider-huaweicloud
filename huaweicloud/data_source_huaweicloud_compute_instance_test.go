@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -12,7 +13,7 @@ import (
 )
 
 func TestAccComputeInstanceDataSource_basic(t *testing.T) {
-	rName := fmtp.Sprintf("ecs-data-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("ecs-data-test-%s", acctest.RandString(5))
 	resourceName := "data.huaweicloud_compute_instance.this"
 	var instance servers.Server
 
@@ -54,7 +55,7 @@ func testAccCheckComputeInstanceDataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccComputeInstanceDataSource_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "test" {

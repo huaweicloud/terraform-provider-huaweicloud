@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,7 +17,7 @@ import (
 func TestAccCCEAddonV3_basic(t *testing.T) {
 	var addon addons.Addon
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_addon.test"
 	clusterName := "huaweicloud_cce_cluster.test"
 
@@ -123,12 +124,12 @@ func testAccCCEAddonImportStateIdFunc() resource.ImportStateIdFunc {
 		if clusterID == "" || addonID == "" {
 			return "", fmtp.Errorf("resource not found: %s/%s", clusterID, addonID)
 		}
-		return fmtp.Sprintf("%s/%s", clusterID, addonID), nil
+		return fmt.Sprintf("%s/%s", clusterID, addonID), nil
 	}
 }
 
 func testAccCCEAddonV3_Base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node" "test" {
@@ -151,7 +152,7 @@ resource "huaweicloud_cce_node" "test" {
 }
 
 func testAccCCEAddonV3_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_addon" "test" {

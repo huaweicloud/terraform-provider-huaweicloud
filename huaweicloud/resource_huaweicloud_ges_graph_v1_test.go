@@ -15,6 +15,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -43,7 +44,7 @@ func TestAccGesGraphV1_basic(t *testing.T) {
 }
 
 func testAccGesGraphV1_basic(val string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup" {
   name = "terraform_test_security_group%s"
   description = "terraform security group acceptance test"

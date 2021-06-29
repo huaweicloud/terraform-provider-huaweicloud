@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 func TestAccBmsInstance_basic(t *testing.T) {
 	var instance baremetalservers.CloudServer
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_bms_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -94,7 +95,7 @@ func testAccCheckBmsInstanceExists(n string, instance *baremetalservers.CloudSer
 }
 
 func testAccBmsInstance_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 
 data "huaweicloud_availability_zones" "test" {}
 

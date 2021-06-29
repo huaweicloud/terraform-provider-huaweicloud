@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -80,7 +81,7 @@ func testAccCheckMaasTaskV1Exists(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccMaasTaskV1_basic = fmtp.Sprintf(`
+var testAccMaasTaskV1_basic = fmt.Sprintf(`
 resource "huaweicloud_oms_task" "task_1" {
   description = "migration task"
   enable_kms = false

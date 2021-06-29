@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 
 func TestAccIdentityV3Project_basic(t *testing.T) {
 	var project projects.Project
-	var projectName = fmtp.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
+	var projectName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_project.project_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -110,7 +111,7 @@ func testAccCheckIdentityV3ProjectExists(n string, project *projects.Project) re
 }
 
 func testAccIdentityV3Project_basic(projectName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_project" "project_1" {
   name        = "%s_%s"
   description = "A project"
@@ -119,7 +120,7 @@ resource "huaweicloud_identity_project" "project_1" {
 }
 
 func testAccIdentityV3Project_update(projectName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_project" "project_1" {
   name        = "%s_%s"
   description = "An updated project"

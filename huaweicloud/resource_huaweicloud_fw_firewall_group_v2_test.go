@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -299,7 +300,7 @@ resource "huaweicloud_fw_policy_v2" "policy_2" {
 }
 `
 
-var testAccFWFirewallV2_port = fmtp.Sprintf(`
+var testAccFWFirewallV2_port = fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
@@ -351,7 +352,7 @@ resource "huaweicloud_fw_firewall_group_v2" "fw_1" {
 }
 `, HW_EXTGW_ID)
 
-var testAccFWFirewallV2_port_add = fmtp.Sprintf(`
+var testAccFWFirewallV2_port_add = fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"

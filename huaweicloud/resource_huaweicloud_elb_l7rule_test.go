@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -16,7 +17,7 @@ import (
 
 func TestAccElbV3L7Rule_basic(t *testing.T) {
 	var l7rule l7rules.Rule
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_l7rule.l7rule_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -126,7 +127,7 @@ func testAccCheckElbV3L7RuleExists(n string, l7rule *l7rules.Rule) resource.Test
 }
 
 func testAccCheckElbV3L7RuleConfig(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -174,7 +175,7 @@ resource "huaweicloud_elb_l7policy" "test" {
 }
 
 func testAccCheckElbV3L7RuleConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_elb_l7rule" "l7rule_1" {
@@ -187,7 +188,7 @@ resource "huaweicloud_elb_l7rule" "l7rule_1" {
 }
 
 func testAccCheckElbV3L7RuleConfig_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_elb_l7rule" "l7rule_1" {

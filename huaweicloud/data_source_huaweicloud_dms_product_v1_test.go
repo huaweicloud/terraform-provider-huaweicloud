@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -93,7 +94,7 @@ func testAccCheckDmsProductV1DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccDmsProductV1DataSource_basic = fmtp.Sprintf(`
+var testAccDmsProductV1DataSource_basic = fmt.Sprintf(`
 data "huaweicloud_dms_product_v1" "product1" {
 engine = "kafka"
 version = "1.1.0"
@@ -104,7 +105,7 @@ storage_spec_code = "dms.physical.storage.high"
 }
 `)
 
-var testAccDmsProductV1DataSource_rabbitmqSingle = fmtp.Sprintf(`
+var testAccDmsProductV1DataSource_rabbitmqSingle = fmt.Sprintf(`
 data "huaweicloud_dms_product_v1" "product1" {
 engine = "rabbitmq"
 version = "3.7.0"
@@ -115,7 +116,7 @@ storage_spec_code = "dms.physical.storage.normal"
 }
 `)
 
-var testAccDmsProductV1DataSource_rabbitmqCluster = fmtp.Sprintf(`
+var testAccDmsProductV1DataSource_rabbitmqCluster = fmt.Sprintf(`
 data "huaweicloud_dms_product_v1" "product1" {
 engine = "rabbitmq"
 version = "3.7.0"

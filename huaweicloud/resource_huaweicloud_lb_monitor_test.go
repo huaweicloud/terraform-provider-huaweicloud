@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,8 +15,8 @@ import (
 
 func TestAccLBV2Monitor_basic(t *testing.T) {
 	var monitor monitors.Monitor
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_monitor.monitor_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -101,7 +102,7 @@ func testAccCheckLBV2MonitorExists(n string, monitor *monitors.Monitor) resource
 }
 
 func testAccLBV2MonitorConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -137,7 +138,7 @@ resource "huaweicloud_lb_monitor" "monitor_1" {
 }
 
 func testAccLBV2MonitorConfig_update(rName, rNameUpdate string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestAccHuaweiCloudNetworkingSecGroupV2DataSource_basic(t *testing.T) {
-	var rName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -33,7 +34,7 @@ func TestAccHuaweiCloudNetworkingSecGroupV2DataSource_basic(t *testing.T) {
 }
 
 func TestAccHuaweiCloudNetworkingSecGroupV2DataSource_secGroupID(t *testing.T) {
-	var rName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -70,7 +71,7 @@ func testAccCheckNetworkingSecGroupV2DataSourceID(n string) resource.TestCheckFu
 }
 
 func testAccHuaweiCloudNetworkingSecGroupV2DataSource_group(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
   name        = "%s"
   description = "My neutron security group"
@@ -79,7 +80,7 @@ resource "huaweicloud_networking_secgroup_v2" "secgroup_1" {
 }
 
 func testAccHuaweiCloudNetworkingSecGroupV2DataSource_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_secgroup_v2" "secgroup_1" {
@@ -89,7 +90,7 @@ data "huaweicloud_networking_secgroup_v2" "secgroup_1" {
 }
 
 func testAccHuaweiCloudNetworkingSecGroupV2DataSource_secGroupID(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_secgroup_v2" "secgroup_1" {

@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -14,7 +15,7 @@ import (
 
 func TestAccVBSBackupV2_basic(t *testing.T) {
 	var config backups.Backup
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -42,7 +43,7 @@ func TestAccVBSBackupV2_basic(t *testing.T) {
 
 func TestAccVBSBackupV2_timeout(t *testing.T) {
 	var config backups.Backup
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -113,7 +114,7 @@ func testAccCheckVBSBackupV2Exists(n string, configs *backups.Backup) resource.T
 }
 
 func testAccVBSBackupV2_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_evs_volume" "volume" {
   name              = "%s"
   description       = "my volume"
@@ -137,7 +138,7 @@ resource "huaweicloud_vbs_backup" "backup_1" {
 }
 
 func testAccVBSBackupV2_timeout(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_evs_volume" "volume" {
   name              = "%s"
   description       = "my volume"

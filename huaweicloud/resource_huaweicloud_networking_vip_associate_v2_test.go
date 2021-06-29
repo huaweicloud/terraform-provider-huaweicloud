@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,7 +17,7 @@ import (
 )
 
 func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	var instance servers.Server
 	var vip ports.Port
 	var port ports.Port
@@ -83,7 +84,7 @@ func testAccCheckNetworkingV2VIPAssociated(p *ports.Port, vip *ports.Port) resou
 }
 
 func testAccNetworkingV2VIPAssociateConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_port" "port" {

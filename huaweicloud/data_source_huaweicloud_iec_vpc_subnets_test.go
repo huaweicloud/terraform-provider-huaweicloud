@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestAccIECSubnetsDataSource_basic(t *testing.T) {
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	allSubnets := "data.huaweicloud_iec_vpc_subnets.all"
 	siteSubnets := "data.huaweicloud_iec_vpc_subnets.site"
 
@@ -55,7 +56,7 @@ func testAccIECSubnetsDataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccIECNetworkConfig_base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_iec_sites" "sites_test" {}
 
 resource "huaweicloud_iec_vpc" "vpc_test" {
@@ -83,7 +84,7 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_2" {
 }
 
 func testAccIECSubnetsDataSource_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_iec_vpc_subnets" "all" {

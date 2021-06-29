@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,7 +15,7 @@ import (
 
 func TestAccDmsKafkaInstances_basic(t *testing.T) {
 	var instance instances.Instance
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	updateName := rName + "update"
 	resourceName := "huaweicloud_dms_kafka_instance.test"
 
@@ -59,7 +60,7 @@ func TestAccDmsKafkaInstances_basic(t *testing.T) {
 
 func TestAccDmsKafkaInstances_withEpsId(t *testing.T) {
 	var instance instances.Instance
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dms_kafka_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -133,7 +134,7 @@ func testAccCheckDmsKafkaInstanceExists(n string, instance instances.Instance) r
 }
 
 func testAccDmsKafkaInstance_Base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_dms_az" "test" {}
 
 data "huaweicloud_vpc" "test" {
@@ -158,7 +159,7 @@ resource "huaweicloud_networking_secgroup" "test" {
 }
 
 func testAccDmsKafkaInstance_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_dms_kafka_instance" "test" {
@@ -187,7 +188,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 }
 
 func testAccDmsKafkaInstance_update(rName, updateName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_dms_kafka_instance" "test" {
@@ -216,7 +217,7 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 }
 
 func testAccDmsKafkaInstance_withEpsId(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_dms_kafka_instance" "test" {

@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,8 +16,8 @@ import (
 
 func TestAccElbV3Listener_basic(t *testing.T) {
 	var listener listeners.Listener
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_listener.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -102,7 +103,7 @@ func testAccCheckElbV3ListenerExists(
 }
 
 func testAccElbV3ListenerConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -146,7 +147,7 @@ resource "huaweicloud_elb_listener" "test" {
 }
 
 func testAccElbV3ListenerConfig_update(rNameUpdate string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

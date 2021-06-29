@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,7 +17,7 @@ import (
 
 func TestAccASV1Configuration_basic(t *testing.T) {
 	var asConfig configurations.Configuration
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -89,7 +90,7 @@ func testAccCheckASV1ConfigurationExists(n string, configuration *configurations
 }
 
 func testAccASV1Configuration_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_images_image" "test" {

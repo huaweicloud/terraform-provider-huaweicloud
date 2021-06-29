@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 
 func TestAccElbV3IpGroup_basic(t *testing.T) {
 	var c ipgroups.IpGroup
-	name := fmtp.Sprintf("tf-acc-%s", acctest.RandString(5))
+	name := fmt.Sprintf("tf-acc-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_ipgroup.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -35,7 +36,7 @@ func TestAccElbV3IpGroup_basic(t *testing.T) {
 			{
 				Config: testAccElbV3IpGroupConfig_update(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("%s_updated", name)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s_updated", name)),
 					resource.TestCheckResourceAttr(resourceName, "description", "terraform test updated"),
 					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
 				),
@@ -46,7 +47,7 @@ func TestAccElbV3IpGroup_basic(t *testing.T) {
 
 func TestAccElbV3IpGroup_withEpsId(t *testing.T) {
 	var c ipgroups.IpGroup
-	name := fmtp.Sprintf("tf-acc-%s", acctest.RandString(5))
+	name := fmt.Sprintf("tf-acc-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_ipgroup.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -121,7 +122,7 @@ func testAccCheckElbV3IpGroupExists(
 }
 
 func testAccElbV3IpGroupConfig_basic(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_elb_ipgroup" "test"{
   name        = "%s"
   description = "terraform test"
@@ -135,7 +136,7 @@ resource "huaweicloud_elb_ipgroup" "test"{
 }
 
 func testAccElbV3IpGroupConfig_update(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_elb_ipgroup" "test"{
   name        = "%s_updated"
   description = "terraform test updated"
@@ -154,7 +155,7 @@ resource "huaweicloud_elb_ipgroup" "test"{
 }
 
 func testAccElbV3IpGroupConfig_withEpsId(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_elb_ipgroup" "test"{
   name        = "%s"
   description = "terraform test"

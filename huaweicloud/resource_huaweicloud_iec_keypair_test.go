@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -17,7 +18,7 @@ import (
 func TestAccIECKeypairResource_basic(t *testing.T) {
 	var keypair common.KeyPair
 	resourceName := "huaweicloud_iec_keypair.kp_1"
-	rName := fmtp.Sprintf("KeyPair-%s", acctest.RandString(4))
+	rName := fmt.Sprintf("KeyPair-%s", acctest.RandString(4))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -95,7 +96,7 @@ func testAccCheckIECKeypairExists(n string, kp *common.KeyPair) resource.TestChe
 }
 
 func testAccIECKeypair_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_iec_keypair" "kp_1" {
   name = "%s"
 }

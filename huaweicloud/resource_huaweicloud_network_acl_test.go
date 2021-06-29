@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,7 +15,7 @@ import (
 )
 
 func TestAccNetworkACL_basic(t *testing.T) {
-	rName := fmtp.Sprintf("acc-fw-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("acc-fw-%s", acctest.RandString(5))
 	resourceKey := "huaweicloud_network_acl.fw_1"
 	var fwGroup FirewallGroup
 
@@ -49,7 +50,7 @@ func TestAccNetworkACL_basic(t *testing.T) {
 }
 
 func TestAccNetworkACL_no_subnets(t *testing.T) {
-	rName := fmtp.Sprintf("acc-fw-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("acc-fw-%s", acctest.RandString(5))
 	resourceKey := "huaweicloud_network_acl.fw_1"
 	var fwGroup FirewallGroup
 
@@ -73,7 +74,7 @@ func TestAccNetworkACL_no_subnets(t *testing.T) {
 }
 
 func TestAccNetworkACL_remove(t *testing.T) {
-	rName := fmtp.Sprintf("acc-fw-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("acc-fw-%s", acctest.RandString(5))
 	resourceKey := "huaweicloud_network_acl.fw_1"
 	var fwGroup FirewallGroup
 
@@ -166,7 +167,7 @@ func testAccCheckNetworkACLExists(n string, fwGroup *FirewallGroup) resource.Tes
 }
 
 func testAccNetworkACLRules(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "vpc_1" {
   name = "%s_vpc"
   cidr = "192.168.0.0/16"
@@ -205,7 +206,7 @@ resource "huaweicloud_network_acl_rule" "rule_2" {
 }
 
 func testAccNetworkACL_basic(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_network_acl" "fw_1" {
@@ -219,7 +220,7 @@ resource "huaweicloud_network_acl" "fw_1" {
 }
 
 func testAccNetworkACL_basic_update(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_network_acl" "fw_1" {
@@ -235,7 +236,7 @@ resource "huaweicloud_network_acl" "fw_1" {
 }
 
 func testAccNetworkACL_no_subnets(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_network_acl" "fw_1" {
   name        = "%s"
   description = "network acl without subents"

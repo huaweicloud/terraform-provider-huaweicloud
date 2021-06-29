@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,8 +16,8 @@ import (
 
 func TestAccKmsKey_Basic(t *testing.T) {
 	var key keys.Key
-	var keyAlias = fmtp.Sprintf("kms_%s", acctest.RandString(5))
-	var keyAliasUpdate = fmtp.Sprintf("kms_updated_%s", acctest.RandString(5))
+	var keyAlias = fmt.Sprintf("kms_%s", acctest.RandString(5))
+	var keyAliasUpdate = fmt.Sprintf("kms_updated_%s", acctest.RandString(5))
 	var resourceName = "huaweicloud_kms_key.key_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -56,7 +57,7 @@ func TestAccKmsKey_Basic(t *testing.T) {
 
 func TestAccKmsKey_Enable(t *testing.T) {
 	var key1, key2, key3 keys.Key
-	rName := fmtp.Sprintf("kms_%s", acctest.RandString(5))
+	rName := fmt.Sprintf("kms_%s", acctest.RandString(5))
 	var resourceName = "huaweicloud_kms_key.key_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -94,7 +95,7 @@ func TestAccKmsKey_Enable(t *testing.T) {
 
 func TestAccKmsKey_WithTags(t *testing.T) {
 	var key keys.Key
-	var keyAlias = fmtp.Sprintf("kms_%s", acctest.RandString(5))
+	var keyAlias = fmt.Sprintf("kms_%s", acctest.RandString(5))
 	var resourceName = "huaweicloud_kms_key.key_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -117,7 +118,7 @@ func TestAccKmsKey_WithTags(t *testing.T) {
 
 func TestAccKmsKey_WithEpsId(t *testing.T) {
 	var key keys.Key
-	var keyAlias = fmtp.Sprintf("kms_%s", acctest.RandString(5))
+	var keyAlias = fmt.Sprintf("kms_%s", acctest.RandString(5))
 	var resourceName = "huaweicloud_kms_key.key_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -203,7 +204,7 @@ func testAccCheckKmsKeyIsEnabled(key *keys.Key, isEnabled bool) resource.TestChe
 }
 
 func testAccKmsKey_Basic(keyAlias string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_kms_key" "key_1" {
   key_alias    = "%s"
   pending_days = "7"
@@ -213,7 +214,7 @@ resource "huaweicloud_kms_key" "key_1" {
 }
 
 func testAccKmsKey_WithTags(keyAlias string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_kms_key" "key_1" {
   key_alias    = "%s"
   pending_days = "7"
@@ -226,7 +227,7 @@ resource "huaweicloud_kms_key" "key_1" {
 }
 
 func testAccKmsKey_epsId(keyAlias string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_kms_key" "key_1" {
   key_alias    = "%s"
   pending_days = "7"
@@ -236,7 +237,7 @@ resource "huaweicloud_kms_key" "key_1" {
 }
 
 func testAccKmsKeyUpdate(keyAliasUpdate string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_kms_key" "key_1" {
   key_alias       = "%s"
   key_description = "key update description"
@@ -246,7 +247,7 @@ resource "huaweicloud_kms_key" "key_1" {
 }
 
 func testAccKmsKey_enabled(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_kms_key" "key_1" {
   key_description = "Terraform acc test is_enabled %s"
   pending_days    = "7"
@@ -255,7 +256,7 @@ resource "huaweicloud_kms_key" "key_1" {
 }
 
 func testAccKmsKey_disabled(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_kms_key" "key_1" {
   key_description = "Terraform acc test is_enabled %s"
   pending_days    = "7"

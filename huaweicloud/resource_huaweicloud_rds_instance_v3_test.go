@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -13,7 +14,7 @@ import (
 
 func TestAccRdsInstanceV3_basic(t *testing.T) {
 	var instance instances.RdsInstanceResponse
-	name := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 
@@ -41,7 +42,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 				Config: testAccRdsInstanceV3_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
-					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("%s-update", name)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", name)),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "2"),
 					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.xlarge.2"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "100"),
@@ -65,7 +66,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 
 func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
 	var instance instances.RdsInstanceResponse
-	name := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 
@@ -87,7 +88,7 @@ func TestAccRdsInstanceV3_withEpsId(t *testing.T) {
 
 func TestAccRdsInstanceV3_ha(t *testing.T) {
 	var instance instances.RdsInstanceResponse
-	name := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceType := "huaweicloud_rds_instance"
 	resourceName := "huaweicloud_rds_instance.test"
 
@@ -173,7 +174,7 @@ func testAccCheckRdsInstanceV3Exists(name string, instance *instances.RdsInstanc
 }
 
 func testAccRdsInstanceV3_base(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_vpc" "test" {
@@ -197,7 +198,7 @@ resource "huaweicloud_networking_secgroup" "test" {
 }
 
 func testAccRdsInstanceV3_basic(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_rds_instance" "test" {
@@ -235,7 +236,7 @@ resource "huaweicloud_rds_instance" "test" {
 
 // name, volume.size, backup_strategy, flavor and tags will be updated
 func testAccRdsInstanceV3_update(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_rds_instance" "test" {
@@ -271,7 +272,7 @@ resource "huaweicloud_rds_instance" "test" {
 }
 
 func testAccRdsInstanceV3_epsId(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_rds_instance" "test" {
@@ -302,7 +303,7 @@ resource "huaweicloud_rds_instance" "test" {
 }
 
 func testAccRdsInstanceV3_ha(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_rds_instance" "test" {

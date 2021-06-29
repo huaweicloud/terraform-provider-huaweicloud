@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,9 +15,9 @@ import (
 )
 
 func TestAccIdentityV3GroupMembership_basic(t *testing.T) {
-	var groupName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	var userName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	var userName2 = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var groupName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var userName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var userName2 = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_group_membership.membership_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -120,7 +121,7 @@ func testAccCheckIdentityV3GroupMembershipExists(n string, us []string) resource
 }
 
 func testAccIdentityV3GroupMembership_basic(groupName, userName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
   name = "%s"
 }
@@ -139,7 +140,7 @@ resource "huaweicloud_identity_group_membership" "membership_1" {
 }
 
 func testAccIdentityV3GroupMembership_update(groupName, userName string, userName2 string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
   name = "%s"
 }
@@ -165,7 +166,7 @@ resource "huaweicloud_identity_group_membership" "membership_1" {
 }
 
 func testAccIdentityV3GroupMembership_updatedown(groupName, userName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
   name = "%s"
 }

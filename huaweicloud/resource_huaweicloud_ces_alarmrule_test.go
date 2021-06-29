@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,7 +15,7 @@ import (
 
 func TestAccCESAlarmRule_basic(t *testing.T) {
 	var ar alarmrule.AlarmRule
-	rName := fmtp.Sprintf("tf-acc-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_ces_alarmrule.alarmrule_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -26,7 +27,7 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 				Config: testCESAlarmRule_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testCESAlarmRuleExists(resourceName, &ar),
-					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmtp.Sprintf("rule-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmt.Sprintf("rule-%s", rName)),
 					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_level", "2"),
@@ -41,7 +42,7 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 			{
 				Config: testCESAlarmRule_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmtp.Sprintf("rule-%s-update", rName)),
+					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmt.Sprintf("rule-%s-update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_level", "3"),
 					resource.TestCheckResourceAttr(resourceName, "condition.0.value", "60"),
@@ -53,7 +54,7 @@ func TestAccCESAlarmRule_basic(t *testing.T) {
 
 func TestAccCESAlarmRule_withEpsId(t *testing.T) {
 	var ar alarmrule.AlarmRule
-	rName := fmtp.Sprintf("tf-acc-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_ces_alarmrule.alarmrule_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -65,7 +66,7 @@ func TestAccCESAlarmRule_withEpsId(t *testing.T) {
 				Config: testCESAlarmRule_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testCESAlarmRuleExists(resourceName, &ar),
-					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmtp.Sprintf("rule-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "alarm_name", fmt.Sprintf("rule-%s", rName)),
 					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_level", "2"),
@@ -129,7 +130,7 @@ func testCESAlarmRuleExists(n string, ar *alarmrule.AlarmRule) resource.TestChec
 }
 
 func testCESAlarmRule_base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {
@@ -168,7 +169,7 @@ resource "huaweicloud_smn_topic" "topic_1" {
 }
 
 func testCESAlarmRule_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
@@ -205,7 +206,7 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
 }
 
 func testCESAlarmRule_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
@@ -244,7 +245,7 @@ resource "huaweicloud_ces_alarmrule" "alarmrule_1" {
 }
 
 func testCESAlarmRule_withEpsId(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_ces_alarmrule" "alarmrule_1" {

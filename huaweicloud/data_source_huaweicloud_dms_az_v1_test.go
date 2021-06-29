@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -45,7 +46,7 @@ func testAccCheckDmsAZV1DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccDmsAZV1DataSource_basic = fmtp.Sprintf(`
+var testAccDmsAZV1DataSource_basic = fmt.Sprintf(`
 data "huaweicloud_dms_az_v1" "az1" {
 name = "可用区1"
 port = "8002"

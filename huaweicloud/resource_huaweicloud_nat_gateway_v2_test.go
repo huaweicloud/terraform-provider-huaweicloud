@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -26,7 +27,7 @@ func TestAccNatGateway_basic(t *testing.T) {
 				Config: testAccNatV2Gateway_basic(randSuffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNatV2GatewayExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("nat-gateway-basic-%s", randSuffix)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("nat-gateway-basic-%s", randSuffix)),
 					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform"),
 					resource.TestCheckResourceAttr(resourceName, "spec", "1"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
@@ -40,7 +41,7 @@ func TestAccNatGateway_basic(t *testing.T) {
 			{
 				Config: testAccNatV2Gateway_update(randSuffix),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("nat-gateway-updated-%s", randSuffix)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("nat-gateway-updated-%s", randSuffix)),
 					resource.TestCheckResourceAttr(resourceName, "description", "test for terraform updated"),
 					resource.TestCheckResourceAttr(resourceName, "spec", "2"),
 				),
@@ -121,7 +122,7 @@ func testAccCheckNatV2GatewayExists(n string) resource.TestCheckFunc {
 }
 
 func testAccNatPreCondition(suffix string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "vpc_1" {
   name = "nat-vpc-%s"
   cidr = "172.16.0.0/16"
@@ -138,7 +139,7 @@ resource "huaweicloud_vpc_subnet" "subnet_1" {
 }
 
 func testAccNatV2Gateway_basic(suffix string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_nat_gateway" "nat_1" {
@@ -152,7 +153,7 @@ resource "huaweicloud_nat_gateway" "nat_1" {
 }
 
 func testAccNatV2Gateway_update(suffix string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_nat_gateway" "nat_1" {
@@ -166,7 +167,7 @@ resource "huaweicloud_nat_gateway" "nat_1" {
 }
 
 func testAccNatV2Gateway_epsId(suffix string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_nat_gateway" "nat_1" {

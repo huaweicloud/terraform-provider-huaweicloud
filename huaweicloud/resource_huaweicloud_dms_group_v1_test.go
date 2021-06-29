@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,8 +16,8 @@ import (
 
 func TestAccDmsGroupsV1_basic(t *testing.T) {
 	var group groups.Group
-	var groupName = fmtp.Sprintf("dms_group_%s", acctest.RandString(5))
-	var queueName = fmtp.Sprintf("dms_queue_%s", acctest.RandString(5))
+	var groupName = fmt.Sprintf("dms_group_%s", acctest.RandString(5))
+	var queueName = fmt.Sprintf("dms_queue_%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDms(t) },
@@ -103,7 +104,7 @@ func testAccCheckDmsV1GroupExists(n string, group groups.Group) resource.TestChe
 }
 
 func testAccDmsV1Group_basic(groupName string, queueName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 		resource "huaweicloud_dms_queue_v1" "queue_1" {
 			name  = "%s"
 		}

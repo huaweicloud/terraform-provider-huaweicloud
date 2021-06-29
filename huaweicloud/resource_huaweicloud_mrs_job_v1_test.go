@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -92,7 +93,7 @@ func testAccCheckMRSV1JobExists(n string, jobGet *job.Job) resource.TestCheckFun
 	}
 }
 
-var TestAccMRSV1JobConfig_basic = fmtp.Sprintf(`
+var TestAccMRSV1JobConfig_basic = fmt.Sprintf(`
 resource "huaweicloud_mrs_cluster_v1" "cluster1" {
   cluster_name = "mrs-cluster-acc"
   region = "%s"

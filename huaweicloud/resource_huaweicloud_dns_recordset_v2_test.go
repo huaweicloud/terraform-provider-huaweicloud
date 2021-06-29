@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -15,7 +16,7 @@ import (
 )
 
 func randomZoneName() string {
-	return fmtp.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
+	return fmt.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
 }
 
 func TestAccDNSV2RecordSet_basic(t *testing.T) {
@@ -169,7 +170,7 @@ func testAccCheckDNSV2RecordSetExists(n string, recordset *recordsets.RecordSet)
 }
 
 func testAccDNSV2RecordSet_basic(zoneName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
   email       = "email2@example.com"
@@ -194,7 +195,7 @@ resource "huaweicloud_dns_recordset" "recordset_1" {
 }
 
 func testAccDNSV2RecordSet_update(zoneName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
   email       = "email2@example.com"
@@ -219,7 +220,7 @@ resource "huaweicloud_dns_recordset" "recordset_1" {
 }
 
 func testAccDNSV2RecordSet_readTTL(zoneName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
   email       = "email2@example.com"
@@ -237,7 +238,7 @@ resource "huaweicloud_dns_recordset" "recordset_1" {
 }
 
 func testAccDNSV2RecordSet_private(zoneName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc" "default" {
   name = "vpc-default"
 }

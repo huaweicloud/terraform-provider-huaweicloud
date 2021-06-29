@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -44,7 +45,7 @@ func testAccCheckIECImagesDataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccIECImagesConfig() string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_iec_images" "images_test" {
   region = "%s"
 }

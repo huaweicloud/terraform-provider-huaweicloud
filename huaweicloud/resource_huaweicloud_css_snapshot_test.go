@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -26,7 +27,7 @@ func TestAccCssSnapshot_basic(t *testing.T) {
 				Config: testAccCssSnapshot_basic(rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCssSnapshotExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("snapshot-%s", rand)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("snapshot-%s", rand)),
 					resource.TestCheckResourceAttr(resourceName, "status", "COMPLETED"),
 					resource.TestCheckResourceAttr(resourceName, "backup_type", "manual"),
 				),
@@ -97,7 +98,7 @@ func testAccCheckCssSnapshotExists() resource.TestCheckFunc {
 }
 
 func testAccCssSnapshot_basic(val string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup" {
   name = "terraform_test_sg-%s"
   description = "terraform security group acceptance test"

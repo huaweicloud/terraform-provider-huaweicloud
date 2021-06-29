@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -15,9 +16,9 @@ import (
 func TestAccSWROrganization_basic(t *testing.T) {
 	var org namespaces.Namespace
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_swr_organization.test"
-	loginServer := fmtp.Sprintf("swr.%s.myhuaweicloud.com", HW_REGION_NAME)
+	loginServer := fmt.Sprintf("swr.%s.myhuaweicloud.com", HW_REGION_NAME)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -96,7 +97,7 @@ func testAccCheckSWROrganizationExists(n string, org *namespaces.Namespace) reso
 }
 
 func testAccSWROrganization_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_swr_organization" "test" {
   name = "%s"
 }

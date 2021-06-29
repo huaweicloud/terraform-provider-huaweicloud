@@ -15,6 +15,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -43,7 +44,7 @@ func TestAccCsPeeringConnectV1_basic(t *testing.T) {
 }
 
 func testAccCsPeeringConnectV1_basic(val string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_cs_cluster_v1" "cluster" {
   name = "terraform_cs_cluster_v1_test%s"
 }

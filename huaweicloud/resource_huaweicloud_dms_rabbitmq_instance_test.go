@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,7 +15,7 @@ import (
 
 func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 	var instance instances.Instance
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	updateName := rName + "update"
 	resourceName := "huaweicloud_dms_rabbitmq_instance.test"
 
@@ -58,7 +59,7 @@ func TestAccDmsRabbitmqInstances_basic(t *testing.T) {
 
 func TestAccDmsRabbitmqInstances_withEpsId(t *testing.T) {
 	var instance instances.Instance
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dms_rabbitmq_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -132,7 +133,7 @@ func testAccCheckDmsRabbitmqInstanceExists(n string, instance instances.Instance
 }
 
 func testAccDmsRabbitmqInstance_Base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_dms_az" "test" {}
 
 data "huaweicloud_vpc" "test" {
@@ -157,7 +158,7 @@ resource "huaweicloud_networking_secgroup" "test" {
 }
 
 func testAccDmsRabbitmqInstance_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_dms_rabbitmq_instance" "test" {
@@ -183,7 +184,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
 }
 
 func testAccDmsRabbitmqInstance_update(rName, updateName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_dms_rabbitmq_instance" "test" {
@@ -209,7 +210,7 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
 }
 
 func testAccDmsRabbitmqInstance_withEpsId(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_dms_rabbitmq_instance" "test" {

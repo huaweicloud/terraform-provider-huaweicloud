@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -85,7 +86,7 @@ func testAccCheckCCINetworkV1Exists(n string, network *networks.Network) resourc
 	}
 }
 
-var testAccCCINetworkV1_basic = fmtp.Sprintf(`
+var testAccCCINetworkV1_basic = fmt.Sprintf(`
 resource "huaweicloud_cci_network_v1" "net_1" {
   name = "cci-net"
   namespace = "test-ns"

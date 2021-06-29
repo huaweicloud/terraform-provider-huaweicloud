@@ -15,6 +15,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -141,7 +142,7 @@ func testAccCheckNatDnatExists() resource.TestCheckFunc {
 }
 
 func testAccNatV2DnatRule_base(suffix string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
@@ -191,7 +192,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
 }
 
 func testAccNatV2DnatRule_basic(suffix string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 %s
@@ -208,7 +209,7 @@ resource "huaweicloud_nat_dnat_rule" "dnat" {
 }
 
 func testAccNatV2DnatRule_protocol(suffix string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 %s

@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 func TestAccGaussDBInstance_basic(t *testing.T) {
 	var instance instances.TaurusDBInstance
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_gaussdb_mysql_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -86,7 +87,7 @@ func testAccCheckGaussDBInstanceExists(n string, instance *instances.TaurusDBIns
 }
 
 func testAccGaussDBInstanceConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_secgroup" "test" {

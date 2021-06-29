@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,7 +17,7 @@ import (
 
 func TestAccASV1Group_basic(t *testing.T) {
 	var asGroup groups.Group
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_as_group.hth_as_group"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -61,7 +62,7 @@ func TestAccASV1Group_basic(t *testing.T) {
 
 func TestAccASV1Group_withEpsId(t *testing.T) {
 	var asGroup groups.Group
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_as_group.hth_as_group"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -136,7 +137,7 @@ func testAccCheckASV1GroupExists(n string, group *groups.Group) resource.TestChe
 }
 
 func testASV1Group_Base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {
@@ -204,7 +205,7 @@ resource "huaweicloud_as_configuration" "hth_as_config"{
 }
 
 func testASV1Group_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_as_group" "hth_as_group"{
@@ -231,7 +232,7 @@ resource "huaweicloud_as_group" "hth_as_group"{
 }
 
 func testASV1Group_basic_disable(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_as_group" "hth_as_group"{
@@ -259,7 +260,7 @@ resource "huaweicloud_as_group" "hth_as_group"{
 }
 
 func testASV1Group_basic_enable(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_as_group" "hth_as_group"{
@@ -287,7 +288,7 @@ resource "huaweicloud_as_group" "hth_as_group"{
 }
 
 func testASV1Group_withEpsId(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_as_group" "hth_as_group"{

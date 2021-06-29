@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -91,7 +92,7 @@ func testAccCheckMRSV1ClusterExists(n string, clusterGet *cluster.Cluster) resou
 	}
 }
 
-var TestAccMRSV1ClusterConfig_basic = fmtp.Sprintf(`
+var TestAccMRSV1ClusterConfig_basic = fmt.Sprintf(`
 resource "huaweicloud_mrs_cluster_v1" "cluster1" {
   cluster_name = "mrs-cluster-acc"
   region = "%s"

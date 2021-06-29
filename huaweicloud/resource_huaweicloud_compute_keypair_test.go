@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 
 func TestAccComputeV2Keypair_basic(t *testing.T) {
 	var keypair keypairs.KeyPair
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_keypair.kp_1"
 	publicKey, _, _ := acctest.RandSSHKeyPair("Generated-by-AccTest")
 
@@ -93,7 +94,7 @@ func testAccCheckComputeV2KeypairExists(n string, kp *keypairs.KeyPair) resource
 }
 
 func testAccComputeV2Keypair_basic(rName, keypair string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_compute_keypair" "kp_1" {
   name       = "%s"
   public_key = "%s"

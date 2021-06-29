@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -161,7 +162,7 @@ func testAccCheckObsBucketObjectExists(n string) resource.TestCheckFunc {
 }
 
 func testAccObsBucketObjectConfigSource(randInt int, source string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
   bucket = "tf-acc-test-bucket-%d"
 }
@@ -176,7 +177,7 @@ resource "huaweicloud_obs_bucket_object" "object" {
 }
 
 func testAccObsBucketObjectConfigContent(randInt int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
   bucket = "tf-acc-test-bucket-%d"
 }
@@ -190,7 +191,7 @@ resource "huaweicloud_obs_bucket_object" "object" {
 }
 
 func testAccObsBucketObjectConfig_withSSE(randInt int, source string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
   bucket = "tf-acc-test-bucket-%d"
 }

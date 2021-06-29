@@ -15,6 +15,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -39,7 +40,7 @@ func TestAccCssClusterV1_basic(t *testing.T) {
 				Config: testAccCssClusterV1_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCssClusterV1Exists(),
-					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("terraform_test_cluster%s", randName)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_cluster%s", randName)),
 					resource.TestCheckResourceAttr(resourceName, "expect_node_num", "1"),
 					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -71,7 +72,7 @@ func TestAccCssClusterV1_security(t *testing.T) {
 				Config: testAccCssClusterV1_security(randName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCssClusterV1Exists(),
-					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("terraform_test_cluster%s", randName)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("terraform_test_cluster%s", randName)),
 					resource.TestCheckResourceAttr(resourceName, "expect_node_num", "1"),
 					resource.TestCheckResourceAttr(resourceName, "engine_type", "elasticsearch"),
 					resource.TestCheckResourceAttr(resourceName, "security_mode", "true"),
@@ -141,7 +142,7 @@ func testAccCheckCssClusterV1Exists() resource.TestCheckFunc {
 }
 
 func testAccCssClusterV1_basic(val string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup" {
   name = "terraform_test_security_group%s"
   description = "terraform security group acceptance test"
@@ -174,7 +175,7 @@ resource "huaweicloud_css_cluster_v1" "cluster" {
 }
 
 func testAccCssClusterV1_update(val string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup" {
   name = "terraform_test_security_group%s"
   description = "terraform security group acceptance test"
@@ -207,7 +208,7 @@ resource "huaweicloud_css_cluster_v1" "cluster" {
 }
 
 func testAccCssClusterV1_security(val string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup_v2" "secgroup" {
   name = "terraform_test_security_group%s"
   description = "terraform security group acceptance test"

@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 
 func TestAccFgsV2Function_basic(t *testing.T) {
 	var f function.Function
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_fgs_function.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -46,7 +47,7 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 
 func TestAccFgsV2Function_withEpsId(t *testing.T) {
 	var f function.Function
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_fgs_function.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -67,7 +68,7 @@ func TestAccFgsV2Function_withEpsId(t *testing.T) {
 
 func TestAccFgsV2Function_text(t *testing.T) {
 	var f function.Function
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_fgs_function.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -87,7 +88,7 @@ func TestAccFgsV2Function_text(t *testing.T) {
 
 func TestAccFgsV2Function_agency(t *testing.T) {
 	var f function.Function
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_fgs_function.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -162,7 +163,7 @@ func testAccCheckFgsV2FunctionExists(n string, ft *function.Function) resource.T
 }
 
 func testAccFgsV2Function_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name        = "%s"
   app         = "default"
@@ -178,7 +179,7 @@ resource "huaweicloud_fgs_function" "test" {
 }
 
 func testAccFgsV2Function_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name        = "%s"
   app         = "default"
@@ -194,7 +195,7 @@ resource "huaweicloud_fgs_function" "test" {
 }
 
 func testAccFgsV2Function_text(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name        = "%s"
   app         = "default"
@@ -223,7 +224,7 @@ EOF
 }
 
 func testAccFgsV2Function_withEpsId(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_fgs_function" "test" {
   name                  = "%s"
   app                   = "default"
@@ -240,7 +241,7 @@ resource "huaweicloud_fgs_function" "test" {
 }
 
 func testAccFgsV2Function_agency(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"

@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestAccCCENodePoolV3DataSource_basic(t *testing.T) {
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "data.huaweicloud_cce_node_pool.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -45,7 +46,7 @@ func testAccCheckCCENodePoolV3DataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccCCENodePoolV3DataSource_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_cce_node_pool" "test" {

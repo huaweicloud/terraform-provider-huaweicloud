@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,7 +15,7 @@ import (
 )
 
 func TestAccIecNetworkACLResource_basic(t *testing.T) {
-	rName := fmtp.Sprintf("iec-acl-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("iec-acl-%s", acctest.RandString(5))
 	resourceKey := "huaweicloud_iec_network_acl.acl_demo"
 	var fwGroup firewalls.Firewall
 
@@ -51,7 +52,7 @@ func TestAccIecNetworkACLResource_basic(t *testing.T) {
 }
 
 func TestAccIecNetworkACLResource_no_subnets(t *testing.T) {
-	rName := fmtp.Sprintf("acc-fw-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("acc-fw-%s", acctest.RandString(5))
 	resourceKey := "huaweicloud_iec_network_acl.acl_demo"
 	var fwGroup firewalls.Firewall
 
@@ -154,7 +155,7 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
 `
 
 func testAccIecNetworkACL_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_iec_network_acl" "acl_demo" {
@@ -169,7 +170,7 @@ resource "huaweicloud_iec_network_acl" "acl_demo" {
 }
 
 func testAccIecNetworkACL_basic_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_iec_network_acl" "acl_demo" {
@@ -184,7 +185,7 @@ resource "huaweicloud_iec_network_acl" "acl_demo" {
 }
 
 func testAccIecNetworkACL_no_subnets(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_iec_network_acl" "acl_demo" {
   name        = "%s-noSubnet"
   description = "Iec network acl without subents"

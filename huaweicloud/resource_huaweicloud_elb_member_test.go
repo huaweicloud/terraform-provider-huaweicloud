@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -14,7 +15,7 @@ import (
 func TestAccElbV3Member_basic(t *testing.T) {
 	var member_1 pools.Member
 	var member_2 pools.Member
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -95,7 +96,7 @@ func testAccCheckElbV3MemberExists(n string, member *pools.Member) resource.Test
 }
 
 func testAccElbV3MemberConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -162,7 +163,7 @@ resource "huaweicloud_elb_member" "member_2" {
 }
 
 func testAccElbV3MemberConfig_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

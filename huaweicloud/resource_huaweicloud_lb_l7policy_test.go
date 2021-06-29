@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -16,7 +17,7 @@ import (
 
 func TestAccLBV2L7Policy_basic(t *testing.T) {
 	var l7Policy l7policies.L7Policy
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_l7policy.l7policy_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -94,7 +95,7 @@ func testAccCheckLBV2L7PolicyExists(n string, l7Policy *l7policies.L7Policy) res
 }
 
 func testAccCheckLBV2L7PolicyConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

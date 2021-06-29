@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,8 +16,8 @@ import (
 
 func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_loadbalancer.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -49,7 +50,7 @@ func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 
 func TestAccElbV3LoadBalancer_withEpsId(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_loadbalancer.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -124,7 +125,7 @@ func testAccCheckElbV3LoadBalancerExists(
 }
 
 func testAccElbV3LoadBalancerConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -149,7 +150,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 }
 
 func testAccElbV3LoadBalancerConfig_update(rNameUpdate string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -175,7 +176,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 }
 
 func testAccElbV3LoadBalancerConfig_withEpsId(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

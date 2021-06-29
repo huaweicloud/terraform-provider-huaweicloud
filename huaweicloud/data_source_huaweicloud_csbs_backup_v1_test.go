@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -41,7 +42,7 @@ func testAccCheckCSBSBackupV1DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccCSBSBackupV1DataSource_basic = fmtp.Sprintf(`
+var testAccCSBSBackupV1DataSource_basic = fmt.Sprintf(`
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name = "instance_1"
   image_id = "%s"

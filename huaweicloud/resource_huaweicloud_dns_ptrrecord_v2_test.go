@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,7 +15,7 @@ import (
 )
 
 func randomPtrName() string {
-	return fmtp.Sprintf("acpttest-%s.com.", acctest.RandString(5))
+	return fmt.Sprintf("acpttest-%s.com.", acctest.RandString(5))
 }
 
 func TestAccDNSV2PtrRecord_basic(t *testing.T) {
@@ -121,7 +122,7 @@ func testAccCheckDNSV2PtrRecordExists(n string, ptrrecord *ptrrecords.Ptr) resou
 }
 
 func testAccDNSV2PtrRecord_basic(ptrName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "eip_1" {
   publicip {
     type = "5_bgp"
@@ -144,7 +145,7 @@ resource "huaweicloud_dns_ptrrecord" "ptr_1" {
 }
 
 func testAccDNSV2PtrRecord_update(ptrName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "eip_1" {
   publicip {
     type = "5_bgp"
@@ -171,7 +172,7 @@ resource "huaweicloud_dns_ptrrecord" "ptr_1" {
 }
 
 func testAccDNSV2PtrRecord_withEpsId(ptrName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "eip_1" {
   publicip {
     type = "5_bgp"

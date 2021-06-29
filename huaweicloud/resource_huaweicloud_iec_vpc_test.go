@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -17,7 +18,7 @@ import (
 func TestAccIecVpcV1_basic(t *testing.T) {
 	var iecVPC iec_common.VPC
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_vpc.test"
 	rNameUpdate := rName + "-updated"
 
@@ -54,7 +55,7 @@ func TestAccIecVpcV1_basic(t *testing.T) {
 func TestAccIecVpcV1_customer(t *testing.T) {
 	var iecVPC iec_common.VPC
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_vpc.customer"
 	rNameUpdate := rName + "-updated"
 
@@ -143,7 +144,7 @@ func testAccCheckIecVpcV1Exists(n string, resource *iec_common.VPC) resource.Tes
 }
 
 func testAccIecVpcV1_system(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_iec_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -152,7 +153,7 @@ resource "huaweicloud_iec_vpc" "test" {
 }
 
 func testAccIecVpcV1_system_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_iec_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -161,7 +162,7 @@ resource "huaweicloud_iec_vpc" "test" {
 }
 
 func testAccIecVpcV1_customer(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_iec_vpc" "customer" {
   name = "%s"
   cidr = "172.16.0.0/16"
@@ -171,7 +172,7 @@ resource "huaweicloud_iec_vpc" "customer" {
 }
 
 func testAccIecVpcV1_customer_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_iec_vpc" "customer" {
   name = "%s"
   cidr = "172.30.0.0/16"

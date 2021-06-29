@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -12,9 +13,9 @@ import (
 )
 
 func TestAccVpcV1DataSource_basic(t *testing.T) {
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	tmp := strconv.Itoa(acctest.RandIntRange(1, 254))
-	cidr := fmtp.Sprintf("172.16.%s.0/24", tmp)
+	cidr := fmt.Sprintf("172.16.%s.0/24", tmp)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -65,7 +66,7 @@ func testAccDataSourceVpcV1Check(n, rName string) resource.TestCheckFunc {
 }
 
 func testAccDataSourceVpcV1Config(rName, cidr string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "%s"

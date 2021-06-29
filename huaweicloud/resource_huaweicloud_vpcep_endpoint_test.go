@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -14,7 +15,7 @@ import (
 func TestAccVPCEndpoint_Basic(t *testing.T) {
 	var endpoint endpoints.Endpoint
 
-	rName := fmtp.Sprintf("acc-test-%s", acctest.RandString(4))
+	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
 	resourceName := "huaweicloud_vpcep_endpoint.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -132,7 +133,7 @@ func testAccCheckVPCEndpointExists(n string, endpoint *endpoints.Endpoint) resou
 }
 
 func testAccVPCEndpoint_Precondition(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_vpc" "myvpc" {
@@ -154,7 +155,7 @@ resource "huaweicloud_compute_instance" "ecs" {
 }
 
 func testAccVPCEndpoint_Basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {
@@ -187,7 +188,7 @@ resource "huaweicloud_vpcep_endpoint" "test" {
 }
 
 func testAccVPCEndpoint_Update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {

@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestAccBandWidthDataSource_basic(t *testing.T) {
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	dataName := "data.huaweicloud_vpc_bandwidth.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -53,7 +54,7 @@ func testAccCheckBandWidthDataSourceExists(n string) resource.TestCheckFunc {
 }
 
 func testAccBandWidthDataSource_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc_bandwidth" "test" {
 	name = "%s"
 	size = 10

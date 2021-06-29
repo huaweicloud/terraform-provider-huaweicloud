@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,7 +17,7 @@ import (
 func TestAccEvsVolume_basic(t *testing.T) {
 	var volume volumes.Volume
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_volume.test"
 	rNameUpdate := rName + "-updated"
 
@@ -54,7 +55,7 @@ func TestAccEvsVolume_basic(t *testing.T) {
 }
 
 func TestAccEvsVolume_tags(t *testing.T) {
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_volume.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -83,7 +84,7 @@ func TestAccEvsVolume_tags(t *testing.T) {
 func TestAccEvsVolume_image(t *testing.T) {
 	var volume volumes.Volume
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_volume.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -105,7 +106,7 @@ func TestAccEvsVolume_image(t *testing.T) {
 func TestAccEvsVolume_withEpsId(t *testing.T) {
 	var volume volumes.Volume
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_volume.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -223,7 +224,7 @@ func testAccCheckEvsVolumeTags(n string, k string, v string) resource.TestCheckF
 }
 
 func testAccEvsVolume_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_evs_volume" "test" {
@@ -237,7 +238,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 func testAccEvsVolume_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_evs_volume" "test" {
@@ -251,7 +252,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 func testAccEvsVolume_tags(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_evs_volume" "test" {
@@ -270,7 +271,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 func testAccEvsVolume_tags_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_evs_volume" "test" {
@@ -289,7 +290,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 func testAccEvsVolume_image(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_images_image_v2" "test" {
@@ -308,7 +309,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 func testAccEvsVolume_epsID(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_evs_volume" "test" {
