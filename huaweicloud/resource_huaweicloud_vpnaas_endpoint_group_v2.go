@@ -12,7 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceVpnEndpointGroupV2() *schema.Resource {
+func ResourceVpnEndpointGroupV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVpnEndpointGroupV2Create,
 		Read:   resourceVpnEndpointGroupV2Read,

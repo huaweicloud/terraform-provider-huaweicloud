@@ -12,7 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceVpnIPSecPolicyV2() *schema.Resource {
+func ResourceVpnIPSecPolicyV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVpnIPSecPolicyV2Create,
 		Read:   resourceVpnIPSecPolicyV2Read,
