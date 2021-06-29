@@ -2,11 +2,9 @@ package huaweicloud
 
 import (
 	"encoding/csv"
+	"fmt"
 	"os"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/encryption"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -14,6 +12,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3.0/credentials"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3.0/users"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceIdentityKey() *schema.Resource {
@@ -111,7 +111,7 @@ func resourceIdentityKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	if v, ok := d.GetOk("secret_file"); ok {
 		outputFile = v.(string)
 	} else {
-		outputFile = fmtp.Sprintf("credentials-%s.csv", userName)
+		outputFile = fmt.Sprintf("credentials-%s.csv", userName)
 	}
 
 	if err := writeToCSVFile(outputFile, accessKey); err != nil {

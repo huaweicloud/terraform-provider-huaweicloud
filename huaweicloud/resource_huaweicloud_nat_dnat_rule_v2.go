@@ -15,15 +15,15 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"reflect"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceNatDnatRuleV2() *schema.Resource {
@@ -248,11 +248,11 @@ func resourceNatDnatRuleRead(d *schema.ResourceData, meta interface{}) error {
 		url, &r.Body,
 		&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Accept": "application/json"}})
 	if r.Err != nil {
-		return fmtp.Errorf("Error reading %s: %s", fmtp.Sprintf("NatDnat %q", d.Id()), r.Err)
+		return fmtp.Errorf("Error reading %s: %s", fmt.Sprintf("NatDnat %q", d.Id()), r.Err)
 	}
 	v, ok := r.Body.(map[string]interface{})
 	if !ok {
-		return fmtp.Errorf("Error reading %s: the result is not map", fmtp.Sprintf("NatDnat %q", d.Id()))
+		return fmtp.Errorf("Error reading %s: the result is not map", fmt.Sprintf("NatDnat %q", d.Id()))
 	}
 
 	res := map[string]interface{}{"read": v}

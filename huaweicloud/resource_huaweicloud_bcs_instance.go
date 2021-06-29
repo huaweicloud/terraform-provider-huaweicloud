@@ -2,11 +2,9 @@ package huaweicloud
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -16,6 +14,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
 	"github.com/huaweicloud/golangsdk/openstack/dms/v1/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceBCSInstanceV2() *schema.Resource {
@@ -724,7 +724,7 @@ func resourceChannelsHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if m["name"] != nil {
-		buf.WriteString(fmtp.Sprintf("%s-", m["name"].(string)))
+		buf.WriteString(fmt.Sprintf("%s-", m["name"].(string)))
 	}
 
 	return hashcode.String(buf.String())
@@ -735,7 +735,7 @@ func resourcePeerOrgsHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if m["org_name"] != nil {
-		buf.WriteString(fmtp.Sprintf("%s-", m["org_name"].(string)))
+		buf.WriteString(fmt.Sprintf("%s-", m["org_name"].(string)))
 	}
 
 	return hashcode.String(buf.String())

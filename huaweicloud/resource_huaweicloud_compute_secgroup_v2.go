@@ -2,11 +2,9 @@ package huaweicloud
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -14,6 +12,8 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceComputeSecGroupV2() *schema.Resource {
@@ -357,12 +357,12 @@ func rulesToMap(computeClient *golangsdk.ServiceClient, d *schema.ResourceData, 
 func secgroupRuleV2Hash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
-	buf.WriteString(fmtp.Sprintf("%d-", m["from_port"].(int)))
-	buf.WriteString(fmtp.Sprintf("%d-", m["to_port"].(int)))
-	buf.WriteString(fmtp.Sprintf("%s-", m["ip_protocol"].(string)))
-	buf.WriteString(fmtp.Sprintf("%s-", strings.ToLower(m["cidr"].(string))))
-	buf.WriteString(fmtp.Sprintf("%s-", m["from_group_id"].(string)))
-	buf.WriteString(fmtp.Sprintf("%t-", m["self"].(bool)))
+	buf.WriteString(fmt.Sprintf("%d-", m["from_port"].(int)))
+	buf.WriteString(fmt.Sprintf("%d-", m["to_port"].(int)))
+	buf.WriteString(fmt.Sprintf("%s-", m["ip_protocol"].(string)))
+	buf.WriteString(fmt.Sprintf("%s-", strings.ToLower(m["cidr"].(string))))
+	buf.WriteString(fmt.Sprintf("%s-", m["from_group_id"].(string)))
+	buf.WriteString(fmt.Sprintf("%t-", m["self"].(bool)))
 
 	return hashcode.String(buf.String())
 }

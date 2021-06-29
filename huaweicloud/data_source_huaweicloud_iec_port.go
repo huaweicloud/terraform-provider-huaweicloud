@@ -1,14 +1,15 @@
 package huaweicloud
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceIECPort() *schema.Resource {
@@ -71,7 +72,7 @@ func dataSourceIECPortRead(d *schema.ResourceData, meta interface{}) error {
 
 	var ipFilter bool
 	if v, ipFilter := d.GetOk("fixed_ip"); ipFilter {
-		listOpts.FixedIPs = []string{fmtp.Sprintf("ip_address=%s", v)}
+		listOpts.FixedIPs = []string{fmt.Sprintf("ip_address=%s", v)}
 	}
 
 	allPorts, err := ports.List(iecClient, listOpts).Extract()

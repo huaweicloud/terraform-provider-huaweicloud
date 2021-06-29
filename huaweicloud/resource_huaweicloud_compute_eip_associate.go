@@ -1,11 +1,9 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"strings"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -14,6 +12,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceComputeFloatingIPAssociateV2() *schema.Resource {
@@ -93,13 +93,13 @@ func resourceComputeFloatingIPAssociateV2Create(d *schema.ResourceData, meta int
 		return fmtp.Errorf("Error associating Floating IP: %s", err)
 	}
 
-	id := fmtp.Sprintf("%s/%s/%s", floatingIP, instanceID, fixedIP)
+	id := fmt.Sprintf("%s/%s/%s", floatingIP, instanceID, fixedIP)
 	d.SetId(id)
 
 	logp.Printf("[DEBUG] Waiting for eip associate to instance %s", id)
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{""},
-		Target:     []string{fmtp.Sprintf("floating/%s", floatingIP), fmtp.Sprintf("fixed/%s", floatingIP)},
+		Target:     []string{fmt.Sprintf("floating/%s", floatingIP), fmt.Sprintf("fixed/%s", floatingIP)},
 		Refresh:    resourceComputeFloatingIPAssociateStateRefreshFunc(d, config, instanceID, floatingIP),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      10 * time.Second,
@@ -266,7 +266,7 @@ func resourceComputeFloatingIPAssociateStateRefreshFunc(d *schema.ResourceData, 
 		for _, networkAddresses := range instance.Addresses {
 			for _, address := range networkAddresses {
 				if address.Type == "floating" && address.Addr == floatingIP {
-					return instance, fmtp.Sprintf("floating/%s", floatingIP), nil
+					return instance, fmt.Sprintf("floating/%s", floatingIP), nil
 				}
 			}
 		}

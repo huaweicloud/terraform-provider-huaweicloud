@@ -15,15 +15,15 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"reflect"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDwsCluster() *schema.Resource {
@@ -414,11 +414,11 @@ func resourceDwsClusterRead(d *schema.ResourceData, meta interface{}) error {
 		url, &r.Body,
 		&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 	if r.Err != nil {
-		return fmtp.Errorf("Error reading %s: %s", fmtp.Sprintf("DwsCluster %q", d.Id()), r.Err)
+		return fmtp.Errorf("Error reading %s: %s", fmt.Sprintf("DwsCluster %q", d.Id()), r.Err)
 	}
 	v, err := navigateMap(r.Body, []string{"cluster"})
 	if err != nil {
-		return fmtp.Errorf("Error reading %s: the result does not contain cluster", fmtp.Sprintf("DwsCluster %q", d.Id()))
+		return fmtp.Errorf("Error reading %s: the result does not contain cluster", fmt.Sprintf("DwsCluster %q", d.Id()))
 	}
 	res := v.(map[string]interface{})
 

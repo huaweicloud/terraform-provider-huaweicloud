@@ -1,6 +1,8 @@
 package huaweicloud
 
 import (
+	"fmt"
+	"log"
 	"strings"
 	"sync"
 
@@ -9,17 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const defaultCloud string = "myhuaweicloud.com"
 
 // This is a global MutexKV for use within this plugin.
 var osMutexKV = mutexkv.NewMutexKV()
-
-//store the provider config tobe used within this plugin.
-var providerCfg *config.Config
 
 // Provider returns a schema.Provider for HuaweiCloud.
 func Provider() terraform.ResourceProvider {
@@ -226,7 +223,7 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"HW_AUTH_URL",
 					"OS_AUTH_URL",
-				}, fmtp.Sprintf("https://iam.%s:443/v3", defaultCloud)),
+				}, fmt.Sprintf("https://iam.%s:443/v3", defaultCloud)),
 			},
 
 			"cloud": {
@@ -745,9 +742,6 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		return nil, err
 	}
 
-	// store the config to Global
-	providerCfg = &config
-
 	return &config, nil
 }
 
@@ -759,15 +753,15 @@ func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error)
 		endpoint := strings.TrimSpace(val.(string))
 		// check empty string
 		if endpoint == "" {
-			return nil, fmtp.Errorf("the value of customer endpoint %s must be specified", key)
+			return nil, fmt.Errorf("the value of customer endpoint %s must be specified", key)
 		}
 
 		// add prefix "https://" and suffix "/"
 		if !strings.HasPrefix(endpoint, "http") {
-			endpoint = fmtp.Sprintf("https://%s", endpoint)
+			endpoint = fmt.Sprintf("https://%s", endpoint)
 		}
 		if !strings.HasSuffix(endpoint, "/") {
-			endpoint = fmtp.Sprintf("%s/", endpoint)
+			endpoint = fmt.Sprintf("%s/", endpoint)
 		}
 		epMap[key] = endpoint
 	}
@@ -791,11 +785,6 @@ func flattenProviderEndpoints(d *schema.ResourceData) (map[string]string, error)
 		epMap["security_group"] = endpoint
 	}
 
-	logp.Printf("[DEBUG] customer endpoints: %+v", epMap)
+	log.Printf("[DEBUG] customer endpoints: %+v", epMap)
 	return epMap, nil
-}
-
-//
-func GetProviderCfg() *config.Config {
-	return providerCfg
 }

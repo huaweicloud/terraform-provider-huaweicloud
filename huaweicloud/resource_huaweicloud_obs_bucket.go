@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
@@ -694,7 +695,7 @@ func resourceObsBucketLifecycleUpdate(obsClient *obs.ObsClient, d *schema.Resour
 		rules[i].Prefix = r["prefix"].(string)
 
 		// Expiration
-		expiration := d.Get(fmtp.Sprintf("lifecycle_rule.%d.expiration", i)).(*schema.Set).List()
+		expiration := d.Get(fmt.Sprintf("lifecycle_rule.%d.expiration", i)).(*schema.Set).List()
 		if len(expiration) > 0 {
 			raw := expiration[0].(map[string]interface{})
 			exp := &rules[i].Expiration
@@ -705,7 +706,7 @@ func resourceObsBucketLifecycleUpdate(obsClient *obs.ObsClient, d *schema.Resour
 		}
 
 		// Transition
-		transitions := d.Get(fmtp.Sprintf("lifecycle_rule.%d.transition", i)).([]interface{})
+		transitions := d.Get(fmt.Sprintf("lifecycle_rule.%d.transition", i)).([]interface{})
 		list := make([]obs.Transition, len(transitions))
 		for j, tran := range transitions {
 			raw := tran.(map[string]interface{})
@@ -720,7 +721,7 @@ func resourceObsBucketLifecycleUpdate(obsClient *obs.ObsClient, d *schema.Resour
 		rules[i].Transitions = list
 
 		// NoncurrentVersionExpiration
-		nc_expiration := d.Get(fmtp.Sprintf("lifecycle_rule.%d.noncurrent_version_expiration", i)).(*schema.Set).List()
+		nc_expiration := d.Get(fmt.Sprintf("lifecycle_rule.%d.noncurrent_version_expiration", i)).(*schema.Set).List()
 		if len(nc_expiration) > 0 {
 			raw := nc_expiration[0].(map[string]interface{})
 			nc_exp := &rules[i].NoncurrentVersionExpiration
@@ -731,7 +732,7 @@ func resourceObsBucketLifecycleUpdate(obsClient *obs.ObsClient, d *schema.Resour
 		}
 
 		// NoncurrentVersionTransition
-		nc_transitions := d.Get(fmtp.Sprintf("lifecycle_rule.%d.noncurrent_version_transition", i)).([]interface{})
+		nc_transitions := d.Get(fmt.Sprintf("lifecycle_rule.%d.noncurrent_version_transition", i)).([]interface{})
 		nc_list := make([]obs.NoncurrentVersionTransition, len(nc_transitions))
 		for j, nc_tran := range nc_transitions {
 			raw := nc_tran.(map[string]interface{})
@@ -1280,10 +1281,10 @@ func expirationHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if v, ok := m["days"]; ok {
-		buf.WriteString(fmtp.Sprintf("%d-", v.(int)))
+		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
 	}
 	if v, ok := m["storage_class"]; ok {
-		buf.WriteString(fmtp.Sprintf("%s-", v.(string)))
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 	return hashcode.String(buf.String())
 }
@@ -1352,7 +1353,7 @@ func normalizeWebsiteRoutingRules(w []obs.RoutingRule) (string, error) {
 }
 
 func bucketDomainNameWithCloud(bucket, region, cloud string) string {
-	return fmtp.Sprintf("%s.obs.%s.%s", bucket, region, cloud)
+	return fmt.Sprintf("%s.obs.%s.%s", bucket, region, cloud)
 }
 
 type Condition struct {

@@ -1,16 +1,16 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
-	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/attachinterfaces"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/attachinterfaces"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceComputeInterfaceAttachV2() *schema.Resource {
@@ -115,7 +115,7 @@ func resourceComputeInterfaceAttachV2Create(d *schema.ResourceData, meta interfa
 	}
 
 	// Use the instance ID and port ID as the resource ID.
-	id := fmtp.Sprintf("%s/%s", instanceId, attachment.PortID)
+	id := fmt.Sprintf("%s/%s", instanceId, attachment.PortID)
 
 	logp.Printf("[DEBUG] Created huaweicloud_compute_interface_attach %s: %#v", id, attachment)
 

@@ -1,12 +1,13 @@
 package huaweicloud
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func DataSourceRdsFlavorV3() *schema.Resource {
@@ -73,7 +74,8 @@ func dataSourceRdsFlavorV3Read(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error creating HuaweiCloud rds client: %s", err)
 	}
 
-	link := fmtp.Sprintf("flavors/%s?version_name=%s", d.Get("db_type").(string), d.Get("db_version").(string))
+	link := fmt.Sprintf("flavors/%s?version_name=%s",
+		d.Get("db_type").(string), d.Get("db_version").(string))
 	url := client.ServiceURL(link)
 
 	r, err := sendRdsFlavorV3ListRequest(client, url)

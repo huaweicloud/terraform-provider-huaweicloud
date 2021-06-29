@@ -1,11 +1,12 @@
 package huaweicloud
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func dataSourceGaussdbMysqlFlavors() *schema.Resource {
@@ -73,7 +74,8 @@ func dataSourceGaussdbMysqlFlavorsRead(d *schema.ResourceData, meta interface{})
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
 
-	link := fmtp.Sprintf("flavors/%s?version_name=%s&availability_zone_mode=%s", d.Get("engine").(string), d.Get("version").(string), d.Get("availability_zone_mode").(string))
+	link := fmt.Sprintf("flavors/%s?version_name=%s&availability_zone_mode=%s",
+		d.Get("engine").(string), d.Get("version").(string), d.Get("availability_zone_mode").(string))
 	url := client.ServiceURL(link)
 
 	r, err := sendGaussdbMysqlFlavorsListRequest(client, url)

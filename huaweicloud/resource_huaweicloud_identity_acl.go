@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"bytes"
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
@@ -230,7 +231,7 @@ func resourceACLPolicyCIDRHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if m["cidr"] != nil {
-		buf.WriteString(fmtp.Sprintf("%s-", m["cidr"].(string)))
+		buf.WriteString(fmt.Sprintf("%s-", m["cidr"].(string)))
 	}
 
 	return hashcode.String(buf.String())
@@ -241,7 +242,7 @@ func resourceACLPolicyRangeHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if m["range"] != nil {
-		buf.WriteString(fmtp.Sprintf("%s-", m["range"].(string)))
+		buf.WriteString(fmt.Sprintf("%s-", m["range"].(string)))
 	}
 
 	return hashcode.String(buf.String())
