@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceMRSJobV1() *schema.Resource {
+func ResourceMRSJobV1() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMRSJobV1Create,
 		Read:   resourceMRSJobV1Read,
