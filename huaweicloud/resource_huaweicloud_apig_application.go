@@ -34,6 +34,7 @@ func ResourceApigApplicationV2() *schema.Resource {
 			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -100,7 +101,8 @@ func createApigV2ApplicationCode(client *golangsdk.ServiceClient, instanceId, ap
 	return nil
 }
 
-func createApigV2ApplicationCodes(client *golangsdk.ServiceClient, instanceId, appId string, codes []interface{}) error {
+func createApigV2ApplicationCodes(client *golangsdk.ServiceClient, instanceId, appId string,
+	codes []interface{}) error {
 	for _, v := range codes {
 		if err := createApigV2ApplicationCode(client, instanceId, appId, v.(string)); err != nil {
 			return fmtp.Errorf("Error creating APIG v2 application code: %s", err)
@@ -131,7 +133,8 @@ func resourceApigApplicationV2Create(d *schema.ResourceData, meta interface{}) e
 	return resourceApigApplicationV2Read(d, meta)
 }
 
-func getApigApplicationCodeList(d *schema.ResourceData, client *golangsdk.ServiceClient) ([]applications.AppCode, error) {
+func getApigApplicationCodesFromServer(d *schema.ResourceData,
+	client *golangsdk.ServiceClient) ([]applications.AppCode, error) {
 	allPages, err := applications.ListAppCode(client, d.Get("instance_id").(string), d.Id(),
 		applications.ListCodeOpts{}).AllPages()
 	if err != nil {
@@ -149,7 +152,7 @@ func setApigApplicationCodes(d *schema.ResourceData, config *config.Config, resp
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
-	results, err := getApigApplicationCodeList(d, client)
+	results, err := getApigApplicationCodesFromServer(d, client)
 	if err != nil {
 		return fmtp.Errorf("Error getting APIG v2 application codes: %s", err)
 	}
@@ -215,7 +218,7 @@ func updateApigApplicationCodes(d *schema.ResourceData, client *golangsdk.Servic
 	addRaws := newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set))
 	removeRaws := oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set))
 	if len(removeRaws.List()) != 0 {
-		results, err := getApigApplicationCodeList(d, client)
+		results, err := getApigApplicationCodesFromServer(d, client)
 		if err != nil {
 			return fmtp.Errorf("Error getting APIG v2 application codes: %s", err)
 		}
@@ -283,13 +286,15 @@ func resourceApigApplicationV2Delete(d *schema.ResourceData, meta interface{}) e
 	instanceId := d.Get("instance_id").(string)
 	err = applications.Delete(client, instanceId, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting HuaweiCloud APIG v2 application from the instance (%s): %s", instanceId, err)
+		return fmtp.Errorf("Error deleting HuaweiCloud APIG v2 application from the instance (%s): %s",
+			instanceId, err)
 	}
 	d.SetId("")
 	return nil
 }
 
-func resourceApigInstanceSubResourceImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceApigInstanceSubResourceImportState(d *schema.ResourceData,
+	meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
 		return nil, fmtp.Errorf("Invalid format specified for import id, must be <instance_id>/<id>")

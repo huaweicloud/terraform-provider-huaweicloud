@@ -10,7 +10,6 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/apigw/v2/applications"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccApigApplicationV2_basic(t *testing.T) {
@@ -57,7 +56,7 @@ func testAccCheckApigApplicationDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.ApigV2Client(HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "huaweicloud_apig_application" {
@@ -65,7 +64,7 @@ func testAccCheckApigApplicationDestroy(s *terraform.State) error {
 		}
 		_, err := applications.Get(client, rs.Primary.Attributes["instance_id"], rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("APIG v2 application (%s) is still exists", rs.Primary.ID)
+			return fmt.Errorf("APIG v2 application (%s) is still exists", rs.Primary.ID)
 		}
 	}
 	return nil
@@ -75,16 +74,16 @@ func testAccCheckApigApplicationExists(appName string, app *applications.Applica
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[appName]
 		if !ok {
-			return fmtp.Errorf("Resource %s not found", appName)
+			return fmt.Errorf("Resource %s not found", appName)
 		}
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No APIG V2 application Id")
+			return fmt.Errorf("No APIG V2 application Id")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.ApigV2Client(HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 		}
 		found, err := applications.Get(client, rs.Primary.Attributes["instance_id"], rs.Primary.ID).Extract()
 		if err != nil {
@@ -99,10 +98,10 @@ func testAccApigInstanceSubResourceImportStateIdFunc(name string) resource.Impor
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
-			return "", fmtp.Errorf("Resource (%s) not found: %s", name, rs)
+			return "", fmt.Errorf("Resource (%s) not found: %s", name, rs)
 		}
 		if rs.Primary.ID == "" || rs.Primary.Attributes["instance_id"] == "" {
-			return "", fmtp.Errorf("resource not found: %s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.ID)
+			return "", fmt.Errorf("resource not found: %s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.ID)
 		}
 		return fmt.Sprintf("%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.ID), nil
 	}

@@ -50,7 +50,7 @@ The following arguments are supported:
   Only letters, digits and following special special characters are allowed: !@#$%+-_/=
 
 * `secret_action` - (Optional, String) Specifies the secret action to be done for the APIG application.
-  The valid values is *RESET*.
+  The valid action is *RESET*.
 
   -> **NOTE:** The `secret_action` is a one-time action.
 
