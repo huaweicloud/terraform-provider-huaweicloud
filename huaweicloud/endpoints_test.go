@@ -327,6 +327,18 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 	}
 	t.Logf("API-GW endpoint:\t %s", actualURL)
 
+	// test the endpoint of API-GW v2 service
+	serviceClient, err = config.ApigV2Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud API-GW v2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://apig.%s.%s/v2/apigw/", HW_REGION_NAME, config.Cloud)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("API-GW v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("API-GW v2 endpoint:\t %s", actualURL)
+
 	// test the endpoint of BCS v2 service
 	serviceClient, err = config.BcsV2Client(HW_REGION_NAME)
 	if err != nil {
