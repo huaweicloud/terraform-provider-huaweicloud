@@ -7,6 +7,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/huaweicloud/golangsdk"
@@ -224,4 +225,10 @@ func IsResourceNotFound(err error) bool {
 	}
 	_, ok := err.(golangsdk.ErrDefault404)
 	return ok
+}
+
+// Method FormatTimeStampRFC3339 is used to unify the time format to RFC-3339 and return a time string.
+func FormatTimeStampRFC3339(timestamp int64) string {
+	createTime := time.Unix(timestamp, 0)
+	return createTime.Format(time.RFC3339)
 }

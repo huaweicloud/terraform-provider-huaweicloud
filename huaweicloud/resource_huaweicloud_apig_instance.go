@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/apigw/v2/instances"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -156,12 +157,6 @@ func buildMaintainEndTime(maintainStart string) (string, error) {
 		return "", fmtp.Errorf("The number (%s) cannot be converted to string", result[1])
 	}
 	return fmt.Sprintf("%02d:00:00", (num+4)%24), nil
-}
-
-// Method buildRFC3339Timestamp is used to unify the time format to RFC-3339 and return a time string.
-func buildRFC3339Timestamp(timestamp int64) string {
-	createTime := time.Unix(timestamp, 0)
-	return createTime.Format(time.RFC3339)
 }
 
 func buildApigAvailableZones(d *schema.ResourceData) []string {
@@ -334,7 +329,7 @@ func setApigInstanceParamters(d *schema.ResourceData, config *config.Config, res
 		d.Set("egress_address", resp.Ipv4EgressAddress),
 		d.Set("ingress_address", resp.Ipv4IngressEipAddress),
 		setApigAvailableZones(d, resp),
-		d.Set("create_time", buildRFC3339Timestamp(resp.CreateTimestamp)),
+		d.Set("create_time", utils.FormatTimeStampRFC3339(resp.CreateTimestamp)),
 		setApigIngressAccess(d, config, resp),
 		setApigSupportedFeatures(d, resp),
 	)
