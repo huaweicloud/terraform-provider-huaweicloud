@@ -8,5 +8,5 @@ import (
 
 func Printf(format string, v ...interface{}) {
 	newFormat := utils.BuildNewFormatByConfig(format)
-	log.Printf(newFormat, v)
+	log.Printf(newFormat, v...)
 }
