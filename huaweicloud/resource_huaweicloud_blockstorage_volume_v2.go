@@ -2,10 +2,8 @@ package huaweicloud
 
 import (
 	"bytes"
+	"fmt"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,6 +13,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceBlockStorageVolumeV2() *schema.Resource {
@@ -395,7 +395,7 @@ func resourceVolumeV2AttachmentHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 	if m["instance_id"] != nil {
-		buf.WriteString(fmtp.Sprintf("%s-", m["instance_id"].(string)))
+		buf.WriteString(fmt.Sprintf("%s-", m["instance_id"].(string)))
 	}
 	return hashcode.String(buf.String())
 }

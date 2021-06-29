@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -109,7 +110,7 @@ func resourceSWROrganizationRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("creator", n.CreatorName)
 	d.Set("permission", permission)
 
-	login := fmtp.Sprintf("swr.%s.%s", GetRegion(d, config), config.Cloud)
+	login := fmt.Sprintf("swr.%s.%s", GetRegion(d, config), config.Cloud)
 	d.Set("login_server", login)
 
 	return nil

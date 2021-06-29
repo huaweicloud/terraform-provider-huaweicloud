@@ -1,16 +1,16 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"strings"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceNetworkingRouterRouteV2() *schema.Resource {
@@ -103,7 +103,7 @@ func resourceNetworkingRouterRouteV2Create(d *schema.ResourceData, meta interfac
 		if err != nil {
 			return fmtp.Errorf("Error updating HuaweiCloud Neutron Router: %s", err)
 		}
-		d.SetId(fmtp.Sprintf("%s-route-%s-%s", routerId, destCidr, nextHop))
+		d.SetId(fmt.Sprintf("%s-route-%s-%s", routerId, destCidr, nextHop))
 
 	} else {
 		logp.Printf("[DEBUG] Router %s has route already", routerId)

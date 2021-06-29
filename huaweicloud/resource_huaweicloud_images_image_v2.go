@@ -3,14 +3,12 @@ package huaweicloud
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -19,6 +17,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceImagesImageV2() *schema.Resource {
@@ -76,7 +76,7 @@ func resourceImagesImageV2() *schema.Resource {
 			"image_cache_path": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  fmtp.Sprintf("%s/.terraform/image_cache", os.Getenv("HOME")),
+				Default:  fmt.Sprintf("%s/.terraform/image_cache", os.Getenv("HOME")),
 			},
 
 			"image_source_url": {
@@ -446,7 +446,7 @@ func resourceImagesImageV2File(d *schema.ResourceData) (string, error) {
 	} else if furl := d.Get("image_source_url").(string); furl != "" {
 		dir := d.Get("image_cache_path").(string)
 		os.MkdirAll(dir, 0700)
-		filename := filepath.Join(dir, fmtp.Sprintf("%x.img", md5.Sum([]byte(furl))))
+		filename := filepath.Join(dir, fmt.Sprintf("%x.img", md5.Sum([]byte(furl))))
 
 		if _, err := os.Stat(filename); err != nil {
 			if !os.IsNotExist(err) {
@@ -488,10 +488,10 @@ func resourceImagesImageV2RefreshFunc(client *golangsdk.ServiceClient, id string
 		// Huawei Provider doesn't have this set initially.
 		/*
 			if img.Checksum != checksum || int64(img.SizeBytes) != fileSize {
-				return img, fmtp.Sprintf("%s", img.Status), fmtp.Errorf("Error wrong size %v or checksum %q", img.SizeBytes, img.Checksum)
+				return img, fmt.Sprintf("%s", img.Status), fmtp.Errorf("Error wrong size %v or checksum %q", img.SizeBytes, img.Checksum)
 			}
 		*/
-		return img, fmtp.Sprintf("%s", img.Status), nil
+		return img, fmt.Sprintf("%s", img.Status), nil
 	}
 }
 

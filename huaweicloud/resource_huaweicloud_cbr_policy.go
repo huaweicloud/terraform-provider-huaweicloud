@@ -1,18 +1,18 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/cbr/v3/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceCBRPolicyV3() *schema.Resource {
@@ -265,7 +265,7 @@ func makeSchedule(frequency, backupType, duration, time string) (string, error) 
 	if len(timeSlice) != 2 {
 		return "", fmtp.Errorf("Wrong time format (%s), should be HH:MM", time)
 	}
-	schedule := fmtp.Sprintf("FREQ=%s;%s=%s;BYHOUR=%s;BYMINUTE=%s",
+	schedule := fmt.Sprintf("FREQ=%s;%s=%s;BYHOUR=%s;BYMINUTE=%s",
 		frequency, backupType, duration, timeSlice[0], timeSlice[1])
 	return schedule, nil
 }

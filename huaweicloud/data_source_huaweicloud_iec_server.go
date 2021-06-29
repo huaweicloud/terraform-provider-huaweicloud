@@ -1,12 +1,13 @@
 package huaweicloud
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/servers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func dataSourceIECServer() *schema.Resource {
@@ -169,7 +170,7 @@ func dataSourceIECServerRead(d *schema.ResourceData, meta interface{}) error {
 
 	// set IEC fields
 	location := server.Location
-	siteInfo := fmtp.Sprintf("%s/%s/%s/%s", location.Country, location.Area, location.Province, location.City)
+	siteInfo := fmt.Sprintf("%s/%s/%s/%s", location.Country, location.Area, location.Province, location.City)
 	siteItem := map[string]interface{}{
 		"site_id":   location.ID,
 		"site_info": siteInfo,

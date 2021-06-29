@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"bytes"
+	"fmt"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
@@ -10,7 +11,6 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/extradhcpopts"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func resourceNetworkingPortV2StateRefreshFunc(client *golangsdk.ServiceClient, portID string) resource.StateRefreshFunc {
@@ -167,7 +167,7 @@ func expandNetworkingPortFixedIPV2(d *schema.ResourceData) interface{} {
 func resourceNetworkingPortV2AllowedAddressPairsHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
-	buf.WriteString(fmtp.Sprintf("%s-%s", m["ip_address"].(string), m["mac_address"].(string)))
+	buf.WriteString(fmt.Sprintf("%s-%s", m["ip_address"].(string), m["mac_address"].(string)))
 
 	return hashcode.String(buf.String())
 }

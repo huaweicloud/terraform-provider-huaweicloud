@@ -1,9 +1,7 @@
 package huaweicloud
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -11,6 +9,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/roles"
 	"github.com/huaweicloud/golangsdk/pagination"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceIdentityRoleAssignmentV3() *schema.Resource {
@@ -152,7 +152,7 @@ func getRoleAssignment(identityClient *golangsdk.ServiceClient, d *schema.Resour
 
 // Role assignments have no ID in HuaweiCloud. Build an ID out of the IDs that make up the role assignment
 func buildRoleAssignmentID(domainID, projectID, groupID, roleID string) string {
-	return fmtp.Sprintf("%s/%s/%s/%s", domainID, projectID, groupID, roleID)
+	return fmt.Sprintf("%s/%s/%s/%s", domainID, projectID, groupID, roleID)
 }
 
 func extractRoleAssignmentID(roleAssignmentID string) (string, string, string, string) {

@@ -1,12 +1,10 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -15,6 +13,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceOpenGaussInstance() *schema.Resource {
@@ -468,7 +468,7 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 		endpoints := []string{}
 		for i := 0; i < len(ip_list); i++ {
 			ip_list[i] = strings.Trim(ip_list[i], " ")
-			endpoint := fmtp.Sprintf("%s:%d", ip_list[i], instance.Port)
+			endpoint := fmt.Sprintf("%s:%d", ip_list[i], instance.Port)
 			endpoints = append(endpoints, endpoint)
 		}
 		d.Set("private_ips", ip_list)

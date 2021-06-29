@@ -2,12 +2,10 @@ package huaweicloud
 
 import (
 	"bytes"
+	"fmt"
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -19,6 +17,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/roles"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceIAMAgencyV3() *schema.Resource {
@@ -110,7 +110,7 @@ func ResourceIAMAgencyV3() *schema.Resource {
 func resourceIAMAgencyProRoleHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
-	buf.WriteString(fmtp.Sprintf("%s-", m["project"].(string)))
+	buf.WriteString(fmt.Sprintf("%s-", m["project"].(string)))
 
 	r := m["roles"].(*schema.Set).List()
 	s := make([]string, len(r))

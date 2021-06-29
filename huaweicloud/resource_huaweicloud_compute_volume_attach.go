@@ -1,11 +1,9 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"strings"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -14,6 +12,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceComputeVolumeAttachV2() *schema.Resource {
@@ -109,7 +109,7 @@ func resourceComputeVolumeAttachV2Create(d *schema.ResourceData, meta interface{
 	// Use the instance ID and attachment ID as the resource ID.
 	// This is because an attachment cannot be retrieved just by its ID alone.
 	// attachment ID equals the volume ID
-	id := fmtp.Sprintf("%s/%s", instanceId, attachment.ID)
+	id := fmt.Sprintf("%s/%s", instanceId, attachment.ID)
 	d.SetId(id)
 
 	return resourceComputeVolumeAttachV2Read(d, meta)

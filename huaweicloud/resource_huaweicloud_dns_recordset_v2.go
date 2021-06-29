@@ -1,11 +1,9 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"strings"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -17,6 +15,8 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/zones"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDNSRecordSetV2() *schema.Resource {
@@ -118,7 +118,7 @@ func resourceDNSRecordSetV2Create(d *schema.ResourceData, meta interface{}) erro
 		return fmtp.Errorf("Error creating HuaweiCloud DNS record set: %s", err)
 	}
 
-	id := fmtp.Sprintf("%s/%s", zoneID, n.ID)
+	id := fmt.Sprintf("%s/%s", zoneID, n.ID)
 	d.SetId(id)
 
 	logp.Printf("[DEBUG] Waiting for DNS record set (%s) to become available", n.ID)

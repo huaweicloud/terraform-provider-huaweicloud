@@ -15,15 +15,15 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"reflect"
 	"time"
-
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func resourceMlsInstance() *schema.Resource {
@@ -338,11 +338,11 @@ func resourceMlsInstanceRead(d *schema.ResourceData, meta interface{}) error {
 		url, &r.Body,
 		&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Content-Type": "application/json"}})
 	if r.Err != nil {
-		return fmtp.Errorf("Error reading %s: %s", fmtp.Sprintf("MlsInstance %q", d.Id()), r.Err)
+		return fmtp.Errorf("Error reading %s: %s", fmt.Sprintf("MlsInstance %q", d.Id()), r.Err)
 	}
 	v, err := navigateMap(r.Body, []string{"instance"})
 	if err != nil {
-		return fmtp.Errorf("Error reading %s: the result does not contain instance", fmtp.Sprintf("MlsInstance %q", d.Id()))
+		return fmtp.Errorf("Error reading %s: the result does not contain instance", fmt.Sprintf("MlsInstance %q", d.Id()))
 	}
 	res := v.(map[string]interface{})
 
