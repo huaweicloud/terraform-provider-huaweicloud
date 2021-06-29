@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,7 +17,7 @@ import (
 func TestAccCCEClusterV3_basic(t *testing.T) {
 	var cluster clusters.Clusters
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -55,7 +56,7 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 func TestAccCCEClusterV3_withEip(t *testing.T) {
 	var cluster clusters.Clusters
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -85,7 +86,7 @@ func TestAccCCEClusterV3_withEip(t *testing.T) {
 func TestAccCCEClusterV3_withEpsId(t *testing.T) {
 	var cluster clusters.Clusters
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -107,7 +108,7 @@ func TestAccCCEClusterV3_withEpsId(t *testing.T) {
 func TestAccCCEClusterV3_turbo(t *testing.T) {
 	var cluster clusters.Clusters
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -180,7 +181,7 @@ func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resour
 }
 
 func testAccCCEClusterV3_Base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -200,7 +201,7 @@ resource "huaweicloud_vpc_subnet" "test" {
 }
 
 func testAccCCEClusterV3_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_cluster" "test" {
@@ -215,7 +216,7 @@ resource "huaweicloud_cce_cluster" "test" {
 }
 
 func testAccCCEClusterV3_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_cluster" "test" {
@@ -231,7 +232,7 @@ resource "huaweicloud_cce_cluster" "test" {
 }
 
 func testAccCCEClusterV3_withEip(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_vpc_eip" "test" {
@@ -260,7 +261,7 @@ resource "huaweicloud_cce_cluster" "test" {
 }
 
 func testAccCCEClusterV3_withEpsId(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_cluster" "test" {
@@ -276,7 +277,7 @@ resource "huaweicloud_cce_cluster" "test" {
 }
 
 func testAccCCEClusterV3_turbo(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_vpc_subnet" "eni_test" {

@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -16,7 +17,7 @@ import (
 
 func TestAccASLifecycleHook_basic(t *testing.T) {
 	var hook lifecyclehooks.Hook
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	// If the group name of the testASV1Group_basic method is updated, the resource name must also be updated.
 	resourceGroupName := "huaweicloud_as_group.hth_as_group"
 	resourceHookName := "huaweicloud_as_lifecycle_hook.test"
@@ -36,7 +37,7 @@ func TestAccASLifecycleHook_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceHookName, "timeout", "3600"),
 					resource.TestCheckResourceAttr(resourceHookName, "notification_message", "This is a test message"),
 					resource.TestMatchResourceAttr(resourceHookName, "notification_topic_urn",
-						regexp.MustCompile(fmtp.Sprintf("^(urn:smn:%s:%s:%s)$", HW_REGION_NAME, HW_PROJECT_ID, rName))),
+						regexp.MustCompile(fmt.Sprintf("^(urn:smn:%s:%s:%s)$", HW_REGION_NAME, HW_PROJECT_ID, rName))),
 				),
 			},
 			{
@@ -50,7 +51,7 @@ func TestAccASLifecycleHook_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceHookName, "notification_message",
 						"This is a update message"),
 					resource.TestMatchResourceAttr(resourceHookName, "notification_topic_urn",
-						regexp.MustCompile(fmtp.Sprintf("^(urn:smn:%s:%s:%s-update)$",
+						regexp.MustCompile(fmt.Sprintf("^(urn:smn:%s:%s:%s-update)$",
 							HW_REGION_NAME, HW_PROJECT_ID, rName))),
 				),
 			},
@@ -136,12 +137,12 @@ func testAccASLifecycleHookImportStateIdFunc(groupRes, hookRes string) resource.
 		if group.Primary.ID == "" || hook.Primary.ID == "" {
 			return "", fmtp.Errorf("resource not found: %s/%s", group.Primary.ID, hook.Primary.ID)
 		}
-		return fmtp.Sprintf("%s/%s", group.Primary.ID, hook.Primary.ID), nil
+		return fmt.Sprintf("%s/%s", group.Primary.ID, hook.Primary.ID), nil
 	}
 }
 
 func testASLifecycleHook_base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_smn_topic" "test" {
@@ -155,7 +156,7 @@ resource "huaweicloud_smn_topic" "update" {
 }
 
 func testASLifecycleHook_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_as_lifecycle_hook" "test" {
@@ -169,7 +170,7 @@ resource "huaweicloud_as_lifecycle_hook" "test" {
 }
 
 func testASLifecycleHook_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_as_lifecycle_hook" "test" {

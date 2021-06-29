@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,7 +15,7 @@ import (
 
 func TestAccIecServerResource_basic(t *testing.T) {
 	var cloudserver cloudservers.CloudServer
-	rName := fmtp.Sprintf("iec-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("iec-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_server.server_test"
 
 	resource.Test(t, resource.TestCase{
@@ -97,7 +98,7 @@ func testAccCheckIecServerDestory(s *terraform.State) error {
 }
 
 func testAccIecServer_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_iec_flavors" "flavors_test" {}
 
 data "huaweicloud_iec_images" "images_test" {

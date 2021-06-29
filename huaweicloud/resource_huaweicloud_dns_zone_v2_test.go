@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -16,7 +17,7 @@ import (
 
 func TestAccDNSV2Zone_basic(t *testing.T) {
 	var zone zones.Zone
-	var zoneName = fmtp.Sprintf("acpttest%s.com.", acctest.RandString(5))
+	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
 	resourceName := "huaweicloud_dns_zone.zone_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -58,7 +59,7 @@ func TestAccDNSV2Zone_basic(t *testing.T) {
 
 func TestAccDNSV2Zone_private(t *testing.T) {
 	var zone zones.Zone
-	var zoneName = fmtp.Sprintf("acpttest%s.com.", acctest.RandString(5))
+	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
 	resourceName := "huaweicloud_dns_zone.zone_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -85,7 +86,7 @@ func TestAccDNSV2Zone_private(t *testing.T) {
 
 func TestAccDNSV2Zone_readTTL(t *testing.T) {
 	var zone zones.Zone
-	var zoneName = fmtp.Sprintf("acpttest%s.com.", acctest.RandString(5))
+	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
 	resourceName := "huaweicloud_dns_zone.zone_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -106,7 +107,7 @@ func TestAccDNSV2Zone_readTTL(t *testing.T) {
 
 func TestAccDNSV2Zone_withEpsId(t *testing.T) {
 	var zone zones.Zone
-	var zoneName = fmtp.Sprintf("acpttest%s.com.", acctest.RandString(5))
+	var zoneName = fmt.Sprintf("acpttest%s.com.", acctest.RandString(5))
 	resourceName := "huaweicloud_dns_zone.zone_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -181,7 +182,7 @@ func testAccCheckDNSV2ZoneExists(n string, zone *zones.Zone) resource.TestCheckF
 }
 
 func testAccDNSV2Zone_basic(zoneName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
   email       = "email1@example.com"
@@ -197,7 +198,7 @@ resource "huaweicloud_dns_zone" "zone_1" {
 }
 
 func testAccDNSV2Zone_update(zoneName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name        = "%s"
   email       = "email2@example.com"
@@ -213,7 +214,7 @@ resource "huaweicloud_dns_zone" "zone_1" {
 }
 
 func testAccDNSV2Zone_readTTL(zoneName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_dns_zone" "zone_1" {
   name  = "%s"
   email = "email1@example.com"
@@ -222,7 +223,7 @@ resource "huaweicloud_dns_zone" "zone_1" {
 }
 
 func testAccDNSV2Zone_private(zoneName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc" "default" {
   name = "vpc-default"
 }
@@ -245,7 +246,7 @@ resource "huaweicloud_dns_zone" "zone_1" {
 }
 
 func testAccDNSV2Zone_withEpsId(zoneName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc" "default" {
   name = "vpc-default"
 }

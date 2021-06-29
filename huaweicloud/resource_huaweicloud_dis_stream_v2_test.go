@@ -15,6 +15,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -43,7 +44,7 @@ func TestAccDisStreamV2_basic(t *testing.T) {
 }
 
 func testAccDisStreamV2_basic(val string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_dis_stream_v2" "stream" {
   stream_name = "terraform_test_dis_stream%s"
   partition_count = 1

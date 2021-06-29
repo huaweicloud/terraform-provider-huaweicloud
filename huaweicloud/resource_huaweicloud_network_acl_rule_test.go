@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 
 func TestAccNetworkACLRule_basic(t *testing.T) {
 	resourceKey := "huaweicloud_network_acl_rule.rule_1"
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -71,7 +72,7 @@ func TestAccNetworkACLRule_basic(t *testing.T) {
 
 func TestAccNetworkACLRule_anyProtocol(t *testing.T) {
 	resourceKey := "huaweicloud_network_acl_rule.rule_any"
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -146,7 +147,7 @@ func testAccCheckNetworkACLRuleExists(key string) resource.TestCheckFunc {
 }
 
 func testAccNetworkACLRule_basic_1(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_network_acl_rule" "rule_1" {
   name = "%s"
   protocol = "udp"
@@ -156,7 +157,7 @@ resource "huaweicloud_network_acl_rule" "rule_1" {
 }
 
 func testAccNetworkACLRule_basic_2(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_network_acl_rule" "rule_1" {
   name = "%s"
   description = "Terraform accept test"
@@ -172,7 +173,7 @@ resource "huaweicloud_network_acl_rule" "rule_1" {
 }
 
 func testAccNetworkACLRule_basic_3(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_network_acl_rule" "rule_1" {
   name = "%s"
   description = "Terraform accept test updated"
@@ -188,7 +189,7 @@ resource "huaweicloud_network_acl_rule" "rule_1" {
 }
 
 func testAccNetworkACLRule_anyProtocol(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_network_acl_rule" "rule_any" {
   name = "%s"
   description = "Allow any protocol"

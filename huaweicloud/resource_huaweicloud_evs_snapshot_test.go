@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,7 +17,7 @@ import (
 func TestAccEvsSnapshotV2_basic(t *testing.T) {
 	var snapshot snapshots.Snapshot
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_evs_snapshot.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -91,7 +92,7 @@ func testAccCheckEvsSnapshotV2Exists(n string, sp *snapshots.Snapshot) resource.
 }
 
 func testAccEvsSnapshotV2_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_evs_snapshot" "test" {

@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestAccNatGatewayDataSource_basic(t *testing.T) {
-	natgateway := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	natgateway := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -51,7 +52,7 @@ func testAccCheckNatGatewayV2DataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccNatGatewayV2DataSource_basic(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_enterprise_project" "enterprise_project_demo" {
   name = "terraform"
 }

@@ -1,17 +1,17 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/instances"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccRdsReadReplicaInstance_basic(t *testing.T) {
 	var replica instances.RdsInstanceResponse
-	name := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceType := "huaweicloud_rds_read_replica_instance"
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
 
@@ -58,7 +58,7 @@ func TestAccRdsReadReplicaInstance_basic(t *testing.T) {
 
 func TestAccRdsReadReplicaInstance_withEpsId(t *testing.T) {
 	var replica instances.RdsInstanceResponse
-	name := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceType := "huaweicloud_rds_read_replica_instance"
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
 
@@ -79,7 +79,7 @@ func TestAccRdsReadReplicaInstance_withEpsId(t *testing.T) {
 }
 
 func testAccReadRdsReplicaInstanceV3_base(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_rds_instance" "test" {
@@ -105,7 +105,7 @@ resource "huaweicloud_rds_instance" "test" {
 }
 
 func testAccReadRdsReplicaInstance_basic(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_rds_read_replica_instance" "test" {
@@ -127,7 +127,7 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
 }
 
 func testAccReadRdsReplicaInstance_update(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_rds_read_replica_instance" "test" {
@@ -149,7 +149,7 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
 }
 
 func testAccReadRdsReplicaInstance_withEpsId(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_rds_read_replica_instance" "test" {

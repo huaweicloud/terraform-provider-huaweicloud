@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -15,7 +16,7 @@ import (
 func TestAccVpcPeeringConnectionV2_basic(t *testing.T) {
 	var peering peerings.Peering
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_peering_connection.test"
 	rNameUpdate := rName + "updated"
 
@@ -101,7 +102,7 @@ func testAccCheckVpcPeeringConnectionV2Exists(n string, peering *peerings.Peerin
 }
 
 func testAccVpcPeeringConnectionV2_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s_1"
   cidr = "192.168.0.0/16"

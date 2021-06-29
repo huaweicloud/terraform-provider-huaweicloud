@@ -1,6 +1,8 @@
 package huaweicloud
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -14,8 +16,8 @@ import (
 
 func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
 	var policy policies.Policy
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	updateName := fmtp.Sprintf("tf-acc-test-update-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	updateName := fmt.Sprintf("tf-acc-test-update-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -55,7 +57,7 @@ func TestAccVBSBackupPolicyV2_basic(t *testing.T) {
 
 func TestAccVBSBackupPolicyV2_rentention_day(t *testing.T) {
 	var policy policies.Policy
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -132,7 +134,7 @@ func testAccVBSBackupPolicyV2Exists(n string, policy *policies.Policy) resource.
 }
 
 func testAccVBSBackupPolicyV2_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vbs_backup_policy" "vbs" {
   name                = "%s"
   start_time          = "12:00"
@@ -149,7 +151,7 @@ resource "huaweicloud_vbs_backup_policy" "vbs" {
 }
 
 func testAccVBSBackupPolicyV2_update(updateName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vbs_backup_policy" "vbs" {
   name                = "%s"
   start_time          = "12:00"
@@ -166,7 +168,7 @@ resource "huaweicloud_vbs_backup_policy" "vbs" {
 }
 
 func testAccVBSBackupPolicyV2_rentention_day(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vbs_backup_policy" "vbs" {
   name                = "%s"
   start_time          = "00:00,12:00"

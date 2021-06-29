@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -15,7 +16,7 @@ import (
 func TestAccVpcV1EIP_basic(t *testing.T) {
 	var eip eips.PublicIp
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_eip.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -41,7 +42,7 @@ func TestAccVpcV1EIP_basic(t *testing.T) {
 func TestAccVpcV1EIP_share(t *testing.T) {
 	var eip eips.PublicIp
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_eip.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -67,7 +68,7 @@ func TestAccVpcV1EIP_share(t *testing.T) {
 func TestAccVpcV1EIP_WithEpsId(t *testing.T) {
 	var eip eips.PublicIp
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_eip.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -140,7 +141,7 @@ func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheck
 }
 
 func testAccVpcV1EIP_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type = "5_bgp"
@@ -156,7 +157,7 @@ resource "huaweicloud_vpc_eip" "test" {
 }
 
 func testAccVpcV1EIP_epsId(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc_eip" "test" {
   publicip {
     type = "5_bgp"
@@ -173,7 +174,7 @@ resource "huaweicloud_vpc_eip" "test" {
 }
 
 func testAccVpcV1EIP_share(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc_bandwidth" "test" {
 	name = "%s"
 	size = 5

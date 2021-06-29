@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,8 +17,8 @@ import (
 
 func TestAccBCSV2Instance_basic(t *testing.T) {
 	var instance blockchains.BCSInstance
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmtp.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(3, "!@$%^-_=+[{}]:,./?"),
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	password := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(3, "!@$%^-_=+[{}]:,./?"),
 		acctest.RandIntRange(1, 3))
 	resourceName := "huaweicloud_bcs_instance.test"
 
@@ -51,8 +52,8 @@ func TestAccBCSV2Instance_basic(t *testing.T) {
 
 func TestAccBCSV2Instance_kafka(t *testing.T) {
 	var instance blockchains.BCSInstance
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmtp.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(3, "!@$%^-_=+[{}]:,./?"),
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	password := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(3, "!@$%^-_=+[{}]:,./?"),
 		acctest.RandIntRange(1, 3))
 	resourceName := "huaweicloud_bcs_instance.test"
 
@@ -153,7 +154,7 @@ func testAccCheckBCSInstanceV2Exists(name string, instance *blockchains.BCSInsta
 }
 
 func testBCSInstanceV2_base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_vpc" "test" {
@@ -218,7 +219,7 @@ resource "huaweicloud_cce_node" "test" {
 }
 
 func testBCSInstanceV2_basic(rName, password string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_bcs_instance" "test" {
@@ -252,7 +253,7 @@ resource "huaweicloud_bcs_instance" "test" {
 }
 
 func testBCSInstanceV2_kafka(rName, password string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_bcs_instance" "test" {

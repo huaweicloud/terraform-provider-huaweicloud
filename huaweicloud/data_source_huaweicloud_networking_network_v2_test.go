@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -13,8 +14,8 @@ import (
 
 func TestAccNetworkingNetworkV2DataSource_basic(t *testing.T) {
 	rand.Seed(time.Now().UTC().UnixNano())
-	network := fmtp.Sprintf("acc_test_network-%06x", rand.Int31n(1000000))
-	cidr := fmtp.Sprintf("192.168.%d.0/24", rand.Intn(200))
+	network := fmt.Sprintf("acc_test_network-%06x", rand.Int31n(1000000))
+	cidr := fmt.Sprintf("192.168.%d.0/24", rand.Intn(200))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheckDeprecated(t) },
@@ -60,7 +61,7 @@ func testAccCheckNetworkingNetworkV2DataSourceID(n string) resource.TestCheckFun
 }
 
 func testAccNetworkingNetworkV2DataSource_basic(name, cidr string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "net" {
   name = "%s"
   admin_state_up = "true"

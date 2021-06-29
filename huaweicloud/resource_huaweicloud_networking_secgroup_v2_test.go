@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -14,8 +15,8 @@ import (
 
 func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 	var security_group groups.SecGroup
-	name := fmtp.Sprintf("seg-acc-test-%s", acctest.RandString(5))
-	updatedName := fmtp.Sprintf("%s-updated", name)
+	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
+	updatedName := fmt.Sprintf("%s-updated", name)
 	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -49,7 +50,7 @@ func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 
 func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
 	var security_group groups.SecGroup
-	name := fmtp.Sprintf("seg-acc-test-%s", acctest.RandString(5))
+	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -71,7 +72,7 @@ func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
 
 func TestAccNetworkingV2SecGroup_noDefaultRules(t *testing.T) {
 	var security_group groups.SecGroup
-	name := fmtp.Sprintf("seg-acc-test-%s", acctest.RandString(5))
+	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -157,7 +158,7 @@ func testAccCheckNetworkingV2SecGroupRuleCount(
 }
 
 func testAccSecGroup_basic(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name        = "%s"
   description = "security group acceptance test"
@@ -166,7 +167,7 @@ resource "huaweicloud_networking_secgroup" "secgroup_1" {
 }
 
 func testAccSecGroup_update(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name        = "%s"
   description = "security group acceptance test updated"
@@ -175,7 +176,7 @@ resource "huaweicloud_networking_secgroup" "secgroup_1" {
 }
 
 func testAccSecGroup_epsId(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name                  = "%s"
   description           = "ecurity group acceptance test with eps ID"
@@ -185,7 +186,7 @@ resource "huaweicloud_networking_secgroup" "secgroup_1" {
 }
 
 func testAccSecGroup_noDefaultRules(name string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_networking_secgroup" "secgroup_1" {
   name                 = "%s"
   description          = "security group acceptance test without default rules"

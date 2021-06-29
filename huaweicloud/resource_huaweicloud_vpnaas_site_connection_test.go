@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -91,7 +92,7 @@ func testAccCheckSiteConnectionV2Exists(n string, conn *siteconnections.Connecti
 	}
 }
 
-var testAccSiteConnectionV2_basic = fmtp.Sprintf(`
+var testAccSiteConnectionV2_basic = fmt.Sprintf(`
 	resource "huaweicloud_networking_network_v2" "network_1" {
 		name           = "tf_test_network"
   		admin_state_up = "true"

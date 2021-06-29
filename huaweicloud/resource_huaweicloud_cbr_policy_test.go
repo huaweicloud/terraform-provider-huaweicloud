@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,7 +17,7 @@ import (
 
 func TestAccCBRV3Policy_basic(t *testing.T) {
 	var asPolicy policies.Policy
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cbr_policy.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -61,7 +62,7 @@ func TestAccCBRV3Policy_basic(t *testing.T) {
 
 func TestAccCBRV3Policy_replication(t *testing.T) {
 	var asPolicy policies.Policy
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cbr_policy.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -146,7 +147,7 @@ func testAccCheckCBRV3PolicyExists(n string, policy *policies.Policy) resource.T
 }
 
 func testCBRV3Policy_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
   name        = "%s"
   type        = "backup"
@@ -161,7 +162,7 @@ resource "huaweicloud_cbr_policy" "test" {
 }
 
 func testCBRV3Policy_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
   name            = "%s-update"
   type            = "backup"
@@ -176,7 +177,7 @@ resource "huaweicloud_cbr_policy" "test" {
 }
 
 func testCBRV3Policy_replication(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
   name                   = "%s"
   type                   = "replication"

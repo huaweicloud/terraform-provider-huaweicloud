@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,7 +15,7 @@ import (
 
 func TestAccDDSV3Instance_basic(t *testing.T) {
 	var instance instances.Instance
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dds_instance.instance"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -49,7 +50,7 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 
 func TestAccDDSV3Instance_withEpsId(t *testing.T) {
 	var instance instances.Instance
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dds_instance.instance"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -138,7 +139,7 @@ func testAccCheckDDSV3InstanceExists(n string, instance *instances.Instance) res
 }
 
 func testAccDDSInstanceV3Config_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {
@@ -201,7 +202,7 @@ resource "huaweicloud_dds_instance" "instance" {
 }
 
 func testAccDDSInstanceV3Config_updateBackupStrategy(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {
@@ -264,7 +265,7 @@ resource "huaweicloud_dds_instance" "instance" {
 }
 
 func testAccDDSInstanceV3Config_withEpsId(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {

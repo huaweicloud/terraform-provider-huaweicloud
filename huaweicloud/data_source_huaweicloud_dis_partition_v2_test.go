@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -42,7 +43,7 @@ func testAccCheckDisPartitionV2Exists() resource.TestCheckFunc {
 }
 
 func testAccDisPartitionV2_basic(random string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_dis_partition_v2" "partition" {

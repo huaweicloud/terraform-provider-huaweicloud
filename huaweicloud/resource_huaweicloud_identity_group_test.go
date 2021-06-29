@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 
 func TestAccIdentityV3Group_basic(t *testing.T) {
 	var group groups.Group
-	var groupName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var groupName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_group.group_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -105,7 +106,7 @@ func testAccCheckIdentityV3GroupExists(n string, group *groups.Group) resource.T
 }
 
 func testAccIdentityV3Group_basic(groupName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
   name        = "%s"
   description = "A ACC test group"
@@ -114,7 +115,7 @@ resource "huaweicloud_identity_group" "group_1" {
 }
 
 func testAccIdentityV3Group_update(groupName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_group" "group_1" {
   name        = "%s"
   description = "Some Group"

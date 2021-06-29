@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,8 +15,8 @@ import (
 
 func TestAccDmsInstancesV1_Rabbitmq(t *testing.T) {
 	var instance instances.Instance
-	var instanceName = fmtp.Sprintf("dms_instance_%s", acctest.RandString(5))
-	var instanceUpdate = fmtp.Sprintf("dms_instance_update_%s", acctest.RandString(5))
+	var instanceName = fmt.Sprintf("dms_instance_%s", acctest.RandString(5))
+	var instanceUpdate = fmt.Sprintf("dms_instance_update_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dms_instance.instance_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -49,7 +50,7 @@ func TestAccDmsInstancesV1_Rabbitmq(t *testing.T) {
 
 func TestAccDmsInstancesV1_Kafka(t *testing.T) {
 	var instance instances.Instance
-	var instanceName = fmtp.Sprintf("dms_instance_%s", acctest.RandString(5))
+	var instanceName = fmt.Sprintf("dms_instance_%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dms_instance.instance_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -121,7 +122,7 @@ func testAccCheckDmsV1InstanceExists(n string, instance instances.Instance) reso
 }
 
 func testAccDmsV1Instance_basic(instanceName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_dms_az" "az_1" {
 }
 data "huaweicloud_dms_product" "product_1" {
@@ -157,7 +158,7 @@ resource "huaweicloud_dms_instance" "instance_1" {
 }
 
 func testAccDmsV1Instance_update(instanceUpdate string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_dms_az" "az_1" {
 }
 data "huaweicloud_dms_product" "product_1" {
@@ -194,7 +195,7 @@ resource "huaweicloud_dms_instance" "instance_1" {
 }
 
 func testAccDmsV1Instance_KafkaInstance(instanceName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_dms_az" "az_1" {
 }
 data "huaweicloud_dms_product" "product_1" {

@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -154,7 +155,7 @@ resource "huaweicloud_networking_subnet_v2" "subnet_1" {
 }
 `
 
-var testAccHuaweiCloudNetworkingSubnetV2DataSource_basic = fmtp.Sprintf(`
+var testAccHuaweiCloudNetworkingSubnetV2DataSource_basic = fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_subnet_v2" "subnet_1" {
@@ -162,7 +163,7 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 }
 `, testAccHuaweiCloudNetworkingSubnetV2DataSource_subnet)
 
-var testAccHuaweiCloudNetworkingSubnetV2DataSource_cidr = fmtp.Sprintf(`
+var testAccHuaweiCloudNetworkingSubnetV2DataSource_cidr = fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_subnet_v2" "subnet_1" {
@@ -170,7 +171,7 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 }
 `, testAccHuaweiCloudNetworkingSubnetV2DataSource_subnet)
 
-var testAccHuaweiCloudNetworkingSubnetV2DataSource_dhcpEnabled = fmtp.Sprintf(`
+var testAccHuaweiCloudNetworkingSubnetV2DataSource_dhcpEnabled = fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_subnet_v2" "subnet_1" {
@@ -179,7 +180,7 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 }
 `, testAccHuaweiCloudNetworkingSubnetV2DataSource_subnet)
 
-var testAccHuaweiCloudNetworkingSubnetV2DataSource_ipVersion = fmtp.Sprintf(`
+var testAccHuaweiCloudNetworkingSubnetV2DataSource_ipVersion = fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_subnet_v2" "subnet_1" {
@@ -188,7 +189,7 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 }
 `, testAccHuaweiCloudNetworkingSubnetV2DataSource_subnet)
 
-var testAccHuaweiCloudNetworkingSubnetV2DataSource_gatewayIP = fmtp.Sprintf(`
+var testAccHuaweiCloudNetworkingSubnetV2DataSource_gatewayIP = fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_subnet_v2" "subnet_1" {
@@ -196,7 +197,7 @@ data "huaweicloud_networking_subnet_v2" "subnet_1" {
 }
 `, testAccHuaweiCloudNetworkingSubnetV2DataSource_subnet)
 
-var testAccHuaweiCloudNetworkingSubnetV2DataSource_networkIdAttribute = fmtp.Sprintf(`
+var testAccHuaweiCloudNetworkingSubnetV2DataSource_networkIdAttribute = fmt.Sprintf(`
 %s
 
 data "huaweicloud_networking_subnet_v2" "subnet_1" {

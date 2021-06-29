@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -41,7 +42,7 @@ func testAccCheckDcsAZV1DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccDcsAZV1DataSource_basic = fmtp.Sprintf(`
+var testAccDcsAZV1DataSource_basic = fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dcs_az_v1" "az1" {

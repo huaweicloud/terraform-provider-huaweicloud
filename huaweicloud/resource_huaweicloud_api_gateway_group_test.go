@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,7 +15,7 @@ import (
 
 func TestAccApiGatewayGroup_basic(t *testing.T) {
 	var resName = "huaweicloud_api_gateway_group.acc_apigw_group"
-	rName := fmtp.Sprintf("tf_acc_test_%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 	rNameUpdate := rName + "_Update"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -98,7 +99,7 @@ func testAccCheckApiGatewayGroupExists(n string) resource.TestCheckFunc {
 }
 
 func testAccApigwGroup_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_api_gateway_group" "acc_apigw_group" {
 	name = "%s"
 	description = "created by acc test"
@@ -107,7 +108,7 @@ resource "huaweicloud_api_gateway_group" "acc_apigw_group" {
 }
 
 func testAccApigwGroup_update(rNameUpdate string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_api_gateway_group" "acc_apigw_group" {
 	name = "%s"
 	description = "updated by acc test"

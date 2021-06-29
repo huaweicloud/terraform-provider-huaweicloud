@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -14,7 +15,7 @@ import (
 func TestAccSMNV2Subscription_basic(t *testing.T) {
 	var subscription1 subscriptions.SubscriptionGet
 	var subscription2 subscriptions.SubscriptionGet
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -101,7 +102,7 @@ func testAccCheckSMNV2SubscriptionExists(n string, subscription *subscriptions.S
 }
 
 func testAccSMNV2SubscriptionConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_smn_topic_v2" "topic_1" {
   name		  = "%s"
   display_name    = "The display name of topic_1"

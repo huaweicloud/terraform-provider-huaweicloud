@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestAccIdentityCustomRoleDataSource_basic(t *testing.T) {
-	var rName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -48,7 +49,7 @@ func testAccCheckIdentityCustomDataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccIdentityCustomRoleDataSource_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_role" test {
   name        = "%s"
   description = "created by terraform"

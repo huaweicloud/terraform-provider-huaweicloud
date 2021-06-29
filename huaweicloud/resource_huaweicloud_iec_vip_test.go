@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,7 +17,7 @@ import (
 
 func TestAccIecVipResource_basic(t *testing.T) {
 	var iecPort iec_common.Port
-	rName := fmtp.Sprintf("iec-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("iec-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_vip.vip_test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -43,7 +44,7 @@ func TestAccIecVipResource_basic(t *testing.T) {
 
 func TestAccIecVipResource_associate(t *testing.T) {
 	var iecPort iec_common.Port
-	rName := fmtp.Sprintf("iec-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("iec-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_iec_vip.vip_test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -122,7 +123,7 @@ func testAccCheckIecVipExists(n string, resource *iec_common.Port) resource.Test
 }
 
 func testAccIecVip_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_iec_sites" "sites_test" {}
 
 resource "huaweicloud_iec_vpc" "vpc_test" {
@@ -146,7 +147,7 @@ resource "huaweicloud_iec_vip" "vip_test" {
 }
 
 func testAccIecVip_associate(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_iec_vip" "vip_test" {
@@ -157,7 +158,7 @@ resource "huaweicloud_iec_vip" "vip_test" {
 }
 
 func testAccIecVip_disassociate(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_iec_vip" "vip_test" {

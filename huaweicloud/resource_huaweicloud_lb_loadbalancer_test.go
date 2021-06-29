@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -18,8 +19,8 @@ import (
 
 func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_loadbalancer.loadbalancer_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -58,9 +59,9 @@ func TestAccLBV2LoadBalancer_basic(t *testing.T) {
 func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
 	var sg_1, sg_2 groups.SecGroup
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameSecg1 := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameSecg2 := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameSecg1 := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameSecg2 := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_loadbalancer.loadbalancer_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -116,7 +117,7 @@ func TestAccLBV2LoadBalancer_secGroup(t *testing.T) {
 
 func TestAccLBV2LoadBalancer_withEpsId(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_loadbalancer.loadbalancer_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -220,7 +221,7 @@ func testAccCheckLBV2LoadBalancerHasSecGroup(
 }
 
 func testAccLBV2LoadBalancerConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -244,7 +245,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 }
 
 func testAccLBV2LoadBalancerConfig_update(rNameUpdate string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -269,7 +270,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 }
 
 func testAccLBV2LoadBalancer_secGroup(rName, rNameSecg1, rNameSecg2 string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -295,7 +296,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 }
 
 func testAccLBV2LoadBalancer_secGroup_update1(rName, rNameSecg1, rNameSecg2 string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -322,7 +323,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 }
 
 func testAccLBV2LoadBalancer_secGroup_update2(rName, rNameSecg1, rNameSecg2 string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -348,7 +349,7 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 }
 
 func testAccLBV2LoadBalancerConfig_withEpsId(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

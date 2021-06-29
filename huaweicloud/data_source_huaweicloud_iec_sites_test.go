@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -46,7 +47,7 @@ func testAccCheckIECSitesDataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccIECSitesConfig() string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_iec_sites" "sites_test" {
   region = "%s"
   area   = "east"

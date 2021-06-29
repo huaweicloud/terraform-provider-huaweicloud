@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 
 func TestAccComputeV2InterfaceAttach_Basic(t *testing.T) {
 	var ai attachinterfaces.Interface
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_compute_interface_attach.ai_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -117,7 +118,7 @@ func testAccCheckComputeV2InterfaceAttachIP(
 }
 
 func testAccComputeV2InterfaceAttach_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "instance_1" {

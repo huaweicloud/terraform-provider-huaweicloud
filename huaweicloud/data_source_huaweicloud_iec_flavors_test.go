@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -63,7 +64,7 @@ func testAccCheckIECFlavorsDataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccIECFlavorsConfig() string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_iec_flavors" "flavors_test" {
   region = "%s"
 }
@@ -71,7 +72,7 @@ data "huaweicloud_iec_flavors" "flavors_test" {
 }
 
 func testAccIECFlavorsWithName() string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_iec_flavors" "flavors_test" {
   region = "%s"
   name   = "c6.large.2"

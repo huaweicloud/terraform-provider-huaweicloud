@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 func TestAccIdentityAgency_basic(t *testing.T) {
 	var agency agency.Agency
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_agency.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -60,7 +61,7 @@ func TestAccIdentityAgency_basic(t *testing.T) {
 func TestAccIdentityAgency_domain(t *testing.T) {
 	var agency agency.Agency
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_agency.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -154,7 +155,7 @@ func testAccCheckIdentityAgencyExists(n string, ag *agency.Agency) resource.Test
 }
 
 func testAccIdentityAgency_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_agency" "test" {
   name                   = "%s"
   description            = "This is a test agency"
@@ -168,7 +169,7 @@ resource "huaweicloud_identity_agency" "test" {
 }
 
 func testAccIdentityAgency_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_agency" "test" {
   name                   = "%s"
   description            = "This is a updated test agency"
@@ -182,7 +183,7 @@ resource "huaweicloud_identity_agency" "test" {
 }
 
 func testAccIdentityAgency_domain(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_agency" "test" {
   name                  = "%s"
   description           = "This is a test agency"
@@ -196,7 +197,7 @@ resource "huaweicloud_identity_agency" "test" {
 }
 
 func testAccIdentityAgency_domainUpdate(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_agency" "test" {
   name                  = "%s"
   description           = "This is a updated test agency"

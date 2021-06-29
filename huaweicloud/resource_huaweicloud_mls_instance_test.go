@@ -15,6 +15,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -43,7 +44,7 @@ func TestAccMlsInstance_basic(t *testing.T) {
 }
 
 func testAccMlsInstance_basic(val string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_mrs_cluster_v1" "cluster1" {
   cluster_name = "mrs-cluster-acc%s"
   region = "en-HW_REGION_NAME"

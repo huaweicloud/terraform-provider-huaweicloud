@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,7 +15,7 @@ import (
 
 func TestAccLBV2Whitelist_basic(t *testing.T) {
 	var whitelist whitelists.Whitelist
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_lb_whitelist.whitelist_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -92,7 +93,7 @@ func testAccCheckLBV2WhitelistExists(n string, whitelist *whitelists.Whitelist) 
 }
 
 func testAccLBV2WhitelistConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -118,7 +119,7 @@ resource "huaweicloud_lb_whitelist" "whitelist_1" {
 }
 
 func testAccLBV2WhitelistConfig_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

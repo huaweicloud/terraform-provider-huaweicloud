@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -13,8 +14,8 @@ import (
 
 func TestAccSFSFileSystemV2_basic(t *testing.T) {
 	var share shares.Share
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	updateName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	updateName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_sfs_file_system.sfs_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -55,7 +56,7 @@ func TestAccSFSFileSystemV2_basic(t *testing.T) {
 
 func TestAccSFSFileSystemV2_withEpsId(t *testing.T) {
 	var share shares.Share
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_sfs_file_system.sfs_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -77,7 +78,7 @@ func TestAccSFSFileSystemV2_withEpsId(t *testing.T) {
 
 func TestAccSFSFileSystemV2_withoutRule(t *testing.T) {
 	var share shares.Share
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_sfs_file_system.sfs_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -158,7 +159,7 @@ func testAccCheckSFSFileSystemV2Exists(n string, share *shares.Share) resource.T
 }
 
 func testAccSFSFileSystemV2_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -184,7 +185,7 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
 }
 
 func testAccSFSFileSystemV2_epsId(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -207,7 +208,7 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
 }
 
 func testAccSFSFileSystemV2_update(rName, updateName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -233,7 +234,7 @@ resource "huaweicloud_sfs_file_system" "sfs_1" {
 }
 
 func testAccSFSFileSystemV2_withoutRule(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_sfs_file_system" "sfs_1" {
   share_proto = "NFS"
   size        = 10

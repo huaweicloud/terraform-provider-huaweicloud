@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 func TestAccGeminiDBInstance_basic(t *testing.T) {
 	var instance instances.GeminiDBInstance
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_gaussdb_cassandra_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -90,7 +91,7 @@ func testAccCheckGeminiDBInstanceExists(n string, instance *instances.GeminiDBIn
 }
 
 func testAccVpcConfig_Base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -109,7 +110,7 @@ resource "huaweicloud_vpc_subnet" "test" {
 }
 
 func testAccGeminiDBInstanceConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_availability_zones" "test" {}

@@ -1,6 +1,8 @@
 package huaweicloud
 
 import (
+	"fmt"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -15,7 +17,7 @@ import (
 
 func TestAccCSBSBackupV1_basic(t *testing.T) {
 	var backups backup.Backup
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -43,7 +45,7 @@ func TestAccCSBSBackupV1_basic(t *testing.T) {
 
 func TestAccCSBSBackupV1_timeout(t *testing.T) {
 	var backups backup.Backup
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -114,7 +116,7 @@ func testAccCSBSBackupV1Exists(n string, backups *backup.Backup) resource.TestCh
 }
 
 func testAccCSBSBackupV1_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
@@ -142,7 +144,7 @@ resource "huaweicloud_csbs_backup" "csbs" {
 }
 
 func testAccCSBSBackupV1_timeout(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }

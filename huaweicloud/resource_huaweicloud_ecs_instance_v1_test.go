@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -107,7 +108,7 @@ func testAccCheckEcsV1InstanceExists(n string, instance *cloudservers.CloudServe
 	}
 }
 
-var testAccEcsV1Instance_basic = fmtp.Sprintf(`
+var testAccEcsV1Instance_basic = fmt.Sprintf(`
 resource "huaweicloud_ecs_instance_v1" "instance_1" {
   name     = "server_1"
   image_id = "%s"
@@ -130,7 +131,7 @@ resource "huaweicloud_ecs_instance_v1" "instance_1" {
 }
 `, HW_IMAGE_ID, HW_FLAVOR_NAME, HW_VPC_ID, HW_NETWORK_ID, HW_AVAILABILITY_ZONE)
 
-var testAccEcsV1Instance_update = fmtp.Sprintf(`
+var testAccEcsV1Instance_update = fmt.Sprintf(`
 resource "huaweicloud_compute_secgroup_v2" "secgroup_1" {
   name        = "secgroup_ecs"
   description = "a security group"

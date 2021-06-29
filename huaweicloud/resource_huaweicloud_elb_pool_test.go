@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,8 +15,8 @@ import (
 
 func TestAccElbV3Pool_basic(t *testing.T) {
 	var pool pools.Pool
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_elb_pool.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -96,7 +97,7 @@ func testAccCheckElbV3PoolExists(n string, pool *pools.Pool) resource.TestCheckF
 }
 
 func testAccElbV3PoolConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -143,7 +144,7 @@ resource "huaweicloud_elb_pool" "test" {
 }
 
 func testAccElbV3PoolConfig_update(rName, rNameUpdate string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

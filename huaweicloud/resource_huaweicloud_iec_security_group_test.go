@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 func TestAccIecSecurityGroupResource_basic(t *testing.T) {
 
 	resourceName := "huaweicloud_iec_security_group.my_group"
-	rName := fmtp.Sprintf("iec-secgroup-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("iec-secgroup-%s", acctest.RandString(5))
 	description := "This is a test of iec security group"
 
 	var group groups.RespSecurityGroupEntity
@@ -107,7 +108,7 @@ func testAccCheckIecSecurityGroupV1Destory(s *terraform.State) error {
 }
 
 func testAccIecSecurityGroupV1_Basic(rName, description string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_iec_security_group" "my_group" {
   name        = "%s"
   description = "%s"

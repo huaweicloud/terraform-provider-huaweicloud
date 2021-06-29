@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -145,7 +146,7 @@ resource "huaweicloud_networking_floatingip_v2" "fip_1" {
 }
 `
 
-var testAccNetworkingV2FloatingIP_fixedip_bind = fmtp.Sprintf(`
+var testAccNetworkingV2FloatingIP_fixedip_bind = fmt.Sprintf(`
 resource "huaweicloud_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"

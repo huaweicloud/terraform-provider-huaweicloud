@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -15,7 +16,7 @@ import (
 func TestAccVpcRouteV2_basic(t *testing.T) {
 	var route routes.Route
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_route.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -94,7 +95,7 @@ func testAccCheckRouteV2Exists(n string, route *routes.Route) resource.TestCheck
 }
 
 func testAccRouteV2_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"

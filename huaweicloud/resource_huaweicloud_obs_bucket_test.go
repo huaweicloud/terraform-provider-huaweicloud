@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -134,7 +135,7 @@ func TestAccObsBucket_versioning(t *testing.T) {
 
 func TestAccObsBucket_logging(t *testing.T) {
 	rInt := acctest.RandInt()
-	targetBucket := fmtp.Sprintf("tf-test-log-bucket-%d", rInt)
+	targetBucket := fmt.Sprintf("tf-test-log-bucket-%d", rInt)
 	resourceName := "huaweicloud_obs_bucket.bucket"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -343,15 +344,15 @@ func testAccCheckObsBucketLogging(name, target, prefix string) resource.TestChec
 
 // These need a bit of randomness as the name can only be used once globally
 func testAccObsBucketName(randInt int) string {
-	return fmtp.Sprintf("tf-test-bucket-%d", randInt)
+	return fmt.Sprintf("tf-test-bucket-%d", randInt)
 }
 
 func testAccObsBucketDomainName(randInt int) string {
-	return fmtp.Sprintf("tf-test-bucket-%d.obs.%s.myhuaweicloud.com", randInt, HW_REGION_NAME)
+	return fmt.Sprintf("tf-test-bucket-%d.obs.%s.myhuaweicloud.com", randInt, HW_REGION_NAME)
 }
 
 func testAccObsBucket_basic(randInt int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket        = "tf-test-bucket-%d"
   storage_class = "STANDARD"
@@ -366,7 +367,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucket_basic_update(randInt int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket        = "tf-test-bucket-%d"
   storage_class = "WARM"
@@ -381,7 +382,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucket_epsId(randInt int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket                = "tf-test-bucket-%d"
   storage_class         = "STANDARD"
@@ -392,7 +393,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketConfigMultiAZ(randInt int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket   = "tf-test-bucket-%d"
   acl      = "private"
@@ -407,7 +408,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketConfigWithVersioning(randInt int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket     = "tf-test-bucket-%d"
   acl        = "private"
@@ -417,7 +418,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketConfigWithDisableVersioning(randInt int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket     = "tf-test-bucket-%d"
   acl        = "private"
@@ -427,7 +428,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketConfigWithLogging(randInt int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "log_bucket" {
   bucket        = "tf-test-log-bucket-%d"
   acl           = "log-delivery-write"
@@ -447,7 +448,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketConfigWithQuota(randInt int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket = "tf-test-bucket-%d"
   acl    = "private"
@@ -457,7 +458,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketConfigWithLifecycle(randInt int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket     = "tf-test-bucket-%d"
   acl        = "private"
@@ -512,7 +513,7 @@ resource "huaweicloud_obs_bucket" "bucket" {
 }
 
 func testAccObsBucketWebsiteConfigWithRoutingRules(randInt int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket = "tf-test-bucket-%d"
   acl    = "public-read"
@@ -536,7 +537,7 @@ EOF
 }
 
 func testAccObsBucketConfigWithCORS(randInt int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "bucket" {
   bucket = "tf-test-bucket-%d"
   acl    = "public-read"

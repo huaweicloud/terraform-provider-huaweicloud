@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -15,7 +16,7 @@ import (
 func TestAccVpcBandWidthV2_basic(t *testing.T) {
 	var bandwidth bandwidths.BandWidth
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_bandwidth.test"
 	rNameUpdate := rName + "-updated"
 
@@ -49,7 +50,7 @@ func TestAccVpcBandWidthV2_basic(t *testing.T) {
 func TestAccVpcBandWidthV2_WithEpsId(t *testing.T) {
 	var bandwidth bandwidths.BandWidth
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc_bandwidth.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -123,7 +124,7 @@ func testAccCheckVpcBandWidthV2Exists(n string, bandwidth *bandwidths.BandWidth)
 }
 
 func testAccVpcBandWidthV2_basic(rName string, size int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc_bandwidth" "test" {
 	name = "%s"
 	size = "%d"
@@ -132,7 +133,7 @@ resource "huaweicloud_vpc_bandwidth" "test" {
 }
 
 func testAccVpcBandWidthV2_epsId(rName string, size int) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc_bandwidth" "test" {
 	name = "%s"
 	size = "%d"

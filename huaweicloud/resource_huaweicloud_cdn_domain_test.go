@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -83,7 +84,7 @@ func testAccCheckCdnDomainV1Exists(n string, domain *domains.CdnDomain) resource
 	}
 }
 
-var testAccCdnDomainV1_basic = fmtp.Sprintf(`
+var testAccCdnDomainV1_basic = fmt.Sprintf(`
 resource "huaweicloud_cdn_domain_v1" "domain_1" {
   name   = "%s"
   type   = "web"

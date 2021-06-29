@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -15,7 +16,7 @@ import (
 func TestAccVpcV1_basic(t *testing.T) {
 	var vpc vpcs.Vpc
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc.test"
 	rNameUpdate := rName + "-updated"
 
@@ -55,7 +56,7 @@ func TestAccVpcV1_basic(t *testing.T) {
 func TestAccVpcV1_WithEpsId(t *testing.T) {
 	var vpc vpcs.Vpc
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_vpc.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -81,8 +82,8 @@ func TestAccVpcV1_WithEpsId(t *testing.T) {
 // you shoule set `HW_CUSTOM_REGION_NAME` in your system and it should be different from `HW_REGION_NAME`.
 func TestAccVpcV1_WithCustomRegion(t *testing.T) {
 
-	vpcName1 := fmtp.Sprintf("test_vpc_region_%s", acctest.RandString(5))
-	vpcName2 := fmtp.Sprintf("test_vpc_region_%s", acctest.RandString(5))
+	vpcName1 := fmt.Sprintf("test_vpc_region_%s", acctest.RandString(5))
+	vpcName2 := fmt.Sprintf("test_vpc_region_%s", acctest.RandString(5))
 
 	resName1 := "huaweicloud_vpc.test1"
 	resName2 := "huaweicloud_vpc.test2"
@@ -190,7 +191,7 @@ func testAccCheckVpcV1Exists(n string, vpc *vpcs.Vpc) resource.TestCheckFunc {
 }
 
 func testAccVpcV1_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -204,7 +205,7 @@ resource "huaweicloud_vpc" "test" {
 }
 
 func testAccVpcV1_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr="192.168.0.0/16"
@@ -218,7 +219,7 @@ resource "huaweicloud_vpc" "test" {
 }
 
 func testAccVpcV1_epsId(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
   cidr = "192.168.0.0/16"
@@ -228,7 +229,7 @@ resource "huaweicloud_vpc" "test" {
 }
 
 func tesstAccVpcV1_WithCustomRegion(name1 string, name2 string, region string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test1" {
   name = "%s"
   cidr = "192.168.0.0/16"

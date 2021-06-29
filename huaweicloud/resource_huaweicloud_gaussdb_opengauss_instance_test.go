@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,9 +16,9 @@ import (
 func TestAccOpenGaussInstance_basic(t *testing.T) {
 	var instance instances.GaussDBInstance
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmtp.Sprintf("%s@123", acctest.RandString(5))
-	newPassword := fmtp.Sprintf("%sUpdate@123", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	password := fmt.Sprintf("%s@123", acctest.RandString(5))
+	newPassword := fmt.Sprintf("%sUpdate@123", acctest.RandString(5))
 	resourceName := "huaweicloud_gaussdb_opengauss_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -37,7 +38,7 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 				Config: testAccOpenGaussInstanceConfig_update(rName, newPassword),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckOpenGaussInstanceExists(resourceName, &instance),
-					resource.TestCheckResourceAttr(resourceName, "name", fmtp.Sprintf("%s-update", rName)),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
 					resource.TestCheckResourceAttr(resourceName, "password", newPassword),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.start_time", "08:30-09:30"),
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
@@ -99,7 +100,7 @@ func testAccCheckOpenGaussInstanceExists(n string, instance *instances.GaussDBIn
 }
 
 func testAccOpenGaussInstanceConfig_base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_availability_zones" "myaz" {}
@@ -111,7 +112,7 @@ data "huaweicloud_networking_secgroup" "test" {
 }
 
 func testAccOpenGaussInstanceConfig_basic(rName, password string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {
@@ -141,7 +142,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
 }
 
 func testAccOpenGaussInstanceConfig_update(rName, password string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_gaussdb_opengauss_instance" "test" {

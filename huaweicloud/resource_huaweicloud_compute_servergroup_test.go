@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,7 +17,7 @@ import (
 
 func TestAccComputeV2ServerGroup_basic(t *testing.T) {
 	var sg servergroups.ServerGroup
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -41,7 +42,7 @@ func TestAccComputeV2ServerGroup_basic(t *testing.T) {
 func TestAccComputeV2ServerGroup_affinity(t *testing.T) {
 	var instance servers.Server
 	var sg servergroups.ServerGroup
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -63,7 +64,7 @@ func TestAccComputeV2ServerGroup_affinity(t *testing.T) {
 func TestAccComputeV2ServerGroup_members(t *testing.T) {
 	var instance servers.Server
 	var sg servergroups.ServerGroup
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -150,7 +151,7 @@ func testAccCheckComputeV2InstanceInServerGroup(instance *servers.Server, sg *se
 }
 
 func testAccComputeV2ServerGroup_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_compute_servergroup" "sg_1" {
   name = "%s"
   policies = ["affinity"]
@@ -159,7 +160,7 @@ resource "huaweicloud_compute_servergroup" "sg_1" {
 }
 
 func testAccComputeV2ServerGroup_affinity(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_servergroup" "sg_1" {
@@ -184,7 +185,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
 }
 
 func testAccComputeV2ServerGroup_members(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_servergroup" "sg_1" {

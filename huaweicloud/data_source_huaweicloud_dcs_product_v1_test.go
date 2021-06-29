@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -41,7 +42,7 @@ func testAccCheckDcsProductV1DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccDcsProductV1DataSource_basic = fmtp.Sprintf(`
+var testAccDcsProductV1DataSource_basic = fmt.Sprintf(`
 data "huaweicloud_dcs_product_v1" "product1" {
 spec_code = "dcs.single_node"
 }

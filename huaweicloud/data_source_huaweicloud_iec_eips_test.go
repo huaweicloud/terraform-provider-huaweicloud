@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -68,7 +69,7 @@ resource "huaweicloud_iec_eip" "eip_test2" {
 `
 
 func testAccIECEipsDataSource_basic() string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_iec_eips" "site" {

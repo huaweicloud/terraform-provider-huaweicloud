@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -14,8 +15,8 @@ import (
 
 func TestAccRdsConfigurationV3_basic(t *testing.T) {
 	var config configurations.Configuration
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	updateName := fmtp.Sprintf("tf-acc-test-%s-update", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	updateName := fmt.Sprintf("tf-acc-test-%s-update", acctest.RandString(5))
 	resourceName := "huaweicloud_rds_parametergroup.pg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -97,7 +98,7 @@ func testAccCheckRdsConfigV3Exists(n string, configuration *configurations.Confi
 }
 
 func testAccRdsConfigV3_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_rds_parametergroup" "pg_1" {
   name        = "%s"
   description = "description_1"
@@ -115,7 +116,7 @@ resource "huaweicloud_rds_parametergroup" "pg_1" {
 }
 
 func testAccRdsConfigV3_update(updateName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_rds_parametergroup" "pg_1" {
   name        = "%s"
   description = "description_update"

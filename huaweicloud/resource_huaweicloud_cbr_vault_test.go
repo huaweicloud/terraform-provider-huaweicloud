@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,7 +17,7 @@ import (
 
 func TestAccCBRV3Vault_serverBasic(t *testing.T) {
 	var vault vaults.Vault
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cbr_vault.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -66,7 +67,7 @@ func TestAccCBRV3Vault_serverBasic(t *testing.T) {
 
 func TestAccCBRV3Vault_serverReplication(t *testing.T) {
 	var vault vaults.Vault
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cbr_vault.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -96,7 +97,7 @@ func TestAccCBRV3Vault_serverReplication(t *testing.T) {
 
 func TestAccCBRV3Vault_volumeBasic(t *testing.T) {
 	var vault vaults.Vault
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cbr_vault.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -144,7 +145,7 @@ func TestAccCBRV3Vault_volumeBasic(t *testing.T) {
 
 func TestAccCBRV3Vault_turboBasic(t *testing.T) {
 	var vault vaults.Vault
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cbr_vault.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -190,7 +191,7 @@ func TestAccCBRV3Vault_turboBasic(t *testing.T) {
 
 func TestAccCBRV3Vault_turboReplication(t *testing.T) {
 	var vault vaults.Vault
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cbr_vault.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -270,7 +271,7 @@ func testAccCheckCBRV3VaultExists(n string, vault *vaults.Vault) resource.TestCh
 }
 
 func testAccCBRV3Vault_policy(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_cbr_policy" "test" {
   name        = "%s"
   type        = "backup"
@@ -286,7 +287,7 @@ resource "huaweicloud_cbr_policy" "test" {
 
 //Vaults of type 'server'
 func testAccCBRV3Vault_serverBase(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {
@@ -340,7 +341,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 func testAccCBRV3Vault_serverBasic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cbr_vault" "test" {
@@ -360,7 +361,7 @@ resource "huaweicloud_cbr_vault" "test" {
 }
 
 func testAccCBRV3Vault_serverUpdate(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 %s
@@ -387,7 +388,7 @@ resource "huaweicloud_cbr_vault" "test" {
 }
 
 func testAccCBRV3Vault_serverReplication(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_cbr_vault" "test" {
   name                  = "%s"
   type                  = "server"
@@ -401,7 +402,7 @@ resource "huaweicloud_cbr_vault" "test" {
 
 //Vaults of type 'disk'
 func testAccCBRV3Vault_volumeBase(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_evs_volume" "test" {
@@ -414,7 +415,7 @@ resource "huaweicloud_evs_volume" "test" {
 }
 
 func testAccCBRV3Vault_volumeBasic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cbr_vault" "test" {
@@ -429,7 +430,7 @@ resource "huaweicloud_cbr_vault" "test" {
 }
 
 func testAccCBRV3Vault_volumeUpdate(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 %s
@@ -453,7 +454,7 @@ resource "huaweicloud_cbr_vault" "test" {
 
 //Vaults of type 'turbo'
 func testAccCBRV3Vault_turboBase(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_vpc" "test" {
@@ -485,7 +486,7 @@ resource "huaweicloud_sfs_turbo" "test" {
 }
 
 func testAccCBRV3Vault_turboBasic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cbr_vault" "test" {
@@ -500,7 +501,7 @@ resource "huaweicloud_cbr_vault" "test" {
 }
 
 func testAccCBRV3Vault_turboUpdate(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 %s
@@ -522,7 +523,7 @@ resource "huaweicloud_cbr_vault" "test" {
 }
 
 func testAccCBRV3Vault_turboReplication(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_cbr_vault" "test" {
   name                  = "%s"
   consistent_level      = "crash_consistent"

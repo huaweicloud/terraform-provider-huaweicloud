@@ -1,15 +1,15 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccIECKeypairDataSource_basic(t *testing.T) {
-	rName := fmtp.Sprintf("KeyPair-%s", acctest.RandString(4))
+	rName := fmt.Sprintf("KeyPair-%s", acctest.RandString(4))
 	resourceName := "data.huaweicloud_iec_keypair.by_name"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -30,7 +30,7 @@ func TestAccIECKeypairDataSource_basic(t *testing.T) {
 }
 
 func testAccDataSourceIECKeypair_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_iec_keypair" "kp_1" {
   name = "%s"
 }

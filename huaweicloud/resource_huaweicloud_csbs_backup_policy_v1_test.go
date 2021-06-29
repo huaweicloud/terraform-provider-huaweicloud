@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -14,8 +15,8 @@ import (
 
 func TestAccCSBSBackupPolicyV1_basic(t *testing.T) {
 	var policy policies.BackupPolicy
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	updateName := fmtp.Sprintf("tf-acc-test-update-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	updateName := fmt.Sprintf("tf-acc-test-update-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -51,7 +52,7 @@ func TestAccCSBSBackupPolicyV1_basic(t *testing.T) {
 
 func TestAccCSBSBackupPolicyV1_timeout(t *testing.T) {
 	var policy policies.BackupPolicy
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckDeprecated(t) },
@@ -122,7 +123,7 @@ func testAccCheckCSBSBackupPolicyV1Exists(n string, policy *policies.BackupPolic
 }
 
 func testAccCSBSBackupPolicyV1_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
@@ -159,7 +160,7 @@ resource "huaweicloud_csbs_backup_policy" "backup_policy" {
 }
 
 func testAccCSBSBackupPolicyV1_update(rName, updateName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
@@ -196,7 +197,7 @@ resource "huaweicloud_csbs_backup_policy" "backup_policy" {
 }
 
 func testAccCSBSBackupPolicyV1_timeout(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }

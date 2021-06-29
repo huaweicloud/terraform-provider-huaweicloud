@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,7 +17,7 @@ import (
 func TestAccCCENodePool_basic(t *testing.T) {
 	var nodePool nodepools.NodePool
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	updateName := rName + "update"
 	resourceName := "huaweicloud_cce_node_pool.test"
 	//clusterName here is used to provide the cluster id to fetch cce node pool.
@@ -69,7 +70,7 @@ func TestAccCCENodePool_basic(t *testing.T) {
 func TestAccCCENodePool_tags(t *testing.T) {
 	var nodePool nodepools.NodePool
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_cce_node_pool.test"
 	//clusterName here is used to provide the cluster id to fetch cce node pool.
 	clusterName := "huaweicloud_cce_cluster.test"
@@ -146,7 +147,7 @@ func testAccCCENodePoolImportStateIdFunc() resource.ImportStateIdFunc {
 		if cluster.Primary.ID == "" || nodePool.Primary.ID == "" {
 			return "", fmtp.Errorf("resource not found: %s/%s", cluster.Primary.ID, nodePool.Primary.ID)
 		}
-		return fmtp.Sprintf("%s/%s", cluster.Primary.ID, nodePool.Primary.ID), nil
+		return fmt.Sprintf("%s/%s", cluster.Primary.ID, nodePool.Primary.ID), nil
 	}
 }
 
@@ -190,7 +191,7 @@ func testAccCheckCCENodePoolExists(n string, cluster string, nodePool *nodepools
 }
 
 func testAccCCENodePool_Base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_availability_zones" "test" {}
@@ -212,7 +213,7 @@ resource "huaweicloud_cce_cluster" "test" {
 }
 
 func testAccCCENodePool_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node_pool" "test" {
@@ -243,7 +244,7 @@ resource "huaweicloud_cce_node_pool" "test" {
 }
 
 func testAccCCENodePool_update(rName, updateName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node_pool" "test" {
@@ -274,7 +275,7 @@ resource "huaweicloud_cce_node_pool" "test" {
 }
 
 func testAccCCENodePool_volume_extendParams(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node_pool" "test" {
@@ -320,7 +321,7 @@ resource "huaweicloud_cce_node_pool" "test" {
 }
 
 func testAccCCENodePool_tags(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node_pool" "test" {
@@ -356,7 +357,7 @@ resource "huaweicloud_cce_node_pool" "test" {
 }
 
 func testAccCCENodePool_tags_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node_pool" "test" {

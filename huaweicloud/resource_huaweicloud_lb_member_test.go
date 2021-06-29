@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 func TestAccLBV2Member_basic(t *testing.T) {
 	var member_1 pools.Member
 	var member_2 pools.Member
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -98,7 +99,7 @@ func testAccCheckLBV2MemberExists(n string, member *pools.Member) resource.TestC
 }
 
 func testAccLBV2MemberConfig_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -152,7 +153,7 @@ resource "huaweicloud_lb_member" "member_2" {
 }
 
 func testAccLBV2MemberConfig_update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }

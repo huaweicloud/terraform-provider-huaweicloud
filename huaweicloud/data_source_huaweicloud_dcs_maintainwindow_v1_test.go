@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -43,7 +44,7 @@ func testAccCheckDcsMaintainWindowV1DataSourceID(n string) resource.TestCheckFun
 	}
 }
 
-var testAccDcsMaintainWindowV1DataSource_basic = fmtp.Sprintf(`
+var testAccDcsMaintainWindowV1DataSource_basic = fmt.Sprintf(`
 data "huaweicloud_dcs_maintainwindow_v1" "maintainwindow1" {
 seq = 1
 }

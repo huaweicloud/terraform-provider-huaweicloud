@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 
 func TestAccIdentityV3User_basic(t *testing.T) {
 	var user users.User
-	var userName = fmtp.Sprintf("acc-user-%s", acctest.RandString(5))
+	var userName = fmt.Sprintf("acc-user-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_user.user_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -110,7 +111,7 @@ func testAccCheckIdentityV3UserExists(n string, user *users.User) resource.TestC
 }
 
 func testAccIdentityV3User_basic(userName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
   name        = "%s"
   password    = "password123@!"
@@ -121,7 +122,7 @@ resource "huaweicloud_identity_user" "user_1" {
 }
 
 func testAccIdentityV3User_update(userName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_user" "user_1" {
   name        = "%s"
   password    = "password123@!"

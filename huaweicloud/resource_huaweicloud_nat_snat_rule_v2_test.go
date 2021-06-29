@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -91,7 +92,7 @@ func testAccCheckNatV2SnatRuleExists(n string) resource.TestCheckFunc {
 }
 
 func testAccNatV2SnatRule_basic(suffix string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_vpc_eip" "eip_1" {

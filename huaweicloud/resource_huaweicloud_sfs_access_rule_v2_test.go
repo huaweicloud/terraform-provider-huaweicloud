@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -14,7 +15,7 @@ import (
 
 func TestAccSFSAccessRuleV2_basic(t *testing.T) {
 	var rule shares.AccessRight
-	shareName := fmtp.Sprintf("sfs-acc-%s", acctest.RandString(5))
+	shareName := fmt.Sprintf("sfs-acc-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -117,7 +118,7 @@ func testAccCheckSFSAccessRuleV2Exists(n string, rule *shares.AccessRight) resou
 }
 
 func configAccSFSAccessRuleV2_basic(sfsName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc" "vpc_default" {
   name = "vpc-default"
   enterprise_project_id = "0"
@@ -137,7 +138,7 @@ resource "huaweicloud_sfs_access_rule_v2" "rule_1" {
 }
 
 func configAccSFSAccessRuleV2_ipAuth(sfsName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_vpc" "vpc_default" {
   name = "vpc-default"
   enterprise_project_id = "0"

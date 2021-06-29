@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -160,7 +161,7 @@ func testAccCheckAwsObsObjectDataSourceExists(n string) resource.TestCheckFunc {
 }
 
 func testAccObsBucketObjectDataSource_content(randInt int) (string, string) {
-	resource := fmtp.Sprintf(`
+	resource := fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
   bucket = "tf-acc-test-bucket-%d"
 }
@@ -172,7 +173,7 @@ resource "huaweicloud_obs_bucket_object" "object" {
 }
 `, randInt, randInt)
 
-	dataSource := fmtp.Sprintf(`
+	dataSource := fmt.Sprintf(`
 %s
 
 data "huaweicloud_obs_bucket_object" "obj" {
@@ -184,7 +185,7 @@ data "huaweicloud_obs_bucket_object" "obj" {
 }
 
 func testAccObsBucketObjectDataSource_source(randInt int, source string) (string, string) {
-	resource := fmtp.Sprintf(`
+	resource := fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
   bucket = "tf-acc-test-bucket-%d"
 }
@@ -197,7 +198,7 @@ resource "huaweicloud_obs_bucket_object" "object" {
 }
 `, randInt, randInt, source)
 
-	dataSource := fmtp.Sprintf(`
+	dataSource := fmt.Sprintf(`
 %s
 
 data "huaweicloud_obs_bucket_object" "obj" {
@@ -209,7 +210,7 @@ data "huaweicloud_obs_bucket_object" "obj" {
 }
 
 func testAccObsBucketObjectDataSource_allParams(randInt int) (string, string) {
-	resource := fmtp.Sprintf(`
+	resource := fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "object_bucket" {
   bucket = "tf-acc-test-bucket-%d"
 }
@@ -227,7 +228,7 @@ CONTENT
 }
 `, randInt, randInt)
 
-	dataSource := fmtp.Sprintf(`
+	dataSource := fmt.Sprintf(`
 %s
 
 data "huaweicloud_obs_bucket_object" "obj" {

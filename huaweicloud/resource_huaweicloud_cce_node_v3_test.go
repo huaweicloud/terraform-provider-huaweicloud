@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -17,7 +18,7 @@ import (
 func TestAccCCENodeV3_basic(t *testing.T) {
 	var node nodes.Nodes
 
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	updateName := rName + "update"
 	resourceName := "huaweicloud_cce_node.test"
 	//clusterName here is used to provide the cluster id to fetch cce node.
@@ -157,12 +158,12 @@ func testAccCCENodeImportStateIdFunc() resource.ImportStateIdFunc {
 		if cluster.Primary.ID == "" || node.Primary.ID == "" {
 			return "", fmtp.Errorf("resource not found: %s/%s", cluster.Primary.ID, node.Primary.ID)
 		}
-		return fmtp.Sprintf("%s/%s", cluster.Primary.ID, node.Primary.ID), nil
+		return fmt.Sprintf("%s/%s", cluster.Primary.ID, node.Primary.ID), nil
 	}
 }
 
 func testAccCCENodeV3_Base(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_availability_zones" "test" {}
@@ -184,7 +185,7 @@ resource "huaweicloud_cce_cluster" "test" {
 }
 
 func testAccCCENodeV3_basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node" "test" {
@@ -211,7 +212,7 @@ resource "huaweicloud_cce_node" "test" {
 }
 
 func testAccCCENodeV3_update(rName, updateName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node" "test" {
@@ -238,7 +239,7 @@ resource "huaweicloud_cce_node" "test" {
 }
 
 func testAccCCENodeV3_auto_assign_eip(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node" "test" {
@@ -267,7 +268,7 @@ resource "huaweicloud_cce_node" "test" {
 }
 
 func testAccCCENodeV3_existing_eip(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_vpc_eip" "test" {
@@ -305,7 +306,7 @@ resource "huaweicloud_cce_node" "test" {
 }
 
 func testAccCCENodeV3_volume_extendParams(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_cce_node" "test" {

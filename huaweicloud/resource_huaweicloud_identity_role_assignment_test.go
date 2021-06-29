@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -17,7 +18,7 @@ import (
 func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 	var role roles.Role
 	var group groups.Group
-	rName := fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_role_assignment.role_assignment_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -135,7 +136,7 @@ func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, grou
 }
 
 func testAccIdentityV3RoleAssignment_project(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_identity_role" "role_1" {
   name = "rds_adm"
 }
@@ -153,7 +154,7 @@ resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
 }
 
 func testAccIdentityV3RoleAssignment_domain(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 data "huaweicloud_identity_role" "role_1" {
   name = "secu_admin"
 }

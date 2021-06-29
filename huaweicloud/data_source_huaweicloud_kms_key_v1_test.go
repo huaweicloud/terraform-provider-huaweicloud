@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -10,8 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-var keyAlias = fmtp.Sprintf("key_alias_%s", acctest.RandString(5))
-var keyAlias_epsId = fmtp.Sprintf("key_alias_%s", acctest.RandString(5))
+var keyAlias = fmt.Sprintf("key_alias_%s", acctest.RandString(5))
+var keyAlias_epsId = fmt.Sprintf("key_alias_%s", acctest.RandString(5))
 
 func TestAccKmsKeyDataSource_Basic(t *testing.T) {
 	var datasourceName = "data.huaweicloud_kms_key.key_1"
@@ -84,7 +85,7 @@ func testAccCheckKmsKeyDataSourceID(n string) resource.TestCheckFunc {
 }
 
 func testAccKmsKeyDataSource_Basic(keyAlias string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_kms_key" "key_1" {
@@ -96,7 +97,7 @@ data "huaweicloud_kms_key" "key_1" {
 }
 
 func testAccKmsKeyDataSource_WithTags(keyAlias string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_kms_key" "key_1" {
@@ -107,7 +108,7 @@ data "huaweicloud_kms_key" "key_1" {
 `, testAccKmsKey_WithTags(keyAlias))
 }
 
-var testAccKmsKeyDataSource_epsId = fmtp.Sprintf(`
+var testAccKmsKeyDataSource_epsId = fmt.Sprintf(`
 resource "huaweicloud_kms_key_v1" "key_1" {
   key_alias       = "%s"
   key_description = "test description"

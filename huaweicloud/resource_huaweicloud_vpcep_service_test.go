@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -15,7 +16,7 @@ import (
 func TestAccVPCEPService_Basic(t *testing.T) {
 	var service services.Service
 
-	rName := fmtp.Sprintf("acc-test-%s", acctest.RandString(4))
+	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
 	resourceName := "huaweicloud_vpcep_service.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -62,7 +63,7 @@ func TestAccVPCEPService_Basic(t *testing.T) {
 func TestAccVPCEPService_Permission(t *testing.T) {
 	var service services.Service
 
-	rName := fmtp.Sprintf("acc-test-%s", acctest.RandString(4))
+	rName := fmt.Sprintf("acc-test-%s", acctest.RandString(4))
 	resourceName := "huaweicloud_vpcep_service.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -145,7 +146,7 @@ func testAccCheckVPCEPServiceExists(n string, service *services.Service) resourc
 }
 
 func testAccVPCEPService_Precondition(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 data "huaweicloud_vpc" "myvpc" {
@@ -167,7 +168,7 @@ resource "huaweicloud_compute_instance" "ecs" {
 }
 
 func testAccVPCEPService_Basic(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {
@@ -189,7 +190,7 @@ resource "huaweicloud_vpcep_service" "test" {
 }
 
 func testAccVPCEPService_Update(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {
@@ -211,7 +212,7 @@ resource "huaweicloud_vpcep_service" "test" {
 }
 
 func testAccVPCEPService_Permission(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {
@@ -231,7 +232,7 @@ resource "huaweicloud_vpcep_service" "test" {
 }
 
 func testAccVPCEPService_PermissionUpdate(rName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_vpcep_service" "test" {

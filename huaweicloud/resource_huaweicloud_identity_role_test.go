@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,7 +16,7 @@ import (
 
 func TestAccIdentityRole_basic(t *testing.T) {
 	var role policies.Role
-	var roleName = fmtp.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var roleName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	var roleNameUpdate = roleName + "update"
 	resourceName := "huaweicloud_identity_role.test"
 
@@ -108,7 +109,7 @@ func testAccCheckIdentityRoleExists(n string, role *policies.Role) resource.Test
 }
 
 func testAccIdentityRole_basic(roleName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_role" test {
   name        = "%s"
   description = "created by terraform"
@@ -134,7 +135,7 @@ EOF
 }
 
 func testAccIdentityRole_update(roleName string) string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_role" test {
   name        = "%s"
   description = "created by terraform"

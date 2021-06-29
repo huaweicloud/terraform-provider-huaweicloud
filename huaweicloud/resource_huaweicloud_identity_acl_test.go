@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -154,7 +155,7 @@ func testAccCheckIdentityACLDestroy(s *terraform.State) error {
 }
 
 func testAccIdentityACL_basic() string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_acl" "test" {
   type = "console"
 
@@ -172,7 +173,7 @@ resource "huaweicloud_identity_acl" "test" {
 }
 
 func testAccIdentityACL_update() string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_acl" "test" {
   type = "console"
 
@@ -198,7 +199,7 @@ resource "huaweicloud_identity_acl" "test" {
 }
 
 func testAccIdentityACL_apiAccess() string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_acl" "test" {
   type = "api"
 
@@ -216,7 +217,7 @@ resource "huaweicloud_identity_acl" "test" {
 }
 
 func testAccIdentityACL_apiUpdate() string {
-	return fmtp.Sprintf(`
+	return fmt.Sprintf(`
 resource "huaweicloud_identity_acl" "test" {
   type = "api"
 
