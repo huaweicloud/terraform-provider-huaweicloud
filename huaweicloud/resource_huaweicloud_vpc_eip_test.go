@@ -10,7 +10,6 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpcV1EIP_basic(t *testing.T) {
@@ -54,6 +53,11 @@ func TestAccVpcV1EIP_share(t *testing.T) {
 				Config: testAccVpcV1EIP_share(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1EIPExists(resourceName, &eip),
+					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
+					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", rName),
+					resource.TestCheckResourceAttrSet(resourceName, "bandwidth.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "address"),
 				),
 			},
 			{
@@ -87,11 +91,42 @@ func TestAccVpcV1EIP_WithEpsId(t *testing.T) {
 	})
 }
 
+func TestAccVpcV1EIP_prePaid(t *testing.T) {
+	var eip eips.PublicIp
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_vpc_eip.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckChargingMode(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVpcV1EIPDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVpcV1EIP_prePaid(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcV1EIPExists(resourceName, &eip),
+					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
+					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", rName),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttrSet(resourceName, "bandwidth.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "address"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckVpcV1EIPDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating EIP Client: %s", err)
+		return fmt.Errorf("Error creating EIP Client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -101,7 +136,7 @@ func testAccCheckVpcV1EIPDestroy(s *terraform.State) error {
 
 		_, err := eips.Get(networkingClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("EIP still exists")
+			return fmt.Errorf("EIP still exists")
 		}
 	}
 
@@ -112,17 +147,17 @@ func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheck
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating networking client: %s", err)
+			return fmt.Errorf("Error creating networking client: %s", err)
 		}
 
 		found, err := eips.Get(networkingClient, rs.Primary.ID).Extract()
@@ -131,7 +166,7 @@ func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheck
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("EIP not found")
+			return fmt.Errorf("EIP not found")
 		}
 
 		*eip = found
@@ -147,9 +182,9 @@ resource "huaweicloud_vpc_eip" "test" {
     type = "5_bgp"
   }
   bandwidth {
+    share_type  = "PER"
     name        = "%s"
     size        = 8
-    share_type  = "PER"
     charge_mode = "traffic"
   }
 }
@@ -163,9 +198,9 @@ resource "huaweicloud_vpc_eip" "test" {
     type = "5_bgp"
   }
   bandwidth {
+    share_type  = "PER"
     name        = "%s"
     size        = 8
-    share_type  = "PER"
     charge_mode = "traffic"
   }
   enterprise_project_id = "%s"
@@ -185,8 +220,27 @@ resource "huaweicloud_vpc_eip" "test" {
     type = "5_bgp"
   }
   bandwidth {
-    id         = huaweicloud_vpc_bandwidth.test.id
     share_type = "WHOLE"
+    id         = huaweicloud_vpc_bandwidth.test.id
+  }
+}
+`, rName)
+}
+
+func testAccVpcV1EIP_prePaid(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_eip" "test" {
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    share_type  = "PER"
+    name        = "%s"
+    size        = 5
   }
 }
 `, rName)
