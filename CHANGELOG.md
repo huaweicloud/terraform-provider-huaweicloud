@@ -1,3 +1,19 @@
+## 1.26.0 (June 30, 2021)
+
+FEATURES:
+* **New Resource:** `huaweicloud_apig_instance` ([#1221](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1221))
+* **New Resource:** `huaweicloud_apig_application` ([#1198](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1198))
+
+ENHANCEMENTS:
+* resource/huaweicloud_obs_bucket: Support to enable multi-AZ mode ([#1190](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1190))
+* resource/huaweicloud_vpc_eip: support prePaid charging mode ([#963](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/963))
+* resource/huaweicloud_gaussdb_mysql_instance: Add proxy support for gaussdb mysql ([#1136](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1136))
+* resource/huaweicloud_cce_*: expand PollInterval in WaitForState to avoid the API rate limits ([#1251](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1251))
+
+BUG FIXES:
+* resource/huaweicloud_rds_instance: Fix the exception of empty value conversion ([#1204](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1204))
+
+
 ## 1.25.1 (June 24, 2021)
 
 FEATURES:
