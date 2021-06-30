@@ -44,7 +44,7 @@ func WaitForJobSuccess(client *golangsdk.ServiceClient, secs int, jobID string) 
 		_, err := client.Get(jobURL(client, jobID), &job_status, &golangsdk.RequestOpts{
 			MoreHeaders: requestOpts.MoreHeaders,
 		})
-		time.Sleep(5 * time.Second)
+		time.Sleep(15 * time.Second)
 		if err != nil {
 			return false, err
 		}

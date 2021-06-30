@@ -93,6 +93,8 @@ The following arguments are supported:
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 
+* `proxy` - (Optional, List) Specifies the proxy information. Structure is documented below.
+
 * `force_import` - (Optional, Bool) If specified, try to import the instance instead of creating if the name already existed.
 
 * `volume_size` - (Optional, Int) Specifies the volume size of the instance. The new storage space must be greater than
@@ -119,6 +121,13 @@ The `backup_strategy` block supports:
    If this parameter is not transferred, the automated backup policy is enabled by default.
    Backup files are stored for seven days by default.
 
+The `proxy` block supports:
+
+* `flavor` - (Required, String) Specifies the flavor of the proxy.
+ 
+* `node_num` - (Required, Int) Specifies the node count of the proxy.
+
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -130,6 +139,8 @@ In addition to all arguments above, the following attributes are exported:
 * `db_user_name` - Indicates the default username.
 * `private_write_ip` - Indicates the private IP address of the DB instance.
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
+* `proxy/address` - Indicates the address of the proxy.
+* `proxy/port` - Indicates the port of the proxy.
 
 The `nodes` block contains:
 

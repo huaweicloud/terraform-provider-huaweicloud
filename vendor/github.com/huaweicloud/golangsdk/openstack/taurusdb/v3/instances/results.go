@@ -164,3 +164,22 @@ func ExtractTaurusDBInstances(r pagination.Page) (ListTaurusDBResponse, error) {
 	err := (r.(TaurusDBPage)).ExtractInto(&s)
 	return s, err
 }
+
+type Proxy struct {
+	Address string `json:"address"`
+	Port    int    `json:"port"`
+	ElbVip  string `json:"elb_vip"`
+	Eip     string `json:"eip"`
+	NodeNum int    `json:"node_num"`
+	Flavor  string `json:"flavor_ref"`
+}
+
+type GetProxyResult struct {
+	commonResult
+}
+
+func (r GetProxyResult) Extract() (*Proxy, error) {
+	var proxy Proxy
+	err := r.ExtractIntoStructPtr(&proxy, "proxy")
+	return &proxy, err
+}
