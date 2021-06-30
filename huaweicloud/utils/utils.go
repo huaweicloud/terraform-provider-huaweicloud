@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -231,4 +232,10 @@ func IsResourceNotFound(err error) bool {
 func FormatTimeStampRFC3339(timestamp int64) string {
 	createTime := time.Unix(timestamp, 0)
 	return createTime.Format(time.RFC3339)
+}
+
+// Method EncodeBase64String is used to encode a string by base64.
+func EncodeBase64String(str string) string {
+	strByte := []byte(str)
+	return base64.StdEncoding.EncodeToString(strByte)
 }
