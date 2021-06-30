@@ -255,13 +255,14 @@ func (client *ProviderClient) Request(method, url string, options *RequestOpts) 
 	}
 
 	// Allow default OkCodes if none explicitly set
-	if options.OkCodes == nil {
-		options.OkCodes = defaultOkCodes(method)
+	okc := options.OkCodes
+	if okc == nil {
+		okc = defaultOkCodes(method)
 	}
 
 	// Validate the HTTP response status.
 	var ok bool
-	for _, code := range options.OkCodes {
+	for _, code := range okc {
 		if resp.StatusCode == code {
 			ok = true
 			break
@@ -274,7 +275,7 @@ func (client *ProviderClient) Request(method, url string, options *RequestOpts) 
 		respErr := ErrUnexpectedResponseCode{
 			URL:      url,
 			Method:   method,
-			Expected: options.OkCodes,
+			Expected: okc,
 			Actual:   resp.StatusCode,
 			Body:     body,
 		}
@@ -388,16 +389,16 @@ func (client *ProviderClient) Request(method, url string, options *RequestOpts) 
 }
 
 func defaultOkCodes(method string) []int {
-	switch {
-	case method == "GET":
+	switch method {
+	case "GET", "HEAD":
 		return []int{200}
-	case method == "POST":
+	case "POST":
 		return []int{201, 202}
-	case method == "PUT":
+	case "PUT":
 		return []int{201, 202}
-	case method == "PATCH":
-		return []int{200, 204}
-	case method == "DELETE":
+	case "PATCH":
+		return []int{200, 202, 204}
+	case "DELETE":
 		return []int{202, 204}
 	}
 

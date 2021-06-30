@@ -340,3 +340,56 @@ func Resize(client *golangsdk.ServiceClient, instanceId string, opts ResizeBuild
 
 	return
 }
+
+type ProxyOpts struct {
+	Flavor  string `json:"flavor_ref" required:"true"`
+	NodeNum int    `json:"node_num" required:"true"`
+}
+
+type ProxyBuilder interface {
+	ToProxyMap() (map[string]interface{}, error)
+}
+
+func (opts ProxyOpts) ToProxyMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func EnableProxy(client *golangsdk.ServiceClient, instanceId string, opts ProxyBuilder) (r JobResult) {
+	b, err := opts.ToProxyMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(proxyURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{201},
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
+
+func DeleteProxy(client *golangsdk.ServiceClient, instanceId string) (r JobResult) {
+	url := proxyURL(client, instanceId)
+
+	_, r.Err = client.DeleteWithResponse(url, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{200, 202},
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
+
+func GetProxy(client *golangsdk.ServiceClient, instanceId string) (r GetProxyResult) {
+	url := proxyURL(client, instanceId)
+
+	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
