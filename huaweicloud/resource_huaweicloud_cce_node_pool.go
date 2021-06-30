@@ -525,12 +525,12 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"Synchronizing"},
-		Target:     []string{""},
-		Refresh:    waitForCceNodePoolActive(nodePoolClient, clusterid, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      15 * time.Second,
-		MinTimeout: 5 * time.Second,
+		Pending:      []string{"Synchronizing"},
+		Target:       []string{""},
+		Refresh:      waitForCceNodePoolActive(nodePoolClient, clusterid, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        15 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 	_, err = stateConf.WaitForState()
 	if err != nil {
@@ -601,11 +601,11 @@ func waitForCceNodePoolDelete(cceClient *golangsdk.ServiceClient, clusterId, nod
 func recursiveNodePoolCreate(cceClient *golangsdk.ServiceClient, opts nodepools.CreateOptsBuilder, ClusterID string, errCode int) (*nodepools.NodePool, string) {
 	if errCode == 403 {
 		stateCluster := &resource.StateChangeConf{
-			Target:     []string{"Available"},
-			Refresh:    waitForClusterAvailable(cceClient, ClusterID),
-			Timeout:    15 * time.Minute,
-			Delay:      15 * time.Second,
-			MinTimeout: 3 * time.Second,
+			Target:       []string{"Available"},
+			Refresh:      waitForClusterAvailable(cceClient, ClusterID),
+			Timeout:      15 * time.Minute,
+			Delay:        15 * time.Second,
+			PollInterval: 10 * time.Second,
 		}
 		_, stateErr := stateCluster.WaitForState()
 		if stateErr != nil {

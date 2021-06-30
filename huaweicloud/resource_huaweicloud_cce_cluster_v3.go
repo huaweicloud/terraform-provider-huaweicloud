@@ -680,12 +680,12 @@ func waitForCCEClusterDelete(cceClient *golangsdk.ServiceClient, clusterId strin
 func getCCEClusterIDFromJob(client *golangsdk.ServiceClient, jobID string) (string, error) {
 	stateJob := &resource.StateChangeConf{
 		Pending: []string{"Initializing"},
-		Target:  []string{"Running"},
+		Target:  []string{"Running", "Success"},
 		Refresh: waitForJobStatus(client, jobID),
 		Timeout: 5 * time.Minute,
 		// waiting for 35 seconds to avoid 401 response code
 		Delay:        35 * time.Second,
-		PollInterval: 5 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
 	v, err := stateJob.WaitForState()
