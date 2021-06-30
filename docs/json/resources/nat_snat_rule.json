@@ -25,10 +25,6 @@
                 "type": "string",
                 "required": true
               },
-              "network_id": {
-                "type": "string",
-                "optional": true
-              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -39,6 +35,11 @@
               },
               "status": {
                 "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               }
             }

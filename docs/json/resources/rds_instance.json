@@ -5,12 +5,21 @@
         "huaweicloud_rds_instance": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
               "availability_zone": {
                 "type": [
                   "list",
                   "string"
                 ],
                 "required": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "created": {
                 "type": "string",
@@ -60,6 +69,14 @@
                 "computed": true
               },
               "param_group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true
+              },
+              "period_unit": {
                 "type": "string",
                 "optional": true
               },

@@ -30,6 +30,11 @@
                 "type": "string",
                 "computed": true
               },
+              "multi_az": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "policy": {
                 "type": "string",
                 "optional": true,
