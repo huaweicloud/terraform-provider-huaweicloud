@@ -519,11 +519,11 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 	// wait for the cce cluster to become available
 	clusterid := d.Get("cluster_id").(string)
 	stateCluster := &resource.StateChangeConf{
-		Target:     []string{"Available"},
-		Refresh:    waitForClusterAvailable(nodeClient, clusterid),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      5 * time.Second,
-		MinTimeout: 5 * time.Second,
+		Target:       []string{"Available"},
+		Refresh:      waitForClusterAvailable(nodeClient, clusterid),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
 	}
 	_, err = stateCluster.WaitForState()
 
@@ -819,11 +819,11 @@ func getResourceIDFromJob(client *golangsdk.ServiceClient, jobID string) (string
 	// prePaid: waiting for the job to become running
 	stateJob := &resource.StateChangeConf{
 		Pending:      []string{"Initializing"},
-		Target:       []string{"Running"},
+		Target:       []string{"Running", "Success"},
 		Refresh:      waitForJobStatus(client, jobID),
 		Timeout:      5 * time.Minute,
-		Delay:        5 * time.Second,
-		PollInterval: 3 * time.Second,
+		Delay:        20 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
 	v, err := stateJob.WaitForState()
@@ -923,11 +923,11 @@ func waitForJobStatus(cceClient *golangsdk.ServiceClient, jobID string) resource
 func recursiveCreate(cceClient *golangsdk.ServiceClient, opts nodes.CreateOptsBuilder, ClusterID string, errCode int) (*nodes.Nodes, string) {
 	if errCode == 403 {
 		stateCluster := &resource.StateChangeConf{
-			Target:     []string{"Available"},
-			Refresh:    waitForClusterAvailable(cceClient, ClusterID),
-			Timeout:    15 * time.Minute,
-			Delay:      15 * time.Second,
-			MinTimeout: 3 * time.Second,
+			Target:       []string{"Available"},
+			Refresh:      waitForClusterAvailable(cceClient, ClusterID),
+			Timeout:      15 * time.Minute,
+			Delay:        20 * time.Second,
+			PollInterval: 10 * time.Second,
 		}
 		_, stateErr := stateCluster.WaitForState()
 		if stateErr != nil {

@@ -114,7 +114,6 @@ func getValuesValues(d *schema.ResourceData) (basic, custom, flavor map[string]i
 func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceAddonV3Client(GetRegion(d, config))
-
 	if err != nil {
 		return fmtp.Errorf("Unable to create HuaweiCloud CCE client : %s", err)
 	}
@@ -122,7 +121,6 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 	var cluster_id = d.Get("cluster_id").(string)
 
 	basic, custom, flavor, err := getValuesValues(d)
-
 	if err != nil {
 		return fmtp.Errorf("error getting values for CCE addon: %s", err)
 	}
@@ -148,7 +146,6 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	create, err := addons.Create(cceClient, createOpts, cluster_id).Extract()
-
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CCEAddon: %s", err)
 	}
@@ -156,14 +153,13 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(create.Metadata.Id)
 
 	logp.Printf("[DEBUG] Waiting for HuaweiCloud CCEAddon (%s) to become available", create.Metadata.Id)
-
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"installing", "abnormal"},
-		Target:     []string{"running"},
-		Refresh:    waitForCCEAddonActive(cceClient, create.Metadata.Id, cluster_id),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"installing", "abnormal"},
+		Target:       []string{"running"},
+		Refresh:      waitForCCEAddonActive(cceClient, create.Metadata.Id, cluster_id),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()
@@ -177,7 +173,6 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 func resourceCCEAddonV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceAddonV3Client(GetRegion(d, config))
-
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
@@ -206,7 +201,6 @@ func resourceCCEAddonV3Read(d *schema.ResourceData, meta interface{}) error {
 func resourceCCEAddonV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceAddonV3Client(GetRegion(d, config))
-
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CCEAddon Client: %s", err)
 	}
@@ -218,12 +212,12 @@ func resourceCCEAddonV3Delete(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error deleting HuaweiCloud CCE Addon: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"Deleting", "Available", "Unavailable"},
-		Target:     []string{"Deleted"},
-		Refresh:    waitForCCEAddonDelete(cceClient, d.Id(), cluster_id),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      5 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending:      []string{"Deleting", "Available", "Unavailable"},
+		Target:       []string{"Deleted"},
+		Refresh:      waitForCCEAddonDelete(cceClient, d.Id(), cluster_id),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
 	_, err = stateConf.WaitForState()
