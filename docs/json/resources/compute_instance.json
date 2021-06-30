@@ -84,6 +84,10 @@
                 "type": "string",
                 "optional": true
               },
+              "power_action": {
+                "type": "string",
+                "optional": true
+              },
               "public_ip": {
                 "type": "string",
                 "computed": true
@@ -92,7 +96,7 @@
                 "type": "string",
                 "computed": true
               },
-              "security_groups": {
+              "security_group_ids": {
                 "type": [
                   "set",
                   "string"
@@ -197,10 +201,6 @@
                       "type": "string",
                       "computed": true
                     },
-                    "name": {
-                      "type": "string",
-                      "optional": true
-                    },
                     "port": {
                       "type": "string",
                       "optional": true,
@@ -208,8 +208,7 @@
                     },
                     "uuid": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "required": true
                     }
                   }
                 },

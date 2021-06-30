@@ -35,6 +35,10 @@
                 "type": "string",
                 "required": true
               },
+              "port": {
+                "type": "number",
+                "optional": true
+              },
               "region": {
                 "type": "string",
                 "computed": true

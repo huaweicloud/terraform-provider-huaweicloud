@@ -19,10 +19,6 @@
                 "type": "string",
                 "computed": true
               },
-              "internal_network_id": {
-                "type": "string",
-                "required": true
-              },
               "name": {
                 "type": "string",
                 "required": true
@@ -31,16 +27,22 @@
                 "type": "string",
                 "computed": true
               },
-              "router_id": {
-                "type": "string",
-                "required": true
-              },
               "spec": {
                 "type": "string",
                 "required": true
               },
               "status": {
                 "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               }
             }
