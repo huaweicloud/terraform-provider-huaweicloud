@@ -8,9 +8,38 @@ Use the navigation to the left to read about the available resources.
 
 ## Example Usage
 
+Terraform 0.13 and later:
+
+```hcl
+terraform {
+  required_providers {
+    huaweicloud = {
+      source  = "huaweicloud/huaweicloud"
+      version = "~> 1.26.0"
+    }
+  }
+}
+
+# Configure the HuaweiCloud Provider
+provider "huaweicloud" {
+  region      = "cn-north-1"
+  access_key  = "my-access-key"
+  secret_key  = "my-secret-key"
+}
+
+# Create a VPC
+resource "huaweicloud_vpc" "example" {
+  name = "my_vpc"
+  cidr = "192.168.0.0/16"
+}
+```
+
+Terraform 0.12 and earlier:
+
 ```hcl
 # Configure the HuaweiCloud Provider
 provider "huaweicloud" {
+  version     = "~> 1.26.0"
   region      = "cn-north-1"
   access_key  = "my-access-key"
   secret_key  = "my-secret-key"
