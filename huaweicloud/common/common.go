@@ -10,7 +10,6 @@ The difference between common package and utils:
 package common
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/bss/v2/orders"
@@ -49,22 +48,6 @@ func CheckDeleted(d *schema.ResourceData, err error, msg string) error {
 	}
 
 	return fmtp.Errorf("%s: %s", msg, err)
-}
-
-func checkForRetryableError(err error) *resource.RetryError {
-	switch errCode := err.(type) {
-	case golangsdk.ErrDefault500:
-		return resource.RetryableError(err)
-	case golangsdk.ErrUnexpectedResponseCode:
-		switch errCode.Actual {
-		case 409, 503:
-			return resource.RetryableError(err)
-		default:
-			return resource.NonRetryableError(err)
-		}
-	default:
-		return resource.NonRetryableError(err)
-	}
 }
 
 // UnsubscribePrePaidResource impl the action of unsubscribe resource
