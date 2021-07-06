@@ -9,10 +9,12 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/bss/v2/orders"
 	sdk_structs "github.com/huaweicloud/golangsdk/openstack/common/structs"
+	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -101,6 +103,7 @@ func ResourceVpcEIPV1() *schema.Resource {
 					},
 				},
 			},
+			"tags": tagsSchema(),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -238,6 +241,15 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error binding eip:%s to port: %s", eIP.ID, err)
 	}
 
+	// create tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		taglist := utils.ExpandResourceTags(tagRaw)
+		if tagErr := tags.Create(networkingV2Client, "publicips", eIP.ID, taglist).ExtractErr(); tagErr != nil {
+			return fmtp.Errorf("Error setting tags of EIP %s: %s", eIP.ID, tagErr)
+		}
+	}
+
 	return resourceVpcEIPV1Read(d, meta)
 }
 
@@ -289,6 +301,20 @@ func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("status", eIP.Status)
 	}
 
+	// save tags
+	if vpcV2Client, err := config.NetworkingV2Client(GetRegion(d, config)); err == nil {
+		if resourceTags, err := tags.Get(vpcV2Client, "publicips", d.Id()).Extract(); err == nil {
+			tagmap := utils.TagsToMap(resourceTags.Tags)
+			if err := d.Set("tags", tagmap); err != nil {
+				return fmtp.Errorf("Error saving tags for EIP (%s): %s", d.Id(), err)
+			}
+		} else {
+			logp.Printf("[WARN] Error fetching tags for EIP (%s): %s", d.Id(), err)
+		}
+	} else {
+		return fmtp.Errorf("Error creating vpc client: %s", err)
+	}
+
 	return nil
 }
 
@@ -333,6 +359,19 @@ func resourceVpcEIPV1Update(d *schema.ResourceData, meta interface{}) error {
 		_, err = eips.Update(networkingClient, d.Id(), updateOpts).Extract()
 		if err != nil {
 			return fmtp.Errorf("Error updating publicip: %s", err)
+		}
+	}
+
+	// update tags
+	if d.HasChange("tags") {
+		vpcV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
+		if err != nil {
+			return fmtp.Errorf("Error creating Huaweicloud vpc client: %s", err)
+		}
+
+		tagErr := utils.UpdateResourceTags(vpcV2Client, d, "publicips", d.Id())
+		if tagErr != nil {
+			return fmtp.Errorf("Error updating tags of VPC %s: %s", d.Id(), tagErr)
 		}
 	}
 
