@@ -4,7 +4,7 @@ subcategory: "Elastic IP (EIP)"
 
 # huaweicloud_vpc_eip
 
-Manages a EIP resource within HuaweiCloud.
+Manages an EIP resource within HuaweiCloud.
 This is an alternative to `huaweicloud_vpc_eip_v1`
 
 ## Example Usage
@@ -54,6 +54,8 @@ The following arguments are supported:
 * `publicip` - (Required, List) The elastic IP address object.
 
 * `bandwidth` - (Required, List) The bandwidth object.
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the elastic IP.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the elastic IP.
   Changing this creates a new eip.

@@ -27,6 +27,20 @@ func TestAccVpcV1EIP_basic(t *testing.T) {
 				Config: testAccVpcV1EIP_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1EIPExists(resourceName, &eip),
+					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
+					resource.TestCheckResourceAttr(resourceName, "publicip.0.type", "5_bgp"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.name", rName),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.share_type", "PER"),
+					resource.TestCheckResourceAttr(resourceName, "bandwidth.0.charge_mode", "traffic"),
+				),
+			},
+			{
+				Config: testAccVpcV1EIP_tags(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVpcV1EIPExists(resourceName, &eip),
+					resource.TestCheckResourceAttr(resourceName, "status", "UNBOUND"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
 			},
 			{
@@ -184,8 +198,28 @@ resource "huaweicloud_vpc_eip" "test" {
   bandwidth {
     share_type  = "PER"
     name        = "%s"
-    size        = 8
+    size        = 5
     charge_mode = "traffic"
+  }
+}
+`, rName)
+}
+
+func testAccVpcV1EIP_tags(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+  bandwidth {
+    share_type  = "PER"
+    name        = "%s"
+    size        = 5
+    charge_mode = "traffic"
+  }
+  tags = {
+    foo = "bar"
+    key = "value"
   }
 }
 `, rName)
