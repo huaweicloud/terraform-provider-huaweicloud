@@ -1,4 +1,4 @@
-package huaweicloud
+package apig
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/apigw/v2/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -19,10 +20,10 @@ func TestAccApigInstanceV2_basic(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    testAccProviders,
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckApigInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -31,7 +32,7 @@ func TestAccApigInstanceV2_basic(t *testing.T) {
 					testAccCheckApigInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "14:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "18:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
@@ -44,7 +45,7 @@ func TestAccApigInstanceV2_basic(t *testing.T) {
 					testAccCheckApigInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "edition", "BASIC"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "18:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "22:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "description", "updated by acc test"),
@@ -67,10 +68,10 @@ func TestAccApigInstanceV2_egress(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    testAccProviders,
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckApigInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -130,10 +131,10 @@ func TestAccApigInstanceV2_ingress(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    testAccProviders,
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckApigInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -185,8 +186,8 @@ func TestAccApigInstanceV2_ingress(t *testing.T) {
 }
 
 func testAccCheckApigInstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	client, err := config.ApigV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
@@ -214,8 +215,8 @@ func testAccCheckApigInstanceExists(n string, instance *instances.Instance) reso
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.ApigV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 		}
@@ -269,7 +270,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccApigInstance_update(rName string) string {
@@ -294,7 +295,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccApigInstance_egress(rName string) string {
@@ -320,7 +321,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccApigInstance_egressUpdate(rName string) string {
@@ -346,7 +347,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccApigInstance_ingress(rName string) string {
@@ -384,7 +385,7 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccApigInstance_base(rName), rName, rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccApigInstance_ingressUpdate(rName string) string {
@@ -422,5 +423,5 @@ resource "huaweicloud_apig_instance" "test" {
     data.huaweicloud_availability_zones.test.names[0],
   ]
 }
-`, testAccApigInstance_base(rName), rName, rName, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccApigInstance_base(rName), rName, rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }

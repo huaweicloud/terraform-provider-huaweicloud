@@ -1,4 +1,4 @@
-package huaweicloud
+package apig
 
 import (
 	"log"
@@ -113,7 +113,7 @@ func createApigV2ApplicationCodes(client *golangsdk.ServiceClient, instanceId, a
 
 func resourceApigApplicationV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(GetRegion(d, config))
+	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
@@ -148,7 +148,7 @@ func getApigApplicationCodesFromServer(d *schema.ResourceData,
 }
 
 func setApigApplicationCodes(d *schema.ResourceData, config *config.Config, resp *applications.Application) error {
-	client, err := config.ApigV2Client(GetRegion(d, config))
+	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
@@ -166,7 +166,7 @@ func setApigApplicationCodes(d *schema.ResourceData, config *config.Config, resp
 
 func setApigApplicationParamters(d *schema.ResourceData, config *config.Config, resp *applications.Application) error {
 	mErr := multierror.Append(nil,
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", config.GetRegion(d)),
 		d.Set("name", resp.Name),
 		d.Set("description", resp.Description),
 		d.Set("registraion_time", resp.RegistraionTime),
@@ -181,7 +181,7 @@ func setApigApplicationParamters(d *schema.ResourceData, config *config.Config, 
 
 func resourceApigApplicationV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(GetRegion(d, config))
+	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
@@ -241,7 +241,7 @@ func updateApigApplicationCodes(d *schema.ResourceData, client *golangsdk.Servic
 
 func resourceApigApplicationV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(GetRegion(d, config))
+	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
@@ -279,7 +279,7 @@ func resourceApigApplicationV2Update(d *schema.ResourceData, meta interface{}) e
 
 func resourceApigApplicationV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(GetRegion(d, config))
+	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}

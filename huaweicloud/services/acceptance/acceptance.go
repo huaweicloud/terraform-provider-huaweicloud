@@ -18,13 +18,14 @@ var (
 	HW_DOMAIN_ID         = os.Getenv("HW_DOMAIN_ID")
 	HW_DOMAIN_NAME       = os.Getenv("HW_DOMAIN_NAME")
 
-	HW_FLAVOR_ID   = os.Getenv("HW_FLAVOR_ID")
-	HW_FLAVOR_NAME = os.Getenv("HW_FLAVOR_NAME")
-	HW_IMAGE_ID    = os.Getenv("HW_IMAGE_ID")
-	HW_IMAGE_NAME  = os.Getenv("HW_IMAGE_NAME")
-	HW_VPC_ID      = os.Getenv("HW_VPC_ID")
-	HW_NETWORK_ID  = os.Getenv("HW_NETWORK_ID")
-	HW_SUBNET_ID   = os.Getenv("HW_SUBNET_ID")
+	HW_FLAVOR_ID             = os.Getenv("HW_FLAVOR_ID")
+	HW_FLAVOR_NAME           = os.Getenv("HW_FLAVOR_NAME")
+	HW_IMAGE_ID              = os.Getenv("HW_IMAGE_ID")
+	HW_IMAGE_NAME            = os.Getenv("HW_IMAGE_NAME")
+	HW_VPC_ID                = os.Getenv("HW_VPC_ID")
+	HW_NETWORK_ID            = os.Getenv("HW_NETWORK_ID")
+	HW_SUBNET_ID             = os.Getenv("HW_SUBNET_ID")
+	HW_ENTERPRISE_PROJECT_ID = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
 
 	HW_DEPRECATED_ENVIRONMENT = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
 )
@@ -62,4 +63,11 @@ func TestAccPreCheckDeprecated(t *testing.T) {
 	}
 
 	preCheckRequiredEnvVars(t)
+}
+
+//lintignore:AT003
+func TestAccPreCheckEpsID(t *testing.T) {
+	if HW_ENTERPRISE_PROJECT_ID == "" {
+		t.Fatal("HW_ENTERPRISE_PROJECT_ID must be set for acceptance tests")
+	}
 }

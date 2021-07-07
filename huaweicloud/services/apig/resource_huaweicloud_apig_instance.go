@@ -1,4 +1,4 @@
-package huaweicloud
+package apig
 
 import (
 	"fmt"
@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/apigw/v2/instances"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/eips"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -178,7 +179,7 @@ func buildApigInstanceParameters(d *schema.ResourceData, config *config.Config) 
 		Description:         d.Get("description").(string),
 		EipId:               d.Get("eip_id").(string),
 		BandwidthSize:       d.Get("bandwidth_size").(int), // Bandwidth 0 means turn off the egress access.
-		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: common.GetEnterpriseProjectID(d, config),
 		AvailableZoneIds:    buildApigAvailableZones(d),
 	}
 	if v, ok := d.GetOk("maintain_begin"); ok {
@@ -249,7 +250,7 @@ func resourceApigInstanceV2Create(d *schema.ResourceData, meta interface{}) erro
 	}
 	logp.Printf("[DEBUG] Create APIG v2 dedicated instance options: %#v", opts)
 
-	client, err := config.ApigV2Client(GetRegion(d, config))
+	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
@@ -279,7 +280,7 @@ func setApigIngressAccess(d *schema.ResourceData, config *config.Config, resp in
 	if resp.Ipv4IngressEipAddress != "" {
 		// The response of ingress acess does not contain eip_id, just the ip address.
 		publicAddress := resp.Ipv4IngressEipAddress
-		client, err := config.NetworkingV1Client(GetRegion(d, config))
+		client, err := config.NetworkingV1Client(config.GetRegion(d))
 		if err != nil {
 			return fmtp.Errorf("Error creating VPC client: %s", err)
 		}
@@ -313,7 +314,7 @@ func setApigSupportedFeatures(d *schema.ResourceData, resp instances.Instance) e
 
 func setApigInstanceParamters(d *schema.ResourceData, config *config.Config, resp instances.Instance) error {
 	mErr := multierror.Append(nil,
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", config.GetRegion(d)),
 		d.Set("name", resp.Name),
 		d.Set("edition", resp.Edition),
 		d.Set("vpc_id", resp.VpcId),
@@ -342,7 +343,7 @@ func setApigInstanceParamters(d *schema.ResourceData, config *config.Config, res
 func getApigInstanceFromServer(d *schema.ResourceData, client *golangsdk.ServiceClient) (*instances.Instance, error) {
 	resp, err := instances.Get(client, d.Id()).Extract()
 	if err != nil {
-		return resp, CheckDeleted(d, err, "APIG v2 dedicated instance")
+		return resp, common.CheckDeleted(d, err, "APIG v2 dedicated instance")
 	}
 	logp.Printf("[DEBUG] Retrieved APIG v2 dedicated instance (%s): %+v", d.Id(), resp)
 	return resp, nil
@@ -350,7 +351,7 @@ func getApigInstanceFromServer(d *schema.ResourceData, client *golangsdk.Service
 
 func resourceApigInstanceV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(GetRegion(d, config))
+	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG client: %s", err)
 	}
@@ -459,7 +460,7 @@ func disableApigInstanceIngressAccess(d *schema.ResourceData, client *golangsdk.
 
 func resourceApigInstanceV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(GetRegion(d, config))
+	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
@@ -507,7 +508,7 @@ func waitForApigInstanceDeleteCompleted(d *schema.ResourceData, client *golangsd
 
 func resourceApigInstanceV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.ApigV2Client(GetRegion(d, config))
+	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}

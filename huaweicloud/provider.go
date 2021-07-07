@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 )
 
@@ -363,8 +364,8 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"huaweicloud_api_gateway_api":                 ResourceAPIGatewayAPI(),
 			"huaweicloud_api_gateway_group":               ResourceAPIGatewayGroup(),
-			"huaweicloud_apig_instance":                   ResourceApigInstanceV2(),
-			"huaweicloud_apig_application":                ResourceApigApplicationV2(),
+			"huaweicloud_apig_instance":                   apig.ResourceApigInstanceV2(),
+			"huaweicloud_apig_application":                apig.ResourceApigApplicationV2(),
 			"huaweicloud_as_configuration":                ResourceASConfiguration(),
 			"huaweicloud_as_group":                        ResourceASGroup(),
 			"huaweicloud_as_lifecycle_hook":               ResourceASLifecycleHook(),
