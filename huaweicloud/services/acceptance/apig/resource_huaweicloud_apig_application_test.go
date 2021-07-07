@@ -1,4 +1,4 @@
-package huaweicloud
+package apig
 
 import (
 	"fmt"
@@ -9,20 +9,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/apigw/v2/applications"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func TestAccApigApplicationV2_basic(t *testing.T) {
 	var (
-		// Only letters, digits and underscores (_) are allowed in the name.
+		// Only letters, digits and underscores (_) are allowed in the application and dedicated instance name.
 		rName        = fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 		resourceName = "huaweicloud_apig_application.test"
 		application  applications.Application
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckApigApplicationDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -53,8 +54,8 @@ func TestAccApigApplicationV2_basic(t *testing.T) {
 }
 
 func testAccCheckApigApplicationDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	client, err := config.ApigV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
@@ -80,8 +81,8 @@ func testAccCheckApigApplicationExists(appName string, app *applications.Applica
 			return fmt.Errorf("No APIG V2 application Id")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.ApigV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := config.ApigV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmt.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 		}
@@ -107,6 +108,29 @@ func testAccApigInstanceSubResourceImportStateIdFunc(name string) resource.Impor
 	}
 }
 
+func testAccApigApplication_base(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name = "%s"
+}
+
+resource "huaweicloud_apig_instance" "test" {
+  name                  = "%s"
+  edition               = "BASIC"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  enterprise_project_id = "%s"
+
+  available_zones = [
+    data.huaweicloud_availability_zones.test.names[0],
+  ]
+}
+`, testAccApigInstance_base(rName), rName, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
+}
+
 func testAccApigApplication_basic(rName, code string) string {
 	return fmt.Sprintf(`
 %s
@@ -118,7 +142,7 @@ resource "huaweicloud_apig_application" "test" {
 
   app_codes = ["%s"]
 }
-`, testAccApigInstance_basic(rName), rName, utils.EncodeBase64String(code))
+`, testAccApigApplication_base(rName), rName, utils.EncodeBase64String(code))
 }
 
 func testAccApigApplication_update(rName, code string) string {
@@ -132,5 +156,5 @@ resource "huaweicloud_apig_application" "test" {
 
   app_codes = ["%s"]
 }
-`, testAccApigInstance_basic(rName), rName, utils.EncodeBase64String(code))
+`, testAccApigApplication_base(rName), rName, utils.EncodeBase64String(code))
 }
