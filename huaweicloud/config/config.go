@@ -152,7 +152,7 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 	}
 
 	// Set UserAgent
-	client.UserAgent.Prepend("terraform-provider-huaweicloud")
+	client.UserAgent.Prepend("terraform-provider-iac")
 
 	config, err := generateTLSConfig(c)
 	if err != nil {
