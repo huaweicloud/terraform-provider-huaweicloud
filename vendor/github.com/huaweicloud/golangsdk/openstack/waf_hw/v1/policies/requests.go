@@ -108,7 +108,11 @@ func UpdateHosts(c *golangsdk.ServiceClient, policyId string, opts UpdateHostsOp
 
 // Get retrieves a particular policy based on its unique ID.
 func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
-	_, r.Err = c.Get(resourceURL(c, id), &r.Body, &RequestOpts)
+	reqOpt := &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: RequestOpts.MoreHeaders,
+	}
+	_, r.Err = c.Get(resourceURL(c, id), &r.Body, reqOpt)
 	return
 }
 

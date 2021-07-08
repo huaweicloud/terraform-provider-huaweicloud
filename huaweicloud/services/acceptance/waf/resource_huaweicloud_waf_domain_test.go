@@ -55,6 +55,33 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 	})
 }
 
+func TestAccWafDomainV1_policy(t *testing.T) {
+	var domain domains.Domain
+	resourceName := "huaweicloud_waf_domain.domain_1"
+	randName := acctest.RandString(8)
+	certificateName := acctest.RandString(8)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		Providers:    acceptance.TestAccProviders,
+		CheckDestroy: testAccCheckWafDomainV1Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWafDomainV1_policy(certificateName, randName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckWafDomainV1Exists(resourceName, &domain),
+					resource.TestCheckResourceAttr(resourceName, "domain", fmt.Sprintf("www.%s.com", randName)),
+					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8080"),
+					resource.TestCheckResourceAttrSet(resourceName, "policy_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckWafDomainV1Destroy(s *terraform.State) error {
 	config := acceptance.TestAccProvider.Meta().(*config.Config)
 	wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
@@ -149,4 +176,29 @@ resource "huaweicloud_waf_domain" "domain_1" {
 
 }
 `, testAccWafCertificateV1_conf(name), name)
+}
+
+func testAccWafDomainV1_policy(certificateName string, name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_policy" "policy_1" {
+  name = "policy_%s"
+}
+
+resource "huaweicloud_waf_domain" "domain_1" {
+  domain           = "www.%s.com"
+  certificate_id   = huaweicloud_waf_certificate.certificate_1.id
+  certificate_name = huaweicloud_waf_certificate.certificate_1.name
+  policy_id        = huaweicloud_waf_policy.policy_1.id
+  proxy            = true
+
+  server {
+    client_protocol = "HTTPS"
+    server_protocol = "HTTP"
+    address         = "119.8.0.14"
+    port            = 8080
+  }
+}
+`, testAccWafCertificateV1_conf(certificateName), name, name)
 }
