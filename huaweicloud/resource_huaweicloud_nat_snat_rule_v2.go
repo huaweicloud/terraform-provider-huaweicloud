@@ -42,6 +42,12 @@ func ResourceNatSnatRuleV2() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"floating_ip_id": {
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: utils.SuppressSnatFiplistDiffs,
+			},
 			"source_type": {
 				Type:         schema.TypeInt,
 				ValidateFunc: validation.IntBetween(0, 1),
@@ -60,12 +66,6 @@ func ResourceNatSnatRuleV2() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ExactlyOneOf: []string{"subnet_id", "network_id"},
-			},
-			"floating_ip_id": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: utils.SuppressSnatFiplistDiffs,
 			},
 			"floating_ip_address": {
 				Type:     schema.TypeString,

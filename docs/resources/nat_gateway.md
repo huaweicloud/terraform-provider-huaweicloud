@@ -2,7 +2,7 @@
 subcategory: "NAT Gateway (NAT)"
 ---
 
-# huaweicloud\_nat\_gateway
+# huaweicloud_nat_gateway
 
 Manages a Nat gateway resource within HuaweiCloud Nat
 This is an alternative to `huaweicloud_nat_gateway_v2`

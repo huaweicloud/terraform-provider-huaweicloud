@@ -2,18 +2,29 @@
 subcategory: "NAT Gateway (NAT)"
 ---
 
-# huaweicloud\_nat\_snat\_rule
+# huaweicloud_nat_snat_rule
 
-Manages a Snat rule resource within HuaweiCloud Nat
+Manages a SNAT rule resource within HuaweiCloud Nat
 This is an alternative to `huaweicloud_nat_snat_rule_v2`
 
 ## Example Usage
 
+### SNAT rule in VPC scenario
 ```hcl
 resource "huaweicloud_nat_snat_rule" "snat_1" {
-  nat_gateway_id = "3c0dffda-7c76-452b-9dcc-5bce7ae56b17"
-  subnet_id      = "dc8632e2-d9ff-41b1-aa0c-d455557314a0"
-  floating_ip_id = "0a166fc5-a904-42fb-b1ef-cf18afeeddca"
+  nat_gateway_id = var.natgw_id
+  floating_ip_id = var.publicip_id
+  subnet_id      = var.subent_id
+}
+```
+
+### SNAT rule in Direct Connect scenario
+```hcl
+resource "huaweicloud_nat_snat_rule" "snat_2" {
+  nat_gateway_id = var.natgw_id
+  floating_ip_id = var.publicip_id
+  source_type    = 1
+  cidr           = "192.168.10.0/24"
 }
 ```
 
@@ -55,7 +66,7 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-Snat can be imported using the following format:
+SNAT rules can be imported using the following format:
 
 ```
 $ terraform import huaweicloud_nat_snat_rule.snat_1 9e0713cb-0a2f-484e-8c7d-daecbb61dbe4

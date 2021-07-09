@@ -62,17 +62,17 @@ func ResourceNatDnatRuleV2() *schema.Resource {
 			},
 
 			"port_id": {
-				Type:          schema.TypeString,
-				ConflictsWith: []string{"private_ip"},
-				Optional:      true,
-				ForceNew:      true,
+				Type:         schema.TypeString,
+				ExactlyOneOf: []string{"port_id", "private_ip"},
+				Optional:     true,
+				ForceNew:     true,
 			},
 
 			"private_ip": {
-				Type:          schema.TypeString,
-				ConflictsWith: []string{"port_id"},
-				Optional:      true,
-				ForceNew:      true,
+				Type:         schema.TypeString,
+				ExactlyOneOf: []string{"port_id", "private_ip"},
+				Optional:     true,
+				ForceNew:     true,
 			},
 
 			"protocol": {
