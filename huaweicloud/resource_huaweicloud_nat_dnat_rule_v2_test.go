@@ -18,12 +18,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
@@ -84,7 +81,7 @@ func testAccCheckNatDnatDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	client, err := config.NatGatewayClient(HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating sdk client, err=%s", err)
+		return fmt.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -102,7 +99,7 @@ func testAccCheckNatDnatDestroy(s *terraform.State) error {
 			url, nil,
 			&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Accept": "application/json"}})
 		if err == nil {
-			return fmtp.Errorf("huaweicloud dnat rule still exists at %s", url)
+			return fmt.Errorf("huaweicloud dnat rule still exists at %s", url)
 		}
 	}
 
@@ -114,17 +111,17 @@ func testAccCheckNatDnatExists() resource.TestCheckFunc {
 		config := testAccProvider.Meta().(*config.Config)
 		client, err := config.NatGatewayClient(HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating sdk client, err=%s", err)
+			return fmt.Errorf("Error creating sdk client, err=%s", err)
 		}
 
 		rs, ok := s.RootModule().Resources["huaweicloud_nat_dnat_rule.dnat"]
 		if !ok {
-			return fmtp.Errorf("Error checking huaweicloud_nat_dnat_rule.dnat exist, err=not found huaweicloud_nat_dnat_rule.dnat")
+			return fmt.Errorf("Error checking huaweicloud_nat_dnat_rule.dnat exist, err=not found huaweicloud_nat_dnat_rule.dnat")
 		}
 
 		url, err := replaceVarsForTest(rs, "dnat_rules/{id}")
 		if err != nil {
-			return fmtp.Errorf("Error checking huaweicloud_nat_dnat_rule.dnat exist, err=building url failed: %s", err)
+			return fmt.Errorf("Error checking huaweicloud_nat_dnat_rule.dnat exist, err=building url failed: %s", err)
 		}
 		url = client.ServiceURL(url)
 
@@ -133,9 +130,9 @@ func testAccCheckNatDnatExists() resource.TestCheckFunc {
 			&golangsdk.RequestOpts{MoreHeaders: map[string]string{"Accept": "application/json"}})
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return fmtp.Errorf("huaweicloud_nat_dnat_rule.dnat is not exist")
+				return fmt.Errorf("huaweicloud_nat_dnat_rule.dnat is not exist")
 			}
-			return fmtp.Errorf("Error checking huaweicloud_nat_dnat_rule.dnat exist, err=send request failed: %s", err)
+			return fmt.Errorf("Error checking huaweicloud_nat_dnat_rule.dnat exist, err=send request failed: %s", err)
 		}
 		return nil
 	}
@@ -202,8 +199,8 @@ resource "huaweicloud_nat_dnat_rule" "dnat" {
   floating_ip_id = huaweicloud_vpc_eip.eip_1.id
   private_ip     = huaweicloud_compute_instance.instance_1.network.0.fixed_ip_v4
   protocol       = "tcp"
-  internal_service_port = 993
-  external_service_port = 242
+  internal_service_port = 80
+  external_service_port = 8080
 }
 `, testAccNatV2Gateway_basic(suffix), testAccNatV2DnatRule_base(suffix))
 }
