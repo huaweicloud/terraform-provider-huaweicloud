@@ -59,9 +59,10 @@ func ResourceApigEnvironmentV2() *schema.Resource {
 }
 
 func buildApigEnvironmentParameters(d *schema.ResourceData) environments.EnvironmentOpts {
+	desc := d.Get("description").(string)
 	return environments.EnvironmentOpts{
 		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
+		Description: &desc,
 	}
 }
 
@@ -133,12 +134,12 @@ func resourceApigEnvironmentV2Update(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
-	opt := environments.EnvironmentOpts{}
-	if d.HasChange("name") {
-		opt.Name = d.Get("name").(string)
+	opt := environments.EnvironmentOpts{
+		Name: d.Get("name").(string), // Due to API restrictions, the name must be provided.
 	}
 	if d.HasChange("description") {
-		opt.Description = d.Get("description").(string)
+		desc := d.Get("description").(string)
+		opt.Description = &desc
 	}
 	instanceId := d.Get("instance_id").(string)
 	_, err = environments.Update(client, instanceId, d.Id(), opt).Extract()
