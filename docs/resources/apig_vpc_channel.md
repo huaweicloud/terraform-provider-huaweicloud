@@ -11,25 +11,24 @@ Manages a VPC channel resource within HuaweiCloud.
 ```hcl
 variable "instance_id" {}
 variable "channel_name" {}
-variable "ecs_1" {}
-variable "ecs_2" {}
+variable "ecs_id1" {}
+variable "ecs_id2" {}
 
 resource "huaweicloud_apig_vpc_channel" "test" {
   instance_id = var.instance_id
   name        = var.app_name
   port        = 8080
-  member_type = "ECS"
   protocol    = "HTTPS"
   path        = "/"
   http_code   = "201,202,203"
   
   members {
-    id     = var.ecs_1
+    id     = var.ecs_id1
     weight = 30
   }
   
   members {
-    id     = var.ecs_2
+    id     = var.ecs_id2
     weight = 70
   }
 }
@@ -39,7 +38,7 @@ resource "huaweicloud_apig_vpc_channel" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the APIG application resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the VPC channel resource.
   If omitted, the provider-level region will be used.
   Changing this will create a new VPC channel resource.
 
@@ -70,18 +69,18 @@ The following arguments are supported:
 
 * `healthy_threshold` - (Optional, Int) Specifies the healthy threshold, which refers to the number of consecutive
   successful checks required for a backend server to be considered healthy.
-  The valid value is range from 2 to 10.
+  The valid value is range from 2 to 10, default to 2.
 
 * `unhealthy_threshold` - (Optional, Int) Specifies the unhealthy threshold, which refers to the number of consecutive
   failed checks required for a backend server to be considered unhealthy.
-  The valid value is range from 2 to 10.
+  The valid value is range from 2 to 10, default to 5.
 
 * `timeout` - (Optional, Int) Specifies the timeout for determining whether a health check fails, in second.
   The value must be less than the value of time_interval.
-  The valid value is range from 2 to 30.
+  The valid value is range from 2 to 30, default to 5.
 
 * `interval` - (Optional, Int) Specifies the interval between consecutive checks, in second.
-  The valid value is range from 5 to 300.
+  The valid value is range from 5 to 300, default to 10.
 
 * `members` - (Optional, List) Specifies an array of one or more backend server IDs or IP addresses that bind the VPC
   channel.
@@ -103,7 +102,7 @@ The `members` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - ID of the APIG application.
+* `id` - ID of the VPC channel.
 * `create_time` - Time when the channel created, in UTC format.
 * `status` - The status of VPC channel, supports *Normal* and *Abnormal*.
 

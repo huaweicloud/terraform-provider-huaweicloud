@@ -71,7 +71,6 @@ func ResourceApigVpcChannelV2() *schema.Resource {
 			"port": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.IntBetween(1, 65535),
 			},
 			"member_type": {
@@ -190,6 +189,13 @@ func buildApigVpcChannelMembers(d *schema.ResourceData, config *config.Config) (
 	members := d.Get("members").(*schema.Set)
 	mType := d.Get("member_type").(string)
 	result := make([]channels.MemberInfo, members.Len())
+	// Since the API requires that the name must be supported when the member type is 'ecs'.
+	// It is necessary to query the ecs instance information from server to obtain the instance name.
+	// We will cancel this unreasonable parameter configuration in the future.
+	ecsClient, err := config.ComputeV1Client(config.GetRegion(d))
+	if err != nil {
+		return result, fmtp.Errorf("Error creating HuaweiCloud ECS v1 client: %s", err)
+	}
 	for i, v := range members.List() {
 		member := v.(map[string]interface{})
 		info := channels.MemberInfo{
@@ -203,13 +209,6 @@ func buildApigVpcChannelMembers(d *schema.ResourceData, config *config.Config) (
 					return result, fmtp.Errorf("The instance ID is missing, please check your input of members")
 				}
 				info.EcsId = id.(string)
-				// Since the API requires that the name must be supported when the member type is 'ecs'.
-				// It is necessary to query the ecs instance information from server to obtain the instance name.
-				// We will cancel this unreasonable parameter configuration in the future.
-				ecsClient, err := config.ComputeV1Client(config.GetRegion(d))
-				if err != nil {
-					return result, fmtp.Errorf("Error creating HuaweiCloud ECS v1 client: %s", err)
-				}
 				server, err := cloudservers.Get(ecsClient, id.(string)).Extract()
 				if err != nil {
 					return result, fmtp.Errorf("Error getting ECS instance from server by id: %s", err)

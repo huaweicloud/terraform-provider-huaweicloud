@@ -176,25 +176,7 @@ resource "huaweicloud_compute_instance" "test" {
     uuid = huaweicloud_vpc_subnet.test.id
   }
 }
-
-resource "huaweicloud_vpc_eip" "test" {
-  publicip {
-    type = "5_bgp"
-  }
-
-  bandwidth {
-    name        = "%s"
-    size        = 8
-    share_type  = "PER"
-    charge_mode = "traffic"
-  }
-}
-
-resource "huaweicloud_compute_eip_associate" "test" {
-  public_ip   = huaweicloud_vpc_eip.test.address
-  instance_id = huaweicloud_compute_instance.test.id
-}
-`, testAccApigApplication_base(rName), rName, rName)
+`, testAccApigApplication_base(rName), rName)
 }
 
 func testAccApigVpcChannel_basic(rName string) string {
@@ -205,7 +187,6 @@ resource "huaweicloud_apig_vpc_channel" "test" {
   name        = "%s"
   instance_id = huaweicloud_apig_instance.test.id
   port        = 80
-  member_type = "EIP"
   algorithm   = "WRR"
   protocol    = "HTTP"
   path        = "/"
@@ -235,24 +216,6 @@ resource "huaweicloud_compute_instance" "newone" {
   }
 }
 
-resource "huaweicloud_vpc_eip" "newone" {
-  publicip {
-    type = "5_bgp"
-  }
-
-  bandwidth {
-    name        = "%s_newone"
-    size        = 8
-    share_type  = "PER"
-    charge_mode = "traffic"
-  }
-}
-
-resource "huaweicloud_compute_eip_associate" "newone" {
-  public_ip   = huaweicloud_vpc_eip.newone.address
-  instance_id = huaweicloud_compute_instance.newone.id
-}
-
 resource "huaweicloud_apig_vpc_channel" "test" {
   name        = "%s_update"
   instance_id = huaweicloud_apig_instance.test.id
@@ -263,19 +226,38 @@ resource "huaweicloud_apig_vpc_channel" "test" {
   http_code   = "201,202,203"
 
   members {
-    id = huaweicloud_compute_instance.test.id
-	weight     = 30
+    id     = huaweicloud_compute_instance.test.id
+    weight = 30
   }
   members {
-    id = huaweicloud_compute_instance.newone.id
-	weight     = 70
+    id     = huaweicloud_compute_instance.newone.id
+    weight = 70
   }
 }
-`, testAccApigVpcChannel_base(rName), rName, rName, rName)
+`, testAccApigVpcChannel_base(rName), rName, rName)
+}
+
+func testAccApigVpcChannel_eipBase(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+
+  bandwidth {
+    name        = "%s"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+`, rName)
 }
 
 func testAccApigVpcChannel_withEipMembers(rName string) string {
 	return fmt.Sprintf(`
+%s
+
 %s
 
 resource "huaweicloud_apig_vpc_channel" "test" {
@@ -292,25 +274,14 @@ resource "huaweicloud_apig_vpc_channel" "test" {
     ip_address = huaweicloud_vpc_eip.test.address
   }
 }
-`, testAccApigVpcChannel_base(rName), rName)
+`, testAccApigApplication_base(rName), testAccApigVpcChannel_eipBase(rName), rName)
 }
 
 func testAccApigVpcChannel_withEipMembersUpdate(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_compute_instance" "newone" {
-  name               = "%s"
-  image_id           = data.huaweicloud_images_image.test.id
-  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
-  security_group_ids = [huaweicloud_networking_secgroup.test.id]
-  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  system_disk_type   = "SSD"
-
-  network {
-    uuid = huaweicloud_vpc_subnet.test.id
-  }
-}
+%s
 
 resource "huaweicloud_vpc_eip" "newone" {
   publicip {
@@ -319,15 +290,10 @@ resource "huaweicloud_vpc_eip" "newone" {
 
   bandwidth {
     name        = "%s_newone"
-    size        = 8
+    size        = 5
     share_type  = "PER"
     charge_mode = "traffic"
   }
-}
-
-resource "huaweicloud_compute_eip_associate" "newone" {
-  public_ip   = huaweicloud_vpc_eip.newone.address
-  instance_id = huaweicloud_compute_instance.newone.id
 }
 
 resource "huaweicloud_apig_vpc_channel" "test" {
@@ -342,12 +308,12 @@ resource "huaweicloud_apig_vpc_channel" "test" {
 
   members {
     ip_address = huaweicloud_vpc_eip.test.address
-	weight     = 30
+    weight     = 30
   }
   members {
     ip_address = huaweicloud_vpc_eip.newone.address
-	weight     = 70
+    weight     = 70
   }
 }
-`, testAccApigVpcChannel_base(rName), rName, rName, rName)
+`, testAccApigApplication_base(rName), testAccApigVpcChannel_eipBase(rName), rName, rName)
 }
