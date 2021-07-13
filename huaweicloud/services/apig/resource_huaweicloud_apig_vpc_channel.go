@@ -45,7 +45,7 @@ func ResourceApigVpcChannelV2() *schema.Resource {
 		Update: resourceApigVpcChannelV2Update,
 		Delete: resourceApigVpcChannelV2Delete,
 		Importer: &schema.ResourceImporter{
-			State: resourceApigInstanceSubResourceImportState,
+			State: resourceApigVpcChannelResourceImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -396,4 +396,34 @@ func resourceApigVpcChannelV2Delete(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId("")
 	return nil
+}
+
+// The ID cannot find on console, so we need to import by channel name.
+func resourceApigVpcChannelResourceImportState(d *schema.ResourceData,
+	meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		return nil, fmtp.Errorf("Invalid format specified for import id, must be <instance_id>/<channel name>")
+	}
+	instanceId := parts[0]
+	config := meta.(*config.Config)
+	client, err := config.ApigV2Client(config.GetRegion(d))
+	if err != nil {
+		return []*schema.ResourceData{d}, fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+	}
+	name := parts[1]
+	opt := channels.ListOpts{
+		Name: name,
+	}
+	pages, err := channels.List(client, instanceId, opt).AllPages()
+	if err != nil {
+		return []*schema.ResourceData{d}, fmtp.Errorf("Error retrieving channels: %s", err)
+	}
+	resp, err := channels.ExtractChannels(pages)
+	if len(resp) < 1 {
+		return []*schema.ResourceData{d}, fmtp.Errorf("Unable to find the channel (%s) form server: %s", name, err)
+	}
+	d.SetId(resp[0].Id)
+	d.Set("instance_id", instanceId)
+	return []*schema.ResourceData{d}, nil
 }

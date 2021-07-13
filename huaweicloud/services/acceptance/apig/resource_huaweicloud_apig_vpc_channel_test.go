@@ -15,7 +15,7 @@ import (
 
 func TestAccApigVpcChannelV2_basic(t *testing.T) {
 	var (
-		// The dedica letters, digits and underscores (_) are allowed in the name.
+		// The dedicated instance name only allow letters, digits and underscores (_).
 		rName        = fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 		resourceName = "huaweicloud_apig_vpc_channel.test"
 		channel      channels.VpcChannel
@@ -56,7 +56,7 @@ func TestAccApigVpcChannelV2_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigInstanceSubResourceImportStateIdFunc(resourceName),
+				ImportStateIdFunc: testAccApigVpcChannelResourceImportStateFunc(resourceName),
 			},
 		},
 	})
@@ -64,7 +64,7 @@ func TestAccApigVpcChannelV2_basic(t *testing.T) {
 
 func TestAccApigVpcChannelV2_withEipMembers(t *testing.T) {
 	var (
-		// The dedica letters, digits and underscores (_) are allowed in the name.
+		// The dedicated instance name only allow letters, digits and underscores (_).
 		rName        = fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 		resourceName = "huaweicloud_apig_vpc_channel.test"
 		channel      channels.VpcChannel
@@ -100,7 +100,7 @@ func TestAccApigVpcChannelV2_withEipMembers(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigInstanceSubResourceImportStateIdFunc(resourceName),
+				ImportStateIdFunc: testAccApigVpcChannelResourceImportStateFunc(resourceName),
 			},
 		},
 	})
@@ -145,6 +145,20 @@ func testAccCheckApigVpcChannelExists(n string, app *channels.VpcChannel) resour
 		}
 		*app = *found
 		return nil
+	}
+}
+
+func testAccApigVpcChannelResourceImportStateFunc(name string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return "", fmt.Errorf("Resource (%s) not found: %s", name, rs)
+		}
+		if rs.Primary.ID == "" || rs.Primary.Attributes["instance_id"] == "" {
+			return "", fmt.Errorf("resource not found: %s/%s", rs.Primary.Attributes["instance_id"],
+				rs.Primary.Attributes["name"])
+		}
+		return fmt.Sprintf("%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["name"]), nil
 	}
 }
 

@@ -79,8 +79,8 @@ type ChannelPage struct {
 	pagination.SinglePageBase
 }
 
-// ExtractInstances its Extract method to interpret it as a VpcChannel array.
-func ExtractInstances(r pagination.Page) ([]VpcChannel, error) {
+// ExtractChannels its Extract method to interpret it as a channel array.
+func ExtractChannels(r pagination.Page) ([]VpcChannel, error) {
 	var s []VpcChannel
 	err := r.(ChannelPage).Result.ExtractIntoSlicePtr(&s, "vpc_channels")
 	return s, err

@@ -108,8 +108,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-VPC Channels can be imported using their `id` and ID of the APIG dedicated instance to which the application
+VPC Channels can be imported using their `name` and ID of the APIG dedicated instance to which the channel
 belongs, separated by a slash, e.g.
 ```
-$ terraform import huaweicloud_apig_vpc_channel.test <instance id>/<id>
+$ terraform import huaweicloud_apig_vpc_channel.test <instance id>/<channel name>
 ```
