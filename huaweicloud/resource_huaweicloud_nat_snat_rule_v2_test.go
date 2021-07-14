@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -44,7 +42,7 @@ func testAccCheckNatV2SnatRuleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	natClient, err := config.NatGatewayClient(HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud nat client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -54,7 +52,7 @@ func testAccCheckNatV2SnatRuleDestroy(s *terraform.State) error {
 
 		_, err := hw_snatrules.Get(natClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("Snat rule still exists")
+			return fmt.Errorf("Snat rule still exists")
 		}
 	}
 
@@ -65,17 +63,17 @@ func testAccCheckNatV2SnatRuleExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
 		natClient, err := config.NatGatewayClient(HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud nat client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud nat client: %s", err)
 		}
 
 		found, err := hw_snatrules.Get(natClient, rs.Primary.ID).Extract()
@@ -84,7 +82,7 @@ func testAccCheckNatV2SnatRuleExists(n string) resource.TestCheckFunc {
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Snat rule not found")
+			return fmt.Errorf("Snat rule not found")
 		}
 
 		return nil

@@ -2,23 +2,38 @@
 subcategory: "NAT Gateway (NAT)"
 ---
 
-# huaweicloud\_nat\_dnat\_rule
+# huaweicloud_nat_dnat_rule
 
-Manages a Dnat rule resource within HuaweiCloud Nat.
+Manages a DNAT rule resource within HuaweiCloud Nat.
 This is an alternative to `huaweicloud_nat_dnat_rule_v2`
 
 ## Example Usage
 
-### Dnat
-
+### DNAT rule in VPC scenario
 ```hcl
+resource "huaweicloud_compute_instance" "instance_1" {
+  ...
+}
+
 resource "huaweicloud_nat_dnat_rule" "dnat_1" {
-  nat_gateway_id        = "bf99c679-9f41-4dac-8513-9c9228e713e1"
-  floating_ip_id        = "2bd659ab-bbf7-43d7-928b-9ee6a10de3ef"
+  nat_gateway_id        = var.natgw_id
+  floating_ip_id        = var.publicip_id
+  port_id               = huaweicloud_compute_instance.instance_1.network[0].port
+  protocol              = "tcp"
+  internal_service_port = 23
+  external_service_port = 8023
+}
+```
+
+### DNAT rule in Direct Connect scenario
+```hcl
+resource "huaweicloud_nat_dnat_rule" "dnat_2" {
+  nat_gateway_id        = var.natgw_id
+  floating_ip_id        = var.publicip_id
   private_ip            = "10.0.0.12"
   protocol              = "tcp"
-  internal_service_port = 993
-  external_service_port = 242
+  internal_service_port = 80
+  external_service_port = 8080
 }
 ```
 
@@ -47,12 +62,11 @@ The following arguments are supported:
   Changing this creates a new dnat rule.
 
 * `port_id` - (Optional, String, ForceNew) Specifies the port ID of an ECS or a BMS.
-  This parameter and private_ip are alternative. Changing this creates a
-  new dnat rule.
+  This parameter is mandatory in VPC scenario.
+  Changing this creates a new dnat rule.
 
-* `private_ip` - (Optional, String, ForceNew) Specifies the private IP address of a
-  user, for example, the IP address of a VPC for dedicated connection.
-  This parameter and port_id are alternative.
+* `private_ip` - (Optional, String, ForceNew) Specifies the private IP address of a user.
+  This parameter is mandatory in Direct Connect scenario.
   Changing this creates a new dnat rule.
 
 ## Attributes Reference
@@ -69,7 +83,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-Dnat can be imported using the following format:
+DNAT rules can be imported using the following format:
 
 ```
 $ terraform import huaweicloud_nat_dnat_rule.dnat_1 f4f783a7-b908-4215-b018-724960e5df4a

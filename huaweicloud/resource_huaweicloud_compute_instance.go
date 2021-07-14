@@ -307,6 +307,7 @@ func ResourceComputeInstanceV2() *schema.Resource {
 			"power_action": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				// If you want to support more actions, please update powerActionMap simultaneously.
 				ValidateFunc: validation.StringInSlice([]string{
 					"ON", "OFF", "REBOOT", "FORCE-OFF", "FORCE-REBOOT",
