@@ -89,5 +89,35 @@ intermediary processing on each page, you can use the AllPages method:
 This top-level package contains utility functions and data types that are used
 throughout the provider and service packages. Of particular note for end users
 are the AuthOptions and EndpointOpts structs.
+
+An example retry backoff function, which respects the 429 HTTP response code:
+
+	endpoint := "http://localhost:5000"
+	provider, err := openstack.NewClient(endpoint)
+	if err != nil {
+		panic(err)
+	}
+	provider.MaxBackoffRetries = 3 // max three retries
+	provider.RetryBackoffFunc = func(ctx context.Context, respErr *ErrUnexpectedResponseCode, e error, retries uint) error {
+		minutes := math.Pow(2, float64(retries))
+		if minutes > 30 { // won't wait more than 30 minutes
+			minutes = 30
+		}
+
+		sleep := time.Duration(minutes) * time.Minute
+
+		if ctx != nil {
+			select {
+			case <-time.After(sleep):
+			case <-ctx.Done():
+				return e
+			}
+		} else {
+			time.Sleep(sleep)
+		}
+
+		return nil
+	}
+
 */
 package golangsdk

@@ -118,7 +118,11 @@ func (e ErrDefault401) Error() string {
 	return "Authentication failed"
 }
 func (e ErrDefault403) Error() string {
-	return "Action Forbidden"
+	e.DefaultErrString = fmt.Sprintf(
+		"Action forbidden: [%s %s], error message: %s",
+		e.Method, e.URL, e.Body,
+	)
+	return e.choseErrString()
 }
 func (e ErrDefault404) Error() string {
 	e.DefaultErrString = fmt.Sprintf(
@@ -134,8 +138,11 @@ func (e ErrDefault408) Error() string {
 	return "The server timed out waiting for the request"
 }
 func (e ErrDefault429) Error() string {
-	return "Too many requests have been sent in a given amount of time. Pause" +
-		" requests, wait up to one minute, and try again."
+	e.DefaultErrString = fmt.Sprintf(
+		"Too many requests: [%s %s], error message: %s",
+		e.Method, e.URL, e.Body,
+	)
+	return e.choseErrString()
 }
 func (e ErrDefault500) Error() string {
 	return "Internal Server Error"

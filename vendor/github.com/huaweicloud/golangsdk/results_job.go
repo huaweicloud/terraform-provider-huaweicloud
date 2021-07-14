@@ -32,7 +32,7 @@ func (r Result) ExtractJobStatus() (*JobStatus, error) {
 }
 
 func GetJobEndpoint(endpoint string) string {
-	n := strings.Index(endpoint[8:len(endpoint)], "/")
+	n := strings.Index(endpoint[8:], "/")
 	if n == -1 {
 		return endpoint
 	}

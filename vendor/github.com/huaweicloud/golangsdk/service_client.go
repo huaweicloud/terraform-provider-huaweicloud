@@ -28,6 +28,10 @@ type ServiceClient struct {
 
 	// The microversion of the service to use. Set this to use a particular microversion.
 	Microversion string
+
+	// MoreHeaders allows users to set service-wide headers on requests. Put another way,
+	// values set in this field will be set on all the HTTP requests the service client sends.
+	MoreHeaders map[string]string
 }
 
 // ResourceBaseURL returns the base URL of any resources used by this service. It MUST end with a /.
@@ -61,6 +65,15 @@ func (client *ServiceClient) initReqOpts(url string, JSONBody interface{}, JSONR
 	if client.Microversion != "" {
 		client.setMicroversionHeader(opts)
 	}
+}
+
+// Head calls `Request` with the "HEAD" HTTP verb.
+func (client *ServiceClient) Head(url string, opts *RequestOpts) (*http.Response, error) {
+	if opts == nil {
+		opts = new(RequestOpts)
+	}
+	client.initReqOpts(url, nil, nil, opts)
+	return client.Request("HEAD", url, opts)
 }
 
 // Get calls `Request` with the "GET" HTTP verb.
@@ -117,7 +130,7 @@ func (client *ServiceClient) DeleteWithBody(url string, JSONBody interface{}, op
 	return client.Request("DELETE", url, opts)
 }
 
-// Delete calls `Request` with the "DELETE" HTTP verb.
+// DeleteWithResponse calls `Request` with the "DELETE" HTTP verb.
 func (client *ServiceClient) DeleteWithResponse(url string, JSONResponse interface{}, opts *RequestOpts) (*http.Response, error) {
 	if opts == nil {
 		opts = new(RequestOpts)
@@ -148,4 +161,17 @@ func (client *ServiceClient) setMicroversionHeader(opts *RequestOpts) {
 	if client.Type != "" {
 		opts.MoreHeaders["OpenStack-API-Version"] = client.Type + " " + client.Microversion
 	}
+}
+
+// Request carries out the HTTP operation for the service client
+func (client *ServiceClient) Request(method, url string, options *RequestOpts) (*http.Response, error) {
+	if len(client.MoreHeaders) > 0 {
+		if options == nil {
+			options = new(RequestOpts)
+		}
+		for k, v := range client.MoreHeaders {
+			options.MoreHeaders[k] = v
+		}
+	}
+	return client.ProviderClient.Request(method, url, options)
 }

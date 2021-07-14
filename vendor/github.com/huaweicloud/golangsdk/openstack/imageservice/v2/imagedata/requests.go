@@ -30,7 +30,9 @@ func Stage(client *golangsdk.ServiceClient, id string, data io.Reader) (r StageR
 // Download retrieves an image.
 func Download(client *golangsdk.ServiceClient, id string) (r DownloadResult) {
 	var resp *http.Response
-	resp, r.Err = client.Get(downloadURL(client, id), nil, nil)
+	resp, r.Err = client.Get(downloadURL(client, id), nil, &golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	})
 	if resp != nil {
 		r.Body = resp.Body
 		r.Header = resp.Header

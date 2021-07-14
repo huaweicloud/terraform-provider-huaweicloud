@@ -275,7 +275,7 @@ func getEntryByServiceId(entries []tokens3.CatalogEntry, serviceId string) *toke
 		return nil
 	}
 
-	for idx, _ := range entries {
+	for idx := range entries {
 		if entries[idx].ID == serviceId {
 			return &entries[idx]
 		}
