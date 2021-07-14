@@ -507,6 +507,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_scm_certificate":                 resourceScmCertificateV3(),
 			"huaweicloud_waf_certificate":                 waf.ResourceWafCertificateV1(),
 			"huaweicloud_waf_domain":                      waf.ResourceWafDomainV1(),
+			"huaweicloud_waf_policy":                      waf.ResourceWafPolicyV1(),
+
 			// Legacy
 			"huaweicloud_compute_instance_v2":                ResourceComputeInstanceV2(),
 			"huaweicloud_compute_interface_attach_v2":        ResourceComputeInterfaceAttachV2(),
