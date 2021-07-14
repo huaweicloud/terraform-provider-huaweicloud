@@ -461,6 +461,7 @@ github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services
 github.com/huaweicloud/golangsdk/openstack/waf/v1/certificates
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/domains
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/policies
+github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/whiteblackip_rules
 github.com/huaweicloud/golangsdk/pagination
 github.com/huaweicloud/golangsdk/testhelper
 # github.com/imdario/mergo v0.3.9
