@@ -56,7 +56,7 @@ func TestAccApigVpcChannelV2_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigVpcChannelResourceImportStateFunc(resourceName),
+				ImportStateIdFunc: testAccApigSubResNameImportStateFunc(resourceName),
 			},
 		},
 	})
@@ -100,7 +100,7 @@ func TestAccApigVpcChannelV2_withEipMembers(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigVpcChannelResourceImportStateFunc(resourceName),
+				ImportStateIdFunc: testAccApigSubResNameImportStateFunc(resourceName),
 			},
 		},
 	})
@@ -148,7 +148,7 @@ func testAccCheckApigVpcChannelExists(n string, app *channels.VpcChannel) resour
 	}
 }
 
-func testAccApigVpcChannelResourceImportStateFunc(name string) resource.ImportStateIdFunc {
+func testAccApigSubResNameImportStateFunc(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
