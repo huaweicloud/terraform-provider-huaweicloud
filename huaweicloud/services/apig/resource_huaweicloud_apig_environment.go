@@ -2,6 +2,7 @@ package apig
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -20,7 +21,7 @@ func ResourceApigEnvironmentV2() *schema.Resource {
 		Update: resourceApigEnvironmentV2Update,
 		Delete: resourceApigEnvironmentV2Delete,
 		Importer: &schema.ResourceImporter{
-			State: resourceApigInstanceSubResourceImportState,
+			State: resourceApigEnvironmentResourceImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -163,4 +164,34 @@ func resourceApigEnvironmentV2Delete(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId("")
 	return nil
+}
+
+// The ID cannot find on console, so we need to import by environment name.
+func resourceApigEnvironmentResourceImportState(d *schema.ResourceData,
+	meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		return nil, fmtp.Errorf("Invalid format specified for import id, must be <instance_id>/<env name>")
+	}
+	instanceId := parts[0]
+	config := meta.(*config.Config)
+	client, err := config.ApigV2Client(config.GetRegion(d))
+	if err != nil {
+		return []*schema.ResourceData{d}, fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
+	}
+	name := parts[1]
+	opt := environments.ListOpts{
+		Name: name,
+	}
+	pages, err := environments.List(client, instanceId, opt).AllPages()
+	if err != nil {
+		return []*schema.ResourceData{d}, fmtp.Errorf("Error retrieving environment: %s", err)
+	}
+	resp, err := environments.ExtractEnvironments(pages)
+	if len(resp) < 1 {
+		return []*schema.ResourceData{d}, fmtp.Errorf("Unable to find the environment (%s) form server: %s", name, err)
+	}
+	d.SetId(resp[0].Id)
+	d.Set("instance_id", instanceId)
+	return []*schema.ResourceData{d}, nil
 }

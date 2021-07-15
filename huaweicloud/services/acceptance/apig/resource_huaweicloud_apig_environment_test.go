@@ -49,7 +49,7 @@ func TestAccApigEnvironmentV2_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccApigInstanceSubResourceImportStateIdFunc(resourceName),
+				ImportStateIdFunc: testAccApigSubResNameImportStateFunc(resourceName),
 			},
 		},
 	})
