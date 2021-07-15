@@ -2,6 +2,7 @@ package certificates
 
 import (
 	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/pagination"
 )
 
 var RequestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
@@ -49,7 +50,7 @@ type UpdateOptsBuilder interface {
 
 // UpdateOpts contains all the values needed to update a certificate.
 type UpdateOpts struct {
-	//Certificate name
+	// Certificate name
 	Name string `json:"name,omitempty"`
 }
 
@@ -68,6 +69,43 @@ func Update(c *golangsdk.ServiceClient, certID string, opts UpdateOptsBuilder) (
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
 	_, r.Err = c.Put(resourceURL(c, certID), b, nil, reqOpt)
 	return
+}
+
+type ListOptsBuilder interface {
+	ToCertificateListQuery() (string, error)
+}
+
+// ListOpts the struct is used to query certificate list
+type ListOpts struct {
+	Page      int    `q:"page"`
+	Pagesize  int    `q:"pagesize"`
+	Name      string `q:"name"`
+	Host      *bool  `q:"host"`
+	ExpStatus *int   `q:"exp_status"`
+}
+
+// ToCertificateListQuery formats a ListOpts into a query string.
+func (opts ListOpts) ToCertificateListQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	return q.String(), err
+}
+
+// List sends a request to obtain a certificate list
+func List(c *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Pager {
+	url := rootURL(c)
+	if opts != nil {
+		query, err := opts.ToCertificateListQuery()
+		if err != nil {
+			return pagination.Pager{Err: err}
+		}
+		url += query
+	}
+
+	pager := pagination.NewPager(c, url, func(r pagination.PageResult) pagination.Page {
+		return CertificatePage{pagination.SinglePageBase(r)}
+	})
+	pager.Headers = RequestOpts.MoreHeaders
+	return pager
 }
 
 // Get retrieves a particular certificate based on its unique ID.
