@@ -12,9 +12,7 @@ This is an alternative to `huaweicloud_dms_az_v1`
 ```hcl
 
 data "huaweicloud_dms_az" "az1" {
-  name = "可用区1"
-  port = "8002"
-  code = "cn-north-1a"
+  code = "cn-north-4a"
 }
 ```
 
@@ -22,16 +20,14 @@ data "huaweicloud_dms_az" "az1" {
 
 * `region` - (Optional, String) The region in which to obtain the dms az. If omitted, the provider-level region will be used.
 
-* `name` - (Required, String) Indicates the name of an AZ.
-
-* `code` - (Optional, String) Indicates the code of an AZ.
-
-* `port` - (Required, String) Indicates the port number of an AZ.
-
+* `code` - (Optional, String) Specifies the code of an AZ.
 
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a data source ID in UUID format.
+* `id` - Indicates a data source ID in UUID format.
 
+* `name` - Indicates the name of an AZ.
+
+* `port` - Indicates the port number of an AZ.

@@ -18,13 +18,9 @@ func TestAccDmsAZV1DataSource_basic(t *testing.T) {
 			{
 				Config: testAccDmsAZV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDmsAZV1DataSourceID("data.huaweicloud_dms_az_v1.az1"),
+					testAccCheckDmsAZV1DataSourceID("data.huaweicloud_dms_az.az1"),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_az_v1.az1", "name", "可用区1"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_az_v1.az1", "port", "8002"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dms_az_v1.az1", "code", HW_AVAILABILITY_ZONE),
+						"data.huaweicloud_dms_az.az1", "code", "cn-north-4a"),
 				),
 			},
 		},
@@ -47,9 +43,7 @@ func testAccCheckDmsAZV1DataSourceID(n string) resource.TestCheckFunc {
 }
 
 var testAccDmsAZV1DataSource_basic = fmt.Sprintf(`
-data "huaweicloud_dms_az_v1" "az1" {
-name = "可用区1"
-port = "8002"
-code = "%s"
+data "huaweicloud_dms_az" "az1" {
+  code = "cn-north-4a"
 }
-`, HW_AVAILABILITY_ZONE)
+`)
