@@ -27,6 +27,14 @@ func resourceGaussDBInstance() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
+		CustomizeDiff: func(d *schema.ResourceDiff, v interface{}) error {
+			if d.HasChange("proxy_node_num") {
+				d.SetNewComputed("proxy_address")
+				d.SetNewComputed("proxy_port")
+			}
+			return nil
+		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
 			Update: schema.DefaultTimeout(60 * time.Minute),
@@ -155,34 +163,25 @@ func resourceGaussDBInstance() *schema.Resource {
 					},
 				},
 			},
-			"proxy": {
-				Type:     schema.TypeList,
+			"proxy_flavor": {
+				Type:     schema.TypeString,
 				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"flavor": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"node_num": {
-							Type:     schema.TypeInt,
-							Required: true,
-						},
-						"address": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"port": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-					},
-				},
+			},
+			"proxy_node_num": {
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"force_import": {
 				Type:     schema.TypeBool,
 				Optional: true,
+			},
+			"proxy_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"proxy_port": {
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -432,12 +431,10 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	if hasFilledOpt(d, "proxy") {
-		proxyRaw := d.Get("proxy").([]interface{})
-		proxyRawMap := proxyRaw[0].(map[string]interface{})
+	if hasFilledOpt(d, "proxy_flavor") {
 		proxyOpts := instances.ProxyOpts{
-			Flavor:  proxyRawMap["flavor"].(string),
-			NodeNum: proxyRawMap["node_num"].(int),
+			Flavor:  d.Get("proxy_flavor").(string),
+			NodeNum: d.Get("proxy_node_num").(int),
 		}
 		logp.Printf("[DEBUG] Enable proxy: %#v", proxyOpts)
 
@@ -562,17 +559,10 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		logp.Printf("[DEBUG] Instance %s Proxy not enabled: %s", instanceID, err)
 	} else {
-		if proxy.Flavor != "" && proxy.NodeNum != 0 {
-			proxyList := make([]map[string]interface{}, 1)
-			proxyMap := map[string]interface{}{
-				"flavor":   proxy.Flavor,
-				"node_num": proxy.NodeNum,
-				"address":  proxy.Address,
-				"port":     proxy.Port,
-			}
-			proxyList[0] = proxyMap
-			d.Set("proxy", proxyList)
-		}
+		d.Set("proxy_flavor", proxy.Flavor)
+		d.Set("proxy_node_num", proxy.NodeNum)
+		d.Set("proxy_address", proxy.Address)
+		d.Set("proxy_port", proxy.Port)
 	}
 
 	return nil
@@ -804,13 +794,11 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	if d.HasChange("proxy") {
-		if hasFilledOpt(d, "proxy") {
-			proxyRaw := d.Get("proxy").([]interface{})
-			proxyRawMap := proxyRaw[0].(map[string]interface{})
+	if d.HasChanges("proxy_flavor", "proxy_node_num") {
+		if hasFilledOpt(d, "proxy_flavor") {
 			proxyOpts := instances.ProxyOpts{
-				Flavor:  proxyRawMap["flavor"].(string),
-				NodeNum: proxyRawMap["node_num"].(int),
+				Flavor:  d.Get("proxy_flavor").(string),
+				NodeNum: d.Get("proxy_node_num").(int),
 			}
 			logp.Printf("[DEBUG] Enable proxy: %#v", proxyOpts)
 
