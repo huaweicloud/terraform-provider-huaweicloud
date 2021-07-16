@@ -332,7 +332,7 @@ func encodeQueryString(queryValues url.Values) string {
 
 	i := 0
 
-	for k, _ := range queryValues {
+	for k := range queryValues {
 		keys[i] = urlEncode(k, false)
 		encodedVals[keys[i]] = k
 		i++
@@ -406,7 +406,7 @@ func getCanonicalizedHeaderString(req *http.Request) string {
 	var headers StringBuilder
 
 	keys := make([]string, 0)
-	for k, _ := range req.Header {
+	for k := range req.Header {
 		keys = append(keys, strings.TrimSpace(k))
 	}
 
@@ -433,7 +433,7 @@ func getSignedHeadersString(req *http.Request) string {
 	var headers StringBuilder
 
 	keys := make([]string, 0)
-	for k, _ := range req.Header {
+	for k := range req.Header {
 		keys = append(keys, strings.TrimSpace(k))
 	}
 
