@@ -145,7 +145,11 @@ func (e ErrDefault429) Error() string {
 	return e.choseErrString()
 }
 func (e ErrDefault500) Error() string {
-	return "Internal Server Error"
+	e.DefaultErrString = fmt.Sprintf(
+		"Internal Server Error: [%s %s], error message: %s",
+		e.Method, e.URL, e.Body,
+	)
+	return e.choseErrString()
 }
 func (e ErrDefault503) Error() string {
 	return "The service is currently unable to handle the request due to a temporary" +

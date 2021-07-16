@@ -185,6 +185,47 @@ func Delete(c *golangsdk.ServiceClient, clusterid, nodeid string) (r DeleteResul
 	return
 }
 
+type RemoveOptsBuilder interface {
+	ToNodeRemoveMap() (map[string]interface{}, error)
+}
+
+type RemoveOpts struct {
+	//  API type, fixed value RemoveNodesTask
+	Kind string `json:"kind,omitempty"`
+	// API version, fixed value v3
+	Apiversion string `json:"apiVersion,omitempty"`
+
+	Spec RemoveNodeSpec `json:"spec" required:"true"`
+}
+
+type RemoveNodeSpec struct {
+	Login LoginSpec  `json:"login" required:"true"`
+	Nodes []NodeItem `json:"nodes,omitempty"`
+}
+
+type NodeItem struct {
+	Uid string `json:"uid,omitempty"`
+}
+
+func (opts RemoveOpts) ToNodeRemoveMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+func Remove(c *golangsdk.ServiceClient, clusterid string, opts RemoveOptsBuilder) (r DeleteResult) {
+	b, err := opts.ToNodeRemoveMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = c.Put(removeNodeURL(c, clusterid), b, nil, &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: RequestOpts.MoreHeaders, JSONBody: nil,
+	})
+
+	return
+}
+
 // GetJobDetails retrieves a particular job based on its unique ID
 func GetJobDetails(c *golangsdk.ServiceClient, jobid string) (r GetResult) {
 	_, r.Err = c.Get(getJobURL(c, jobid), &r.Body, &golangsdk.RequestOpts{

@@ -6,6 +6,10 @@ import (
 	"github.com/huaweicloud/golangsdk"
 )
 
+var RequestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
 // ImportOptsBuilder is the interface options structs have to satisfy in order
 // to be used in the Import operation in this package.
 type ImportOptsBuilder interface {
@@ -39,7 +43,8 @@ func Import(c *golangsdk.ServiceClient, opts ImportOptsBuilder) (r ImportResult)
 		return
 	}
 	_, r.Err = c.Post(importURL(c), b, &r.Body, &golangsdk.RequestOpts{
-		OkCodes: []int{200, 201},
+		OkCodes:     []int{200, 201},
+		MoreHeaders: RequestOpts.MoreHeaders,
 	})
 	return
 }
@@ -70,7 +75,8 @@ func Push(c *golangsdk.ServiceClient, id string, opts PushOptsBuilder) (r PushRe
 	}
 
 	_, r.Err = c.Post(pushURL(c, id), b, nil, &golangsdk.RequestOpts{
-		OkCodes: []int{204},
+		OkCodes:     []int{204},
+		MoreHeaders: RequestOpts.MoreHeaders,
 	})
 	return
 }
@@ -78,7 +84,10 @@ func Push(c *golangsdk.ServiceClient, id string, opts PushOptsBuilder) (r PushRe
 // Obtain information about the imported certificate by ID.
 // Contain no certificate key or private key.
 func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
-	_, r.Err = c.Get(resourceURL(c, id), &r.Body, nil)
+	_, r.Err = c.Get(resourceURL(c, id), &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
 	return
 }
 
@@ -86,7 +95,8 @@ func Get(c *golangsdk.ServiceClient, id string) (r GetResult) {
 func Export(c *golangsdk.ServiceClient, id string) (r ExportResult) {
 	body := map[string]interface{}{}
 	_, r.Err = c.Post(exportURL(c, id), body, &r.Body, &golangsdk.RequestOpts{
-		OkCodes: []int{200, 201},
+		OkCodes:     []int{200, 201},
+		MoreHeaders: RequestOpts.MoreHeaders,
 	})
 	return
 }
