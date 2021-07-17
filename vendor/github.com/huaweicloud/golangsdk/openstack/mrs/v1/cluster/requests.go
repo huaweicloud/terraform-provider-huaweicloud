@@ -60,7 +60,7 @@ type ComponentOpts struct {
 type JobOpts struct {
 	JobType                 int    `json:"job_type" required:"true"`
 	JobName                 string `json:"job_name" required:"true"`
-	JarPath                 string `json:"jar_path" required:"true"`
+	JarPath                 string `json:"jar_path,omitempty"`
 	Arguments               string `json:"arguments,omitempty"`
 	Input                   string `json:"input,omitempty"`
 	Output                  string `json:"output,omitempty"`

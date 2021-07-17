@@ -14,7 +14,7 @@ import (
 )
 
 func TestAccDDSV3Instance_basic(t *testing.T) {
-	var instance instances.Instance
+	var instance instances.InstanceResponse
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dds_instance.instance"
 
@@ -44,12 +44,36 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
 				),
 			},
+			{
+				Config: testAccDDSInstanceV3Config_updateFlavorNum(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDDSV3InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					testAccCheckDDSV3InstanceFlavor(&instance, "shard", "num", 3),
+				),
+			},
+			{
+				Config: testAccDDSInstanceV3Config_updateFlavorSize(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDDSV3InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					testAccCheckDDSV3InstanceFlavor(&instance, "shard", "size", "30"),
+				),
+			},
+			{
+				Config: testAccDDSInstanceV3Config_updateFlavorSpecCode(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDDSV3InstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					testAccCheckDDSV3InstanceFlavor(&instance, "mongos", "spec_code", "dds.mongodb.c6.large.4.mongos"),
+				),
+			},
 		},
 	})
 }
 
 func TestAccDDSV3Instance_withEpsId(t *testing.T) {
-	var instance instances.Instance
+	var instance instances.InstanceResponse
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_dds_instance.instance"
 
@@ -102,7 +126,7 @@ func testAccCheckDDSV3InstanceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckDDSV3InstanceExists(n string, instance *instances.Instance) resource.TestCheckFunc {
+func testAccCheckDDSV3InstanceExists(n string, instance *instances.InstanceResponse) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -134,11 +158,76 @@ func testAccCheckDDSV3InstanceExists(n string, instance *instances.Instance) res
 			return fmtp.Errorf("dds instance not found.")
 		}
 
+		insts := instances.Instances
+		found := insts[0]
+		*instance = found
+
 		return nil
 	}
 }
 
-func testAccDDSInstanceV3Config_basic(rName string) string {
+func testAccCheckDDSV3InstanceFlavor(instance *instances.InstanceResponse, groupType, key string, v interface{}) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if key == "num" {
+			if groupType == "mongos" {
+				for _, group := range instance.Groups {
+					if group.Type == "mongos" {
+						if len(group.Nodes) != v.(int) {
+							return fmtp.Errorf(
+								"Error updating HuaweiCloud DDS instance: num of mongos nodes expect %d, but got %d",
+								v.(int), len(group.Nodes))
+						}
+						return nil
+					}
+				}
+			} else {
+				groupIDs := make([]string, 0)
+				for _, group := range instance.Groups {
+					if group.Type == "shard" {
+						groupIDs = append(groupIDs, group.Id)
+					}
+				}
+				if len(groupIDs) != v.(int) {
+					return fmtp.Errorf(
+						"Error updating HuaweiCloud DDS instance: num of shard groups expect %d, but got %d",
+						v.(int), len(groupIDs))
+				}
+				return nil
+			}
+		}
+
+		if key == "size" {
+			for _, group := range instance.Groups {
+				if group.Type == groupType {
+					if group.Volume.Size != v.(string) {
+						return fmtp.Errorf(
+							"Error updating HuaweiCloud DDS instance: size expect %s, but got %s",
+							v.(string), group.Volume.Size)
+					}
+					return nil
+				}
+			}
+		}
+
+		if key == "spec_code" {
+			for _, group := range instance.Groups {
+				if group.Type == groupType {
+					for _, node := range group.Nodes {
+						if node.SpecCode != v.(string) {
+							return fmtp.Errorf(
+								"Error updating HuaweiCloud DDS instance: spec_code expect %s, but got %s",
+								v.(string), node.SpecCode)
+						}
+					}
+					return nil
+				}
+			}
+		}
+		return nil
+	}
+}
+
+func testAccDDSInstanceV3Config_Base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -152,7 +241,12 @@ data "huaweicloud_vpc_subnet" "test" {
 
 resource "huaweicloud_networking_secgroup" "secgroup_acc" {
   name = "%s"
+}`, rName)
 }
+
+func testAccDDSInstanceV3Config_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
@@ -172,21 +266,21 @@ resource "huaweicloud_dds_instance" "instance" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.c3.medium.4.mongos"
+    spec_code = "dds.mongodb.c6.large.2.mongos"
   }
   flavor {
     type      = "shard"
     num       = 2
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c3.medium.4.shard"
+    spec_code = "dds.mongodb.c6.large.2.shard"
   }
   flavor {
     type      = "config"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c3.large.2.config"
+    spec_code = "dds.mongodb.c6.large.2.config"
   }
 
   backup_strategy {
@@ -198,24 +292,12 @@ resource "huaweicloud_dds_instance" "instance" {
 	foo   = "bar"
     owner = "terraform"
   }
-}`, rName, rName)
+}`, testAccDDSInstanceV3Config_Base(rName), rName)
 }
 
 func testAccDDSInstanceV3Config_updateBackupStrategy(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-resource "huaweicloud_networking_secgroup" "secgroup_acc" {
-  name = "%s"
-}
+%s
 
 resource "huaweicloud_dds_instance" "instance" {
   name              = "%s"
@@ -235,21 +317,21 @@ resource "huaweicloud_dds_instance" "instance" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.c3.medium.4.mongos"
+    spec_code = "dds.mongodb.c6.large.2.mongos"
   }
   flavor {
     type      = "shard"
     num       = 2
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c3.medium.4.shard"
+    spec_code = "dds.mongodb.c6.large.2.shard"
   }
   flavor {
     type      = "config"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c3.large.2.config"
+    spec_code = "dds.mongodb.c6.large.2.config"
   }
 
   backup_strategy {
@@ -261,24 +343,165 @@ resource "huaweicloud_dds_instance" "instance" {
 	foo   = "bar"
     owner = "terraform"
   }
-}`, rName, rName)
+}`, testAccDDSInstanceV3Config_Base(rName), rName)
+}
+
+func testAccDDSInstanceV3Config_updateFlavorNum(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dds_instance" "instance" {
+  name              = "%s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = data.huaweicloud_vpc.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  password          = "Test@123"
+  mode              = "Sharding"
+
+  datastore {
+    type           = "DDS-Community"
+    version        = "3.4"
+    storage_engine = "wiredTiger"
+  }
+
+  flavor {
+    type      = "mongos"
+    num       = 2
+    spec_code = "dds.mongodb.c6.large.2.mongos"
+  }
+  flavor {
+    type      = "shard"
+    num       = 3
+    storage   = "ULTRAHIGH"
+    size      = 20
+    spec_code = "dds.mongodb.c6.large.2.shard"
+  }
+  flavor {
+    type      = "config"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 20
+    spec_code = "dds.mongodb.c6.large.2.config"
+  }
+
+  backup_strategy {
+    start_time = "08:00-09:00"
+    keep_days  = "8"
+  }
+
+  tags = {
+	foo   = "bar"
+    owner = "terraform"
+  }
+}`, testAccDDSInstanceV3Config_Base(rName), rName)
+}
+
+func testAccDDSInstanceV3Config_updateFlavorSize(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dds_instance" "instance" {
+  name              = "%s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = data.huaweicloud_vpc.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  password          = "Test@123"
+  mode              = "Sharding"
+
+  datastore {
+    type           = "DDS-Community"
+    version        = "3.4"
+    storage_engine = "wiredTiger"
+  }
+
+  flavor {
+    type      = "mongos"
+    num       = 2
+    spec_code = "dds.mongodb.c6.large.2.mongos"
+  }
+  flavor {
+    type      = "shard"
+    num       = 3
+    storage   = "ULTRAHIGH"
+    size      = 30
+    spec_code = "dds.mongodb.c6.large.2.shard"
+  }
+  flavor {
+    type      = "config"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 20
+    spec_code = "dds.mongodb.c6.large.2.config"
+  }
+
+  backup_strategy {
+    start_time = "08:00-09:00"
+    keep_days  = "8"
+  }
+
+  tags = {
+	foo   = "bar"
+    owner = "terraform"
+  }
+}`, testAccDDSInstanceV3Config_Base(rName), rName)
+}
+
+func testAccDDSInstanceV3Config_updateFlavorSpecCode(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_dds_instance" "instance" {
+  name              = "%s"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vpc_id            = data.huaweicloud_vpc.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  security_group_id = huaweicloud_networking_secgroup.secgroup_acc.id
+  password          = "Test@123"
+  mode              = "Sharding"
+
+  datastore {
+    type           = "DDS-Community"
+    version        = "3.4"
+    storage_engine = "wiredTiger"
+  }
+
+  flavor {
+    type      = "mongos"
+    num       = 2
+    spec_code = "dds.mongodb.c6.large.4.mongos"
+  }
+  flavor {
+    type      = "shard"
+    num       = 3
+    storage   = "ULTRAHIGH"
+    size      = 30
+    spec_code = "dds.mongodb.c6.large.2.shard"
+  }
+  flavor {
+    type      = "config"
+    num       = 1
+    storage   = "ULTRAHIGH"
+    size      = 20
+    spec_code = "dds.mongodb.c6.large.2.config"
+  }
+
+  backup_strategy {
+    start_time = "08:00-09:00"
+    keep_days  = "8"
+  }
+
+  tags = {
+	foo   = "bar"
+    owner = "terraform"
+  }
+}`, testAccDDSInstanceV3Config_Base(rName), rName)
 }
 
 func testAccDDSInstanceV3Config_withEpsId(rName string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-resource "huaweicloud_networking_secgroup" "secgroup_acc" {
-  name = "%s"
-}
+%s
 
 resource "huaweicloud_dds_instance" "instance" {
   name                  = "%s"
@@ -299,21 +522,21 @@ resource "huaweicloud_dds_instance" "instance" {
   flavor {
     type      = "mongos"
     num       = 2
-    spec_code = "dds.mongodb.c3.medium.4.mongos"
+    spec_code = "dds.mongodb.c6.large.2.mongos"
   }
   flavor {
     type      = "shard"
     num       = 2
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c3.medium.4.shard"
+    spec_code = "dds.mongodb.c6.large.2.shard"
   }
   flavor {
     type      = "config"
     num       = 1
     storage   = "ULTRAHIGH"
     size      = 20
-    spec_code = "dds.mongodb.c3.large.2.config"
+    spec_code = "dds.mongodb.c6.large.2.config"
   }
 
   backup_strategy {
@@ -325,5 +548,5 @@ resource "huaweicloud_dds_instance" "instance" {
 	foo = "bar"
     owner = "terraform"
   }
-}`, rName, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+}`, testAccDDSInstanceV3Config_Base(rName), rName, HW_ENTERPRISE_PROJECT_ID_TEST)
 }
