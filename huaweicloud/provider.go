@@ -225,7 +225,7 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{
 					"HW_AUTH_URL",
 					"OS_AUTH_URL",
-				}, fmt.Sprintf("https://iam.%s:443/v3", defaultCloud)),
+				}, nil),
 			},
 
 			"cloud": {
@@ -689,8 +689,9 @@ func init() {
 }
 
 func configureProvider(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
-	var tenantName, tenantID, delegated_project string
+	var tenantName, tenantID, delegated_project, identityEndpoint string
 	region := d.Get("region").(string)
+	cloud := d.Get("cloud").(string)
 
 	// project_name is prior to tenant_name
 	// if neither of them was set, use region as the default project
@@ -716,6 +717,18 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		delegated_project = region
 	}
 
+	// use auth_url as identityEndpoint if provided
+	if v, ok := d.GetOk("auth_url"); ok {
+		identityEndpoint = v.(string)
+	} else {
+		// use cloud as basis for identityEndpoint
+		if cloud == defaultCloud {
+			identityEndpoint = fmt.Sprintf("https://iam.%s:443/v3", cloud)
+		} else {
+			identityEndpoint = fmt.Sprintf("https://iam.%s.%s:443/v3", region, cloud)
+		}
+	}
+
 	config := config.Config{
 		AccessKey:           d.Get("access_key").(string),
 		SecretKey:           d.Get("secret_key").(string),
@@ -724,7 +737,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		ClientKeyFile:       d.Get("key").(string),
 		DomainID:            d.Get("domain_id").(string),
 		DomainName:          d.Get("domain_name").(string),
-		IdentityEndpoint:    d.Get("auth_url").(string),
+		IdentityEndpoint:    identityEndpoint,
 		Insecure:            d.Get("insecure").(bool),
 		Password:            d.Get("password").(string),
 		Token:               d.Get("token").(string),
@@ -737,7 +750,7 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		AgencyName:          d.Get("agency_name").(string),
 		AgencyDomainName:    d.Get("agency_domain_name").(string),
 		DelegatedProject:    delegated_project,
-		Cloud:               d.Get("cloud").(string),
+		Cloud:               cloud,
 		MaxRetries:          d.Get("max_retries").(int),
 		EnterpriseProjectID: d.Get("enterprise_project_id").(string),
 		TerraformVersion:    terraformVersion,
