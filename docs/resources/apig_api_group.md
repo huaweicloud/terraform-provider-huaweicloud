@@ -50,7 +50,7 @@ The following arguments are supported:
   The description contain a maximum of 255 characters and the angle brackets (< and >) are not allowed.
   Chinese characters must be in UTF-8 or Unicode format.
 
-* `environment` - (Required, List) Specifies an array of one or more APIG environments of the associated APIG group.
+* `environment` - (Optional, List) Specifies an array of one or more APIG environments of the associated APIG group.
   The object structure is documented below.
 
 The `environment` block supports:

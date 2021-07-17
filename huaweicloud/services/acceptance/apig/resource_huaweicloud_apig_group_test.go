@@ -23,7 +23,7 @@ func TestAccApigGroupV2_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckEpsID(t) // Method testAccApigApplication_base needs HW_ENTERPRISE_PROJECT_ID.
 		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckApigGroupDestroy,
@@ -65,7 +65,7 @@ func TestAccApigGroupV2_variables(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckEpsID(t) // Method testAccApigApplication_base needs HW_ENTERPRISE_PROJECT_ID.
 		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckApigGroupDestroy,
@@ -153,7 +153,7 @@ func testAccApigGroup_basic(rName string) string {
 
 resource "huaweicloud_apig_group" "test" {
   name        = "%s"
-  instance_id = "76b0e9b706464b82a49813aeffaafcf3"
+  instance_id = huaweicloud_apig_instance.test.id
   description = "Created by script"
 }
 `, testAccApigApplication_base(rName), rName)
@@ -175,13 +175,13 @@ func testAccApigGroup_variablesBase(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_apig_environment" "test1" {
   name        = "%s_1"
-  instance_id = "76b0e9b706464b82a49813aeffaafcf3"
+  instance_id = huaweicloud_apig_instance.test.id
   description = "Created by script"
 }
 
 resource "huaweicloud_apig_environment" "test2" {
   name        = "%s_2"
-  instance_id = "76b0e9b706464b82a49813aeffaafcf3"
+  instance_id = huaweicloud_apig_instance.test.id
   description = "Created by script"
 }
 `, rName, rName)
@@ -197,7 +197,7 @@ func testAccApigGroup_variables(rName string) string {
 
 resource "huaweicloud_apig_group" "test" {
   name        = "%s"
-  instance_id = "76b0e9b706464b82a49813aeffaafcf3"
+  instance_id = huaweicloud_apig_instance.test.id
   description = "Created by script"
 
   environment {
@@ -232,7 +232,7 @@ func testAccApigGroup_variablesUpdate(rName string) string {
 
 resource "huaweicloud_apig_group" "test" {
   name        = "%s"
-  instance_id = "76b0e9b706464b82a49813aeffaafcf3"
+  instance_id = huaweicloud_apig_instance.test.id
   description = "Created by script"
 
   environment {
