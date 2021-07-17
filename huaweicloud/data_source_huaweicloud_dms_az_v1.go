@@ -64,6 +64,11 @@ func dataSourceDmsAZV1Read(d *schema.ResourceData, meta interface{}) error {
 				continue
 			}
 
+			code := d.Get("code").(string)
+			if code != "" && newAZ.Code != code {
+				continue
+			}
+
 			port := d.Get("port").(string)
 			if port != "" && newAZ.Port != port {
 				continue
