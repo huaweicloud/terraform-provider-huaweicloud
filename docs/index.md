@@ -119,15 +119,15 @@ The following arguments are supported:
 * `project_name` - (Optional) The Name of the project to login with.
   If omitted, the `HW_PROJECT_NAME` environment variable or `region` is used.
 
-* `auth_url` - (Optional, Required before 1.14.0) The Identity authentication URL. If omitted, the
-  `HW_AUTH_URL` environment variable is used. This is not required if you use Huawei Cloud.
-
 * `security_token` - (Optional) The security token to authenticate with a
   [temporary security credential](https://support.huaweicloud.com/intl/en-us/iam_faq/iam_01_0620.html).
   If omitted, the `HW_SECURITY_TOKEN` environment variable is used.
 
 * `cloud` - (Optional) The endpoint of the cloud provider. If omitted, the
   `HW_CLOUD` environment variable is used. Defaults to `myhuaweicloud.com`.
+
+* `auth_url` - (Optional, Required before 1.14.0) The Identity authentication URL. If omitted, the
+  `HW_AUTH_URL` environment variable is used. Defaults to `https://iam.{{region}}.{{cloud}}:443/v3`.
 
 * `insecure` - (Optional) Trust self-signed SSL certificates. If omitted, the
   `HW_INSECURE` environment variable is used.
@@ -139,7 +139,7 @@ The following arguments are supported:
   If omitted, the `HW_MAX_RETRIES` environment variable is used.
 
 * `enterprise_project_id` - (Optional) Default Enterprise Project ID for supported resources.
-  Please see the documentation at [EPS](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/eps).
+  Please see the documentation at [EPS](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/enterprise_project).
   If omitted, the `HW_ENTERPRISE_PROJECT_ID` environment variable is used.
 
 * `endpoints` - (Optional) Configuration block in key/value pairs for customizing service endpoints.
