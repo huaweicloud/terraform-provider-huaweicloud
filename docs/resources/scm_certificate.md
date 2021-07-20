@@ -72,8 +72,14 @@ resource "huaweicloud_scm_certificate" "certificate_3" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) The region in which to create the SCM certificate resource.
-    If omitted, the provider-level region will be used.
-    Changing this setting will push a new certificate.
+    If omitted, the provider-level region will be used. Changing this setting will push a new certificate.
+  
+  > **NOTE:** Not every region can upload and use SCM to manage and push your SSL certificates.
+  > - If you are a Huawei Cloud (International) user, select the CN-Hong Kong region to use 
+      the SCM service. You can set this value to `ap-southeast-1`. 
+  > - If you are a Huawei Cloud (Chinese Mainland) user, please check the available regions 
+      in the SCM module of the console.
+  
 * `name` - (Optional, String, ForceNew) Human-readable name for the Certificate. 
     Does not have to be unique. The value contains a maximum of 63 characters.
 * `certificate` - (Required, String, ForceNew) The public encrypted key of the Certificate, PEM format.
