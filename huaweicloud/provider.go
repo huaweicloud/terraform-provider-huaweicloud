@@ -515,6 +515,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_waf_policy":                      waf.ResourceWafPolicyV1(),
 			"huaweicloud_waf_rule_blacklist":              waf.ResourceWafRuleBlackListV1(),
 			"huaweicloud_waf_rule_data_masking":           waf.ResourceWafRuleDataMaskingV1(),
+			"huaweicloud_waf_rule_web_tamper_protection":  waf.ResourceWafRuleWebTamperProtectionV1(),
 
 			// Legacy
 			"huaweicloud_compute_instance_v2":                ResourceComputeInstanceV2(),
