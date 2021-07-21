@@ -281,6 +281,7 @@ github.com/huaweicloud/golangsdk/openstack/apigw/v2/applications
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/channels
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/environments
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/instances
+github.com/huaweicloud/golangsdk/openstack/apigw/v2/responses
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/configurations
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/instances
@@ -461,6 +462,7 @@ github.com/huaweicloud/golangsdk/openstack/vbs/v2/tags
 github.com/huaweicloud/golangsdk/openstack/vpcep/v1/endpoints
 github.com/huaweicloud/golangsdk/openstack/vpcep/v1/services
 github.com/huaweicloud/golangsdk/openstack/waf/v1/certificates
+github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/datamasking_rules
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/domains
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/policies
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/webtamperprotection_rules

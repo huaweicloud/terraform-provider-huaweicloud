@@ -371,6 +371,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_apig_application":                apig.ResourceApigApplicationV2(),
 			"huaweicloud_apig_environment":                apig.ResourceApigEnvironmentV2(),
 			"huaweicloud_apig_group":                      apig.ResourceApigGroupV2(),
+			"huaweicloud_apig_response":                   apig.ResourceApigResponseV2(),
 			"huaweicloud_apig_vpc_channel":                apig.ResourceApigVpcChannelV2(),
 			"huaweicloud_as_configuration":                ResourceASConfiguration(),
 			"huaweicloud_as_group":                        ResourceASGroup(),
@@ -513,6 +514,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_waf_domain":                      waf.ResourceWafDomainV1(),
 			"huaweicloud_waf_policy":                      waf.ResourceWafPolicyV1(),
 			"huaweicloud_waf_rule_blacklist":              waf.ResourceWafRuleBlackListV1(),
+			"huaweicloud_waf_rule_data_masking":           waf.ResourceWafRuleDataMaskingV1(),
 			"huaweicloud_waf_rule_web_tamper_protection":  waf.ResourceWafRuleWebTamperProtectionV1(),
 
 			// Legacy
