@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 )
 
@@ -302,6 +303,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_kms_key":                     DataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key":                DataSourceKmsDataKeyV1(),
 			"huaweicloud_lb_loadbalancer":             DataSourceELBV2Loadbalancer(),
+			"huaweicloud_lb_certificate":              lb.DataSourceLBCertificateV2(),
 			"huaweicloud_nat_gateway":                 DataSourceNatGatewayV2(),
 			"huaweicloud_networking_port":             DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":         DataSourceNetworkingSecGroupV2(),
