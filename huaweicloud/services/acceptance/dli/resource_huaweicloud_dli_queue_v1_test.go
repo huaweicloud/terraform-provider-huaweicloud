@@ -37,18 +37,22 @@ func TestAccDliQueueV1_basic(t *testing.T) {
 
 func testAccDliQueueV1_basic(rName string) string {
 	return fmt.Sprintf(`
-		resource "huaweicloud_dli_queue_v1" "test" {
- 		 name = "%s"
-		 cu_count              = 16
-		
-	}`, rName)
+resource "huaweicloud_dli_queue_v1" "test" {
+  name          = "%s"
+  cu_count      = 16
+  resource_mode = 0
+  
+  tags = {
+    k1 = "1"
+  }
+}`, rName)
 }
 
 func testAccCheckDliQueueV1Destroy(s *terraform.State) error {
 	config := act.TestAccProvider.Meta().(*config.Config)
 	client, err := config.DliV1Client(act.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("error creating Dli client, err=%s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -70,7 +74,7 @@ func testAccCheckDliQueueV1Exists(resourceName string) resource.TestCheckFunc {
 		config := act.TestAccProvider.Meta().(*config.Config)
 		client, err := config.DliV1Client(act.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating sdk client, err=%s", err)
+			return fmtp.Errorf("error creating Dli client, err=%s", err)
 		}
 
 		rs, ok := s.RootModule().Resources[resourceName]

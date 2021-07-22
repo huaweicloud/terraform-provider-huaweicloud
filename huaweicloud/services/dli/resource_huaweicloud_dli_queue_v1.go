@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/dli/v1/queues"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -13,7 +14,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-var regexp4Name = regexp.MustCompile(`^[a-z0-9_]+$`)
+var regexp4Name = regexp.MustCompile(`^[a-z0-9_]{1,128}$`)
+
+const CU_16, CU_64, CU_256 = 16, 64, 256
+const RESOURCE_MODE_SHARED, RESOURCE_MODE_EXCLUSIVE = 0, 1
 
 func ResourceDliQueueV1() *schema.Resource {
 	return &schema.Resource{
@@ -22,7 +26,14 @@ func ResourceDliQueueV1() *schema.Resource {
 		Delete: resourceDliQueueV1Delete,
 
 		Schema: map[string]*schema.Schema{
-			"queue_name": {
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -36,10 +47,11 @@ func ResourceDliQueueV1() *schema.Resource {
 			},
 
 			"queue_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "sql",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      "sql",
+				ValidateFunc: validation.StringInSlice([]string{"sql", "general"}, false),
 			},
 
 			"description": {
@@ -50,50 +62,39 @@ func ResourceDliQueueV1() *schema.Resource {
 			},
 
 			"cu_count": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-			},
-
-			"charging_mode": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-				Default:  1,
+				Type:         schema.TypeInt,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntInSlice([]int{CU_16, CU_64, CU_256}),
 			},
 
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default:  "0",
+				Computed: true,
 			},
 
 			"platform": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "x86_64",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      "x86_64",
+				ValidateFunc: validation.StringInSlice([]string{"x86_64", "aarch64"}, false),
 			},
 
 			"resource_mode": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-			},
-
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntInSlice([]int{RESOURCE_MODE_SHARED, RESOURCE_MODE_EXCLUSIVE}),
 			},
 
 			"feature": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "basic",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"basic", "ai"}, false),
 			},
 
 			"tags": {
@@ -101,12 +102,6 @@ func ResourceDliQueueV1() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Optional: true,
-				ForceNew: true,
-			},
-
-			"cidr_in_vpc": {
-				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
@@ -126,7 +121,7 @@ func resourceDliQueueCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("creating dli client failed: %s", err)
 	}
 
-	queueName := d.Get("queue_name").(string)
+	queueName := d.Get("name").(string)
 
 	logp.Printf("[DEBUG] create dli queues queueName: %s", queueName)
 	createOpts := queues.CreateOpts{
@@ -134,12 +129,10 @@ func resourceDliQueueCreate(d *schema.ResourceData, meta interface{}) error {
 		QueueType:           d.Get("queue_type").(string),
 		Description:         d.Get("description").(string),
 		CuCount:             d.Get("cu_count").(int),
-		ChargingMode:        d.Get("charging_mode").(int),
-		EnterpriseProjectId: d.Get("enterprise_project_id").(string),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 		Platform:            d.Get("platform").(string),
 		ResourceMode:        d.Get("resource_mode").(int),
 		Feature:             d.Get("feature").(string),
-		Labels:              assembleMapFromRecource("Labels", d),
 		Tags:                assembleTagsFromRecource("tags", d),
 	}
 
@@ -155,18 +148,6 @@ func resourceDliQueueCreate(d *schema.ResourceData, meta interface{}) error {
 	return resourceDliQueueV1Read(d, meta)
 }
 
-func assembleMapFromRecource(key string, d *schema.ResourceData) map[string]string {
-	m := make(map[string]string)
-
-	if v, ok := d.GetOk(key); ok {
-		for key, val := range v.(map[string]interface{}) {
-			m[key] = val.(string)
-		}
-	}
-
-	return m
-}
-
 func assembleTagsFromRecource(key string, d *schema.ResourceData) []tags.ResourceTag {
 	if v, ok := d.GetOk(key); ok {
 		tagRaw := v.(map[string]interface{})
@@ -176,54 +157,78 @@ func assembleTagsFromRecource(key string, d *schema.ResourceData) []tags.Resourc
 	return nil
 
 }
-
 func resourceDliQueueV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.DliV1Client(config.GetRegion(d))
+	dliClient, err := config.DliV1Client(config.GetRegion(d))
+
 	if err != nil {
-		return fmtp.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("error creating DliV1Client, err=%s", err)
 	}
 
-	queueName := d.Get("queue_name").(string)
-	result := queues.Get(client, queueName)
-	if result.Err != nil {
-		return result.Err
+	queueName := d.Get("name").(string)
+
+	queryOpts := queues.ListOpts{
+		QueueType: d.Get("queue_type").(string),
 	}
 
-	if queueDetail, ok := result.Body.(*queues.Queue); ok {
-		logp.Printf("[debug]The detail of queue from SDK:%+v", queueDetail)
+	logp.Printf("[DEBUG] create dli queues using paramaters: %+v", queryOpts)
 
-		d.Set("queue_name", queueDetail.QueueName)
+	queryAllResult := queues.List(dliClient, queryOpts)
+	if queryAllResult.Err != nil {
+		return fmt.Errorf("query queues failed: %s", queryAllResult.Err)
+	}
+
+	//filter by queue_name
+	queueDetail, err := filterByQueueName(queryAllResult.Body, queueName)
+	if err != nil {
+		return err
+	}
+
+	if queueDetail != nil {
+		logp.Printf("[DEBUG]The detail of queue from SDK:%+v", queueDetail)
+
+		d.Set("name", queueDetail.QueueName)
 		d.Set("queue_type", queueDetail.QueueType)
 		d.Set("description", queueDetail.Description)
 		d.Set("cu_count", queueDetail.CuCount)
-		d.Set("charging_mode", queueDetail.ChargingMode)
-		if queueDetail.EnterpriseProjectId != "" {
-			d.Set("enterprise_project_id", queueDetail.EnterpriseProjectId)
-		}
 		d.Set("platform", queueDetail.Platform)
 		d.Set("resource_mode", queueDetail.ResourceMode)
 		d.Set("feature", queueDetail.Feature)
-		d.Set("Labels", queueDetail.Labels)
-	} else {
-		return fmtp.Errorf("sdk-client response type is wrong, expect type:*queues.Queue, acutal Type:%T", result.Body)
+		d.Set("create_time", queueDetail.CreateTime)
 	}
+
 	return nil
 }
+func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err error) {
+	if queueList, ok := body.(*queues.ListResult); ok {
+		logp.Printf("[DEBUG]The list of queue from SDK:%+v", queueList)
 
+		for _, v := range queueList.Queues {
+			if v.QueueName == queueName {
+				return &v, nil
+			}
+		}
+		return nil, nil
+
+	} else {
+		return nil, fmt.Errorf("sdk-client response type is wrong, expect type:*queues.ListResult,acutal Type:%T",
+			body)
+	}
+
+}
 func resourceDliQueueV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DliV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating sdk client, err=%s", err)
+		return fmtp.Errorf("error creating DliV1Client, err=%s", err)
 	}
 
-	queueName := d.Get("queue_name").(string)
+	queueName := d.Get("name").(string)
 	logp.Printf("[DEBUG] Deleting dli Queue %q", d.Id())
 
 	result := queues.Delete(client, queueName)
 	if result.Err != nil {
-		return fmtp.Errorf("Error deleting dli Queue %q, err=%s", d.Id(), result.Err)
+		return fmtp.Errorf("error deleting dli Queue %q, err=%s", d.Id(), result.Err)
 	}
 
 	return nil

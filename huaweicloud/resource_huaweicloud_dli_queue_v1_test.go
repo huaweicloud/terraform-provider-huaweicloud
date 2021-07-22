@@ -48,7 +48,7 @@ func testAccDliQueueV1_basic(val string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dli_queue_v1" "queue" {
   name = "terraform_dli_queue_v1_test%s"
-  cu_count = 4
+  cu_count = 16
 }
 	`, val)
 }
