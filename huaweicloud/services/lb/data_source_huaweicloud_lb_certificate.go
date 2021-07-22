@@ -7,6 +7,7 @@ package lb
 import (
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/elb/v2/certificates"
@@ -45,6 +46,14 @@ func DataSourceLBCertificateV2() *schema.Resource {
 					ServerType, ClientType,
 				}, false),
 			},
+			"domain": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"expiration": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -68,30 +77,47 @@ func dataSourceLBCertificateV2Read(d *schema.ResourceData, meta interface{}) err
 	}
 
 	r, err := certificates.List(client, listOpts)
+	certRst, err := r.Extract()
 	if err != nil {
 		return fmtp.Errorf("Unable to retrieve certificates from LoadBalancer: %s", err)
 	}
-	certResult, err := r.Extract()
-	logp.Printf("[DEBUG] Get certificate list: %#v", certResult)
+	logp.Printf("[DEBUG] Get certificate list: %#v", certRst)
 
-	if len(certResult.Certificates) > 0 {
-		c := certResult.Certificates[0]
-		d.SetId(c.Id)
-		d.Set("name", c.Name)
-
-		tm, err := time.Parse("2006-01-02 15:04:05", c.ExpireTime)
+	if len(certRst.Certificates) > 0 {
+		err = setCertificateAttributes(d, certRst.Certificates[0])
 		if err != nil {
-			// If the format of ExpireTime is not expected, set the original value directly.
-			d.Set("expiration", c.ExpireTime)
-			logp.Printf("[WAIN] The format of the ExpireTime field of the LB certificate is not expected: %s",
-				c.ExpireTime)
-		} else {
-			d.Set("expiration", tm.Format("2006-01-02 15:04:05 MST"))
+			return err
 		}
 	} else {
 		return fmtp.Errorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
+	return nil
+}
 
+func setCertificateAttributes(d *schema.ResourceData, c certificates.Certificate) error {
+	d.SetId(c.Id)
+
+	var expiration string
+	tm, err := time.Parse("2006-01-02 15:04:05", c.ExpireTime)
+	if err != nil {
+		// If the format of ExpireTime is not expected, set the original value directly.
+		expiration = c.ExpireTime
+		logp.Printf("[WAIN] The format of the ExpireTime field of the LB certificate is not expected: %s",
+			c.ExpireTime)
+	} else {
+		expiration = tm.Format("2006-01-02 15:04:05 MST")
+	}
+
+	mErr := multierror.Append(nil,
+		d.Set("name", c.Name),
+		d.Set("domain", c.Domain),
+		d.Set("description", c.Description),
+		d.Set("type", c.Type),
+		d.Set("expiration", expiration),
+	)
+	if err := mErr.ErrorOrNil(); err != nil {
+		return fmtp.Errorf("error setting LB Certificate fields: %s", err)
+	}
 	return nil
 }

@@ -30,6 +30,8 @@ func TestAccDataSourceLBCertificateV2_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(dataSourceName, "name", name),
 					resource.TestCheckResourceAttr(dataSourceName, "type", "server"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "expiration"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "domain"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "description"),
 				),
 			},
 		},

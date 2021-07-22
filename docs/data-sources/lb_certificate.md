@@ -41,4 +41,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The certificate ID in UUID format.
 
+* `domain` - The domain of the Certificate. This parameter is valid only when `type` is "server".
+
+* `description` - Human-readable description for the Certificate.
+
 * `expiration` - Indicates the time when the certificate expires.

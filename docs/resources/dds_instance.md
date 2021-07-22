@@ -139,24 +139,27 @@ The `flavor` block supports:
   * For a Community Edition replica set instance, the value is replica.
   * For a Community Edition single node instance, the value is single.
 
-* `num` - (Required, Int, ForceNew) Specifies the node quantity. Valid value:
+* `num` - (Required, Int) Specifies the node quantity. Valid value:
 	* In a Community Edition cluster instance,the number of mongos ranges from 2 to 16.
   * In a Community Edition cluster instance,the number of shards ranges from 2 to 16.
   * In an Enhanced Edition cluster instance, the number of shards ranges from 2 to 12.
 	* config: the value is 1.
 	* replica: the value is 1.
   * single: The value is 1.
+  This parameter can be updated when the value of `type` is mongos or shard.
 
 * `storage` - (Optional, String, ForceNew) Specifies the disk type. Valid value: ULTRAHIGH which indicates the type SSD.
 
-* `size` - (Optional, Int, ForceNew) Specifies the disk size. The value must be a multiple of 10. The unit is GB.
+* `size` - (Optional, Int) Specifies the disk size. The value must be a multiple of 10. The unit is GB.
   This parameter is mandatory for nodes except mongos and invalid for mongos.
+  This parameter can be updated when the value of `type` is shard, replica or single.
 
-* `spec_code` - (Required, String, ForceNew) Specifies the resource specification code. In a cluster instance,
+* `spec_code` - (Required, String) Specifies the resource specification code. In a cluster instance,
   multiple specifications need to be specified. All specifications must be of the same series,
   that is, general-purpose (s6), enhanced (c3), or enhanced II (c6). For example:
   * dds.mongodb.s6.large.4.mongos and dds.mongodb.s6.large.4.config have the same specifications.
   * dds.mongodb.s6.large.4.mongos and dds.mongodb.c3.large.4.config are not of the same specifications.
+  This parameter can be updated when the value of `type` is mongos, shard, replica or single.
 
 The `backup_strategy ` block supports:
 
