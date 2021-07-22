@@ -145,11 +145,34 @@ type UpdateOpt struct {
 	Method string
 }
 
+type UpdateVolumeOpts struct {
+	GroupID string `json:"group_id,omitempty"`
+	Size    *int   `json:"size,omitempty"`
+}
+
+type UpdateNodeNumOpts struct {
+	Type     string            `json:"type" required:"true"`
+	SpecCode string            `json:"spec_code" required:"true"`
+	Num      int               `json:"num" required:"true"`
+	Volume   *UpdateVolumeOpts `json:"volume,omitempty"`
+}
+
+type UpdateSpecOpts struct {
+	TargetType     string `json:"target_type,omitempty"`
+	TargetID       string `json:"target_id" required:"true"`
+	TargetSpecCode string `json:"target_spec_code" required:"true"`
+}
+
 func Update(client *golangsdk.ServiceClient, instanceId string, opts []UpdateOpt) (r UpdateInstanceResult) {
 	for _, optRaw := range opts {
 		url := modifyURL(client, instanceId, optRaw.Action)
-		body := map[string]interface{}{
-			optRaw.Param: optRaw.Value,
+		var body interface{}
+		if optRaw.Param != "" {
+			body = map[string]interface{}{
+				optRaw.Param: optRaw.Value,
+			}
+		} else {
+			body = optRaw.Value
 		}
 
 		var httpMethod func(string, interface{}, interface{}, *golangsdk.RequestOpts) (*http.Response, error)

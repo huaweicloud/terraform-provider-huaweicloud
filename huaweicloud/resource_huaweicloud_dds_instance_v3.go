@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -24,6 +25,7 @@ func ResourceDdsInstanceV3() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -126,7 +128,6 @@ func ResourceDdsInstanceV3() *schema.Resource {
 						"num": {
 							Type:     schema.TypeInt,
 							Required: true,
-							ForceNew: true,
 						},
 						"storage": {
 							Type:     schema.TypeString,
@@ -139,12 +140,10 @@ func ResourceDdsInstanceV3() *schema.Resource {
 						"size": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: true,
 						},
 						"spec_code": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -529,7 +528,7 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 		Pending:    []string{"updating"},
 		Target:     []string{"normal"},
 		Refresh:    DdsInstanceStateRefreshFunc(client, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Timeout:    d.Timeout(schema.TimeoutUpdate),
 		Delay:      15 * time.Second,
 		MinTimeout: 10 * time.Second,
 	}
@@ -545,6 +544,33 @@ func resourceDdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
 		if tagErr != nil {
 			return fmtp.Errorf("Error updating tags of DDS instance:%s, err:%s", d.Id(), tagErr)
+		}
+	}
+
+	// update flavor
+	if d.HasChange("flavor") {
+		for i := range d.Get("flavor").([]interface{}) {
+			numIndex := fmt.Sprintf("flavor.%d.num", i)
+			volumeSizeIndex := fmt.Sprintf("flavor.%d.size", i)
+			specCodeIndex := fmt.Sprintf("flavor.%d.spec_code", i)
+			if d.HasChange(numIndex) {
+				err := flavorNumUpdate(client, d, i)
+				if err != nil {
+					return err
+				}
+			}
+			if d.HasChange(volumeSizeIndex) {
+				err := flavorSizeUpdate(client, d, i)
+				if err != nil {
+					return err
+				}
+			}
+			if d.HasChange(specCodeIndex) {
+				err := flavorSpecCodeUpdate(client, d, i)
+				if err != nil {
+					return err
+				}
+			}
 		}
 	}
 
@@ -567,7 +593,7 @@ func resourceDdsInstanceV3Delete(d *schema.ResourceData, meta interface{}) error
 		Pending:    []string{"normal", "abnormal", "frozen", "createfail", "enlargefail", "data_disk_full"},
 		Target:     []string{"deleted"},
 		Refresh:    DdsInstanceStateRefreshFunc(client, instanceId),
-		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      15 * time.Second,
 		MinTimeout: 10 * time.Second,
 	}
@@ -600,4 +626,285 @@ func flattenDdsInstanceV3Nodes(dds instances.InstanceResponse) interface{} {
 		}
 	}
 	return nodesList
+}
+
+func getDdsInstanceV3ShardGroupID(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]string, error) {
+	groupIDs := make([]string, 0)
+
+	instanceID := d.Id()
+	opts := instances.ListInstanceOpts{
+		Id: instanceID,
+	}
+	allPages, err := instances.List(client, &opts).AllPages()
+	if err != nil {
+		return groupIDs, fmtp.Errorf("Error fetching DDS instance: %s", err)
+	}
+	instances, err := instances.ExtractInstances(allPages)
+	if err != nil {
+		return groupIDs, fmtp.Errorf("Error extracting DDS instance: %s", err)
+	}
+	if instances.TotalCount == 0 {
+		logp.Printf("[WARN] DDS instance (%s) was not found", instanceID)
+		return groupIDs, nil
+	}
+	insts := instances.Instances
+	instance := insts[0]
+
+	logp.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
+
+	for _, group := range instance.Groups {
+		if group.Type == "shard" {
+			groupIDs = append(groupIDs, group.Id)
+		}
+	}
+
+	return groupIDs, nil
+
+}
+
+func getDdsInstanceV3MongosNodeID(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]string, error) {
+	nodeIDs := make([]string, 0)
+
+	instanceID := d.Id()
+	opts := instances.ListInstanceOpts{
+		Id: instanceID,
+	}
+	allPages, err := instances.List(client, &opts).AllPages()
+	if err != nil {
+		return nodeIDs, fmtp.Errorf("Error fetching DDS instance: %s", err)
+	}
+	instances, err := instances.ExtractInstances(allPages)
+	if err != nil {
+		return nodeIDs, fmtp.Errorf("Error extracting DDS instance: %s", err)
+	}
+	if instances.TotalCount == 0 {
+		logp.Printf("[WARN] DDS instance (%s) was not found", instanceID)
+		return nodeIDs, nil
+	}
+	insts := instances.Instances
+	instance := insts[0]
+
+	logp.Printf("[DEBUG] Retrieved instance %s: %#v", instanceID, instance)
+
+	for _, group := range instance.Groups {
+		if group.Type == "mongos" {
+			for _, node := range group.Nodes {
+				nodeIDs = append(nodeIDs, node.Id)
+			}
+		}
+	}
+
+	return nodeIDs, nil
+
+}
+
+func flavorUpdate(client *golangsdk.ServiceClient, d *schema.ResourceData, opts []instances.UpdateOpt) error {
+	r := instances.Update(client, d.Id(), opts)
+	if r.Err != nil {
+		return fmtp.Errorf("Error updating instance from result: %s ", r.Err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"updating"},
+		Target:     []string{"normal"},
+		Refresh:    DdsInstanceStateRefreshFunc(client, d.Id()),
+		Timeout:    d.Timeout(schema.TimeoutUpdate),
+		Delay:      15 * time.Second,
+		MinTimeout: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForState()
+	if err != nil {
+		return fmtp.Errorf(
+			"Error waiting for instance (%s) to become ready: %s ",
+			d.Id(), err)
+	}
+
+	return nil
+}
+
+func flavorNumUpdate(client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
+	groupTypeIndex := fmt.Sprintf("flavor.%d.type", i)
+	groupType := d.Get(groupTypeIndex).(string)
+	if groupType != "mongos" && groupType != "shard" {
+		return fmtp.Errorf("Error updating instance: %s does not support adding nodes", groupType)
+	}
+	specCodeIndex := fmt.Sprintf("flavor.%d.spec_code", i)
+	volumeSizeIndex := fmt.Sprintf("flavor.%d.size", i)
+	volumeSize := d.Get(volumeSizeIndex).(int)
+	numIndex := fmt.Sprintf("flavor.%d.num", i)
+	oldNumRaw, newNumRaw := d.GetChange(numIndex)
+	oldNum := oldNumRaw.(int)
+	newNum := newNumRaw.(int)
+	if newNum < oldNum {
+		return fmtp.Errorf("Error updating instance: the new num(%d) must be greater than the old num(%d)", newNum, oldNum)
+	}
+
+	var numUpdateOpts []instances.UpdateOpt
+
+	if groupType == "mongos" {
+		opt := instances.UpdateOpt{
+			Param: "",
+			Value: instances.UpdateNodeNumOpts{
+				Type:     groupType,
+				SpecCode: d.Get(specCodeIndex).(string),
+				Num:      newNum - oldNum,
+			},
+			Action: "enlarge",
+			Method: "post",
+		}
+		numUpdateOpts = append(numUpdateOpts, opt)
+	} else {
+		volume := instances.UpdateVolumeOpts{
+			Size: &volumeSize,
+		}
+
+		opt := instances.UpdateOpt{
+			Param: "",
+			Value: instances.UpdateNodeNumOpts{
+				Type:     groupType,
+				SpecCode: d.Get(specCodeIndex).(string),
+				Num:      newNum - oldNum,
+				Volume:   &volume,
+			},
+			Action: "enlarge",
+			Method: "post",
+		}
+		numUpdateOpts = append(numUpdateOpts, opt)
+	}
+	err := flavorUpdate(client, d, numUpdateOpts)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func flavorSizeUpdate(client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
+	volumeSizeIndex := fmt.Sprintf("flavor.%d.size", i)
+	oldSizeRaw, newSizeRaw := d.GetChange(volumeSizeIndex)
+	oldSize := oldSizeRaw.(int)
+	newSize := newSizeRaw.(int)
+	if newSize < oldSize {
+		return fmtp.Errorf("Error updating instance: the new size(%d) must be greater than the old size(%d)", newSize, oldSize)
+	}
+	groupTypeIndex := fmt.Sprintf("flavor.%d.type", i)
+	groupType := d.Get(groupTypeIndex).(string)
+	if groupType != "replica" && groupType != "single" && groupType != "shard" {
+		return fmtp.Errorf("Error updating instance: %s does not support scaling up storage space", groupType)
+	}
+
+	if groupType == "shard" {
+		groupIDs, err := getDdsInstanceV3ShardGroupID(client, d)
+		if err != nil {
+			return err
+		}
+
+		for _, groupID := range groupIDs {
+			var sizeUpdateOpts []instances.UpdateOpt
+			opt := instances.UpdateOpt{
+				Param: "volume",
+				Value: instances.UpdateVolumeOpts{
+					GroupID: groupID,
+					Size:    &newSize,
+				},
+				Action: "enlarge-volume",
+				Method: "post",
+			}
+			sizeUpdateOpts = append(sizeUpdateOpts, opt)
+			err := flavorUpdate(client, d, sizeUpdateOpts)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		var sizeUpdateOpts []instances.UpdateOpt
+		opt := instances.UpdateOpt{
+			Param: "volume",
+			Value: instances.UpdateVolumeOpts{
+				Size: &newSize,
+			},
+			Action: "enlarge-volume",
+			Method: "post",
+		}
+		sizeUpdateOpts = append(sizeUpdateOpts, opt)
+		err := flavorUpdate(client, d, sizeUpdateOpts)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func flavorSpecCodeUpdate(client *golangsdk.ServiceClient, d *schema.ResourceData, i int) error {
+	specCodeIndex := fmt.Sprintf("flavor.%d.spec_code", i)
+	groupTypeIndex := fmt.Sprintf("flavor.%d.type", i)
+	groupType := d.Get(groupTypeIndex).(string)
+	if groupType == "config" {
+		return fmtp.Errorf("Error updating instance: %s does not support updating spec_code", groupType)
+	}
+	if groupType == "mongos" {
+		nodeIDs, err := getDdsInstanceV3MongosNodeID(client, d)
+		if err != nil {
+			return err
+		}
+		for _, ID := range nodeIDs {
+			var specUpdateOpts []instances.UpdateOpt
+			opt := instances.UpdateOpt{
+				Param: "resize",
+				Value: instances.UpdateSpecOpts{
+					TargetType:     "mongos",
+					TargetID:       ID,
+					TargetSpecCode: d.Get(specCodeIndex).(string),
+				},
+				Action: "resize",
+				Method: "post",
+			}
+			specUpdateOpts = append(specUpdateOpts, opt)
+			err := flavorUpdate(client, d, specUpdateOpts)
+			if err != nil {
+				return err
+			}
+		}
+	} else if groupType == "shard" {
+		groupIDs, err := getDdsInstanceV3ShardGroupID(client, d)
+		if err != nil {
+			return err
+		}
+
+		for _, ID := range groupIDs {
+			var specUpdateOpts []instances.UpdateOpt
+			opt := instances.UpdateOpt{
+				Param: "resize",
+				Value: instances.UpdateSpecOpts{
+					TargetType:     "shard",
+					TargetID:       ID,
+					TargetSpecCode: d.Get(specCodeIndex).(string),
+				},
+				Action: "resize",
+				Method: "post",
+			}
+			specUpdateOpts = append(specUpdateOpts, opt)
+			err := flavorUpdate(client, d, specUpdateOpts)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		var specUpdateOpts []instances.UpdateOpt
+		opt := instances.UpdateOpt{
+			Param: "resize",
+			Value: instances.UpdateSpecOpts{
+				TargetID:       d.Id(),
+				TargetSpecCode: d.Get(specCodeIndex).(string),
+			},
+			Action: "resize",
+			Method: "post",
+		}
+		specUpdateOpts = append(specUpdateOpts, opt)
+		err := flavorUpdate(client, d, specUpdateOpts)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
