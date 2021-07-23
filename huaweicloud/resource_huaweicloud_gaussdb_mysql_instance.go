@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"context"
 	"strconv"
 	"strings"
 	"time"
@@ -27,7 +28,7 @@ func resourceGaussDBInstance() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		CustomizeDiff: func(d *schema.ResourceDiff, v interface{}) error {
+		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, v interface{}) error {
 			if d.HasChange("proxy_node_num") {
 				d.SetNewComputed("proxy_address")
 				d.SetNewComputed("proxy_port")

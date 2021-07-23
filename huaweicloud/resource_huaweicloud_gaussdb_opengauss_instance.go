@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -32,7 +33,7 @@ func resourceOpenGaussInstance() *schema.Resource {
 			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
-		CustomizeDiff: func(d *schema.ResourceDiff, v interface{}) error {
+		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, v interface{}) error {
 			if d.HasChange("coordinator_num") {
 				d.SetNewComputed("private_ips")
 			}
