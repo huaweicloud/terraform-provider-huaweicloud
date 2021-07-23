@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
@@ -40,13 +41,14 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 
 	testProvider := Provider()
 	raw := make(map[string]interface{})
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", diags[0].Detail)
 	}
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
+	var err error
 	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of IAM service
@@ -115,13 +117,14 @@ func TestAccServiceEndpoints_Management(t *testing.T) {
 
 	testProvider := Provider()
 	raw := make(map[string]interface{})
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", diags[0].Detail)
 	}
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
+	var err error
 	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of CTS service
@@ -166,13 +169,14 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 
 	testProvider := Provider()
 	raw := make(map[string]interface{})
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", diags[0].Detail)
 	}
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
+	var err error
 	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of RDS v1 service
@@ -253,13 +257,14 @@ func TestAccServiceEndpoints_Security(t *testing.T) {
 
 	testProvider := Provider()
 	raw := make(map[string]interface{})
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", diags[0].Detail)
 	}
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
+	var err error
 	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of anti-ddos service
@@ -304,13 +309,14 @@ func TestAccServiceEndpoints_Application(t *testing.T) {
 
 	testProvider := Provider()
 	raw := make(map[string]interface{})
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", diags[0].Detail)
 	}
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
+	var err error
 	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of API-GW service
@@ -407,14 +413,15 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 
 	testProvider := Provider()
 	raw := make(map[string]interface{})
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", diags[0].Detail)
 	}
 
 	config := testProvider.Meta().(*config.Config)
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
+	var err error
 
 	// test for computeV1Client
 	serviceClient, err = config.ComputeV1Client(HW_REGION_NAME)
@@ -545,14 +552,15 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 
 	testProvider := Provider()
 	raw := make(map[string]interface{})
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", diags[0].Detail)
 	}
 
 	config := testProvider.Meta().(*config.Config)
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
+	var err error
 
 	// test for blockStorageV2Client
 	serviceClient, err = nil, nil
@@ -632,14 +640,15 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 
 	testProvider := Provider()
 	raw := make(map[string]interface{})
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", diags[0].Detail)
 	}
 
 	config := testProvider.Meta().(*config.Config)
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
+	var err error
 
 	// test endpoint of network v1 service
 	serviceClient, err = config.NetworkingV1Client(HW_REGION_NAME)
@@ -771,13 +780,14 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 
 	testProvider := Provider()
 	raw := make(map[string]interface{})
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", diags[0].Detail)
 	}
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
+	var err error
 	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of MRS service
@@ -909,13 +919,14 @@ func TestAccServiceEndpoints_Edge(t *testing.T) {
 
 	testProvider := Provider()
 	raw := make(map[string]interface{})
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", diags[0].Detail)
 	}
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
+	var err error
 	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of iec service
@@ -936,13 +947,14 @@ func TestAccServiceEndpoints_Others(t *testing.T) {
 
 	testProvider := Provider()
 	raw := make(map[string]interface{})
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected error when configure HuaweiCloud provider: %s", diags[0].Detail)
 	}
 
 	var expectedURL, actualURL string
 	var serviceClient *golangsdk.ServiceClient
+	var err error
 	config := testProvider.Meta().(*config.Config)
 
 	// test the endpoint of MAAS service
