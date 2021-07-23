@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/encryption"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3.0/credentials"
@@ -118,20 +117,6 @@ func resourceIdentityKeyCreate(d *schema.ResourceData, meta interface{}) error {
 		// set the SecretKey as it was returned only in creation response
 		d.Set("secret", accessKey.SecretKey)
 		return fmtp.Errorf("Error saving the access key to %s: %s", outputFile, err)
-	}
-
-	if v, ok := d.GetOk("pgp_key"); ok {
-		pgpKey := v.(string)
-		encryptionKey, err := encryption.RetrieveGPGKey(pgpKey)
-		if err != nil {
-			return fmtp.Errorf("Error retrieving PGP key: %s", err)
-		}
-		fingerprint, encrypted, err := encryption.EncryptValue(encryptionKey, accessKey.SecretKey, "IAM Access Key Secret")
-		if err != nil {
-			return fmtp.Errorf("Error encrypting access key: %s", err)
-		}
-		d.Set("key_fingerprint", fingerprint)
-		d.Set("encrypted_secret", encrypted)
 	}
 
 	d.Set("user_name", userName)
