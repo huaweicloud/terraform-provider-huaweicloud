@@ -14,6 +14,7 @@ func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
 	return
 }
 
+// List retrieves all custom policies.
 func List(client *golangsdk.ServiceClient) pagination.Pager {
 	pager := pagination.NewPager(client, listURL(client), func(r pagination.PageResult) pagination.Page {
 		return RolePage{pagination.LinkedPageBase{PageResult: r}}
@@ -29,16 +30,18 @@ type CreateOptsBuilder interface {
 	ToPolicyCreateMap() (map[string]interface{}, error)
 }
 
+// Policy contains the content of a custom policy.
 type Policy struct {
 	Version   string      `json:"Version" required:"true"`
 	Statement []Statement `json:"Statement" required:"true"`
 }
 
+// Statement represents the Statement of a custom policy.
 type Statement struct {
-	Action    []string                       `json:"Action" required:"true"`
-	Effect    string                         `json:"Effect" required:"true"`
-	Condition map[string]map[string][]string `json:"Condition,omitempty"`
-	Resource  []string                       `json:"Resource,omitempty"`
+	Action    []string               `json:"Action" required:"true"`
+	Effect    string                 `json:"Effect" required:"true"`
+	Condition map[string]interface{} `json:"Condition,omitempty"`
+	Resource  interface{}            `json:"Resource,omitempty"`
 }
 
 // CreateOpts provides options used to create a policy.
