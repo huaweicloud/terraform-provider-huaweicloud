@@ -1,3 +1,33 @@
+## 1.26.1 (July 23, 2021)
+
+FEATURES:
+* **New Resurce:**
+  - `huaweicloud_waf_certificate` ([#1255](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1255))
+  - `huaweicloud_waf_domain` ([#1255](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1255))
+  - `huaweicloud_waf_policy` ([#1257](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1257))
+  - `huaweicloud_waf_rule_blacklist` ([#1283](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1283))
+  - `huaweicloud_waf_rule_data_masking` ([#1295](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1295))
+  - `huaweicloud_waf_rule_web_tamper_protection` ([#1298](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1298))
+  - `huaweicloud_apig_environment` ([#1267](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1267))
+  - `huaweicloud_apig_group` ([#1284](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1284))
+  - `huaweicloud_apig_response` ([#1294](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1294))
+  - `huaweicloud_apig_vpc_channel` ([#1273](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1273))
+
+* **New Data Source:**
+  - `huaweicloud_waf_certificate` ([#1279](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1279))
+  - `huaweicloud_elb_certificate` ([#1301](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1301))
+  - `huaweicloud_lb_certificate` ([#1303](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1303))
+
+ENHANCEMENTS:
+* provider: use `cloud` value as basis for `auth_url` ([#1285](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1285))
+* resource/huaweicloud_vpc_eip: Add tags support ([#1262](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1262))
+* resource/huaweicloud_dds_instance: Support to update `flavor` field ([#1286](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1286))
+
+BUG FIXES:
+* resource/huaweicloud_compute_instance: Fix power action error ([#1268](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1268))
+* resource/huaweicloud_identity_role: Support the policy for cloud services and agencies ([#1289](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1289))
+
+
 ## 1.26.0 (June 30, 2021)
 
 FEATURES:
