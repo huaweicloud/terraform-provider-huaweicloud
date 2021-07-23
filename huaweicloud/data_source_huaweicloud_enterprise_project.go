@@ -3,7 +3,7 @@ package huaweicloud
 import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )

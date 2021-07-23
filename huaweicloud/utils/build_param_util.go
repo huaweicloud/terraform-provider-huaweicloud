@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 type funcSkipOpt func(optn string, jsonTags []string, tag reflect.StructTag) bool
