@@ -54,7 +54,7 @@ The following arguments are supported:
 * `is_body_send` - (Optional, Bool, ForceNew) Specifies whether to send the body.
   Changing this will create a new custom authorizer resource.
 
-* `ttl` - (Optional, String) Specifies the maximum cache age.
+* `cache_age` - (Optional, String) Specifies the maximum cache age.
   Changing this will create a new custom authorizer resource.
 
 * `user_data` - (Optional, String, ForceNew) Specifies the user data, which can contain a maximum of 2,048 characters.
@@ -63,13 +63,12 @@ The following arguments are supported:
 
   -> **NOTE:** The user data will be displayed in plain text on the console.
 
-* `identity` - (Optional, List, ForceNew) Specifies an array of one or more APIG environments of the associated APIG group.
-  Changing this will create a new custom authorizer resource.
+* `identity` - (Optional, List) Specifies an array of one or more parameter identities of the custom authorizer.
   The object structure is documented below.
 
 The `identity` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the parameter name.
+* `name` - (Required, String, ForceNew) Specifies the name of the parameter to be verified.
   The parameter includes front-end and back-end parameters.
   Changing this will create a new custom authorizer resource.
 
@@ -86,7 +85,7 @@ The `identity` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - ID of the custom authorizer.
-* `update_time` - Time when the APIG environment was created.
+* `create_time` - Time when the APIG custom authorizer was created.
 
 ## Import
 

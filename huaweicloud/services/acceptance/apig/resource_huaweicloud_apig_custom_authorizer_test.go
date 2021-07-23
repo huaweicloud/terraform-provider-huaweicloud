@@ -14,7 +14,8 @@ import (
 
 func TestAccApigCustomAuthorizerV2_basic(t *testing.T) {
 	var (
-		// Only letters, digits and underscores (_) are allowed in the environment name and dedicated instance name.
+		// Only letters, digits and underscores (_) are allowed in the authorizer name, environment name
+		// and dedicated instance name.
 		rName        = fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 		resourceName = "huaweicloud_apig_custom_authorizer.test"
 		auth         authorizers.CustomAuthorizer

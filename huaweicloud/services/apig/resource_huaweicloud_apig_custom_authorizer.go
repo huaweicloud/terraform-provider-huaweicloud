@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	FRONT_AUTH   = "FRONTEND"
-	BACKEND_AUTH = "BACKEND"
+	frontAuth   = "FRONTEND"
+	backendAuth = "BACKEND"
 )
 
 func ResourceApigCustomAuthorizerV2() *schema.Resource {
@@ -46,7 +46,7 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^[A-Za-z][\\w0-9]{2,63}$"),
+					regexp.MustCompile("^[A-Za-z][\\w]{2,63}$"),
 					"The name consists of 3 to 64 characters, starting with a letter. "+
 						"Only letters, digits and underscores (_) are allowed."),
 			},
@@ -58,8 +58,9 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Default:  frontAuth,
 				ValidateFunc: validation.StringInSlice([]string{
-					FRONT_AUTH, BACKEND_AUTH,
+					frontAuth, backendAuth,
 				}, false),
 			},
 			"is_body_send": {
@@ -130,14 +131,14 @@ func buildApigCustomAuthorizerParameters(d *schema.ResourceData) (authorizers.Cu
 	userData := d.Get("user_data").(string)
 	t := d.Get("type").(string) // The 'authType' is easily confused with 'AuthorizerType', and 'type' is a keyword.
 	identities := d.Get("identity").(*schema.Set)
-	if identities.Len() > 0 && t != FRONT_AUTH {
+	if identities.Len() > 0 && t != frontAuth {
 		return authorizers.CustomAuthOpts{}, fmt.Errorf("The identities can only be set when the type is 'FRONTEND'")
 	}
 	return authorizers.CustomAuthOpts{
 		Name:           d.Get("name").(string),
 		Type:           t,
 		AuthorizerType: "FUNC", // The custom authorizer only support 'FUNC'.
-		AuthorizerUri:  d.Get("function_urn").(string),
+		AuthorizerURI:  d.Get("function_urn").(string),
 		IsBodySend:     &isBodySend,
 		TTL:            golangsdk.IntToPointer(d.Get("cache_age").(int)),
 		UserData:       &userData,
@@ -160,7 +161,7 @@ func resourceApigCustomAuthorizerV2Create(d *schema.ResourceData, meta interface
 	if err != nil {
 		return common.CheckDeleted(d, err, "Error creating HuaweiCloud APIG custom authorizer")
 	}
-	d.SetId(resp.Id)
+	d.SetId(resp.ID)
 	return resourceApigCustomAuthorizerV2Read(d, meta)
 }
 
@@ -182,10 +183,10 @@ func setApigCustomAuthorizerParamters(d *schema.ResourceData, config *config.Con
 	mErr := multierror.Append(nil,
 		d.Set("region", config.GetRegion(d)),
 		d.Set("name", resp.Name),
-		d.Set("function_urn", resp.AuthorizerUri),
+		d.Set("function_urn", resp.AuthorizerURI),
 		d.Set("type", resp.Type),
 		d.Set("is_body_send", resp.IsBodySend),
-		d.Set("cache_age", resp.CacheAge),
+		d.Set("cache_age", resp.TTL),
 		d.Set("user_data", resp.UserData),
 		d.Set("create_time", resp.CreateTime),
 		setApigCustomAuthorizerIdentities(d, resp.Identities),
@@ -245,7 +246,7 @@ func resourceApigCustomAuthorizerV2Delete(d *schema.ResourceData, meta interface
 	return nil
 }
 
-// The ID cannot find on console, so we need to import by authorizer name.
+// The ID cannot find on the console, so we need to import by authorizer name.
 func resourceApigCustomAuthorizerResourceImportState(d *schema.ResourceData,
 	meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.SplitN(d.Id(), "/", 2)
@@ -271,7 +272,7 @@ func resourceApigCustomAuthorizerResourceImportState(d *schema.ResourceData,
 		return []*schema.ResourceData{d}, fmtp.Errorf("Unable to find the custom authorizer (%s) form server: %s",
 			name, err)
 	}
-	d.SetId(resp[0].Id)
+	d.SetId(resp[0].ID)
 	d.Set("instance_id", instanceId)
 	return []*schema.ResourceData{d}, nil
 }
