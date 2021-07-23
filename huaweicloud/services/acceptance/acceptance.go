@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud"
 )
 
@@ -30,12 +29,12 @@ var (
 	HW_DEPRECATED_ENVIRONMENT = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
 )
 
-var TestAccProviders map[string]terraform.ResourceProvider
+var TestAccProviders map[string]*schema.Provider
 var TestAccProvider *schema.Provider
 
 func init() {
-	TestAccProvider = huaweicloud.Provider().(*schema.Provider)
-	TestAccProviders = map[string]terraform.ResourceProvider{
+	TestAccProvider = huaweicloud.Provider()
+	TestAccProviders = map[string]*schema.Provider{
 		"huaweicloud": TestAccProvider,
 	}
 }
