@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -39,7 +38,7 @@ func testAccPreCheckServiceEndpoints(t *testing.T) {
 func TestAccServiceEndpoints_Global(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
@@ -114,7 +113,7 @@ func TestAccServiceEndpoints_Global(t *testing.T) {
 func TestAccServiceEndpoints_Management(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
@@ -165,7 +164,7 @@ func TestAccServiceEndpoints_Management(t *testing.T) {
 func TestAccServiceEndpoints_Database(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
@@ -252,7 +251,7 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 func TestAccServiceEndpoints_Security(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
@@ -303,7 +302,7 @@ func TestAccServiceEndpoints_Security(t *testing.T) {
 func TestAccServiceEndpoints_Application(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
@@ -406,7 +405,7 @@ func TestAccServiceEndpoints_Compute(t *testing.T) {
 
 	testAccPreCheckServiceEndpoints(t)
 
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
@@ -544,7 +543,7 @@ func TestAccServiceEndpoints_Storage(t *testing.T) {
 
 	testAccPreCheckServiceEndpoints(t)
 
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
@@ -631,7 +630,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 
 	testAccPreCheckServiceEndpoints(t)
 
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
@@ -770,7 +769,7 @@ func TestAccServiceEndpoints_Network(t *testing.T) {
 func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
@@ -908,7 +907,7 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 func TestAccServiceEndpoints_Edge(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
@@ -935,7 +934,7 @@ func TestAccServiceEndpoints_Edge(t *testing.T) {
 func TestAccServiceEndpoints_Others(t *testing.T) {
 	testAccPreCheckServiceEndpoints(t)
 
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 	raw := make(map[string]interface{})
 	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
