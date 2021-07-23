@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	iam_users "github.com/huaweicloud/golangsdk/openstack/identity/v3.0/users"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/users"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
