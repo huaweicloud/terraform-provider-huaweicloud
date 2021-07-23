@@ -141,11 +141,6 @@ func ResourceComputeInstanceV2() *schema.Resource {
 							ForceNew: true,
 							Computed: true,
 						},
-						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Removed:  "use uuid instead",
-						},
 						"port": {
 							Type:     schema.TypeString,
 							Optional: true,
