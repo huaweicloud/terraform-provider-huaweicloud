@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -225,9 +226,9 @@ func TestAccProvider_caCertFile(t *testing.T) {
 		"cacert_file": caFile,
 	}
 
-	err = p.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected err when specifying HuaweiCloud CA by file: %s", err)
+	diags := p.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected err when specifying HuaweiCloud CA by file: %s", diags[0].Detail)
 	}
 }
 
@@ -249,9 +250,9 @@ func TestAccProvider_caCertString(t *testing.T) {
 		"cacert_file": caContents,
 	}
 
-	err = p.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected err when specifying HuaweiCloud CA by string: %s", err)
+	diags := p.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected err when specifying HuaweiCloud CA by string: %s", diags[0].Detail)
 	}
 }
 
@@ -281,9 +282,9 @@ func TestAccProvider_clientCertFile(t *testing.T) {
 		"key":  keyFile,
 	}
 
-	err = p.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected err when specifying HuaweiCloud Client keypair by file: %s", err)
+	diags := p.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected err when specifying HuaweiCloud Client keypair by file: %s", diags[0].Detail)
 	}
 }
 
@@ -311,9 +312,9 @@ func TestAccProvider_clientCertString(t *testing.T) {
 		"key":  keyContents,
 	}
 
-	err = p.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("Unexpected err when specifying HuaweiCloud Client keypair by contents: %s", err)
+	diags := p.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("Unexpected err when specifying HuaweiCloud Client keypair by contents: %s", diags[0].Detail)
 	}
 }
 
