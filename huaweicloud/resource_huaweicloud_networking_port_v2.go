@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
@@ -505,7 +504,7 @@ func allowedAddressPairsHash(v interface{}) int {
 	m := v.(map[string]interface{})
 	buf.WriteString(fmt.Sprintf("%s-%s", m["ip_address"].(string), m["mac_address"].(string)))
 
-	return hashcode.String(buf.String())
+	return schema.HashString(buf.String())
 }
 
 func waitForNetworkPortActive(networkingClient *golangsdk.ServiceClient, portId string) resource.StateRefreshFunc {

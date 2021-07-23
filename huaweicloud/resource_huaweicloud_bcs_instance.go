@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
@@ -727,7 +726,7 @@ func resourceChannelsHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", m["name"].(string)))
 	}
 
-	return hashcode.String(buf.String())
+	return schema.HashString(buf.String())
 }
 
 func resourcePeerOrgsHash(v interface{}) int {
@@ -738,5 +737,5 @@ func resourcePeerOrgsHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", m["org_name"].(string)))
 	}
 
-	return hashcode.String(buf.String())
+	return schema.HashString(buf.String())
 }

@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -119,7 +118,7 @@ func resourceIAMAgencyProRoleHash(v interface{}) int {
 	}
 	buf.WriteString(strings.Join(s, "-"))
 
-	return hashcode.String(buf.String())
+	return schema.HashString(buf.String())
 }
 
 func getProjectIDOfDomain(client *golangsdk.ServiceClient, domainID, name string) (string, error) {

@@ -3,9 +3,9 @@ package huaweicloud
 import (
 	"sort"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones"
@@ -66,7 +66,7 @@ func dataSourceAvailabilityZonesRead(d *schema.ResourceData, meta interface{}) e
 	// sort.Strings sorts in place, returns nothing
 	sort.Strings(zones)
 
-	d.SetId(hashcode.Strings(zones))
+	d.SetId(utils.HashStrings(zones))
 	d.Set("names", zones)
 
 	return nil

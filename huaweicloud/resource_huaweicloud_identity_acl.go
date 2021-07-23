@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3.0/acl"
@@ -234,7 +233,7 @@ func resourceACLPolicyCIDRHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", m["cidr"].(string)))
 	}
 
-	return hashcode.String(buf.String())
+	return schema.HashString(buf.String())
 }
 
 func resourceACLPolicyRangeHash(v interface{}) int {
@@ -245,5 +244,5 @@ func resourceACLPolicyRangeHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", m["range"].(string)))
 	}
 
-	return hashcode.String(buf.String())
+	return schema.HashString(buf.String())
 }

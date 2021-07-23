@@ -1,9 +1,9 @@
 package huaweicloud
 
 import (
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -120,7 +120,7 @@ func dataSourceIECVpcSubnetIdsRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// set id
-	d.SetId(hashcode.Strings(allIDs))
+	d.SetId(utils.HashStrings(allIDs))
 	d.Set("region", GetRegion(d, config))
 
 	return nil

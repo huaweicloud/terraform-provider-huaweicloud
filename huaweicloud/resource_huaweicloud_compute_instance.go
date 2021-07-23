@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -1384,7 +1383,7 @@ func resourceComputeSchedulerHintsHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", m["deh_id"].(string)))
 	}
 
-	return hashcode.String(buf.String())
+	return schema.HashString(buf.String())
 }
 
 func checkBlockDeviceConfig(d *schema.ResourceData) error {

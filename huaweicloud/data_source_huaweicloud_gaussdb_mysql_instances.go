@@ -3,10 +3,10 @@ package huaweicloud
 import (
 	"strconv"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/instances"
@@ -306,7 +306,7 @@ func dataSourceGaussDBMysqlInstancesRead(d *schema.ResourceData, meta interface{
 		instancesToSet = append(instancesToSet, instanceToSet)
 	}
 
-	d.SetId(hashcode.Strings(instancesIds))
+	d.SetId(utils.HashStrings(instancesIds))
 	d.Set("instances", instancesToSet)
 
 	return nil

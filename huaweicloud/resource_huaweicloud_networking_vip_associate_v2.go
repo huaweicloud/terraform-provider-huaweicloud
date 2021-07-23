@@ -1,11 +1,11 @@
 package huaweicloud
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -135,7 +135,7 @@ func resourceNetworkingVIPAssociateV2Create(d *schema.ResourceData, meta interfa
 	}
 
 	// set id
-	d.SetId(hashcode.Strings(portids))
+	d.SetId(utils.HashStrings(portids))
 	return resourceNetworkingVIPAssociateV2Read(d, meta)
 }
 

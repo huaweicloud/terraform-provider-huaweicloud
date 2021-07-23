@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
@@ -1286,7 +1285,7 @@ func expirationHash(v interface{}) int {
 	if v, ok := m["storage_class"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
-	return hashcode.String(buf.String())
+	return schema.HashString(buf.String())
 }
 
 func getObsError(action string, bucket string, err error) error {

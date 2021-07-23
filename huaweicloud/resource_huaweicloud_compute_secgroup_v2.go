@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
@@ -364,7 +363,7 @@ func secgroupRuleV2Hash(v interface{}) int {
 	buf.WriteString(fmt.Sprintf("%s-", m["from_group_id"].(string)))
 	buf.WriteString(fmt.Sprintf("%t-", m["self"].(bool)))
 
-	return hashcode.String(buf.String())
+	return schema.HashString(buf.String())
 }
 
 func SecGroupV2StateRefreshFunc(computeClient *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {

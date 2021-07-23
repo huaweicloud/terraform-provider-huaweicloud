@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
 	"gopkg.in/yaml.v2"
@@ -184,7 +184,7 @@ func DataResourceIdHash(ids []string) string {
 		buf.WriteString(fmt.Sprintf("%s-", id))
 	}
 
-	return fmt.Sprintf("%d", hashcode.String(buf.String()))
+	return fmt.Sprintf("%d", schema.HashString(buf.String()))
 }
 
 // RemoveDuplicateElem removes duplicate elements from slice
@@ -238,4 +238,15 @@ func FormatTimeStampRFC3339(timestamp int64) string {
 func EncodeBase64String(str string) string {
 	strByte := []byte(str)
 	return base64.StdEncoding.EncodeToString(strByte)
+}
+
+// HashStrings hashes a list of strings to a unique hashcode.
+func HashStrings(strings []string) string {
+	var buf bytes.Buffer
+
+	for _, s := range strings {
+		buf.WriteString(fmt.Sprintf("%s-", s))
+	}
+
+	return fmt.Sprintf("%d", schema.HashString(buf.String()))
 }
