@@ -2,7 +2,7 @@
 subcategory: "Data Warehouse Service (DWS)"
 ---
 
-# huaweicloud\_dws\_cluster
+# huaweicloud_dws_cluster
 
 cluster management
 
@@ -17,16 +17,16 @@ resource "huaweicloud_networking_secgroup" "secgroup" {
 }
 
 resource "huaweicloud_dws_cluster" "cluster" {
-  node_type         = "dws.m3.xlarge"
-  number_of_node    = 3
-  network_id        = "{{ network_id }}"
-  vpc_id            = "{{ vpc_id }}"
-  security_group_id = huaweicloud_networking_secgroup.secgroup.id
-  availability_zone = "{{ availability_zone }}"
-  name              = "terraform_dws_cluster_test"
-  user_name         = "test_cluster_admin"
-  user_pwd          = "cluster123@!"
-
+  node_type             = "dws.m3.xlarge"
+  number_of_node        = 3
+  network_id            = "{{ network_id }}"
+  vpc_id                = "{{ vpc_id }}"
+  security_group_id     = huaweicloud_networking_secgroup.secgroup.id
+  availability_zone     = "{{ availability_zone }}"
+  name                  = "terraform_dws_cluster_test"
+  user_name             = "userNmae"
+  user_pwd              = "password"
+  enterprise_project_id = "0"
   timeouts {
     create = "30m"
     delete = "30m"
@@ -65,6 +65,12 @@ The following arguments are supported:
   written in reverse order.  Contains three types of the following: 
   Lowercase letters  Uppercase letters  Digits  Special characters
   ~!@#%^&*()-_=+|[{}];:,<.>/?
+
+* `enterprise_project_id` - (Optional, String, ForceNew)  Enterprise project ID. When creating a cluster,
+    associate the enterprise project ID with the cluster. 
+    Value 0 indicates the default enterprise project.
+    Changing this parameter will create a new resource.
+
 
 - - -
 

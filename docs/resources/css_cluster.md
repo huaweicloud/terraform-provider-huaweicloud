@@ -2,7 +2,7 @@
 subcategory: "Cloud Search Service (CSS)"
 ---
 
-# huaweicloud\_css\_cluster
+# huaweicloud_css_cluster
 
 CSS cluster management
 This is an alternative to `huaweicloud_css_cluster_v1`
@@ -71,6 +71,11 @@ The following arguments are supported:
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the cluster.
+
+* `enterprise_project_id` - (Optional, String, ForceNew)  Enterprise project ID. When creating a cluster,
+    associate the enterprise project ID with the cluster. 
+    Value 0 indicates the default enterprise project.
+    Changing this parameter will create a new resource.
 
 The `node_config` block supports:
 

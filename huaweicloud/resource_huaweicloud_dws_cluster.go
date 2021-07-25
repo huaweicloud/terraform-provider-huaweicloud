@@ -203,6 +203,13 @@ func ResourceDwsCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -315,6 +322,11 @@ func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	if !e {
 		opts["vpc_id"] = vpcIDProp
+	}
+
+	enterpriseProjectID := config.GetEnterpriseProjectID(d)
+	if enterpriseProjectID != "" {
+		opts["enterprise_project_id"] = enterpriseProjectID
 	}
 
 	url, err := replaceVars(d, "clusters", nil)
