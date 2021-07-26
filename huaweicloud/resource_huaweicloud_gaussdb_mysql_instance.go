@@ -98,6 +98,7 @@ func resourceGaussDBInstance() *schema.Resource {
 			},
 			"volume_size": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 			},
 			"time_zone": {
@@ -528,7 +529,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 			volume_size = raw.Volume.Size
 		}
 		nodesList = append(nodesList, node)
-		if raw.Type == "slave" && raw.Status == "ACTIVE" {
+		if raw.Type == "slave" && (raw.Status == "ACTIVE" || raw.Status == "BACKING UP") {
 			slave_count += 1
 		}
 		if flavor == "" {
@@ -704,7 +705,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				}
 				slave_count := 0
 				for _, raw := range instance.Nodes {
-					if raw.Type == "slave" && raw.Status == "ACTIVE" {
+					if raw.Type == "slave" && (raw.Status == "ACTIVE" || raw.Status == "BACKING UP") {
 						slave_count += 1
 					}
 				}
