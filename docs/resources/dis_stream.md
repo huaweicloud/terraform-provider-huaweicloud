@@ -61,8 +61,7 @@ The following arguments are supported:
 
 * `csv_delimiter` - (Optional, String, ForceNew) Field separator for CSV file.  Changing this parameter will create a new resource.
 
-* `enterprise_project_id` - (Optional, String, ForceNew)  Enterprise project ID. When creating a cluster,
-    associate the enterprise project ID with the cluster. 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the dis stream,
     Value 0 indicates the default enterprise project.
     Changing this parameter will create a new resource.
 

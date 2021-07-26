@@ -518,6 +518,12 @@ func resourceDwsClusterRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	if v, ok := res["enterprise_project_id"]; ok {
+		if err := d.Set("enterprise_project_id", v); err != nil {
+			return fmtp.Errorf("Error reading Cluster:enterprise_project_id, err: %s", err)
+		}
+	}
+
 	return nil
 }
 

@@ -157,7 +157,6 @@ func ResourceDisStreamV2() *schema.Resource {
 func resourceDisStreamV2UserInputParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"terraform_resource_data":        d,
-		"auto_scale_enabled":             d.Get("auto_scale_enabled"),
 		"auto_scale_max_partition_count": d.Get("auto_scale_max_partition_count"),
 		"auto_scale_min_partition_count": d.Get("auto_scale_min_partition_count"),
 		"compression_format":             d.Get("compression_format"),

@@ -4,7 +4,7 @@ subcategory: "Data Warehouse Service (DWS)"
 
 # huaweicloud_dws_cluster
 
-cluster management
+Manages Cluster in the Data Warehouse Service.
 
 ## Example Usage
 
@@ -24,9 +24,8 @@ resource "huaweicloud_dws_cluster" "cluster" {
   security_group_id     = huaweicloud_networking_secgroup.secgroup.id
   availability_zone     = "{{ availability_zone }}"
   name                  = "terraform_dws_cluster_test"
-  user_name             = "userNmae"
-  user_pwd              = "password"
-  enterprise_project_id = "0"
+  user_name             = "test_cluster_admin"
+  user_pwd              = "cluster123@!"
   timeouts {
     create = "30m"
     delete = "30m"
@@ -66,8 +65,7 @@ The following arguments are supported:
   Lowercase letters  Uppercase letters  Digits  Special characters
   ~!@#%^&*()-_=+|[{}];:,<.>/?
 
-* `enterprise_project_id` - (Optional, String, ForceNew)  Enterprise project ID. When creating a cluster,
-    associate the enterprise project ID with the cluster. 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the dws cluster,
     Value 0 indicates the default enterprise project.
     Changing this parameter will create a new resource.
 

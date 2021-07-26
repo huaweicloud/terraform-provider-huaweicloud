@@ -881,6 +881,12 @@ func fillCssClusterV1ReadRespBody(body interface{}) interface{} {
 		result["updated"] = nil
 	}
 
+	if v, ok := val["enterprise_project_id"]; ok {
+		result["enterprise_project_id"] = v
+	} else {
+		result["enterprise_project_id"] = nil
+	}
+
 	return result
 }
 
@@ -1018,6 +1024,13 @@ func setCssClusterV1Properties(d *schema.ResourceData, response map[string]inter
 	nodeNum := len(v.([]interface{}))
 	if err = d.Set("expect_node_num", nodeNum); err != nil {
 		return fmtp.Errorf("Error setting Cluster:expect_node_num, err: %s", err)
+	}
+
+	v, err = navigateValue(response, []string{"read", "enterprise_project_id"}, nil)
+	if err == nil {
+		if err = d.Set("enterprise_project_id", v); err != nil {
+			return fmtp.Errorf("Error setting Cluster:enterprise_project_id, err: %s", err)
+		}
 	}
 
 	return nil
