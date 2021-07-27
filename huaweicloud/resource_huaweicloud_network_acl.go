@@ -48,13 +48,11 @@ func ResourceNetworkACL() *schema.Resource {
 			"inbound_rules": {
 				Type:     schema.TypeList,
 				Optional: true,
-				MaxItems: 10,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"outbound_rules": {
 				Type:     schema.TypeList,
 				Optional: true,
-				MaxItems: 10,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"subnets": {

@@ -2,7 +2,7 @@
 subcategory: "Network ACL"
 ---
 
-# huaweicloud\_network\_acl\_rule
+# huaweicloud_network_acl_rule
 
 Manages a network ACL rule resource within HuaweiCloud.
 
@@ -45,10 +45,10 @@ The following arguments are supported:
     The default value is *0.0.0.0/0*. For example: xxx.xxx.xxx.xxx (IP address), xxx.xxx.xxx.0/24 (CIDR block).
 
 * `source_port` - (Optional, String) Specifies the source port number or port number range. The value ranges from 1 to 65535.
-    For a port number range, enter two port numbers connected by a hyphen (-). For example, 1-100.
+    For a port number range, enter two port numbers connected by a colon(:). For example, 1:100.
 
 * `destination_port` - (Optional, String) Specifies the destination port number or port number range. The value ranges from 1 to 65535.
-    For a port number range, enter two port numbers connected by a hyphen (-). For example, 1-100.
+    For a port number range, enter two port numbers connected by a colon(:). For example, 1:100.
 
 * `enabled` - (Optional, Bool) Enabled status for the network ACL rule. Defaults to true.
 

@@ -2,7 +2,7 @@
 subcategory: "Network ACL"
 ---
 
-# huaweicloud\_network\_acl
+# huaweicloud_network_acl
 
 Manages a network ACL resource within HuaweiCloud.
 
