@@ -415,6 +415,27 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			id, err)
 	}
 
+	// This is a workaround to avoid db connection issue
+	time.Sleep(360 * time.Second) //lintignore:R018
+
+	// waiting for the instance to become ready again
+	// as instance will become BACKING UP state after ACTIVE
+	stateConf = &resource.StateChangeConf{
+		Pending:      []string{"BUILD", "BACKING UP"},
+		Target:       []string{"ACTIVE"},
+		Refresh:      GaussDBInstanceStateRefreshFunc(client, id),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        1 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmtp.Errorf(
+			"Error waiting for instance (%s) to become ready: %s",
+			id, err)
+	}
+
 	if hasFilledOpt(d, "backup_strategy") {
 		var updateOpts backups.UpdateOpts
 		backupRaw := d.Get("backup_strategy").([]interface{})
@@ -448,9 +469,6 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			return err
 		}
 	}
-
-	// This is a workaround to avoid db connection issue
-	time.Sleep(360 * time.Second) //lintignore:R018
 
 	return resourceGaussDBInstanceRead(d, meta)
 }
