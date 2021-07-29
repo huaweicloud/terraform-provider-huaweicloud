@@ -10,12 +10,13 @@ type Topic struct {
 }
 
 type TopicGet struct {
-	TopicUrn    string `json:"topic_urn"`
-	DisplayName string `json:"display_name"`
-	Name        string `json:"name"`
-	PushPolicy  int    `json:"push_policy"`
-	UpdateTime  string `json:"update_time"`
-	CreateTime  string `json:"create_time"`
+	TopicUrn            string `json:"topic_urn"`
+	DisplayName         string `json:"display_name"`
+	Name                string `json:"name"`
+	PushPolicy          int    `json:"push_policy"`
+	UpdateTime          string `json:"update_time"`
+	CreateTime          string `json:"create_time"`
+	EnterpriseProjectId string `json:"enterprise_project_id"`
 }
 
 // Extract will get the topic object out of the commonResult object.

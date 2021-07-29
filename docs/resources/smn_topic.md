@@ -27,6 +27,10 @@ The following arguments are supported:
 * `display_name` - (Optional, String) Topic display name, which is presented as the
     name of the email sender in an email message.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the SMN Topic,
+    Value 0 indicates the default enterprise project.
+    Changing this parameter will create a new resource.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
