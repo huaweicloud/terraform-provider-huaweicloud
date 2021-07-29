@@ -477,6 +477,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_oms_task":                        resourceMaasTaskV1(),
 			"huaweicloud_mls_instance":                    resourceMlsInstance(),
 			"huaweicloud_mapreduce_cluster":               mrs.ResourceMRSClusterV2(),
+			"huaweicloud_mapreduce_job":                   mrs.ResourceMRSJobV2(),
 			"huaweicloud_mrs_cluster":                     ResourceMRSClusterV1(),
 			"huaweicloud_mrs_job":                         ResourceMRSJobV1(),
 			"huaweicloud_nat_dnat_rule":                   ResourceNatDnatRuleV2(),
