@@ -22,3 +22,7 @@ func getJobURL(c *golangsdk.ServiceClient, jobid string) string {
 func removeNodeURL(c *golangsdk.ServiceClient, clusterid string) string {
 	return c.ServiceURL(rootPath, clusterid, resourcePath, "operation/remove")
 }
+
+func addNodeURL(c *golangsdk.ServiceClient, clusterid string) string {
+	return c.ServiceURL(rootPath, clusterid, resourcePath, "add")
+}

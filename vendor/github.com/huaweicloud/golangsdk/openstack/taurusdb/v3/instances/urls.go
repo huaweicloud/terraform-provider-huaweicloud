@@ -42,6 +42,10 @@ func proxyURL(c *golangsdk.ServiceClient, instanceID string) string {
 	return c.ServiceURL("instances", instanceID, "proxy")
 }
 
+func proxyEnlargeURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "proxy/enlarge")
+}
+
 func actionURL(c *golangsdk.ServiceClient, instanceID string) string {
 	return c.ServiceURL("instances", instanceID, "action")
 }

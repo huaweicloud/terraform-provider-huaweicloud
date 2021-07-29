@@ -25,6 +25,7 @@ type Cluster struct {
 	Deploymentid          string            `json:"deploymentId"`
 	Remark                string            `json:"remark"`
 	Orderid               string            `json:"orderId"`
+	AvailabilityZone      string            `json:"azCode"`
 	Azid                  string            `json:"azId"`
 	Azname                string            `json:"azName"`
 	Masternodeproductid   string            `json:"masterNodeProductId"`
@@ -132,6 +133,26 @@ func (r GetResult) Extract() (*Cluster, error) {
 
 func (r GetResult) ExtractInto(v interface{}) error {
 	return r.Result.ExtractIntoStructPtr(v, "cluster")
+}
+
+// UpdateResult represents a result of the Update method.
+type UpdateResult struct {
+	golangsdk.Result
+}
+
+// UpdateResp is an object struct that represents an result of node group resize operation.
+type UpdateResp struct {
+	// Operation result
+	// succeeded: The operation is successful.
+	// Table 8 describes the error codes returned upon operation failures.
+	Result string `json:"result"`
+}
+
+// Extract is a method which to extract the response of the resize operation.
+func (r UpdateResult) Extract() (*UpdateResp, error) {
+	var s UpdateResp
+	err := r.ExtractInto(&s)
+	return &s, err
 }
 
 type DeleteResult struct {
