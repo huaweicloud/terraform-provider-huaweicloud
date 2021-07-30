@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/mrs/v1/cluster"
-	"github.com/huaweicloud/golangsdk/openstack/mrs/v2/clusters"
+	clusterV2 "github.com/huaweicloud/golangsdk/openstack/mrs/v2/clusters"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -123,10 +123,9 @@ func ResourceMRSClusterV2() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"ip_address": {
+			"eip_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 				ForceNew: true,
 			},
 			"log_collection": {
@@ -208,23 +207,7 @@ func ResourceMRSClusterV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"external_ip": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"private_ip": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"internal_ip": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"external_alternate_ip": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"vnc": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -370,9 +353,9 @@ func buildStringBySet(set *schema.Set) string {
 }
 
 // buildMrsClusterNodeGroups is a method which to build a node group list with all node group arguments.
-func buildMrsClusterNodeGroups(d *schema.ResourceData) []clusters.NodeGroupOpts {
+func buildMrsClusterNodeGroups(d *schema.ResourceData) []clusterV2.NodeGroupOpts {
 	var (
-		groupOpts      []clusters.NodeGroupOpts
+		groupOpts      []clusterV2.NodeGroupOpts
 		nodeGroupTypes = map[string]string{
 			"master_nodes":         masterGroup,
 			"analysis_core_nodes":  analysisCoreGroup,
@@ -390,27 +373,27 @@ func buildMrsClusterNodeGroups(d *schema.ResourceData) []clusters.NodeGroupOpts 
 	return groupOpts
 }
 
-func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, name string) clusters.NodeGroupOpts {
-	var result = clusters.NodeGroupOpts{}
+func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, name string) clusterV2.NodeGroupOpts {
+	var result = clusterV2.NodeGroupOpts{}
 	if len(optsRaw) > 0 {
 		opts := optsRaw[0].(map[string]interface{})
 		result.GroupName = name
 		result.NodeSize = opts["flavor"].(string)
 		result.NodeNum = opts["node_number"].(int)
-		result.RootVolume = &clusters.Volume{
+		result.RootVolume = &clusterV2.Volume{
 			Type: opts["root_volume_type"].(string),
 			Size: opts["root_volume_size"].(int),
 		}
 		volumeCount := opts["data_volume_count"].(int)
 		if volumeCount != 0 {
-			result.DataVolume = &clusters.Volume{
+			result.DataVolume = &clusterV2.Volume{
 				Type: opts["data_volume_type"].(string),
 				Size: opts["data_volume_size"].(int),
 			}
 		} else {
 			// According to the API rules, when the data disk is not mounted, the parameters in the structure still
 			// need to be filled in (but not used), fill in the system disk data here.
-			result.DataVolume = &clusters.Volume{
+			result.DataVolume = &clusterV2.Volume{
 				Type: opts["root_volume_type"].(string),
 				Size: opts["root_volume_size"].(int),
 			}
@@ -425,6 +408,7 @@ func getVpcNameById(d *schema.ResourceData, config *config.Config, id string) (s
 	if err != nil {
 		return "", fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
 	}
+
 	vpc, err := vpcs.Get(client, id).Extract()
 	if err != nil {
 		return "", fmtp.Errorf("Error retrieving Huaweicloud Vpc: %s", err)
@@ -468,6 +452,7 @@ func addTagsToMrsCluster(d *schema.ResourceData, config *config.Config) error {
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud MRS V1 client: %s", err)
 	}
+
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
@@ -480,6 +465,14 @@ func addTagsToMrsCluster(d *schema.ResourceData, config *config.Config) error {
 
 func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
+	mrsV1Client, err := config.MrsV1Client(config.GetRegion(d))
+	if err != nil {
+		return fmtp.Errorf("Error creating Huaweicloud MRS V1 client: %s", err)
+	}
+	mrsV2Client, err := config.MrsV2Client(config.GetRegion(d))
+	if err != nil {
+		return fmtp.Errorf("Error creating Huaweicloud MRS V2 client: %s", err)
+	}
 
 	vpcId := d.Get("vpc_id").(string)
 	vpcName, err := getVpcNameById(d, config, vpcId)
@@ -487,7 +480,7 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		return fmtp.Errorf("Unable to find the vpc (%s) on the server: %s", vpcId, err)
 	}
 
-	createOpts := &clusters.CreateOpts{
+	createOpts := &clusterV2.CreateOpts{
 		Region:               config.GetRegion(d),
 		AvailabilityZone:     d.Get("availability_zone").(string),
 		ClusterVersion:       d.Get("version").(string),
@@ -496,7 +489,7 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		ManagerAdminPassword: d.Get("manager_admin_pass").(string),
 		VpcName:              vpcName,
 		SubnetId:             d.Get("subnet_id").(string),
-		EipAddress:           d.Get("ip_address").(string),
+		EipId:                d.Get("eip_id").(string),
 		Components:           buildMrsComponents(d),
 		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, config),
 		LogCollection:        buildLogCollection(d),
@@ -512,11 +505,7 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		createOpts.LoginMode = "PASSWORD"
 	}
 
-	mrsV2Client, err := config.MrsV2Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud MRS V2 client: %s", err)
-	}
-	resp, err := clusters.Create(mrsV2Client, createOpts).Extract()
+	resp, err := clusterV2.Create(mrsV2Client, createOpts).Extract()
 	if err != nil {
 		return fmtp.Errorf("Error creating Cluster: %s", err)
 	}
@@ -527,10 +516,6 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        480 * time.Second,
 		PollInterval: 15 * time.Second,
-	}
-	mrsV1Client, err := config.MrsV1Client(config.GetRegion(d))
-	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud MRS V1 client: %s", err)
 	}
 	// After request send, check the cluster state and wait for it become running.
 	if err = waitForMrsClusterStateCompleted(mrsV1Client, d.Id(), refresh); err != nil {
@@ -693,13 +678,8 @@ func resourceMRSClusterV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("node_key_pair", resp.Nodepubliccertname),
 		d.Set("vpc_id", resp.Vpcid),
 		d.Set("subnet_id", resp.Subnetid),
-		d.Set("ip_address", resp.Internalip),
 		d.Set("master_node_ip", resp.Masternodeip),
-		d.Set("external_ip", resp.Externalip),
 		d.Set("private_ip", resp.Privateipfirst),
-		d.Set("internal_ip", resp.Internalip),
-		d.Set("external_alternate_ip", resp.Externalalternateip),
-		d.Set("vnc", resp.Vnc),
 		d.Set("status", resp.Clusterstate),
 		setMrsClsuterType(d, resp),
 		setMrsClsuterComponentList(d, resp),
@@ -754,7 +734,7 @@ func resizeMRSClusterCoreNodes(client *golangsdk.ServiceClient, id, groupType st
 	return nil
 }
 
-// resizeMRSClusterTaskNodes is a method which use to scale out/in the node groups.
+// resizeMRSClusterTaskNodes is a method which use to scale out/in the (analysis/streaming) nodes.
 func resizeMRSClusterTaskNodes(client *golangsdk.ServiceClient, id, groupType string, oldList, newList []interface{},
 	resizeCount int) error {
 	var isScaleOut = "scale_out"
@@ -860,15 +840,14 @@ func resourceMRSClusterV2Update(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud MRS client: %s", err)
 	}
+
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(client, d, "clusters", d.Id())
 		if tagErr != nil {
 			return fmtp.Errorf("Error updating tags of MRS cluster:%s, err:%s", d.Id(), tagErr)
 		}
 	}
-	// lintignore:R005
-	if d.HasChange("analysis_core_nodes") || d.HasChange("streaming_core_nodes") ||
-		d.HasChange("analysis_task_nodes") || d.HasChange("streaming_task_nodes") {
+	if d.HasChanges("analysis_core_nodes", "streaming_core_nodes", "analysis_task_nodes", "streaming_task_nodes") {
 		err = updateMRSClusterNodes(d, client)
 		if err != nil {
 			return err

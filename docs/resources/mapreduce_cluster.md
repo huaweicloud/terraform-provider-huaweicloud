@@ -191,7 +191,7 @@ The following arguments are supported:
   Changing this will create a new MapReduce cluster resource.
 
 * `availability_zone` - (Required, String, ForceNew) Specifies the availability zone in which to create
-  the cluster. Please following [reference](https://developer.huaweicloud.com/en-us/endpoint/?ECS)
+  the cluster. Please following [reference](https://developer.huaweicloud.com/intl/en-us/endpoint?all)
   Changing this will create a new MapReduce cluster resource.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the MapReduce cluster.
@@ -200,6 +200,7 @@ The following arguments are supported:
   Changing this will create a new MapReduce cluster resource.
 
 * `version` - (Required, String, ForceNew) Specifies the MapReduce cluster version.
+  The valid values are `MRS 1.9.2`, `MRS 3.0.5` and `MRS 3.1.0`.
   Changing this will create a new MapReduce cluster resource.
 
 * `component_list` - (Required, List, ForceNew) Specifies the list of component names. For the components supported by
@@ -210,13 +211,11 @@ The following arguments are supported:
   The `nodes` object structure of the `master_nodes` is documented below.
   Changing this will create a new MapReduce cluster resource.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID.
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC which bound to the MapReduce cluster.
   Changing this will create a new MapReduce cluster resource.
 
-* `subnet_id` - (Required, String, ForceNew) Specifies the network ID of a subnet.
+* `subnet_id` - (Required, String, ForceNew) Specifies the network ID of a subnet which bound to the MapReduce cluster.
   Changing this will create a new MapReduce cluster resource.
-
-  -> **NOTE:** The duplication of subnet CIDR will cause the MRS cluster creation to fail.
 
 * `type` - (Optional, String, ForceNew) Specifies the type of the MapReduce cluster.
   The valid values are *ANALYSIS*, *STREAMING* and *MIXED*, default to *ANALYSIS*.
@@ -225,7 +224,7 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique ID in UUID format of enterprise project.
   Changing this will create a new MapReduce cluster resource.
 
-* `ip_address` - (Optional, String, ForceNew) Specifies the EIP bound to the MapReduce cluster.
+* `eip_id` - (Optional, String, ForceNew) Specifies the EIP ID which bound to the MapReduce cluster.
   Changing this will create a new MapReduce cluster resource.
 
 * `log_collection` - (Optional, Bool, ForceNew) Specifies whether logs are collected when cluster installation fails.
@@ -241,7 +240,7 @@ The following arguments are supported:
   Changing this will create a new MapReduce cluster resource.
 
 * `node_admin_pass` - (Optional, String, ForceNew) Specifies the administrator password, which is used to log in to the
-  each nodes (ECSs).
+  each nodes(/ECSs).
   The password can contain 8 to 32 charactors and cannot be the username or the username spelled backwards.
   The password must contain at least three types of lowercase letters,
   uppercase letters, digits, spaces and the special characters: `~!@#$%^&*()-_=+\|[{}];:'",<>./?`.
@@ -249,7 +248,7 @@ The following arguments are supported:
   This parameter and `node_key_pair` are alternative.
 
 * `node_key_pair` - (Optional, String, ForceNew) Specifies the name of a key pair, which is used to log in to the each
-  nodes (ECSs).
+  nodes(/ECSs).
   If this parameter is not empty, the master node will use the password.
   Changing this will create a new MapReduce cluster resource.
 
@@ -285,7 +284,6 @@ The `nodes` block supports:
 * `node_number` - (Required, Int) Specifies the number of nodes for the node group.
 
   -> **NOTE:** Only the core group and task group updations are allowed.
-
   The number of nodes after scaling cannot be less than the number of nodes originally created.
 
 * `root_volume_type` - (Required, String, ForceNew) Specifies the system disk flavor of the nodes.
@@ -303,6 +301,13 @@ The `nodes` block supports:
   Changing this will create a new MapReduce cluster resource.
 
 * `data_volume_count` - (Optional, Int, ForceNew) Specifies the data disk number of the nodes.
+  The number configuration of each node are as follows:
+  - master_nodes: 1.
+  - analysis_core_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  - streaming_core_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  - analysis_task_nodes: minimum is zero and the maximum is subject to the configuration of the corresponding flavor.
+  - streaming_task_nodes: minimum is zero and the maximum is subject to the configuration of the corresponding flavor.
+
   Changing this will create a new MapReduce cluster resource.
 
 ## Attributes Reference
@@ -310,13 +315,9 @@ The `nodes` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The cluster ID in UUID format.
-* `total_node_number` - The total number of nodes deployed in a cluster.
-* `master_node_ip` - The IP address of a master node.
-* `external_ip` - The external IP address.
-* `private_ip` - The preferred private IP address.
-* `internal_ip` - The internal IP address.
-* `external_alternate_ip` - IP address of a Master node.
-* `vnc` - The URI for remotely logging in to an ECS.
+* `total_node_number` - The total number of nodes deployed in the cluster.
+* `master_node_ip` - The IP address of the master node.
+* `private_ip` - The preferred private IP address of the master node.
 * `status` - The cluster state, which include: running, frozen, abnormal and failed.
 * `create_time` - The cluster creation time, in RFC-3339 format.
 * `update_time` - The cluster update time, in RFC-3339 format.
@@ -337,7 +338,7 @@ terraform import huaweicloud_mapreduce_cluster.test b11b407c-e604-4e8d-8bc4-9239
 ```
 Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
 API response, security or some other reason. The missing attributes include:
-`manager_admin_pass` and `node_admin_pass`.
+`manager_admin_pass`, `node_admin_pass` and `eip_id`.
 It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
@@ -347,7 +348,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
 
   lifecycle {
     ignore_changes = [
-      manager_admin_pass, node_admin_pass,
+      manager_admin_pass, node_admin_pass, eip_id,
     ]
   }
 }
