@@ -4,23 +4,26 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccDcsProductV1DataSource_basic(t *testing.T) {
+	flavor := "redis.cluster.xu1.large.r2.4"
+	resourceName := "data.huaweicloud_dcs_product.product1"
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDcsProductV1DataSource_basic,
+				Config: testAccDcsProductV1DataSource_basic(flavor),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDcsProductV1DataSourceID("data.huaweicloud_dcs_product_v1.product1"),
-					resource.TestCheckResourceAttr(
-						"data.huaweicloud_dcs_product_v1.product1", "spec_code", "dcs.single_node"),
+					testAccCheckDcsProductV1DataSourceID(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "spec_code", flavor),
+					resource.TestCheckResourceAttrSet(resourceName, "engine"),
+					resource.TestCheckResourceAttrSet(resourceName, "engine_version"),
+					resource.TestCheckResourceAttrSet(resourceName, "cache_mode"),
 				),
 			},
 		},
@@ -31,19 +34,21 @@ func testAccCheckDcsProductV1DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Can't find Dcs product data source: %s", n)
+			return fmt.Errorf("Can't find DCS product data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("Dcs product data source ID not set")
+			return fmt.Errorf("DCS product data source ID not set")
 		}
 
 		return nil
 	}
 }
 
-var testAccDcsProductV1DataSource_basic = fmt.Sprintf(`
-data "huaweicloud_dcs_product_v1" "product1" {
-spec_code = "dcs.single_node"
+func testAccDcsProductV1DataSource_basic(flavor string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_dcs_product" "product1" {
+  spec_code = "%s"
 }
-`)
+`, flavor)
+}

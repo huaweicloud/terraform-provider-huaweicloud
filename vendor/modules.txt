@@ -267,7 +267,7 @@ github.com/hashicorp/terraform-svchost/auth
 github.com/hashicorp/terraform-svchost/disco
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20210729084249-5a5bd07bf816
+# github.com/huaweicloud/golangsdk v0.0.0-20210730025156-e4c4c50d1883
 ## explicit
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/internal

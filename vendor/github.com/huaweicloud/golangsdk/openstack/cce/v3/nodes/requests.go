@@ -134,6 +134,68 @@ func Create(c *golangsdk.ServiceClient, clusterid string, opts CreateOptsBuilder
 	return
 }
 
+type AddOpts struct {
+	// API type, fixed value Node
+	Kind string `json:"kind" required:"true"`
+	// API version, fixed value v3
+	ApiVersion string `json:"apiversion" required:"true"`
+	// List of nodes to add
+	NodeList []AddNode `json:"nodeList" required:"true"`
+}
+
+type AddNode struct {
+	ServerID string      `json:"serverID" required:"true"`
+	Spec     AddNodeSpec `json:"spec" required:"true"`
+}
+
+type AddNodeSpec struct {
+	VolumeConfig  *VolumeConfig          `json:"volumeConfig,omitempty"`
+	RuntimeConfig *RuntimeConfig         `json:"runtimeConfig,omitempty"`
+	K8sOptions    *K8sOptions            `json:"k8sOptions,omitempty"`
+	Lifecycle     *Lifecycle             `json:"lifecycle,omitempty"`
+	Login         LoginSpec              `json:"login" required:"true"`
+	Os            string                 `json:"os,omitempty"`
+	ExtendParam   map[string]interface{} `json:"extendParam,omitempty"`
+}
+
+type VolumeConfig struct {
+	LvmConfig string `json:"lvmConfig,omitempty"`
+}
+
+type RuntimeConfig struct {
+	DockerBaseSize int `json:"dockerBaseSize,omitempty"`
+}
+
+type K8sOptions struct {
+	MaxPods       int    `json:"maxPods,omitempty"`
+	NicMultiQueue string `json:"nicMultiqueue,omitempty"`
+	NicThreshold  string `json:"nicThreshold,omitempty"`
+}
+
+type Lifecycle struct {
+	Preinstall  string `json:"preInstall,omitempty"`
+	PostInstall string `json:"postInstall,omitempty"`
+}
+
+type AddOptsBuilder interface {
+	ToNodeAddMap() (map[string]interface{}, error)
+}
+
+func (opts AddOpts) ToNodeAddMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+func Add(c *golangsdk.ServiceClient, clusterid string, opts AddOptsBuilder) (r AddResult) {
+	b, err := opts.ToNodeAddMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
+	_, r.Err = c.Post(addNodeURL(c, clusterid), b, &r.Body, reqOpt)
+	return
+}
+
 // Get retrieves a particular nodes based on its unique ID and cluster ID.
 func Get(c *golangsdk.ServiceClient, clusterid, nodeid string) (r GetResult) {
 	_, r.Err = c.Get(resourceURL(c, clusterid, nodeid), &r.Body, &golangsdk.RequestOpts{
