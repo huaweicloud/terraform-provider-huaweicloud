@@ -2,11 +2,11 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_identity\_role
+# huaweicloud_identity_role
 
 Manages a **Custom Policy** resource within HuaweiCloud IAM service.
 
-Note: You _must_ have admin privileges in your HuaweiCloud cloud to use
+->**Note** You _must_ have admin privileges in your HuaweiCloud cloud to use
 this resource.
 
 ## Example Usage

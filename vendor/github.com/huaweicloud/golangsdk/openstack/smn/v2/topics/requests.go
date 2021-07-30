@@ -21,6 +21,8 @@ type CreateOps struct {
 
 	//Topic display name
 	DisplayName string `json:"display_name,omitempty"`
+
+	EnterpriseProjectId string `json:"enterprise_project_id,omitempty"`
 }
 
 func (ops CreateOps) ToTopicCreateMap() (map[string]interface{}, error) {
