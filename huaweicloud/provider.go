@@ -13,6 +13,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 )
 
@@ -303,6 +305,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_kms_key":                     DataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key":                DataSourceKmsDataKeyV1(),
 			"huaweicloud_lb_loadbalancer":             DataSourceELBV2Loadbalancer(),
+			"huaweicloud_lb_certificate":              lb.DataSourceLBCertificateV2(),
+			"huaweicloud_elb_certificate":             elb.DataSourceELBCertificateV3(),
 			"huaweicloud_nat_gateway":                 DataSourceNatGatewayV2(),
 			"huaweicloud_networking_port":             DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup":         DataSourceNetworkingSecGroupV2(),
@@ -370,6 +374,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_api_gateway_group":               ResourceAPIGatewayGroup(),
 			"huaweicloud_apig_instance":                   apig.ResourceApigInstanceV2(),
 			"huaweicloud_apig_application":                apig.ResourceApigApplicationV2(),
+			"huaweicloud_apig_custom_authorizer":          apig.ResourceApigCustomAuthorizerV2(),
 			"huaweicloud_apig_environment":                apig.ResourceApigEnvironmentV2(),
 			"huaweicloud_apig_group":                      apig.ResourceApigGroupV2(),
 			"huaweicloud_apig_response":                   apig.ResourceApigResponseV2(),

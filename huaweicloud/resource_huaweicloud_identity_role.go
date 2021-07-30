@@ -132,7 +132,7 @@ func resourceIdentityRoleUpdate(d *schema.ResourceData, meta interface{}) error 
 		Policy:      policy,
 	}
 
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
+	logp.Printf("[DEBUG] Update Options: %#v", createOpts)
 
 	_, err = policies.Update(identityClient, d.Id(), createOpts).Extract()
 	if err != nil {

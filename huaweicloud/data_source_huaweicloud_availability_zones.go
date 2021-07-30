@@ -21,18 +21,18 @@ func DataSourceAvailabilityZones() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"state": {
+				Type:         schema.TypeString,
+				Default:      "available",
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"available", "unavailable"}, false),
+			},
 			"names": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-			},
-			"state": {
-				Type:         schema.TypeString,
-				Default:      "available",
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"available", "unavailable"}, true),
 			},
 		},
 	}

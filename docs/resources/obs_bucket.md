@@ -187,6 +187,9 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region where this bucket will be created.
   If not specified, used the region by the provider. Changing this will create a new bucket.
 
+* `parallel_fs` - (Optional, Bool, ForceNew) Whether enable a bucket as a parallel file system.
+  Changing this will create a new bucket.
+
 * `multi_az` - (Optional, Bool, ForceNew) Whether enable the multi-AZ mode for the bucket.
   When the multi-AZ mode is enabled, data in the bucket is duplicated and stored in multiple AZs.
 
@@ -285,6 +288,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The name of the bucket.
 * `bucket_domain_name` - The bucket domain name. Will be of format `bucketname.obs.region.myhuaweicloud.com`.
+* `bucket_version` - The OBS version of the bucket.
 * `region` - The region where this bucket resides in.
 
 ## Import

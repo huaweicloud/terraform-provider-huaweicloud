@@ -55,6 +55,37 @@ func TestAccIdentityRole_basic(t *testing.T) {
 	})
 }
 
+func TestAccIdentityRole_agency(t *testing.T) {
+	var role policies.Role
+	var roleName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_identity_role.agency"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckAdminOnly(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckIdentityRoleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIdentityRole_agency(roleName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIdentityRoleExists(resourceName, &role),
+					resource.TestCheckResourceAttrPtr(resourceName, "name", &role.Name),
+					resource.TestCheckResourceAttrPtr(resourceName, "description", &role.Description),
+					resource.TestCheckResourceAttr(resourceName, "type", "AX"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckIdentityRoleDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	identityClient, err := config.IAMV3Client(HW_REGION_NAME)
@@ -165,4 +196,33 @@ resource "huaweicloud_identity_role" test {
 EOF
 }
 `, roleName, HW_REGION_NAME)
+}
+
+func testAccIdentityRole_agency(roleName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_identity_role" agency {
+  name        = "%s"
+  description = "created by terraform"
+  type        = "AX"
+  policy      = <<EOF
+{
+  "Version": "1.1",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:agencies:assume"
+      ],
+      "Resource": {
+        "uri": [
+          "/iam/agencies/07805aca-ba80-0fdd-4fbd-c00b8f888c7c",
+          "/iam/agencies/16d4d672-8665-496e-a0b5-71a8ad7f2fe8"
+        ]
+      }
+    }
+  ]
+}
+EOF
+}
+`, roleName)
 }
