@@ -34,16 +34,10 @@ func ResourceDliQueueV1() *schema.Resource {
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
-					v := val.(string)
-					if !regexp4Name.MatchString(v) {
-						errs = append(errs, fmtp.Errorf("%q can contain only digits, lower letters, and underscores (_) ", key))
-					}
-					return
-				},
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringMatch(regexp4Name, " only contain digits, lower letters, and underscores (_)"),
 			},
 
 			"queue_type": {
@@ -109,6 +103,27 @@ func ResourceDliQueueV1() *schema.Resource {
 			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+
+			"management_subnet_cidr": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Deprecated: "management_subnet_cidr is Deprecated",
+			},
+
+			"subnet_cidr": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Deprecated: "subnet_cidr is Deprecated",
+			},
+
+			"vpc_cidr": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Deprecated: "vpc_cidr is Deprecated",
 			},
 		},
 	}
