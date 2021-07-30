@@ -373,6 +373,37 @@ func EnableProxy(client *golangsdk.ServiceClient, instanceId string, opts ProxyB
 	return
 }
 
+type EnlargeProxyOpts struct {
+	NodeNum int `json:"node_num" required:"true"`
+}
+
+type EnlargeProxyBuilder interface {
+	ToEnlargeProxyMap() (map[string]interface{}, error)
+}
+
+func (opts EnlargeProxyOpts) ToEnlargeProxyMap() (map[string]interface{}, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func EnlargeProxy(client *golangsdk.ServiceClient, instanceId string, opts EnlargeProxyBuilder) (r JobResult) {
+	b, err := opts.ToEnlargeProxyMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(proxyEnlargeURL(client, instanceId), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes:     []int{201},
+		MoreHeaders: requestOpts.MoreHeaders,
+	})
+
+	return
+}
+
 func DeleteProxy(client *golangsdk.ServiceClient, instanceId string) (r JobResult) {
 	url := proxyURL(client, instanceId)
 
