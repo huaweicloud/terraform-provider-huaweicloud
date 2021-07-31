@@ -377,6 +377,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_apig_environment":                apig.ResourceApigEnvironmentV2(),
 			"huaweicloud_apig_group":                      apig.ResourceApigGroupV2(),
 			"huaweicloud_apig_response":                   apig.ResourceApigResponseV2(),
+			"huaweicloud_apig_throttling_policy":          apig.ResourceApigThrottlingPolicyV2(),
 			"huaweicloud_apig_vpc_channel":                apig.ResourceApigVpcChannelV2(),
 			"huaweicloud_as_configuration":                ResourceASConfiguration(),
 			"huaweicloud_as_group":                        ResourceASGroup(),
