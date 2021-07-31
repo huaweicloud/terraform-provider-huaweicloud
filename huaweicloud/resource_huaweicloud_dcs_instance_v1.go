@@ -61,16 +61,15 @@ func ResourceDcsInstanceV1() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"password": {
-				Type:      schema.TypeString,
-				Sensitive: true,
-				Optional:  true,
-				ForceNew:  true,
-			},
-			"access_user": {
+			"product_id": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Required: true,
+				ForceNew: true,
+			},
+			"available_zones": {
+				Type:     schema.TypeList,
+				Required: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 				ForceNew: true,
 			},
 			"vpc_id": {
@@ -88,60 +87,29 @@ func ResourceDcsInstanceV1() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{"whitelists"},
 			},
-			"available_zones": {
-				Type:     schema.TypeList,
-				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+			"access_user": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
-			"product_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+			"password": {
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Optional:  true,
+				ForceNew:  true,
 			},
 			"maintain_begin": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"maintain_end"},
+				Computed:     true,
 			},
 			"maintain_end": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"save_days": {
-				Type:       schema.TypeInt,
-				Optional:   true,
-				ForceNew:   true,
-				Deprecated: "Please use `backup_policy` instead",
-			},
-			"backup_type": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				ForceNew:   true,
-				Deprecated: "Please use `backup_policy` instead",
-			},
-			"begin_at": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
-				RequiredWith: []string{"period_type", "backup_at", "save_days", "backup_type"},
-				Deprecated:   "Please use `backup_policy` instead",
-			},
-			"period_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				RequiredWith: []string{"begin_at", "backup_at", "save_days", "backup_type"},
-				Deprecated:   "Please use `backup_policy` instead",
-			},
-			"backup_at": {
-				Type:         schema.TypeList,
-				Optional:     true,
-				ForceNew:     true,
-				RequiredWith: []string{"period_type", "begin_at", "save_days", "backup_type"},
-				Deprecated:   "Please use `backup_policy` instead",
-				Elem:         &schema.Schema{Type: schema.TypeInt},
+				RequiredWith: []string{"maintain_begin"},
+				Computed:     true,
 			},
 			"backup_policy": {
 				Type:          schema.TypeList,
@@ -258,6 +226,42 @@ func ResourceDcsInstanceV1() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+
+			// Deprecated
+			"save_days": {
+				Type:       schema.TypeInt,
+				Optional:   true,
+				ForceNew:   true,
+				Deprecated: "Please use `backup_policy` instead",
+			},
+			"backup_type": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Deprecated: "Please use `backup_policy` instead",
+			},
+			"begin_at": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"period_type", "backup_at", "save_days", "backup_type"},
+				Deprecated:   "Please use `backup_policy` instead",
+			},
+			"period_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"begin_at", "backup_at", "save_days", "backup_type"},
+				Deprecated:   "Please use `backup_policy` instead",
+			},
+			"backup_at": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"period_type", "begin_at", "save_days", "backup_type"},
+				Deprecated:   "Please use `backup_policy` instead",
+				Elem:         &schema.Schema{Type: schema.TypeInt},
+			},
 		},
 	}
 }
@@ -284,9 +288,9 @@ func getInstanceBackupPolicy(d *schema.ResourceData) *instances.InstanceBackupPo
 					BackupAt:   formatAts(backupAts),
 				},
 			}
-		} else {
-			return nil
 		}
+		// neither backup_policy nor backup_at is specified
+		return nil
 	}
 
 	backupPolicyList := d.Get("backup_policy").([]interface{})
