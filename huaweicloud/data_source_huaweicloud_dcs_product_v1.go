@@ -24,6 +24,23 @@ func DataSourceDcsProductV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+
+			"engine": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"engine_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"cache_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"capacity": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -39,24 +56,29 @@ func dataSourceDcsProductV1Read(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
-	logp.Printf("[DEBUG] Dcs get products : %+v", v)
-	var FilteredPd []products.Product
+
+	specCode := d.Get("spec_code").(string)
+	logp.Printf("[DEBUG] query DCS products with %s", specCode)
+
+	var filteredPd *products.Product
 	for _, pd := range v.Products {
-		spec_code := d.Get("spec_code").(string)
-		if spec_code != "" && pd.SpecCode != spec_code {
+		if specCode != "" && pd.SpecCode != specCode {
 			continue
 		}
-		FilteredPd = append(FilteredPd, pd)
+		filteredPd = &pd
+		break
 	}
 
-	if len(FilteredPd) < 1 {
+	if filteredPd == nil {
 		return fmtp.Errorf("Your query returned no results. Please change your filters and try again.")
 	}
 
-	pd := FilteredPd[0]
-	d.SetId(pd.ProductID)
-	d.Set("spec_code", pd.SpecCode)
-	logp.Printf("[DEBUG] Dcs product : %+v", pd)
+	logp.Printf("[DEBUG] get DCS product: %+v", filteredPd)
+	d.SetId(filteredPd.ProductID)
+	d.Set("spec_code", filteredPd.SpecCode)
+	d.Set("engine", filteredPd.Engine)
+	d.Set("engine_version", filteredPd.EngineVersion)
+	d.Set("cache_mode", filteredPd.CacheMode)
 
 	return nil
 }

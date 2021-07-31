@@ -731,6 +731,10 @@ func (c *Config) MrsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("mrs", region)
 }
 
+func (c *Config) MrsV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("mrsv2", region)
+}
+
 func (c *Config) DwsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dws", region)
 }

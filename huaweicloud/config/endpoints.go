@@ -269,6 +269,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "mrs",
 		Version: "v1.1",
 	},
+	"mrsv2": {
+		Name:    "mrs",
+		Version: "v2",
+	},
 	"dws": {
 		Name:    "dws",
 		Version: "v1.0",
