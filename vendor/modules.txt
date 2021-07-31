@@ -283,6 +283,7 @@ github.com/huaweicloud/golangsdk/openstack/apigw/v2/channels
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/environments
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/instances
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/responses
+github.com/huaweicloud/golangsdk/openstack/apigw/v2/throttles
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/configurations
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/instances
@@ -403,6 +404,7 @@ github.com/huaweicloud/golangsdk/openstack/lts/huawei/logstreams
 github.com/huaweicloud/golangsdk/openstack/maas/v1/task
 github.com/huaweicloud/golangsdk/openstack/mrs/v1/cluster
 github.com/huaweicloud/golangsdk/openstack/mrs/v1/job
+github.com/huaweicloud/golangsdk/openstack/mrs/v2/clusters
 github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths
 github.com/huaweicloud/golangsdk/openstack/networking/v1/eips
 github.com/huaweicloud/golangsdk/openstack/networking/v1/security/securitygroups

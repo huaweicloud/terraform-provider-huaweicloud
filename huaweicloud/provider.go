@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 )
 
@@ -377,6 +378,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_apig_environment":                apig.ResourceApigEnvironmentV2(),
 			"huaweicloud_apig_group":                      apig.ResourceApigGroupV2(),
 			"huaweicloud_apig_response":                   apig.ResourceApigResponseV2(),
+			"huaweicloud_apig_throttling_policy":          apig.ResourceApigThrottlingPolicyV2(),
 			"huaweicloud_apig_vpc_channel":                apig.ResourceApigVpcChannelV2(),
 			"huaweicloud_as_configuration":                ResourceASConfiguration(),
 			"huaweicloud_as_group":                        ResourceASGroup(),
@@ -472,6 +474,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_lts_stream":                      resourceLTSStreamV2(),
 			"huaweicloud_oms_task":                        resourceMaasTaskV1(),
 			"huaweicloud_mls_instance":                    resourceMlsInstance(),
+			"huaweicloud_mapreduce_cluster":               mrs.ResourceMRSClusterV2(),
 			"huaweicloud_mrs_cluster":                     ResourceMRSClusterV1(),
 			"huaweicloud_mrs_job":                         ResourceMRSJobV1(),
 			"huaweicloud_nat_dnat_rule":                   ResourceNatDnatRuleV2(),

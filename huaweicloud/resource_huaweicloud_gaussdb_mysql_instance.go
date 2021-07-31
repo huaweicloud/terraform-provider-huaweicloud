@@ -813,7 +813,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	if d.HasChanges("proxy_flavor", "proxy_node_num") {
+	if d.HasChange("proxy_flavor") {
 		if hasFilledOpt(d, "proxy_flavor") {
 			proxyOpts := instances.ProxyOpts{
 				Flavor:  d.Get("proxy_flavor").(string),
@@ -838,6 +838,29 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if err = instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), dp.JobID); err != nil {
 				return err
 			}
+		}
+	}
+
+	if d.HasChange("proxy_node_num") {
+		oldnum, newnum := d.GetChange("proxy_node_num")
+		if oldnum.(int) != 0 && newnum.(int) > oldnum.(int) && hasFilledOpt(d, "proxy_flavor") {
+			enlarge_size := newnum.(int) - oldnum.(int)
+			enlargeProxyOpts := instances.EnlargeProxyOpts{
+				NodeNum: enlarge_size,
+			}
+			logp.Printf("[DEBUG] Enlarge proxy: %#v", enlargeProxyOpts)
+
+			lp, err := instances.EnlargeProxy(client, d.Id(), enlargeProxyOpts).ExtractJobResponse()
+			if err != nil {
+				return fmtp.Errorf("Error enlarging proxy: %s", err)
+			}
+
+			if err = instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), lp.JobID); err != nil {
+				return err
+			}
+		}
+		if newnum.(int) < oldnum.(int) && !d.HasChange("proxy_flavor") {
+			return fmtp.Errorf("Error updating proxy_node_num for instance %s: new num should be greater than old num", d.Id())
 		}
 	}
 

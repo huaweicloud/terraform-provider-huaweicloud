@@ -2,9 +2,9 @@
 subcategory: "Data Warehouse Service (DWS)"
 ---
 
-# huaweicloud\_dws\_cluster
+# huaweicloud_dws_cluster
 
-cluster management
+Manages Cluster in the Data Warehouse Service.
 
 ## Example Usage
 
@@ -65,6 +65,11 @@ The following arguments are supported:
   written in reverse order.  Contains three types of the following: 
   Lowercase letters  Uppercase letters  Digits  Special characters
   ~!@#%^&*()-_=+|[{}];:,<.>/?
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the dws cluster,
+    Value 0 indicates the default enterprise project.
+    Changing this parameter will create a new resource.
+
 
 - - -
 

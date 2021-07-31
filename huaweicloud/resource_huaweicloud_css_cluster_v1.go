@@ -204,6 +204,12 @@ func ResourceCssClusterV1() *schema.Resource {
 					},
 				},
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -226,7 +232,6 @@ func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
-
 	opts := resourceCssClusterV1UserInputParams(d)
 	arrayIndex := map[string]int{
 		"node_config.network_info": 0,
@@ -234,7 +239,7 @@ func resourceCssClusterV1Create(d *schema.ResourceData, meta interface{}) error 
 		"node_config":              0,
 	}
 
-	params, err := buildCssClusterV1CreateParameters(opts, arrayIndex)
+	params, err := buildCssClusterV1CreateParameters(opts, arrayIndex, config)
 	if err != nil {
 		return fmtp.Errorf("Error building the request body of api(create), err=%s", err)
 	}
@@ -452,7 +457,7 @@ func resourceCssClusterV1Delete(d *schema.ResourceData, meta interface{}) error 
 	return err
 }
 
-func buildCssClusterV1CreateParameters(opts map[string]interface{}, arrayIndex map[string]int) (interface{}, error) {
+func buildCssClusterV1CreateParameters(opts map[string]interface{}, arrayIndex map[string]int, config *config.Config) (interface{}, error) {
 	params := make(map[string]interface{})
 
 	resourceData := opts["terraform_resource_data"].(*schema.ResourceData)
@@ -507,6 +512,11 @@ func buildCssClusterV1CreateParameters(opts map[string]interface{}, arrayIndex m
 
 	if len(params) == 0 {
 		return params, nil
+	}
+
+	enterpriseProjectID := config.GetEnterpriseProjectID(resourceData)
+	if enterpriseProjectID != "" {
+		params["enterprise_project_id"] = enterpriseProjectID
 	}
 
 	params = map[string]interface{}{"cluster": params}
@@ -871,6 +881,12 @@ func fillCssClusterV1ReadRespBody(body interface{}) interface{} {
 		result["updated"] = nil
 	}
 
+	if v, ok := val["enterprise_project_id"]; ok {
+		result["enterprise_project_id"] = v
+	} else {
+		result["enterprise_project_id"] = nil
+	}
+
 	return result
 }
 
@@ -1008,6 +1024,13 @@ func setCssClusterV1Properties(d *schema.ResourceData, response map[string]inter
 	nodeNum := len(v.([]interface{}))
 	if err = d.Set("expect_node_num", nodeNum); err != nil {
 		return fmtp.Errorf("Error setting Cluster:expect_node_num, err: %s", err)
+	}
+
+	v, err = navigateValue(response, []string{"read", "enterprise_project_id"}, nil)
+	if err == nil {
+		if err = d.Set("enterprise_project_id", v); err != nil {
+			return fmtp.Errorf("Error setting Cluster:enterprise_project_id, err: %s", err)
+		}
 	}
 
 	return nil
