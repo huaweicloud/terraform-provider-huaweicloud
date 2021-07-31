@@ -172,6 +172,8 @@ func buildApigThrottlingPolicyParameters(d *schema.ResourceData,
 	return opt, nil
 }
 
+// addSpecThrottlingPolicies is a method which to add one or more special throttling policies to throttling policy
+// resource by the list of special throttling policies.
 func addSpecThrottlingPolicies(client *golangsdk.ServiceClient, policies *schema.Set,
 	instanceId, policyId, specType string) error {
 	for _, policy := range policies.List() {
@@ -189,6 +191,8 @@ func addSpecThrottlingPolicies(client *golangsdk.ServiceClient, policies *schema
 	return nil
 }
 
+// removeSpecThrottlingPolicies is a method which to remove the special throttling policy form throttling policy
+// resource by specifies special throttling policy ID.
 func removeSpecThrottlingPolicies(client *golangsdk.ServiceClient, policies *schema.Set,
 	instanceId, policyId string) error {
 	for _, policy := range policies.List() {
@@ -201,6 +205,8 @@ func removeSpecThrottlingPolicies(client *golangsdk.ServiceClient, policies *sch
 	return nil
 }
 
+// updateSpecThrottlingPolicieCallLimit is a method which to udpate the API call limit of the special throttling policy
+// by specifies special throttling policy ID.
 func updateSpecThrottlingPolicieCallLimit(client *golangsdk.ServiceClient, instanceId, policyId, strategyId string,
 	limit int) error {
 	opts := &throttles.SpecThrottleUpdateOpts{
@@ -219,7 +225,9 @@ func resourceApigThrottlingPolicyV2Create(d *schema.ResourceData, meta interface
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
+
 	instanceId := d.Get("instance_id").(string)
+	// build throttling policy create options according to terraform configuration.
 	opts, err := buildApigThrottlingPolicyParameters(d, config)
 	if err != nil {
 		return fmtp.Errorf("Unable to get the create option of the throttling policy: %s", err)
@@ -229,6 +237,9 @@ func resourceApigThrottlingPolicyV2Create(d *schema.ResourceData, meta interface
 		return common.CheckDeleted(d, err, "Error creating HuaweiCloud throttling policy")
 	}
 	d.SetId(v.Id)
+
+	// After throttling policy resoruce created, bind user throttling policies and appliation throttling policies to
+	// resource according to configuration.
 	if policies, ok := d.GetOk("user_throttles"); ok {
 		err := addSpecThrottlingPolicies(client, policies.(*schema.Set), instanceId, d.Id(), typeUser)
 		if err != nil {
@@ -281,7 +292,7 @@ func setSpecThrottlingPolicies(d *schema.ResourceData, specThrottles []throttles
 	// and the average waste of memory is less than the waste caused by directly setting it to 30.
 	users := make([]map[string]interface{}, 0)
 	apps := make([]map[string]interface{}, 0)
-	// The special throttling policies contain user throttles and app throttles.
+	// The special throttling policies contain IAM user throttles and app throttles.
 	for _, throttle := range specThrottles {
 		if throttle.ObjectType == typeApplication {
 			apps = append(apps, map[string]interface{}{
@@ -315,6 +326,7 @@ func resourceApigThrottlingPolicyV2Read(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud APIG client: %s", err)
 	}
+
 	instanceId := d.Get("instance_id").(string)
 	resp, err := throttles.Get(client, instanceId, d.Id()).Extract()
 	if err != nil {
@@ -324,6 +336,7 @@ func resourceApigThrottlingPolicyV2Read(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmtp.Errorf("Error setting throttles to state: %s", d.Id(), err)
 	}
+
 	// Set special throttling policies for IAM user and application to state.
 	pages, err := throttles.ListSpecThrottles(client, instanceId, d.Id(), throttles.SpecThrottlesListOpts{}).AllPages()
 	if err != nil {
@@ -348,15 +361,18 @@ func isBasicParamsChanged(d *schema.ResourceData) bool {
 func updateSpecThrottlingPolicies(d *schema.ResourceData, client *golangsdk.ServiceClient,
 	paramName, specType string) error {
 	oldRaws, newRaws := d.GetChange(paramName)
-	instanceId := d.Get("instance_id").(string)
 	addRaws := newRaws.(*schema.Set).Difference(oldRaws.(*schema.Set))
 	removeRaws := oldRaws.(*schema.Set).Difference(newRaws.(*schema.Set))
+	instanceId := d.Get("instance_id").(string)
+
 	// If only max API requests update, the ID should be the same after the special throttling policy is updated.
 	for _, rm := range removeRaws.List() {
 		rmPolicy := rm.(map[string]interface{})
 		rmObject := rmPolicy["throttling_object_id"].(string)
 		for _, add := range addRaws.List() {
 			addPolicy := add.(map[string]interface{})
+			// If the two lists contain the objects with the same special throttling policy id, it means that the
+			// policy is only updated (the delete and create operations will change policy ID).
 			if rmObject == addPolicy["throttling_object_id"].(string) {
 				strategyId := rmPolicy["id"].(string)
 				limit := addPolicy["max_api_requests"].(int)
@@ -431,16 +447,18 @@ func resourceApigThrottlingPolicyV2Delete(d *schema.ResourceData, meta interface
 // The ID cannot find on the console, so we need to import by throttling policy name.
 func resourceApigThrottlingPolicyResourceImportState(d *schema.ResourceData,
 	meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.SplitN(d.Id(), "/", 2)
-	if len(parts) != 2 {
-		return nil, fmtp.Errorf("Invalid format specified for import id, must be <instance_id>/<name>")
-	}
-	instanceId := parts[0]
 	config := meta.(*config.Config)
 	client, err := config.ApigV2Client(config.GetRegion(d))
 	if err != nil {
 		return []*schema.ResourceData{d}, fmtp.Errorf("Error creating HuaweiCloud APIG v2 client: %s", err)
 	}
+
+	parts := strings.SplitN(d.Id(), "/", 2)
+	if len(parts) != 2 {
+		return nil, fmtp.Errorf("Invalid format specified for import id, must be <instance_id>/<name>")
+	}
+
+	instanceId := parts[0]
 	name := parts[1]
 	opt := throttles.ListOpts{
 		Name: name,
@@ -455,5 +473,6 @@ func resourceApigThrottlingPolicyResourceImportState(d *schema.ResourceData,
 	}
 	d.SetId(resp[0].Id)
 	d.Set("instance_id", instanceId)
+
 	return []*schema.ResourceData{d}, nil
 }

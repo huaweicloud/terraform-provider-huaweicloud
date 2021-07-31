@@ -78,6 +78,18 @@ The following arguments are supported:
   period.
   The value of this parameter cannot exceed the default limit 200 TPS.
 
+* `max_app_requests` - (Optional, Int) Specifies the maximum number of times the API can be accessed by an app within
+  the same period.
+  The value of this parameter must be less than or equal to the value of `max_user_requests`.
+
+* `max_ip_requests` - (Optional, Int) Specifies the maximum number of times the API can be accessed by an IP address
+  within the same period.
+  The value of this parameter must be less than or equal to the value of `max_api_requests`.
+
+* `max_user_requests` - (Optional, Int) Specifies the maximum number of times the API can be accessed by a user within
+  the same period.
+  The value of this parameter must be less than or equal to the value of `max_api_requests`.
+
 * `type` - (Optional, String) Specifies the type of the request throttling policy.
   The valid values are as follows:
   - API-based: limiting the maximum number of times a single API bound to the policy can be called within the specified
@@ -91,18 +103,6 @@ The following arguments are supported:
 
 * `period_unit` - (Optional, String) Specifies the time unit for limiting the number of API calls.
   The valid values are *SECOND*, *MINUTE*, *HOUR* and *DAY*, default to *MINUTE*.
-
-* `max_app_requests` - (Optional, Int) Specifies the maximum number of times the API can be accessed by an app within
-  the same period.
-  The value of this parameter must be less than or equal to the value of `max_user_requests`.
-
-* `max_ip_requests` - (Optional, Int) Specifies the maximum number of times the API can be accessed by an IP address
-  within the same period.
-  The value of this parameter must be less than or equal to the value of `max_api_requests`.
-
-* `max_user_requests` - (Optional, Int) Specifies the maximum number of times the API can be accessed by a user within
-  the same period.
-  The value of this parameter must be less than or equal to the value of `max_api_requests`.
 
 * `user_throttles` - (Optional, List) Specifies an array of one or more special throttling policies for IAM user limit.
   The `throttle` object of the `user_throttles` structure is documented below.
