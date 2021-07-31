@@ -280,32 +280,33 @@ func setSpecThrottlingPolicies(d *schema.ResourceData, specThrottles []throttles
 	// According to the rules of append method, the maximum memory is expanded to 32,
 	// and the average waste of memory is less than the waste caused by directly setting it to 30.
 	users := make([]map[string]interface{}, 0)
-	for i, throttle := range specThrottles {
-		// The special throttling policies contain user throttles and app throttles.
+	apps := make([]map[string]interface{}, 0)
+	// The special throttling policies contain user throttles and app throttles.
+	for _, throttle := range specThrottles {
 		if throttle.ObjectType == typeApplication {
-			continue
-		}
-		users = append(users, map[string]interface{}{
-			"max_api_requests":       throttle.CallLimits,
-			"throttling_object_id":   throttle.ObjectId,
-			"throttling_object_name": throttle.ObjectName,
-			"id":                     throttle.ID,
-		})
-		specThrottles = append(specThrottles[:i], specThrottles[i+1:]...)
-	}
-	if err := d.Set("user_throttles", users); err != nil {
-		return fmtp.Errorf("Error saving special user throttles to state: %s", err)
-	}
-	apps := make([]map[string]interface{}, len(specThrottles))
-	for i, throttle := range specThrottles {
-		apps[i] = map[string]interface{}{
-			"max_api_requests":       throttle.CallLimits,
-			"throttling_object_id":   throttle.ObjectId,
-			"throttling_object_name": throttle.ObjectName,
-			"id":                     throttle.ID,
+			apps = append(apps, map[string]interface{}{
+				"max_api_requests":       throttle.CallLimits,
+				"throttling_object_id":   throttle.ObjectId,
+				"throttling_object_name": throttle.ObjectName,
+				"id":                     throttle.ID,
+			})
+		} else {
+			users = append(users, map[string]interface{}{
+				"max_api_requests":       throttle.CallLimits,
+				"throttling_object_id":   throttle.ObjectId,
+				"throttling_object_name": throttle.ObjectName,
+				"id":                     throttle.ID,
+			})
 		}
 	}
-	return d.Set("app_throttles", apps)
+	mErr := multierror.Append(nil,
+		d.Set("user_throttles", users),
+		d.Set("app_throttles", apps),
+	)
+	if mErr.ErrorOrNil() != nil {
+		return mErr
+	}
+	return nil
 }
 
 func resourceApigThrottlingPolicyV2Read(d *schema.ResourceData, meta interface{}) error {

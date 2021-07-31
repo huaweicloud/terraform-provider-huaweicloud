@@ -79,7 +79,7 @@ The following arguments are supported:
   The value of this parameter cannot exceed the default limit 200 TPS.
 
 * `type` - (Optional, String) Specifies the type of the request throttling policy.
-  The valid values are as following:
+  The valid values are as follows:
   - API-based: limiting the maximum number of times a single API bound to the policy can be called within the specified
   period.
   - API-shared: limiting the maximum number of times all APIs bound to the policy can be called within the specified
@@ -122,10 +122,15 @@ The `throttle` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - ID of the API throttling policy.
-* `user_throttles/throttling_object_name` - The object name which the special user throttling policy belongs.
-* `user_throttles/id` - ID of the special user throttling policy.
-* `app_throttles/throttling_object_name` - The object name which the special application throttling policy belongs.
-* `app_throttles/id` - ID of the special application throttling policy.
+
+* `user_throttles` - An array of one or more special throttling policies for IAM user limit.
+  - `throttling_object_name` - The object name which the special user throttling policy belongs.
+  - `id` - ID of the special user throttling policy.
+
+* `app_throttles` - An array of one or more special throttling policies for APP limit.
+  - `throttling_object_name` - The object name which the special application throttling policy belongs.
+  - `id` - ID of the special application throttling policy.
+
 * `create_time` - Time when the API throttling policy was created.
 
 ## Import
