@@ -4,10 +4,7 @@ subcategory: "Data Lake Insight (DLI)"
 
 # huaweicloud_dli_queue
 
-DLI Queue management
-Allows you to create a queue. The queue will be bound to specified compute resources.
-
-This is an alternative to `huaweicloud_dli_queue`
+Manages DLI Queue resource within HuaweiCloud
 
 ## Example Usage
 
@@ -17,10 +14,10 @@ This is an alternative to `huaweicloud_dli_queue`
 resource "huaweicloud_dli_queue" "queue" {
   name          = "terraform_dli_queue_test"
   cu_count      = 16
-  resource_mode = 0
-  
+
   tags = {
-    k1 = "1"
+    foo = "bar"
+    key = "value"
   }
 }
 ```

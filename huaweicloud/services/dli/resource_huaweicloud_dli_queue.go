@@ -1,7 +1,6 @@
 package dli
 
 import (
-	"fmt"
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -18,12 +17,15 @@ var regexp4Name = regexp.MustCompile(`^[a-z0-9_]{1,128}$`)
 
 const CU_16, CU_64, CU_256 = 16, 64, 256
 const RESOURCE_MODE_SHARED, RESOURCE_MODE_EXCLUSIVE = 0, 1
+const QUEUE_TYPE_SQL, QUEUE_TYPE_GENERAL = "sql", "general"
+const QUEUE_FEATURE_BASIC, QUEUE_FEATURE_AI = "basic", "ai"
+const QUEUE_PLATFORM_X86, QUEUE_platform_AARCH64 = "x86_64", "aarch64"
 
-func ResourceDliQueueV1() *schema.Resource {
+func ResourceDliQueue() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDliQueueCreate,
-		Read:   resourceDliQueueV1Read,
-		Delete: resourceDliQueueV1Delete,
+		Read:   resourceDliQueueRead,
+		Delete: resourceDliQueueDelete,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -45,7 +47,7 @@ func ResourceDliQueueV1() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				Default:      "sql",
-				ValidateFunc: validation.StringInSlice([]string{"sql", "general"}, false),
+				ValidateFunc: validation.StringInSlice([]string{QUEUE_TYPE_SQL, QUEUE_TYPE_GENERAL}, false),
 			},
 
 			"description": {
@@ -88,7 +90,7 @@ func ResourceDliQueueV1() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"basic", "ai"}, false),
+				ValidateFunc: validation.StringInSlice([]string{QUEUE_FEATURE_BASIC, QUEUE_FEATURE_AI}, false),
 			},
 
 			"tags": {
@@ -101,7 +103,7 @@ func ResourceDliQueueV1() *schema.Resource {
 			},
 
 			"create_time": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 
@@ -133,7 +135,7 @@ func resourceDliQueueCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	dliClient, err := config.DliV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmt.Errorf("creating dli client failed: %s", err)
+		return fmtp.Errorf("creating dli client failed: %s", err)
 	}
 
 	queueName := d.Get("name").(string)
@@ -154,13 +156,13 @@ func resourceDliQueueCreate(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] create dli queues using paramaters: %+v", createOpts)
 	createResult := queues.Create(dliClient, createOpts)
 	if createResult.Err != nil {
-		return fmt.Errorf("create dli queues failed: %s", createResult.Err)
+		return fmtp.Errorf("create dli queues failed: %s", createResult.Err)
 	}
 
 	//query queue detail,trriger read to refresh the state
 	d.SetId(queueName)
 
-	return resourceDliQueueV1Read(d, meta)
+	return resourceDliQueueRead(d, meta)
 }
 
 func assembleTagsFromRecource(key string, d *schema.ResourceData) []tags.ResourceTag {
@@ -172,7 +174,7 @@ func assembleTagsFromRecource(key string, d *schema.ResourceData) []tags.Resourc
 	return nil
 
 }
-func resourceDliQueueV1Read(d *schema.ResourceData, meta interface{}) error {
+func resourceDliQueueRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	dliClient, err := config.DliV1Client(config.GetRegion(d))
 
@@ -190,7 +192,7 @@ func resourceDliQueueV1Read(d *schema.ResourceData, meta interface{}) error {
 
 	queryAllResult := queues.List(dliClient, queryOpts)
 	if queryAllResult.Err != nil {
-		return fmt.Errorf("query queues failed: %s", queryAllResult.Err)
+		return fmtp.Errorf("query queues failed: %s", queryAllResult.Err)
 	}
 
 	//filter by queue_name
@@ -226,22 +228,21 @@ func filterByQueueName(body interface{}, queueName string) (r *queues.Queue, err
 		return nil, nil
 
 	} else {
-		return nil, fmt.Errorf("sdk-client response type is wrong, expect type:*queues.ListResult,acutal Type:%T",
+		return nil, fmtp.Errorf("sdk-client response type is wrong, expect type:*queues.ListResult,acutal Type:%T",
 			body)
 	}
 
 }
-func resourceDliQueueV1Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceDliQueueDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.DliV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("error creating DliV1Client, err=%s", err)
 	}
 
-	queueName := d.Get("name").(string)
 	logp.Printf("[DEBUG] Deleting dli Queue %q", d.Id())
 
-	result := queues.Delete(client, queueName)
+	result := queues.Delete(client, d.Id())
 	if result.Err != nil {
 		return fmtp.Errorf("error deleting dli Queue %q, err=%s", d.Id(), result.Err)
 	}
