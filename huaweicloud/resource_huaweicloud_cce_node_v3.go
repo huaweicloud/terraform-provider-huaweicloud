@@ -610,7 +610,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	nodeID, err := getResourceIDFromJob(nodeClient, s.Status.JobID)
+	nodeID, err := getResourceIDFromJob(nodeClient, s.Status.JobID, "CreateNode", "CreateNodeVM")
 	if err != nil {
 		return err
 	}
@@ -848,7 +848,7 @@ func resourceCCENodeV3Delete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func getResourceIDFromJob(client *golangsdk.ServiceClient, jobID string) (string, error) {
+func getResourceIDFromJob(client *golangsdk.ServiceClient, jobID, jobType, subJobType string) (string, error) {
 	// prePaid: waiting for the job to become running
 	stateJob := &resource.StateChangeConf{
 		Pending:      []string{"Initializing"},
@@ -873,7 +873,7 @@ func getResourceIDFromJob(client *golangsdk.ServiceClient, jobID string) (string
 	var refreshJob bool
 	for _, s := range job.Spec.SubJobs {
 		// postPaid: should get details of sub job ID
-		if s.Spec.Type == "CreateNode" {
+		if s.Spec.Type == jobType {
 			subJobID = s.Metadata.ID
 			refreshJob = true
 			break
@@ -889,13 +889,13 @@ func getResourceIDFromJob(client *golangsdk.ServiceClient, jobID string) (string
 
 	var nodeid string
 	for _, s := range job.Spec.SubJobs {
-		if s.Spec.Type == "CreateNodeVM" {
+		if s.Spec.Type == subJobType {
 			nodeid = s.Spec.ResourceID
 			break
 		}
 	}
 	if nodeid == "" {
-		return "", fmtp.Errorf("Error fetching CreateNodeVM Job resource id")
+		return "", fmtp.Errorf("Error fetching %s Job resource id", subJobType)
 	}
 	return nodeid, nil
 }

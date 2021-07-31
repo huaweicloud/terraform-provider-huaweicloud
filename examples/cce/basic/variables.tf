@@ -65,3 +65,19 @@ variable "data_volume_size" {
 variable "data_volume_type" {
     default = "SAS"
 }
+
+variable "ecs_flavor" {
+    default = "sn3.large.2"
+}
+
+variable "ecs_name" {
+    default = "myecs"
+}
+
+variable "os" {
+    default = "EulerOS 2.5"
+}
+
+variable "image_name" {
+    default = "EulerOS 2.5 64bit"
+}
