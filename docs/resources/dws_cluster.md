@@ -17,15 +17,16 @@ resource "huaweicloud_networking_secgroup" "secgroup" {
 }
 
 resource "huaweicloud_dws_cluster" "cluster" {
-  node_type             = "dws.m3.xlarge"
-  number_of_node        = 3
-  network_id            = "{{ network_id }}"
-  vpc_id                = "{{ vpc_id }}"
-  security_group_id     = huaweicloud_networking_secgroup.secgroup.id
-  availability_zone     = "{{ availability_zone }}"
-  name                  = "terraform_dws_cluster_test"
-  user_name             = "test_cluster_admin"
-  user_pwd              = "cluster123@!"
+  node_type         = "dws.m3.xlarge"
+  number_of_node    = 3
+  network_id        = "{{ network_id }}"
+  vpc_id            = "{{ vpc_id }}"
+  security_group_id = huaweicloud_networking_secgroup.secgroup.id
+  availability_zone = "{{ availability_zone }}"
+  name              = "terraform_dws_cluster_test"
+  user_name         = "test_cluster_admin"
+  user_pwd          = "cluster123@!"
+
   timeouts {
     create = "30m"
     delete = "30m"
