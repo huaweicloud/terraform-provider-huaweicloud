@@ -12,6 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
@@ -414,7 +415,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dcs_instance":                    ResourceDcsInstanceV1(),
 			"huaweicloud_dds_instance":                    ResourceDdsInstanceV3(),
 			"huaweicloud_dis_stream":                      ResourceDisStreamV2(),
-			"huaweicloud_dli_queue":                       ResourceDliQueueV1(),
+			"huaweicloud_dli_queue":                       dli.ResourceDliQueue(),
 			"huaweicloud_dms_group":                       ResourceDmsGroupsV1(),
 			"huaweicloud_dms_instance":                    ResourceDmsInstancesV1(),
 			"huaweicloud_dms_queue":                       ResourceDmsQueuesV1(),
@@ -605,7 +606,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpnaas_ike_policy_v2":               ResourceVpnIKEPolicyV2(),
 			"huaweicloud_vpnaas_endpoint_group_v2":           ResourceVpnEndpointGroupV2(),
 			"huaweicloud_vpnaas_site_connection_v2":          ResourceVpnSiteConnectionV2(),
-			"huaweicloud_dli_queue_v1":                       ResourceDliQueueV1(),
+			"huaweicloud_dli_queue_v1":                       dli.ResourceDliQueue(),
 			"huaweicloud_cs_route_v1":                        resourceCsRouteV1(),
 			"huaweicloud_networking_vip_v2":                  resourceNetworkingVIPV2(),
 			"huaweicloud_networking_vip_associate_v2":        resourceNetworkingVIPAssociateV2(),

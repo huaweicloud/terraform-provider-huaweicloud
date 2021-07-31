@@ -1,9 +1,11 @@
 package acceptance
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud"
@@ -70,4 +72,8 @@ func TestAccPreCheckEpsID(t *testing.T) {
 	if HW_ENTERPRISE_PROJECT_ID == "" {
 		t.Fatal("HW_ENTERPRISE_PROJECT_ID must be set for acceptance tests")
 	}
+}
+
+func RandomAccResourceName() string {
+	return fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 }

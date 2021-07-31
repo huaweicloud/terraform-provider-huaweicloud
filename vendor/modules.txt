@@ -332,6 +332,7 @@ github.com/huaweicloud/golangsdk/openstack/dcs/v1/products
 github.com/huaweicloud/golangsdk/openstack/dcs/v2/whitelists
 github.com/huaweicloud/golangsdk/openstack/dds/v3/flavors
 github.com/huaweicloud/golangsdk/openstack/dds/v3/instances
+github.com/huaweicloud/golangsdk/openstack/dli/v1/queues
 github.com/huaweicloud/golangsdk/openstack/dms/v1/availablezones
 github.com/huaweicloud/golangsdk/openstack/dms/v1/groups
 github.com/huaweicloud/golangsdk/openstack/dms/v1/instances
