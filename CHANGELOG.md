@@ -1,3 +1,30 @@
+## 1.27.0 (July 31, 2021)
+
+FEATURES:
+
+* **New Resurce:**
+  - `huaweicloud_apig_throttling_policy` ([#1296](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1296))
+  - `huaweicloud_apig_custom_authorizer` ([#1297](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1297))
+  - `huaweicloud_mapreduce_cluster` ([#1324](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1324))
+  - `huaweicloud_cce_node_attach` ([#1326](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1326))
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_node: Add ability to remove cce node by `keep_ecs` ([#1314](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1314))
+* resource/huaweicloud_network_acl_rule: cancel the MaxItems limitation of inbound_rules and outbound_rules ([#1315](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1315))
+* resource/huaweicloud_gaussdb_mysql_instance: Support to enlarge proxy node ([1258](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1258))
+* enterprise_project_id support:
+  - `huaweicloud_smn_topic`: ([1305](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1305))
+  - `huaweicloud_css_cluster`: ([1307](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1307))
+  - `huaweicloud_dis_stream`: ([1313](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1313))
+  - `huaweicloud_dws_cluster`: ([1313](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1313))
+  - `huaweicloud_dli_queue`: ([1321](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1321))
+
+BUG FIXES:
+
+* resource/huaweicloud_obs_bucket: Support to create parallel file system ([#1312](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1312))
+
+
 ## 1.26.1 (July 23, 2021)
 
 FEATURES:
