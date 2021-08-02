@@ -43,11 +43,11 @@ The following arguments are supported:
 
 * `loadbalancer_id` - (Optional, String, ForceNew) The load balancer on which to provision this
     pool. Changing this creates a new pool.
-    Note:  One of LoadbalancerID or ListenerID must be provided.
+    Note:  Exactly one of LoadbalancerID or ListenerID must be provided.
 
 * `listener_id` - (Optional, String, ForceNew) The Listener on which the members of the pool
     will be associated with. Changing this creates a new pool.
-	Note:  One of LoadbalancerID or ListenerID must be provided.
+	Note:  Exactly one of LoadbalancerID or ListenerID must be provided.
 
 * `lb_method` - (Required, String) The load balancing algorithm to
     distribute traffic to the pool's members. Must be one of
