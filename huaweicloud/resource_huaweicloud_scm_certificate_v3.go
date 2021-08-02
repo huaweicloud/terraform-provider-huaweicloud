@@ -16,12 +16,12 @@ import (
 )
 
 const (
-	MAX_ERROR_MESSAGE_LEN = 200
-	ELLIPSIS_STRING       = "..."
+	maxErrorMessageLen = 200
+	ellipsisString     = "..."
 
-	TARGET_SERVICE_CDN         = "CDN"
-	TARGET_SERVICE_WAF         = "WAF"
-	TARGET_SERVICE_ENHANCE_ELB = "Enhance_ELB"
+	targetServiceCdn        = "CDN"
+	targetServiceWaf        = "WAF"
+	targetServiceEnhanceElb = "Enhance_ELB"
 )
 
 func resourceScmCertificateV3() *schema.Resource {
@@ -70,7 +70,7 @@ func resourceScmCertificateV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice([]string{
-								TARGET_SERVICE_CDN, TARGET_SERVICE_WAF, TARGET_SERVICE_ENHANCE_ELB,
+								targetServiceCdn, targetServiceWaf, targetServiceEnhanceElb,
 							}, false),
 						},
 						"project": {
@@ -157,14 +157,14 @@ func resourceScmCertificateV3Create(d *schema.ResourceData, meta interface{}) er
 	// Get targets and push certificate to the target service.
 	targets := d.Get("target").([]interface{})
 	logp.Printf("[DEBUG] SCM Certificate target: %#v", targets)
-	pushCertificate(scmClient, d, targets)
+	parseTargetsAndPush(scmClient, d, targets)
 
 	return resourceScmCertificateV3Read(d, meta)
 }
 
-// pushCertificate pushes the certificate to the service.
+// parseTargetsAndPush pushes the certificate to the service.
 // If the push fails, only the target attributes are updated.
-func pushCertificate(c *golangsdk.ServiceClient, d *schema.ResourceData, targets []interface{}) {
+func parseTargetsAndPush(c *golangsdk.ServiceClient, d *schema.ResourceData, targets []interface{}) {
 	var tag = make([]map[string]interface{}, 0, len(targets))
 
 	for _, pushInfo := range targets {
@@ -173,12 +173,12 @@ func pushCertificate(c *golangsdk.ServiceClient, d *schema.ResourceData, targets
 
 		t := map[string]interface{}{}
 
-		if strings.Compare(service, TARGET_SERVICE_CDN) == 0 {
+		if strings.Compare(service, targetServiceCdn) == 0 {
 			pushOpts := certificates.PushOpts{
 				TargetService: service,
 			}
 			logp.Printf("[DEBUG] Push certificate to CDN Service. %#v", pushOpts)
-			err := doPushCertificateToService(d.Id(), pushOpts, c)
+			err := pushCertificateToService(d.Id(), pushOpts, c)
 			if err == nil {
 				t["service"] = service
 				t["project"] = []string{}
@@ -195,7 +195,7 @@ func pushCertificate(c *golangsdk.ServiceClient, d *schema.ResourceData, targets
 					TargetService: service,
 				}
 				logp.Printf("[DEBUG] Push certificate to services. %#v", pushOpts)
-				err := doPushCertificateToService(d.Id(), pushOpts, c)
+				err := pushCertificateToService(d.Id(), pushOpts, c)
 				if err == nil {
 					proj = append(proj, p.(string))
 				} else {
@@ -224,12 +224,12 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 	// extract the new push service
 	for service, newProjects := range newPushCert {
 		oldProjects, ok := oldPushCert[service]
-		if strings.Compare(service, TARGET_SERVICE_CDN) == 0 && !ok {
+		if strings.Compare(service, targetServiceCdn) == 0 && !ok {
 			pushOpts := certificates.PushOpts{
 				TargetService: service,
 			}
 			logp.Printf("[DEBUG] Find new services and start to push. %#v", pushOpts)
-			err := doPushCertificateToService(d.Id(), pushOpts, scmClient)
+			err := pushCertificateToService(d.Id(), pushOpts, scmClient)
 			if err != nil {
 				d.Set("target", oldVal)
 				return err
@@ -245,7 +245,7 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 					TargetProject: project.(string),
 					TargetService: service,
 				}
-				err := doPushCertificateToService(d.Id(), pushOpts, scmClient)
+				err := pushCertificateToService(d.Id(), pushOpts, scmClient)
 				if err != nil {
 					d.Set("target", oldVal)
 					return err
@@ -258,8 +258,8 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 	return resourceScmCertificateV3Read(d, meta)
 }
 
-func doPushCertificateToService(id string, pushOpts certificates.PushOpts, scmClient *golangsdk.ServiceClient) error {
-	if strings.Compare(pushOpts.TargetService, TARGET_SERVICE_CDN) != 0 && len(pushOpts.TargetProject) == 0 {
+func pushCertificateToService(id string, pushOpts certificates.PushOpts, scmClient *golangsdk.ServiceClient) error {
+	if strings.Compare(pushOpts.TargetService, targetServiceCdn) != 0 && len(pushOpts.TargetProject) == 0 {
 		return fmtp.Errorf("the argument of \"project\" cannot be empty, "+
 			"it can be empty when pushed to the CDN service only. "+
 			"\r\ncertificate_id: %s, service: %s", id, pushOpts.TargetService)
@@ -295,10 +295,24 @@ func resourceScmCertificateV3Read(d *schema.ResourceData, meta interface{}) erro
 	d.Set("domain_count", certDetail.DomainCount)
 
 	// convert the type of 'certDetail.Authentifications' to TypeList
-	auths := convertAuthToArray(certDetail.Authentifications)
+	auths := buildAuthtificatesAttribute(certDetail.Authentifications)
 	d.Set("authentifications", auths)
 
 	return nil
+}
+
+func buildAuthtificatesAttribute(authentifications []certificates.Authentification) []map[string]interface{} {
+	auth := make([]map[string]interface{}, 0, len(authentifications))
+	for _, v := range authentifications {
+		a := map[string]interface{}{
+			"record_name":  v.RecordName,
+			"record_type":  v.RecordType,
+			"record_value": v.RecordValue,
+			"domain":       v.Domain,
+		}
+		auth = append(auth, a)
+	}
+	return auth
 }
 
 func resourceScmCertificateV3Delete(d *schema.ResourceData, meta interface{}) error {
@@ -315,20 +329,6 @@ func resourceScmCertificateV3Delete(d *schema.ResourceData, meta interface{}) er
 	}
 
 	return nil
-}
-
-func convertAuthToArray(authArr []certificates.Authentification) []map[string]interface{} {
-	auths := make([]map[string]interface{}, 0, len(authArr))
-	for _, v := range authArr {
-		auth := map[string]interface{}{
-			"record_name":  v.RecordName,
-			"record_type":  v.RecordType,
-			"record_value": v.RecordValue,
-			"domain":       v.Domain,
-		}
-		auths = append(auths, auth)
-	}
-	return auths
 }
 
 func parsePushCertificateToMap(pushCertificate []interface{}) (map[string]*schema.Set, error) {
@@ -348,9 +348,8 @@ func parsePushCertificateToMap(pushCertificate []interface{}) (map[string]*schem
 				// if _, ok := projects[projectName]; ok {
 				return nil, fmtp.Errorf("There are duplicate projects for the same service!\n"+
 					"service = %s, project = %s.", targetService, projectName)
-			} else {
-				projects.Add(projectName)
 			}
+			projects.Add(projectName)
 		}
 		serviceMapping[targetService] = projects
 
@@ -365,8 +364,8 @@ func processErr(err error) string {
 	if err500, ok := err.(golangsdk.ErrDefault500); ok {
 		errBody := string(err500.Body)
 		// Maybe the text in the body is very long, only 200 characters printed。
-		if len(errBody) >= MAX_ERROR_MESSAGE_LEN {
-			errBody = errBody[0:MAX_ERROR_MESSAGE_LEN] + ELLIPSIS_STRING
+		if len(errBody) >= maxErrorMessageLen {
+			errBody = errBody[0:maxErrorMessageLen] + ellipsisString
 		}
 		// If 'err' is an ErrDefault500 object, the following information will be printed.
 		logp.Printf("[ERROR] Push certificate service error. URL: %s, Body: %s",
