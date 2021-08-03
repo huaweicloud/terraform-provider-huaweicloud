@@ -30,6 +30,9 @@ func resourceScmCertificateV3() *schema.Resource {
 		Update: resourceScmCertificateV3Update,
 		Read:   resourceScmCertificateV3Read,
 		Delete: resourceScmCertificateV3Delete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
