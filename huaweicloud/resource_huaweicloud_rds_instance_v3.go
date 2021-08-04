@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/rds/v3/instances"
+	"github.com/huaweicloud/golangsdk/openstack/rds/v3/securities"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -88,7 +89,6 @@ func ResourceRdsInstanceV3() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
 						},
 						"user_name": {
 							Type:     schema.TypeString,
@@ -136,7 +136,6 @@ func ResourceRdsInstanceV3() *schema.Resource {
 			"security_group_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"backup_strategy": {
@@ -185,6 +184,11 @@ func ResourceRdsInstanceV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+			},
+
+			"ssl_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 
 			"tags": tagsSchema(),
@@ -338,6 +342,17 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 		}
 		if _, err = stateConf.WaitForState(); err != nil {
 			return fmtp.Errorf("Error waiting for RDS instance (%s) creation completed: %s", instanceID, err)
+		}
+	}
+
+	if d.Get("ssl_enable").(bool) == true {
+		if d.Get("db.0.type").(string) == "MySQL" {
+			err = configRdsInstanceSSL(d, client, d.Id())
+			if err != nil {
+				return err
+			}
+		} else {
+			return fmtp.Errorf("Only MySQL database support SSL enable and disable.")
 		}
 	}
 
@@ -502,6 +517,18 @@ func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if err := updateRdsInstanceBackpStrategy(d, client, instanceID); err != nil {
+		return fmtp.Errorf("[ERROR] %s", err)
+	}
+
+	if err := updateRdsInstanceDBPort(d, client, instanceID); err != nil {
+		return fmtp.Errorf("[ERROR] %s", err)
+	}
+
+	if err := updateRdsInstanceSecurityGroup(d, client, instanceID); err != nil {
+		return fmtp.Errorf("[ERROR] %s", err)
+	}
+
+	if err := updateRdsInstanceSSLConfig(d, client, instanceID); err != nil {
 		return fmtp.Errorf("[ERROR] %s", err)
 	}
 
@@ -758,6 +785,72 @@ func updateRdsInstanceBackpStrategy(d *schema.ResourceData, client *golangsdk.Se
 		return fmtp.Errorf("Error waiting for RDS instance (%s) backup to be updated: %s ", instanceID, err)
 	}
 
+	return nil
+}
+
+func updateRdsInstanceDBPort(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+	if !d.HasChange("db.0.port") {
+		return nil
+	}
+
+	udpateOpts := securities.PortOpts{
+		Port: d.Get("db.0.port").(int),
+	}
+	logp.Printf("[DEBUG] Update opts of Database port: %+v", udpateOpts)
+	_, err := securities.UpdatePort(client, instanceID, udpateOpts).Extract()
+	if err != nil {
+		return fmtp.Errorf("Error updating instance database port from result: %s ", err)
+	}
+	// for prePaid charge mode
+	stateConf := &resource.StateChangeConf{
+		Pending:    []string{"MODIFYING DATABASE PORT"},
+		Target:     []string{"ACTIVE"},
+		Refresh:    rdsInstanceStateRefreshFunc(client, instanceID),
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Delay:      5 * time.Second,
+		MinTimeout: 3 * time.Second,
+	}
+	if _, err = stateConf.WaitForState(); err != nil {
+		return fmtp.Errorf("Error waiting for RDS instance (%s) creation completed: %s", instanceID, err)
+	}
+
+	return nil
+}
+
+func updateRdsInstanceSecurityGroup(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+	if !d.HasChange("security_group_id") {
+		return nil
+	}
+
+	udpateOpts := securities.SecGroupOpts{
+		SecurityGroupId: d.Get("security_group_id").(string),
+	}
+	logp.Printf("[DEBUG] Update opts of security group: %+v", udpateOpts)
+	_, err := securities.UpdateSecGroup(client, instanceID, udpateOpts).Extract()
+	if err != nil {
+		return fmtp.Errorf("Error updating instance security group from result: %s ", err)
+	}
+
+	return nil
+}
+
+func updateRdsInstanceSSLConfig(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+	if d.Get("db.0.type").(string) != "MySQL" || !d.HasChange("ssl_enable") {
+		return nil
+	}
+	return configRdsInstanceSSL(d, client, instanceID)
+}
+
+func configRdsInstanceSSL(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+	sslEnable := d.Get("ssl_enable").(bool)
+	udpateOpts := securities.SSLOpts{
+		SSLEnable: &sslEnable,
+	}
+	logp.Printf("[DEBUG] Update opts of security group: %+v", udpateOpts)
+	err := securities.UpdateSSL(client, instanceID, udpateOpts).ExtractErr()
+	if err != nil {
+		return fmtp.Errorf("Error updating instance security group from result: %s ", err)
+	}
 	return nil
 }
 
