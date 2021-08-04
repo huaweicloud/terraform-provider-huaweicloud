@@ -43,6 +43,12 @@ func TestAccScmCertificationV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "UPLOAD"),
 				),
 			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"certificate", "certificate_chain", "private_key"},
+			},
 		},
 	})
 }

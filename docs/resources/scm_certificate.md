@@ -119,8 +119,11 @@ In addition to all arguments above, the following attributes are exported:
     * `record_value` - Domain verification value.
     * `domain` - Domain name mapping to the verification value
 
-## Timeouts
-This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `update` - Default is 10 minute.
-- `delete` - Default is 5 minute.
+## Import
+
+Certificates can be imported using the `id`, e.g.
+
+```sh
+terraform import huaweicloud_scm_certificate.certificate_1 scs1627959834994
+```
+
