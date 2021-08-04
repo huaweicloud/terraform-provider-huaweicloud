@@ -80,6 +80,7 @@ github.com/hashicorp/errwrap
 # github.com/hashicorp/go-checkpoint v0.5.0
 github.com/hashicorp/go-checkpoint
 # github.com/hashicorp/go-cleanhttp v0.5.2
+## explicit
 github.com/hashicorp/go-cleanhttp
 # github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
 github.com/hashicorp/go-cty/cty
@@ -363,6 +364,21 @@ github.com/jmespath/go-jmespath
 github.com/jstemmer/go-junit-report
 github.com/jstemmer/go-junit-report/formatter
 github.com/jstemmer/go-junit-report/parser
+# github.com/keybase/go-crypto v0.0.0-20200123153347-de78d2cb44f4
+## explicit
+github.com/keybase/go-crypto/brainpool
+github.com/keybase/go-crypto/cast5
+github.com/keybase/go-crypto/curve25519
+github.com/keybase/go-crypto/ed25519
+github.com/keybase/go-crypto/ed25519/internal/edwards25519
+github.com/keybase/go-crypto/openpgp
+github.com/keybase/go-crypto/openpgp/armor
+github.com/keybase/go-crypto/openpgp/ecdh
+github.com/keybase/go-crypto/openpgp/elgamal
+github.com/keybase/go-crypto/openpgp/errors
+github.com/keybase/go-crypto/openpgp/packet
+github.com/keybase/go-crypto/openpgp/s2k
+github.com/keybase/go-crypto/rsa
 # github.com/klauspost/compress v1.11.2
 github.com/klauspost/compress/fse
 github.com/klauspost/compress/huff0
