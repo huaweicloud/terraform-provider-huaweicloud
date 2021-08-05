@@ -66,12 +66,10 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 			"is_body_send": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
 			},
 			"cache_age": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Computed:     true,
 				ValidateFunc: validation.IntBetween(0, 3600),
 			},
 			"user_data": {
@@ -82,7 +80,6 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 			"identity": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
