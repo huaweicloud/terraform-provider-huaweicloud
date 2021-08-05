@@ -1,5 +1,5 @@
 ---
-subcategory: "API Gateway (APIG)"
+subcategory: "API Gateway (Dedicated APIG)"
 ---
 
 # huaweicloud_apig_throttling_policy

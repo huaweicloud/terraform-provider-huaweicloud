@@ -1,5 +1,5 @@
 ---
-subcategory: "API Gateway (APIG)"
+subcategory: "API Gateway (Shared APIG)"
 ---
 
 # huaweicloud\_api\_gateway\_group
