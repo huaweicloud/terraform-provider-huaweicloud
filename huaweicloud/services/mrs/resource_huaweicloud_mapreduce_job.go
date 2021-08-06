@@ -17,6 +17,28 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+const (
+	// JobFlink is a type of the MRS job, which specifies the use of Flink componment.
+	// The Flink is a unified computing framework that supports both batch processing and stream processing.
+	JobFlink = "Flink"
+	// JobHiveSQL is a type of the MRS job, which specifies the use of Hive componment by a sql command.
+	// The Hive is a data warehouse infrastructure built on Hadoop.
+	JobHiveSQL = "HiveSql"
+	// JobHiveScript is a type of the MRS job, which specifies the use of Hive componment by a sql file.
+	JobHiveScript = "HiveScript"
+	// JobMapReduce is a type of the MRS job, which specifies the use of MapReduce componment.
+	// MapReduce is the core of Hadoop.
+	JobMapReduce = "MapReduce"
+	// JobSparkSubmit is a type of the MRS job, which specifies the use of Spark componment to submit a job to MRS
+	// executor.
+	JobSparkSubmit = "SparkSubmit"
+	// JobSparkSQL is a type of the MRS job, which specifies the use of Spark componment by a sql command.
+	JobSparkSQL = "SparkSql"
+	// JobSparkScript is a type of the MRS job, which specifies the use of Spark componment by a sql file.
+	JobSparkScript = "SparkScript"
+)
+
+// ResourceMRSJobV2 is a schema resource to provider the MRS job.
 func ResourceMRSJobV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMRSJobV2Create,
@@ -57,10 +79,10 @@ func ResourceMRSJobV2() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"Flink", "HiveSql", "HiveScript", "MapReduce", "SparkSubmit", "SparkSql", "SparkScript",
+					JobFlink, JobHiveSQL, JobHiveScript, JobMapReduce, JobSparkSubmit, JobSparkSQL, JobSparkScript,
 				}, false),
 			},
-			"jar_path": {
+			"program_path": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -135,7 +157,7 @@ func buildMRSFlinkJobRequestArguments(d *schema.ResourceData) []string {
 	result = append(result, programs...)
 	result = append(result, "-m")
 	result = append(result, "yarn-cluster")
-	result = append(result, d.Get("jar_path").(string))
+	result = append(result, d.Get("program_path").(string))
 	result = append(result, parameters...)
 
 	return result
@@ -157,28 +179,29 @@ func buildMRSSQLJobRequestArguments(d *schema.ResourceData) []string {
 // The request arguments of the MapReduce job is: <jar path> <parameters>.
 func buildMRSMapReduceJobRequestArguments(d *schema.ResourceData) []string {
 	parameters := buildMRSJobParameters(d.Get("parameters").(string))
-	// The capacity of the result array is the sum of the respective lengths of jar path and parameter.
+	// The capacity of the result array is the sum of the respective lengths of jar path (/python path) and parameter.
 	result := make([]string, 0, 1+len(parameters))
 
-	result = append(result, d.Get("jar_path").(string))
+	result = append(result, d.Get("program_path").(string))
 	result = append(result, parameters...)
 	return result
 }
 
-// The request arguments of the SparkSubmit job is: <program parameters> --master yarn-cluster <jar path> <parameters>.
+// The request arguments of the SparkSubmit job is:
+//   <program parameters> --master yarn-cluster <jar path (/python path)> <parameters>.
 func buildMRSSparkSubmitJobRequestArguments(d *schema.ResourceData) []string {
 	programsMap := d.Get("program_parameters").(map[string]interface{})
 	programs := buildMRSJobProgramParameters(programsMap)
 	parameters := buildMRSJobParameters(d.Get("parameters").(string))
 
-	// The capacity of the result array is the sum of the respective lengths of '--master', 'yarn-cluster', jar path,
-	// program parameters and parameters.
+	// The capacity of the result array is the sum of the respective lengths of '--master', 'yarn-cluster',
+	// jar path (/python path), program parameters and parameters.
 	result := make([]string, 3+len(programs)+len(parameters))
 
 	result = append(result, programs...)
 	result = append(result, "--master")
 	result = append(result, "yarn-cluster")
-	result = append(result, d.Get("jar_path").(string))
+	result = append(result, d.Get("program_path").(string))
 	result = append(result, parameters...)
 
 	return result
@@ -201,11 +224,11 @@ func buildMRSJobCreateParameters(d *schema.ResourceData) jobs.CreateOpts {
 		Properties: buildMRSJobProperties(d),
 	}
 	switch d.Get("type").(string) {
-	case "Flink":
+	case JobFlink:
 		opts.Arguments = buildMRSFlinkJobRequestArguments(d)
-	case "HiveSql", "HiveScript", "SparkSql", "SparkScript":
+	case JobHiveSQL, JobHiveScript, JobSparkSQL, JobSparkScript:
 		opts.Arguments = buildMRSSQLJobRequestArguments(d)
-	case "MapReduce":
+	case JobMapReduce:
 		opts.Arguments = buildMRSMapReduceJobRequestArguments(d)
 	default:
 		opts.Arguments = buildMRSSparkSubmitJobRequestArguments(d)
@@ -261,9 +284,9 @@ func mrsJobStateRefreshFunc(client *golangsdk.ServiceClient, clusterId, jobId st
 // For example: "["run", "-d", "-m", "yarn-cluster", "obs://obs-demo-analysis-tf/program/driver_behavior.jar"]".
 func makeMRSArgumentsByString(str string) []string {
 	regex := regexp.MustCompile(`^\[(.*)\]$`)
-	result := regex.FindAllStringSubmatch(str, -1)
-	if len(result) != 0 && len(result[0]) != 0 {
-		str := result[0][1]
+	result := regex.FindStringSubmatch(str)
+	if len(result) > 1 {
+		str := result[1]
 		// Separate all elements based on commas.
 		return strings.Split(str, ", ")
 	}
@@ -310,7 +333,7 @@ func makeMRSSQLJobParameters(job *jobs.Job) (string, map[string]interface{}, err
 	return arguments[0], programs, nil
 }
 
-// The string arguments of the flink job is: '<jar path> <parameters>'.
+// The string arguments of the flink job is: '<jar path (/python path)> <parameters>'.
 func makeMRSMapReduceJobParameters(job *jobs.Job) (string, string, error) {
 	arguments := makeMRSArgumentsByString(job.Arguments)
 	// The arguments must contain jar path.
@@ -326,7 +349,8 @@ func makeMRSMapReduceJobParameters(job *jobs.Job) (string, string, error) {
 	return jarPath, parameters, nil
 }
 
-// The string arguments of the flink job is: '<program parameters> --master yarn-cluster <jar path> <parameters>'.
+// The string arguments of the flink job is:
+//   '<program parameters> --master yarn-cluster <jar path (/python path)> <parameters>'.
 func makeMRSSparkSubmitJobParameters(job *jobs.Job) (string, string, map[string]interface{}, error) {
 	programs := make(map[string]interface{})
 	arguments := makeMRSArgumentsByString(job.Arguments)
@@ -336,12 +360,12 @@ func makeMRSSparkSubmitJobParameters(job *jobs.Job) (string, string, map[string]
 		programs[arguments[0]] = arguments[1]
 		arguments = arguments[2:]
 	}
-	// The remaining elements of arguments must contain '--master', 'yarn-cluster' and jar path.
+	// The remaining elements of arguments must contain '--master', 'yarn-cluster' and jar path (/python path).
 	if len(arguments) < 3 {
 		return "", "", programs, fmtp.Errorf("Wrong arguments length of the API response")
 	}
 	arguments = arguments[2:] // remove '--master' and 'yarn-clsuter' program arguments.
-	// get jar path and remove it from argument list.
+	// get jar path (/python path) and remove it from argument list.
 	jarPath := arguments[0]
 	arguments = arguments[1:]
 	// get parameters string.
@@ -357,7 +381,7 @@ func setMRSFlinkJob(d *schema.ResourceData, resp *jobs.Job) error {
 	}
 
 	mErr := multierror.Append(
-		d.Set("jar_path", jarPath),
+		d.Set("program_path", jarPath),
 		d.Set("parameters", parameters),
 		d.Set("program_parameters", programs),
 	)
@@ -392,7 +416,7 @@ func setMRSMapReduceSubmitJob(d *schema.ResourceData, resp *jobs.Job) error {
 	}
 
 	mErr := multierror.Append(
-		d.Set("jar_path", jarPath),
+		d.Set("program_path", jarPath),
 		d.Set("parameters", parameters),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
@@ -409,7 +433,7 @@ func setMRSSparkSubmitJob(d *schema.ResourceData, resp *jobs.Job) error {
 	}
 
 	mErr := multierror.Append(
-		d.Set("jar_path", jarPath),
+		d.Set("program_path", jarPath),
 		d.Set("parameters", parameters),
 		d.Set("program_parameters", programs),
 	)
@@ -422,11 +446,11 @@ func setMRSSparkSubmitJob(d *schema.ResourceData, resp *jobs.Job) error {
 
 func setMRSJobParametersByArguments(d *schema.ResourceData, job *jobs.Job) error {
 	switch job.JobType {
-	case "HiveSql", "SparkSql", "HiveScript", "SparkScript":
+	case JobHiveSQL, JobHiveScript, JobSparkSQL, JobSparkScript:
 		return setMRSSQLJob(d, job)
-	case "MapReduce":
+	case JobMapReduce:
 		return setMRSMapReduceSubmitJob(d, job)
-	case "Flink":
+	case JobFlink:
 		return setMRSFlinkJob(d, job)
 	default:
 		return setMRSSparkSubmitJob(d, job)
@@ -439,9 +463,9 @@ func setMRSJobProperties(d *schema.ResourceData, resp string) error {
 	properties := make(map[string]interface{})
 	// Remove the braces around the map string.
 	regex := regexp.MustCompile(`^{(.*)}$`)
-	result := regex.FindAllStringSubmatch(resp, -1)
-	if len(result) != 0 && len(result[0]) != 0 {
-		str := result[0][1]
+	result := regex.FindStringSubmatch(resp)
+	if len(result) > 1 {
+		str := result[1]
 		if str == "" {
 			return nil
 		}

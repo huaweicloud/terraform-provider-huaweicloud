@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/mrs/v2/jobs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	mrsRes "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -31,8 +32,8 @@ func TestAccMrsMapReduceJob_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMRSV2JobExists(resourceName, &job),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "SparkSubmit"),
-					resource.TestCheckResourceAttr(resourceName, "jar_path",
+					resource.TestCheckResourceAttr(resourceName, "type", mrsRes.JobSparkSubmit),
+					resource.TestCheckResourceAttr(resourceName, "program_path",
 						"obs://obs-demo-analysis-tf/program/driver_behavior.jar"),
 				),
 			},
@@ -150,11 +151,11 @@ func testAccMrsMapReduceJobConfig_basic(rName, pwd string) string {
 %s
 
 resource "huaweicloud_mapreduce_job" "test" {
-  cluster_id = huaweicloud_mapreduce_cluster.test.id
-  name       = "%s"
-  type       = "SparkSubmit"
-  jar_path   = "obs://obs-demo-analysis-tf/program/driver_behavior.jar"
-  parameters = "%s %s 1 obs://obs-demo-analysis-tf/input obs://obs-demo-analysis-tf/output"
+  cluster_id   = huaweicloud_mapreduce_cluster.test.id
+  name         = "%s"
+  type         = "SparkSubmit"
+  program_path = "obs://obs-demo-analysis-tf/program/driver_behavior.jar"
+  parameters   = "%s %s 1 obs://obs-demo-analysis-tf/input obs://obs-demo-analysis-tf/output"
 
   program_parameters = {
     "--class" = "com.huawei.bigdata.spark.examples.DriverBehavior"
