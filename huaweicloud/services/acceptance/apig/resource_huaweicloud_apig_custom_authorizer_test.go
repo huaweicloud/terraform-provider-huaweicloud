@@ -35,7 +35,9 @@ func TestAccApigCustomAuthorizerV2_basic(t *testing.T) {
 					testAccCheckApigCustomAuthorizerExists(resourceName, &auth),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "FRONTEND"),
+					resource.TestCheckResourceAttr(resourceName, "is_body_send", "true"),
 					resource.TestCheckResourceAttr(resourceName, "cache_age", "60"),
+					resource.TestCheckResourceAttr(resourceName, "identity.#", "1"),
 				),
 			},
 			{
@@ -44,7 +46,9 @@ func TestAccApigCustomAuthorizerV2_basic(t *testing.T) {
 					testAccCheckApigCustomAuthorizerExists(resourceName, &auth),
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
 					resource.TestCheckResourceAttr(resourceName, "type", "FRONTEND"),
-					resource.TestCheckResourceAttr(resourceName, "cache_age", "45"),
+					resource.TestCheckResourceAttr(resourceName, "is_body_send", "false"),
+					resource.TestCheckResourceAttr(resourceName, "cache_age", "0"),
+					resource.TestCheckResourceAttr(resourceName, "identity.#", "0"),
 				),
 			},
 			{
@@ -79,6 +83,7 @@ func TestAccApigCustomAuthorizerV2_backend(t *testing.T) {
 					testAccCheckApigCustomAuthorizerExists(resourceName, &auth),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "BACKEND"),
+					resource.TestCheckResourceAttr(resourceName, "is_body_send", "false"),
 					resource.TestCheckResourceAttr(resourceName, "cache_age", "60"),
 				),
 			},
@@ -88,6 +93,7 @@ func TestAccApigCustomAuthorizerV2_backend(t *testing.T) {
 					testAccCheckApigCustomAuthorizerExists(resourceName, &auth),
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
 					resource.TestCheckResourceAttr(resourceName, "type", "BACKEND"),
+					resource.TestCheckResourceAttr(resourceName, "is_body_send", "false"),
 					resource.TestCheckResourceAttr(resourceName, "cache_age", "45"),
 				),
 			},
@@ -196,6 +202,7 @@ resource "huaweicloud_apig_custom_authorizer" "test" {
   name         = "%s"
   function_urn = huaweicloud_fgs_function.test.urn
   type         = "FRONTEND"
+  is_body_send = true
   cache_age    = 60
   
   identity {
@@ -215,12 +222,6 @@ resource "huaweicloud_apig_custom_authorizer" "test" {
   name         = "%s_update"
   function_urn = huaweicloud_fgs_function.test.urn
   type         = "FRONTEND"
-  cache_age    = 45
-  
-  identity {
-    name     = "user_name"
-    location = "HEADER"
-  }
 }
 `, testAccApigCustomAuthorizer_base(rName), rName)
 }
