@@ -311,3 +311,7 @@ func (r GetCertResult) Extract() (*Certificate, error) {
 type UpdateIpResult struct {
 	golangsdk.ErrResult
 }
+
+type OperationResult struct {
+	golangsdk.ErrResult
+}
