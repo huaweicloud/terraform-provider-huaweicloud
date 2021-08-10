@@ -67,6 +67,13 @@ type ListOpts struct {
 	Tags           string `q:"tags"`
 }
 
+type ActionOpts struct {
+	Action    string `json:"action" required:"true"` //Operations to be performed: restart; scale_out;scale_in
+	Force     bool   `json:"force,omitempty"`        //when action= restart,can Specifies whether to forcibly restart
+	CuCount   int    `json:"cu_count,omitempty"`     // Number of CUs to be scaled in or out.
+	QueueName string `json:"-" required:"true"`
+}
+
 // CreateOptsBuilder allows extensions to add additional parameters to the
 // Create request.
 type CreateOptsBuilder interface {
@@ -174,4 +181,15 @@ func Get(c *golangsdk.ServiceClient, queueName string) (r GetResult) {
 	}
 
 	return r
+}
+
+func ScaleOrRestart(c *golangsdk.ServiceClient, opts ActionOpts) (r PutResult) {
+	requstbody, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		r.Err = err
+		return
+	}
+	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
+	_, r.Err = c.Put(ActionURL(c, opts.QueueName), requstbody, &r.Body, reqOpt)
+	return
 }

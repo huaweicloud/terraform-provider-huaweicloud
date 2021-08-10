@@ -10,7 +10,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
@@ -18,38 +17,58 @@ import (
 )
 
 func TestAccDliQueue_basic(t *testing.T) {
-	rName := fmt.Sprintf("tf_acc_test_dli_queue_%s", acctest.RandString(5))
+	rName := act.RandomAccResourceName()
 	resourceName := "huaweicloud_dli_queue.test"
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { act.TestAccPreCheck(t) },
 		Providers:    act.TestAccProviders,
 		CheckDestroy: testAccCheckDliQueueDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDliQueue_basic(rName),
+				Config: testAccDliQueue_basic(rName, dli.CU_16),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDliQueueExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
+					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", dli.CU_16)),
 					resource.TestCheckResourceAttrSet(resourceName, "resource_mode"),
 					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
 				),
+			},
+			{
+				Config: testAccDliQueue_basic(rName, 2*dli.CU_16),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDliQueueExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "queue_type", dli.QUEUE_TYPE_SQL),
+					resource.TestCheckResourceAttr(resourceName, "cu_count", fmt.Sprintf("%d", 2*dli.CU_16)),
+					resource.TestCheckResourceAttrSet(resourceName, "resource_mode"),
+					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"tags",
+				},
 			},
 		},
 	})
 }
 
-func testAccDliQueue_basic(rName string) string {
+func testAccDliQueue_basic(rName string, cuCount int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dli_queue" "test" {
   name          = "%s"
-  cu_count      = 16
+  cu_count      = %d
   
   tags = {
     k1 = "1"
   }
-}`, rName)
+}`, rName, cuCount)
 }
 
 func testAccCheckDliQueueDestroy(s *terraform.State) error {
