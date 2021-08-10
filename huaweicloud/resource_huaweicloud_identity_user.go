@@ -67,7 +67,7 @@ func ResourceIdentityUserV3() *schema.Resource {
 					"default", "programmatic", "console",
 				}, false),
 			},
-			"password_stength": {
+			"password_strength": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -140,7 +140,7 @@ func resourceIdentityUserV3Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("email", user.Email)
 	d.Set("country_code", user.AreaCode)
 	d.Set("access_type", user.AccessMode)
-	d.Set("password_stength", user.PasswordStength)
+	d.Set("password_strength", user.PasswordStrength)
 	d.Set("create_time", user.CreateAt)
 	d.Set("last_login", user.LastLogin)
 

@@ -34,6 +34,8 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", userName),
 					resource.TestCheckResourceAttr(resourceName, "description", "tested by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "email", "user_1@abc.com"),
+					resource.TestCheckResourceAttr(resourceName, "password_strength", "Strong"),
 				),
 			},
 			{
@@ -49,8 +51,9 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIdentityV3UserExists(resourceName, &user),
 					resource.TestCheckResourceAttr(resourceName, "name", userName),
-					resource.TestCheckResourceAttr(resourceName, "description", "tested by terraform update"),
+					resource.TestCheckResourceAttr(resourceName, "description", "updated by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "email", "user_1@abcd.com"),
 				),
 			},
 		},
@@ -116,6 +119,7 @@ resource "huaweicloud_identity_user" "user_1" {
   name        = "%s"
   password    = "password123@!"
   enabled     = true
+  email       = "user_1@abc.com"
   description = "tested by terraform"
 }
 `, userName)
@@ -127,7 +131,8 @@ resource "huaweicloud_identity_user" "user_1" {
   name        = "%s"
   password    = "password123@!"
   enabled     = false
-  description = "tested by terraform update"
+  email       = "user_1@abcd.com"
+  description = "updated by terraform"
 }
 `, userName)
 }
