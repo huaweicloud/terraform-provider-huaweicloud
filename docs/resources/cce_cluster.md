@@ -194,6 +194,9 @@ The following arguments are supported:
 * `delete_all` - (Optional, String) Specified whether to delete all associated storage resources when deleting the CCE cluster.
   valid values are "true", "try" and "false". Default is false.
 
+* `hibernate` - (Optional, Bool) Specifies whether to hibernate the CCE cluster. Defaults to false.
+  After a cluster is hibernated, resources such as workloads cannot be created or managed in the cluster, and the cluster cannot be deleted.
+
 The `masters` block supports:
 
 * `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone of the master node. Changing this creates a new cluster.
