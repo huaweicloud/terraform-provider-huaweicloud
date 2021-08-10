@@ -6,20 +6,22 @@ import (
 
 // User represents a User in the OpenStack Identity Service.
 type User struct {
-	ID              string `json:"id"`
-	DomainID        string `json:"domain_id"`
-	Name            string `json:"name"`
-	Email           string `json:"email"`
-	AreaCode        string `json:"areacode"`
-	Phone           string `json:"phone"`
-	Description     string `json:"description"`
-	AccessMode      string `json:"access_mode"`
-	Enabled         bool   `json:"enabled"`
-	PasswordStatus  bool   `json:"pwd_status"`
-	PasswordStength string `json:"pwd_stength"`
-	CreateAt        string `json:"create_time"`
-	UpdateAt        string `json:"update_time"`
-	LastLogin       string `json:"last_login_time"`
+	ID               string `json:"id"`
+	DomainID         string `json:"domain_id"`
+	Name             string `json:"name"`
+	Email            string `json:"email"`
+	AreaCode         string `json:"areacode"`
+	Phone            string `json:"phone"`
+	Description      string `json:"description"`
+	AccessMode       string `json:"access_mode"`
+	Enabled          bool   `json:"enabled"`
+	PasswordStatus   bool   `json:"pwd_status"`
+	PasswordStrength string `json:"pwd_strength"`
+	CreateAt         string `json:"create_time"`
+	UpdateAt         string `json:"update_time"`
+	LastLogin        string `json:"last_login_time"`
+	XuserID          string `json:"xuser_id"`
+	XuserType        string `json:"xuser_type"`
 
 	// Links contains referencing links to the user.
 	Links map[string]interface{} `json:"links"`
