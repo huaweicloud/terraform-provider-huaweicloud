@@ -1,6 +1,9 @@
 package golangsdk
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // BaseError is an error type that all other error types embed.
 type BaseError struct {
@@ -118,9 +121,21 @@ func (e ErrDefault401) Error() string {
 	return "Authentication failed"
 }
 func (e ErrDefault403) Error() string {
+	var maxLength int = 200
+	var unAuthorized string = "Request not authorized"
+
+	messageBody := string(e.Body)
+	if len(messageBody) > maxLength {
+		if strings.Contains(messageBody, unAuthorized) {
+			messageBody = unAuthorized
+		} else {
+			messageBody = messageBody[:maxLength] + "\n..."
+		}
+	}
+
 	e.DefaultErrString = fmt.Sprintf(
 		"Action forbidden: [%s %s], error message: %s",
-		e.Method, e.URL, e.Body,
+		e.Method, e.URL, messageBody,
 	)
 	return e.choseErrString()
 }

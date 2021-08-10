@@ -6,7 +6,7 @@ require (
 	github.com/hashicorp/errwrap v1.0.0
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/hashicorp/terraform-plugin-sdk v1.16.0
-	github.com/huaweicloud/golangsdk v0.0.0-20210802032346-3c4a88adf03a
+	github.com/huaweicloud/golangsdk v0.0.0-20210806094024-ee9e1498168a
 	github.com/jen20/awspolicyequivalence v1.1.0
 	github.com/smartystreets/goconvey v0.0.0-20190222223459-a17d461953aa // indirect
 	github.com/stretchr/testify v1.4.0
