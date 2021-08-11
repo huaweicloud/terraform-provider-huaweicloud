@@ -271,6 +271,15 @@ func buildRdsInstanceV3DBPort(d *schema.ResourceData) string {
 	return ""
 }
 
+func isMySQLDatabase(d *schema.ResourceData) bool {
+	dbType := d.Get("db.0.type").(string)
+	// Database type is not case sensitive.
+	if strings.ToLower(dbType) == "mysql" {
+		return true
+	}
+	return false
+}
+
 func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	region := GetRegion(d, config)
@@ -346,13 +355,13 @@ func resourceRdsInstanceV3Create(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.Get("ssl_enable").(bool) == true {
-		if d.Get("db.0.type").(string) == "MySQL" {
+		if isMySQLDatabase(d) {
 			err = configRdsInstanceSSL(d, client, d.Id())
 			if err != nil {
 				return err
 			}
 		} else {
-			return fmtp.Errorf("Only MySQL database support SSL enable and disable.")
+			return fmtp.Errorf("Only MySQL database support SSL enable and disable")
 		}
 	}
 
@@ -799,7 +808,7 @@ func updateRdsInstanceDBPort(d *schema.ResourceData, client *golangsdk.ServiceCl
 	logp.Printf("[DEBUG] Update opts of Database port: %+v", udpateOpts)
 	_, err := securities.UpdatePort(client, instanceID, udpateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating instance database port from result: %s ", err)
+		return fmtp.Errorf("Error updating instance database port: %s ", err)
 	}
 	// for prePaid charge mode
 	stateConf := &resource.StateChangeConf{
@@ -828,15 +837,18 @@ func updateRdsInstanceSecurityGroup(d *schema.ResourceData, client *golangsdk.Se
 	logp.Printf("[DEBUG] Update opts of security group: %+v", udpateOpts)
 	_, err := securities.UpdateSecGroup(client, instanceID, udpateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating instance security group from result: %s ", err)
+		return fmtp.Errorf("Error updating instance security group: %s ", err)
 	}
 
 	return nil
 }
 
 func updateRdsInstanceSSLConfig(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
-	if d.Get("db.0.type").(string) != "MySQL" || !d.HasChange("ssl_enable") {
+	if !d.HasChange("ssl_enable") {
 		return nil
+	}
+	if !isMySQLDatabase(d) {
+		return fmtp.Errorf("Only MySQL database support SSL enable and disable")
 	}
 	return configRdsInstanceSSL(d, client, instanceID)
 }
@@ -846,10 +858,10 @@ func configRdsInstanceSSL(d *schema.ResourceData, client *golangsdk.ServiceClien
 	udpateOpts := securities.SSLOpts{
 		SSLEnable: &sslEnable,
 	}
-	logp.Printf("[DEBUG] Update opts of security group: %+v", udpateOpts)
+	logp.Printf("[DEBUG] Update opts of SSL configuration: %+v", udpateOpts)
 	err := securities.UpdateSSL(client, instanceID, udpateOpts).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error updating instance security group from result: %s ", err)
+		return fmtp.Errorf("Error updating instance SSL configuration: %s ", err)
 	}
 	return nil
 }
