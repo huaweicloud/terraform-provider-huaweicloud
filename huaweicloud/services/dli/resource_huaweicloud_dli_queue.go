@@ -2,6 +2,7 @@ package dli
 
 import (
 	"fmt"
+	"math"
 	"regexp"
 	"time"
 
@@ -73,7 +74,7 @@ func ResourceDliQueue() *schema.Resource {
 			"cu_count": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ValidateFunc: validation.IntDivisibleBy(CU_16),
+				ValidateFunc: validCuCount,
 			},
 
 			"enterprise_project_id": {
@@ -179,7 +180,7 @@ func resourceDliQueueCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(queueName)
 
 	// This is a workaround to avoid issue: the queue is assigning, which is not available
-	time.Sleep(10 * time.Second) //lintignore:R018
+	time.Sleep(120 * time.Second) //lintignore:R018
 
 	return resourceDliQueueRead(d, meta)
 }
@@ -287,7 +288,9 @@ func resourceDliQueueUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 	if d.HasChange("cu_count") {
 		oldValue, newValue := d.GetChange("cu_count")
-		opt.CuCount = newValue.(int) - oldValue.(int)
+		cuChange := newValue.(int) - oldValue.(int)
+
+		opt.CuCount = int(math.Abs(float64(cuChange)))
 		opt.Action = buildScaleActionParam(oldValue.(int), newValue.(int))
 
 		logp.Printf("[DEBUG]DLI queue Update Option: %#v", opt)
@@ -304,10 +307,9 @@ func resourceDliQueueUpdate(d *schema.ResourceData, meta interface{}) error {
 				queueDetail := getResult.Body.(*queues.Queue4Get)
 				return getResult, fmt.Sprintf("%d", queueDetail.CuCount), nil
 			},
-			Timeout:                   d.Timeout(schema.TimeoutUpdate),
-			Delay:                     30 * time.Second,
-			PollInterval:              20 * time.Second,
-			ContinuousTargetOccurence: 5,
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			Delay:        30 * time.Second,
+			PollInterval: 20 * time.Second,
 		}
 		_, err = updateStateConf.WaitForState()
 		if err != nil {
@@ -325,4 +327,13 @@ func buildScaleActionParam(oldValue, newValue int) string {
 	} else {
 		return actionScaleOut
 	}
+}
+
+func validCuCount(val interface{}, key string) (warns []string, errs []error) {
+	diviNum := 16
+	warns, errs = validation.IntAtLeast(diviNum)(val, key)
+	if len(errs) > 0 {
+		return warns, errs
+	}
+	return validation.IntDivisibleBy(diviNum)(val, key)
 }

@@ -44,8 +44,8 @@ The following arguments are supported:
 * `description` - (Optional, String, ForceNew) Description of a queue. 
     Changing this parameter will create a new resource.
 
-* `cu_count` - (Required, Int ) Minimum number of CUs that are bound to a queue. Initial value can be `16`,
-  `64`, or `256`. When scale_out or scale_in, the number must be a multiple of 16
+* `cu_count` - (Required, Int) Minimum number of CUs that are bound to a queue. Initial value can be `16`,
+    `64`, or `256`. When scale_out or scale_in, the number must be a multiple of 16
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Enterprise project ID. 
     The value 0 indicates the default enterprise project. Changing this parameter will create a new resource.
@@ -77,9 +77,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `create_time` -  Time when a queue is created.
 
+## Timeouts
+This resource provides the following timeouts configuration options:
+- `update` - Default is 45 minute.
+
 ## Import
 
-queue can be imported by  `id`. For example,
+DLI queue can be imported by  `id`. For example,
 ```
 terraform import huaweicloud_dli_queue.example  abc123
 ```
