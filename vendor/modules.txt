@@ -267,7 +267,7 @@ github.com/hashicorp/terraform-svchost/auth
 github.com/hashicorp/terraform-svchost/disco
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20210811022513-26588c1f3b5d
+# github.com/huaweicloud/golangsdk v0.0.0-20210811015908-f7ad77891df6
 ## explicit
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/internal
@@ -277,6 +277,7 @@ github.com/huaweicloud/golangsdk/openstack/aom/v1/icagents
 github.com/huaweicloud/golangsdk/openstack/apigw/apis
 github.com/huaweicloud/golangsdk/openstack/apigw/groups
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/apigroups
+github.com/huaweicloud/golangsdk/openstack/apigw/v2/apis
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/applications
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/authorizers
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/channels
@@ -448,6 +449,7 @@ github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances
 github.com/huaweicloud/golangsdk/openstack/rds/v3/backups
 github.com/huaweicloud/golangsdk/openstack/rds/v3/configurations
 github.com/huaweicloud/golangsdk/openstack/rds/v3/instances
+github.com/huaweicloud/golangsdk/openstack/rds/v3/securities
 github.com/huaweicloud/golangsdk/openstack/rts/v1/softwareconfig
 github.com/huaweicloud/golangsdk/openstack/rts/v1/stackresources
 github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks

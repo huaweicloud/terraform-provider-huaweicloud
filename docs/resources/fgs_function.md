@@ -156,7 +156,8 @@ The following arguments are supported:
 
 * `memory_size` - (Required, Int) Specifies the memory size(MB) allocated to the function.
 
-* `runtime` - (Required, String) Specifies the environment for executing the function.
+* `runtime` - (Required, String, ForceNew) Specifies the environment for executing the function.
+  Changing this creates a new Function resource.
 
 * `timeout` - (Required, Int) Specifies the timeout interval of the function, ranges from 3s to 900s.
 
