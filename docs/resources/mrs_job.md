@@ -5,7 +5,7 @@ subcategory: "MapReduce Service (MRS)"
 # huaweicloud\_mrs\_job
 
 Manages resource job within HuaweiCloud MRS.
-This is an alternative to `huaweicloud_mrs_job_v1`
+It is recommend to use `huaweicloud_mapreduce_job`, which makes a great improvement of managing MRS jobs.
 
 ## Example Usage
 
