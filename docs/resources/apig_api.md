@@ -94,7 +94,7 @@ The following arguments are supported:
 * `simple_authentication` - (Optional, Bool) Specifies whether AppCode authentication is enabled.
   The applicaiton code must located in the header when `simple_authentication` is true.
 
-* `authorizer_id` - (Optional, Bool) Specifies ID of the front-end custom authorizer.
+* `authorizer_id` - (Optional, String) Specifies ID of the front-end custom authorizer.
 
 * `body_description` - (Optional, String) Specifies the description of the API request body, which can be an example request body,
   media type or parameters.
