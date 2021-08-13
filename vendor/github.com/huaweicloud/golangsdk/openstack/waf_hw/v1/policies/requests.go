@@ -81,6 +81,14 @@ type UpdateHostsOpts struct {
 	Hosts []string `q:"hosts" required:"true"`
 }
 
+// ListPolicyOpts
+type ListPolicyOpts struct {
+	Page     int `q:"page"`
+	Pagesize int `q:"pagesize"`
+	// policy name
+	Name string `q:"name"`
+}
+
 // ToUpdateHostsQuery builds a update request query from UpdateHostsOpts.
 func (opts UpdateHostsOpts) ToUpdateHostsQuery() (string, error) {
 	q, err := golangsdk.BuildQueryString(opts)
@@ -121,5 +129,24 @@ func Delete(c *golangsdk.ServiceClient, id string) (r DeleteResult) {
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200},
 		MoreHeaders: RequestOpts.MoreHeaders}
 	_, r.Err = c.Delete(resourceURL(c, id), reqOpt)
+	return
+}
+
+// ListPolicy retrieve waf policy by ListPolicyOpts
+func ListPolicy(c *golangsdk.ServiceClient, opts ListPolicyOpts) (r ListPolicyRst, err error) {
+	url := rootURL(c)
+	query, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return r, err
+	}
+	url += query.String()
+
+	var rst golangsdk.Result
+	_, err = c.Get(url, &rst.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	if err != nil {
+		rst.ExtractInto(&r)
+	}
 	return
 }

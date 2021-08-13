@@ -110,3 +110,7 @@ type GetResult struct {
 type DeleteResult struct {
 	golangsdk.Result
 }
+
+type PutResult struct {
+	golangsdk.Result
+}

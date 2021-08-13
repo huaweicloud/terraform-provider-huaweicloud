@@ -1,8 +1,12 @@
 package dli
 
 import (
+	"fmt"
+	"math"
 	"regexp"
+	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
@@ -21,11 +25,21 @@ const QUEUE_TYPE_SQL, QUEUE_TYPE_GENERAL = "sql", "general"
 const QUEUE_FEATURE_BASIC, QUEUE_FEATURE_AI = "basic", "ai"
 const QUEUE_PLATFORM_X86, QUEUE_platform_AARCH64 = "x86_64", "aarch64"
 
+const (
+	actionRestart  = "restart"
+	actionScaleOut = "scale_out"
+	actionScaleIn  = "scale_in"
+)
+
 func ResourceDliQueue() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDliQueueCreate,
 		Read:   resourceDliQueueRead,
+		Update: resourceDliQueueUpdate,
 		Delete: resourceDliQueueDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -60,8 +74,7 @@ func ResourceDliQueue() *schema.Resource {
 			"cu_count": {
 				Type:         schema.TypeInt,
 				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntInSlice([]int{CU_16, CU_64, CU_256}),
+				ValidateFunc: validCuCount,
 			},
 
 			"enterprise_project_id": {
@@ -75,8 +88,8 @@ func ResourceDliQueue() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				Default:      "x86_64",
-				ValidateFunc: validation.StringInSlice([]string{"x86_64", "aarch64"}, false),
+				Default:      QUEUE_PLATFORM_X86,
+				ValidateFunc: validation.StringInSlice([]string{QUEUE_PLATFORM_X86, QUEUE_platform_AARCH64}, false),
 			},
 
 			"resource_mode": {
@@ -128,6 +141,10 @@ func ResourceDliQueue() *schema.Resource {
 				Deprecated: "vpc_cidr is Deprecated",
 			},
 		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Update: schema.DefaultTimeout(45 * time.Minute),
+		},
 	}
 }
 
@@ -162,6 +179,9 @@ func resourceDliQueueCreate(d *schema.ResourceData, meta interface{}) error {
 	//query queue detail,trriger read to refresh the state
 	d.SetId(queueName)
 
+	// This is a workaround to avoid issue: the queue is assigning, which is not available
+	time.Sleep(120 * time.Second) //lintignore:R018
+
 	return resourceDliQueueRead(d, meta)
 }
 
@@ -182,13 +202,13 @@ func resourceDliQueueRead(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("error creating DliV1Client, err=%s", err)
 	}
 
-	queueName := d.Get("name").(string)
+	queueName := d.Id()
 
 	queryOpts := queues.ListOpts{
 		QueueType: d.Get("queue_type").(string),
 	}
 
-	logp.Printf("[DEBUG] create dli queues using paramaters: %+v", queryOpts)
+	logp.Printf("[DEBUG] query dli queues using paramaters: %+v", queryOpts)
 
 	queryAllResult := queues.List(dliClient, queryOpts)
 	if queryAllResult.Err != nil {
@@ -208,10 +228,14 @@ func resourceDliQueueRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("queue_type", queueDetail.QueueType)
 		d.Set("description", queueDetail.Description)
 		d.Set("cu_count", queueDetail.CuCount)
+		if queueDetail.EnterpriseProjectId != "" {
+			d.Set("enterprise_project_id", queueDetail.EnterpriseProjectId)
+		}
 		d.Set("platform", queueDetail.Platform)
 		d.Set("resource_mode", queueDetail.ResourceMode)
 		d.Set("feature", queueDetail.Feature)
 		d.Set("create_time", queueDetail.CreateTime)
+
 	}
 
 	return nil
@@ -248,4 +272,68 @@ func resourceDliQueueDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+/*
+  support cu_count scaling
+*/
+func resourceDliQueueUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*config.Config)
+	client, err := config.DliV1Client(config.GetRegion(d))
+	if err != nil {
+		return fmtp.Errorf("error creating DliV1Client: %s", err)
+	}
+	opt := queues.ActionOpts{
+		QueueName: d.Id(),
+	}
+	if d.HasChange("cu_count") {
+		oldValue, newValue := d.GetChange("cu_count")
+		cuChange := newValue.(int) - oldValue.(int)
+
+		opt.CuCount = int(math.Abs(float64(cuChange)))
+		opt.Action = buildScaleActionParam(oldValue.(int), newValue.(int))
+
+		logp.Printf("[DEBUG]DLI queue Update Option: %#v", opt)
+		result := queues.ScaleOrRestart(client, opt)
+		if result.Err != nil {
+			return fmtp.Errorf("update dli queues failed,queueName=%s,error:%s", opt.QueueName, result.Err)
+		}
+
+		updateStateConf := &resource.StateChangeConf{
+			Pending: []string{fmt.Sprintf("%d", oldValue)},
+			Target:  []string{fmt.Sprintf("%d", newValue)},
+			Refresh: func() (interface{}, string, error) {
+				getResult := queues.Get(client, d.Id())
+				queueDetail := getResult.Body.(*queues.Queue4Get)
+				return getResult, fmt.Sprintf("%d", queueDetail.CuCount), nil
+			},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			Delay:        30 * time.Second,
+			PollInterval: 20 * time.Second,
+		}
+		_, err = updateStateConf.WaitForState()
+		if err != nil {
+			return fmtp.Errorf("error waiting for dli.queue (%s) to be scale: %s", d.Id(), err)
+		}
+
+	}
+
+	return resourceDliQueueRead(d, meta)
+}
+
+func buildScaleActionParam(oldValue, newValue int) string {
+	if oldValue > newValue {
+		return actionScaleIn
+	} else {
+		return actionScaleOut
+	}
+}
+
+func validCuCount(val interface{}, key string) (warns []string, errs []error) {
+	diviNum := 16
+	warns, errs = validation.IntAtLeast(diviNum)(val, key)
+	if len(errs) > 0 {
+		return warns, errs
+	}
+	return validation.IntDivisibleBy(diviNum)(val, key)
 }
