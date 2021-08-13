@@ -1,3 +1,23 @@
+## 1.27.1 (August 13, 2021)
+
+FEATURES:
+
+* **New Resurce:**
+  - `huaweicloud_mapreduce_job` [GH-1324]
+  - `huaweicloud_apig_api` [GH-1360]
+
+ENHANCEMENTS:
+
+* config: Introduce the retry func (honor 429 http code) [GH-1351]
+* resource/huaweicloud_scm_certificate: Support import function [GH-1342]
+* resource/huaweicloud_cce_cluster: Support hibernate/awake action [GH-1344]
+* resource/huaweicloud_dli_queue: Make `cu_count` updatable [GH-1347]
+* resource/huaweicloud_rds_instance: Make `db.0.port` and `security_group_id` updatable [GH-1317]
+
+BUG FIXES:
+
+* resource/huaweicloud_fgs_function: Mark runtimue parameter be forcenew [GH-1361]
+
 ## 1.27.0 (July 31, 2021)
 
 FEATURES:
