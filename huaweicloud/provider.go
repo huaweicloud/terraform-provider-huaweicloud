@@ -423,6 +423,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dms_instance":                    ResourceDmsInstancesV1(),
 			"huaweicloud_dms_queue":                       ResourceDmsQueuesV1(),
 			"huaweicloud_dms_kafka_instance":              ResourceDmsKafkaInstance(),
+			"huaweicloud_dms_kafka_topic":                 ResourceDmsKafkaTopic(),
 			"huaweicloud_dms_rabbitmq_instance":           ResourceDmsRabbitmqInstance(),
 			"huaweicloud_dns_ptrrecord":                   ResourceDNSPtrRecordV2(),
 			"huaweicloud_dns_recordset":                   ResourceDNSRecordSetV2(),
