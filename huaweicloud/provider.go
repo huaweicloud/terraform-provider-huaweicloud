@@ -327,6 +327,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpc_subnet_ids":              DataSourceVpcSubnetIdsV1(),
 			"huaweicloud_vpcep_public_services":       DataSourceVPCEPPublicServices(),
 			"huaweicloud_waf_certificate":             waf.DataSourceWafCertificateV1(),
+			"huaweicloud_waf_policies":                waf.DataSourceWafPoliciesV1(),
 
 			// Legacy
 			"huaweicloud_images_image_v2":           DataSourceImagesImageV2(),
