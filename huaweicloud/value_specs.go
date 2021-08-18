@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/recordsets"
 	"github.com/huaweicloud/golangsdk/openstack/dns/v2/zones"

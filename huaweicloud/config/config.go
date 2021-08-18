@@ -11,14 +11,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/logging"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	huaweisdk "github.com/huaweicloud/golangsdk/openstack"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/domains"
 	"github.com/huaweicloud/golangsdk/openstack/identity/v3/projects"
 	"github.com/huaweicloud/golangsdk/openstack/obs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/pathorcontents"
 )
 
 const (

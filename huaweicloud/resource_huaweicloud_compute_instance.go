@@ -8,10 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions"
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
@@ -30,6 +29,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -140,11 +140,6 @@ func ResourceComputeInstanceV2() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 							Computed: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Removed:  "use uuid instead",
 						},
 						"port": {
 							Type:     schema.TypeString,

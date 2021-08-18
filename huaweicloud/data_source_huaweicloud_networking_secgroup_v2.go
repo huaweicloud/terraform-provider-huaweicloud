@@ -7,7 +7,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func DataSourceNetworkingSecGroupV2() *schema.Resource {

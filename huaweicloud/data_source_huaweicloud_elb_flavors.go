@@ -1,13 +1,12 @@
 package huaweicloud
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/golangsdk/openstack/elb/v3/flavors"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func dataSourceElbFlavorsV3() *schema.Resource {
@@ -156,7 +155,7 @@ func dataSourceElbFlavorsV3Read(d *schema.ResourceData, meta interface{}) error 
 			"Please change your search criteria and try again.")
 	}
 
-	d.SetId(utils.DataResourceIdHash(ids))
+	d.SetId(hashcode.Strings(ids))
 	d.Set("ids", ids)
 	if err := d.Set("flavors", s); err != nil {
 		return err

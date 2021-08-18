@@ -7,7 +7,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/addons"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/templates"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
