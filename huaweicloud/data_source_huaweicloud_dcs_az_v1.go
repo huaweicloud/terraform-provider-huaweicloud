@@ -1,12 +1,11 @@
 package huaweicloud
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/dcs/v1/availablezones"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceDcsAZV1() *schema.Resource {
@@ -19,12 +18,12 @@ func DataSourceDcsAZV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"name": {
+			"code": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"code": {
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -40,9 +39,10 @@ func DataSourceDcsAZV1() *schema.Resource {
 
 func dataSourceDcsAZV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
+	region := GetRegion(d, config)
+	dcsV1Client, err := config.DcsV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating dcs key client: %s", err)
+		return fmtp.Errorf("Error creating DCS client: %s", err)
 	}
 
 	v, err := availablezones.Get(dcsV1Client).Extract()
@@ -50,12 +50,17 @@ func dataSourceDcsAZV1Read(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	logp.Printf("[DEBUG] Dcs az : %+v", v)
+	logp.Printf("[DEBUG] fetching DCS available zones : %+v", v)
 	var filteredAZs []availablezones.AvailableZone
-	if v.RegionID == GetRegion(d, config) {
+	if v.RegionID == region {
 		AZs := v.AvailableZones
 		for _, newAZ := range AZs {
 			if newAZ.ResourceAvailability != "true" {
+				continue
+			}
+
+			code := d.Get("code").(string)
+			if code != "" && newAZ.Code != code {
 				continue
 			}
 
@@ -69,10 +74,6 @@ func dataSourceDcsAZV1Read(d *schema.ResourceData, meta interface{}) error {
 				continue
 			}
 
-			code := d.Get("code").(string)
-			if code != "" && newAZ.Code != code {
-				continue
-			}
 			filteredAZs = append(filteredAZs, newAZ)
 		}
 	}
@@ -82,7 +83,7 @@ func dataSourceDcsAZV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	az := filteredAZs[0]
-	logp.Printf("[DEBUG] Dcs az : %+v", az)
+	logp.Printf("[DEBUG] filter DCS available zone: %+v", az)
 
 	d.SetId(az.ID)
 	d.Set("code", az.Code)

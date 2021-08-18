@@ -5,7 +5,7 @@ subcategory: "MapReduce Service (MRS)"
 # huaweicloud\_mrs\_cluster
 
 Manages resource cluster within HuaweiCloud MRS.
-This is an alternative to `huaweicloud_mrs_cluster_v1`
+It is recommend to use `huaweicloud_mapreduce_cluster`, which makes a great improvement of managing MRS clusters.
 
 ## Example Usage: Creating an MRS cluster
 

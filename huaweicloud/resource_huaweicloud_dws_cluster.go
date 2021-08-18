@@ -203,6 +203,13 @@ func ResourceDwsCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -315,6 +322,11 @@ func resourceDwsClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	if !e {
 		opts["vpc_id"] = vpcIDProp
+	}
+
+	enterpriseProjectID := config.GetEnterpriseProjectID(d)
+	if enterpriseProjectID != "" {
+		opts["enterprise_project_id"] = enterpriseProjectID
 	}
 
 	url, err := replaceVars(d, "clusters", nil)
@@ -503,6 +515,12 @@ func resourceDwsClusterRead(d *schema.ResourceData, meta interface{}) error {
 	if v, ok := res["version"]; ok {
 		if err := d.Set("version", v); err != nil {
 			return fmtp.Errorf("Error reading Cluster:version, err: %s", err)
+		}
+	}
+
+	if v, ok := res["enterprise_project_id"]; ok {
+		if err := d.Set("enterprise_project_id", v); err != nil {
+			return fmtp.Errorf("Error reading Cluster:enterprise_project_id, err: %s", err)
 		}
 	}
 

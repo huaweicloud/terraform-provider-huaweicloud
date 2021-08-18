@@ -56,7 +56,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
 
-* `password_stength` - Indicates the password strength. The value can be low, middle, high, or none.
+* `password_strength` - Indicates the password strength.
 
 * `create_time` - The time when the IAM user was created.
 

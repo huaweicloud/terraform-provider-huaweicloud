@@ -790,17 +790,29 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	var err error
 	config := testProvider.Meta().(*config.Config)
 
-	// test the endpoint of MRS service
+	// test the endpoint of MRS v1.1 service
 	serviceClient, err = config.MrsV1Client(HW_REGION_NAME)
 	if err != nil {
-		t.Fatalf("Error creating HuaweiCloud MRS client: %s", err)
+		t.Fatalf("Error creating HuaweiCloud MRS v1.1 client: %s", err)
 	}
 	expectedURL = fmt.Sprintf("https://mrs.%s.%s/v1.1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
-		t.Fatalf("MRS endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+		t.Fatalf("MRS v1.1 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
-	t.Logf("MRS endpoint:\t %s", actualURL)
+	t.Logf("MRS v1.1 endpoint:\t %s", actualURL)
+
+	// test the endpoint of MRS v2 service
+	serviceClient, err = config.MrsV2Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud MRS v2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://mrs.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("MRS v2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("MRS v2 endpoint:\t %s", actualURL)
 
 	// test the endpoint of SMN service
 	serviceClient, err = config.SmnV2Client(HW_REGION_NAME)

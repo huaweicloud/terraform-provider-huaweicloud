@@ -40,9 +40,9 @@ func TestAccDcsInstancesV1_basic(t *testing.T) {
 			{
 				Config: testAccDcsV1Instance_updated(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("huaweicloud_dcs_instance.instance_1", "backup_policy.0.begin_at", "01:00-02:00"),
-					resource.TestCheckResourceAttr("huaweicloud_dcs_instance.instance_1", "backup_policy.0.save_days", "2"),
-					resource.TestCheckResourceAttr("huaweicloud_dcs_instance.instance_1", "backup_policy.0.backup_at.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.begin_at", "01:00-02:00"),
+					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.save_days", "2"),
+					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.backup_at.#", "3"),
 				),
 			},
 		},

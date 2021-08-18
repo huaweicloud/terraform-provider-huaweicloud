@@ -81,3 +81,11 @@ type GetResult struct {
 type DeleteResult struct {
 	golangsdk.ErrResult
 }
+
+// ListPolicyRst
+type ListPolicyRst struct {
+	// total policy count.
+	Total int `json:"total"`
+	// the policy list
+	Items []Policy `json:"items"`
+}

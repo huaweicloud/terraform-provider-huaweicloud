@@ -271,6 +271,11 @@ func ResourceObsBucket() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"parallel_fs": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -279,6 +284,10 @@ func ResourceObsBucket() *schema.Resource {
 			},
 
 			"bucket_domain_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"bucket_version": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -298,10 +307,11 @@ func resourceObsBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	acl := d.Get("acl").(string)
 	class := d.Get("storage_class").(string)
 	opts := &obs.CreateBucketInput{
-		Bucket:       bucket,
-		ACL:          obs.AclType(acl),
-		StorageClass: obs.StorageClassType(class),
-		Epid:         GetEnterpriseProjectID(d, config),
+		Bucket:            bucket,
+		ACL:               obs.AclType(acl),
+		StorageClass:      obs.StorageClassType(class),
+		IsFSFileInterface: d.Get("parallel_fs").(bool),
+		Epid:              GetEnterpriseProjectID(d, config),
 	}
 	opts.Location = region
 	if _, ok := d.GetOk("multi_az"); ok {
@@ -413,9 +423,8 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 			logp.Printf("[WARN] OBS bucket(%s) not found", d.Id())
 			d.SetId("")
 			return nil
-		} else {
-			return fmtp.Errorf("error reading OBS bucket %s: %s", d.Id(), err)
 		}
+		return fmtp.Errorf("error reading OBS bucket %s: %s", d.Id(), err)
 	}
 
 	// for import case
@@ -431,7 +440,7 @@ func resourceObsBucketRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	// Read enterprise project id and multi_az
+	// Read enterprise project id, multi_az and parallel_fs
 	if err := setObsBucketMetadata(obsClient, d); err != nil {
 		return err
 	}
@@ -940,15 +949,21 @@ func setObsBucketMetadata(obsClient *obs.ObsClient, d *schema.ResourceData) erro
 	if err != nil {
 		return getObsError("Error getting metadata of OBS bucket", bucket, err)
 	}
+	logp.Printf("[DEBUG] getting metadata of OBS bucket %s: %#v", bucket, output)
 
-	epsID := string(output.Epid)
-	logp.Printf("[DEBUG] getting enterprise project id of OBS bucket %s: %s", bucket, epsID)
-	d.Set("enterprise_project_id", epsID)
+	d.Set("enterprise_project_id", output.Epid)
 
 	if output.AvailableZone == "3az" {
 		d.Set("multi_az", true)
 	} else {
 		d.Set("multi_az", false)
+	}
+
+	if output.FSStatus == "Enabled" {
+		d.Set("parallel_fs", true)
+	} else {
+		d.Set("parallel_fs", false)
+		d.Set("bucket_version", output.Version)
 	}
 
 	return nil

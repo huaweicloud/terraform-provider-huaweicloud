@@ -268,3 +268,11 @@ func UpdateMasterIp(c *golangsdk.ServiceClient, id string, opts UpdateIpOptsBuil
 	})
 	return
 }
+
+func Operation(c *golangsdk.ServiceClient, id, action string) (r OperationResult) {
+	_, r.Err = c.Post(operationURL(c, id, action), nil, nil, &golangsdk.RequestOpts{
+		OkCodes:     []int{200},
+		MoreHeaders: RequestOpts.MoreHeaders, JSONBody: nil,
+	})
+	return
+}

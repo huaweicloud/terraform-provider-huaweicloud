@@ -99,6 +99,7 @@ func resourceGaussDBInstance() *schema.Resource {
 			},
 			"volume_size": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 			},
 			"time_zone": {
@@ -415,6 +416,27 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			id, err)
 	}
 
+	// This is a workaround to avoid db connection issue
+	time.Sleep(360 * time.Second) //lintignore:R018
+
+	// waiting for the instance to become ready again
+	// as instance will become BACKING UP state after ACTIVE
+	stateConf = &resource.StateChangeConf{
+		Pending:      []string{"BUILD", "BACKING UP"},
+		Target:       []string{"ACTIVE"},
+		Refresh:      GaussDBInstanceStateRefreshFunc(client, id),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        1 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmtp.Errorf(
+			"Error waiting for instance (%s) to become ready: %s",
+			id, err)
+	}
+
 	if hasFilledOpt(d, "backup_strategy") {
 		var updateOpts backups.UpdateOpts
 		backupRaw := d.Get("backup_strategy").([]interface{})
@@ -448,9 +470,6 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			return err
 		}
 	}
-
-	// This is a workaround to avoid db connection issue
-	time.Sleep(360 * time.Second) //lintignore:R018
 
 	return resourceGaussDBInstanceRead(d, meta)
 }
@@ -529,7 +548,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 			volume_size = raw.Volume.Size
 		}
 		nodesList = append(nodesList, node)
-		if raw.Type == "slave" && raw.Status == "ACTIVE" {
+		if raw.Type == "slave" && (raw.Status == "ACTIVE" || raw.Status == "BACKING UP") {
 			slave_count += 1
 		}
 		if flavor == "" {
@@ -705,7 +724,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				}
 				slave_count := 0
 				for _, raw := range instance.Nodes {
-					if raw.Type == "slave" && raw.Status == "ACTIVE" {
+					if raw.Type == "slave" && (raw.Status == "ACTIVE" || raw.Status == "BACKING UP") {
 						slave_count += 1
 					}
 				}
@@ -795,7 +814,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	if d.HasChanges("proxy_flavor", "proxy_node_num") {
+	if d.HasChange("proxy_flavor") {
 		if hasFilledOpt(d, "proxy_flavor") {
 			proxyOpts := instances.ProxyOpts{
 				Flavor:  d.Get("proxy_flavor").(string),
@@ -820,6 +839,29 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if err = instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), dp.JobID); err != nil {
 				return err
 			}
+		}
+	}
+
+	if d.HasChange("proxy_node_num") {
+		oldnum, newnum := d.GetChange("proxy_node_num")
+		if oldnum.(int) != 0 && newnum.(int) > oldnum.(int) && hasFilledOpt(d, "proxy_flavor") {
+			enlarge_size := newnum.(int) - oldnum.(int)
+			enlargeProxyOpts := instances.EnlargeProxyOpts{
+				NodeNum: enlarge_size,
+			}
+			logp.Printf("[DEBUG] Enlarge proxy: %#v", enlargeProxyOpts)
+
+			lp, err := instances.EnlargeProxy(client, d.Id(), enlargeProxyOpts).ExtractJobResponse()
+			if err != nil {
+				return fmtp.Errorf("Error enlarging proxy: %s", err)
+			}
+
+			if err = instances.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutUpdate)/time.Second), lp.JobID); err != nil {
+				return err
+			}
+		}
+		if newnum.(int) < oldnum.(int) && !d.HasChange("proxy_flavor") {
+			return fmtp.Errorf("Error updating proxy_node_num for instance %s: new num should be greater than old num", d.Id())
 		}
 	}
 

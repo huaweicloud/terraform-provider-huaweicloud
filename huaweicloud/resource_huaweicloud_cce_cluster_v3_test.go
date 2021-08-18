@@ -127,6 +127,45 @@ func TestAccCCEClusterV3_turbo(t *testing.T) {
 	})
 }
 
+func TestAccCCEClusterV3_HibernateAndAwake(t *testing.T) {
+	var cluster clusters.Clusters
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCCEClusterV3Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCCEClusterV3_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
+				),
+			},
+			{
+				Config: testAccCCEClusterV3_hibernate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "Hibernation"),
+				),
+			},
+			{
+				Config: testAccCCEClusterV3_awake(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCEClusterV3Exists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "Available"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckCCEClusterV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceV3Client(HW_REGION_NAME)
@@ -299,4 +338,36 @@ resource "huaweicloud_cce_cluster" "test" {
 }
 
 `, testAccCCEClusterV3_Base(rName), rName, rName)
+}
+
+func testAccCCEClusterV3_hibernate(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%s"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "overlay_l2"
+  service_network_cidr   = "10.248.0.0/16"
+  hibernate              = true
+}
+`, testAccCCEClusterV3_Base(rName), rName)
+}
+
+func testAccCCEClusterV3_awake(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%s"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "overlay_l2"
+  service_network_cidr   = "10.248.0.0/16"
+  hibernate              = false
+}
+`, testAccCCEClusterV3_Base(rName), rName)
 }

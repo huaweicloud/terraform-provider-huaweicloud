@@ -36,6 +36,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+08:00"),
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
 				),
 			},
 			{
@@ -49,6 +50,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_updated"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
 				),
 			},
 			{
@@ -110,6 +112,45 @@ func TestAccRdsInstanceV3_ha(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "time_zone", "UTC+08:00"),
 					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
 					resource.TestCheckResourceAttr(resourceName, "ha_replication_mode", "async"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccRdsInstanceV3_mysql(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceType := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test"
+	pwd := fmt.Sprintf("%s%s%d", acctest.RandString(5), acctest.RandStringFromCharSet(2, "!#%^*"),
+		acctest.RandIntRange(10, 99))
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRdsInstanceV3Destroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstanceV3_mysql(name, pwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.mysql.sld4.large.ha"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3306"),
+				),
+			},
+			{
+				Config: testAccRdsInstanceV3_mysqlUpdate(name, pwd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceV3Exists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.mysql.sld4.large.ha"),
+					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "fixed_ip", "192.168.0.58"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "3308"),
 				),
 			},
 		},
@@ -252,7 +293,7 @@ resource "huaweicloud_rds_instance" "test" {
     password = "Huangwei!120521"
     type     = "PostgreSQL"
     version  = "12"
-    port     = 8635
+    port     = 8636
   }
   volume {
     type = "CLOUDSSD"
@@ -341,4 +382,70 @@ resource "huaweicloud_rds_instance" "test" {
   }
 }
 `, testAccRdsInstanceV3_base(name), name)
+}
+
+func testAccRdsInstanceV3_mysql(name, pwd string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_rds_instance" "test" {
+  name                = "%s"
+  flavor              = "rds.mysql.sld4.large.ha"
+  security_group_id   = huaweicloud_networking_secgroup.test.id
+  subnet_id           = huaweicloud_vpc_subnet.test.id
+  vpc_id              = huaweicloud_vpc.test.id
+  fixed_ip            = "192.168.0.58"
+  ha_replication_mode = "semisync"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[3],
+  ]
+
+  db {
+    password = "%s"
+    type     = "MySQL"
+    version  = "5.7"
+    port     = 3306
+  }
+
+  volume {
+    type = "LOCALSSD"
+    size = 40
+  }
+}
+`, testAccRdsInstanceV3_base(name), name, pwd)
+}
+
+func testAccRdsInstanceV3_mysqlUpdate(name, pwd string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_rds_instance" "test" {
+  name                = "%s"
+  flavor              = "rds.mysql.sld4.large.ha"
+  security_group_id   = huaweicloud_networking_secgroup.test.id
+  subnet_id           = huaweicloud_vpc_subnet.test.id
+  vpc_id              = huaweicloud_vpc.test.id
+  fixed_ip            = "192.168.0.58"
+  ha_replication_mode = "semisync"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[3],
+  ]
+
+  db {
+    password = "%s"
+    type     = "MySQL"
+    version  = "5.7"
+    port     = 3308
+  }
+
+  volume {
+    type = "LOCALSSD"
+    size = 40
+  }
+}
+`, testAccRdsInstanceV3_base(name), name, pwd)
 }

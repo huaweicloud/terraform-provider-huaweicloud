@@ -29,6 +29,7 @@ func TestAccLBV2Monitor_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBV2MonitorExists(resourceName, &monitor),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", "TCP"),
 					resource.TestCheckResourceAttr(resourceName, "delay", "20"),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "10"),
 					resource.TestCheckResourceAttr(resourceName, "max_retries", "5"),
@@ -40,8 +41,61 @@ func TestAccLBV2Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "delay", "30"),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "15"),
-					resource.TestCheckResourceAttr(resourceName, "max_retries", "10"),
+					resource.TestCheckResourceAttr(resourceName, "max_retries", "3"),
 					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccLBV2Monitor_udp(t *testing.T) {
+	var monitor monitors.Monitor
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_lb_monitor.monitor_udp"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLBV2MonitorDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLBV2MonitorConfig_udp(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBV2MonitorExists(resourceName, &monitor),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", "UDP_CONNECT"),
+					resource.TestCheckResourceAttr(resourceName, "delay", "20"),
+					resource.TestCheckResourceAttr(resourceName, "timeout", "10"),
+					resource.TestCheckResourceAttr(resourceName, "max_retries", "5"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccLBV2Monitor_http(t *testing.T) {
+	var monitor monitors.Monitor
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_lb_monitor.monitor_http"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLBV2MonitorDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLBV2MonitorConfig_http(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBV2MonitorExists(resourceName, &monitor),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "delay", "20"),
+					resource.TestCheckResourceAttr(resourceName, "timeout", "10"),
+					resource.TestCheckResourceAttr(resourceName, "max_retries", "5"),
+					resource.TestCheckResourceAttr(resourceName, "url_path", "/api"),
+					resource.TestCheckResourceAttr(resourceName, "http_method", "GET"),
+					resource.TestCheckResourceAttr(resourceName, "expected_codes", "200-202"),
 				),
 			},
 		},
@@ -101,7 +155,7 @@ func testAccCheckLBV2MonitorExists(n string, monitor *monitors.Monitor) resource
 	}
 }
 
-func testAccLBV2MonitorConfig_basic(rName string) string {
+func testAccLBV2MonitorConfig_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
@@ -125,20 +179,59 @@ resource "huaweicloud_lb_pool" "pool_1" {
   lb_method   = "ROUND_ROBIN"
   listener_id = huaweicloud_lb_listener.listener_1.id
 }
+`, rName, rName, rName)
+}
+
+func testAccLBV2MonitorConfig_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_lb_monitor" "monitor_1" {
+  pool_id     = huaweicloud_lb_pool.pool_1.id
   name        = "%s"
-  type        = "PING"
+  type        = "TCP"
   delay       = 20
   timeout     = 10
   max_retries = 5
-  pool_id     = huaweicloud_lb_pool.pool_1.id
 }
-`, rName, rName, rName, rName)
+`, testAccLBV2MonitorConfig_base(rName), rName)
 }
 
 func testAccLBV2MonitorConfig_update(rName, rNameUpdate string) string {
 	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_lb_monitor" "monitor_1" {
+  pool_id     = huaweicloud_lb_pool.pool_1.id
+  name        = "%s"
+  type        = "TCP"
+  delay       = 30
+  timeout     = 15
+  max_retries = 3
+  port        = 8888
+}
+`, testAccLBV2MonitorConfig_base(rName), rNameUpdate)
+}
+
+func testAccLBV2MonitorConfig_http(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_lb_monitor" "monitor_http" {
+  pool_id        = huaweicloud_lb_pool.pool_1.id
+  name           = "%s"
+  type           = "HTTP"
+  delay          = 20
+  timeout        = 10
+  max_retries    = 5
+  url_path       = "/api"
+  expected_codes = "200-202"
+}
+`, testAccLBV2MonitorConfig_base(rName), rName)
+}
+
+func testAccLBV2MonitorConfig_udp(rName string) string {
+	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
 }
@@ -150,27 +243,25 @@ resource "huaweicloud_lb_loadbalancer" "loadbalancer_1" {
 
 resource "huaweicloud_lb_listener" "listener_1" {
   name            = "%s"
-  protocol        = "HTTP"
+  protocol        = "UDP"
   protocol_port   = 8080
   loadbalancer_id = huaweicloud_lb_loadbalancer.loadbalancer_1.id
 }
 
 resource "huaweicloud_lb_pool" "pool_1" {
   name        = "%s"
-  protocol    = "HTTP"
+  protocol    = "UDP"
   lb_method   = "ROUND_ROBIN"
   listener_id = huaweicloud_lb_listener.listener_1.id
 }
 
-resource "huaweicloud_lb_monitor" "monitor_1" {
-  name           = "%s"
-  type           = "PING"
-  delay          = 30
-  timeout        = 15
-  max_retries    = 10
-  port           = 8888
-  admin_state_up = "true"
-  pool_id        = huaweicloud_lb_pool.pool_1.id
+resource "huaweicloud_lb_monitor" "monitor_udp" {
+  pool_id     = huaweicloud_lb_pool.pool_1.id
+  name        = "%s"
+  type        = "UDP_CONNECT"
+  delay       = 20
+  timeout     = 10
+  max_retries = 5
 }
-`, rName, rName, rName, rNameUpdate)
+`, rName, rName, rName, rName)
 }

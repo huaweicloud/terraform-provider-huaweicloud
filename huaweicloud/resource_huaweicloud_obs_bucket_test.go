@@ -29,7 +29,9 @@ func TestAccObsBucket_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
 					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
 					resource.TestCheckResourceAttr(resourceName, "multi_az", "false"),
+					resource.TestCheckResourceAttr(resourceName, "parallel_fs", "false"),
 					resource.TestCheckResourceAttr(resourceName, "region", HW_REGION_NAME),
+					resource.TestCheckResourceAttr(resourceName, "bucket_version", "3.0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -97,7 +99,35 @@ func TestAccObsBucket_multiAZ(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
 					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
 					resource.TestCheckResourceAttr(resourceName, "multi_az", "true"),
+					resource.TestCheckResourceAttr(resourceName, "parallel_fs", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.multi_az", "3az"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccObsBucket_parallelFS(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "huaweicloud_obs_bucket.bucket"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckOBS(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckObsBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccObsBucketConfigParallelFS(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "bucket", testAccObsBucketName(rInt)),
+					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
+					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
+					resource.TestCheckResourceAttr(resourceName, "parallel_fs", "true"),
+					resource.TestCheckResourceAttr(resourceName, "multi_az", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tags.parallel_fs", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tags.multi_az", "3az"),
+					resource.TestCheckNoResourceAttr(resourceName, "bucket_version"),
 				),
 			},
 		},
@@ -402,6 +432,22 @@ resource "huaweicloud_obs_bucket" "bucket" {
   tags = {
     key      = "value"
     multi_az = "3az"
+  }
+}
+`, randInt)
+}
+
+func testAccObsBucketConfigParallelFS(randInt int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket      = "tf-test-bucket-%d"
+  acl         = "private"
+  multi_az    = true
+  parallel_fs = true
+
+  tags = {
+    parallel_fs = "true"
+    multi_az    = "3az"
   }
 }
 `, randInt)

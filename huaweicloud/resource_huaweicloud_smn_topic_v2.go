@@ -50,6 +50,12 @@ func ResourceTopic() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -62,8 +68,9 @@ func resourceTopicCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	createOpts := topics.CreateOps{
-		Name:        d.Get("name").(string),
-		DisplayName: d.Get("display_name").(string),
+		Name:                d.Get("name").(string),
+		DisplayName:         d.Get("display_name").(string),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 
@@ -101,6 +108,7 @@ func resourceTopicRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("push_policy", topicGet.PushPolicy)
 	d.Set("update_time", topicGet.UpdateTime)
 	d.Set("create_time", topicGet.CreateTime)
+	d.Set("enterprise_project_id", topicGet.EnterpriseProjectId)
 
 	return nil
 }

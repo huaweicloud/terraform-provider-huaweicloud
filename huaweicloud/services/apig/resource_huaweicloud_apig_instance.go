@@ -90,6 +90,7 @@ func ResourceApigInstanceV2() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"bandwidth_size": {

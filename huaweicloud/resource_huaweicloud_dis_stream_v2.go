@@ -24,6 +24,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
+const DIS_SYS_TAG_KEY_ENTERPRISE_PROJECT_ID = "_sys_enterprise_project_id"
+
 func ResourceDisStreamV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDisStreamV2Create,
@@ -104,6 +106,13 @@ func ResourceDisStreamV2() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+
 			"tags": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -171,7 +180,7 @@ func resourceDisStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	opts := resourceDisStreamV2UserInputParams(d)
 
-	params, err := buildDisStreamV2CreateParameters(opts, nil)
+	params, err := buildDisStreamV2CreateParameters(opts, nil, config)
 	if err != nil {
 		return fmtp.Errorf("Error building the request body of api(create), err=%s", err)
 	}
@@ -254,7 +263,7 @@ func resourceDisStreamV2Delete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func buildDisStreamV2CreateParameters(opts map[string]interface{}, arrayIndex map[string]int) (interface{}, error) {
+func buildDisStreamV2CreateParameters(opts map[string]interface{}, arrayIndex map[string]int, config *config.Config) (interface{}, error) {
 	params := make(map[string]interface{})
 
 	v, err := expandDisStreamV2CreateAutoCaleEnable(opts, arrayIndex)
@@ -375,6 +384,19 @@ func buildDisStreamV2CreateParameters(opts map[string]interface{}, arrayIndex ma
 		return nil, err
 	} else if !e {
 		params["tags"] = v
+	}
+
+	resourceData := opts["terraform_resource_data"].(*schema.ResourceData)
+	if resourceData == nil {
+		return nil, fmtp.Errorf("failed to build parameters: Resource Data is null")
+	}
+
+	enterpriseProjectID := config.GetEnterpriseProjectID(resourceData)
+	if enterpriseProjectID != "" {
+		sysTag := make(map[string]string)
+		sysTag["key"] = DIS_SYS_TAG_KEY_ENTERPRISE_PROJECT_ID
+		sysTag["value"] = enterpriseProjectID
+		params["sys_tags"] = []map[string]string{sysTag}
 	}
 
 	return params, nil
@@ -607,6 +629,12 @@ func fillDisStreamV2ReadRespBody(body interface{}) interface{} {
 		result["writable_partition_count"] = nil
 	}
 
+	if v, ok := val["sys_tags"]; ok {
+		result["enterprise_project_id"] = parseDisStreamV2ReadRespSysTags(v)
+	} else {
+		result["enterprise_project_id"] = nil
+	}
+
 	return result
 }
 
@@ -628,6 +656,31 @@ func fillDisStreamV2ReadRespCsvProperties(value interface{}) interface{} {
 	}
 
 	return result
+}
+
+func parseDisStreamV2ReadRespSysTags(value interface{}) (r string) {
+	if value == nil {
+		return
+	}
+
+	value1, ok := value.([]interface{})
+	if !ok || len(value1) == 0 {
+		return
+	}
+
+	n := len(value1)
+	for i := 0; i < n; i++ {
+		item := value1[i].(map[string]interface{})
+
+		if k, ok := item["key"]; ok && k == DIS_SYS_TAG_KEY_ENTERPRISE_PROJECT_ID {
+			if v, ok := item["value"]; ok {
+				return v.(string)
+			}
+		}
+
+	}
+
+	return
 }
 
 func fillDisStreamV2ReadRespTags(value interface{}) interface{} {
@@ -755,7 +808,7 @@ func setDisStreamV2Properties(d *schema.ResourceData, response map[string]interf
 		return fmtp.Errorf("Error setting Stream:stream_type, err: %s", err)
 	}
 
-	v, _ = opts["tags"]
+	v = opts["tags"]
 	v, err = flattenDisStreamV2Tags(response, nil, v)
 	if err != nil {
 		return fmtp.Errorf("Error reading Stream:tags, err: %s", err)
@@ -770,6 +823,11 @@ func setDisStreamV2Properties(d *schema.ResourceData, response map[string]interf
 	}
 	if err = d.Set("writable_partition_count", v); err != nil {
 		return fmtp.Errorf("Error setting Stream:writable_partition_count, err: %s", err)
+	}
+
+	v, err = navigateValue(response, []string{"read", "enterprise_project_id"}, nil)
+	if err = d.Set("enterprise_project_id", v); err != nil {
+		return fmtp.Errorf("Error setting Stream:enterprise_project_id, err: %s", err)
 	}
 
 	return nil

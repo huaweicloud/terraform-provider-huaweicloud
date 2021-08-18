@@ -26,6 +26,9 @@ The `values` block supports:
 * `custom` - (Optional, Map) Key/Value pairs vary depending on the add-on.
 * `flavor` - (Optional, Map) Key/Value pairs vary depending on the add-on.
 
+Arguments which can be passed to the `basic` and `custom` addon parameters depends on the addon type and version.
+For more detailed description of addons see [addons description](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/guides/cce-addon-templates)
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

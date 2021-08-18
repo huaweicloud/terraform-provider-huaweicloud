@@ -152,7 +152,7 @@ github.com/hashicorp/terraform-plugin-sdk/v2/plugin
 github.com/hashicorp/terraform-plugin-sdk/v2/terraform
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20210722084309-4039dc70b08a
+# github.com/huaweicloud/golangsdk v0.0.0-20210817085035-914d19567b2a
 ## explicit
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/internal
@@ -162,11 +162,14 @@ github.com/huaweicloud/golangsdk/openstack/aom/v1/icagents
 github.com/huaweicloud/golangsdk/openstack/apigw/apis
 github.com/huaweicloud/golangsdk/openstack/apigw/groups
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/apigroups
+github.com/huaweicloud/golangsdk/openstack/apigw/v2/apis
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/applications
+github.com/huaweicloud/golangsdk/openstack/apigw/v2/authorizers
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/channels
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/environments
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/instances
 github.com/huaweicloud/golangsdk/openstack/apigw/v2/responses
+github.com/huaweicloud/golangsdk/openstack/apigw/v2/throttles
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/configurations
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/instances
@@ -215,6 +218,7 @@ github.com/huaweicloud/golangsdk/openstack/dcs/v1/products
 github.com/huaweicloud/golangsdk/openstack/dcs/v2/whitelists
 github.com/huaweicloud/golangsdk/openstack/dds/v3/flavors
 github.com/huaweicloud/golangsdk/openstack/dds/v3/instances
+github.com/huaweicloud/golangsdk/openstack/dli/v1/queues
 github.com/huaweicloud/golangsdk/openstack/dms/v1/availablezones
 github.com/huaweicloud/golangsdk/openstack/dms/v1/groups
 github.com/huaweicloud/golangsdk/openstack/dms/v1/instances
@@ -222,6 +226,7 @@ github.com/huaweicloud/golangsdk/openstack/dms/v1/maintainwindows
 github.com/huaweicloud/golangsdk/openstack/dms/v1/products
 github.com/huaweicloud/golangsdk/openstack/dms/v1/queues
 github.com/huaweicloud/golangsdk/openstack/dms/v2/kafka/instances
+github.com/huaweicloud/golangsdk/openstack/dms/v2/kafka/topics
 github.com/huaweicloud/golangsdk/openstack/dms/v2/rabbitmq/instances
 github.com/huaweicloud/golangsdk/openstack/dns/v2/ptrrecords
 github.com/huaweicloud/golangsdk/openstack/dns/v2/recordsets
@@ -287,6 +292,8 @@ github.com/huaweicloud/golangsdk/openstack/lts/huawei/logstreams
 github.com/huaweicloud/golangsdk/openstack/maas/v1/task
 github.com/huaweicloud/golangsdk/openstack/mrs/v1/cluster
 github.com/huaweicloud/golangsdk/openstack/mrs/v1/job
+github.com/huaweicloud/golangsdk/openstack/mrs/v2/clusters
+github.com/huaweicloud/golangsdk/openstack/mrs/v2/jobs
 github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths
 github.com/huaweicloud/golangsdk/openstack/networking/v1/eips
 github.com/huaweicloud/golangsdk/openstack/networking/v1/security/securitygroups
@@ -328,6 +335,7 @@ github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances
 github.com/huaweicloud/golangsdk/openstack/rds/v3/backups
 github.com/huaweicloud/golangsdk/openstack/rds/v3/configurations
 github.com/huaweicloud/golangsdk/openstack/rds/v3/instances
+github.com/huaweicloud/golangsdk/openstack/rds/v3/securities
 github.com/huaweicloud/golangsdk/openstack/rts/v1/softwareconfig
 github.com/huaweicloud/golangsdk/openstack/rts/v1/stackresources
 github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks

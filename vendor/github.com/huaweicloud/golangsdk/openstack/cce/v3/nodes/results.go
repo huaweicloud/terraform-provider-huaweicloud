@@ -223,6 +223,16 @@ type JobStatus struct {
 	Message string `json:"message"`
 }
 
+type AddNodeResponse struct {
+	JobID string `json:"jobid"`
+}
+
+func (r commonResult) ExtractAddNode() (*AddNodeResponse, error) {
+	var s AddNodeResponse
+	err := r.ExtractInto(&s)
+	return &s, err
+}
+
 type commonResult struct {
 	golangsdk.Result
 }
@@ -261,6 +271,10 @@ type ListResult struct {
 // CreateResult represents the result of a create operation. Call its Extract
 // method to interpret it as a Node.
 type CreateResult struct {
+	commonResult
+}
+
+type AddResult struct {
 	commonResult
 }
 

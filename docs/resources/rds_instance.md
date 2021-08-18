@@ -141,8 +141,7 @@ The following arguments are supported:
 * `subnet_id` - (Required, String, ForceNew) Specifies the network id of a subnet.
   Changing this parameter will create a new resource.
 
-* `security_group_id` - (Required, String, ForceNew) Specifies the security group which the RDS DB instance belongs to.
-  Changing this parameter will create a new resource.
+* `security_group_id` - (Required, String) Specifies the security group which the RDS DB instance belongs to.
 
 * `volume` - (Required, List) Specifies the volume information. Structure is documented below.
 
@@ -190,6 +189,8 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the RDS instance.
   Changing this parameter creates a new RDS instance.
 
+* `ssl_enable` - (Optional, Bool) Specifies whether to enable the SSL for MySQL database.
+
 * `tags` - (Optional, Map) A mapping of tags to assign to the RDS instance.
   Each tag is represented by one key-value pair.
 
@@ -209,7 +210,7 @@ The `db` block supports:
   password to improve security, preventing security risks such as
   brute force cracking. Changing this parameter will create a new resource.
 
-* `port` - (Optional, Int,  ForceNew) Specifies the database port. Changing this parameter will create a new resource.
+* `port` - (Optional, Int) Specifies the database port.
   - The MySQL database port ranges from 1024 to 65535 (excluding 12017 and 33071, which are
     occupied by the RDS system and cannot be used). The default value is 3306.
   - The PostgreSQL database port ranges from 2100 to 9500. The default value is 5432.
