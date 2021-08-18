@@ -66,7 +66,6 @@ func ResourceCCENodePool() *schema.Resource {
 			"labels": { //(k8s_tags)
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"root_volume": {
@@ -157,7 +156,6 @@ func ResourceCCENodePool() *schema.Resource {
 			"taints": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key": {
@@ -513,6 +511,8 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 				DataVolumes: resourceCCEDataVolume(d),
 				Count:       1,
 				UserTags:    resourceCCENodePoolTags(d),
+				K8sTags:     resourceCCENodeK8sTags(d),
+				Taints:      resourceCCETaint(d),
 			},
 			Type: d.Get("type").(string),
 		},
