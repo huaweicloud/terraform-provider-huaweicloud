@@ -250,6 +250,10 @@ func TestAccMrsMapReduceCluster_hybrid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.node_number", "2"),
 					resource.TestCheckResourceAttr(resourceName, "analysis_task_nodes.0.node_number", "1"),
 					resource.TestCheckResourceAttr(resourceName, "streaming_task_nodes.0.node_number", "1"),
+					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.host_ips.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.host_ips.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "analysis_task_nodes.0.host_ips.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "streaming_task_nodes.0.host_ips.#", "1"),
 				),
 			},
 			{
@@ -264,6 +268,10 @@ func TestAccMrsMapReduceCluster_hybrid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.node_number", "3"),
 					resource.TestCheckResourceAttr(resourceName, "analysis_task_nodes.0.node_number", "2"),
 					resource.TestCheckResourceAttr(resourceName, "streaming_task_nodes.0.node_number", "2"),
+					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.host_ips.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.host_ips.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "analysis_task_nodes.0.host_ips.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "streaming_task_nodes.0.host_ips.#", "2"),
 				),
 			},
 			{
@@ -278,6 +286,10 @@ func TestAccMrsMapReduceCluster_hybrid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.node_number", "2"),
 					resource.TestCheckResourceAttr(resourceName, "analysis_task_nodes.0.node_number", "1"),
 					resource.TestCheckResourceAttr(resourceName, "streaming_task_nodes.0.node_number", "1"),
+					resource.TestCheckResourceAttr(resourceName, "analysis_core_nodes.0.host_ips.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "streaming_core_nodes.0.host_ips.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "analysis_task_nodes.0.host_ips.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "streaming_task_nodes.0.host_ips.#", "1"),
 				),
 			},
 			{

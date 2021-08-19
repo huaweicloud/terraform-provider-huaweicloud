@@ -26,12 +26,14 @@ const (
 	typeAnalysis = "ANALYSIS"
 	typeStream   = "STREAMING"
 	typeHybrid   = "MIXED"
+	typeCustom   = "CUSTOM"
 
 	masterGroup        = "master_node_default_group"
 	analysisCoreGroup  = "core_node_analysis_group"
 	streamingCoreGroup = "core_node_streaming_group"
 	analysisTaskGroup  = "task_node_analysis_group"
 	streamingTaskGroup = "task_node_streaming_group"
+	customGroup        = "Core"
 )
 
 type stateRefresh struct {
@@ -159,6 +161,11 @@ func ResourceMRSClusterV2() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"template_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"master_nodes": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -270,6 +277,13 @@ func masterNodeSchemaResource(min, max int) *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"host_ips": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -311,6 +325,13 @@ func coreTaskNodeSchemaResource(min, max int) *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
+			},
+			"host_ips": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 		},
 	}
@@ -601,16 +622,23 @@ func setMrsClsuterComponentList(d *schema.ResourceData, resp *cluster.Cluster) e
 	return d.Set("component_list", result)
 }
 
-func setMrsClusterNodeGroups(d *schema.ResourceData, resp *cluster.Cluster) error {
-	var groupMap = map[string]string{
+func setMrsClusterNodeGroups(mrsV1Client *golangsdk.ServiceClient, d *schema.ResourceData, resp *cluster.Cluster) error {
+	var groupMapDecl = map[string]string{
 		masterGroup:        "master_nodes",
 		analysisCoreGroup:  "analysis_core_nodes",
 		streamingCoreGroup: "streaming_core_nodes",
 		analysisTaskGroup:  "analysis_task_nodes",
 		streamingTaskGroup: "streaming_task_nodes",
+		customGroup:        "custom_nodes",
 	}
+
+	clustHostMap, err := queryMrsClusterHosts(d, mrsV1Client)
+	if err != nil {
+		return err
+	}
+
 	for _, node := range resp.NodeGroups {
-		value, ok := groupMap[node.GroupName]
+		value, ok := groupMapDecl[node.GroupName]
 		if !ok {
 			logp.Printf("[DEBUG] %s is not in the resource data", node.GroupName)
 		}
@@ -620,6 +648,15 @@ func setMrsClusterNodeGroups(d *schema.ResourceData, resp *cluster.Cluster) erro
 			"root_volume_type": node.RootVolumeType,
 			"root_volume_size": node.RootVolumeSize,
 		}
+
+		if hostIps, ok := clustHostMap[node.GroupName]; ok {
+			groupMap["host_ips"] = hostIps
+		} else {
+			logp.Printf("[WARN]One node group lost host_ips information. "+
+				"because this provider does not support nodeGroup='%s', please contact the developer. nodeGroup= %+v",
+				node.GroupName, node)
+		}
+
 		if node.DataVolumeCount != 0 {
 			groupMap["data_volume_type"] = node.DataVolumeType
 			groupMap["data_volume_size"] = node.DataVolumeSize
@@ -691,7 +728,7 @@ func resourceMRSClusterV2Read(d *schema.ResourceData, meta interface{}) error {
 		setMrsClsuterUpdateTimestamp(d, resp),
 		setMrsClsuterChargingTimestamp(d, resp),
 		setMrsClsuterCreateTimestamp(d, resp),
-		setMrsClusterNodeGroups(d, resp),
+		setMrsClusterNodeGroups(client, d, resp),
 		setClsuterTags(d, client),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
@@ -882,4 +919,44 @@ func resourceMRSClusterV2Delete(d *schema.ResourceData, meta interface{}) error 
 
 	d.SetId("")
 	return nil
+}
+
+func queryMrsClusterHosts(d *schema.ResourceData, mrsV1Client *golangsdk.ServiceClient) (map[string][]string, error) {
+
+	clusterId := d.Id()
+
+	hostOpts := cluster.HostOpts{
+		CurrentPage: DEFAULT_PAGE_NUM,
+		PageSize:    DEFAULT_PAGE_SIZE,
+	}
+
+	resp, err := cluster.ListHosts(mrsV1Client, clusterId, hostOpts)
+	if err != nil {
+		return nil, fmtp.Errorf("query mapreduce cluster host failed: %s", err)
+	}
+	logp.Printf("[DEBUG] Get mapreduce cluster host list response: %#v", resp)
+	hostsMap := make(map[string][]string)
+	if len(resp.Hosts) > 0 {
+		for _, item := range resp.Hosts {
+			switch hostType := item.Type; hostType {
+			case "Master":
+				hostsMap[masterGroup] = append(hostsMap[masterGroup], item.Ip)
+			case "Streaming_Core":
+				hostsMap[streamingCoreGroup] = append(hostsMap[streamingCoreGroup], item.Ip)
+			case "Streaming_Task":
+				hostsMap[streamingTaskGroup] = append(hostsMap[streamingTaskGroup], item.Ip)
+			case "Analysis_Core":
+				hostsMap[analysisCoreGroup] = append(hostsMap[analysisCoreGroup], item.Ip)
+			case "Analysis_Task":
+				hostsMap[analysisTaskGroup] = append(hostsMap[analysisTaskGroup], item.Ip)
+			default:
+				//TODO The types are  'core', and a new way of distinguishing is needed,
+				//custom Type is currently not available
+				hostsMap[customGroup] = append(hostsMap[customGroup], item.Ip)
+
+			}
+		}
+	}
+
+	return hostsMap, nil
 }
