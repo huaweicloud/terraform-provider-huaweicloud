@@ -34,6 +34,9 @@ const (
 	analysisTaskGroup  = "task_node_analysis_group"
 	streamingTaskGroup = "task_node_streaming_group"
 	customGroup        = "Core"
+
+	DEFAULT_PAGE_NUM  = 1
+	DEFAULT_PAGE_SIZE = 100
 )
 
 type stateRefresh struct {

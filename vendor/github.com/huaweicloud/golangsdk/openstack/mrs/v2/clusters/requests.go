@@ -50,9 +50,9 @@ type CreateOpts struct {
 	// KEYPAIR: specifies the key pair used for login. If this value is selected, node_keypair_name cannot be left blank.
 	LoginMode string `json:"login_mode" required:"true"`
 	// Password of the MRS Manager administrator.
-	// The password can contain 8 to 32 charactors.
-	// The password must contain at least three types of lowercase letters, uppercase letters, digits, spaces and the
-	// special characters: `~!@#$%^&*()-_=+\|[{}];:'",<>./?`.
+	// The password can contain 8 to 26 charactors.
+	// The password must contain lowercase letters, uppercase letters, digits, spaces
+	// and the special characters: !?,.:-_{}[]@$^+=/.
 	// the password cannot be the username or the username spelled backwards.
 	ManagerAdminPassword string `json:"manager_admin_password" required:"true"`
 	// Information about the node groups in the cluster. For details about the parameters, see Table 5.
@@ -93,8 +93,8 @@ type CreateOpts struct {
 	MrsEcsDefaultAgency string `json:"mrs_ecs_default_agency,omitempty"`
 	// Password of user root for logging in to a cluster node.
 	// The password can contain 8 to 26 charactors.
-	// The password at least three of the following: uppercase letters, lowercase letters, digits, and special
-	// characters (!@$%^-_=+[{}]:,./?), but must not contain spaces.
+	// The password must contain lowercase letters, uppercase letters, digits, spaces
+	// and the special characters: !?,.:-_{}[]@$^+=/.
 	// the password cannot be the username or the username spelled backwards.
 	NodeRootPassword string `json:"node_root_password,omitempty"`
 	// Name of a key pair You can use a key pair to log in to the Master node in the cluster.

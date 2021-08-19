@@ -276,9 +276,8 @@ The following arguments are supported:
 * `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the cluster.
 
 The `nodes` block supports:
-
-* `flavor` - (Required, String, ForceNew) Specifies the instance specifications for each nodes in node group.
-  Changing this will create a new MapReduce cluster resource.
+ 
+   Changing this will create a new MapReduce cluster resource.
 
 * `node_number` - (Required, Int) Specifies the number of nodes for the node group.
 
@@ -321,6 +320,9 @@ In addition to all arguments above, the following attributes are exported:
 * `create_time` - The cluster creation time, in RFC-3339 format.
 * `update_time` - The cluster update time, in RFC-3339 format.
 * `charging_start_time` - The charging start time which is the start time of billing, in RFC-3339 format.
+* `charging_start_time` - The charging start time which is the start time of billing, in RFC-3339 format.
+* `node` - all the nodes attributes: master_nodes/analysis_core_nodes/streaming_core_nodes/analysis_task_nodes/streaming_task_nodes
+  - `host_ips` - The host list of  this nodes group in the cluster
 
 ## Timeouts
 
