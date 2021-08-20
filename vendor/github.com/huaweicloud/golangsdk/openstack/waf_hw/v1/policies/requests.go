@@ -133,11 +133,11 @@ func Delete(c *golangsdk.ServiceClient, id string) (r DeleteResult) {
 }
 
 // ListPolicy retrieve waf policy by ListPolicyOpts
-func ListPolicy(c *golangsdk.ServiceClient, opts ListPolicyOpts) (r ListPolicyRst, err error) {
+func ListPolicy(c *golangsdk.ServiceClient, opts ListPolicyOpts) (*ListPolicyRst, error) {
 	url := rootURL(c)
 	query, err := golangsdk.BuildQueryString(opts)
 	if err != nil {
-		return r, err
+		return nil, err
 	}
 	url += query.String()
 
@@ -145,8 +145,11 @@ func ListPolicy(c *golangsdk.ServiceClient, opts ListPolicyOpts) (r ListPolicyRs
 	_, err = c.Get(url, &rst.Body, &golangsdk.RequestOpts{
 		MoreHeaders: RequestOpts.MoreHeaders,
 	})
-	if err != nil {
+
+	if err == nil {
+		var r ListPolicyRst
 		rst.ExtractInto(&r)
+		return &r, nil
 	}
-	return
+	return nil, err
 }

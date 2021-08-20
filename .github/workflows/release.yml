@@ -35,15 +35,23 @@ jobs:
         run: |
           last_tag=$(git tag --sort=-creatordate | sed -n 2p)
           all_files=$(git diff $last_tag --name-only huaweicloud | grep -v "_test.go")
-          echo "the following files have changed since $last_tag: $all_files"
+          echo -e "the following files have changed since $last_tag:\n$all_files\n"
 
           for f in $all_files; do
-            test_file=${f/%.go/_test.go}
+            path=${f%/*}
+            if [ "X$path" != "Xhuaweicloud" ]; then
+              # update path to "huaweicloud/services\acceptance/xxx"
+              path=${path/services/services\/acceptance}
+            fi
+
+            org_file=${f##*/}
+            test_file=$path/${org_file/%.go/_test.go}
+
             if [ -f "./${test_file}" ]; then
               basic_cases=$(grep "^func TestAcc" ./${test_file} | grep _basic | awk '{print $2}' | awk -F '(' '{print $1}')
               if [ "X$basic_cases" != "X" ]; then
                 echo "run acceptance basic tests: $basic_cases"
-                make testacc TEST="./huaweicloud" TESTARGS="-run ${basic_cases}"
+                make testacc TEST="./$path" TESTARGS="-run ${basic_cases}"
               fi
             else
               echo "[skipped] --- ./${test_file} does not exist"

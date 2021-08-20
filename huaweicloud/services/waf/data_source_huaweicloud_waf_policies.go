@@ -1,13 +1,13 @@
 package waf
 
 import (
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // DataSourceWafPoliciesV1 the function is used for data source 'huaweicloud_waf_policies'.
@@ -24,13 +24,6 @@ func DataSourceWafPoliciesV1() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-			},
-			"ids": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
 			},
 			"policies": {
 				Type:     schema.TypeList,
@@ -142,6 +135,8 @@ func dataSourceWafPoliciesV1Read(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return fmtp.Errorf("Unable to retrieve waf policies: %s", err)
 	}
+	logp.Printf("[DEBUG] Get a list of policies: %#v.", rst)
+
 	if len(rst.Items) == 0 {
 		return fmtp.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
@@ -150,7 +145,7 @@ func dataSourceWafPoliciesV1Read(d *schema.ResourceData, meta interface{}) error
 	ids := make([]string, 0, len(rst.Items))
 	policies := make([]map[string]interface{}, 0, len(rst.Items))
 
-	for i, p := range rst.Items {
+	for _, p := range rst.Items {
 		options := []map[string]interface{}{
 			{
 				"basic_web_protection":  p.Options.Webattack,
@@ -178,17 +173,12 @@ func dataSourceWafPoliciesV1Read(d *schema.ResourceData, meta interface{}) error
 			"full_detection":  p.FullDetection,
 		}
 		policies = append(policies, plc)
-		ids[i] = p.Id
+		ids = append(ids, p.Id)
 	}
 
 	d.SetId(hashcode.Strings(ids))
-	mErr := multierror.Append(nil,
-		d.Set("ids", ids),
-		d.Set("policies", policies),
-	)
-
-	if mErr.ErrorOrNil() != nil {
-		return mErr
+	if err = d.Set("policies", policies); err != nil {
+		return fmtp.Errorf("error setting WAF policy fields: %s", err)
 	}
 
 	return nil

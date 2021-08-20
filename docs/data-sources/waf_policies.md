@@ -28,8 +28,6 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `ids` - A list of WAF Policy IDs.
-
 * `policies` - A list of WAF policies.
 
 The `policies` block supports:

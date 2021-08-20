@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
@@ -23,8 +23,9 @@ func TestAccDataSourceWafPoliciesV1_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckWafPoliciesID(dataSourceName),
 					resource.TestCheckResourceAttr(dataSourceName, "name", name),
-					resource.TestCheckResourceAttrSet(dataSourceName, "ids.0"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0"),
+					resource.TestCheckResourceAttr(dataSourceName, "policies.#", "1"),
+					resource.TestCheckResourceAttr(dataSourceName, "policies.0.name", name),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.blacklist"),
 				),
 			},
 		},
@@ -38,7 +39,7 @@ func testAccCheckWafPoliciesID(r string) resource.TestCheckFunc {
 			return fmtp.Errorf("Can't find WAF policies data source: %s.", r)
 		}
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("The WAF policies data source ID not set.")
+			return fmtp.Errorf("The WAF policies data source ID does not set.")
 		}
 		return nil
 	}
@@ -51,5 +52,5 @@ func testAccWafPoliciesV1_conf(name string) string {
 data "huaweicloud_waf_policies" "policies_1" {
   name = huaweicloud_waf_policy.policy_1.name
 }
-`, testAccWafPolicyV1_basic(name), name)
+`, testAccWafPolicyV1_basic(name))
 }

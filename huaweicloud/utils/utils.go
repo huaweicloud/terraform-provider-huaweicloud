@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
 	"gopkg.in/yaml.v2"
@@ -174,17 +173,6 @@ func JsonMarshal(t interface{}) ([]byte, error) {
 	enc.SetEscapeHTML(false)
 	err := enc.Encode(t)
 	return buffer.Bytes(), err
-}
-
-// DataResourceIdHash generates a hash for the set hash function used by the ID
-func DataResourceIdHash(ids []string) string {
-	var buf bytes.Buffer
-
-	for _, id := range ids {
-		buf.WriteString(fmt.Sprintf("%s-", id))
-	}
-
-	return fmt.Sprintf("%d", hashcode.String(buf.String()))
 }
 
 // RemoveDuplicateElem removes duplicate elements from slice

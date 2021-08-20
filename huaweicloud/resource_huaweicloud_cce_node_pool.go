@@ -4,9 +4,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodepools"
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
@@ -66,7 +66,6 @@ func ResourceCCENodePool() *schema.Resource {
 			"labels": { //(k8s_tags)
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"root_volume": {
@@ -157,7 +156,6 @@ func ResourceCCENodePool() *schema.Resource {
 			"taints": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key": {
@@ -513,6 +511,8 @@ func resourceCCENodePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 				DataVolumes: resourceCCEDataVolume(d),
 				Count:       1,
 				UserTags:    resourceCCENodePoolTags(d),
+				K8sTags:     resourceCCENodeK8sTags(d),
+				Taints:      resourceCCETaint(d),
 			},
 			Type: d.Get("type").(string),
 		},

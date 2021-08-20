@@ -100,16 +100,18 @@ The following arguments are supported:
 
 * `priority` - (Optional, Int) Weight of a node pool. A node pool with a higher weight has a higher priority during scaling.
 
-* `labels` - (Optional, Map, ForceNew) Tags of a Kubernetes node, key/value pair format. Changing this parameter will create a new resource.
+* `labels` - (Optional, Map) Tags of a Kubernetes node, key/value pair format.
 
 * `tags` - (Optional, Map) Tags of a VM node, key/value pair format.
 
-* `root_volume` - (Required, List, ForceNew) It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
+* `root_volume` - (Required, List, ForceNew) It corresponds to the system disk related configuration.
+  The structure is described below. Changing this parameter will create a new resource.
 
-* `data_volumes` - (Required, List, ForceNew) Represents the data disk to be created. Changing this parameter will create a new resource.
+* `data_volumes` - (Required, List, ForceNew) Represents the data disk to be created.
+  The structure is described below. Changing this parameter will create a new resource.
 
-* `taints` - (Optional, List, ForceNew) You can add taints to created nodes to configure anti-affinity. Each taint contains the following parameters:
-
+* `taints` - (Optional, List) You can add taints to created nodes to configure anti-affinity.
+  The structure is described below.
 
 The `root_volume` block supports:
 

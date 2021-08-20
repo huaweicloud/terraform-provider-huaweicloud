@@ -1,14 +1,15 @@
 package huaweicloud
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/backups"
 	"github.com/huaweicloud/golangsdk/openstack/opengauss/v3/instances"
@@ -32,7 +33,7 @@ func resourceOpenGaussInstance() *schema.Resource {
 			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
-		CustomizeDiff: func(d *schema.ResourceDiff, v interface{}) error {
+		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, v interface{}) error {
 			if d.HasChange("coordinator_num") {
 				d.SetNewComputed("private_ips")
 			}

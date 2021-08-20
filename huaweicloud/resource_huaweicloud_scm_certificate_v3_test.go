@@ -5,14 +5,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/scm/v3/certificates"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func TestAccScmCertificationV3_basic(t *testing.T) {
@@ -148,7 +147,6 @@ func testAccCheckScmV3CertificateExists(n string, c *certificates.CertificateEsc
 func testAccCheckScmV3CertificatePushExists(
 	certResourceName string, service string, project string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		logp.Printf("terraform.State: %#v", s)
 		// Get the resource info by certificateResorceName
 		certRs, ok := s.RootModule().Resources[certResourceName]
 		if !ok {
