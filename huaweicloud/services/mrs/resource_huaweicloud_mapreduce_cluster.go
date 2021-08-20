@@ -1,6 +1,8 @@
 package mrs
 
 import (
+	"context"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -35,8 +37,8 @@ const (
 	streamingTaskGroup = "task_node_streaming_group"
 	customGroup        = "Core"
 
-	DEFAULT_PAGE_NUM  = 1
-	DEFAULT_PAGE_SIZE = 100
+	mrsHostDefaultPageNum  = 1
+	mrsHostDefaultPageSize = 100
 )
 
 type stateRefresh struct {
@@ -164,11 +166,6 @@ func ResourceMRSClusterV2() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"template_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"master_nodes": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -237,6 +234,21 @@ func ResourceMRSClusterV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+		},
+
+		CustomizeDiff: func(c context.Context, rd *schema.ResourceDiff, i interface{}) error {
+			nodeGroupNameArray := [5]string{"master_nodes", "analysis_core_nodes", "analysis_task_nodes",
+				"streaming_core_nodes", "streaming_task_nodes"}
+
+			for _, nodeGroupName := range nodeGroupNameArray {
+				checkKey := fmt.Sprintf("%s.0.node_number", nodeGroupName)
+				changeKey := fmt.Sprintf("%s.0.host_ips", nodeGroupName)
+				if rd.HasChange(checkKey) {
+					logp.Printf("[DEBUG] nodeGroup=%s change,triger host_ips SetNewComputed", nodeGroupName)
+					rd.SetNewComputed(changeKey)
+				}
+			}
+			return nil
 		},
 	}
 }
@@ -556,8 +568,8 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 
 func setMrsClsuterType(d *schema.ResourceData, resp *cluster.Cluster) error {
 	// The returned ClusterType is an 'Int' type, with a value of 0 to 2,
-	// which respectively represent:'ANALYSIS','STREAMING' and'MIXED'.
-	clusterType := []string{"ANALYSIS", "STREAMING", "MIXED"}
+	// which respectively represent:'ANALYSIS','STREAMING' ,'MIXED' and 'CUSTOM'.
+	clusterType := []string{"ANALYSIS", "STREAMING", "MIXED", "CUSTOM"}
 	if resp.ClusterType >= len(clusterType) || resp.ClusterType < 0 {
 		return fmtp.Errorf("The cluster type of the response is '%d', not in the map", resp.ClusterType)
 	}
@@ -642,8 +654,10 @@ func setMrsClusterNodeGroups(mrsV1Client *golangsdk.ServiceClient, d *schema.Res
 
 	for _, node := range resp.NodeGroups {
 		value, ok := groupMapDecl[node.GroupName]
+
 		if !ok {
 			logp.Printf("[DEBUG] %s is not in the resource data", node.GroupName)
+			continue
 		}
 		groupMap := map[string]interface{}{
 			"node_number":      node.NodeNum,
@@ -929,8 +943,8 @@ func queryMrsClusterHosts(d *schema.ResourceData, mrsV1Client *golangsdk.Service
 	clusterId := d.Id()
 
 	hostOpts := cluster.HostOpts{
-		CurrentPage: DEFAULT_PAGE_NUM,
-		PageSize:    DEFAULT_PAGE_SIZE,
+		CurrentPage: mrsHostDefaultPageNum,
+		PageSize:    mrsHostDefaultPageSize,
 	}
 
 	resp, err := cluster.ListHosts(mrsV1Client, clusterId, hostOpts)
@@ -956,7 +970,6 @@ func queryMrsClusterHosts(d *schema.ResourceData, mrsV1Client *golangsdk.Service
 				//TODO The types are  'core', and a new way of distinguishing is needed,
 				//custom Type is currently not available
 				hostsMap[customGroup] = append(hostsMap[customGroup], item.Ip)
-
 			}
 		}
 	}
