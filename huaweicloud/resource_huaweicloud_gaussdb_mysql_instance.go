@@ -1,13 +1,14 @@
 package huaweicloud
 
 import (
+	"context"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/bss/v2/orders"
 	"github.com/huaweicloud/golangsdk/openstack/taurusdb/v3/backups"
@@ -27,7 +28,7 @@ func resourceGaussDBInstance() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		CustomizeDiff: func(d *schema.ResourceDiff, v interface{}) error {
+		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, v interface{}) error {
 			if d.HasChange("proxy_node_num") {
 				d.SetNewComputed("proxy_address")
 				d.SetNewComputed("proxy_port")

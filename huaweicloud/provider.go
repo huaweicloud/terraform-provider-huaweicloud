@@ -6,10 +6,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
@@ -25,7 +24,7 @@ const defaultCloud string = "myhuaweicloud.com"
 var osMutexKV = mutexkv.NewMutexKV()
 
 // Provider returns a schema.Provider for HuaweiCloud.
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -327,6 +326,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_vpc_subnet_ids":              DataSourceVpcSubnetIdsV1(),
 			"huaweicloud_vpcep_public_services":       DataSourceVPCEPPublicServices(),
 			"huaweicloud_waf_certificate":             waf.DataSourceWafCertificateV1(),
+			"huaweicloud_waf_policies":                waf.DataSourceWafPoliciesV1(),
 
 			// Legacy
 			"huaweicloud_images_image_v2":           DataSourceImagesImageV2(),
@@ -422,6 +422,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_dms_instance":                    ResourceDmsInstancesV1(),
 			"huaweicloud_dms_queue":                       ResourceDmsQueuesV1(),
 			"huaweicloud_dms_kafka_instance":              ResourceDmsKafkaInstance(),
+			"huaweicloud_dms_kafka_topic":                 ResourceDmsKafkaTopic(),
 			"huaweicloud_dms_rabbitmq_instance":           ResourceDmsRabbitmqInstance(),
 			"huaweicloud_dns_ptrrecord":                   ResourceDNSPtrRecordV2(),
 			"huaweicloud_dns_recordset":                   ResourceDNSRecordSetV2(),

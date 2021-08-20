@@ -8,9 +8,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/policies"
 )
@@ -29,7 +29,7 @@ func TestAccWafPolicyV1_basic(t *testing.T) {
 				Config: testAccWafPolicyV1_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckWafPolicyV1Exists(resourceName, &policy),
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("policy-%s", randName)),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
 					resource.TestCheckResourceAttr(resourceName, "level", "1"),
 					resource.TestCheckResourceAttr(resourceName, "full_detection", "false"),
 				),
@@ -38,7 +38,7 @@ func TestAccWafPolicyV1_basic(t *testing.T) {
 				Config: testAccWafPolicyV1_update(randName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckWafPolicyV1Exists(resourceName, &policy),
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("policy_%s_updated", randName)),
+					resource.TestCheckResourceAttr(resourceName, "name", randName+"_updated"),
 					resource.TestCheckResourceAttr(resourceName, "protection_mode", "block"),
 					resource.TestCheckResourceAttr(resourceName, "level", "3"),
 				),
@@ -105,7 +105,7 @@ func testAccCheckWafPolicyV1Exists(n string, policy *policies.Policy) resource.T
 func testAccWafPolicyV1_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_waf_policy" "policy_1" {
-  name  = "policy-%s"
+  name  = "%s"
   level = 1
 }
 `, name)
@@ -114,7 +114,7 @@ resource "huaweicloud_waf_policy" "policy_1" {
 func testAccWafPolicyV1_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_waf_policy" "policy_1" {
-  name            = "policy_%s_updated"
+  name            = "%s_updated"
   protection_mode = "block"
   level           = 3
 }

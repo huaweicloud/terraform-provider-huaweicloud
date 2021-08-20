@@ -91,21 +91,15 @@ The following arguments are supported:
 
 	* `cce.s1.small` - small-scale single cluster (up to 50 nodes).
 	* `cce.s1.medium` - medium-scale single cluster (up to 200 nodes).
-	* `cce.s1.large` - large-scale single cluster (up to 1000 nodes).
 	* `cce.s2.small` - small-scale HA cluster (up to 50 nodes).
 	* `cce.s2.medium` - medium-scale HA cluster (up to 200 nodes).
 	* `cce.s2.large` - large-scale HA cluster (up to 1000 nodes).
-	* `cce.t1.small` - small-scale single physical machine cluster (up to 10 nodes).
-	* `cce.t1.medium` - medium-scale single physical machine cluster (up to 100 nodes).
-	* `cce.t1.large` - large-scale single physical machine cluster (up to 500 nodes).
-	* `cce.t2.small` - small-scale HA physical machine cluster (up to 10 nodes).
-	* `cce.t2.medium` - medium-scale HA physical machine cluster (up to 100 nodes).
-	* `cce.t2.large` - large-scale HA physical machine cluster (up to 500 nodes).
+	* `cce.s2.xlarge` - large-scale HA cluster (up to 2000 nodes).
 
 * `cluster_version` - (Optional, String, ForceNew) For the cluster version, defaults to the latest supported version.
   Changing this parameter will create a new cluster resource.
 
-* `cluster_type` - (Optional, String, ForceNew) Cluster Type, possible values are VirtualMachine, BareMetal and ARM64. Defaults to *VirtualMachine*.
+* `cluster_type` - (Optional, String, ForceNew) Cluster Type, possible values are VirtualMachine and ARM64. Defaults to *VirtualMachine*.
   Changing this parameter will create a new cluster resource.
 
 * `description` - (Optional, String) The Cluster description.
@@ -115,13 +109,9 @@ The following arguments are supported:
 * `subnet_id` - (Required, String, ForceNew) The ID of the subnet used to create the node  which should be configured with a *DNS address*.
   Changing this parameter will create a new cluster resource.
 
-* `highway_subnet_id` - (Optional, String, ForceNew) The ID of the high speed network used to create bare metal nodes.
-  Changing this parameter will create a new cluster resource.
-
 * `container_network_type` - (Required, String, ForceNew) Container network parameters. Possible values:
 
 	* `overlay_l2` - An overlay_l2 network built for containers by using Open vSwitch(OVS).
-	* `underlay_ipvlan` - An underlay_ipvlan network built for bare metal servers by using ipvlan.
 	* `vpc-router` - An vpc-router network built for containers by using ipvlan and custom VPC routes.
 	* `eni` - A Yangtse network built for cce turbo cluster. The container network deeply integrates the native ENI capability of VPC, 
 	uses the VPC CIDR block to allocate container addresses, and supports direct connections between ELB and containers to provide high performance.
@@ -136,8 +126,8 @@ The following arguments are supported:
 * `eni_subnet_cidr` - (Optional, String, ForceNew) ENI network segment. Specified when creating a CCE Turbo cluster.
   Changing this parameter will create a new cluster resource.
 
-* `authentication_mode` - (Optional, String, ForceNew) Authentication mode of the cluster, possible values are x509 and rbac. Defaults to *rbac*.
-    Changing this parameter will create a new cluster resource.
+* `authentication_mode` - (Optional, String, ForceNew) Authentication mode of the cluster, possible values are
+  authenticating_proxy and rbac. Defaults to *rbac*. Changing this parameter will create a new cluster resource.
 
 * `authenticating_proxy_ca` - (Optional, String, ForceNew) CA root certificate provided in the authenticating_proxy mode. The CA root certificate
 	is encoded to the Base64 format. Changing this parameter will create a new cluster resource.
@@ -228,6 +218,7 @@ In addition to all arguments above, the following attributes are exported:
 ## Timeouts
 This resource provides the following timeouts configuration options:
 - `create` - Default is 30 minute.
+- `update` - Default is 30 minute.
 - `delete` - Default is 30 minute.
 
 ## Import

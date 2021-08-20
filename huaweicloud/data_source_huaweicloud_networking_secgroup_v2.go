@@ -7,7 +7,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func DataSourceNetworkingSecGroupV2() *schema.Resource {
@@ -28,10 +28,14 @@ func DataSourceNetworkingSecGroupV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tenant_id": {
+			"description": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
+			},
+			"tenant_id": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "tenant_id is deprecated",
 			},
 		},
 	}
@@ -75,7 +79,6 @@ func dataSourceNetworkingSecGroupV2Read(d *schema.ResourceData, meta interface{}
 
 	d.Set("name", secGroup.Name)
 	d.Set("description", secGroup.Description)
-	d.Set("tenant_id", secGroup.TenantID)
 	d.Set("region", GetRegion(d, config))
 
 	return nil

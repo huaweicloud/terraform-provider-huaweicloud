@@ -6,9 +6,9 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodepools"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -67,7 +67,7 @@ func TestAccCCENodePool_basic(t *testing.T) {
 	})
 }
 
-func TestAccCCENodePool_tags(t *testing.T) {
+func TestAccCCENodePool_tagsLabelsTaints(t *testing.T) {
 	var nodePool nodepools.NodePool
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
@@ -81,21 +81,34 @@ func TestAccCCENodePool_tags(t *testing.T) {
 		CheckDestroy: testAccCheckCCENodePoolDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCCENodePool_tags(rName),
+				Config: testAccCCENodePool_tagsLabelsTaints(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "tags.test1", "val1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.test2", "val2"),
+					resource.TestCheckResourceAttr(resourceName, "labels.test1", "val1"),
+					resource.TestCheckResourceAttr(resourceName, "labels.test2", "val2"),
+					resource.TestCheckResourceAttr(resourceName, "taints.0.key", "test_key"),
+					resource.TestCheckResourceAttr(resourceName, "taints.0.value", "test_value"),
+					resource.TestCheckResourceAttr(resourceName, "taints.0.effect", "NoSchedule"),
 				),
 			},
 			{
-				Config: testAccCCENodePool_tags_update(rName),
+				Config: testAccCCENodePool_tagsLabelsTaints_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodePoolExists(resourceName, clusterName, &nodePool),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "tags.test1", "val1_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.test2_update", "val2_update"),
+					resource.TestCheckResourceAttr(resourceName, "labels.test1", "val1_update"),
+					resource.TestCheckResourceAttr(resourceName, "labels.test2_update", "val2_update"),
+					resource.TestCheckResourceAttr(resourceName, "taints.0.key", "test_key"),
+					resource.TestCheckResourceAttr(resourceName, "taints.0.value", "test_value_update"),
+					resource.TestCheckResourceAttr(resourceName, "taints.0.effect", "NoSchedule"),
+					resource.TestCheckResourceAttr(resourceName, "taints.1.key", "test_key_update"),
+					resource.TestCheckResourceAttr(resourceName, "taints.1.value", "test_value_update"),
+					resource.TestCheckResourceAttr(resourceName, "taints.1.effect", "NoSchedule"),
 				),
 			},
 		},
@@ -320,7 +333,7 @@ resource "huaweicloud_cce_node_pool" "test" {
 `, testAccCCENodePool_Base(rName), rName)
 }
 
-func testAccCCENodePool_tags(rName string) string {
+func testAccCCENodePool_tagsLabelsTaints(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -352,11 +365,23 @@ resource "huaweicloud_cce_node_pool" "test" {
 	test1 = "val1"
 	test2 = "val2"
   }
+
+  labels = {
+	test1 = "val1"
+	test2 = "val2"
+  }
+
+  taints {
+	key    = "test_key"
+	value  = "test_value"
+	effect = "NoSchedule"
+  }
+
 }
 `, testAccCCENodePool_Base(rName), rName)
 }
 
-func testAccCCENodePool_tags_update(rName string) string {
+func testAccCCENodePool_tagsLabelsTaints_update(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -387,6 +412,23 @@ resource "huaweicloud_cce_node_pool" "test" {
   tags = {
 	test1        = "val1_update"
 	test2_update = "val2_update"
+  }
+
+  labels = {
+	test1        = "val1_update"
+	test2_update = "val2_update"
+  }
+
+  taints {
+	key    = "test_key"
+	value  = "test_value_update"
+	effect = "NoSchedule"
+  }
+
+  taints {
+	key    = "test_key_update"
+	value  = "test_value_update"
+	effect = "NoSchedule"
   }
 }
 `, testAccCCENodePool_Base(rName), rName)

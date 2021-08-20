@@ -11,7 +11,7 @@ package huaweicloud
 // understandable network information within the instance resource.
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
 	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
