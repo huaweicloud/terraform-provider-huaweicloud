@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/waf/v1/certificates"
@@ -15,25 +14,40 @@ import (
 func TestAccWafCertificateV1_basic(t *testing.T) {
 	var certificate certificates.Certificate
 	resourceName := "huaweicloud_waf_certificate.certificate_1"
-	name := fmt.Sprintf("cert-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
 	updateName := name + "_update"
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&certificate,
+		func(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+			wafClient, err := c.WafV1Client(acceptance.HW_REGION_NAME)
+			if err != nil {
+				return nil, fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
+			}
+			return certificates.Get(wafClient, state.Primary.ID).Extract()
+		},
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
 		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckWafCertificateV1Destroy,
+		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafCertificateV1_conf(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafCertificateV1Exists(resourceName, &certificate),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 				),
 			},
 			{
 				Config: testAccWafCertificateV1_conf(updateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafCertificateV1Exists(resourceName, &certificate),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 				),
 			},
@@ -47,61 +61,10 @@ func TestAccWafCertificateV1_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckWafCertificateV1Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_waf_certificate" {
-			continue
-		}
-
-		_, err := certificates.Get(wafClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("Waf certificate still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckWafCertificateV1Exists(n string, certificate *certificates.Certificate) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
-		}
-
-		found, err := certificates.Get(wafClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("Waf certificate not found")
-		}
-
-		*certificate = *found
-
-		return nil
-	}
-}
-
 func testAccWafCertificateV1_conf(name string) string {
 	return fmt.Sprintf(`
+%s
+
 resource "huaweicloud_waf_certificate" "certificate_1" {
   name = "%s"
 
@@ -159,6 +122,10 @@ x7N2mFK4skBzVtMVbjAHVjG78UitVu+FrzqGreaJXHaduhgUH2iFWfw09joOotAM
 X7ioLbTeWGBqFM+C80PkdBNp
 -----END PRIVATE KEY-----
 EOT
+
+  depends_on = [
+    huaweicloud_waf_dedicated_instance.instance_1
+  ]
 }
-`, name)
+`, testAccWafDedicatedInstanceV1_conf(name), name)
 }
