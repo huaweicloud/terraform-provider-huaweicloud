@@ -22,7 +22,10 @@ func TestAccApigApplicationV2_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t) // Method testAccApigApplication_base needs HW_ENTERPRISE_PROJECT_ID.
+		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckApigApplicationDestroy,
 		Steps: []resource.TestStep{
