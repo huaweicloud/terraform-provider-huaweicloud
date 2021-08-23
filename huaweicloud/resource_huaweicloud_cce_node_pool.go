@@ -411,10 +411,10 @@ func resourceCCENodePoolRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("type", s.Spec.Type)
 
 	// set extend_param
-	var extend_param = s.Spec.NodeTemplate.ExtendParam
-	d.Set("max_pods", extend_param["maxPods"].(float64))
-	delete(extend_param, "maxPods")
-	d.Set("extend_param", extend_param)
+	var extendParam = s.Spec.NodeTemplate.ExtendParam
+	d.Set("max_pods", extendParam["maxPods"])
+	delete(extendParam, "maxPods")
+	d.Set("extend_param", extendParam)
 
 	if s.Spec.NodeTemplate.RunTime != nil {
 		d.Set("runtime", s.Spec.NodeTemplate.RunTime.Name)
