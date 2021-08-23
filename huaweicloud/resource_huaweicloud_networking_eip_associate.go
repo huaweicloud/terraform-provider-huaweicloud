@@ -70,7 +70,7 @@ func resourceNetworkingFloatingIPAssociateV2Create(d *schema.ResourceData, meta 
 
 	d.SetId(floatingIPID)
 
-	return resourceNetworkFloatingIPV2Read(d, meta)
+	return resourceNetworkingFloatingIPAssociateV2Read(d, meta)
 }
 
 func resourceNetworkingFloatingIPAssociateV2Read(d *schema.ResourceData, meta interface{}) error {

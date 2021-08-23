@@ -177,7 +177,7 @@ func testAccPreCheckDestProject(t *testing.T) {
 
 func testAccPreCheckEpsID(t *testing.T) {
 	if HW_ENTERPRISE_PROJECT_ID_TEST == "" {
-		t.Skip("This environment does not support EPS_ID tests")
+		t.Skip("This environment does not support Enterprise Project ID tests")
 	}
 }
 
