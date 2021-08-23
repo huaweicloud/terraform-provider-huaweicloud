@@ -35,6 +35,8 @@ func TestAccApigApplicationV2_basic(t *testing.T) {
 					testAccCheckApigApplicationExists(resourceName, &application),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by script"),
+					resource.TestCheckResourceAttrSet(resourceName, "app_key"),
+					resource.TestCheckResourceAttrSet(resourceName, "app_secret"),
 				),
 			},
 			{
@@ -44,6 +46,8 @@ func TestAccApigApplicationV2_basic(t *testing.T) {
 					testAccCheckApigApplicationExists(resourceName, &application),
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"_update"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Updated by script"),
+					resource.TestCheckResourceAttrSet(resourceName, "app_key"),
+					resource.TestCheckResourceAttrSet(resourceName, "app_secret"),
 				),
 			},
 			{
