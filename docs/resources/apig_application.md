@@ -61,6 +61,8 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - ID of the APIG application.
 * `registraion_time` - Registration time, in RFC-3339 format.
 * `update_time` - Time when the API group was last modified, in RFC-3339 format.
+* `app_key` - App key.
+* `app_secret` - App secret.
 
 ## Import
 
