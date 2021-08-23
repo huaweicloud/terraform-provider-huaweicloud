@@ -106,7 +106,6 @@ func resourceIecSecurityGroupV1Read(d *schema.ResourceData, meta interface{}) er
 		return CheckDeleted(d, err, "HuaweiCloud IEC Security group")
 	}
 
-	d.Set("id", group.ID)
 	d.Set("name", group.Name)
 	d.Set("description", group.Description)
 
