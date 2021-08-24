@@ -2,7 +2,7 @@
 subcategory: "Dedicated Load Balance (Dedicated ELB)"
 ---
 
-# huaweicloud\_elb\_l7rule
+# huaweicloud_elb_l7rule
 
 Manages an ELB L7 Rule resource within HuaweiCloud.
 

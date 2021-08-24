@@ -2,7 +2,7 @@
 subcategory: "Simple Message Notification (SMN)"
 ---
 
-# huaweicloud\_smn\_subscription
+# huaweicloud_smn_subscription
 
 Manages a SMN subscription resource within HuaweiCloud.
 This is an alternative to `huaweicloud_smn_subscription_v2`

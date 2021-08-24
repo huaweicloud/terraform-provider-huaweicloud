@@ -2,7 +2,7 @@
 subcategory: "NAT Gateway (NAT)"
 ---
 
-# huaweicloud\_nat\_gateway
+# huaweicloud_nat_gateway
 
 Use this data source to get the information of an available HuaweiCloud NAT gateway.
 

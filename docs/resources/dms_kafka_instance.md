@@ -2,7 +2,7 @@
 subcategory: "Distributed Message Service (DMS)"
 ---
 
-# huaweicloud\_dms\_kafka\_instance
+# huaweicloud_dms_kafka_instance
 
 ## Example Usage
 

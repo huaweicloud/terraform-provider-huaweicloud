@@ -2,7 +2,7 @@
 subcategory: "GaussDB"
 ---
 
-# huaweicloud\_gaussdb\_cassandra\_instance
+# huaweicloud_gaussdb_cassandra_instance
 
 GaussDB for Cassandra instance management within HuaweiCoud.
 

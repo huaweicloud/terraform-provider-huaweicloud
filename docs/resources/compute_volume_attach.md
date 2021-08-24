@@ -2,7 +2,7 @@
 subcategory: "Elastic Cloud Server (ECS)"
 ---
 
-# huaweicloud\_compute\_volume\_attach
+# huaweicloud_compute_volume_attach
 
 Attaches a Volume to an Instance.
 This is an alternative to `huaweicloud_compute_volume_attach_v2`

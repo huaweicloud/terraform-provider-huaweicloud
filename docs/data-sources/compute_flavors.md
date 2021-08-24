@@ -2,7 +2,7 @@
 subcategory: "Elastic Cloud Server (ECS)"
 ---
 
-# huaweicloud\_compute\_flavors
+# huaweicloud_compute_flavors
 
 Use this data source to get the ID of the available Compute Flavors.
 

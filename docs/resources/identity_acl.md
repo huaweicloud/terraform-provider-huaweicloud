@@ -2,7 +2,7 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_identity\_acl
+# huaweicloud_identity_acl
 
 Manages a ACL resource within HuaweiCloud IAM service.
 The ACL allowing user access only from specified IP address ranges and IPv4 CIDR blocks.

@@ -2,7 +2,7 @@
 subcategory: "Key Management Service (KMS)"
 ---
 
-# huaweicloud\_kms\_data\_key
+# huaweicloud_kms_data_key
 
 Use this data source to get the plaintext and the ciphertext of an available
 HuaweiCloud KMS DEK (data encryption key).

@@ -2,7 +2,7 @@
 subcategory: "Document Database Service (DDS)"
 ---
 
-# huaweicloud\_dds\_flavors
+# huaweicloud_dds_flavors
 
 Use this data source to get the ID of an available HuaweiCloud dds flavor.
 This is an alternative to `huaweicloud_dds_flavors_v3`

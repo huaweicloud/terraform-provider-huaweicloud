@@ -2,7 +2,7 @@
 subcategory: "Intelligent EdgeCloud (IEC)"
 ---
 
-# huaweicloud\_iec\_vip
+# huaweicloud_iec_vip
 
 Manages a VIP resource within HuaweiCloud IEC.
 

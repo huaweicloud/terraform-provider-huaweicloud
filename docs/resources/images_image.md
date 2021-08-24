@@ -2,7 +2,7 @@
 subcategory: "Image Management Service (IMS)"
 ---
 
-# huaweicloud\_images\_image
+# huaweicloud_images_image
 
 Manages an Image resource within HuaweiCloud IMS.
 

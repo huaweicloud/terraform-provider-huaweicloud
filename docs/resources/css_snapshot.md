@@ -2,7 +2,7 @@
 subcategory: "Cloud Search Service (CSS)"
 ---
 
-# huaweicloud\_css\_snapshot
+# huaweicloud_css_snapshot
 
 CSS cluster snapshot management
 

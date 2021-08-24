@@ -2,7 +2,7 @@
 subcategory: "Virtual Private Cloud (VPC)"
 ---
 
-# huaweicloud\_vpc\_peering\_connection
+# huaweicloud_vpc_peering_connection
 
 The VPC Peering Connection data source provides details about a specific VPC peering connection.
 This is an alternative to `huaweicloud_vpc_peering_connection_v2`

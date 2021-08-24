@@ -2,7 +2,7 @@
 subcategory: "Cloud Container Engine (CCE)"
 ---
 
-# huaweicloud\_cce\_node
+# huaweicloud_cce_node
 Add a node to a CCE cluster.
 This is an alternative to `huaweicloud_cce_node_v3`
 

@@ -2,7 +2,7 @@
 subcategory: "Distributed Message Service (DMS)"
 ---
 
-# huaweicloud\_dms\_rabbitmq\_instance
+# huaweicloud_dms_rabbitmq_instance
 
 ## Example Usage
 

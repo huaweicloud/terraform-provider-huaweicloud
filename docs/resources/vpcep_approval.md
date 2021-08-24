@@ -2,7 +2,7 @@
 subcategory: "VPC Endpoint (VPCEP)"
 ---
 
-# huaweicloud\_vpcep\_approval
+# huaweicloud_vpcep_approval
 
 Provides a resource to manage the VPC endpoint connections.
 

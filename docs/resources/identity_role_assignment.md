@@ -2,7 +2,7 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_identity\_role\_assignment
+# huaweicloud_identity_role_assignment
 
 Manages a Role assignment within group on HuaweiCloud IAM Service. This is an alternative to `huaweicloud_identity_role_assignment_v3`
 

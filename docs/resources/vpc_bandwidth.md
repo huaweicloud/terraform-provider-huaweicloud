@@ -2,7 +2,7 @@
 subcategory: "Elastic IP (EIP)"
 ---
 
-# huaweicloud\_vpc\_bandwidth
+# huaweicloud_vpc_bandwidth
 
 Manages a Shared Bandwidth resource within HuaweiCloud.
 This is an alternative to `huaweicloud_vpc_bandwidth_v2`

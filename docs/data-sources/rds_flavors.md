@@ -2,7 +2,7 @@
 subcategory: "Relational Database Service (RDS)"
 ---
 
-# huaweicloud\_rds\_flavors
+# huaweicloud_rds_flavors
 
 Use this data source to get available HuaweiCloud rds flavors.
 This is an alternative to `huaweicloud_rds_flavors_v3`

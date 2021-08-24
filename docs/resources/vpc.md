@@ -2,7 +2,7 @@
 subcategory: "Virtual Private Cloud (VPC)"
 ---
 
-# huaweicloud\_vpc
+# huaweicloud_vpc
 
 Manages a VPC resource within HuaweiCloud.
 This is an alternative to `huaweicloud_vpc_v1`

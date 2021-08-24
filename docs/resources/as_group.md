@@ -2,7 +2,7 @@
 subcategory: "Auto Scaling"
 ---
 
-# huaweicloud\_as\_group
+# huaweicloud_as_group
 
 Manages a Autoscaling Group resource within HuaweiCloud.
 This is an alternative to `huaweicloud_as_group_v1`
