@@ -120,7 +120,6 @@ func resourceIecVIPV1Read(d *schema.ResourceData, meta interface{}) error {
 		return CheckDeleted(d, err, "Error retrieving Huaweicloud IEC VPC")
 	}
 
-	d.Set("name", vip.Name)
 	d.Set("subnet_id", vip.NetworkID)
 	d.Set("mac_address", vip.MacAddress)
 

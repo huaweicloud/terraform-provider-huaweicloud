@@ -659,7 +659,6 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("key_pair", s.Spec.Login.SshKey)
 	d.Set("subnet_id", s.Spec.NodeNicSpec.PrimaryNic.SubnetId)
 	d.Set("ecs_group_id", s.Spec.EcsGroupID)
-	d.Set("billing_mode", s.Spec.BillingMode)
 	if s.Spec.BillingMode != 0 {
 		d.Set("charging_mode", "prePaid")
 	}
