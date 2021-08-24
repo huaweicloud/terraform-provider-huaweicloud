@@ -35,7 +35,7 @@ The following arguments are supported:
   asterisk (*) to back up data of certain indices. For example, if you enter 2020-06*, then
   data of indices with the name prefix of 2020-06 will be backed up.
   The value contains 0 to 1024 characters. Uppercase letters, spaces, and certain special
-  characters (including "\<|>/?) are not allowed.
+  characters (including "\\<|>/?) are not allowed.
   Changing this parameter will create a new resource.
 
 * `description` - (Optional, String, ForceNew) Specifies the description of a snapshot.

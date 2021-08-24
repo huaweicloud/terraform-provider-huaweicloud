@@ -39,8 +39,8 @@ The following arguments are supported:
 * `topic_urn` - (Required, String, ForceNew) Resource identifier of a topic, which is unique.
 
 * `endpoint` - (Required, String, ForceNew) Message endpoint.
-     For an HTTP subscription, the endpoint starts with http\://.
-     For an HTTPS subscription, the endpoint starts with https\://.
+     For an HTTP subscription, the endpoint starts with http://.
+     For an HTTPS subscription, the endpoint starts with https://.
      For an email subscription, the endpoint is a mail address.
      For an SMS message subscription, the endpoint is a phone number.
 

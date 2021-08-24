@@ -25,10 +25,10 @@ The following arguments are supported:
     If omitted, the provider-level region will be used.
     Changing this creates a new L7 Rule.
 
-* `type` - (Required, String, ForceNew) The L7 Rule type - can either be HOST\_NAME or PATH. Changing this creates a new L7 Rule.
+* `type` - (Required, String, ForceNew) The L7 Rule type - can either be HOST_NAME or PATH. Changing this creates a new L7 Rule.
 
 * `compare_type` - (Required, String) The comparison type for the L7 rule - can either be
-    STARTS\_WITH, EQUAL_TO or REGEX
+    STARTS_WITH, EQUAL_TO or REGEX
 
 * `l7policy_id` - (Required, String, ForceNew) The ID of the L7 Policy. Changing this creates a new
     L7 Rule.
