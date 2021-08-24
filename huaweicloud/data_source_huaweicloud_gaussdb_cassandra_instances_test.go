@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccGeminiDBInstanceDataSource_basic(t *testing.T) {
+func TestAccGeminiDBInstancesDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -19,16 +19,17 @@ func TestAccGeminiDBInstanceDataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGeminiDBInstanceDataSource_basic(rName),
+				Config: testAccGeminiDBInstancesDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGeminiDBInstanceDataSourceID("data.huaweicloud_gaussdb_cassandra_instance.test"),
+					testAccCheckGeminiDBInstancesDataSourceID("data.huaweicloud_gaussdb_cassandra_instances.test"),
+					resource.TestCheckResourceAttr("data.huaweicloud_gaussdb_cassandra_instances.test", "instances.#", "1"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckGeminiDBInstanceDataSourceID(n string) resource.TestCheckFunc {
+func testAccCheckGeminiDBInstancesDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -36,14 +37,14 @@ func testAccCheckGeminiDBInstanceDataSourceID(n string) resource.TestCheckFunc {
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("GaussDB cassandra instance data source ID not set ")
+			return fmtp.Errorf("GaussDB cassandra instances data source ID not set ")
 		}
 
 		return nil
 	}
 }
 
-func testAccGeminiDBInstanceDataSource_basic(rName string) string {
+func testAccGeminiDBInstancesDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -76,10 +77,10 @@ resource "huaweicloud_gaussdb_cassandra_instance" "test" {
   }
 }
 
-data "huaweicloud_gaussdb_cassandra_instance" "test" {
+data "huaweicloud_gaussdb_cassandra_instances" "test" {
   name = huaweicloud_gaussdb_cassandra_instance.test.name
   depends_on = [
-    huaweicloud_gaussdb_cassandra_instance.test.name,
+    huaweicloud_gaussdb_cassandra_instance.test,
   ]
 }
 `, testAccVpcConfig_Base(rName), rName)
