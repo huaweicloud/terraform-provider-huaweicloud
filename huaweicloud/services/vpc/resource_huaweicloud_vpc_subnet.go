@@ -1,4 +1,4 @@
-package huaweicloud
+package vpc
 
 import (
 	"time"
@@ -8,6 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -32,7 +33,8 @@ var defaultDNSList = map[string][]string{
 	"sa-chile-1":     {"100.125.1.250", "100.125.0.250"},   // LA-Santiago2
 }
 
-func resourceSubnetDNSListV1(d *schema.ResourceData, region string) []string {
+// ResourceSubnetDNSListV1 is used to obtain the corresponding DNS list according to the region.
+func ResourceSubnetDNSListV1(d *schema.ResourceData, region string) []string {
 	rawDNSN := d.Get("dns_list").([]interface{})
 	dnsn := make([]string, len(rawDNSN))
 	for i, raw := range rawDNSN {
@@ -144,14 +146,14 @@ func ResourceVpcSubnetV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"tags": tagsSchema(),
+			"tags": config.TagsSchema(),
 		},
 	}
 }
 
 func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	subnetClient, err := config.NetworkingV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud networking client: %s", err)
@@ -168,7 +170,7 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 		VPC_ID:           d.Get("vpc_id").(string),
 		PRIMARY_DNS:      d.Get("primary_dns").(string),
 		SECONDARY_DNS:    d.Get("secondary_dns").(string),
-		DnsList:          resourceSubnetDNSListV1(d, region),
+		DnsList:          ResourceSubnetDNSListV1(d, region),
 	}
 	logp.Printf("[DEBUG] Create VPC subnet options: %#v", createOpts)
 
@@ -199,7 +201,7 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 	//set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		vpcSubnetV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
+		vpcSubnetV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
 		if err != nil {
 			return fmtp.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
@@ -213,21 +215,22 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 
 }
 
-func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
+// GetVpcSubnetById is a method to obtain subnet informations through subnet ID.
+func GetVpcSubnetById(d *schema.ResourceData, config *config.Config, subentId string) (*subnets.Subnet, error) {
+	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud networking client: %s", err)
+		return nil, err
 	}
 
-	n, err := subnets.Get(subnetClient, d.Id()).Extract()
-	if err != nil {
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			d.SetId("")
-			return nil
-		}
+	return subnets.Get(subnetClient, subentId).Extract()
+}
 
-		return fmtp.Errorf("Error retrieving Huaweicloud Subnets: %s", err)
+func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*config.Config)
+
+	n, err := GetVpcSubnetById(d, config, d.Id())
+	if err != nil {
+		return common.CheckDeleted(d, err, "Error obtain Subnet information")
 	}
 
 	d.Set("name", n.Name)
@@ -244,10 +247,10 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("ipv6_subnet_id", n.IPv6SubnetId)
 	d.Set("ipv6_cidr", n.IPv6CIDR)
 	d.Set("ipv6_gateway", n.IPv6Gateway)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	// save VpcSubnet tags
-	if vpcSubnetV2Client, err := config.NetworkingV2Client(GetRegion(d, config)); err == nil {
+	if vpcSubnetV2Client, err := config.NetworkingV2Client(config.GetRegion(d)); err == nil {
 		if resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
@@ -265,7 +268,7 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
+	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud networking client: %s", err)
 	}
@@ -290,7 +293,7 @@ func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.SECONDARY_DNS = d.Get("secondary_dns").(string)
 	}
 	if d.HasChange("dns_list") {
-		dnsList := resourceSubnetDNSListV1(d, "")
+		dnsList := ResourceSubnetDNSListV1(d, "")
 		updateOpts.DnsList = &dnsList
 	}
 	if d.HasChange("dhcp_enable") {
@@ -309,7 +312,7 @@ func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	//update tags
 	if d.HasChange("tags") {
-		vpcSubnetV2Client, err := config.NetworkingV2Client(GetRegion(d, config))
+		vpcSubnetV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
 		if err != nil {
 			return fmtp.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
@@ -326,7 +329,7 @@ func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 func resourceVpcSubnetV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*config.Config)
-	subnetClient, err := config.NetworkingV1Client(GetRegion(d, config))
+	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud networking client: %s", err)
 	}
