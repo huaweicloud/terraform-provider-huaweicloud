@@ -284,6 +284,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_elb_flavors":                 dataSourceElbFlavorsV3(),
 			"huaweicloud_enterprise_project":          DataSourceEnterpriseProject(),
 			"huaweicloud_gaussdb_cassandra_instance":  dataSourceGeminiDBInstance(),
+			"huaweicloud_gaussdb_cassandra_instances": dataSourceGeminiDBInstances(),
 			"huaweicloud_gaussdb_opengauss_instance":  dataSourceOpenGaussInstance(),
 			"huaweicloud_gaussdb_mysql_configuration": dataSourceGaussdbMysqlConfigurations(),
 			"huaweicloud_gaussdb_mysql_flavors":       dataSourceGaussdbMysqlFlavors(),
