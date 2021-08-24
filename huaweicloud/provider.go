@@ -327,6 +327,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpcep_public_services":       DataSourceVPCEPPublicServices(),
 			"huaweicloud_waf_certificate":             waf.DataSourceWafCertificateV1(),
 			"huaweicloud_waf_policies":                waf.DataSourceWafPoliciesV1(),
+			"huaweicloud_waf_dedicated_instances":     waf.DataSourceWafDedicatedInstancesV1(),
 
 			// Legacy
 			"huaweicloud_images_image_v2":           DataSourceImagesImageV2(),
