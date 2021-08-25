@@ -216,7 +216,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "dds",
 		Version: "v3",
 	},
-	"cassandra": {
+	"geminidb": {
 		Name:    "gaussdb-nosql",
 		Version: "v3",
 	},
