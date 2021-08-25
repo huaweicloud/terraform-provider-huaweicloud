@@ -11,13 +11,14 @@ import (
 )
 
 var (
-	HW_REGION_NAME       = os.Getenv("HW_REGION_NAME")
-	HW_AVAILABILITY_ZONE = os.Getenv("HW_AVAILABILITY_ZONE")
-	HW_ACCESS_KEY        = os.Getenv("HW_ACCESS_KEY")
-	HW_SECRET_KEY        = os.Getenv("HW_SECRET_KEY")
-	HW_PROJECT_ID        = os.Getenv("HW_PROJECT_ID")
-	HW_DOMAIN_ID         = os.Getenv("HW_DOMAIN_ID")
-	HW_DOMAIN_NAME       = os.Getenv("HW_DOMAIN_NAME")
+	HW_REGION_NAME        = os.Getenv("HW_REGION_NAME")
+	HW_CUSTOM_REGION_NAME = os.Getenv("HW_CUSTOM_REGION_NAME")
+	HW_AVAILABILITY_ZONE  = os.Getenv("HW_AVAILABILITY_ZONE")
+	HW_ACCESS_KEY         = os.Getenv("HW_ACCESS_KEY")
+	HW_SECRET_KEY         = os.Getenv("HW_SECRET_KEY")
+	HW_PROJECT_ID         = os.Getenv("HW_PROJECT_ID")
+	HW_DOMAIN_ID          = os.Getenv("HW_DOMAIN_ID")
+	HW_DOMAIN_NAME        = os.Getenv("HW_DOMAIN_NAME")
 
 	HW_FLAVOR_ID             = os.Getenv("HW_FLAVOR_ID")
 	HW_FLAVOR_NAME           = os.Getenv("HW_FLAVOR_NAME")
@@ -55,6 +56,13 @@ func TestAccPreCheck(t *testing.T) {
 	}
 
 	preCheckRequiredEnvVars(t)
+}
+
+//lintignore:AT003
+func TestAccPrecheckCustomRegion(t *testing.T) {
+	if HW_CUSTOM_REGION_NAME == "" {
+		t.Skip("HW_CUSTOM_REGION_NAME must be set for acceptance tests")
+	}
 }
 
 //lintignore:AT003
