@@ -87,6 +87,8 @@ The following arguments are supported:
 
 * `configuration_id` - (Optional, String) Specifies the Parameter Template ID.
 
+* `dedicated_resource_id` - (Optional, String, ForceNew) Specifies the dedicated resource ID.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id, Only valid for users who
   have enabled the enterprise multi-project service.
   Changing this parameter will create a new resource.
