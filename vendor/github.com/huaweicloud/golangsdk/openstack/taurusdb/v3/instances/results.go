@@ -71,6 +71,7 @@ type TaurusDBInstance struct {
 	BackupStrategy BackupStrategy `json:"backup_strategy"`
 
 	EnterpriseProjectId string `json:"enterprise_project_id"`
+	DedicatedResourceId string `json:"dedicated_resource_id"`
 }
 
 type Volume struct {
