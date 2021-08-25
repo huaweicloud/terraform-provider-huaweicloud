@@ -2,7 +2,7 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_identity\_project
+# huaweicloud_identity_project
 
 Manages a Project resource within HuaweiCloud Identity And Access 
 Management service. This is an alternative to `huaweicloud_identity_project_v3`

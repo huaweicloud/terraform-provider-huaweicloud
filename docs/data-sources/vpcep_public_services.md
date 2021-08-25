@@ -2,7 +2,7 @@
 subcategory: "VPC Endpoint (VPCEP)"
 ---
 
-# huaweicloud\_vpcep\_public\_services
+# huaweicloud_vpcep_public_services
 
 Use this data source to get available public VPC endpoint services.
 

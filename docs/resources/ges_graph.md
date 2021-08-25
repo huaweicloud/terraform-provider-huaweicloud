@@ -2,7 +2,7 @@
 subcategory: "Graph Engine Service (GES)"
 ---
 
-# huaweicloud\_ges\_graph
+# huaweicloud_ges_graph
 
 GES graph management
 This is an alternative to `huaweicloud_ges_graph_v1`

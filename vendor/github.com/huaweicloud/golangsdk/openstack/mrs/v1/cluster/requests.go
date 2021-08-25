@@ -1,6 +1,8 @@
 package cluster
 
-import "github.com/huaweicloud/golangsdk"
+import (
+	"github.com/huaweicloud/golangsdk"
+)
 
 var requestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
 	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
@@ -80,6 +82,23 @@ type ScriptOpts struct {
 	ActiveMaster         bool     `json:"active_master,omitempty"`
 	BeforeComponentStart bool     `json:"before_component_start,omitempty"`
 	FailAction           string   `json:"fail_action" required:"true"`
+}
+
+type HostOpts struct {
+	// Maximum number of clusters displayed on a page
+	// Value range: [1-2147483646]. The default value is 10.
+	PageSize int `q:"pageSize"`
+	// Current page number The default value is 1.
+	CurrentPage int `q:"currentPage"`
+}
+
+type HostOptsBuilder interface {
+	ToHostsListQuery() (string, error)
+}
+
+func (opts HostOpts) ToHostsListQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	return q.String(), err
 }
 
 type CreateOptsBuilder interface {
@@ -207,4 +226,22 @@ func Delete(c *golangsdk.ServiceClient, id string) (r DeleteResult) {
 	}
 	_, r.Err = c.Delete(deleteURL(c, id), reqOpt)
 	return
+}
+
+func ListHosts(client *golangsdk.ServiceClient, clusterId string, hostOpts HostOptsBuilder) (*HostListResult, error) {
+	url := listHostsURL(client, clusterId)
+	listResult := new(HostListResult)
+
+	if hostOpts != nil {
+		query, err := hostOpts.ToHostsListQuery()
+		if err != nil {
+			return nil, err
+		}
+		url += query
+	}
+
+	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}, MoreHeaders: map[string]string{"Content-Type": "application/json;charset=utf8"}}
+	_, err := client.Get(url, &listResult, reqOpt)
+	return listResult, err
+
 }

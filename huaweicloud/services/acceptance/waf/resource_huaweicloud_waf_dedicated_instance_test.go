@@ -47,7 +47,6 @@ func TestAccWafDedicatedInstanceV1_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckWafDedicatedInstanceV1Exists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", name+"_updated"),
-					resource.TestCheckResourceAttr(resourceName, "available_zone", "cn-north-4b"),
 					resource.TestCheckResourceAttr(resourceName, "cpu_architecture", "x86"),
 					resource.TestCheckResourceAttr(resourceName, "specification_code", "waf.instance.professional"),
 					resource.TestCheckResourceAttr(resourceName, "security_group.#", "1"),
@@ -59,6 +58,7 @@ func TestAccWafDedicatedInstanceV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "subnet_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpc_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "ecs_flavor"),
+					resource.TestCheckResourceAttrSet(resourceName, "available_zone"),
 				),
 			},
 			{

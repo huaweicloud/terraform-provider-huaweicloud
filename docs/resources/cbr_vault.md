@@ -2,7 +2,7 @@
 subcategory: "Cloud Backup and Recovery (CBR)"
 ---
 
-# huaweicloud\_cbr\_vault
+# huaweicloud_cbr_vault
 
 Manages a CBR Vault resource within Huaweicloud.
 

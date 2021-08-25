@@ -308,7 +308,7 @@ func TestAccServiceEndpoints_Security(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud WAF client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://waf.%s.%s/v3/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmt.Sprintf("https://waf.%s.%s/v1/%s/waf/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("WAF endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
@@ -320,7 +320,7 @@ func TestAccServiceEndpoints_Security(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud WAF dedicated client: %s", err)
 	}
-	expectedURL = fmt.Sprintf("https://waf.%s.%s/v3/", HW_REGION_NAME, config.Cloud)
+	expectedURL = fmt.Sprintf("https://waf.%s.%s/v1/%s/premium-waf/", HW_REGION_NAME, config.Cloud, config.TenantID)
 	actualURL = serviceClient.ResourceBaseURL()
 	if actualURL != expectedURL {
 		t.Fatalf("WAF dedicated endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))

@@ -2,7 +2,7 @@
 subcategory: "Elastic Cloud Server (ECS)"
 ---
 
-# huaweicloud\_compute\_servergroup
+# huaweicloud_compute_servergroup
 
 Manages Server Group resource within HuaweiCloud.
 This is an alternative to `huaweicloud_compute_servergroup_v2`

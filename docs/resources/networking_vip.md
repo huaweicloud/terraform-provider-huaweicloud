@@ -2,7 +2,7 @@
 subcategory: "Virtual Private Cloud (VPC)"
 ---
 
-# huaweicloud\_networking\_vip
+# huaweicloud_networking_vip
 
 Manages a Vip resource within HuaweiCloud.
 This is an alternative to `huaweicloud_networking_vip_v2`

@@ -2,7 +2,7 @@
 subcategory: "Distributed Message Service (DMS)"
 ---
 
-# huaweicloud\_dms\_product
+# huaweicloud_dms_product
 
 Use this data source to get the ID of an available HuaweiCloud dms product.
 This is an alternative to `huaweicloud_dms_product_v1`

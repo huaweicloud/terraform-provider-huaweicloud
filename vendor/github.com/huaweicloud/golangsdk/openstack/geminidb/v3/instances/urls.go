@@ -41,3 +41,7 @@ func updateSgURL(c *golangsdk.ServiceClient, instanceID string) string {
 func listURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("instances")
 }
+
+func listDehURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL("dedicated-resources")
+}

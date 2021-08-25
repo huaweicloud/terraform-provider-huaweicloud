@@ -2,7 +2,7 @@
 subcategory: "Intelligent EdgeCloud (IEC)"
 ---
 
-# huaweicloud\_iec\_keypair
+# huaweicloud_iec_keypair
 
 Manages a keypair resource within HuaweiCloud IEC.
 

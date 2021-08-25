@@ -2,7 +2,7 @@
 subcategory: "Deprecated"
 ---
 
-# huaweicloud\_images\_image\_v2
+# huaweicloud_images_image_v2
 
 Manages a Image resource within HuaweiCloud IMS.
 

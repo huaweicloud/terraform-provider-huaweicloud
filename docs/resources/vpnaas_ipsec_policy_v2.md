@@ -2,7 +2,7 @@
 subcategory: "Deprecated"
 ---
 
-# huaweicloud\_vpnaas\_ipsec\_policy\_v2
+# huaweicloud_vpnaas_ipsec_policy_v2
 
 Manages a V2 IPSec policy resource within HuaweiCloud.
 

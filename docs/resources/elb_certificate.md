@@ -2,7 +2,7 @@
 subcategory: "Dedicated Load Balance (Dedicated ELB)"
 ---
 
-# huaweicloud\_elb\_certificate
+# huaweicloud_elb_certificate
 
 Manages an ELB certificate resource within HuaweiCloud.
 

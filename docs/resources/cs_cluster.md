@@ -2,7 +2,7 @@
 subcategory: "Cloud Stream"
 ---
 
-# huaweicloud\_cs\_cluster
+# huaweicloud_cs_cluster
 
 Cloud Stream Service cluster management
 This is an alternative to `huaweicloud_cs_cluster_v1`

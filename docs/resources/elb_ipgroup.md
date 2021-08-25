@@ -2,7 +2,7 @@
 subcategory: "Dedicated Load Balance (Dedicated ELB)"
 ---
 
-# huaweicloud\_elb\_ipgroup
+# huaweicloud_elb_ipgroup
 
 Manages a Dedicated ELB Ip Group resource within HuaweiCloud.
 

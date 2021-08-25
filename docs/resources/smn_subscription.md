@@ -2,7 +2,7 @@
 subcategory: "Simple Message Notification (SMN)"
 ---
 
-# huaweicloud\_smn\_subscription
+# huaweicloud_smn_subscription
 
 Manages a SMN subscription resource within HuaweiCloud.
 This is an alternative to `huaweicloud_smn_subscription_v2`
@@ -39,8 +39,8 @@ The following arguments are supported:
 * `topic_urn` - (Required, String, ForceNew) Resource identifier of a topic, which is unique.
 
 * `endpoint` - (Required, String, ForceNew) Message endpoint.
-     For an HTTP subscription, the endpoint starts with http\://.
-     For an HTTPS subscription, the endpoint starts with https\://.
+     For an HTTP subscription, the endpoint starts with http://.
+     For an HTTPS subscription, the endpoint starts with https://.
      For an email subscription, the endpoint is a mail address.
      For an SMS message subscription, the endpoint is a phone number.
 

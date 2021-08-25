@@ -2,7 +2,7 @@
 subcategory: "Intelligent EdgeCloud (IEC)"
 ---
 
-# huaweicloud\_iec\_flavors
+# huaweicloud_iec_flavors
 
 Use this data source to get the available of HuaweiCloud IEC flavors.
 

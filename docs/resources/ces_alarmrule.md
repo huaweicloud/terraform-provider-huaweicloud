@@ -2,7 +2,7 @@
 subcategory: "Cloud Eye"
 ---
 
-# huaweicloud\_ces\_alarmrule
+# huaweicloud_ces_alarmrule
 
 Manages a Cloud Eye alarm rule resource within HuaweiCloud.
 

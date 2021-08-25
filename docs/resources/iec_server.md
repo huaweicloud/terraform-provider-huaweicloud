@@ -128,7 +128,7 @@ The following arguments are supported:
 * `admin_pass` - (Optional, String, ForceNew) Specifies the administrative
     password to assign to the IEC server. This parameter can contain a maximum
     of 26 characters, which may consist of letters, digits and Special
-    characters(~!?,.:;-_'"(){}[]/<>@#$%^&*+|\=) and space.
+    characters(~!?,.:;-_'"(){}[]/<>@#$%^&*+|\\=) and space.
     This parameter and `key_pair` are alternative.
     Changing this changes the root password on the existing server.
 

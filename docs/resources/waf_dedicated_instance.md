@@ -10,7 +10,7 @@ Manages a WAF dedicated instance resource within HuaweiCloud.
 
 ```hcl
 variable az_name {}
-variable cpu_flavor_id {}
+variable ecs_flavor_id {}
 variable vpc_id {}
 variable subnet_id {}
 variable security_group_id {}
@@ -19,7 +19,7 @@ resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   name               = "instance_1"
   available_zone     = var.az_name
   specification_code = "waf.instance.professional"
-  cpu_flavor         = var.cpu_flavor_id
+  ecs_flavor         = var.ecs_flavor_id
   vpc_id             = var.vpc_id
   subnet_id          = var.subnet_id
 

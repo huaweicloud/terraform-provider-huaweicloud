@@ -845,7 +845,7 @@ func (c *Config) DdsV3Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) GeminiDBV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("cassandra", region)
+	return c.NewServiceClient("geminidb", region)
 }
 
 func (c *Config) OpenGaussV3Client(region string) (*golangsdk.ServiceClient, error) {

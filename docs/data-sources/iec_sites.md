@@ -2,7 +2,7 @@
 subcategory: "Intelligent EdgeCloud (IEC)"
 ---
 
-# huaweicloud\_iec\_sites
+# huaweicloud_iec_sites
 
 Use this data source to get the available of HuaweiCloud IEC sites.
 

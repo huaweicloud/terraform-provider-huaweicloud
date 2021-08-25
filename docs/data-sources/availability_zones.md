@@ -1,4 +1,4 @@
-# huaweicloud\_availability\_zones
+# huaweicloud_availability_zones
 
 Use this data source to get a list of availability zones from HuaweiCloud
 

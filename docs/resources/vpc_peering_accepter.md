@@ -2,7 +2,7 @@
 subcategory: "Virtual Private Cloud (VPC)"
 ---
 
-# huaweicloud\_vpc\_peering\_connection\_accepter
+# huaweicloud_vpc_peering_connection_accepter
 
 Provides a resource to manage the accepter's side of a VPC Peering Connection.
 This is an alternative to `huaweicloud_vpc_peering_connection_accepter_v2`
@@ -65,7 +65,7 @@ The following arguments are supported:
 * `accept` (Optional, Bool)- Whether or not to accept the peering request. Defaults to `false`.
 
 
-## Removing huaweicloud\_vpc\_peering\_connection\_accepter from your configuration
+## Removing huaweicloud_vpc_peering_connection_accepter from your configuration
  
 huaweicloud allows a cross-tenant VPC Peering Connection to be deleted from either the requester's or accepter's side. However, Terraform only allows the VPC Peering Connection to be deleted from the requester's side by removing the corresponding `huaweicloud_vpc_peering_connection` resource from your configuration. Removing a `huaweicloud_vpc_peering_connection_accepter` resource from your configuration will remove it from your state file and management, but will not destroy the VPC Peering Connection.
 

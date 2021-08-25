@@ -2,7 +2,7 @@
 subcategory: "Deprecated"
 ---
 
-# huaweicloud\_networking\_router\_v2
+# huaweicloud_networking_router_v2
 
 Manages a V2 router resource within HuaweiCloud.
 

@@ -2,7 +2,7 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_identity\_group\_membership
+# huaweicloud_identity_group_membership
 
 Manages a User Group Membership resource within HuaweiCloud IAM service. This is an alternative to `huaweicloud_identity_group_membership_v3`
 

@@ -2,7 +2,7 @@
 subcategory: "Elastic Load Balance (ELB)"
 ---
 
-# huaweicloud\_lb\_l7rule
+# huaweicloud_lb_l7rule
 
 Manages an ELB L7 Rule resource within HuaweiCloud.
 This is an alternative to `huaweicloud_lb_l7rule_v2`
@@ -56,10 +56,10 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Human-readable description for the L7 Rule.
 
-* `type` - (Required, String, ForceNew) The L7 Rule type - can either be HOST\_NAME or PATH. Changing this creates a new L7 Rule.
+* `type` - (Required, String, ForceNew) The L7 Rule type - can either be HOST_NAME or PATH. Changing this creates a new L7 Rule.
 
 * `compare_type` - (Required, String) The comparison type for the L7 rule - can either be
-    STARTS\_WITH, EQUAL_TO or REGEX
+    STARTS_WITH, EQUAL_TO or REGEX
 
 * `l7policy_id` - (Required, String, ForceNew) The ID of the L7 Policy to query. Changing this creates a new
     L7 Rule.

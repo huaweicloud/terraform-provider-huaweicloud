@@ -2,7 +2,7 @@
 subcategory: "Content Delivery Network (CDN)"
 ---
 
-# huaweicloud\_cdn\_domain
+# huaweicloud_cdn_domain
 
 CDN domain management
 This is an alternative to `huaweicloud_cdn_domain_v1`

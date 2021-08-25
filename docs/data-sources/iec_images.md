@@ -2,7 +2,7 @@
 subcategory: "Intelligent EdgeCloud (IEC)"
 ---
 
-# huaweicloud\_iec\_images
+# huaweicloud_iec_images
 
 Use this data source to get the available of HuaweiCloud IEC images.
 

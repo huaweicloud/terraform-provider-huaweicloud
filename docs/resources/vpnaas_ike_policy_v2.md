@@ -2,7 +2,7 @@
 subcategory: "Deprecated"
 ---
 
-# huaweicloud\_vpnaas\_ike\_policy\_v2
+# huaweicloud_vpnaas_ike_policy_v2
 
 Manages a V2 IKE policy resource within HuaweiCloud.
 
