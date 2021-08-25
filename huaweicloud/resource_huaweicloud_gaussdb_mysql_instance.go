@@ -88,6 +88,11 @@ func resourceGaussDBInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"dedicated_resource_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"table_name_case_sensitivity": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -343,6 +348,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		ConfigurationId:     d.Get("configuration_id").(string),
 		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+		DedicatedResourceId: d.Get("dedicated_resource_id").(string),
 		TimeZone:            d.Get("time_zone").(string),
 		SlaveCount:          d.Get("read_replicas").(int),
 		Mode:                "Cluster",
@@ -502,6 +508,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("subnet_id", instance.SubnetId)
 	d.Set("security_group_id", instance.SecurityGroupId)
 	d.Set("configuration_id", instance.ConfigurationId)
+	d.Set("dedicated_resource_id", instance.DedicatedResourceId)
 	d.Set("db_user_name", instance.DbUserName)
 	d.Set("time_zone", instance.TimeZone)
 	d.Set("availability_zone_mode", instance.AZMode)
