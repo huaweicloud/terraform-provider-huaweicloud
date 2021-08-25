@@ -287,6 +287,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_cassandra_instances":          dataSourceGeminiDBInstances(),
 			"huaweicloud_gaussdb_opengauss_instance":           dataSourceOpenGaussInstance(),
 			"huaweicloud_gaussdb_mysql_configuration":          dataSourceGaussdbMysqlConfigurations(),
+			"huaweicloud_gaussdb_mysql_dedicated_resource":     dataSourceGaussDBMysqlDehResource(),
 			"huaweicloud_gaussdb_mysql_flavors":                dataSourceGaussdbMysqlFlavors(),
 			"huaweicloud_gaussdb_mysql_instance":               dataSourceGaussDBMysqlInstance(),
 			"huaweicloud_gaussdb_mysql_instances":              dataSourceGaussDBMysqlInstances(),
