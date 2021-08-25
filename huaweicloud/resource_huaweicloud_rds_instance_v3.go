@@ -397,15 +397,12 @@ func resourceRdsInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("region", instance.Region)
 	d.Set("name", instance.Name)
 	d.Set("status", instance.Status)
-	d.Set("port", instance.Port)
-	d.Set("type", instance.Type)
 	d.Set("created", instance.Created)
 	d.Set("ha_replication_mode", instance.Ha.ReplicationMode)
 	d.Set("vpc_id", instance.VpcId)
 	d.Set("subnet_id", instance.SubnetId)
 	d.Set("security_group_id", instance.SecurityGroupId)
 	d.Set("flavor", instance.FlavorRef)
-	d.Set("disk_encryption_id", instance.DiskEncryptionId)
 	d.Set("time_zone", instance.TimeZone)
 	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
 	d.Set("charging_mode", instance.ChargeInfo.ChargeMode)
@@ -502,12 +499,13 @@ func resourceRdsInstanceV3Update(d *schema.ResourceData, meta interface{}) error
 	// Since the instance will throw an exception when making an API interface call in 'BACKING UP' state,
 	// wait for the instance state to be updated to 'ACTIVE' before calling the interface.
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"BACKING UP", "ACTIVE"},
-		Target:     []string{"ACTIVE"},
-		Refresh:    rdsInstanceStateRefreshFunc(client, instanceID),
-		Timeout:    d.Timeout(schema.TimeoutDefault),
-		Delay:      10 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Target:       []string{"ACTIVE"},
+		Refresh:      rdsInstanceStateRefreshFunc(client, instanceID),
+		Timeout:      d.Timeout(schema.TimeoutDefault),
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
+		// Provide 10 seconds to check whether the instance is 'ACTIVE' or is about to enter 'BACKING UP'.
+		ContinuousTargetOccurence: 3,
 	}
 	if _, err = stateConf.WaitForState(); err != nil {
 		return fmtp.Errorf("Error waiting for RDS instance (%s) become active state: %s", instanceID, err)
@@ -692,7 +690,7 @@ func updateRdsInstanceName(d *schema.ResourceData, client *golangsdk.ServiceClie
 	}
 
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"MODIFYING", "ACTIVE"},
+		Pending:    []string{"MODIFYING"},
 		Target:     []string{"ACTIVE"},
 		Refresh:    rdsInstanceStateRefreshFunc(client, instanceID),
 		Timeout:    d.Timeout(schema.TimeoutUpdate),
