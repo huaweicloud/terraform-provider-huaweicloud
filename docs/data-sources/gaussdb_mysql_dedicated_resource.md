@@ -2,14 +2,14 @@
 subcategory: "GaussDB"
 ---
 
-# huaweicloud_gaussdb_cassandra_dedicated_resource
+# huaweicloud_gaussdb_mysql_dedicated_resource
 
-Use this data source to get available HuaweiCloud gaussdb cassandra dedicated resource.
+Use this data source to get available HuaweiCloud gaussdb mysql dedicated resource.
 
 ## Example Usage
 
 ```hcl
-data "huaweicloud_gaussdb_cassandra_dedicated_resource" "this" {
+data "huaweicloud_gaussdb_mysql_dedicated_resource" "this" {
   resource_name = "test"
 }
 ```
