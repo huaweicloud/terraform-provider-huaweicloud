@@ -2,7 +2,7 @@
 subcategory: "Simple Message Notification (SMN)"
 ---
 
-# huaweicloud\_smn\_topic
+# huaweicloud_smn_topic
 
 Manages a SMN Topic resource within HuaweiCloud.
 This is an alternative to `huaweicloud_smn_topic_v2`

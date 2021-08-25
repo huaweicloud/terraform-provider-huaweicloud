@@ -2,7 +2,7 @@
 subcategory: "Distributed Message Service (DMS)"
 ---
 
-# huaweicloud\_dms\_group
+# huaweicloud_dms_group
 
 Manages a DMS group in the huaweicloud DMS Service.
 

@@ -2,7 +2,7 @@
 subcategory: "Virtual Private Cloud (VPC)"
 ---
 
-# huaweicloud\_networking\_vip\_associate
+# huaweicloud_networking_vip_associate
 
 Manages a Vip associate resource within HuaweiCloud.
 This is an alternative to `huaweicloud_networking_vip_associate_v2`

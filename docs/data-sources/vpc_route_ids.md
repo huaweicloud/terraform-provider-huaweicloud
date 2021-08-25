@@ -2,7 +2,7 @@
 subcategory: "Virtual Private Cloud (VPC)"
 ---
 
-# huaweicloud\_vpc\_route\_ids
+# huaweicloud_vpc_route_ids
 
 Provides a list of route ids for a vpc_id.
 This is an alternative to `huaweicloud_vpc_route_ids_v2`

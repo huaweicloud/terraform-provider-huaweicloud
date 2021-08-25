@@ -2,7 +2,7 @@
 subcategory: "Virtual Private Cloud (VPC)"
 ---
 
-# huaweicloud\_networking\_secgroup\_rule
+# huaweicloud_networking_secgroup_rule
 
 Manages a Security Group Rule resource within HuaweiCloud.
 This is an alternative to `huaweicloud_networking_secgroup_rule_v2`

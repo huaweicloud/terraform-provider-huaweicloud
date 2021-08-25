@@ -2,7 +2,7 @@
 subcategory: "Intelligent EdgeCloud (IEC)"
 ---
 
-# huaweicloud\_iec\_network\_acl
+# huaweicloud_iec_network_acl
 
 Manages a network ACL resource within HuaweiCloud IEC.
 

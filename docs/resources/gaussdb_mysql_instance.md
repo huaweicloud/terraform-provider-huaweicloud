@@ -2,7 +2,7 @@
 subcategory: "GaussDB"
 ---
 
-# huaweicloud\_gaussdb\_mysql\_instance
+# huaweicloud_gaussdb_mysql_instance
 
 GaussDB mysql instance management within HuaweiCoud.
 

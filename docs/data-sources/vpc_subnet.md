@@ -2,7 +2,7 @@
 subcategory: "Virtual Private Cloud (VPC)"
 ---
 
-# huaweicloud\_vpc\_subnet
+# huaweicloud_vpc_subnet
 
 Provides details about a specific VPC subnet.
 This is an alternative to `huaweicloud_vpc_subnet_v1`

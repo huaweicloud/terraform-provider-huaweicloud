@@ -2,7 +2,7 @@
 subcategory: "Object Storage Service (OBS)"
 ---
 
-# huaweicloud\_obs\_bucket\_object
+# huaweicloud_obs_bucket_object
 
 Use this data source to get info of special HuaweiCloud obs object.
 

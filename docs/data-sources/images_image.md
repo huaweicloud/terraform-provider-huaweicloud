@@ -2,7 +2,7 @@
 subcategory: "Image Management Service (IMS)"
 ---
 
-# huaweicloud\_images\_image
+# huaweicloud_images_image
 
 Use this data source to get the ID of an available HuaweiCloud image.
 This is an alternative to `huaweicloud_images_image_v2`

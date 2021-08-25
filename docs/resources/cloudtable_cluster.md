@@ -2,7 +2,7 @@
 subcategory: "Cloud Table"
 ---
 
-# huaweicloud\_cloudtable\_cluster
+# huaweicloud_cloudtable_cluster
 
 Cloud table cluster management
 This is an alternative to `huaweicloud_cloudtable_cluster_v2`

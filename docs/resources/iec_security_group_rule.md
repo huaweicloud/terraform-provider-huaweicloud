@@ -2,7 +2,7 @@
 subcategory: "Intelligent EdgeCloud (IEC)"
 ---
 
-# huaweicloud\_iec\_security\_group\_rule
+# huaweicloud_iec_security_group_rule
 
 Manages a IEC security group rule resource within HuaweiCloud.
 

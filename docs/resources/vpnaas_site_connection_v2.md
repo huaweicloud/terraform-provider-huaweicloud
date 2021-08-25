@@ -2,7 +2,7 @@
 subcategory: "Deprecated"
 ---
 
-# huaweicloud\_vpnaas\_site\_connection\_v2
+# huaweicloud_vpnaas_site_connection_v2
 
 Manages a V2 IPSec site connection resource within HuaweiCloud.
 

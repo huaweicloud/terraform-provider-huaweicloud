@@ -2,7 +2,7 @@
 subcategory: "Distributed Message Service (DMS)"
 ---
 
-# huaweicloud\_dms\_maintainwindow
+# huaweicloud_dms_maintainwindow
 
 Use this data source to get the ID of an available HuaweiCloud dms maintainwindow.
 This is an alternative to `huaweicloud_dms_maintainwindow_v1`

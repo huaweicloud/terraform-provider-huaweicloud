@@ -2,7 +2,7 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_identity\_user
+# huaweicloud_identity_user
 
 Manages a User resource within HuaweiCloud IAM service.
 This is an alternative to `huaweicloud_identity_user_v3`

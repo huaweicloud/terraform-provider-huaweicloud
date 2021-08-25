@@ -2,7 +2,7 @@
 subcategory: "Elastic Cloud Server (ECS)"
 ---
 
-# huaweicloud\_compute\_instance
+# huaweicloud_compute_instance
 
 Manages a ECS VM instance resource within HuaweiCloud.
 This is an alternative to `huaweicloud_compute_instance_v2`

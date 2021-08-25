@@ -2,7 +2,7 @@
 subcategory: "Cloud Container Engine (CCE)"
 ---
 
-# huaweicloud\_cce\_cluster
+# huaweicloud_cce_cluster
 
 Provides a CCE cluster resource.
 This is an alternative to `huaweicloud_cce_cluster_v3`

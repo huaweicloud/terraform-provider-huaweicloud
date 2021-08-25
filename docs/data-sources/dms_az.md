@@ -2,7 +2,7 @@
 subcategory: "Distributed Message Service (DMS)"
 ---
 
-# huaweicloud\_dms\_az
+# huaweicloud_dms_az
 
 Use this data source to get the ID of an available HuaweiCloud dms az.
 This is an alternative to `huaweicloud_dms_az_v1`

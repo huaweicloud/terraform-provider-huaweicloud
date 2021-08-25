@@ -2,7 +2,7 @@
 subcategory: "Key Management Service (KMS)"
 ---
 
-# huaweicloud\_kms\_key
+# huaweicloud_kms_key
 
 Use this data source to get the ID of an available HuaweiCloud KMS key.
 This is an alternative to `huaweicloud_kms_key_v1`

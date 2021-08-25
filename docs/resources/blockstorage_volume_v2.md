@@ -2,7 +2,7 @@
 subcategory: "Deprecated"
 ---
 
-# huaweicloud\_blockstorage\_volume_v2
+# huaweicloud_blockstorage_volume_v2
 
 Manages a V2 volume resource within HuaweiCloud.
 

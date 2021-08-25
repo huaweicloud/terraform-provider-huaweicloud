@@ -2,7 +2,7 @@
 subcategory: "Cloud Container Engine (CCE)"
 ---
 
-# huaweicloud\_cce\_addon\_template
+# huaweicloud_cce_addon_template
 
 Use this data source to get available HuaweiCloud CCE add-on template.
 

@@ -2,7 +2,7 @@
 subcategory: "GaussDB"
 ---
 
-# huaweicloud\_gaussdb\_mysql\_instances
+# huaweicloud_gaussdb_mysql_instances
 
 Use this data source to list all available HuaweiCloud gaussdb mysql instances.
 
