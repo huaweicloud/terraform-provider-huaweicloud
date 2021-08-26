@@ -2,7 +2,7 @@
 subcategory: "Deprecated"
 ---
 
-# huaweicloud\_networking\_network\_v2
+# huaweicloud_networking_network_v2
 
 Manages a V2 Neutron network resource within HuaweiCloud.
 

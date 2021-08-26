@@ -53,3 +53,7 @@ func actionURL(c *golangsdk.ServiceClient, instanceID string) string {
 func jobURL(sc *golangsdk.ServiceClient, jobId string) string {
 	return sc.ServiceURL("jobs?id=" + jobId)
 }
+
+func listDehURL(c *golangsdk.ServiceClient) string {
+	return c.ServiceURL("dedicated-resources")
+}

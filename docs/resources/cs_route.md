@@ -2,7 +2,7 @@
 subcategory: "Cloud Stream"
 ---
 
-# huaweicloud\_cs\_route
+# huaweicloud_cs_route
 
 Cloud Stream Service cluster peering connect route management
 This is an alternative to `huaweicloud_cs_route_v1`

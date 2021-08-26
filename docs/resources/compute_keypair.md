@@ -2,7 +2,7 @@
 subcategory: "Elastic Cloud Server (ECS)"
 ---
 
-# huaweicloud\_compute\_keypair
+# huaweicloud_compute_keypair
 
 Manages a keypair resource within HuaweiCloud.
 This is an alternative to `huaweicloud_compute_keypair_v2`

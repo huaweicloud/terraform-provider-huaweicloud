@@ -2,7 +2,7 @@
 subcategory: "Deprecated"
 ---
 
-# huaweicloud\_compute\_floatingip\_v2
+# huaweicloud_compute_floatingip_v2
 
 !> **Warning:** It has been deprecated, use `huaweicloud_vpc_eip` instead.
 

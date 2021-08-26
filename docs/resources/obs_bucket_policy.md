@@ -2,7 +2,7 @@
 subcategory: "Object Storage Service (OBS)"
 ---
 
-# huaweicloud\_obs\_bucket\_policy
+# huaweicloud_obs_bucket_policy
 
 Attaches a policy to an OBS bucket resource.
 

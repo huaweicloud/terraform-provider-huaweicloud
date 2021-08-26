@@ -2,7 +2,7 @@
 subcategory: "Distributed Cache Service"
 ---
 
-# huaweicloud\_dcs\_maintainwindow
+# huaweicloud_dcs_maintainwindow
 
 Use this data source to get the ID of an available Huaweicloud dcs maintainwindow.
 This is an alternative to `huaweicloud_dcs_maintainwindow_v1`

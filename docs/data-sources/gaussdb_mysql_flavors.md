@@ -2,7 +2,7 @@
 subcategory: "GaussDB"
 ---
 
-# huaweicloud\_gaussdb\_mysql\_flavors
+# huaweicloud_gaussdb_mysql_flavors
 
 Use this data source to get available HuaweiCloud gaussdb mysql flavors.
 

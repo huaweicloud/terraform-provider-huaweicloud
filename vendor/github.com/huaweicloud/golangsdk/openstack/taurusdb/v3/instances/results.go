@@ -71,6 +71,7 @@ type TaurusDBInstance struct {
 	BackupStrategy BackupStrategy `json:"backup_strategy"`
 
 	EnterpriseProjectId string `json:"enterprise_project_id"`
+	DedicatedResourceId string `json:"dedicated_resource_id"`
 }
 
 type Volume struct {
@@ -182,4 +183,35 @@ func (r GetProxyResult) Extract() (*Proxy, error) {
 	var proxy Proxy
 	err := r.ExtractIntoStructPtr(&proxy, "proxy")
 	return &proxy, err
+}
+
+type DehResource struct {
+	Id               string   `json:"id"`
+	ResourceName     string   `json:"resource_name"`
+	EngineName       string   `json:"engine_name"`
+	AvailabilityZone []string `json:"availability_zone"`
+	Architecture     string   `json:"architecture"`
+	Status           string   `json:"status"`
+	Capacity         Capacity `json:"capacity"`
+}
+
+type Capacity struct {
+	Vcpus  int   `json:"vcpus"`
+	Ram    int   `json:"ram"`
+	Volume int64 `json:"volume"`
+}
+
+type ListDehResponse struct {
+	Resources  []DehResource `json:"resources"`
+	TotalCount int           `json:"total_count"`
+}
+
+type DehResourcePage struct {
+	pagination.SinglePageBase
+}
+
+func ExtractDehResources(r pagination.Page) (ListDehResponse, error) {
+	var s ListDehResponse
+	err := (r.(DehResourcePage)).ExtractInto(&s)
+	return s, err
 }

@@ -59,7 +59,7 @@ type SubJob struct {
 	FailReason string `json:"fail_reason"`
 
 	// Specifies the object of the task.
-	Entities map[string]string `json:"entities"`
+	Entities map[string]interface{} `json:"entities"`
 }
 
 type JobResult struct {
@@ -91,7 +91,7 @@ func WaitForJobSuccess(client *golangsdk.ServiceClient, secs int, jobID string) 
 			return true, nil
 		}
 		if job.Status == "FAIL" {
-			err = fmt.Errorf("Job failed with code %s: %s.\n", job.ErrorCode, job.FailReason)
+			err = fmt.Errorf("Job failed with code %s: %s", job.ErrorCode, job.FailReason)
 			return false, err
 		}
 
@@ -107,10 +107,10 @@ func GetJobEntity(client *golangsdk.ServiceClient, jobID string, label string) (
 	}
 
 	if job.Status == "SUCCESS" {
-		if e := job.Entities.SubJobs[0].Entities[label]; e != "" {
+		if e, ok := job.Entities.SubJobs[0].Entities[label]; ok {
 			return e, nil
 		}
 	}
 
-	return nil, fmt.Errorf("Unexpected conversion error in GetJobEntity.")
+	return nil, fmt.Errorf("Unexpected conversion error in GetJobEntity")
 }

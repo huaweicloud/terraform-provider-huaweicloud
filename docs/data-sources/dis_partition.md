@@ -2,7 +2,7 @@
 subcategory: "Data Ingestion Service (DIS)"
 ---
 
-# huaweicloud\_dis\_partition
+# huaweicloud_dis_partition
 
 Get all the partitions of a stream
 This is an alternative to `huaweicloud_dis_partition_v2`

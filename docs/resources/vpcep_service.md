@@ -2,7 +2,7 @@
 subcategory: "VPC Endpoint (VPCEP)"
 ---
 
-# huaweicloud\_vpcep\_service
+# huaweicloud_vpcep_service
 
 Provides a resource to manage a VPC endpoint service resource.
 

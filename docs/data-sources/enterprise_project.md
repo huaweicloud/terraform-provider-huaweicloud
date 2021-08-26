@@ -2,7 +2,7 @@
 subcategory: "Enterprise Project Management Service (EPS)"
 ---
 
-# huaweicloud\_enterprise\_project
+# huaweicloud_enterprise_project
 
 Use this data source to get an enterprise project from HuaweiCloud
 

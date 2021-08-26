@@ -2,7 +2,7 @@
 subcategory: "Deprecated"
 ---
 
-# huaweicloud\_networking\_router_route_v2
+# huaweicloud_networking_router_route_v2
 
 Creates a routing entry on a HuaweiCloud V2 router.
 

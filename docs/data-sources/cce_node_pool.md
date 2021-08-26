@@ -2,7 +2,7 @@
 subcategory: "Cloud Container Engine (CCE)"
 ---
 
-# huaweicloud\_cce\_node\_pool
+# huaweicloud_cce_node_pool
 
 To get the specified node pool in a cluster.
 

@@ -2,7 +2,7 @@
 subcategory: "Dedicated Load Balance (Dedicated ELB)"
 ---
 
-# huaweicloud\_elb\_listener
+# huaweicloud_elb_listener
 
 Manages an ELB listener resource within HuaweiCloud.
 

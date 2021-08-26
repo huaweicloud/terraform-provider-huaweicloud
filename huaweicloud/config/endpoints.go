@@ -216,7 +216,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "dds",
 		Version: "v3",
 	},
-	"cassandra": {
+	"geminidb": {
 		Name:    "gaussdb-nosql",
 		Version: "v3",
 	},
@@ -262,6 +262,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:         "waf",
 		Version:      "v1",
 		ResourceBase: "waf",
+	},
+	"waf-dedicated": {
+		Name:         "waf",
+		Version:      "v1",
+		ResourceBase: "premium-waf",
 	},
 
 	// catalog for Enterprise Intelligence

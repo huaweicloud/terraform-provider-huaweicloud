@@ -2,7 +2,7 @@
 subcategory: "Dedicated Load Balance (Dedicated ELB)"
 ---
 
-# huaweicloud\_elb\_flavors
+# huaweicloud_elb_flavors
 
 Use this data source to get the available ELB Flavors.
 

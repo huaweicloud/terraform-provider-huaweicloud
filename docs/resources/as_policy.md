@@ -2,7 +2,7 @@
 subcategory: "Auto Scaling"
 ---
 
-# huaweicloud\_as\_policy
+# huaweicloud_as_policy
 
 Manages a AS Policy resource within HuaweiCloud.
 This is an alternative to `huaweicloud_as_policy_v1`

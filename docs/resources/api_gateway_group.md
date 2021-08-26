@@ -2,7 +2,7 @@
 subcategory: "API Gateway (Shared APIG)"
 ---
 
-# huaweicloud\_api\_gateway\_group
+# huaweicloud_api_gateway_group
 
 Provides an API gateway group resource.
 

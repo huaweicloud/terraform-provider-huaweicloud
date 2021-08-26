@@ -2,7 +2,7 @@
 subcategory: "Elastic IP (EIP)"
 ---
 
-# huaweicloud\_vpc\_bandwidth
+# huaweicloud_vpc_bandwidth
 
 Provides details about a specific bandwidth.
 

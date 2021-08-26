@@ -2,7 +2,7 @@
 subcategory: "Cloud Container Engine (CCE)"
 ---
 
-# huaweicloud\_cce\_node\_pool
+# huaweicloud_cce_node_pool
 Add a node pool to a container cluster. 
 
 ## Example Usage

@@ -2,7 +2,7 @@
 subcategory: "Document Database Service (DDS)"
 ---
 
-# huaweicloud\_dds\_instance
+# huaweicloud_dds_instance
 
 Manages dds instance resource within HuaweiCloud
 This is an alternativeto `huaweicloud_dds_instance_v3`

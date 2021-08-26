@@ -2,7 +2,7 @@
 subcategory: "GaussDB"
 ---
 
-# huaweicloud\_gaussdb\_mysql\_instance
+# huaweicloud_gaussdb_mysql_instance
 
 GaussDB mysql instance management within HuaweiCoud.
 
@@ -68,6 +68,9 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `configuration_id` - (Optional, String, ForceNew) Specifies the configuration ID.
+  Changing this parameter will create a new resource.
+
+* `dedicated_resource_id` - (Optional, String, ForceNew) Specifies the dedicated resource ID.
   Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id. Required if EPS enabled.
