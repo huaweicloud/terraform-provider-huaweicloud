@@ -2,7 +2,7 @@
 subcategory: "Cloud Stream"
 ---
 
-# huaweicloud\_cs\_peering\_connect
+# huaweicloud_cs_peering_connect
 
 Cloud Stream Service cluster peering connect management
 This is an alternative to `huaweicloud_cs_peering_connect_v1`

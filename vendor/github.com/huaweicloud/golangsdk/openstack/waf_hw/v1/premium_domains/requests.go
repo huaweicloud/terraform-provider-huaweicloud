@@ -141,7 +141,7 @@ func UpdateProtectStatus(c *golangsdk.ServiceClient, hostId string, protectStatu
 	}
 
 	var rst golangsdk.Result
-	_, err = c.Put(resourceURL(c, hostId), b, &rst.Body, &golangsdk.RequestOpts{
+	_, err = c.Put(protectStatusURL(c, hostId), b, &rst.Body, &golangsdk.RequestOpts{
 		OkCodes:     []int{200},
 		MoreHeaders: RequestOpts.MoreHeaders,
 	})

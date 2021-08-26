@@ -2,7 +2,7 @@
 subcategory: "Auto Scaling"
 ---
 
-# huaweicloud\_as\_configuration
+# huaweicloud_as_configuration
 
 Manages a AS Configuration resource within HuaweiCloud.
 This is an alternative to `huaweicloud_as_configuration_v1`

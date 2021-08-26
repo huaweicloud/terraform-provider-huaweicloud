@@ -160,12 +160,15 @@ func getCertificateNameById(d *schema.ResourceData, meta interface{}) (string, e
 	if err != nil {
 		return "", fmtp.Errorf("error creating HuaweiCloud WAF Client: %s", err)
 	}
-	r, err := certificates.Get(c, d.Get("certificate_id").(string)).Extract()
-	if err != nil {
-		return "", fmtp.Errorf("error obtain WAF certificate name according id: %s, error:",
-			d.Get("certificate_id").(string), err)
+	if _, ok := d.GetOk("certificate_id"); ok {
+		r, err := certificates.Get(c, d.Get("certificate_id").(string)).Extract()
+		if err != nil {
+			return "", fmtp.Errorf("error obtain WAF certificate name according id: %s, error:",
+				d.Get("certificate_id").(string), err)
+		}
+		return r.Name, nil
 	}
-	return r.Name, nil
+	return "", nil
 }
 
 // buildCreatePremiumHostOpts build the options for creating premium domains.

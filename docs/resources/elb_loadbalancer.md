@@ -2,7 +2,7 @@
 subcategory: "Dedicated Load Balance (Dedicated ELB)"
 ---
 
-# huaweicloud\_elb\_loadbalancer
+# huaweicloud_elb_loadbalancer
 
 Manages a Dedicated Load Balancer resource within HuaweiCloud.
 

@@ -2,7 +2,7 @@
 subcategory: "Object Storage Service (OBS)"
 ---
 
-# huaweicloud\_obs\_bucket\_object
+# huaweicloud_obs_bucket_object
 
 Provides an OBS bucket object resource.
 

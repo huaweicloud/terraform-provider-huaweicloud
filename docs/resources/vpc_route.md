@@ -2,7 +2,7 @@
 subcategory: "Virtual Private Cloud (VPC)"
 ---
 
-# huaweicloud\_vpc\_route
+# huaweicloud_vpc_route
 
 Provides a resource to create a route.
 This is an alternative to `huaweicloud_vpc_route_v2`

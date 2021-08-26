@@ -2,7 +2,7 @@
 subcategory: "Domain Name Service (DNS)"
 ---
 
-# huaweicloud\_dns\_ptrrecord
+# huaweicloud_dns_ptrrecord
 
 Manages a DNS PTR record in the HuaweiCloud DNS Service.
 This is an alternative to `huaweicloud_dns_ptrrecord_v2`

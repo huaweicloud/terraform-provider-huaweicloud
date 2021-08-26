@@ -2,7 +2,7 @@
 subcategory: "Deprecated"
 ---
 
-# huaweicloud\_networking\_router\_interface\_v2
+# huaweicloud_networking_router_interface_v2
 
 Manages a V2 router interface resource within HuaweiCloud.
 

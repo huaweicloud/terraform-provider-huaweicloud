@@ -2,7 +2,7 @@
 subcategory: "Elastic Load Balance (ELB)"
 ---
 
-# huaweicloud\_lb\_member
+# huaweicloud_lb_member
 
 Manages an ELB member resource within HuaweiCloud.
 This is an alternative to `huaweicloud_lb_member_v2`

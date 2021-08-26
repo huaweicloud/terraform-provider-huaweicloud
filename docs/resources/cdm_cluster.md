@@ -2,7 +2,7 @@
 subcategory: "Cloud Data Migration (CDM)"
 ---
 
-# huaweicloud\_cdm\_cluster
+# huaweicloud_cdm_cluster
 
 CDM cluster management
 This is an alternative to `huaweicloud_cdm_cluster_v1`

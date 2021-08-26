@@ -2,7 +2,7 @@
 subcategory: "Virtual Private Cloud (VPC)"
 ---
 
-# huaweicloud\_vpc\_peering\_connection
+# huaweicloud_vpc_peering_connection
 
 Provides a resource to manage a VPC Peering Connection resource.
 This is an alternative to `huaweicloud_vpc_peering_connection_v2`

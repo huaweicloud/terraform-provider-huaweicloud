@@ -2,7 +2,7 @@
 subcategory: "Log Tank Service (LTS)"
 ---
 
-# huaweicloud\_lts\_stream
+# huaweicloud_lts_stream
 
 Manage a log stream resource within HuaweiCloud.
 

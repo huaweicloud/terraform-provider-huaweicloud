@@ -5,10 +5,10 @@ resource "huaweicloud_vpc" "vpc_1" {
 }
 
 resource "huaweicloud_vpc_subnet" "vpc_subnet_1" {
-  name          = var.subnet_name
-  cidr          = "192.168.0.0/24"
-  gateway_ip    = "192.168.0.1"
-  vpc_id        = huaweicloud_vpc.vpc_1.id
+  name       = var.subnet_name
+  cidr       = "192.168.0.0/24"
+  gateway_ip = "192.168.0.1"
+  vpc_id     = huaweicloud_vpc.vpc_1.id
 }
 
 # create security group

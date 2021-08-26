@@ -13,3 +13,7 @@ func rootURL(c *golangsdk.ServiceClient) string {
 func resourceURL(c *golangsdk.ServiceClient, hostId string) string {
 	return c.ServiceURL("host", hostId)
 }
+
+func protectStatusURL(c *golangsdk.ServiceClient, hostId string) string {
+	return c.ServiceURL("host", hostId, "protect-status")
+}

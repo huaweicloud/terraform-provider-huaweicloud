@@ -337,21 +337,19 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 	}
 
 	if options.DomainID == "" && options.Domain != "" {
-		id, err := getDomainID(options.Domain, v3Client)
+		id, err := getDomainID(v3Client, options.Domain)
 		if err != nil {
-			options.DomainID = ""
-		} else {
-			options.DomainID = id
+			return err
 		}
+		options.DomainID = id
 	}
 
 	if options.BssDomainID == "" && options.BssDomain != "" {
-		id, err := getDomainID(options.BssDomain, v3Client)
+		id, err := getDomainID(v3Client, options.BssDomain)
 		if err != nil {
-			options.BssDomainID = ""
-		} else {
-			options.BssDomainID = id
+			return err
 		}
+		options.BssDomainID = id
 	}
 
 	client.ProjectID = options.ProjectId
@@ -438,16 +436,14 @@ func authWithAgencyByAKSK(client *golangsdk.ProviderClient, endpoint string, opt
 	return nil
 }
 
-func getDomainID(name string, client *golangsdk.ServiceClient) (string, error) {
+func getDomainID(client *golangsdk.ServiceClient, name string) (string, error) {
 	old := client.Endpoint
 	defer func() { client.Endpoint = old }()
 
 	client.Endpoint = old + "auth/"
 
-	opts := domains.ListOpts{
-		Name: name,
-	}
-	allPages, err := domains.List(client, &opts).AllPages()
+	// the List request does not support query options
+	allPages, err := domains.List(client, nil).AllPages()
 	if err != nil {
 		return "", fmt.Errorf("List domains failed, err=%s", err)
 	}
@@ -461,14 +457,20 @@ func getDomainID(name string, client *golangsdk.ServiceClient) (string, error) {
 	switch count {
 	case 0:
 		err := &golangsdk.ErrResourceNotFound{}
-		err.ResourceType = "iam"
+		err.ResourceType = "IAM domain ID"
 		err.Name = name
 		return "", err
 	case 1:
+		if name != "" && name != all[0].Name {
+			err := &golangsdk.ErrResourceNotFound{}
+			err.ResourceType = "IAM domain ID"
+			err.Name = name
+			return "", err
+		}
 		return all[0].ID, nil
 	default:
 		err := &golangsdk.ErrMultipleResourcesFound{}
-		err.ResourceType = "iam"
+		err.ResourceType = "IAM domain ID"
 		err.Name = name
 		err.Count = count
 		return "", err

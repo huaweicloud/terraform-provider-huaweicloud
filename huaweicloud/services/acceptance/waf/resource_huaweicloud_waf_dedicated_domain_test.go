@@ -100,7 +100,7 @@ func testAccCheckWafDedicatedDomainV1Destroy(s *terraform.State) error {
 
 		_, err := domains.Get(c, rs.Primary.ID)
 		if err == nil {
-			return fmt.Errorf("Waf domain still exists")
+			return fmt.Errorf("WAF dedicated mode domain still exists")
 		}
 	}
 
@@ -126,7 +126,7 @@ func testAccCheckWafDedicatedDomainV1Exists(n string, domain *domains.PremiumHos
 			return err
 		}
 		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("Waf dedicatine not domain found")
+			return fmt.Errorf("WAF dedicated domain not found")
 		}
 		*domain = *found
 		return nil

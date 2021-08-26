@@ -2,7 +2,7 @@
 subcategory: "Bare Metal Server (BMS)"
 ---
 
-# huaweicloud\_bms\_instance
+# huaweicloud_bms_instance
 
 Manages a BMS instance resource within HuaweiCloud.
 

@@ -26,7 +26,6 @@ resource "huaweicloud_waf_dedicated_domain" "domain_1" {
     vpc_id          = var.vpc_id
   }
 }
-
 ```
 
 ## Argument Reference
@@ -50,11 +49,9 @@ The following arguments are supported:
 
 * `proxy` - (Optional, Bool) Specifies whether a proxy is configured. Default value is `false`.
 
-  -> **Note:** 
-  1. WAF forwards only HTTP/S traffic. So WAF cannot serve your non-HTTP/S traffic, such as UDP, SMTP, FTP, and basically
-  all other non-HTTP/S traffic.
-  2. If a proxy such as public network ELB (or Nginx) has been used, set proxy `true` to ensure that the WAF security policy 
-  takes effect for the real source IP address.
+  -> **NOTE:** WAF forwards only HTTP/S traffic. So WAF cannot serve your non-HTTP/S traffic, such as UDP, SMTP, FTP,
+  and basically all other non-HTTP/S traffic. If a proxy such as public network ELB (or Nginx) has been used, set
+  proxy `true` to ensure that the WAF security policy takes effect for the real source IP address.
 
 * `keep_proxy` - (Optional, Bool) Specifies whether to retain the policy when deleting a domain name. Defaults to `true`.
 

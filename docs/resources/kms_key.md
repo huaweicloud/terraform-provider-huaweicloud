@@ -2,7 +2,7 @@
 subcategory: "Key Management Service (KMS)"
 ---
 
-# huaweicloud\_kms\_key
+# huaweicloud_kms_key
 
 Manages a KMS key resource.
 This is an alernative to `huaweicloud_kms_key_v1`

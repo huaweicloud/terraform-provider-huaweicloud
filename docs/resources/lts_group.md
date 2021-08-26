@@ -2,7 +2,7 @@
 subcategory: "Log Tank Service (LTS)"
 ---
 
-# huaweicloud\_lts\_group
+# huaweicloud_lts_group
 
 Manages a log group resource within HuaweiCloud.
 

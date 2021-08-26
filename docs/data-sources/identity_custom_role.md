@@ -2,7 +2,7 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_identity\_custom\_role
+# huaweicloud_identity_custom_role
 
 Use this data source to get the ID of an IAM **custom policy**.
 

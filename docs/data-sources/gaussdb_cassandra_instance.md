@@ -2,7 +2,7 @@
 subcategory: "GaussDB"
 ---
 
-# huaweicloud\_gaussdb\_cassandra\_instance
+# huaweicloud_gaussdb_cassandra_instance
 
 Use this data source to get available HuaweiCloud gaussdb cassandra instance.
 

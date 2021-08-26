@@ -2,7 +2,7 @@
 subcategory: "Deprecated"
 ---
 
-# huaweicloud\_vpnaas\_endpoint\_group\_v2
+# huaweicloud_vpnaas_endpoint_group_v2
 
 Manages a V2 Endpoint Group resource within HuaweiCloud.
 

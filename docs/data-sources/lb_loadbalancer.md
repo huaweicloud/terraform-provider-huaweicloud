@@ -2,7 +2,7 @@
 subcategory: "Elastic Load Balance (ELB)"
 ---
 
-# huaweicloud\_lb\_loadbalancer
+# huaweicloud_lb_loadbalancer
 
 Use this data source to get available HuaweiCloud elb load balancer.
 

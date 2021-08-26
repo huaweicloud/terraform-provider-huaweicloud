@@ -2,7 +2,7 @@
 subcategory: "SoftWare Repository for Container (SWR)"
 ---
 
-# huaweicloud\_swr\_organization
+# huaweicloud_swr_organization
 
 Manages a SWR organization resource within HuaweiCloud.
 

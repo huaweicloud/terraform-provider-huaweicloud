@@ -2,7 +2,7 @@
 subcategory: "Cloud Container Engine (CCE)"
 ---
 
-# huaweicloud\_cce\_cluster
+# huaweicloud_cce_cluster
 
 Provides details about all clusters and obtains certificate for accessing cluster information.
 This is an alternative to `huaweicloud_cce_cluster_v3`

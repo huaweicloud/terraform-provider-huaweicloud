@@ -2,7 +2,7 @@
 subcategory: "Virtual Private Cloud (VPC)"
 ---
 
-# huaweicloud\_vpc\_subnet\_ids
+# huaweicloud_vpc_subnet_ids
 
 Provides a list of subnet ids for a vpc_id
 This is an alternative to `huaweicloud_vpc_subnet_ids_v1`

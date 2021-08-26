@@ -2,7 +2,7 @@
 subcategory: "Distributed Message Service (DMS)"
 ---
 
-# huaweicloud\_dms\_kafka\_instance
+# huaweicloud_dms_kafka_instance
 
 ## Example Usage
 
@@ -110,7 +110,7 @@ The following arguments are supported:
 * `manager_password` - (Required, String, ForceNew) Specifies the password for logging in to the Kafka Manager.
     The password must meet the following complexity requirements: Must be 8 to 32 characters long.
     Must contain at least 2 of the following character types: lowercase letters, uppercase
-	letters, digits, and special characters (`~!@#$%^&*()-_=+\|[{}]:'",<.>/?).
+	letters, digits, and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
     Changing this creates a new instance resource.
 
 * `access_user` - (Optional, String, ForceNew) Specifies a username.
@@ -120,7 +120,7 @@ The following arguments are supported:
 * `password` - (Optional, String, ForceNew) Specifies the password of the DMS kafka instance. A password 
     must meet the following complexity requirements: Must be 8 to 32 characters long.
     Must contain at least 2 of the following character types: lowercase letters, uppercase
-	letters, digits, and special characters (`~!@#$%^&*()-_=+\|[{}]:'",<.>/?).
+	letters, digits, and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
     Changing this creates a new instance resource.
 
 * `maintain_begin` - (Optional, String) Specifies the time at which a maintenance time window starts.

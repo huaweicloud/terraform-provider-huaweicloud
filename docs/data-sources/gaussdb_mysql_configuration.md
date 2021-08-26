@@ -2,7 +2,7 @@
 subcategory: "GaussDB"
 ---
 
-# huaweicloud\_gaussdb\_mysql\_configuration
+# huaweicloud_gaussdb_mysql_configuration
 
 Use this data source to get available HuaweiCloud gaussdb mysql configuration.
 

@@ -2,7 +2,7 @@
 subcategory: "Deprecated"
 ---
 
-# huaweicloud\_csbs\_backup
+# huaweicloud_csbs_backup
 
 !> **Warning:** It has been deprecated.
 

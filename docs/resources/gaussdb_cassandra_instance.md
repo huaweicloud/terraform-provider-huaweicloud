@@ -2,7 +2,7 @@
 subcategory: "GaussDB"
 ---
 
-# huaweicloud\_gaussdb\_cassandra\_instance
+# huaweicloud_gaussdb_cassandra_instance
 
 GaussDB for Cassandra instance management within HuaweiCoud.
 
@@ -86,6 +86,9 @@ The following arguments are supported:
 * `security_group_id` - (Optional, String) Specifies the security group ID. Required if the selected subnet doesn't enable network ACL.
 
 * `configuration_id` - (Optional, String) Specifies the Parameter Template ID.
+
+* `dedicated_resource_id` - (Optional, String, ForceNew) Specifies the dedicated resource ID.
+  Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id, Only valid for users who
   have enabled the enterprise multi-project service.

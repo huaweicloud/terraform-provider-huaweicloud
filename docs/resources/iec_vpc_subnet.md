@@ -2,7 +2,7 @@
 subcategory: "Intelligent EdgeCloud (IEC)"
 ---
 
-# huaweicloud\_iec\_vpc\_subnet
+# huaweicloud_iec_vpc_subnet
 
 Manages a VPC subnet resource within HuaweiCloud IEC.
 

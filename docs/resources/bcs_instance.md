@@ -2,7 +2,7 @@
 subcategory: "Blockchain Service (BCS)"
 ---
 
-# huaweicloud\_bcs\_instance
+# huaweicloud_bcs_instance
 
 ## Example Usage
 
