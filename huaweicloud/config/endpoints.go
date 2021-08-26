@@ -263,6 +263,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:      "v1",
 		ResourceBase: "waf",
 	},
+	"waf-dedicated": {
+		Name:         "waf",
+		Version:      "v1",
+		ResourceBase: "premium-waf",
+	},
 
 	// catalog for Enterprise Intelligence
 	"mrs": {
