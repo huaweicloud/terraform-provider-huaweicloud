@@ -77,7 +77,7 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 					},
 				},
 			},
-			"tags": config.TagsSchema(),
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -142,9 +142,9 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 	return resourceVirtualPrivateCloudV1Read(d, meta)
 }
 
-// GetVpcById is a method to obtain vpc informations through vpc ID.
-func GetVpcById(d *schema.ResourceData, config *config.Config, vpcId string) (*vpcs.Vpc, error) {
-	client, err := config.NetworkingV1Client(config.GetRegion(d))
+// GetVpcById is a method to obtain vpc informations from special region through vpc ID.
+func GetVpcById(config *config.Config, region, vpcId string) (*vpcs.Vpc, error) {
+	client, err := config.NetworkingV1Client(region)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func GetVpcById(d *schema.ResourceData, config *config.Config, vpcId string) (*v
 
 func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	n, err := GetVpcById(d, config, d.Id())
+	n, err := GetVpcById(config, config.GetRegion(d), d.Id())
 	if err != nil {
 		return common.CheckDeleted(d, err, "Error obtain Vpc information")
 	}

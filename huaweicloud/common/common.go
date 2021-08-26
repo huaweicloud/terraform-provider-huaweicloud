@@ -64,3 +64,12 @@ func UnsubscribePrePaidResource(d *schema.ResourceData, config *config.Config, r
 	_, err = orders.Unsubscribe(bssV2Client, unsubscribeOpts).Extract()
 	return err
 }
+
+// TagsSchema is a schema for terraform resoruces with optional behavior.
+func TagsSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeMap,
+		Optional: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	}
+}

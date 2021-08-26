@@ -146,7 +146,7 @@ func ResourceVpcSubnetV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"tags": config.TagsSchema(),
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -215,9 +215,9 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 
 }
 
-// GetVpcSubnetById is a method to obtain subnet informations through subnet ID.
-func GetVpcSubnetById(d *schema.ResourceData, config *config.Config, subentId string) (*subnets.Subnet, error) {
-	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
+// GetVpcSubnetById is a method to obtain subnet informations from special region through subnet ID.
+func GetVpcSubnetById(config *config.Config, region, subentId string) (*subnets.Subnet, error) {
+	subnetClient, err := config.NetworkingV1Client(region)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +228,7 @@ func GetVpcSubnetById(d *schema.ResourceData, config *config.Config, subentId st
 func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 
-	n, err := GetVpcSubnetById(d, config, d.Id())
+	n, err := GetVpcSubnetById(config, config.GetRegion(d), d.Id())
 	if err != nil {
 		return common.CheckDeleted(d, err, "Error obtain Subnet information")
 	}
