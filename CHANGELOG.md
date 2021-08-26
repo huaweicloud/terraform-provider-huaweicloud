@@ -1,3 +1,16 @@
+## 1.27.2 (August 26, 2021)
+
+FEATURES:
+
+* **New Data Source:**
+  - `huaweicloud_gaussdb_cassandra_dedicated_resource` [GH-1412]
+  - `huaweicloud_gaussdb_mysql_dedicated_resource` [GH-1415]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_gaussdb_cassandra_instance: Add dedicated_resource_id support [GH-1414]
+* resource/huaweicloud_gaussdb_mysql_instance: Add dedicated_resource_id support [GH-1416]
+
 ## 1.27.1 (August 13, 2021)
 
 FEATURES:
