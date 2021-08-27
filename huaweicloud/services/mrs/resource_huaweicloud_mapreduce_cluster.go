@@ -14,9 +14,9 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/mrs/v1/cluster"
 	clusterV2 "github.com/huaweicloud/golangsdk/openstack/mrs/v2/clusters"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -403,19 +403,6 @@ func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, name stri
 	return result
 }
 
-func getVpcNameById(d *schema.ResourceData, config *config.Config, id string) (string, error) {
-	client, err := config.NetworkingV1Client(config.GetRegion(d))
-	if err != nil {
-		return "", fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
-	}
-
-	vpc, err := vpcs.Get(client, id).Extract()
-	if err != nil {
-		return "", fmtp.Errorf("Error retrieving Huaweicloud Vpc: %s", err)
-	}
-	return vpc.Name, nil
-}
-
 func clusterV2StateRefreshFunc(client *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		clusterGet, err := cluster.Get(client, clusterId).Extract()
@@ -465,30 +452,37 @@ func addTagsToMrsCluster(d *schema.ResourceData, config *config.Config) error {
 
 func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	mrsV1Client, err := config.MrsV1Client(config.GetRegion(d))
+	region := config.GetRegion(d)
+	mrsV1Client, err := config.MrsV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud MRS V1 client: %s", err)
 	}
-	mrsV2Client, err := config.MrsV2Client(config.GetRegion(d))
+	mrsV2Client, err := config.MrsV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud MRS V2 client: %s", err)
 	}
 
 	vpcId := d.Get("vpc_id").(string)
-	vpcName, err := getVpcNameById(d, config, vpcId)
+	vpcResp, err := vpc.GetVpcById(config, region, vpcId)
 	if err != nil {
 		return fmtp.Errorf("Unable to find the vpc (%s) on the server: %s", vpcId, err)
 	}
+	subnetId := d.Get("subnet_id").(string)
+	subnetResp, err := vpc.GetVpcSubnetById(config, region, subnetId)
+	if err != nil {
+		return fmtp.Errorf("Unable to find the subnet (%s) on the server: %s", subnetId, err)
+	}
 
 	createOpts := &clusterV2.CreateOpts{
-		Region:               config.GetRegion(d),
+		Region:               region,
 		AvailabilityZone:     d.Get("availability_zone").(string),
 		ClusterVersion:       d.Get("version").(string),
 		ClusterName:          d.Get("name").(string),
 		ClusterType:          d.Get("type").(string),
 		ManagerAdminPassword: d.Get("manager_admin_pass").(string),
-		VpcName:              vpcName,
-		SubnetId:             d.Get("subnet_id").(string),
+		VpcName:              vpcResp.Name,
+		SubnetId:             subnetId,
+		SubnetName:           subnetResp.Name,
 		EipId:                d.Get("eip_id").(string),
 		Components:           buildMrsComponents(d),
 		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, config),
