@@ -91,10 +91,7 @@ func TestAccVpcV1_WithCustomRegion(t *testing.T) {
 	var vpc1, vpc2 vpcs.Vpc
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPrecheckCustomRegion(t)
-			testAccPrecheckCustomRegion(t)
-		},
+		PreCheck:     func() { testAccPrecheckCustomRegion(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
