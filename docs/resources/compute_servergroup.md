@@ -18,7 +18,7 @@ resource "huaweicloud_compute_servergroup" "test-sg" {
   name     = "my-sg"
   policies = ["anti-affinity"]
   members  = [
-      data.huaweicloud_compute_instance.instance_demo.id,
+    data.huaweicloud_compute_instance.instance_demo.id,
   ]
 }
 ```
