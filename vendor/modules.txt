@@ -359,6 +359,7 @@ github.com/huaweicloud/golangsdk/openstack/waf/v1/certificates
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/datamasking_rules
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/domains
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/policies
+github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/premium_domains
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/premium_instances
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/webtamperprotection_rules
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/whiteblackip_rules
