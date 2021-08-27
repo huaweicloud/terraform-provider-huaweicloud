@@ -16,6 +16,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/common/tags"
 	"github.com/huaweicloud/golangsdk/openstack/mrs/v1/cluster"
 	clusterV2 "github.com/huaweicloud/golangsdk/openstack/mrs/v2/clusters"
+	"github.com/huaweicloud/golangsdk/openstack/networking/v1/subnets"
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -35,7 +36,7 @@ const (
 	streamingCoreGroup = "core_node_streaming_group"
 	analysisTaskGroup  = "task_node_analysis_group"
 	streamingTaskGroup = "task_node_streaming_group"
-	customGroup        = "Core"
+	customNodeGroup    = "Core"
 
 	mrsHostDefaultPageNum  = 1
 	mrsHostDefaultPageSize = 100
@@ -121,7 +122,7 @@ func ResourceMRSClusterV2() *schema.Resource {
 				ForceNew: true,
 				Default:  typeAnalysis,
 				ValidateFunc: validation.StringInSlice([]string{
-					typeAnalysis, typeStream, typeHybrid,
+					typeAnalysis, typeStream, typeHybrid, typeCustom,
 				}, false),
 			},
 			"enterprise_project_id": {
@@ -166,41 +167,53 @@ func ResourceMRSClusterV2() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"template_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"master_nodes": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     masterNodeSchemaResource(1, 2),
+				Elem:     nodeGroupSchemaResource("master_node_default_group", false, 1, 9),
 			},
 			"analysis_core_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     coreTaskNodeSchemaResource(1, 500),
+				Elem:     nodeGroupSchemaResource("core_node_analysis_group", true, 1, 500),
 			},
 			"streaming_core_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     coreTaskNodeSchemaResource(1, 500),
+				Elem:     nodeGroupSchemaResource("core_node_streaming_group", true, 1, 500),
 			},
 			"analysis_task_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     coreTaskNodeSchemaResource(1, 500),
+				Elem:     nodeGroupSchemaResource("task_node_analysis_group", true, 1, 500),
 			},
 			"streaming_task_nodes": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
 				MaxItems: 1,
-				Elem:     coreTaskNodeSchemaResource(1, 500),
+				Elem:     nodeGroupSchemaResource("task_node_streaming_group", true, 1, 500),
 			},
+			"custom_nodes": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem:     nodeGroupSchemaResource("", true, 1, 500),
+			},
+
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -237,8 +250,8 @@ func ResourceMRSClusterV2() *schema.Resource {
 		},
 
 		CustomizeDiff: func(c context.Context, rd *schema.ResourceDiff, i interface{}) error {
-			nodeGroupNameArray := [5]string{"master_nodes", "analysis_core_nodes", "analysis_task_nodes",
-				"streaming_core_nodes", "streaming_task_nodes"}
+			nodeGroupNameArray := [6]string{"master_nodes", "analysis_core_nodes", "analysis_task_nodes",
+				"streaming_core_nodes", "streaming_task_nodes", "custom_nodes"}
 
 			for _, nodeGroupName := range nodeGroupNameArray {
 				checkKey := fmt.Sprintf("%s.0.node_number", nodeGroupName)
@@ -253,19 +266,16 @@ func ResourceMRSClusterV2() *schema.Resource {
 	}
 }
 
-func masterNodeSchemaResource(min, max int) *schema.Resource {
-	return &schema.Resource{
+/*
+   when custom node,the groupName should been empty
+*/
+func nodeGroupSchemaResource(groupName string, nodeScalable bool, minNodeNum, maxNodeNum int) *schema.Resource {
+	nodeResource := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-			},
-			"node_number": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(min, max),
 			},
 			"root_volume_type": {
 				Type:     schema.TypeString,
@@ -299,57 +309,42 @@ func masterNodeSchemaResource(min, max int) *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"assigned_roles": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
-}
 
-func coreTaskNodeSchemaResource(min, max int) *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"flavor": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"node_number": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(min, max),
-			},
-			"root_volume_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"root_volume_size": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-			},
-			"data_volume_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"data_volume_size": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-			},
-			"data_volume_count": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-			},
-			"host_ips": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-		},
+	// when custom type,should support user specified name
+	if groupName == "" {
+		nodeResource.Schema["group_name"] = &schema.Schema{
+			Type:     schema.TypeString,
+			Required: true,
+			ForceNew: true,
+		}
 	}
+
+	if nodeScalable {
+		nodeResource.Schema["node_number"] = &schema.Schema{
+			Type:         schema.TypeInt,
+			Required:     true,
+			ValidateFunc: validation.IntBetween(minNodeNum, maxNodeNum),
+		}
+	} else {
+		nodeResource.Schema["node_number"] = &schema.Schema{
+			Type:         schema.TypeInt,
+			Required:     true,
+			ForceNew:     true,
+			ValidateFunc: validation.IntBetween(minNodeNum, maxNodeNum),
+		}
+	}
+
+	return &nodeResource
 }
 
 // The 'component_list' type of the request body is string, before body build, it should be conversation from set to string.
@@ -398,43 +393,56 @@ func buildMrsClusterNodeGroups(d *schema.ResourceData) []clusterV2.NodeGroupOpts
 			"analysis_task_nodes":  analysisTaskGroup,
 			"streaming_core_nodes": streamingCoreGroup,
 			"streaming_task_nodes": streamingTaskGroup,
+			"custom_nodes":         customNodeGroup,
 		}
 	)
 	for k, v := range nodeGroupTypes {
 		if optsRaw, ok := d.GetOk(k); ok {
 			opts := buildNodeGroupOpts(d, optsRaw.([]interface{}), v)
-			groupOpts = append(groupOpts, opts)
+			groupOpts = append(groupOpts, opts...)
 		}
 	}
 	return groupOpts
 }
 
-func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, name string) clusterV2.NodeGroupOpts {
-	var result = clusterV2.NodeGroupOpts{}
-	if len(optsRaw) > 0 {
-		opts := optsRaw[0].(map[string]interface{})
-		result.GroupName = name
-		result.NodeSize = opts["flavor"].(string)
-		result.NodeNum = opts["node_number"].(int)
-		result.RootVolume = &clusterV2.Volume{
+func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultName string) []clusterV2.NodeGroupOpts {
+	var result []clusterV2.NodeGroupOpts
+	for i := 0; i < len(optsRaw); i++ {
+		var nodeGroup = clusterV2.NodeGroupOpts{}
+		opts := optsRaw[i].(map[string]interface{})
+
+		nodeGroup.GroupName = defaultName
+		customeName := opts["group_name"]
+		if customeName != nil {
+			nodeGroup.GroupName = customeName.(string)
+		}
+
+		nodeGroup.NodeSize = opts["flavor"].(string)
+		nodeGroup.NodeNum = opts["node_number"].(int)
+		nodeGroup.RootVolume = &clusterV2.Volume{
 			Type: opts["root_volume_type"].(string),
 			Size: opts["root_volume_size"].(int),
 		}
 		volumeCount := opts["data_volume_count"].(int)
 		if volumeCount != 0 {
-			result.DataVolume = &clusterV2.Volume{
+			nodeGroup.DataVolume = &clusterV2.Volume{
 				Type: opts["data_volume_type"].(string),
 				Size: opts["data_volume_size"].(int),
 			}
 		} else {
 			// According to the API rules, when the data disk is not mounted, the parameters in the structure still
 			// need to be filled in (but not used), fill in the system disk data here.
-			result.DataVolume = &clusterV2.Volume{
+			nodeGroup.DataVolume = &clusterV2.Volume{
 				Type: opts["root_volume_type"].(string),
 				Size: opts["root_volume_size"].(int),
 			}
 		}
-		result.DataVolumeCount = golangsdk.IntToPointer(volumeCount)
+		nodeGroup.DataVolumeCount = golangsdk.IntToPointer(volumeCount)
+		// This parameter is mandatory when the cluster type is CUSTOM. Specifies the roles deployed in a node group.
+		for _, v := range opts["assigned_roles"].([]interface{}) {
+			nodeGroup.AssignedRoles = append(nodeGroup.AssignedRoles, v.(string))
+		}
+		result = append(result, nodeGroup)
 	}
 	return result
 }
@@ -516,6 +524,12 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		return fmtp.Errorf("Unable to find the vpc (%s) on the server: %s", vpcId, err)
 	}
 
+	subnetId := d.Get("subnet_id").(string)
+	subnetName, err := getSubnetNameById(d, config, subnetId)
+	if err != nil {
+		return fmtp.Errorf("Unable to find the subnet (%s) on the server: %s", subnetId, err)
+	}
+
 	createOpts := &clusterV2.CreateOpts{
 		Region:               config.GetRegion(d),
 		AvailabilityZone:     d.Get("availability_zone").(string),
@@ -525,6 +539,7 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		ManagerAdminPassword: d.Get("manager_admin_pass").(string),
 		VpcName:              vpcName,
 		SubnetId:             d.Get("subnet_id").(string),
+		SubnetName:           subnetName,
 		EipId:                d.Get("eip_id").(string),
 		Components:           buildMrsComponents(d),
 		EnterpriseProjectId:  common.GetEnterpriseProjectID(d, config),
@@ -637,27 +652,28 @@ func setMrsClsuterComponentList(d *schema.ResourceData, resp *cluster.Cluster) e
 	return d.Set("component_list", result)
 }
 
-func setMrsClusterNodeGroups(mrsV1Client *golangsdk.ServiceClient, d *schema.ResourceData, resp *cluster.Cluster) error {
+func setMrsClusterNodeGroups(mrsV1Client *golangsdk.ServiceClient, d *schema.ResourceData,
+	resp *cluster.Cluster) error {
 	var groupMapDecl = map[string]string{
 		masterGroup:        "master_nodes",
 		analysisCoreGroup:  "analysis_core_nodes",
 		streamingCoreGroup: "streaming_core_nodes",
 		analysisTaskGroup:  "analysis_task_nodes",
 		streamingTaskGroup: "streaming_task_nodes",
-		customGroup:        "custom_nodes",
 	}
 
 	clustHostMap, err := queryMrsClusterHosts(d, mrsV1Client)
 	if err != nil {
 		return err
 	}
+	var values = make(map[string][]map[string]interface{})
 
 	for _, node := range resp.NodeGroups {
 		value, ok := groupMapDecl[node.GroupName]
-
+		isCustomNode := false
 		if !ok {
-			logp.Printf("[DEBUG] %s is not in the resource data", node.GroupName)
-			continue
+			value = "custom_nodes"
+			isCustomNode = true
 		}
 		groupMap := map[string]interface{}{
 			"node_number":      node.NodeNum,
@@ -665,14 +681,11 @@ func setMrsClusterNodeGroups(mrsV1Client *golangsdk.ServiceClient, d *schema.Res
 			"root_volume_type": node.RootVolumeType,
 			"root_volume_size": node.RootVolumeSize,
 		}
-
-		if hostIps, ok := clustHostMap[node.GroupName]; ok {
-			groupMap["host_ips"] = hostIps
-		} else {
-			logp.Printf("[WARN]One node group lost host_ips information. "+
-				"because this provider does not support nodeGroup='%s', please contact the developer. nodeGroup= %+v",
-				node.GroupName, node)
+		hostIps := parseHostIps(node.GroupName, isCustomNode, clustHostMap)
+		if len(hostIps) == 0 {
+			logp.Printf("[WARN]One nodeGroup lost host_ips information by some internal error,nodeGroup= %+v", node)
 		}
+		groupMap["host_ips"] = hostIps
 
 		if node.DataVolumeCount != 0 {
 			groupMap["data_volume_type"] = node.DataVolumeType
@@ -680,13 +693,32 @@ func setMrsClusterNodeGroups(mrsV1Client *golangsdk.ServiceClient, d *schema.Res
 			groupMap["data_volume_count"] = node.DataVolumeCount
 		}
 		logp.Printf("[DEBUG] node group '%s' is : %+v", value, groupMap)
-		// lintignore:R001
-		if err := d.Set(value, []map[string]interface{}{groupMap}); err != nil {
-			return err
+		values[value] = append(values[value], groupMap)
+	}
+
+	for k, v := range values {
+		if err := d.Set(k, v); err != nil {
+			return fmtp.Errorf("set nodeGroup= %s error", k)
 		}
 	}
 
 	return nil
+}
+
+func parseHostIps(groupName string, isCustomNode bool, clustHostMap map[string][]string) []string {
+	var rt []string
+	if !isCustomNode {
+		if hostIps, ok := clustHostMap[groupName]; ok {
+			rt = append(rt, hostIps...)
+		}
+	} else {
+		key := fmt.Sprintf("%s-%s", customNodeGroup, groupName)
+		if hostIps, ok := clustHostMap[key]; ok {
+			rt = append(rt, hostIps...)
+		}
+	}
+
+	return rt
 }
 
 func setClsuterTags(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
@@ -885,6 +917,18 @@ func updateMRSClusterNodes(d *schema.ResourceData, client *golangsdk.ServiceClie
 			}
 		}
 	}
+
+	if clusterType == typeCustom {
+		if d.HasChange("custom_nodes") {
+			oldRaws, newRaws := d.GetChange("custom_nodes")
+			num := getNodeResizeNumber(oldRaws.([]interface{}), newRaws.([]interface{}))
+			err := resizeMRSClusterCoreNodes(client, d.Id(), customNodeGroup, num)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -901,7 +945,8 @@ func resourceMRSClusterV2Update(d *schema.ResourceData, meta interface{}) error 
 			return fmtp.Errorf("Error updating tags of MRS cluster:%s, err:%s", d.Id(), tagErr)
 		}
 	}
-	if d.HasChanges("analysis_core_nodes", "streaming_core_nodes", "analysis_task_nodes", "streaming_task_nodes") {
+	if d.HasChanges("analysis_core_nodes", "streaming_core_nodes", "analysis_task_nodes",
+		"streaming_task_nodes", "custom_nodes") {
 		err = updateMRSClusterNodes(d, client)
 		if err != nil {
 			return err
@@ -938,6 +983,10 @@ func resourceMRSClusterV2Delete(d *schema.ResourceData, meta interface{}) error 
 	return nil
 }
 
+/*
+	When the host type is core, the map key format: {type}-{groupName},
+	parse from the host name : {clustId}_{groupName}xxxx[-000x]
+*/
 func queryMrsClusterHosts(d *schema.ResourceData, mrsV1Client *golangsdk.ServiceClient) (map[string][]string, error) {
 
 	clusterId := d.Id()
@@ -967,12 +1016,30 @@ func queryMrsClusterHosts(d *schema.ResourceData, mrsV1Client *golangsdk.Service
 			case "Analysis_Task":
 				hostsMap[analysisTaskGroup] = append(hostsMap[analysisTaskGroup], item.Ip)
 			default:
-				//TODO The types are  'core', and a new way of distinguishing is needed,
-				//custom Type is currently not available
-				hostsMap[customGroup] = append(hostsMap[customGroup], item.Ip)
+				reg := regexp.MustCompile(fmt.Sprintf(`%s_(\w*)\w{4}(-\d{4})?`, clusterId))
+				allSubMatchStr := reg.FindAllStringSubmatch(item.Name, -1)
+				if len(allSubMatchStr) > 0 {
+					key := fmt.Sprintf("%s-%s", hostType, allSubMatchStr[0][1])
+					hostsMap[key] = append(hostsMap[key], item.Ip)
+				} else {
+					return nil, fmtp.Errorf("parse host info failed. host=%v", item)
+				}
+
 			}
 		}
 	}
 
 	return hostsMap, nil
+}
+
+func getSubnetNameById(d *schema.ResourceData, config *config.Config, id string) (string, error) {
+	client, err := config.NetworkingV1Client(config.GetRegion(d))
+	if err != nil {
+		return "", fmtp.Errorf("Error creating Huaweicloud Vpc client: %s", err)
+	}
+	subnet, err := subnets.Get(client, id).Extract()
+	if err != nil {
+		return "", fmtp.Errorf("Error retrieving Huaweicloud Subnet: %s", err)
+	}
+	return subnet.Name, nil
 }
