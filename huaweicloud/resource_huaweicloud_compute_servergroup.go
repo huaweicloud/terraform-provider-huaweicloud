@@ -2,7 +2,9 @@ package huaweicloud
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/servergroups"
+	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -28,8 +30,8 @@ func ResourceComputeServerGroupV2() *schema.Resource {
 
 			"name": {
 				Type:     schema.TypeString,
-				ForceNew: true,
 				Required: true,
+				ForceNew: true,
 			},
 			"policies": {
 				Type:     schema.TypeList,
@@ -137,8 +139,23 @@ func resourceComputeServerGroupV2Update(d *schema.ResourceData, meta interface{}
 		}
 
 		for _, v := range membersToRemove.List() {
+			instanceID := v.(string)
+			server, err := cloudservers.Get(clv1, instanceID).Extract()
+			if err != nil {
+				if _, ok := err.(golangsdk.ErrDefault404); ok {
+					logp.Printf("[WARN] the compute %s is not exist, ignore to remove it from the group", instanceID)
+					continue
+				}
+				logp.Printf("[WARN] failed to retrieve compute %s: %s, try to remove it from the group", instanceID, err)
+			} else {
+				if server.Status == "DELETED" {
+					logp.Printf("[WARN] the compute %s was removed, ignore to remove it from the group", instanceID)
+					continue
+				}
+			}
+
 			var removeMemberOpts servergroups.MemberOpts
-			removeMemberOpts.InstanceUUid = v.(string)
+			removeMemberOpts.InstanceUUid = instanceID
 			if err := servergroups.UpdateMember(clv1, removeMemberOpts, "remove_member", d.Id()).ExtractErr(); err != nil {
 				return fmtp.Errorf("Error to remove a instance from ECS server group, err=%s", err)
 			}
