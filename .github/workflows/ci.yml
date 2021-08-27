@@ -51,21 +51,6 @@ jobs:
       - uses: bflad/tfproviderlint-github-action@master
         with:
           args: -V011=false -V012=false -V013=false -V014=false ./...
-
-  # This workflow contains a job called "markdownlint"
-  markdownlint:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      # Runs actions-markdownlint
-      - uses: articulate/actions-markdownlint@v1
-        with:
-          config: .markdownlint.json
-          files:
-            ./docs/**/*.md
   
   # This workflow contains a job called "acc-test"
   acc-test:
