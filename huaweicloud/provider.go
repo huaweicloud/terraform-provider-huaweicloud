@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 )
 
@@ -512,13 +513,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_organization":                resourceSWROrganization(),
 			"huaweicloud_vbs_backup":                      resourceVBSBackupV2(),
 			"huaweicloud_vbs_backup_policy":               resourceVBSBackupPolicyV2(),
-			"huaweicloud_vpc":                             ResourceVirtualPrivateCloudV1(),
+			"huaweicloud_vpc":                             vpc.ResourceVirtualPrivateCloudV1(),
 			"huaweicloud_vpc_bandwidth":                   ResourceVpcBandWidthV2(),
 			"huaweicloud_vpc_eip":                         ResourceVpcEIPV1(),
 			"huaweicloud_vpc_peering_connection":          ResourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_peering_connection_accepter": resourceVpcPeeringConnectionAccepterV2(),
 			"huaweicloud_vpc_route":                       ResourceVPCRouteV2(),
-			"huaweicloud_vpc_subnet":                      ResourceVpcSubnetV1(),
+			"huaweicloud_vpc_subnet":                      vpc.ResourceVpcSubnetV1(),
 			"huaweicloud_vpcep_approval":                  ResourceVPCEndpointApproval(),
 			"huaweicloud_vpcep_endpoint":                  ResourceVPCEndpoint(),
 			"huaweicloud_vpcep_service":                   ResourceVPCEndpointService(),
@@ -580,13 +581,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_file_system_v2":                 ResourceSFSFileSystemV2(),
 			"huaweicloud_iam_agency":                         ResourceIAMAgencyV3(),
 			"huaweicloud_iam_agency_v3":                      ResourceIAMAgencyV3(),
-			"huaweicloud_vpc_v1":                             ResourceVirtualPrivateCloudV1(),
+			"huaweicloud_vpc_v1":                             vpc.ResourceVirtualPrivateCloudV1(),
 			"huaweicloud_vpc_bandwidth_v2":                   ResourceVpcBandWidthV2(),
 			"huaweicloud_vpc_eip_v1":                         ResourceVpcEIPV1(),
 			"huaweicloud_vpc_peering_connection_v2":          ResourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_peering_connection_accepter_v2": resourceVpcPeeringConnectionAccepterV2(),
 			"huaweicloud_vpc_route_v2":                       ResourceVPCRouteV2(),
-			"huaweicloud_vpc_subnet_v1":                      ResourceVpcSubnetV1(),
+			"huaweicloud_vpc_subnet_v1":                      vpc.ResourceVpcSubnetV1(),
 			"huaweicloud_cce_cluster_v3":                     ResourceCCEClusterV3(),
 			"huaweicloud_cce_node_v3":                        ResourceCCENodeV3(),
 			"huaweicloud_cci_network_v1":                     resourceCCINetworkV1(),
