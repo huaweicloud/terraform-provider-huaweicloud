@@ -50,9 +50,8 @@ The following arguments are supported:
 * `ecs_flavor` - (Required, String, ForceNew) The flavor of the ECS used by the WAF instance. Flavors can be obtained
   through this data source `huaweicloud_compute_flavors`. Changing this will create a new instance.
 
-  -> **NOTE:** 
-   1. If the instance specification is the professional edition, the ECS specification should be 2U4G.
-   2. If the instance specification is the enterprise edition, the ECS specification should be 8U16G.
+  -> **NOTE:** If the instance specification is the professional edition, the ECS specification should be 2U4G. If the 
+   instance specification is the enterprise edition, the ECS specification should be 8U16G.
 
 * `vpc_id` - (Required, String, ForceNew) The VPC id of WAF dedicated instance.
    Changing this will create a new instance.
