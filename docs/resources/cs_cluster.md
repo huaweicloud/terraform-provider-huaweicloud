@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Stream"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud_cs_cluster
@@ -7,7 +7,7 @@ subcategory: "Cloud Stream"
 Cloud Stream Service cluster management
 This is an alternative to `huaweicloud_cs_cluster_v1`
 
-> **Warning:** It has been deprecated, use `huaweicloud_dli_queue` instead.
+!> **WARNING:** It has been deprecated, use `huaweicloud_dli_queue` instead.
 
 ## Example Usage
 
@@ -50,7 +50,8 @@ In addition to all arguments above, the following attributes are exported:
 * `used_spu_num` - The used SPU number of Cluster.
 
 ## Timeouts
-This resource provides the following timeouts configuration options:
-- `create` - Default is 30 minute.
-- `delete` - Default is 30 minute.
 
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 30 minute.
+* `delete` - Default is 30 minute.

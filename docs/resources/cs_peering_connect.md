@@ -1,12 +1,13 @@
 ---
-subcategory: "Cloud Stream"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud_cs_peering_connect
 
 Cloud Stream Service cluster peering connect management
 This is an alternative to `huaweicloud_cs_peering_connect_v1`
-> **Warning:** It has been deprecated, use `huaweicloud_dli_queue` instead.
+
+!> **WARNING:** It has been deprecated, use `huaweicloud_dli_queue` instead.
 
 ## Example Usage
 
@@ -57,7 +58,7 @@ The `target_vpc_info` block supports:
 * `vpc_id` - (Required, String, ForceNew) The VPC ID. Changing this parameter will create a new resource.
 
 ## Timeouts
-This resource provides the following timeouts configuration options:
-- `create` - Default is 30 minute.
-- `delete` - Default is 30 minute.
 
+This resource provides the following timeouts configuration options:
+* `create` - Default is 30 minute.
+* `delete` - Default is 30 minute.
