@@ -32,10 +32,10 @@ The following arguments are supported:
 
 * `spec` - (Required, String) Specifies the nat gateway type.
     The value can be:
-    * `1`: small type, which supports up to 10,000 SNAT connections.
-    * `2`: medium type, which supports up to 50,000 SNAT connections.
-    * `3`: large type, which supports up to 200,000 SNAT connections.
-    * `4`: extra-large type, which supports up to 1,000,000 SNAT connections.
+    + `1`: small type, which supports up to 10,000 SNAT connections.
+    + `2`: medium type, which supports up to 50,000 SNAT connections.
+    + `3`: large type, which supports up to 200,000 SNAT connections.
+    + `4`: extra-large type, which supports up to 1,000,000 SNAT connections.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC
     this nat gateway belongs to. Changing this creates a new nat gateway.
@@ -63,8 +63,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `delete` - Default is 10 minute.
+* `create` - Default is 10 minute.
+* `delete` - Default is 10 minute.
 
 ## Import
 

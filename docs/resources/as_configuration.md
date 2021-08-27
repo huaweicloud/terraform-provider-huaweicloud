@@ -137,9 +137,9 @@ The `disk` block supports:
 
 * `volume_type` - (Required, String) The disk type, which must be the same as the disk type available in the system.
     Available options are:
-    * `SAS`: high I/O disk type.
-    * `SSD`: ultra-high I/O disk type.
-    * `GPSSD`: general purpose SSD disk type.
+    + `SAS`: high I/O disk type.
+    + `SSD`: ultra-high I/O disk type.
+    + `GPSSD`: general purpose SSD disk type.
 
 * `disk_type` - (Required, String) Whether the disk is a system disk or a data disk. Option `DATA` indicates
     a data disk, option `SYS` indicates a system disk.

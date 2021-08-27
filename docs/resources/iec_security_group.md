@@ -56,8 +56,8 @@ The `security_group_rules` block supports:
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `delete` - Default is 10 minute.
+* `create` - Default is 10 minute.
+* `delete` - Default is 10 minute.
 
 ## Import
 

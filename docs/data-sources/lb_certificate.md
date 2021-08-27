@@ -25,8 +25,8 @@ The following arguments are supported:
 
 * `type` - (Optional, String) Specifies the certificate type. The default value is `server`.
   The value can be one of the following:
-  * `server`: indicates the server certificate.
-  * `client`: indicates the CA certificate.
+  + `server`: indicates the server certificate.
+  + `client`: indicates the CA certificate.
 
 * `name` - (Required, String) The name of certificate.
   The value is case sensitive and does not supports fuzzy matching.

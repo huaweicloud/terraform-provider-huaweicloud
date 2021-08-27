@@ -47,13 +47,13 @@ The following arguments are supported:
 
 * `type` - (Required, String, ForceNew) Specifies the job type.
   The valid values are as <span id="jump">follows</span>:
-  - [Flink](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0527.html)
-  - [HiveSql](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0525.html)
-  - [HiveScript](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0525.html)
-  - [MapReduce](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0052.html)
-  - [SparkSubmit](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0524.html)
-  - [SparkSql](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0526.html)
-  - [SparkScript](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0526.html)
+  + [Flink](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0527.html)
+  + [HiveSql](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0525.html)
+  + [HiveScript](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0525.html)
+  + [MapReduce](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0052.html)
+  + [SparkSubmit](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0524.html)
+  + [SparkSql](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0526.html)
+  + [SparkScript](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0526.html)
 
   Changing this will create a new MapReduce job resource.
 
@@ -61,11 +61,10 @@ The following arguments are supported:
 
 * `program_path` - (Optional, String, ForceNew) Specifies the .jar package path or .py file path for program execution.
   The parameter must meet the following requirements:
-  - Contains a maximum of 1023 characters, excluding special characters such as `;|&><'$`.
-  - The address cannot be empty or full of spaces.
-  - The program support OBS or DHFS to storage program file or package:
-      - Starts with (OBS:) obs:// and end with .jar or .py
-      - Starts with (DHFS:) /user
+  + Contains a maximum of 1023 characters, excluding special characters such as `;|&><'$`.
+  + The address cannot be empty or full of spaces.
+  + The program support OBS or DHFS to storage program file or package. For OBS, starts with (OBS:) **obs://** and end
+    with **.jar** or **.py**. For DHFS, starts with (DHFS:) **/user**.
 
   Required if `type` is __MapReduce__ or __SparkSubmit__.
   Changing this will create a new MapReduce job resource.
@@ -105,7 +104,7 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-- `create` - Default is 20 minute.
+* `create` - Default is 20 minute.
 
 ## Import
 

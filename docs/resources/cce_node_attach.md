@@ -39,7 +39,7 @@ The following arguments are supported:
 
 * `os` - (Required, String, ForceNew) Specifies the operating System of the node.
   Changing this parameter will create a new resource.
-    - For VM nodes, clusters of v1.13 and later support *EulerOS 2.5* and *CentOS 7.6*.
+    + For VM nodes, clusters of v1.13 and later support *EulerOS 2.5* and *CentOS 7.6*.
 
 * `key_pair` - (Optional, String, ForceNew) Specifies the key pair name when logging in to select the key pair mode.
     This parameter and `password` are alternative. Changing this parameter will create a new resource.
@@ -89,5 +89,5 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 20 minute.
-- `delete` - Default is 20 minute.
+* `create` - Default is 20 minute.
+* `delete` - Default is 20 minute.

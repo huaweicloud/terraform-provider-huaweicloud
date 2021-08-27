@@ -68,14 +68,14 @@ The following arguments are supported:
     Changing this creates a new instance resource.
 
 * `storage_space` - (Required, Int, ForceNew) Specifies the message storage space. Value range:
-    - Single-node RabbitMQ instance: 100–90000 GB
-    - Cluster RabbitMQ instance: 100 GB x Number of nodes to 90000 GB, 200 GB x Number of nodes to 90000 GB, and 300 GB x Number of nodes to 90000 GB
+  + Single-node RabbitMQ instance: 100–90000 GB
+  + Cluster RabbitMQ instance: 100 GB x Number of nodes to 90000 GB, 200 GB x Number of nodes to 90000 GB, and 300 GB x Number of nodes to 90000 GB
     
     Changing this creates a new instance resource.
 
 * `storage_spec_code` - (Required, String, ForceNew) Specifies the storage I/O specification. Value range:
-    - dms.physical.storage.high
-    - dms.physical.storage.ultra
+  + dms.physical.storage.high
+  + dms.physical.storage.ultra
 
     Changing this creates a new instance resource.
 

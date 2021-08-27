@@ -176,11 +176,11 @@ The following arguments are supported:
 
 * `org_disk_size` - (Required, Int, ForceNew) Specifies the storage capacity of peer organization.
   Changing this will create a new instance.
-  * The minimum storage capacity of `efs` volume type is 500GB.
+  + The minimum storage capacity of `efs` volume type is 500GB.
 
   The specifications are as follows when `volume_type` is `nfs`:
-  * The minimum storage capacity of basic edition is 40 GB.
-  * The minimum storage capacity of enterprise and professional edition is 100 GB.
+  + The minimum storage capacity of basic edition is 40 GB.
+  + The minimum storage capacity of enterprise and professional edition is 100 GB.
 
 * `block_info` - (Optional, List, ForceNew) Specifies the configuration of block generation.
   The block_info object structure is documented below.
@@ -208,10 +208,10 @@ The following arguments are supported:
 
 * `eip_enable` - (Optional, Bool, ForceNew) Specifies whether to use the EIP of the CCE to bind the BCS instance.
   Changing this will create a new instance. Defalut is true.
-  * `true` means an EIP bound to the cluster will be used as the blockchain network access address.
+  + `true` means an EIP bound to the cluster will be used as the blockchain network access address.
   If the cluster is not bound with any EIP, bind an EIP to the cluster first.
   Please make sure that the cluster is bound to EIP.
-  * `false` means a private address of the cluster will be used ad the blockchain network access address to ensure that
+  + `false` means a private address of the cluster will be used ad the blockchain network access address to ensure that
   the application can communicate with the internal network of the cluster.
 
 * `kafka` - (Optional, List, ForceNew) Specifies the kafka configuration for the BCS instance.
@@ -302,18 +302,18 @@ The `kafka` block supports:
 
 * `flavor` - (Optional, String, ForceNew) Specifies the kafka flavor type.
   Changing this creates a new instance.
-  * `c3.mini` : Mini type, the reference bandwidth is 100MB/s.
-  * `c3.small.2` : Small type, the reference bandwidth is 300MB/s.
-  * `c3.middle.2` : Middle type, the reference bandwidth is 600MB/s.
-  * `c3.high.2` : High type, the reference bandwidth is 1200MB/s.
+  + `c3.mini` : Mini type, the reference bandwidth is 100MB/s.
+  + `c3.small.2` : Small type, the reference bandwidth is 300MB/s.
+  + `c3.middle.2` : Middle type, the reference bandwidth is 600MB/s.
+  + `c3.high.2` : High type, the reference bandwidth is 1200MB/s.
 
 * `storage_size` - (Optional, Int, ForceNew) Specifies the kafka storage capacity.
   The storage capacity must be an integral multiple of 100 and the maximum is 90000GB.
   Changing this creates a new instance.
-  * The minimum storage capacity of mini type is 600GB.
-  * The minimum storage capacity of small type is 1200GB.
-  * The minimum storage capacity of middle type is 2400GB.
-  * The minimum storage capacity of high type is 4800GB.
+  + The minimum storage capacity of mini type is 600GB.
+  + The minimum storage capacity of small type is 1200GB.
+  + The minimum storage capacity of middle type is 2400GB.
+  + The minimum storage capacity of high type is 4800GB.
 
 ## Attributes Reference
 
@@ -338,5 +338,5 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 90 minute.
-- `delete` - Default is 30 minute.
+* `create` - Default is 90 minute.
+* `delete` - Default is 30 minute.

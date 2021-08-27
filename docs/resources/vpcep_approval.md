@@ -64,12 +64,12 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The unique ID in UUID format which equals to the ID of the VPC endpoint service.
 
 * `connections` - An array of VPC endpoints connect to the VPC endpoint service. Structure is documented below.
-    - `endpoint_id` - The unique ID of the VPC endpoint.
-    - `packet_id` - The packet ID of the VPC endpoint.
-    - `domain_id` - The user's domain ID.
-    - `status` - The connection status of the VPC endpoint.
+  + `endpoint_id` - The unique ID of the VPC endpoint.
+  + `packet_id` - The packet ID of the VPC endpoint.
+  + `domain_id` - The user's domain ID.
+  + `status` - The connection status of the VPC endpoint.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `delete` - Default is 3 minute.
+* `create` - Default is 10 minute.
+* `delete` - Default is 3 minute.

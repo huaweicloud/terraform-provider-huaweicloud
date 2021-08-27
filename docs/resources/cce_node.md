@@ -123,8 +123,8 @@ The following arguments are supported:
     Changing this parameter will create a new resource.
 
 * `os` - (Optional, String, ForceNew) Operating System of the node. Changing this parameter will create a new resource.
-    - For VM nodes, clusters of v1.13 and later support *EulerOS 2.5* and *CentOS 7.6*.
-    - For BMS nodes purchased in the yearly/monthly billing mode, only *EulerOS 2.3* is supported.
+    + For VM nodes, clusters of v1.13 and later support *EulerOS 2.5* and *CentOS 7.6*.
+    + For BMS nodes purchased in the yearly/monthly billing mode, only *EulerOS 2.3* is supported.
 
 * `key_pair` - (Optional, String, ForceNew) Key pair name when logging in to select the key pair mode.
     This parameter and `password` are alternative. Changing this parameter will create a new resource.
@@ -134,15 +134,15 @@ The following arguments are supported:
 
 * `root_volume` - (Required, List, ForceNew) It corresponds to the system disk related configuration. Changing this parameter will create a new resource.
 
-  * `size` - (Required, Int) Disk size in GB.
-  * `volumetype` - (Required, String) Disk type.
-  * `extend_params` - (Optional, Map) Disk expansion parameters.
+  + `size` - (Required, Int) Disk size in GB.
+  + `volumetype` - (Required, String) Disk type.
+  + `extend_params` - (Optional, Map) Disk expansion parameters.
 
 * `data_volumes` - (Required, List, ForceNew) Represents the data disk to be created. Changing this parameter will create a new resource.
 
-  * `size` - (Required, Int) Disk size in GB.
-  * `volumetype` - (Required, String) Disk type.
-  * `extend_params` - (Optional, Map) Disk expansion parameters.
+  + `size` - (Required, Int) Disk size in GB.
+  + `volumetype` - (Required, String) Disk type.
+  + `extend_params` - (Optional, Map) Disk expansion parameters.
 
 * `subnet_id` - (Optional, String, ForceNew) The ID of the subnet to which the NIC belongs.
     Changing this parameter will create a new resource.
@@ -196,10 +196,10 @@ The following arguments are supported:
 
 * `extend_param` - (Optional, Map, ForceNew) Extended parameter. Changing this parameter will create a new resource. Availiable keys :
 
-  * `agency_name` - Specifies the agency name to provide temporary credentials for CCE node to access other cloud services.
-  * `alpha.cce/NodeImageID` - This parameter is required when a custom image is used to create a BMS node.
-  * `dockerBaseSize` - The available disk space of a single docker container on the node in device mapper mode.
-  * `DockerLVMConfigOverride` - Docker data disk configurations. The following is an example default configuration:
+  + `agency_name` - Specifies the agency name to provide temporary credentials for CCE node to access other cloud services.
+  + `alpha.cce/NodeImageID` - This parameter is required when a custom image is used to create a BMS node.
+  + `dockerBaseSize` - The available disk space of a single docker container on the node in device mapper mode.
+  + `DockerLVMConfigOverride` - Docker data disk configurations. The following is an example default configuration:
 
 ```hcl
   extend_param = {
@@ -213,11 +213,11 @@ The following arguments are supported:
 
 * `taints` - (Optional, List, ForceNew) You can add taints to created nodes to configure anti-affinity. Each taint contains the following parameters:
 
-  * `key` - (Required, String) A key must contain 1 to 63 characters starting with a letter or digit. Only letters, digits, hyphens (-),
+  + `key` - (Required, String) A key must contain 1 to 63 characters starting with a letter or digit. Only letters, digits, hyphens (-),
     underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the prefix of a key.
-  * `value` - (Required, String) A value must start with a letter or digit and can contain a maximum of 63 characters, including letters,
+  + `value` - (Required, String) A value must start with a letter or digit and can contain a maximum of 63 characters, including letters,
     digits, hyphens (-), underscores (_), and periods (.).
-  * `effect` - (Required, String) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
+  + `effect` - (Required, String) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
 
 ## Attributes Reference
 
@@ -231,8 +231,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 20 minute.
-- `delete` - Default is 20 minute.
+* `create` - Default is 20 minute.
+* `delete` - Default is 20 minute.
 
 ## Import
 

@@ -64,30 +64,30 @@ The following arguments are supported:
 	of data transferred per unit time. Unit: byte/s. Options: 300 MB, 600 MB, 1200 MB.
 
 * `storage_space` - (Required, Int) Indicates the message storage space. Value range:
-    - Single-node RabbitMQ instance: 100–90000 GB
-    - Cluster RabbitMQ instance: 100 GB x Number of nodes to 90000 GB, 200 GB x Number of
+  + Single-node RabbitMQ instance: 100–90000 GB
+  + Cluster RabbitMQ instance: 100 GB x Number of nodes to 90000 GB, 200 GB x Number of
 	nodes to 90000 GB, 300 GB x Number of nodes to 90000 GB
-    - Kafka instance with specification being 300 MB: 1200–90000 GB
-    - Kafka instance with specification being 600 MB: 2400–90000 GB
-    - Kafka instance with specification being 1200 MB: 4800–90000 GB
+  + Kafka instance with specification being 300 MB: 1200–90000 GB
+  + Kafka instance with specification being 600 MB: 2400–90000 GB
+  + Kafka instance with specification being 1200 MB: 4800–90000 GB
 
 * `storage_spec_code` - (Required, String) Indicates the storage I/O specification. Value range:
 
     Options for a RabbitMQ instance:
-    - dms.physical.storage.normal
-    - dms.physical.storage.high
-    - dms.physical.storage.ultra
+  + dms.physical.storage.normal
+  + dms.physical.storage.high
+  + dms.physical.storage.ultra
 
     Options for a Kafka instance:
-    - When specification is 300 MB: dms.physical.storage.high or dms.physical.storage.ultra
-    - When specification is 600 MB: dms.physical.storage.ultra
-    - When specification is 1200 MB: dms.physical.storage.ultra
+  + When specification is 300 MB: dms.physical.storage.high or dms.physical.storage.ultra
+  + When specification is 600 MB: dms.physical.storage.ultra
+  + When specification is 1200 MB: dms.physical.storage.ultra
 
 * `partition_num` - (Optional, Int) This parameter is mandatory when a Kafka instance is created.
     Indicates the maximum number of topics in a Kafka instance.
-    - When specification is 300 MB: 900
-    - When specification is 600 MB: 1800
-    - When specification is 1200 MB: 1800
+  + When specification is 300 MB: 900
+  + When specification is 600 MB: 1800
+  + When specification is 1200 MB: 1800
 
 * `access_user` - (Optional, String) Indicates a username. If the engine is rabbitmq, this
     parameter is mandatory. If the engine is kafka, this parameter is optional.
