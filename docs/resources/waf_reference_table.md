@@ -2,7 +2,7 @@
 subcategory: "Web Application Firewall (WAF)"
 ---
 
-# huaweicloud_waf_referencetable
+# huaweicloud_waf_reference_table
 
 Manages a WAF reference table resource within HuaweiCloud.
 
@@ -12,11 +12,11 @@ used. The reference table can be used in Cloud Mode (professional version), Dedi
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_waf_referencetable" "ref_table" {
+resource "huaweicloud_waf_reference_table" "ref_table" {
   name = "tf_ref_table_demo"
   type = "url"
 
-  values = [
+  conditions = [
     "/admin",
     "/manage"
   ]
@@ -55,5 +55,5 @@ In addition to all arguments above, the following attributes are exported:
 The reference table can be imported using the `id`, e.g.
 
 ```sh
-terraform import huaweicloud_waf_referencetable.ref_table 96e46e5e702b4e2aa5609ad287de4788
+terraform import huaweicloud_waf_reference_table.ref_table 96e46e5e702b4e2aa5609ad287de4788
 ```

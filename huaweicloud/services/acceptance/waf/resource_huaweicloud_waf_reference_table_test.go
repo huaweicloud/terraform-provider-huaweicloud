@@ -12,8 +12,8 @@ import (
 )
 
 func TestAccWafReferenceTableV1_basic(t *testing.T) {
-	var valuelist valuelists.WafValueList
-	resourceName := "huaweicloud_waf_referencetable.ref_table"
+	var referencTable valuelists.WafValueList
+	resourceName := "huaweicloud_waf_reference_table.ref_table"
 	name := acceptance.RandomAccResourceName()
 	updateName := name + "_update"
 
@@ -25,7 +25,7 @@ func TestAccWafReferenceTableV1_basic(t *testing.T) {
 			{
 				Config: testAccWafReferenceTableV1_conf(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafReferenceTableV1Exists(resourceName, &valuelist),
+					testAccCheckWafReferenceTableV1Exists(resourceName, &referencTable),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "description", "tf acc"),
 					resource.TestCheckResourceAttr(resourceName, "type", "url"),
@@ -35,7 +35,7 @@ func TestAccWafReferenceTableV1_basic(t *testing.T) {
 			{
 				Config: testAccWafReferenceTableV1_update(updateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafReferenceTableV1Exists(resourceName, &valuelist),
+					testAccCheckWafReferenceTableV1Exists(resourceName, &referencTable),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "type", "url"),
 					resource.TestCheckResourceAttr(resourceName, "conditions.#", "2"),
@@ -61,7 +61,7 @@ func testAccCheckWafReferenceTableV1Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_waf_referencetable" {
+		if rs.Type != "huaweicloud_waf_reference_table" {
 			continue
 		}
 
@@ -108,39 +108,9 @@ func testAccCheckWafReferenceTableV1Exists(n string, valueList *valuelists.WafVa
 
 func testAccWafReferenceTableV1_conf(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_waf_referencetable" "ref_table" {
-  name        = "%s"
-  type        = "url"
-  description = "tf acc"
-
-  conditions = [
-    "/admin",
-    "/manage"
-  ]
-}
-`, name)
-}
-
-func testAccWafReferenceTableV1_update(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_waf_referencetable" "ref_table" {
-  name        = "%s"
-  type        = "url"
-  description = ""
-
-  conditions = [
-    "/bill",
-    "/sql"
-  ]
-}
-`, name)
-}
-
-func testAccWafReferenceTableV1_conf1(name string) string {
-	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_waf_referencetable" "ref_table" {
+resource "huaweicloud_waf_reference_table" "ref_table" {
   name        = "%s"
   type        = "url"
   description = "tf acc"
@@ -157,14 +127,14 @@ resource "huaweicloud_waf_referencetable" "ref_table" {
 `, testAccWafDedicatedInstanceV1_conf(name), name)
 }
 
-func testAccWafReferenceTableV1_update1(name string) string {
+func testAccWafReferenceTableV1_update(name string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_waf_referencetable" "ref_table" {
+resource "huaweicloud_waf_reference_table" "ref_table" {
   name        = "%s"
   type        = "url"
-  description = "tf acc url"
+  description = ""
 
   conditions = [
     "/bill",
