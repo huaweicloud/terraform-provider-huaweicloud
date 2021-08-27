@@ -13,6 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
@@ -283,6 +284,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_maintainwindow":                   DataSourceDmsMaintainWindowV1(),
 			"huaweicloud_elb_flavors":                          dataSourceElbFlavorsV3(),
 			"huaweicloud_enterprise_project":                   DataSourceEnterpriseProject(),
+			"huaweicloud_fgs_dependencies":                     fgs.DataSourceFunctionGraphDependencies(),
 			"huaweicloud_gaussdb_cassandra_dedicated_resource": dataSourceGeminiDBDehResource(),
 			"huaweicloud_gaussdb_cassandra_instance":           dataSourceGeminiDBInstance(),
 			"huaweicloud_gaussdb_cassandra_instances":          dataSourceGeminiDBInstances(),
