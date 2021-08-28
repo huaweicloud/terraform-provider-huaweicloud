@@ -8,7 +8,7 @@ import (
 // List returns a Pager that allows you to iterate over a collection of
 // ServerGroups.
 func List(client *golangsdk.ServiceClient) pagination.Pager {
-	return pagination.NewPager(client, listURL(client), func(r pagination.PageResult) pagination.Page {
+	return pagination.NewPager(client, rootURL(client), func(r pagination.PageResult) pagination.Page {
 		return ServerGroupPage{pagination.SinglePageBase(r)}
 	})
 }
@@ -40,7 +40,7 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 		r.Err = err
 		return
 	}
-	_, r.Err = client.Post(createURL(client), b, &r.Body, &golangsdk.RequestOpts{
+	_, r.Err = client.Post(rootURL(client), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{200},
 	})
 	return
@@ -48,13 +48,13 @@ func Create(client *golangsdk.ServiceClient, opts CreateOptsBuilder) (r CreateRe
 
 // Get returns data about a previously created ServerGroup.
 func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
-	_, r.Err = client.Get(getURL(client, id), &r.Body, nil)
+	_, r.Err = client.Get(resourceURL(client, id), &r.Body, nil)
 	return
 }
 
 // Delete requests the deletion of a previously allocated ServerGroup.
 func Delete(client *golangsdk.ServiceClient, id string) (r DeleteResult) {
-	_, r.Err = client.Delete(deleteURL(client, id), nil)
+	_, r.Err = client.Delete(resourceURL(client, id), nil)
 	return
 }
 
@@ -63,16 +63,16 @@ type MemberOptsBuilder interface {
 }
 
 type MemberOpts struct {
-	InstanceUUid string `json:"instance_uuid" required:"true"`
+	InstanceID string `json:"instance_uuid" required:"true"`
 }
 
 func (opts MemberOpts) ToServerGroupUpdateMemberMap(optsType string) (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, optsType)
 }
 
-// UpdateMembers is used to add and delete members from Server Group.
+// UpdateMember is used to add and delete members from Server Group.
 // (params)optsType: The opts type is title of block in request body.
-//                   Add options is add_memebr and remove options is remove_member.
+//                   Add options is "add_memebr" and remove options is "remove_member".
 func UpdateMember(client *golangsdk.ServiceClient, opts MemberOptsBuilder, optsType, id string) (r MemberResult) {
 	b, err := opts.ToServerGroupUpdateMemberMap(optsType)
 	if err != nil {
