@@ -200,14 +200,13 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   name               = var.cluster_name
   version            = "MRS 3.1.0"
   type               = "CUSTOM"
-  component_list     = ["Hadoop", "Spark", "Hive", "Tez", "Storm"]
+  safe_mode          = true
   manager_admin_pass = var.password
   node_admin_pass    = var.password
   vpc_id             = var.vpc_id
   subnet_id          = var.subnet_id
   template_id        = "mgmt_control_combined_v4"
-  component_list = ["Hadoop", "Spark2x", "HBase", "Hive", "Hue", "Loader", "Kafka", "Storm",
-  "Flume", "Flink", "Oozie", "ZooKeeper", "Ranger", "Tez"]
+  component_list     = ["DBService", "Hadoop", "ZooKeeper", "Ranger"]
 
   master_nodes {
     flavor            = "c6.4xlarge.4.linux.bigdata"
@@ -230,25 +229,20 @@ resource "huaweicloud_mapreduce_cluster" "test" {
       "JobHistoryServer:3",
       "DBServer:1,3",
       "HttpFS:1,3",
-      "MonitorServer:1,2",
-      "oozie:2,3",
-      "TezUI:1,3",
       "TimelineServer:3",
       "RangerAdmin:1,2",
       "UserSync:2",
       "TagSync:2",
       "KerberosClient",
       "SlapdClient",
-      "meta",
-      "FlinkResource:2,3",
-      "FlinkServer:2,3"
+      "meta"
     ]
   }
 
   custom_nodes {
     group_name        = "node_group_1"
     flavor            = "c6.4xlarge.4.linux.bigdata"
-    node_number       = 3
+    node_number       = 4
     root_volume_type  = "SAS"
     root_volume_size  = 480
     data_volume_type  = "SAS"
@@ -257,8 +251,6 @@ resource "huaweicloud_mapreduce_cluster" "test" {
     assigned_roles = [
       "DataNode",
       "NodeManager",
-      "RegionServer",
-      "Flume",
       "KerberosClient",
       "SlapdClient",
       "meta"
@@ -350,13 +342,13 @@ The following arguments are supported:
 
 * `template_id` - (Optional, List, ForceNew) Specifies the template used for node deployment when the cluster type is
   CUSTOM.
-  - mgmt_control_combined_v2: template for jointly deploying the management and control nodes. The management and
+  + mgmt_control_combined_v2: template for jointly deploying the management and control nodes. The management and
   control roles are co-deployed on the Master node, and data instances are deployed in the same node group. This
   deployment mode applies to scenarios where the number of control nodes is less than 100, reducing costs.
-  - mgmt_control_separated_v2: The management and control roles are deployed on different master nodes, and data
+  + mgmt_control_separated_v2: The management and control roles are deployed on different master nodes, and data
   instances are deployed in the same node group. This deployment mode is applicable to a cluster with 100 to 500 nodes
   and delivers better performance in high-concurrency load scenarios.
-  - mgmt_control_data_separated_v2: The management role and control role are deployed on different Master nodes,
+  + mgmt_control_data_separated_v2: The management role and control role are deployed on different Master nodes,
   and data instances are deployed in different node groups. This deployment mode is applicable to a cluster with more
   than 500 nodes. Components can be deployed separately, which can be used for a larger cluster scale.
 
@@ -377,7 +369,7 @@ The following arguments are supported:
   The `nodes` object structure of the `streaming_task_nodes` is documented below.
 
 * `custom_nodes` - (Optional, List) Specifies a list of the informations about the custom nodes in the MapReduce
-  cluster.
+ cluster.
   The `nodes` object structure of the `custom_nodes` is documented below.
   `Unlike other nodes, it needs to specify group_name`
 
@@ -435,7 +427,7 @@ In addition to all arguments above, the following attributes are exported:
 * `charging_start_time` - The charging start time which is the start time of billing, in RFC-3339 format.
 * `node` - all the nodes attributes: master_nodes/analysis_core_nodes/streaming_core_nodes/analysis_task_nodes
 /streaming_task_nodes.
-  - `host_ips` - The host list of this nodes group in the cluster.
+  + `host_ips` - The host list of this nodes group in the cluster.
 
 ## Timeouts
 
@@ -455,7 +447,7 @@ terraform import huaweicloud_mapreduce_cluster.test b11b407c-e604-4e8d-8bc4-9239
 
 Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
 API response, security or some other reason. The missing attributes include:
-`manager_admin_pass`, `node_admin_pass`,`template_id` and `eip_id`.
+`manager_admin_pass`, `node_admin_pass`,`template_id`,`eip_id` and `assigned_roles`.
 It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
