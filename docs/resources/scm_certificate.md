@@ -10,7 +10,7 @@ centrally manage all your SSL certificates in one place.
 
 ## Example Usage
 
-### Load the certificate contents from the local files.
+### Load the certificate contents from the local files
 ```hcl
 resource "huaweicloud_scm_certificate" "certificate_1" {
   name              = "certificate_1"
@@ -19,7 +19,7 @@ resource "huaweicloud_scm_certificate" "certificate_1" {
   private_key       = file("/usr/local/data/certificate/cert_xxx/xxx_server.key")
 }
 ```
-### Write the contents of the certificate into the Terrafrom script.
+### Write the contents of the certificate into the Terrafrom script
 ```hcl
 resource "huaweicloud_scm_certificate" "certificate_2" {
   name              ="certificate_2"
@@ -47,7 +47,7 @@ EOT
 }
 ```
 
-### Push the SSL certificate to another HUAWEI CLOUD service.
+### Push the SSL certificate to another HUAWEI CLOUD service
 
 ```hcl
 # Load the certificate contents from the local files.
