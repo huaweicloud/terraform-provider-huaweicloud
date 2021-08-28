@@ -97,7 +97,7 @@ The `http_backend` object supports the following:
 * `vpc_channel` - (Optional, String) Specifies the VPC channel ID. This parameter and `url_domain` are alternative.
 * `url_domain` - (Optional, String) Specifies the backend service address. An endpoint URL is in the format of
      "domain name (or IP address):port number", with up to 255 characters. This parameter and `vpc_channel` are alternative.
-* `timeout` - (Optional, Int) Timeout duration (in ms) for API Gateway to request for the backend service. Defaults to 50000. 
+* `timeout` - (Optional, Int) Timeout duration (in ms) for API Gateway to request for the backend service. Defaults to 50000.
 
 The `function_backend` object supports the following:
 

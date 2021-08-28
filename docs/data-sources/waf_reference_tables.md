@@ -30,7 +30,7 @@ The `tables` block supports:
 
 * `id` - The id of the reference table.
 
-* `name` - The name of the reference table. The maximum length is 64 characters. 
+* `name` - The name of the reference table. The maximum length is 64 characters.
 
 * `type` - The type of the reference table, The options are: `url`, `user-agent`, `ip`, `params`, `cookie`, `referer`
   and `header`.

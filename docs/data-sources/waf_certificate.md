@@ -34,7 +34,7 @@ resource "huaweicloud_waf_domain" "domain_1" {
 The following arguments are supported:
 
 * `region` - (Optional, String) The region in which to obtain the WAF. If omitted, the provider-level region will be used.
- 
+
 * `name` - (Required, String) The name of certificate. The value is case sensitive and supports fuzzy matching.
   
   -> **NOTE:** The certificate name is not unique. Only returns the last created one when matched multiple certificates.
