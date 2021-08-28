@@ -48,8 +48,8 @@ type ServerGroupPage struct {
 
 // IsEmpty determines whether or not a ServerGroupsPage is empty.
 func (page ServerGroupPage) IsEmpty() (bool, error) {
-	va, err := ExtractServerGroups(page)
-	return len(va) == 0, err
+	sgs, err := ExtractServerGroups(page)
+	return len(sgs) == 0, err
 }
 
 // ExtractServerGroups interprets a page of results as a slice of
@@ -62,13 +62,13 @@ func ExtractServerGroups(r pagination.Page) ([]ServerGroup, error) {
 	return s.ServerGroups, err
 }
 
-type ServerGroupResult struct {
+type commonResult struct {
 	golangsdk.Result
 }
 
 // Extract is a method that attempts to interpret any Server Group resource
 // response as a ServerGroup struct.
-func (r ServerGroupResult) Extract() (*ServerGroup, error) {
+func (r commonResult) Extract() (*ServerGroup, error) {
 	var s struct {
 		ServerGroup *ServerGroup `json:"server_group"`
 	}
@@ -79,13 +79,13 @@ func (r ServerGroupResult) Extract() (*ServerGroup, error) {
 // CreateResult is the response from a Create operation. Call its Extract method
 // to interpret it as a ServerGroup.
 type CreateResult struct {
-	ServerGroupResult
+	commonResult
 }
 
 // GetResult is the response from a Get operation. Call its Extract method to
 // interpret it as a ServerGroup.
 type GetResult struct {
-	ServerGroupResult
+	commonResult
 }
 
 // DeleteResult is the response from a Delete operation. Call its ExtractErr

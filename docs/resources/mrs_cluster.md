@@ -100,26 +100,26 @@ The following arguments are supported:
 * `volume_size` - (Required, Int, ForceNew) Data disk storage space of a Core node. Value range: 100 GB to 32000 GB
 
 * `safe_mode` - (Required, Int, ForceNew) running mode of an MRS cluster.
-    - 0: indicates that the Kerberos authentication is disabled.
+  + 0: indicates that the Kerberos authentication is disabled.
       Users can use all functions provided by the cluster.
-    - 1: indicates that the Kerberos authentication is enabled.
+  + 1: indicates that the Kerberos authentication is enabled.
       Common users cannot use the file management or job management functions of an MRS cluster
       and cannot view cluster resource usage or the job records of Hadoop and Spark.
       To use these functions, the users must obtain the relevant permissions from the MRS Manager administrator.
 
 * `cluster_admin_secret` - (Required, String, ForceNew) Indicates the password of the MRS Manager administrator.
     This parameter must meet the following requirements:
-    - Must contain 8 to 26 characters.
-    - Must contain at least three of the following: uppercase letters, lowercase letters,
+  + Must contain 8 to 26 characters.
+  + Must contain at least three of the following: uppercase letters, lowercase letters,
       digits, and special characters: `~!@#$%^&*()-_=+\|[{}];:'",<.>/? and space.
-    - Cannot be the username or the username spelled backwards.
+  + Cannot be the username or the username spelled backwards.
 
 * `node_password` - (Optional, String, ForceNew) Password of user **root** for logging in to a cluster node.
     This parameter and `node_public_cert_name` are alternative. A password must meet the following requirements:
-    - Must be 8 to 26 characters.
-    - Must contain at least three of the following: uppercase letters, lowercase letters,
+  + Must be 8 to 26 characters.
+  + Must contain at least three of the following: uppercase letters, lowercase letters,
       digits, and special characters (!@$%^-_=+[{}]:,./?), but must not contain spaces.
-    - Cannot be the username or the username spelled backwards.
+  + Cannot be the username or the username spelled backwards.
 
 * `node_public_cert_name` - (Optional, String, ForceNew) Name of a key pair. You can use a key
     to log in to the Master node in the cluster.
@@ -141,9 +141,9 @@ The following arguments are supported:
 The `component_list` block supports:
 
 * `component_name` - (Required, String, ForceNew) Component name.
-    - MRS 2.1.0 supports: Presto, Hadoop, Spark, HBase, Hive, Tez, Hue, Loader, Flink, Impala, Kudu, Flume, Kafka, and Storm;
-    - MRS 1.9.2 supports: Presto, Hadoop, Spark, HBase, OpenTSDB, Hive, Hue, Loader, Tez, Flink, Alluxio, Ranger, Flume, Kafka, KafkaManager, and Storm;
-    - MRS 1.8.10 supports: Presto, Hadoop, Spark, HBase, OpenTSDB, Hive, Hue, Loader, Flink, Flume, Kafka, KafkaManager, and Storm;
+  + MRS 2.1.0 supports: Presto, Hadoop, Spark, HBase, Hive, Tez, Hue, Loader, Flink, Impala, Kudu, Flume, Kafka, and Storm;
+  + MRS 1.9.2 supports: Presto, Hadoop, Spark, HBase, OpenTSDB, Hive, Hue, Loader, Tez, Flink, Alluxio, Ranger, Flume, Kafka, KafkaManager, and Storm;
+  + MRS 1.8.10 supports: Presto, Hadoop, Spark, HBase, OpenTSDB, Hive, Hue, Loader, Flink, Flume, Kafka, KafkaManager, and Storm;
 
 
 The `add_jobs` block supports:
@@ -159,12 +159,12 @@ The `add_jobs` block supports:
 
 * `jar_path` - (Required, String, ForceNew) Path of the .jar file or .sql file for program execution
     The parameter must meet the following requirements:
-    - Contains a maximum of 1,023 characters, excluding special characters such as ;|&><'$.
+  + Contains a maximum of 1,023 characters, excluding special characters such as ;|&><'$.
       The parameter value cannot be empty or full of spaces.
-    - Files can be stored in HDFS or OBS. The path varies depending on the file system.
+  + Files can be stored in HDFS or OBS. The path varies depending on the file system.
       OBS: The path must start with s3a://. Files or programs encrypted by KMS are not supported.
       HDFS: The path starts with a slash (/).
-    - Spark Script must end with .sql while MapReduce and Spark Jar must end with .jar.
+  + Spark Script must end with .sql while MapReduce and Spark Jar must end with .jar.
       sql and jar are case-insensitive.
 
 * `arguments` - (Optional, String, ForceNew) Key parameter for program execution. The parameter
@@ -243,6 +243,6 @@ The `component_list` attributes supports:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 60 minute.
-- `delete` - Default is 10 minute.
+* `create` - Default is 60 minute.
+* `delete` - Default is 10 minute.
 

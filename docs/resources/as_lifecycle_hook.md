@@ -41,8 +41,8 @@ The following arguments are supported:
 
 * `type` - (Required, String) Specifies the lifecycle hook type.
   The valid values are following strings:
-  * `ADD`: The hook suspends the instance when the instance is started.
-  * `REMOVE`: The hook suspends the instance when the instance is terminated.
+  + `ADD`: The hook suspends the instance when the instance is started.
+  + `REMOVE`: The hook suspends the instance when the instance is terminated.
 
 * `notification_topic_urn` - (Required, String) Specifies a unique topic in SMN.
 

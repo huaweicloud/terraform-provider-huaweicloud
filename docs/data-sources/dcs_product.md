@@ -20,8 +20,8 @@ data "huaweicloud_dcs_product" "product1" {
 * `region` - (Optional, String) Specifies the region in which to obtain the dcs products. If omitted, the provider-level region will be used.
 
 * `spec_code` - (Optional, String) Specifies the DCS instance specification code. You can query the code as follows:
-  - Query the specifications in [DCS Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-dcs/dcs-pd-200713003.html)
-  - Log in to the DCS console, click *Buy DCS Instance*, and find the corresponding instance specification.
+  + Query the specifications in [DCS Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-dcs/dcs-pd-200713003.html)
+  + Log in to the DCS console, click *Buy DCS Instance*, and find the corresponding instance specification.
 
 
 ## Attributes Reference

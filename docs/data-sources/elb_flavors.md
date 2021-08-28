@@ -49,10 +49,10 @@ In addition to all arguments above, the following attributes are exported:
 * `ids` - A list of flavor IDs.
 
 * `flavors` - A list of flavors. Each element contains the following attributes:
-  * `id` - ID of the flavor.
-  * `name` - Name of the flavor.
-  * `type` - Type of the flavor.
-  * `max_connections` - Maximum connections of the flavor.
-  * `cps` - Cps of the flavor.
-  * `qps` - Qps of the L7 flavor.
-  * `bandwidth` - Bandwidth size(Mbit/s) of the flavor.
+  + `id` - ID of the flavor.
+  + `name` - Name of the flavor.
+  + `type` - Type of the flavor.
+  + `max_connections` - Maximum connections of the flavor.
+  + `cps` - Cps of the flavor.
+  + `qps` - Qps of the L7 flavor.
+  + `bandwidth` - Bandwidth size(Mbit/s) of the flavor.

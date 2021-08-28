@@ -143,18 +143,18 @@ In addition to all arguments above, the following attributes are exported:
 
 The `nodes` block contains:
 
-- `id` - Indicates the node ID.
-- `name` - Indicates the node name.
-- `type` - Indicates the node type: master or slave.
-- `status` - Indicates the node status.
-- `private_read_ip` - Indicates the private IP address of a node.
-- `availability_zone` - Indicates the availability zone where the node resides.
+* `id` - Indicates the node ID.
+* `name` - Indicates the node name.
+* `type` - Indicates the node type: master or slave.
+* `status` - Indicates the node status.
+* `private_read_ip` - Indicates the private IP address of a node.
+* `availability_zone` - Indicates the availability zone where the node resides.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 60 minute.
-- `update` - Default is 60 minute.
-- `delete` - Default is 30 minute.
+* `create` - Default is 60 minute.
+* `update` - Default is 60 minute.
+* `delete` - Default is 30 minute.
 
 ## Import
 

@@ -72,9 +72,9 @@ The following arguments are supported:
 
 * `request_path` - (Required, String) Specifies the request address, which can contain a maximum of 512 characters
   request parameters enclosed with brackets ({}).
-  - The address can contain special characters, such as asterisks (), percent signs (%), hyphens (-), and
+  + The address can contain special characters, such as asterisks (), percent signs (%), hyphens (-), and
     underscores (_) and must comply with URI specifications.
-  - The address can contain environment variables, each starting with a letter and consisting of 3 to 32 characters.
+  + The address can contain environment variables, each starting with a letter and consisting of 3 to 32 characters.
     Only letters, digits, hyphens (-), and underscores (_) are allowed in environment variables.
 
 * `request_protocol` - (Required, String) Specifies the request protocol of the API.
@@ -221,10 +221,10 @@ The <span id="web">`web`</span> block supports:
 
 * `path` - (Required, String) Specifies the backend request address, which can contain a maximum of 512 characters and
   must comply with URI specifications.
-  - The request address can contain request parameters enclosed with brackets ({}).
-  - The request address can contain special characters, such as asterisks (*), percent signs (%), hyphens (-) and
+  + The request address can contain request parameters enclosed with brackets ({}).
+  + The request address can contain special characters, such as asterisks (*), percent signs (%), hyphens (-) and
     underscores (_) and must comply with URI specifications.
-  - The address can contain environment variables, each starting with a letter and consisting of 3 to 32 characters.
+  + The address can contain environment variables, each starting with a letter and consisting of 3 to 32 characters.
     Only letters, digits, hyphens (-), and underscores (_) are allowed in environment variables.
 
 * `host_header` - (Optional, String) Specifies the proxy host header.
@@ -310,10 +310,10 @@ The <span id="web_policy">`web_policy`</span> block supports:
 
 * `path` - (Required, String) Specifies the backend request address, which can contain a maximum of 512 characters and
   must comply with URI specifications.
-  - The request address can contain request parameters enclosed with brackets ({}).
-  - The request address can contain special characters, such as asterisks (*), percent signs (%), hyphens (-) and
+  + The request address can contain request parameters enclosed with brackets ({}).
+  + The request address can contain special characters, such as asterisks (*), percent signs (%), hyphens (-) and
     underscores (_) and must comply with URI specifications.
-  - The address can contain environment variables, each starting with a letter and consisting of 3 to 32 characters.
+  + The address can contain environment variables, each starting with a letter and consisting of 3 to 32 characters.
     Only letters, digits, hyphens (-), and underscores (_) are allowed in environment variables.
 
 * `request_method` - (Required, String) Specifies the backend request method of the API.
@@ -356,8 +356,8 @@ The <span id="conditions">`conditions`</span> block supports:
 
 * `value` - (Required, String) Specifies the condition type.
   For a condition with the input parameter source:
-  - If the condition type is __Enumerated__, separate condition values with commas.
-  - If the condition type is __Matching__, enter a regular expression compatible with PERL.
+  + If the condition type is __Enumerated__, separate condition values with commas.
+  + If the condition type is __Matching__, enter a regular expression compatible with PERL.
 
   For a condition with the Source IP address source, enter IPv4 addresses and separate them with commas.
   The CIDR address format is supported.

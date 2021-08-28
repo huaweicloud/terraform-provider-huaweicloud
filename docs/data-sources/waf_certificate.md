@@ -41,9 +41,9 @@ The following arguments are supported:
 
 * `expire_status` - (Optional, Int) The expire status of certificate. Defaults is `0`.
   The value can be:
-  * `0`: not expire
-  * `1`: has expired
-  * `2`: wil expired soon
+  + `0`: not expire
+  + `1`: has expired
+  + `2`: wil expired soon
   
 
 ## Attributes Reference

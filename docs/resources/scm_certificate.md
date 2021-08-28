@@ -101,23 +101,23 @@ In addition to all arguments above, the following attributes are exported:
 * `not_before` - Time when the certificate takes effect. If no valid value is obtained, this parameter is left blank.
 * `not_after` - Time when the certificate becomes invalid. If no valid value is obtained, this parameter is left blank.
 * `status` - Certificate status. The value can be:
-    * `PAID` - The certificate has been paid, and needs to be applied for from the CA.
-    * `ISSUED` - The certificate has been issued.
-    * `CHECKING` - The certificate application is under review.
-    * `CANCELCHECKING` - The application of certificate cancellation is under review.
-    * `UNPASSED` - The certificate application fails.
-    * `EXPIRED` - The certificate has expired.
-    * `REVOKING` - The application of certificate revocation is under review.
-    * `REVOKED` - The certificate has been revoked.
-    * `UPLOAD` - The certificate is being hosted.
-    * `SUPPLEMENTCHECKING` - The application for the new domain name of the multi-domain certificate is under review.
-    * `CANCELSUPPLEMENTING` - The cancellation on additional domain names to be added is being reviewed.
+    + `PAID` - The certificate has been paid, and needs to be applied for from the CA.
+    + `ISSUED` - The certificate has been issued.
+    + `CHECKING` - The certificate application is under review.
+    + `CANCELCHECKING` - The application of certificate cancellation is under review.
+    + `UNPASSED` - The certificate application fails.
+    + `EXPIRED` - The certificate has expired.
+    + `REVOKING` - The application of certificate revocation is under review.
+    + `REVOKED` - The certificate has been revoked.
+    + `UPLOAD` - The certificate is being hosted.
+    + `SUPPLEMENTCHECKING` - The application for the new domain name of the multi-domain certificate is under review.
+    + `CANCELSUPPLEMENTING` - The cancellation on additional domain names to be added is being reviewed.
 * `authentifications` - (List) Domain ownership verification information.
     This is a list, each item of data is as follows:
-    * `record_name` - Name of a domain ownership verification value.
-    * `record_type` - Type of the domain name verification value.
-    * `record_value` - Domain verification value.
-    * `domain` - Domain name mapping to the verification value
+    + `record_name` - Name of a domain ownership verification value.
+    + `record_type` - Type of the domain name verification value.
+    + `record_value` - Domain verification value.
+    + `domain` - Domain name mapping to the verification value
 
 ## Import
 

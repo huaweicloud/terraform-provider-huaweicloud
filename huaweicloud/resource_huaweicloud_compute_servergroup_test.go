@@ -4,34 +4,34 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/servergroups"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
+	"github.com/huaweicloud/golangsdk/openstack/ecs/v1/servergroups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func TestAccComputeV2ServerGroup_basic(t *testing.T) {
+func TestAccComputeServerGroup_basic(t *testing.T) {
 	var sg servergroups.ServerGroup
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_compute_servergroup.sg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2ServerGroupDestroy,
+		CheckDestroy: testAccCheckComputeServerGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2ServerGroup_basic(rName),
+				Config: testAccComputeServerGroup_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2ServerGroupExists("huaweicloud_compute_servergroup.sg_1", &sg),
+					testAccCheckComputeServerGroupExists(resourceName, &sg),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_compute_servergroup.sg_1",
+				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -39,55 +39,59 @@ func TestAccComputeV2ServerGroup_basic(t *testing.T) {
 	})
 }
 
-func TestAccComputeV2ServerGroup_affinity(t *testing.T) {
+func TestAccComputeServerGroup_scheduler(t *testing.T) {
 	var instance servers.Server
 	var sg servergroups.ServerGroup
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_compute_servergroup.sg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2ServerGroupDestroy,
+		CheckDestroy: testAccCheckComputeServerGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2ServerGroup_affinity(rName),
+				Config: testAccComputeServerGroup_scheduler(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2ServerGroupExists("huaweicloud_compute_servergroup.sg_1", &sg),
+					testAccCheckComputeServerGroupExists(resourceName, &sg),
 					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
-					testAccCheckComputeV2InstanceInServerGroup(&instance, &sg),
+					testAccCheckComputeInstanceInServerGroup(&instance, &sg),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
 		},
 	})
 }
 
-func TestAccComputeV2ServerGroup_members(t *testing.T) {
+func TestAccComputeServerGroup_members(t *testing.T) {
 	var instance servers.Server
 	var sg servergroups.ServerGroup
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_compute_servergroup.sg_1"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2ServerGroupDestroy,
+		CheckDestroy: testAccCheckComputeServerGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeV2ServerGroup_members(rName),
+				Config: testAccComputeServerGroup_members(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2ServerGroupExists("huaweicloud_compute_servergroup.sg_1", &sg),
+					testAccCheckComputeServerGroupExists(resourceName, &sg),
 					testAccCheckComputeV2InstanceExists("huaweicloud_compute_instance.instance_1", &instance),
-					testAccCheckComputeV2InstanceInServerGroup(&instance, &sg),
+					testAccCheckComputeInstanceInServerGroup(&instance, &sg),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckComputeV2ServerGroupDestroy(s *terraform.State) error {
+func testAccCheckComputeServerGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
-	computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
+	ecsClient, err := config.ComputeV1Client(HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -95,39 +99,39 @@ func testAccCheckComputeV2ServerGroupDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := servergroups.Get(computeClient, rs.Primary.ID).Extract()
+		_, err := servergroups.Get(ecsClient, rs.Primary.ID).Extract()
 		if err == nil {
-			return fmtp.Errorf("ServerGroup still exists")
+			return fmt.Errorf("ServerGroup still exists")
 		}
 	}
 
 	return nil
 }
 
-func testAccCheckComputeV2ServerGroupExists(n string, kp *servergroups.ServerGroup) resource.TestCheckFunc {
+func testAccCheckComputeServerGroupExists(n string, kp *servergroups.ServerGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
 		config := testAccProvider.Meta().(*config.Config)
-		computeClient, err := config.ComputeV2Client(HW_REGION_NAME)
+		ecsClient, err := config.ComputeV1Client(HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud compute client: %s", err)
 		}
 
-		found, err := servergroups.Get(computeClient, rs.Primary.ID).Extract()
+		found, err := servergroups.Get(ecsClient, rs.Primary.ID).Extract()
 		if err != nil {
 			return err
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("ServerGroup not found")
+			return fmt.Errorf("ServerGroup not found")
 		}
 
 		*kp = *found
@@ -136,7 +140,7 @@ func testAccCheckComputeV2ServerGroupExists(n string, kp *servergroups.ServerGro
 	}
 }
 
-func testAccCheckComputeV2InstanceInServerGroup(instance *servers.Server, sg *servergroups.ServerGroup) resource.TestCheckFunc {
+func testAccCheckComputeInstanceInServerGroup(instance *servers.Server, sg *servergroups.ServerGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(sg.Members) > 0 {
 			for _, m := range sg.Members {
@@ -146,26 +150,26 @@ func testAccCheckComputeV2InstanceInServerGroup(instance *servers.Server, sg *se
 			}
 		}
 
-		return fmtp.Errorf("Instance %s is not part of Server Group %s", instance.ID, sg.ID)
+		return fmt.Errorf("Instance %s is not part of Server Group %s", instance.ID, sg.ID)
 	}
 }
 
-func testAccComputeV2ServerGroup_basic(rName string) string {
+func testAccComputeServerGroup_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_compute_servergroup" "sg_1" {
-  name = "%s"
-  policies = ["affinity"]
+  name     = "%s"
+  policies = ["anti-affinity"]
 }
 `, rName)
 }
 
-func testAccComputeV2ServerGroup_affinity(rName string) string {
+func testAccComputeServerGroup_scheduler(rName string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_servergroup" "sg_1" {
-  name = "%s"
-  policies = ["affinity"]
+  name     = "%s"
+  policies = ["anti-affinity"]
 }
 
 resource "huaweicloud_compute_instance" "instance_1" {
@@ -174,6 +178,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
   scheduler_hints {
     group = huaweicloud_compute_servergroup.sg_1.id
   }
@@ -184,14 +189,14 @@ resource "huaweicloud_compute_instance" "instance_1" {
 `, testAccCompute_data, rName, rName)
 }
 
-func testAccComputeV2ServerGroup_members(rName string) string {
+func testAccComputeServerGroup_members(rName string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_servergroup" "sg_1" {
-  name = "%s"
+  name     = "%s"
   policies = ["anti-affinity"]
-  members = [huaweicloud_compute_instance.instance_1.id]
+  members  = [huaweicloud_compute_instance.instance_1.id]
 }
 
 resource "huaweicloud_compute_instance" "instance_1" {
@@ -200,6 +205,7 @@ resource "huaweicloud_compute_instance" "instance_1" {
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
   }

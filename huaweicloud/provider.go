@@ -334,6 +334,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpcep_public_services":                DataSourceVPCEPPublicServices(),
 			"huaweicloud_waf_certificate":                      waf.DataSourceWafCertificateV1(),
 			"huaweicloud_waf_policies":                         waf.DataSourceWafPoliciesV1(),
+			"huaweicloud_waf_dedicated_instances":              waf.DataSourceWafDedicatedInstancesV1(),
 			"huaweicloud_waf_reference_tables":                 waf.DataSourceWafReferenceTablesV1(),
 
 			// Legacy
@@ -540,6 +541,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_rule_web_tamper_protection":  waf.ResourceWafRuleWebTamperProtectionV1(),
 			"huaweicloud_waf_dedicated_instance":          waf.ResourceWafDedicatedInstanceV1(),
 			"huaweicloud_waf_dedicated_domain":            waf.ResourceWafDedicatedDomainV1(),
+			"huaweicloud_waf_reference_table":             waf.ResourceWafReferenceTableV1(),
 
 			// Legacy
 			"huaweicloud_compute_instance_v2":                ResourceComputeInstanceV2(),

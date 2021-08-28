@@ -53,18 +53,18 @@ In addition to all arguments above, the following attributes are exported:
 
 * `packages` - All dependent packages that match.
 
-  * `id` - Dependent package ID.
+  + `id` - Dependent package ID.
 
-  * `name` - Dependent package name.
+  + `name` - Dependent package name.
 
-  * `owner` - Dependent package owner.
+  + `owner` - Dependent package owner.
 
-  * `link` - URL of the dependent package in the OBS console.
+  + `link` - URL of the dependent package in the OBS console.
 
-  * `etag` - Unique ID of the dependent package.
+  + `etag` - Unique ID of the dependent package.
 
-  * `size` - Dependent package size.
+  + `size` - Dependent package size.
 
-  * `file_name` - File name of the Dependent package.
+  + `file_name` - File name of the Dependent package.
 
-  * `runtime` - Dependent package runtime.
+  + `runtime` - Dependent package runtime.

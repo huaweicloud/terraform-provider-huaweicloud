@@ -51,7 +51,7 @@ func testAccReferenceTablesV1_conf(name string) string {
 %s
 
 data "huaweicloud_waf_reference_tables" "ref_table" {
-  depends_on = [huaweicloud_waf_referencetable.ref_table]
+  depends_on = [huaweicloud_waf_reference_table.ref_table]
 }
 `, testAccWafReferenceTableV1_conf(name))
 }

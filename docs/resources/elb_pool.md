@@ -35,9 +35,9 @@ The following arguments are supported:
 
 * `protocol` - (Required, String, ForceNew) The protocol - can either be TCP, UDP or HTTP.
 
-    - When the protocol used by the listener is UDP, the protocol of the backend pool must be UDP.
-    - When the protocol used by the listener is TCP, the protocol of the backend pool must be TCP.
-    - When the protocol used by the listener is HTTP or TERMINATED_HTTPS, the protocol of the backend pool must be HTTP.
+  + When the protocol used by the listener is UDP, the protocol of the backend pool must be UDP.
+  + When the protocol used by the listener is TCP, the protocol of the backend pool must be TCP.
+  + When the protocol used by the listener is HTTP or TERMINATED_HTTPS, the protocol of the backend pool must be HTTP.
 
     Changing this creates a new pool.
 
@@ -73,7 +73,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `update` - Default is 10 minute.
-- `delete` - Default is 10 minute.
+* `create` - Default is 10 minute.
+* `update` - Default is 10 minute.
+* `delete` - Default is 10 minute.
 

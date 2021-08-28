@@ -41,9 +41,9 @@ The following arguments are supported:
 * `server_type` (Required, String, ForceNew) - Specifies the backend resource type. The value can be **VM**, **VIP** or **LB**.
 
 * `port_id` (Required, String, ForceNew) - Specifies the ID for identifying the backend resource of the VPC endpoint service.
-    - If the `server_type` is **VM**, the value is the NIC ID of the ECS where the VPC endpoint service is deployed. 
-    - If the `server_type` is **VIP**, the value is the NIC ID of the physical server where virtual resources are created.
-    - If the `server_type` is **LB**, the value is the ID of the port bound to the private IP address of the load balancer.
+    + If the `server_type` is **VM**, the value is the NIC ID of the ECS where the VPC endpoint service is deployed. 
+    + If the `server_type` is **VIP**, the value is the NIC ID of the physical server where virtual resources are created.
+    + If the `server_type` is **LB**, the value is the ID of the port bound to the private IP address of the load balancer.
 
 * `port_mapping` (Required, String) - Specified the port mappings opened to the VPC endpoint service.
     Structure is documented below.
@@ -80,15 +80,15 @@ In addition to all arguments above, the following attributes are exported:
 * `service_type` - The type of the VPC endpoint service. Only **interface** can be configured.
 
 * `connections` - An array of VPC endpoints connect to the VPC endpoint service. Structure is documented below.
-    - `endpoint_id` - The unique ID of the VPC endpoint.
-    - `packet_id` - The packet ID of the VPC endpoint.
-    - `domain_id` - The user's domain ID.
-    - `status` - The connection status of the VPC endpoint.
+  + `endpoint_id` - The unique ID of the VPC endpoint.
+  + `packet_id` - The packet ID of the VPC endpoint.
+  + `domain_id` - The user's domain ID.
+  + `status` - The connection status of the VPC endpoint.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `delete` - Default is 10 minute.
+* `create` - Default is 10 minute.
+* `delete` - Default is 10 minute.
 
 ## Import
 

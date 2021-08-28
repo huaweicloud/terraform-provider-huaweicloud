@@ -125,8 +125,8 @@ The following arguments are supported:
 The `scheduled_policy` block supports:
 
 * `launch_time` - (Required, String) The time when the scaling action is triggered.
-    - If `scaling_policy_type` is set to `SCHEDULED`, the time format is YYYY-MM-DDThh:mmZ.
-    - If `scaling_policy_type` is set to `RECURRENCE`, the time format is hh:mm.
+    + If `scaling_policy_type` is set to `SCHEDULED`, the time format is YYYY-MM-DDThh:mmZ.
+    + If `scaling_policy_type` is set to `RECURRENCE`, the time format is hh:mm.
 
 * `recurrence_type` - (Optional, String) The periodic triggering type. This argument is mandatory when
     `scaling_policy_type` is set to `RECURRENCE`. The options include `Daily`, `Weekly`, and `Monthly`.

@@ -7,7 +7,7 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.0
-	github.com/huaweicloud/golangsdk v0.0.0-20210825083453-2277bc1d03bd
+	github.com/huaweicloud/golangsdk v0.0.0-20210827082222-53346700881a
 	github.com/jen20/awspolicyequivalence v1.1.0
 	github.com/keybase/go-crypto v0.0.0-20200123153347-de78d2cb44f4
 	github.com/mitchellh/go-homedir v1.1.0
