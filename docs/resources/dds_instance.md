@@ -134,18 +134,18 @@ The `datastore` block supports:
 The `flavor` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the node type. Valid value:
-  * For a Community Edition cluster instance, the value can be mongos, shard, or config.
-  * For an Enhanced Edition cluster instance, the value is shard.
-  * For a Community Edition replica set instance, the value is replica.
-  * For a Community Edition single node instance, the value is single.
+  + For a Community Edition cluster instance, the value can be mongos, shard, or config.
+  + For an Enhanced Edition cluster instance, the value is shard.
+  + For a Community Edition replica set instance, the value is replica.
+  + For a Community Edition single node instance, the value is single.
 
 * `num` - (Required, Int) Specifies the node quantity. Valid value:
-	* In a Community Edition cluster instance,the number of mongos ranges from 2 to 16.
-  * In a Community Edition cluster instance,the number of shards ranges from 2 to 16.
-  * In an Enhanced Edition cluster instance, the number of shards ranges from 2 to 12.
-	* config: the value is 1.
-	* replica: the value is 1.
-  * single: The value is 1.
+	+ In a Community Edition cluster instance,the number of mongos ranges from 2 to 16.
+  + In a Community Edition cluster instance,the number of shards ranges from 2 to 16.
+  + In an Enhanced Edition cluster instance, the number of shards ranges from 2 to 12.
+  + config: the value is 1.
+  + replica: the value is 1.
+  + single: The value is 1.
   This parameter can be updated when the value of `type` is mongos or shard.
 
 * `storage` - (Optional, String, ForceNew) Specifies the disk type. Valid value: ULTRAHIGH which indicates the type SSD.
@@ -157,8 +157,8 @@ The `flavor` block supports:
 * `spec_code` - (Required, String) Specifies the resource specification code. In a cluster instance,
   multiple specifications need to be specified. All specifications must be of the same series,
   that is, general-purpose (s6), enhanced (c3), or enhanced II (c6). For example:
-  * dds.mongodb.s6.large.4.mongos and dds.mongodb.s6.large.4.config have the same specifications.
-  * dds.mongodb.s6.large.4.mongos and dds.mongodb.c3.large.4.config are not of the same specifications.
+  + dds.mongodb.s6.large.4.mongos and dds.mongodb.s6.large.4.config have the same specifications.
+  + dds.mongodb.s6.large.4.mongos and dds.mongodb.c3.large.4.config are not of the same specifications.
   This parameter can be updated when the value of `type` is mongos, shard, replica or single.
 
 The `backup_strategy ` block supports:
@@ -166,13 +166,13 @@ The `backup_strategy ` block supports:
 * `start_time` - (Required, String) Specifies the backup time window. Automated backups will be triggered
 	during the backup time window. The value cannot be empty. It must be a valid value in the
 	"hh:mm-HH:MM" format. The current time is in the UTC format.
-	* The HH value must be 1 greater than the hh value.
-	* The values from mm and MM must be the same and must be set to any of the following 00, 15, 30, or 45.
+	+ The HH value must be 1 greater than the hh value.
+	+ The values from mm and MM must be the same and must be set to any of the following 00, 15, 30, or 45.
 
 * `keep_days` - (Optional, Int) Specifies the number of days to retain the generated backup files. The
 	value range is from 0 to 732.
-	* If this parameter is set to 0, the automated backup policy is not set.
-	* If this parameter is not transferred, the automated backup policy is enabled by default.
+	+ If this parameter is set to 0, the automated backup policy is not set.
+	+ If this parameter is not transferred, the automated backup policy is enabled by default.
     Backup files are stored for seven days by default.
 
 ## Attributes Reference
@@ -187,19 +187,19 @@ In addition to all arguments above, the following attributes are exported:
 
 The `nodes` block contains:
 
-  - `id` - Indicates the node ID.
-  - `name` - Indicates the node name.
-  - `role` - Indicates the node role.
-  - `type` - Indicates the node type.
-  - `private_ip` - Indicates the private IP address of a node. This parameter is valid only for
+* `id` - Indicates the node ID.
+* `name` - Indicates the node name.
+* `role` - Indicates the node role.
+* `type` - Indicates the node type.
+* `private_ip` - Indicates the private IP address of a node. This parameter is valid only for
      mongos nodes, replica set instances, and single node instances.
-  - `public_ip` - Indicates the EIP that has been bound on a node. This parameter is valid only for
+* `public_ip` - Indicates the EIP that has been bound on a node. This parameter is valid only for
      mongos nodes of cluster instances, primary nodes and secondary nodes of replica set instances,
      and single node instances.
-  - `status` - Indicates the node status.
+* `status` - Indicates the node status.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 30 minute.
-- `delete` - Default is 30 minute.
+* `create` - Default is 30 minute.
+* `delete` - Default is 30 minute.
 

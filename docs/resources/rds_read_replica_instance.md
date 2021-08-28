@@ -85,10 +85,10 @@ The following arguments are supported:
 The `volume` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the volume type. Its value can be any of the following and is case-sensitive: 
-    - *ULTRAHIGH*: SSD storage.
-    - *LOCALSSD*: local SSD storage.
-    - *CLOUDSSD*: cloud SSD storage. This storage type is supported only with general-purpose and dedicated DB instances.
-    - *ESSD*: extreme SSD storage.
+  + *ULTRAHIGH*: SSD storage.
+  + *LOCALSSD*: local SSD storage.
+  + *CLOUDSSD*: cloud SSD storage. This storage type is supported only with general-purpose and dedicated DB instances.
+  + *ESSD*: extreme SSD storage.
 
   Changing this parameter will create a new resource.
 
@@ -127,8 +127,8 @@ The `db` block supports:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 30 minute.
-- `delete` - Default is 30 minute.
+* `create` - Default is 30 minute.
+* `delete` - Default is 30 minute.
 
 ## Import
 

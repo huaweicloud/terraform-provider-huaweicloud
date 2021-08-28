@@ -85,8 +85,8 @@ The following attributes are exported:
 * `certificate_name` - The name of the certificate used by the domain name.
 
 * `access_status` - Whether a domain name is connected to WAF. Valid values are:
-  * `0` - The domain name is not connected to WAF, 
-  * `1` - The domain name is connected to WAF.
+  + `0` - The domain name is not connected to WAF, 
+  + `1` - The domain name is connected to WAF.
 
 * `protocol` - The protocol type of the client. The options are `HTTP` and `HTTPS`.
 
@@ -95,17 +95,17 @@ The following attributes are exported:
 * `cihper` - The cipher suite of domain.
 
 * `compliance_certification` - The compliance certifications of the domain, values are:
-  * `pci_dss` - The status of domain PCI DSS, `true`: enabled, `false`: disabled.
-  * `pci_3ds` - The status of domain PCI 3DS, `true`: enabled, `false`: disabled.
+  + `pci_dss` - The status of domain PCI DSS, `true`: enabled, `false`: disabled.
+  + `pci_3ds` - The status of domain PCI 3DS, `true`: enabled, `false`: disabled.
 
 * `alarm_page` - The alarm page of domain. Valid values are:
-  * `template_name` - The template of alarm page, values are: `default`, `custom` and `redirection`.
-  * `redirect_url` - The redirection URL when `template_name` is set to `redirection`.
+  + `template_name` - The template of alarm page, values are: `default`, `custom` and `redirection`.
+  + `redirect_url` - The redirection URL when `template_name` is set to `redirection`.
   
 * `traffic_identifier` - The traffic identifier of domain.  Valid values are:
-  * `ip_tag` - The IP tag of traffic identifier.
-  * `session_tag` - The session tag of traffic identifier.
-  * `user_tag` - The user tag of traffic identifier.
+  + `ip_tag` - The IP tag of traffic identifier.
+  + `session_tag` - The session tag of traffic identifier.
+  + `user_tag` - The user tag of traffic identifier.
 
 ## Import
 

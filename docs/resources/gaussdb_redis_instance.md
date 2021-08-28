@@ -155,21 +155,21 @@ In addition to all arguments above, the following attributes are exported:
 * `mode` - Indicates the instance type.
 * `db_user_name` - Indicates the default username.
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
-- `private_ips` - Indicates the IP address list of the db.
+* `private_ips` - Indicates the IP address list of the db.
 
 The `nodes` block contains:
 
-- `id` - Indicates the node ID.
-- `name` - Indicates the node name.
-- `status` - Indicates the node status.
-- `support_reduce` - Indicates whether the node support reduce or not.
-- `private_ip` - Indicates the private IP address of a node.
+* `id` - Indicates the node ID.
+* `name` - Indicates the node name.
+* `status` - Indicates the node status.
+* `support_reduce` - Indicates whether the node support reduce or not.
+* `private_ip` - Indicates the private IP address of a node.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 60 minute.
-- `update` - Default is 120 minute.
-- `delete` - Default is 30 minute.
+* `create` - Default is 60 minute.
+* `update` - Default is 120 minute.
+* `delete` - Default is 30 minute.
 
 ## Import
 
