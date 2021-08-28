@@ -547,6 +547,7 @@ func resourceMRSClusterV2Create(d *schema.ResourceData, meta interface{}) error 
 		NodeGroups:           buildMrsClusterNodeGroups(d),
 		SafeMode:             buildMrsSafeMode(d),
 		SecurityGroupsIds:    buildMrsSecurityGroupIds(d),
+		TemplateId:           d.Get("template_id").(string),
 	}
 	if v, ok := d.GetOk("node_key_pair"); ok {
 		createOpts.NodeKeypair = v.(string)
@@ -652,7 +653,7 @@ func setMrsClsuterComponentList(d *schema.ResourceData, resp *cluster.Cluster) e
 	return d.Set("component_list", result)
 }
 
-func setMrsClusterNodeGroups(mrsV1Client *golangsdk.ServiceClient, d *schema.ResourceData,
+func setMrsClusterNodeGroups(d *schema.ResourceData, mrsV1Client *golangsdk.ServiceClient,
 	resp *cluster.Cluster) error {
 	var groupMapDecl = map[string]string{
 		masterGroup:        "master_nodes",
@@ -687,6 +688,11 @@ func setMrsClusterNodeGroups(mrsV1Client *golangsdk.ServiceClient, d *schema.Res
 		}
 		groupMap["host_ips"] = hostIps
 
+		if isCustomNode {
+			groupMap["group_name"] = node.GroupName
+		}
+
+		groupMap["assigned_roles"] = parseAssignedRoles(d, node.GroupName, isCustomNode)
 		if node.DataVolumeCount != 0 {
 			groupMap["data_volume_type"] = node.DataVolumeType
 			groupMap["data_volume_size"] = node.DataVolumeSize
@@ -702,6 +708,29 @@ func setMrsClusterNodeGroups(mrsV1Client *golangsdk.ServiceClient, d *schema.Res
 		}
 	}
 
+	return nil
+}
+
+func parseAssignedRoles(d *schema.ResourceData, groupName string, isCustomNode bool) []string {
+	if isCustomNode {
+		if optsRaw, ok := d.GetOk("custom_nodes"); ok {
+			opts := optsRaw.([]interface{})
+			for i := 0; i < len(opts); i++ {
+				groupOpts := opts[i].(map[string]interface{})
+				groupNameInConfig := groupOpts["group_name"].(string)
+				if groupName == groupNameInConfig {
+					return groupOpts["assigned_roles"].([]string)
+				}
+
+			}
+		}
+	} else {
+		ids := d.Get(fmt.Sprintf("%s.%s", groupName, "assigned_roles"))
+		if ids != nil {
+			return ids.([]string)
+		}
+
+	}
 	return nil
 }
 
@@ -777,7 +806,7 @@ func resourceMRSClusterV2Read(d *schema.ResourceData, meta interface{}) error {
 		setMrsClsuterUpdateTimestamp(d, resp),
 		setMrsClsuterChargingTimestamp(d, resp),
 		setMrsClsuterCreateTimestamp(d, resp),
-		setMrsClusterNodeGroups(client, d, resp),
+		setMrsClusterNodeGroups(d, client, resp),
 		setClsuterTags(d, client),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
