@@ -151,17 +151,17 @@ In addition to all arguments above, the following attributes are exported:
 
 The `nodes` block contains:
 
-- `id` - Indicates the node ID.
-- `name` - Indicates the node name.
-- `role` - Indicates the node role: master or slave.
-- `status` - Indicates the node status.
-- `availability_zone` - Indicates the availability zone of the node.
+* `id` - Indicates the node ID.
+* `name` - Indicates the node name.
+* `role` - Indicates the node role: master or slave.
+* `status` - Indicates the node status.
+* `availability_zone` - Indicates the availability zone of the node.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 120 minute.
-- `update` - Default is 60 minute.
-- `delete` - Default is 30 minute.
+* `create` - Default is 120 minute.
+* `update` - Default is 60 minute.
+* `delete` - Default is 30 minute.
 
 ## Import
 

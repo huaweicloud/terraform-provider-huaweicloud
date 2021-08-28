@@ -76,18 +76,18 @@ The following arguments are supported:
     Changing this creates a new instance resource.
 
 * `storage_space` - (Required, Int, ForceNew) Specifies the message storage space. Value range:
-    - When bandwidth is 100MB: 600–90000 GB
-    - When bandwidth is 300MB: 1200–90000 GB
-    - When bandwidth is 600MB: 2400–90000 GB
-    - When bandwidth is 1200MB: 4800–90000 GB
+  + When bandwidth is 100MB: 600–90000 GB
+  + When bandwidth is 300MB: 1200–90000 GB
+  + When bandwidth is 600MB: 2400–90000 GB
+  + When bandwidth is 1200MB: 4800–90000 GB
     
     Changing this creates a new instance resource.
 
 * `storage_spec_code` - (Required, String, ForceNew) Specifies the storage I/O specification. Value range:
-    - When bandwidth is 100MB: dms.physical.storage.high or dms.physical.storage.ultra
-    - When bandwidth is 300MB: dms.physical.storage.high or dms.physical.storage.ultra
-    - When bandwidth is 600MB: dms.physical.storage.ultra
-    - When bandwidth is 1200MB: dms.physical.storage.ultra
+  + When bandwidth is 100MB: dms.physical.storage.high or dms.physical.storage.ultra
+  + When bandwidth is 300MB: dms.physical.storage.high or dms.physical.storage.ultra
+  + When bandwidth is 600MB: dms.physical.storage.ultra
+  + When bandwidth is 1200MB: dms.physical.storage.ultra
 
     Changing this creates a new instance resource.
 
@@ -142,17 +142,17 @@ The following arguments are supported:
 
 * `public_ip_ids` - (Optional, List, ForceNew) Specifies the IDs of the elastic IP address (EIP)
     bound to the DMS kafka instance. The num of IDs needed ranges:
-    - When bandwidth is 100MB: 3
-    - When bandwidth is 300MB: 3
-    - When bandwidth is 600MB: 4
-    - When bandwidth is 1200MB: 8
+  + When bandwidth is 100MB: 3
+  + When bandwidth is 300MB: 3
+  + When bandwidth is 600MB: 4
+  + When bandwidth is 1200MB: 8
 
     Changing this creates a new instance resource.
 
 * `retention_policy` - (Optional, String) Specifies the action to be taken when the memory usage reaches
     the disk capacity threshold. Value range:
-    - `time_base`: Automatically delete the earliest messages.
-    - `produce_reject`: Stop producing new messages.
+  + `time_base`: Automatically delete the earliest messages.
+  + `produce_reject`: Stop producing new messages.
 
 * `dumping` - (Optional, Bool, ForceNew) Specifies whether to enable dumping.
     Changing this creates a new instance resource.

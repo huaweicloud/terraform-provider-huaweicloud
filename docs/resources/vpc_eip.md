@@ -91,8 +91,8 @@ The `bandwidth` block supports:
 
 * `share_type` - (Required, String, ForceNew) Whether the bandwidth is dedicated or shared.
     Changing this creates a new eip. Possible values are as follows:
-    - *PER*: Dedicated bandwidth
-    - *WHOLE*: Shared bandwidth
+  + *PER*: Dedicated bandwidth
+  + *WHOLE*: Shared bandwidth
 
 * `name` - (Optional, String) The bandwidth name, which is a string of 1 to 64 characters
     that contain letters, digits, underscores (_), and hyphens (-).
@@ -117,8 +117,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `delete` - Default is 10 minute.
+* `create` - Default is 10 minute.
+* `delete` - Default is 10 minute.
 
 ## Import
 

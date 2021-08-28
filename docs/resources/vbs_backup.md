@@ -55,9 +55,9 @@ The following arguments are supported:
 
 * `tags` - (Optional, List, ForceNew) List of tags to be configured for the backup resources. Changing the parameter creates a new backup.
 
-    * `key` - (Required, String, ForceNew) Specifies the tag key. Changing the parameter creates a new backup.
+    + `key` - (Required, String, ForceNew) Specifies the tag key. Changing the parameter creates a new backup.
 
-    * `value` - (Required, String, ForceNew) Specifies the tag value. Changing the parameter creates a new backup.
+    + `value` - (Required, String, ForceNew) Specifies the tag value. Changing the parameter creates a new backup.
 
 # Attributes Reference
 
@@ -89,6 +89,6 @@ VBS Backup can be imported using the `backup id`, e.g.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `delete` - Default is 3 minute.
+* `create` - Default is 10 minute.
+* `delete` - Default is 3 minute.
 

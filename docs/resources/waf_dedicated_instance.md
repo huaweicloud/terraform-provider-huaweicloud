@@ -44,8 +44,8 @@ The following arguments are supported:
 
 * `specification_code` - (Required, String, ForceNew) The specification code of instance. 
   Different specifications have different throughput. Changing this will create a new instance. Values are:
-  * `waf.instance.professional` - The professional edition, throughput: 100 Mbit/s; QPS: 2,000 (Reference only).
-  * `waf.instance.enterprise` - The enterprise edition, throughput: 500 Mbit/s; QPS: 10,000 (Reference only).
+  + `waf.instance.professional` - The professional edition, throughput: 100 Mbit/s; QPS: 2,000 (Reference only).
+  + `waf.instance.enterprise` - The enterprise edition, throughput: 500 Mbit/s; QPS: 10,000 (Reference only).
 
 * `ecs_flavor` - (Required, String, ForceNew) The flavor of the ECS used by the WAF instance. Flavors can be obtained
   through this data source `huaweicloud_compute_flavors`. Changing this will create a new instance.
@@ -76,11 +76,11 @@ The following attributes are exported:
 * `service_ip` - The ip of the instance service.
 
 * `run_status` - The running status of the instance. Values are:
-  * `0` - Instance is creating.
-  * `1` - Instance has created.
-  * `2` - Instance is deleting.
-  * `3` - Instance has deleted.
-  * `4` - Instance create failed.
+  + `0` - Instance is creating.
+  + `1` - Instance has created.
+  + `2` - Instance is deleting.
+  + `3` - Instance has deleted.
+  + `4` - Instance create failed.
 
 * `access_status` - The access status of the instance. `0`: inaccessible, `1`: accessible.
 

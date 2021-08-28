@@ -87,11 +87,11 @@ The `backup_strategy` block supports:
 
 The `nodes` block contains:
 
-- `id` - Indicates the node ID.
-- `name` - Indicates the node name.
-- `status` - Indicates the node status.
-- `role` - Indicates whether the node support reduce.
-- `availability_zone` - Indicates the availability zone where the node resides.
+* `id` - Indicates the node ID.
+* `name` - Indicates the node name.
+* `status` - Indicates the node status.
+* `role` - Indicates whether the node support reduce.
+* `availability_zone` - Indicates the availability zone where the node resides.
 
 The `ha` block supports:
 

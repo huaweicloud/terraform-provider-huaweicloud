@@ -50,20 +50,20 @@ The following arguments are supported:
 The `rule` block supports:
 
 * `error_type` - (Required, String) Specifies the type of the API custom response rule.
-  - **AUTH_FAILURE**: Authentication failed.
-  - **AUTH_HEADER_MISSING**: The identity source is missing.
-  - **AUTHORIZER_FAILURE**: Custom authentication failed.
-  - **AUTHORIZER_CONF_FAILURE**: There has been a custom authorizer error.
-  - **AUTHORIZER_IDENTITIES_FAILURE**: The identity source of the custom authorizer is invalid.
-  - **BACKEND_UNAVAILABLE**: The backend service is unavailable.
-  - **BACKEND_TIMEOUT**: Communication with the backend service timed out.
-  - **THROTTLED**: The request was rejected due to request throttling.
-  - **UNAUTHORIZED**: The app you are using has not been authorized to call the API.
-  - **ACCESS_DENIED**: Access denied.
-  - **NOT_FOUND**: No API is found.
-  - **REQUEST_PARAMETERS_FAILURE**: The request parameters are incorrect.
-  - **DEFAULT_4XX**: Another 4XX error occurred.
-  - **DEFAULT_5XX**: Another 5XX error occurred.
+  + **AUTH_FAILURE**: Authentication failed.
+  + **AUTH_HEADER_MISSING**: The identity source is missing.
+  + **AUTHORIZER_FAILURE**: Custom authentication failed.
+  + **AUTHORIZER_CONF_FAILURE**: There has been a custom authorizer error.
+  + **AUTHORIZER_IDENTITIES_FAILURE**: The identity source of the custom authorizer is invalid.
+  + **BACKEND_UNAVAILABLE**: The backend service is unavailable.
+  + **BACKEND_TIMEOUT**: Communication with the backend service timed out.
+  + **THROTTLED**: The request was rejected due to request throttling.
+  + **UNAUTHORIZED**: The app you are using has not been authorized to call the API.
+  + **ACCESS_DENIED**: Access denied.
+  + **NOT_FOUND**: No API is found.
+  + **REQUEST_PARAMETERS_FAILURE**: The request parameters are incorrect.
+  + **DEFAULT_4XX**: Another 4XX error occurred.
+  + **DEFAULT_5XX**: Another 5XX error occurred.
 
 * `body` - (Required, String) Specifies the body template of the API response rule, e.g.
   `{\"code\":\"$context.authorizer.frontend.code\",\"message\":\"$context.authorizer.frontend.message\"}`

@@ -33,9 +33,9 @@ The following arguments are supported:
 
 * `action` - (Optional, Int) Specifies the protective action. Defaults is `0`.
   The value can be:
-  * `0`: block the request.
-  * `1`: allow the request.
-  * `2`: log the request only.
+  + `0`: block the request.
+  + `1`: allow the request.
+  + `2`: log the request only.
 
 ## Attributes Reference
 

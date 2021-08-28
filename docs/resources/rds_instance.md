@@ -152,9 +152,9 @@ The following arguments are supported:
 
 * `ha_replication_mode` - (Optional, String, ForceNew) Specifies the replication mode for the standby DB instance.
   Changing this parameter will create a new resource.
-  - For MySQL, the value is *async* or *semisync*.
-  - For PostgreSQL, the value is *async* or *sync*.
-  - For Microsoft SQL Server, the value is *sync*.
+  + For MySQL, the value is *async* or *semisync*.
+  + For PostgreSQL, the value is *async* or *sync*.
+  + For Microsoft SQL Server, the value is *sync*.
 
   -> **NOTE:** async indicates the asynchronous replication mode.
     semisync indicates the semi-synchronous replication mode.
@@ -211,10 +211,10 @@ The `db` block supports:
   brute force cracking. Changing this parameter will create a new resource.
 
 * `port` - (Optional, Int) Specifies the database port.
-  - The MySQL database port ranges from 1024 to 65535 (excluding 12017 and 33071, which are
+  + The MySQL database port ranges from 1024 to 65535 (excluding 12017 and 33071, which are
     occupied by the RDS system and cannot be used). The default value is 3306.
-  - The PostgreSQL database port ranges from 2100 to 9500. The default value is 5432.
-  - The Microsoft SQL Server database port can be 1433 or ranges from 2100 to 9500,
+  + The PostgreSQL database port ranges from 2100 to 9500. The default value is 5432.
+  + The Microsoft SQL Server database port can be 1433 or ranges from 2100 to 9500,
     excluding 5355 and 5985. The default value is 1433.
 
 The `volume` block supports:
@@ -224,10 +224,10 @@ The `volume` block supports:
 
 * `type` - (Required, String, ForceNew) Specifies the volume type. Its value can be any of the following
   and is case-sensitive:
-    - *ULTRAHIGH*: SSD storage.
-    - *LOCALSSD*: local SSD storage.
-    - *CLOUDSSD*: cloud SSD storage. This storage type is supported only with general-purpose and dedicated DB instances.
-    - *ESSD*: extreme SSD storage.
+  + *ULTRAHIGH*: SSD storage.
+  + *LOCALSSD*: local SSD storage.
+  + *CLOUDSSD*: cloud SSD storage. This storage type is supported only with general-purpose and dedicated DB instances.
+  + *ESSD*: extreme SSD storage.
 
   Changing this parameter will create a new resource. For details about volume types, see
   [DB Instance Storage Types](https://support.huaweicloud.com/intl/en-us/productdesc-rds/rds_01_0020.html).
@@ -283,8 +283,8 @@ The `nodes` block contains:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 30 minute.
-- `update` - Default is 30 minute.
+* `create` - Default is 30 minute.
+* `update` - Default is 30 minute.
 
 ## Import
 

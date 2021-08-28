@@ -33,10 +33,10 @@ The following arguments are supported:
 
 * `field` - (Required, String) The position where the masked field stored.
   Valid values are:
-    * `params`: The field in the parameter.
-    * `header`: The field in the header.
-    * `form`: The field in the form.
-    * `cookie`: The field in the cookie.
+    + `params`: The field in the parameter.
+    + `header`: The field in the header.
+    + `form`: The field in the form.
+    + `cookie`: The field in the cookie.
 
 * `subfield` - (Required, String) Specifies the name of the masked field, e.g.: password.
 

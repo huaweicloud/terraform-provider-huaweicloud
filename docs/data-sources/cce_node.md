@@ -61,13 +61,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `root_volume` - It corresponds to the system disk related configuration.
 
-  * `size` - Disk size in GB.
-  * `volumetype` - Disk type.
-  * `extend_params` - Disk expansion parameters.
+  + `size` - Disk size in GB.
+  + `volumetype` - Disk type.
+  + `extend_params` - Disk expansion parameters.
 
 * `data_volumes` - Represents the data disk to be created.
 
-  * `size` - Disk size in GB.
-  * `volumetype` - Disk type.
-  * `extend_params` - Disk expansion parameters.
+  + `size` - Disk size in GB.
+  + `volumetype` - Disk type.
+  + `extend_params` - Disk expansion parameters.
 
