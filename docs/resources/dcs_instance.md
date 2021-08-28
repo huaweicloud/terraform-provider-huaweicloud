@@ -97,21 +97,21 @@ The following arguments are supported:
   the engine is *Redis*, the value can be 3.0, 4.0, or 5.0. Changing this creates a new instance.
 
 * `capacity` - (Required, Float, ForceNew) Specifies the cache capacity. Unit: GB.
-  - Redis4.0 and Redis5.0: Stand-alone and active/standby type instance values:
+  + Redis4.0 and Redis5.0: Stand-alone and active/standby type instance values:
     0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64. Cluster instance specifications 
     support 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024.
 
-  - Redis3.0: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64. 
+  + Redis3.0: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64. 
     Proxy cluster instance specifications support 64, 128, 256, 512, and 1024.
 
-  - Memcached: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64.
+  + Memcached: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64.
 
 * `product_id` - (Required, String, ForceNew) Specifies the product ID with various cache modes:
   *single*, *ha*, *cluster*, *proxy* and *ha_rw_split*. The value format is *spec_code* + "-h",
   indicates that the charging mode is pay-per-use. Changing this creates a new instance.
   You can query the *spec_code* as follows:
-  - Query the specifications in [DCS Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-dcs/dcs-pd-200713003.html)
-  - Log in to the DCS console, click *Buy DCS Instance*, and find the corresponding instance specification.
+  + Query the specifications in [DCS Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-dcs/dcs-pd-200713003.html)
+  + Log in to the DCS console, click *Buy DCS Instance*, and find the corresponding instance specification.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the id of the VPC.
     Changing this creates a new instance.
@@ -140,28 +140,28 @@ The following arguments are supported:
 
 * `password` - (Optional, String, ForceNew) Specifies the password of a DCS instance. Changing this creates a new instance.
     The password of a DCS Redis instance must meet the following complexity requirements:
-    - Enter a string of 8 to 32 bits in length.
-    - The new password cannot be the same as the old password.
-    - Must contain three combinations of the following four characters: Lower case letters,
+    + Enter a string of 8 to 32 bits in length.
+    + The new password cannot be the same as the old password.
+    + Must contain three combinations of the following four characters: Lower case letters,
       uppercase letter, digital, Special characters include (`~!@#$%^&*()-_=+|[{}]:'",<.>/?).
 
 * `maintain_begin` - (Optional, String) Specifies the time at which a maintenance time window starts.
     Format: HH:mm:ss.
-    - The start time and end time of a maintenance time window must indicate the time
+    + The start time and end time of a maintenance time window must indicate the time
       segment of a supported maintenance time window.
-    - The start time must be set to 22:00:00, 02:00:00, 06:00:00, 10:00:00, 14:00:00, or 18:00:00.
-    - Parameters `maintain_begin` and `maintain_end` must be set in pairs.
-    - If parameter maintain_begin is left blank, parameter maintain_end is also blank. In this case,
+    + The start time must be set to 22:00:00, 02:00:00, 06:00:00, 10:00:00, 14:00:00, or 18:00:00.
+    + Parameters `maintain_begin` and `maintain_end` must be set in pairs.
+    + If parameter maintain_begin is left blank, parameter maintain_end is also blank. In this case,
       the system automatically allocates the default start time 02:00:00.
 
 * `maintain_end` - (Optional, String) Specifies the time at which a maintenance time window ends.
     Format: HH:mm:ss.
-    - The start time and end time of a maintenance time window must indicate the time
+    + The start time and end time of a maintenance time window must indicate the time
       segment of a supported maintenance time window.
-    - The end time is four hours later than the start time. For example, if the start time is 22:00:00,
+    + The end time is four hours later than the start time. For example, if the start time is 22:00:00,
 	    the end time is 02:00:00.
-    - Parameters `maintain_begin` and `maintain_end` must be set in pairs.
-    - If parameter maintain_end is left blank, parameter maintain_begin is also blank. In this case,
+    + Parameters `maintain_begin` and `maintain_end` must be set in pairs.
+    + If parameter maintain_end is left blank, parameter maintain_begin is also blank. In this case,
       the system automatically allocates the default end time 06:00:00.
 
 * `backup_policy` - (Optional, List) Specifies the backup configuration to be used with the instance.
@@ -184,8 +184,8 @@ The `backup_policy` block supports:
 * `save_days` - (Optional, Int) Retention time. Unit: day. Range: 1–7.
 
 * `backup_type` - (Optional, String) Backup type. Options:
-  - *auto*: automatic backup
-  - *manual*: manual backup (default)
+  + *auto*: automatic backup
+  + *manual*: manual backup (default)
 
 * `begin_at` - (Required, String) Time at which backup starts. "00:00-01:00" indicates that backup starts at 00:00:00.
 

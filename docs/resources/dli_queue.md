@@ -37,8 +37,8 @@ The following arguments are supported:
 
 * `queue_type` - (Optional, String, ForceNew) Indicates the queue type. 
     Changing this parameter will create a new resource. The options are as follows:
-    - sql,
-    - general
+  + sql
+  + general
     > NOTE: If the type is not specified, the default value sql is used. 
 
 * `description` - (Optional, String, ForceNew) Description of a queue. 
@@ -53,20 +53,20 @@ The following arguments are supported:
 * `platform` - (Optional, String, ForceNew) CPU architecture of queue compute resources. 
     Changing this parameter will create a new resource.
     The options are as follows: 
-    - x86_64 : default value
-    - aarch64
+  + x86_64 : default value
+  + aarch64
 
 * `resource_mode` - (Optional, String, ForceNew) Queue resource mode. 
   Changing this parameter will create a new resource. 
   The options are as follows: 
-  - 0: indicates the shared resource mode.
-  - 1: indicates the exclusive resource mode. 
+  + 0: indicates the shared resource mode.
+  + 1: indicates the exclusive resource mode. 
 
 * `feature` - (Optional, String, ForceNew)Indicates the queue feature. 
   Changing this parameter will create a new resource. 
   The options are as follows: 
-  - basic: basic type (default value)
-  - ai: AI-enhanced (Only the SQL x86_64 dedicated queue supports this option.)
+  + basic: basic type (default value)
+  + ai: AI-enhanced (Only the SQL x86_64 dedicated queue supports this option.)
 
 * `tags` - (Optional, Map, ForceNew) Label of a queue. Changing this parameter will create a new resource.
 ## Attributes Reference
@@ -79,7 +79,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `update` - Default is 45 minute.
+* `update` - Default is 45 minute.
 
 ## Import
 

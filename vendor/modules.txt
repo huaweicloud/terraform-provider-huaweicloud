@@ -201,7 +201,6 @@ github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/floatingips
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/schedulerhints
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups
-github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/servergroups
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/startstop
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach
 github.com/huaweicloud/golangsdk/openstack/compute/v2/flavors
@@ -236,6 +235,7 @@ github.com/huaweicloud/golangsdk/openstack/ecs/v1/block_devices
 github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers
 github.com/huaweicloud/golangsdk/openstack/ecs/v1/flavors
 github.com/huaweicloud/golangsdk/openstack/ecs/v1/powers
+github.com/huaweicloud/golangsdk/openstack/ecs/v1/servergroups
 github.com/huaweicloud/golangsdk/openstack/elb/v2/certificates
 github.com/huaweicloud/golangsdk/openstack/elb/v2/loadbalancers
 github.com/huaweicloud/golangsdk/openstack/elb/v3/certificates

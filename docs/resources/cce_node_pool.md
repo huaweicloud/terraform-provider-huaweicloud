@@ -79,10 +79,10 @@ The following arguments are supported:
 
 * `extend_param` - (Optional, Map, ForceNew) Extended parameter. Changing this parameter will create a new resource. Availiable keys :
 
-  * `agency_name` - Specifies the agency name to provide temporary credentials for CCE node to access other cloud services.
-  * `alpha.cce/NodeImageID` - This parameter is required when a custom image is used to create a BMS node.
-  * `dockerBaseSize` - The available disk space of a single docker container on the node in device mapper mode.
-  * `DockerLVMConfigOverride` - Docker data disk configurations. The following is an example default configuration:
+  + `agency_name` - Specifies the agency name to provide temporary credentials for CCE node to access other cloud services.
+  + `alpha.cce/NodeImageID` - This parameter is required when a custom image is used to create a BMS node.
+  + `dockerBaseSize` - The available disk space of a single docker container on the node in device mapper mode.
+  + `DockerLVMConfigOverride` - Docker data disk configurations. The following is an example default configuration:
 
 ```hcl
   extend_param = {
@@ -151,8 +151,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 20 minute.
-- `delete` - Default is 20 minute.
+* `create` - Default is 20 minute.
+* `delete` - Default is 20 minute.
 
 ## Import
 

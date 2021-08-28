@@ -38,8 +38,8 @@ In addition to all arguments above, the following attributes are exported:
 * `domain` - The domain of the Certificate. This parameter is valid only when `type` is "server".
 
 * `type` - Specifies the certificate type. The value can be one of the following:
-  * `server`: indicates the server certificate.
-  * `client`: indicates the CA certificate.
+  + `server`: indicates the server certificate.
+  + `client`: indicates the CA certificate.
   
 * `description` - Human-readable description for the Certificate.
 

@@ -85,8 +85,8 @@ The following arguments are supported:
 
 * `type` - (Optional, String, ForceNew) Specifies the certificate type. The default value is "server".
     The value can be one of the following:
-    - server: indicates the server certificate.
-    - client: indicates the CA certificate.
+  + server: indicates the server certificate.
+  + client: indicates the CA certificate.
 
 * `certificate` - (Required, String) The public encrypted key of the Certificate, PEM format.
 
@@ -109,6 +109,6 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `update` - Default is 10 minute.
-- `delete` - Default is 5 minute.
+* `create` - Default is 10 minute.
+* `update` - Default is 10 minute.
+* `delete` - Default is 5 minute.

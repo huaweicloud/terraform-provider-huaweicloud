@@ -80,9 +80,9 @@ The `project_role` block supports:
 * `roles` - (Required, List) Specifies an array of role names.
 
 -> **NOTE**
-    - At least one of `project_role` and `domain_roles` must be specified when creating an agency.
-    - We can get all **System-Defined Roles** form
-[HuaweiCloud](https://support.huaweicloud.com/intl/en-us/usermanual-permissions/iam_01_0001.html).
+  At least one of `project_role` and `domain_roles` must be specified when creating an agency.
+  We can get all **System-Defined Roles** form
+  [HuaweiCloud](https://support.huaweicloud.com/intl/en-us/usermanual-permissions/iam_01_0001.html).
 
 ## Attributes Reference
 
@@ -102,6 +102,6 @@ $ terraform import huaweicloud_identity_agency.agency 0b97661f9900f23f4fc2c00971
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `update` - Default is 10 minute.
-- `delete` - Default is 5 minute.
+* `create` - Default is 10 minute.
+* `update` - Default is 10 minute.
+* `delete` - Default is 5 minute.

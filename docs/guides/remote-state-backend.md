@@ -95,8 +95,8 @@ The following arguments are supported:
 
 ## For More Information
 
-- [Terraform Remote State](https://www.terraform.io/docs/language/state/remote.html)
-- [Terraform Backends](https://www.terraform.io/docs/language/settings/backends/index.html)
-- [Amazon S3 Backend](https://www.terraform.io/docs/language/settings/backends/s3.html)
-- [Workspaces](https://www.terraform.io/docs/language/state/workspaces.html)
-- [The terraform_remote_state Data Source](https://www.terraform.io/docs/language/state/remote-state-data.html)
+* [Terraform Remote State](https://www.terraform.io/docs/language/state/remote.html)
+* [Terraform Backends](https://www.terraform.io/docs/language/settings/backends/index.html)
+* [Amazon S3 Backend](https://www.terraform.io/docs/language/settings/backends/s3.html)
+* [Workspaces](https://www.terraform.io/docs/language/state/workspaces.html)
+* [The terraform_remote_state Data Source](https://www.terraform.io/docs/language/state/remote-state-data.html)

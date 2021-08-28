@@ -239,10 +239,10 @@ The following arguments are supported:
 
     For details about disk types, see [Disk Types and Disk Performance](https://support.huaweicloud.com/en-us/productdesc-evs/en-us_topic_0014580744.html).
     Available options are:
-    * `SAS`: high I/O disk type.
-    * `SSD`: ultra-high I/O disk type.
-    * `GPSSD`: general purpose SSD disk type.
-    * `ESSD`: Extreme SSD type.
+    + `SAS`: high I/O disk type.
+    + `SSD`: ultra-high I/O disk type.
+    + `GPSSD`: general purpose SSD disk type.
+    + `ESSD`: Extreme SSD type.
 
 * `system_disk_size` - (Optional, String) Specifies the system disk size in GB, The value range is 1 to 1024.
     Shrinking the disk is not supported.
@@ -380,6 +380,6 @@ resource "huaweicloud_compute_instance" "myinstance" {
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 30 minute.
-- `update` - Default is 30 minute.
-- `delete` - Default is 30 minute.
+* `create` - Default is 30 minute.
+* `update` - Default is 30 minute.
+* `delete` - Default is 30 minute.

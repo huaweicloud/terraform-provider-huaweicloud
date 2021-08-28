@@ -46,9 +46,9 @@ The following arguments are supported:
     Valid values are `true` and `false`.
 
 * `access_type` - (Optional, String) Specifies the access type of the user. Available values are:
-     * default: support both programmatic and management console access.
-     * programmatic: only support programmatic access.
-     * console: only support management console access.
+     + default: support both programmatic and management console access.
+     + programmatic: only support programmatic access.
+     + console: only support management console access.
 
 ## Attributes Reference
 
