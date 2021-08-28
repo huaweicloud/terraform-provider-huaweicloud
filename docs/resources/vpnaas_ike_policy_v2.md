@@ -45,9 +45,9 @@ The following arguments are supported:
     Changing this updates the existing policy.
 
 * `lifetime` - (Optional) The lifetime of the security association. Consists of Unit and Value.
-    - `unit` - (Optional) The units for the lifetime of the security association. Can be either seconds or kilobytes.
+  + `unit` - (Optional) The units for the lifetime of the security association. Can be either seconds or kilobytes.
     Default is seconds.
-    - `value` - (Optional) The value for the lifetime of the security association. Must be a positive integer.
+  + `value` - (Optional) The value for the lifetime of the security association. Must be a positive integer.
     Default is 3600.
 
 * `value_specs` - (Optional) Map of additional options.
@@ -60,7 +60,7 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
+* `create` - Default is 10 minute.
 
 ## Import
 

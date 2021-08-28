@@ -128,8 +128,8 @@ the `alarm_actions` block supports:
 
 * `type` - (Optional, String) specifies the type of action triggered by an alarm. the
     value can be *notification* or *autoscaling*.
-    - notification: indicates that a notification will be sent to the user.
-    - autoscaling: indicates that a scaling action will be triggered.
+    + notification: indicates that a notification will be sent to the user.
+    + autoscaling: indicates that a scaling action will be triggered.
 
 * `notification_list` - (Optional, List) specifies the list of objects to be notified
     if the alarm status changes, the maximum length is 5.
@@ -156,18 +156,18 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - Indicates the alarm rule ID.
 
 * `alarm_state` - Indicates the alarm status. The value can be:
-    - ok: The alarm status is normal;
-    - alarm: An alarm is generated;
-    - insufficient_data: The required data is insufficient.
+    + ok: The alarm status is normal;
+    + alarm: An alarm is generated;
+    + insufficient_data: The required data is insufficient.
 
 * `update_time` - Indicates the time when the alarm status changed.
     The value is a UNIX timestamp and the unit is ms.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `update` - Default is 10 minute.
-- `delete` - Default is 5 minute.
+* `create` - Default is 10 minute.
+* `update` - Default is 10 minute.
+* `delete` - Default is 5 minute.
 
 ## Import
 

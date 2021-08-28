@@ -76,9 +76,9 @@ The `backup_strategy` block supports:
 
 The `nodes` block contains:
 
-- `id` - Indicates the node ID.
-- `name` - Indicates the node name.
-- `type` - Indicates the node type: master or slave.
-- `status` - Indicates the node status.
-- `private_read_ip` - Indicates the private IP address of a node.
-- `availability_zone` - Indicates the availability zone where the node resides.
+* `id` - Indicates the node ID.
+* `name` - Indicates the node name.
+* `type` - Indicates the node type: master or slave.
+* `status` - Indicates the node status.
+* `private_read_ip` - Indicates the private IP address of a node.
+* `availability_zone` - Indicates the availability zone where the node resides.

@@ -72,15 +72,15 @@ The following arguments are supported:
 * `peer_cidrs` - (Optional) Unique list of valid peer private CIDRs in the form < net_address > / < prefix > .
 
 * `dpd` - (Optional) A dictionary with dead peer detection (DPD) protocol controls.
-    - `action` - (Optional) The dead peer detection (DPD) action.
+  + `action` - (Optional) The dead peer detection (DPD) action.
 		A valid value is clear, hold, restart, disabled, or restart-by-peer.
 		Default value is hold.
 
-    - `timeout` - (Optional) The dead peer detection (DPD) timeout in seconds.
+  + `timeout` - (Optional) The dead peer detection (DPD) timeout in seconds.
 		A valid value is a positive integer that is greater than the DPD interval value.
 		Default is 120.
 
-    - `interval` - (Optional) The dead peer detection (DPD) interval, in seconds.
+  + `interval` - (Optional) The dead peer detection (DPD) interval, in seconds.
 		A valid value is a positive integer.
 		Default is 30.
 
@@ -99,9 +99,9 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `update` - Default is 10 minute.
-- `delete` - Default is 10 minute.
+* `create` - Default is 10 minute.
+* `update` - Default is 10 minute.
+* `delete` - Default is 10 minute.
 
 ## Import
 

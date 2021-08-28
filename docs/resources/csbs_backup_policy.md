@@ -46,29 +46,29 @@ The following arguments are supported:
 
 * `scheduled_operation` block supports the following arguments:
 
-    * `name` - (Optional, String) Specifies Scheduling period name.The value consists of 1 to 255 characters and can contain only letters, digits, underscores (_), and hyphens (-).
+    + `name` - (Optional, String) Specifies Scheduling period name.The value consists of 1 to 255 characters and can contain only letters, digits, underscores (_), and hyphens (-).
     
-    * `description` - (Optional, String) Specifies Scheduling period description.The value consists of 0 to 255 characters and must not contain a greater-than sign (>) or less-than sign (<).
+    + `description` - (Optional, String) Specifies Scheduling period description.The value consists of 0 to 255 characters and must not contain a greater-than sign (>) or less-than sign (<).
 
-    * `enabled` - (Optional, Bool) Specifies whether the scheduling period is enabled. Default value is **true**
+    + `enabled` - (Optional, Bool) Specifies whether the scheduling period is enabled. Default value is **true**
 
-    * `max_backups` - (Optional, Int) Specifies maximum number of backups that can be automatically created for a backup object.
+    + `max_backups` - (Optional, Int) Specifies maximum number of backups that can be automatically created for a backup object.
 
-    * `retention_duration_days` - (Optional, Int) Specifies duration of retaining a backup, in days.
+    + `retention_duration_days` - (Optional, Int) Specifies duration of retaining a backup, in days.
 
-    * `permanent` - (Optional, Bool) Specifies whether backups are permanently retained.
+    + `permanent` - (Optional, Bool) Specifies whether backups are permanently retained.
 
-    * `trigger_pattern` - (Required, String) Specifies Scheduling policy of the scheduler.
+    + `trigger_pattern` - (Required, String) Specifies Scheduling policy of the scheduler.
 
-    * `operation_type` - (Required, String) Specifies Operation type, which can be backup.
+    + `operation_type` - (Required, String) Specifies Operation type, which can be backup.
 
 * `resource` block supports the following arguments:
 
-    * `id` - (Required, String) Specifies the ID of the object to be backed up.
+    + `id` - (Required, String) Specifies the ID of the object to be backed up.
     
-    * `type` - (Required, String) Entity object type of the backup object. If the type is VMs, the value is **OS::Nova::Server**.
+    + `type` - (Required, String) Entity object type of the backup object. If the type is VMs, the value is **OS::Nova::Server**.
 
-    * `name` - (Required, String) Specifies backup object name.
+    + `name` - (Required, String) Specifies backup object name.
 
 ## Attributes Reference
 In addition to all arguments above, the following attributes are exported:
@@ -81,13 +81,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `scheduled_operation` - Backup plan information
 
-    * `id` -  Specifies Scheduling period ID.
+    + `id` -  Specifies Scheduling period ID.
 
-    * `trigger_id` -  Specifies Scheduler ID.
+    + `trigger_id` -  Specifies Scheduler ID.
 
-    * `trigger_name` -  Specifies Scheduler name.
+    + `trigger_name` -  Specifies Scheduler name.
 
-    * `trigger_type` -  Specifies Scheduler type.
+    + `trigger_type` -  Specifies Scheduler type.
 
 
 ## Import

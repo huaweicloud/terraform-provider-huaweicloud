@@ -340,8 +340,8 @@ The following arguments are supported:
 
 * `safe_mode` - (Optional, Bool, ForceNew) Specifies whether the running mode of the MapReduce cluster is secure,
   default to true.
-  - true: enable Kerberos authentication.
-  - false: disable Kerberos authentication.
+  + true: enable Kerberos authentication.
+  + false: disable Kerberos authentication.
   Changing this will create a new MapReduce cluster resource.
 
 * `security_group_ids` - (Optional, List, ForceNew) Specifies an array of one or more security group ID to attach to
@@ -413,11 +413,11 @@ The `nodes` block supports:
 
 * `data_volume_count` - (Optional, Int, ForceNew) Specifies the data disk number of the nodes.
   The number configuration of each node are as follows:
-  - master_nodes: 1.
-  - analysis_core_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
-  - streaming_core_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
-  - analysis_task_nodes: minimum is zero and the maximum is subject to the configuration of the corresponding flavor.
-  - streaming_task_nodes: minimum is zero and the maximum is subject to the configuration of the corresponding flavor.
+  + master_nodes: 1.
+  + analysis_core_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  + streaming_core_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  + analysis_task_nodes: minimum is zero and the maximum is subject to the configuration of the corresponding flavor.
+  + streaming_task_nodes: minimum is zero and the maximum is subject to the configuration of the corresponding flavor.
 
   Changing this will create a new MapReduce cluster resource.
 

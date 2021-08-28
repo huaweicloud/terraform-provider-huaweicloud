@@ -36,10 +36,10 @@ data "huaweicloud_nat_gateway" "natgateway" {
 
 * `spec` - (Optional, String) The NAT gateway type.
     The value can be:
-    * `1`: small type, which supports up to 10,000 SNAT connections.
-    * `2`: medium type, which supports up to 50,000 SNAT connections.
-    * `3`: large type, which supports up to 200,000 SNAT connections.
-    * `4`: extra-large type, which supports up to 1,000,000 SNAT connections.
+    + `1`: small type, which supports up to 10,000 SNAT connections.
+    + `2`: medium type, which supports up to 50,000 SNAT connections.
+    + `3`: large type, which supports up to 200,000 SNAT connections.
+    + `4`: extra-large type, which supports up to 1,000,000 SNAT connections.
 
 * `description` - (Optional, String) Specifies the description of the NAT
    gateway. The value contains 0 to 255 characters, and angle brackets (<)

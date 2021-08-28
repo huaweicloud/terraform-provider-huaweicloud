@@ -172,11 +172,11 @@ The following arguments are supported:
 
 * `system_disk_type` - (Optional, String, ForceNew) The system disk type of the server. For HANA, HL1, and HL2 ECSs use co-p1 and uh-l1 disks.
     Changing this creates a new server. Available options are:
-	* `SATA`: common I/O disk type.
-	* `SAS`: high I/O disk type.
-	* `SSD`: ultra-high I/O disk type.
-	* `co-p1`: high I/O(performance-optimized) disk type.
-	* `uh-l1`: ultra-high I/O(latency-optimized) disk type.
+	+ `SATA`: common I/O disk type.
+	+ `SAS`: high I/O disk type.
+	+ `SSD`: ultra-high I/O disk type.
+	+ `co-p1`: high I/O(performance-optimized) disk type.
+	+ `uh-l1`: ultra-high I/O(latency-optimized) disk type.
 
 * `system_disk_size` - (Optional, Int, ForceNew) The system disk size in GB, The value range is 1 to 1024. Changing this creates a new server.
 
@@ -222,11 +222,11 @@ The `data_disks` block supports:
 
 * `type` - (Required, String, ForceNew) The data disk type of the server. For HANA, HL1, and HL2 ECSs use co-p1 and uh-l1 disks.
     Changing this creates a new server. Available options are:
-	* `SATA`: common I/O disk type.
-	* `SAS`: high I/O disk type.
-	* `SSD`: ultra-high I/O disk type.
-	* `co-p1`: high I/O(performance-optimized) disk type.
-	* `uh-l1`: ultra-high I/O(latency-optimized) disk type.
+	+ `SATA`: common I/O disk type.
+	+ `SAS`: high I/O disk type.
+	+ `SSD`: ultra-high I/O disk type.
+	+ `co-p1`: high I/O(performance-optimized) disk type.
+	+ `uh-l1`: ultra-high I/O(latency-optimized) disk type.
 
 * `size` - (Required, Int, ForceNew) The size of the data disk in GB. The value range is 10 to 32768.
     Changing this creates a new server.
@@ -245,9 +245,9 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 30 minute.
-- `update` - Default is 30 minute.
-- `delete` - Default is 30 minute.
+* `create` - Default is 30 minute.
+* `update` - Default is 30 minute.
+* `delete` - Default is 30 minute.
 
 ## Import
 

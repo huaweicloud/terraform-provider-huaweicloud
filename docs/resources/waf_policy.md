@@ -29,13 +29,13 @@ The following arguments are supported:
 
 * `protection_mode` - (Optional, String) Specifies the protective action after a rule is matched. Defaults to `log`.
   Valid values are:
-  * `block`: WAF blocks and logs detected attacks.
-  * `log`: WAF logs detected attacks only.
+  + `block`: WAF blocks and logs detected attacks.
+  + `log`: WAF logs detected attacks only.
 
 * `level` - (Optional, Int) Specifies the protection level. Defaults to `2`. Valid values are:
-  * `1`: low
-  * `2`: medium
-  * `3`: high
+  + `1`: low
+  + `2`: medium
+  + `3`: high
 
 ## Attributes Reference
 
@@ -44,9 +44,9 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The policy ID in UUID format.
 
 * `full_detection` - The detection mode in Precise Protection.
-  * `true`: full detection, Full detection finishes all threat detections before blocking requests that meet Precise
+  + `true`: full detection, Full detection finishes all threat detections before blocking requests that meet Precise
     Protection specified conditions.
-  * `false`: instant detection. Instant detection immediately ends threat detection after blocking a request that meets
+  + `false`: instant detection. Instant detection immediately ends threat detection after blocking a request that meets
     Precise Protection specified conditions.
 
 * `options` - The protection switches. The options object structure is documented below.

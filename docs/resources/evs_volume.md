@@ -54,10 +54,10 @@ The following arguments are supported:
 
 * `volume_type` - (Required, String, ForceNew) Specifies the disk type.
     Currently, the value can be SAS, SSD, GPSSD or ESSD.
-    - SAS: specifies the high I/O disk type.
-    - SSD: specifies the ultra-high I/O disk type.
-    - GPSSD: specifies the general purpose SSD disk type.
-    - ESSD: Extreme SSD type.
+  + SAS: specifies the high I/O disk type.
+  + SSD: specifies the ultra-high I/O disk type.
+  + GPSSD: specifies the general purpose SSD disk type.
+  + ESSD: Extreme SSD type.
 
     If the specified disk type is not available in the AZ, the disk will fail to create.
     Changing this creates a new disk.
@@ -65,8 +65,8 @@ The following arguments are supported:
 * `name` - (Optional, String) Specifies the disk name. The value can contain a maximum of 255 bytes.
 
 * `size` - (Optional, Int) Specifies the disk size, in GB. Its value can be as follows:
-    - System disk: 1 GB to 1024 GB
-    - Data disk: 10 GB to 32768 GB
+  + System disk: 1 GB to 1024 GB
+  + Data disk: 10 GB to 32768 GB
 
     This parameter is mandatory when you create an empty disk. You can specify the parameter value as required within
     the value range.
@@ -142,6 +142,6 @@ resource "huaweicloud_evs_volume" "volume_1" {
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `update` - Default is 3 minute.
-- `delete` - Default is 3 minute.
+* `create` - Default is 10 minute.
+* `update` - Default is 3 minute.
+* `delete` - Default is 3 minute.

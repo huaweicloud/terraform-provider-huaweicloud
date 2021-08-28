@@ -66,9 +66,9 @@ The following arguments are supported:
 * `request_uri` - (Required, String) Specifies the request path of the API. The value must comply with URI specifications.
 
 * `backend_type` - (Required, String) Specifies the service backend type. The value can be:
-    - 'HTTP': the web service backend
-    - 'FUNCTION': the FunctionGraph service backend
-    - 'MOCK': the Mock service backend
+    + 'HTTP': the web service backend
+    + 'FUNCTION': the FunctionGraph service backend
+    + 'MOCK': the Mock service backend
   
 * `http_backend` - (Optional, List) Specifies the configuration when backend_type selected 'HTTP' (documented below).
 * `function_backend` - (Optional, List) Specifies the configuration when backend_type selected 'FUNCTION' (documented below).
@@ -130,9 +130,10 @@ The `backend_parameter` object supports the following:
 * `type` - (Required, String) Specifies the parameter type, which can be 'REQUEST', 'CONSTANT', or 'SYSTEM'.
 * `value` - (Required, String) Specifies the parameter value, which is a string of not more than 255 characters.
     The value varies depending on the parameter type:
-    - 'REQUEST': parameter name in `request_parameter`
-    - 'CONSTANT': real value of the parameter
-    - 'SYSTEM': gateway parameter name
+  + 'REQUEST': parameter name in `request_parameter`
+  + 'CONSTANT': real value of the parameter
+  + 'SYSTEM': gateway parameter name
+
 * `description` - (Optional, String) Specifies the description of the parameter. The description cannot exceed 255 characters.
 
 ## Attributes Reference
@@ -144,8 +145,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Timeouts
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `delete` - Default is 10 minute.
+* `create` - Default is 10 minute.
+* `delete` - Default is 10 minute.
 
 ## Import
 
