@@ -152,7 +152,7 @@ github.com/hashicorp/terraform-plugin-sdk/v2/plugin
 github.com/hashicorp/terraform-plugin-sdk/v2/terraform
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20210827065530-ddbecb051f56
+# github.com/huaweicloud/golangsdk v0.0.0-20210827082222-53346700881a
 ## explicit
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/internal
@@ -362,6 +362,7 @@ github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/domains
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/policies
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/premium_domains
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/premium_instances
+github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/valuelists
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/webtamperprotection_rules
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/whiteblackip_rules
 github.com/huaweicloud/golangsdk/pagination
