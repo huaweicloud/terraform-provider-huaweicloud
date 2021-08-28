@@ -6,7 +6,7 @@ subcategory: "Virtual Private Cloud (VPC)"
 
 Provides an VPC subnet resource. This is an alternative to `huaweicloud_vpc_subnet_v1`
 
-# Example Usage
+## Example Usage
 
 ```hcl
 resource "huaweicloud_vpc" "vpc" {
@@ -35,7 +35,7 @@ resource "huaweicloud_vpc_subnet" "subnet_with_tags" {
 
  ```
 
-# Argument Reference
+## Argument Reference
 
 The following arguments are supported:
 
@@ -74,7 +74,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the subnet.
 
-# Attributes Reference
+## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
@@ -90,7 +90,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `ipv6_gateway` - The IPv6 subnet gateway.
 
-# Import
+## Import
 
 Subnets can be imported using the `subnet id`, e.g.
 
@@ -104,4 +104,3 @@ This resource provides the following timeouts configuration options:
 
 * `create` - Default is 10 minute.
 * `delete` - Default is 10 minute.
-
