@@ -195,7 +195,7 @@ The following arguments are supported:
   Changing this will create a new instance.
   The channels object structure is documented below.
 
-* `couchdb` - (Optional, List, ForceNew) Specifies the NoSQL database used by BCS instance. 
+* `couchdb` - (Optional, List, ForceNew) Specifies the NoSQL database used by BCS instance.
   If omitted, the bcs instance will create a `goleveldb`(File Database) database by default.
   Changing this will create a new instance.
   The couchdb object structure is documented below.

@@ -113,7 +113,7 @@ The following arguments are supported:
 
 	+ `overlay_l2` - An overlay_l2 network built for containers by using Open vSwitch(OVS).
 	+ `vpc-router` - An vpc-router network built for containers by using ipvlan and custom VPC routes.
-	+ `eni` - A Yangtse network built for cce turbo cluster. The container network deeply integrates the native ENI capability of VPC, 
+	+ `eni` - A Yangtse network built for cce turbo cluster. The container network deeply integrates the native ENI capability of VPC,
 	uses the VPC CIDR block to allocate container addresses, and supports direct connections between ELB and containers to provide high performance.
 
 * `container_network_cidr` - (Optional, String, ForceNew) Container network segment. Changing this parameter will create a new cluster resource.
@@ -132,7 +132,7 @@ The following arguments are supported:
 * `authenticating_proxy_ca` - (Optional, String, ForceNew) CA root certificate provided in the authenticating_proxy mode. The CA root certificate
 	is encoded to the Base64 format. Changing this parameter will create a new cluster resource.
 
-* `multi_az` - (Optional, Bool, ForceNew) Enable multiple AZs for the cluster, only when using HA flavors. 
+* `multi_az` - (Optional, Bool, ForceNew) Enable multiple AZs for the cluster, only when using HA flavors.
   Changing this parameter will create a new cluster resource. This parameter and `masters` are alternative
 
 * `masters` - (Optional, List, ForceNew) Advanced configuration of master nodes. Changing this creates a new cluster.

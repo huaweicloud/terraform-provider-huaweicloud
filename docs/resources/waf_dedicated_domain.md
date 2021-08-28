@@ -38,14 +38,14 @@ The following arguments are supported:
 * `domain` - (Required, String, ForceNew) Specifies the domain name to be protected.
   For example, www.example.com or *.example.com. Changing this creates a new domain.
 
-* `server` - (Required, List, ForceNew) The server configuration list of the domain. A maximum of 80 can be configured. 
+* `server` - (Required, List, ForceNew) The server configuration list of the domain. A maximum of 80 can be configured.
   The object structure is documented below.
 
-* `certificate_id` - (Optional, String) Specifies the certificate ID. This parameter is mandatory when `client_protocol` 
+* `certificate_id` - (Optional, String) Specifies the certificate ID. This parameter is mandatory when `client_protocol`
   is set to HTTPS.
   
 * `policy_id` - (Optional, String) Specifies the policy ID associated with the domain.
-  If not specified, a new policy will be created automatically. 
+  If not specified, a new policy will be created automatically.
 
 * `proxy` - (Optional, Bool) Specifies whether a proxy is configured. Default value is `false`.
 
@@ -85,7 +85,7 @@ The following attributes are exported:
 * `certificate_name` - The name of the certificate used by the domain name.
 
 * `access_status` - Whether a domain name is connected to WAF. Valid values are:
-  + `0` - The domain name is not connected to WAF, 
+  + `0` - The domain name is not connected to WAF,
   + `1` - The domain name is connected to WAF.
 
 * `protocol` - The protocol type of the client. The options are `HTTP` and `HTTPS`.

@@ -40,7 +40,7 @@ The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) The region in which to create the cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cluster resource.
 
-* `name` - (Required, String, ForceNew) Cluster name, which must be unique and contains 4 to 64    
+* `name` - (Required, String, ForceNew) Cluster name, which must be unique and contains 4 to 64
   characters, which consist of letters, digits, hyphens(-), or
   underscores(_) only and must start with a letter.
 
@@ -54,7 +54,7 @@ The following arguments are supported:
 
 * `user_name` - (Required, String, ForceNew) Administrator username for logging in to a data warehouse cluster The
   administrator username must:  Consist of lowercase letters, digits,
-  or underscores.  Start with a lowercase letter or an underscore. 
+  or underscores.  Start with a lowercase letter or an underscore.
   Contain 1 to 63 characters.  Cannot be a keyword of the DWS database.
 
 * `vpc_id` - (Required, String, ForceNew) VPC ID, which is used for configuring cluster network
@@ -62,7 +62,7 @@ The following arguments are supported:
 * `user_pwd` - (Required, String, ForceNew) Administrator password for logging in to a data warehouse cluster  A
   password must conform to the following rules:  Contains 8 to 32
   characters.  Cannot be the same as the username or the username
-  written in reverse order.  Contains three types of the following: 
+  written in reverse order.  Contains three types of the following:
   Lowercase letters  Uppercase letters  Digits  Special characters
   ~!@#%^&*()-_=+|[{}];:,<.>/?
 
@@ -93,7 +93,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `created` - Cluster creation time. The format is     ISO8601:YYYY-MM-DDThh:mm:ssZ
 
-* `endpoints` - View the private network connection information about the    
+* `endpoints` - View the private network connection information about the
   cluster. Structure is documented below.
 
 * `id` - Cluster ID
@@ -106,8 +106,8 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - Cluster status, which can be one of the following:  CREATING AVAILABLE  UNAVAILABLE  CREATION FAILED
 
 * `sub_status` - Sub-status of clusters in the AVAILABLE state. The value can be one
-  of the following:  NORMAL  READONLY  REDISTRIBUTING 
-  REDISTRIBUTION-FAILURE  UNBALANCED  UNBALANCED | READONLY  DEGRADED 
+  of the following:  NORMAL  READONLY  REDISTRIBUTING
+  REDISTRIBUTION-FAILURE  UNBALANCED  UNBALANCED | READONLY  DEGRADED
   DEGRADED | READONLY  DEGRADED | UNBALANCED  UNBALANCED |
   REDISTRIBUTING  UNBALANCED | REDISTRIBUTION-FAILURE  READONLY |
   REDISTRIBUTION-FAILURE  UNBALANCED | READONLY |
@@ -115,12 +115,12 @@ In addition to all arguments above, the following attributes are exported:
   UNBALANCED | REDISTRIBUTION-FAILURE  DEGRADED | UNBALANCED | READONLY
   | REDISTRIBUTION-FAILURE  DEGRADED | UNBALANCED | READONLY
 
-* `task_status` - Cluster management task. The value can be one of the following: 
-  RESTORING  SNAPSHOTTING  GROWING  REBOOTING  SETTING_CONFIGURATION 
-  CONFIGURING_EXT_DATASOURCE  DELETING_EXT_DATASOURCE  REBOOT_FAILURE 
+* `task_status` - Cluster management task. The value can be one of the following:
+  RESTORING  SNAPSHOTTING  GROWING  REBOOTING  SETTING_CONFIGURATION
+  CONFIGURING_EXT_DATASOURCE  DELETING_EXT_DATASOURCE  REBOOT_FAILURE
   RESIZE_FAILURE
 
-* `updated` - Last modification time of a cluster. The format is    
+* `updated` - Last modification time of a cluster. The format is
   ISO8601:YYYY-MM-DDThh:mm:ssZ
 
 * `version` - Data warehouse version
@@ -130,13 +130,13 @@ The `endpoints` block contains:
 * `connect_info` - (Optional, String) Private network connection information
 
 * `jdbc_url` - (Optional, String)
-  JDBC URL. The following is the default format:             
+  JDBC URL. The following is the default format:
   jdbc:postgresql://< connect_info>/<YOUR_DATABASE_NAME>
 
 The `public_endpoints` block contains:
 
 * `jdbc_url` - (Optional, String)
-  JDBC URL. The following is the default format:             
+  JDBC URL. The following is the default format:
   jdbc:postgresql://< public_connect_info>/<YOUR_DATABASE_NAME>
 
 * `public_connect_info` - (Optional, String)

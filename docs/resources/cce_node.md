@@ -245,9 +245,9 @@ $ terraform import huaweicloud_cce_node.my_node 5c20fdad-7288-11eb-b817-0255ac10
 
 Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`, `fixed_ip`, `eip_id`, `preinstall`, `postinstall`, `iptype`, `bandwidth_charge_mode`, `bandwidth_size`, 
+`password`, `fixed_ip`, `eip_id`, `preinstall`, `postinstall`, `iptype`, `bandwidth_charge_mode`, `bandwidth_size`,
 `share_type`, `max_pods`, `extend_param`, `labels`, `taints` and arguments for pre-paid.
-It is generally recommended running `terraform plan` after importing a node. 
+It is generally recommended running `terraform plan` after importing a node.
 You can then decide if changes should be applied to the node, or the resource definition should be updated to align
 with the node. Also you can ignore changes as below.
 ```

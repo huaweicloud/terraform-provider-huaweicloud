@@ -145,7 +145,7 @@ The following arguments are supported:
 
 * `volume` - (Required, List) Specifies the volume information. Structure is documented below.
 
-* `fixed_ip` - (Optional, String, ForceNew) Specifies an intranet floating IP address of RDS DB instance. 
+* `fixed_ip` - (Optional, String, ForceNew) Specifies an intranet floating IP address of RDS DB instance.
   Changing this parameter will create a new resource.
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
@@ -163,10 +163,10 @@ The following arguments are supported:
 * `param_group_id` - (Optional, String, ForceNew) Specifies the parameter group ID.
   Changing this parameter will create a new resource.
 
-* `time_zone` - (Optional, String, ForceNew) Specifies the UTC time zone. 
-  For MySQL and PostgreSQL Chinese mainland site and international site use UTC by default. 
-  The value ranges from UTC-12:00 to UTC+12:00 at the full hour. 
-  For Microsoft SQL Server international site use UTC by default and Chinese mainland site use China Standard Time. 
+* `time_zone` - (Optional, String, ForceNew) Specifies the UTC time zone.
+  For MySQL and PostgreSQL Chinese mainland site and international site use UTC by default.
+  The value ranges from UTC-12:00 to UTC+12:00 at the full hour.
+  For Microsoft SQL Server international site use UTC by default and Chinese mainland site use China Standard Time.
   The time zone is expressed as a character string, refer to
   [HuaweiCloud Document](https://support.huaweicloud.com/intl/en-us/api-rds/rds_01_0002.html#rds_01_0002__table613473883617).
 

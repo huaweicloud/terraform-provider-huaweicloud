@@ -46,7 +46,7 @@ EOF
 
 The following arguments are supported:
 
-* `name` - (Required, String) Name of the custom policy. 
+* `name` - (Required, String) Name of the custom policy.
 
 * `description` - (Required, String) Description of the custom policy.
 

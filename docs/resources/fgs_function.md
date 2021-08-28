@@ -7,7 +7,7 @@ subcategory: "FunctionGraph"
 Manages a Function resource within HuaweiCloud.
 This is an alternative to `huaweicloud_fgs_function_v2`
 
-## Example Usage 
+## Example Usage
 
 ### With base64 func code
 

@@ -54,14 +54,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `size` - Specifies the backup capacity.
 
-* volume_backups 
+* volume_backups
 
   + `space_saving_ratio` - Specifies the space saving rate.
 
   + `volume_backups` block supports the following arguments:
 
   + `status` -  Status of backup Volume.
-    
+
   + `space_saving_ratio` -  Specifies space saving rate.
 
   + `name` -  It gives EVS disk backup name.

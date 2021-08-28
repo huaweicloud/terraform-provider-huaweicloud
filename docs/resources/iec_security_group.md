@@ -21,7 +21,7 @@ resource "huaweicloud_iec_security_group" "secgroup_test" {
 The following arguments are supported:
 
 * `name` - (Required, String, ForceNew) Specifies the name for the security group.
-    This parameter can contain a maximum of 64 characters, which may consist of 
+    This parameter can contain a maximum of 64 characters, which may consist of
     letters, digits, dot (.), underscores (_), and hyphens (-).
     The iec security group allowed to have the same name.
     Changing this parameter will creates a new iec security group resource.
@@ -37,7 +37,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - A resource ID in UUID format.
 
-* `security_group_rules` - An Array of one or more security group rules. 
+* `security_group_rules` - An Array of one or more security group rules.
     The security_group_rules object structure is documented below.
 
 The `security_group_rules` block supports:

@@ -48,7 +48,7 @@ The following arguments are supported:
     Changing this creates a new security group rule.
 
 * `description` - (Optional, String, ForceNew) Specifies the supplementary
-    information about the networking security group rule. 
+    information about the networking security group rule.
     This parameter can contain a maximum of 255 characters and cannot contain
     angle brackets (< or >).
     Changing this creates a new security group rule.

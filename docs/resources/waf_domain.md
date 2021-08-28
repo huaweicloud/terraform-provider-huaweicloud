@@ -71,7 +71,7 @@ The following arguments are supported:
 
 The `server` block supports:
 
-* `client_protocol` - (Required, String) Protocol type of the client. 
+* `client_protocol` - (Required, String) Protocol type of the client.
   The options include `HTTP` and `HTTPS`.
 
 * `server_protocol` - (Required, String) Protocol used by WAF to forward client requests to the server.

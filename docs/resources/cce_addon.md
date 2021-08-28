@@ -11,7 +11,7 @@ resource "huaweicloud_cce_addon" "addon_test" {
     template_name = "metrics-server"
     version       = "1.0.0"
 }
-``` 
+```
 
 ## Argument Reference
 The following arguments are supported:

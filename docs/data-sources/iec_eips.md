@@ -42,4 +42,4 @@ The `eips` block supports:
   * `private_ip` - The address of private IP.
   * `bandwitch_name` - The name of bandwidth.
   * `bandwitch_size` - The size of bandwidth.
-  * `bandwitch_share_type` - Whether the bandwidth is shared or exclusive. 
+  * `bandwitch_share_type` - Whether the bandwidth is shared or exclusive.

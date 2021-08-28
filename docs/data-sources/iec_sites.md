@@ -17,15 +17,15 @@ data "huaweicloud_iec_sites" "iec_sites" {}
 ## Argument Reference
 
 The following arguments are supported:
- 
+
 * `area` - (Optional, String) Specifies the area of the iec sites located.
 
-* `province` - (Optional, String) Specifies the province of the iec sites 
+* `province` - (Optional, String) Specifies the province of the iec sites
     located.
 
-* `city` - (Optional, String) Specifies the city of the iec sites located. 
+* `city` - (Optional, String) Specifies the city of the iec sites located.
 
-* `operator` - (Optional, String) Specifies the operator supported of the iec 
+* `operator` - (Optional, String) Specifies the operator supported of the iec
     sites.
 
 ## Attributes Reference

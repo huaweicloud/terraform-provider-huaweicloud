@@ -23,7 +23,7 @@ The following arguments are supported:
 
 * `region` - (Optional, String) The region in which to obtain the cce node pools.
   If omitted, the provider-level region will be used.
- 
+
 * `cluster_id` - (Required, String) Specifies the id of container cluster.
 
 * `name` - (Optional, String) Specifies the name of the node pool.
@@ -46,7 +46,7 @@ In addition to all arguments above, the following attributes are exported:
 * `flavor_id` - The flavor id.
 
 * `type` - Node Pool type.
- 
+
 * `availability_zone` - The name of the available partition (AZ).
 
 * `os` - Operating System of the node.
@@ -80,15 +80,15 @@ In addition to all arguments above, the following attributes are exported:
 The `root_volume` block supports:
 
 * `size` - Disk size in GB.
-    
+
 * `volumetype` - Disk type.
-    
-* `extend_params` - Disk expansion parameters. 
+
+* `extend_params` - Disk expansion parameters.
 
 The `data_volumes` block supports:
-    
+
 * `size` - Disk size in GB.
-    
+
 * `volumetype` - Disk type.
-    
-* `extend_params` - Disk expansion parameters. 
+
+* `extend_params` - Disk expansion parameters.

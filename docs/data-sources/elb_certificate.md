@@ -19,13 +19,13 @@ data "huaweicloud_elb_certificate" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to obtain the Dedicated ELB certificate. 
+* `region` - (Optional, String) The region in which to obtain the Dedicated ELB certificate.
   If omitted, the provider-level region will be used.
- 
-* `name` - (Required, String) The name of certificate. 
+
+* `name` - (Required, String) The name of certificate.
   The value is case sensitive and does not supports fuzzy matching.
   
-  -> **NOTE:** The certificate name is not unique. 
+  -> **NOTE:** The certificate name is not unique.
   Only returns the last created one when matched multiple certificates.
 
 

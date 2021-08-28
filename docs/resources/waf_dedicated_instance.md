@@ -36,13 +36,13 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the WAF dedicated instance.
   If omitted, the provider-level region will be used. Changing this setting will create a new instance.
   
-* `name` - (Required, String) The name of WAF dedicated instance. Duplicate names are allowed, we suggest to keeping the 
+* `name` - (Required, String) The name of WAF dedicated instance. Duplicate names are allowed, we suggest to keeping the
   name unique.
 
-* `available_zone` - (Required, String, ForceNew) The available zone names for the dedicated instances. It can be obtained through 
+* `available_zone` - (Required, String, ForceNew) The available zone names for the dedicated instances. It can be obtained through
   this data source `huaweicloud_availability_zones`. Changing this will create a new instance.
 
-* `specification_code` - (Required, String, ForceNew) The specification code of instance. 
+* `specification_code` - (Required, String, ForceNew) The specification code of instance.
   Different specifications have different throughput. Changing this will create a new instance. Values are:
   + `waf.instance.professional` - The professional edition, throughput: 100 Mbit/s; QPS: 2,000 (Reference only).
   + `waf.instance.enterprise` - The enterprise edition, throughput: 500 Mbit/s; QPS: 10,000 (Reference only).
@@ -50,7 +50,7 @@ The following arguments are supported:
 * `ecs_flavor` - (Required, String, ForceNew) The flavor of the ECS used by the WAF instance. Flavors can be obtained
   through this data source `huaweicloud_compute_flavors`. Changing this will create a new instance.
 
-  -> **NOTE:** If the instance specification is the professional edition, the ECS specification should be 2U4G. If the 
+  -> **NOTE:** If the instance specification is the professional edition, the ECS specification should be 2U4G. If the
    instance specification is the enterprise edition, the ECS specification should be 8U16G.
 
 * `vpc_id` - (Required, String, ForceNew) The VPC id of WAF dedicated instance.

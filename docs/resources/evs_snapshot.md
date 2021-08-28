@@ -5,7 +5,7 @@ subcategory: "Elastic Volume Service (EVS)"
 # huaweicloud_evs_snapshot
 
 Provides an EVS snapshot resource.
- 
+
 # Example Usage
 
 ```hcl
@@ -54,7 +54,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `size` - The size of the snapshot in GB.
 
- 
+
 # Import
 
 EVS snapshot can be imported using the `snapshot id`, e.g.

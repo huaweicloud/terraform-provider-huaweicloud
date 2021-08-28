@@ -89,7 +89,7 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a backup policy ID.
- 
+
 * `policy_resource_count` - Specifies the number of volumes associated with the backup policy.
 
 ## Timeouts
