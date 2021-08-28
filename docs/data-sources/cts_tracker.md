@@ -29,7 +29,7 @@ The following arguments are supported:
 
 * `bucket_name` - (Optional, String) The OBS bucket name for a tracker.
 
-* `file_prefix_name` - (Optional, String) The prefix of a log that needs to be stored in an OBS bucket. 
+* `file_prefix_name` - (Optional, String) The prefix of a log that needs to be stored in an OBS bucket.
 
 * `status` - (Optional, String) Status of a tracker.
 

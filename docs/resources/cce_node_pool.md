@@ -52,7 +52,7 @@ The following arguments are supported:
 * `flavor_id` - (Required, String, ForceNew) Specifies the flavor id. Changing this parameter will create a new resource.
 
 *  `type` - (Optional, String, ForceNew) Node Pool type. Possible values are: "vm" and "ElasticBMS".
- 
+
 * `availability_zone` - (Optional, String, ForceNew) specify the name of the available partition (AZ). Default value is random
     to create nodes in a random AZ in the node pool.
     Changing this parameter will create a new resource.
@@ -165,7 +165,7 @@ $ terraform import huaweicloud_cce_node_pool.my_node_pool 5c20fdad-7288-11eb-b81
 Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
 API response, security or some other reason. The missing attributes include:
 `password`, `subnet_id`, `preinstall`, `posteinstall`, `taints`.
-It is generally recommended running `terraform plan` after importing a node pool. 
+It is generally recommended running `terraform plan` after importing a node pool.
 You can then decide if changes should be applied to the node pool, or the resource definition should be updated to align
 with the node pool. Also you can ignore changes as below.
 ```

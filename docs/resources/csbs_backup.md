@@ -50,7 +50,7 @@ In addition to all arguments above, the following attributes are exported:
 * `volume_backups` block supports the following arguments:
 
   + `status` -  Status of backup Volume.
-    
+
   + `space_saving_ratio` -  Specifies space saving rate.
 
   + `name` -  It gives EVS disk backup name.
@@ -74,7 +74,7 @@ In addition to all arguments above, the following attributes are exported:
   + `id` -  Specifies Cinder backup ID.
 
   + `size` -  Specifies accumulated size (MB) of backups.
-    
+
 * `vm_metadata` block supports the following arguments:
 
   + `name` - Name of backup data.

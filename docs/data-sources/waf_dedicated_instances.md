@@ -21,7 +21,7 @@ data "huaweicloud_waf_dedicated_instances" "instances" {
 The following arguments are supported:
 
 * `region` - (Optional, String) The region in which to query the WAF dedicated instance.
-  If omitted, the provider-level region will be used. 
+  If omitted, the provider-level region will be used.
 
 * `id` - (Optional, String) The id of WAF dedicated instance.
 
@@ -37,11 +37,11 @@ The `instances` block supports:
 
 * `id` - The id of WAF dedicated instance.
 
-* `name` - The name of WAF dedicated instance. 
+* `name` - The name of WAF dedicated instance.
 
 * `available_zone` - The available zone names for the WAF dedicated instances.
 
-* `specification_code` - The specification code of instance. 
+* `specification_code` - The specification code of instance.
   Different specifications have different throughput. Values are:
   * `waf.instance.professional` - The professional edition, throughput: 100 Mbit/s; QPS: 2,000 (Reference only).
   * `waf.instance.enterprise` - The enterprise edition, throughput: 500 Mbit/s; QPS: 10,000 (Reference only).

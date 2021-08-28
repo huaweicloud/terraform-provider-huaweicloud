@@ -4,8 +4,8 @@ subcategory: "SSL Certificate Manager (SCM)"
 
 # huaweicloud_scm_certificate
 
-SSL Certificate Manager (SCM) allows you to purchase Secure Sockets Layer (SSL) certificates from 
-the world's leading digital certificate authorities (CAs), upload existing SSL certificates, and 
+SSL Certificate Manager (SCM) allows you to purchase Secure Sockets Layer (SSL) certificates from
+the world's leading digital certificate authorities (CAs), upload existing SSL certificates, and
 centrally manage all your SSL certificates in one place.
 
 ## Example Usage

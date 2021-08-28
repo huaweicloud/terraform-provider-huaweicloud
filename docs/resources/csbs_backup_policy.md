@@ -65,7 +65,7 @@ The following arguments are supported:
 * `resource` block supports the following arguments:
 
     + `id` - (Required, String) Specifies the ID of the object to be backed up.
-    
+
     + `type` - (Required, String) Entity object type of the backup object. If the type is VMs, the value is **OS::Nova::Server**.
 
     + `name` - (Required, String) Specifies backup object name.

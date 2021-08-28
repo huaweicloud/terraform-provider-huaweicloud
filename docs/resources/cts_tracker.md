@@ -32,7 +32,7 @@ The following arguments are supported:
 
 * `bucket_name` - (Required, String) The OBS bucket name for a tracker.
 
-* `file_prefix_name` - (Optional, String) The prefix of a log that needs to be stored in an OBS bucket. 
+* `file_prefix_name` - (Optional, String) The prefix of a log that needs to be stored in an OBS bucket.
 
 * `is_support_smn` - (Required, Bool) Specifies whether SMN is supported. When the value is false, topic_id and operations can be left empty.
 
