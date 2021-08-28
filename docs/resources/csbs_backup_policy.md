@@ -47,7 +47,7 @@ The following arguments are supported:
 * `scheduled_operation` block supports the following arguments:
 
     + `name` - (Optional, String) Specifies Scheduling period name.The value consists of 1 to 255 characters and can contain only letters, digits, underscores (_), and hyphens (-).
-    
+
     + `description` - (Optional, String) Specifies Scheduling period description.The value consists of 0 to 255 characters and must not contain a greater-than sign (>) or less-than sign (<).
 
     + `enabled` - (Optional, Bool) Specifies whether the scheduling period is enabled. Default value is **true**

@@ -41,7 +41,7 @@ resource "huaweicloud_identity_group_membership" "membership_1" {
 
 The following arguments are supported:
 
-* `group` - (Required, String, ForceNew) The group ID of this membership. 
+* `group` - (Required, String, ForceNew) The group ID of this membership.
 
 * `users` - (Required, List) A List of user IDs to associate to the group.
 

@@ -77,7 +77,7 @@ The following arguments are supported:
 
 * `sharding_num` - (Optional, Int) The Sharding num. Values: 1~9. The default value is 3.
 
-* `coordinator_num` - (Optional, Int) The Coordinator num. Values: 1~9. The default value is 3. 
+* `coordinator_num` - (Optional, Int) The Coordinator num. Values: 1~9. The default value is 3.
   The value must not be greater than twice value of `sharding_num`.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id.

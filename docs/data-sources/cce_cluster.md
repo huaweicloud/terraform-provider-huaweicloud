@@ -25,7 +25,7 @@ The following arguments are supported:
 * `region` - (Optional, String) The region in which to obtain the cce clusters. If omitted, the provider-level region will be used.
 
 * `name` -  (Optional, String)The Name of the cluster resource.
- 
+
 * `id` - (Optional, String) The ID of container cluster.
 
 * `status` - (Optional, String) The state of the cluster.

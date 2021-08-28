@@ -36,5 +36,5 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a data source ID in UUID format.
 * `status` - Indicates the status of the port.
-* `site_id` - Indicates the ID of the IEC site. 
+* `site_id` - Indicates the ID of the IEC site.
 * `security_groups` - Indicates the list of security group IDs applied on the port.

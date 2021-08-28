@@ -31,26 +31,26 @@ resource "huaweicloud_iec_vpc_subnet" "subnet_test" {
 The following arguments are supported:
 
 * `name` - (Required, String) Specifies the name of the iec vpc subnet.
-    The value is a string of 1 to 64 characters that can contain letters, digits, 
+    The value is a string of 1 to 64 characters that can contain letters, digits,
     underscores(_), and hyphens(-).
-    
-* `cidr` - (Required, String, ForceNew) Specifies the network segment on which the 
-    subnet resides. The value must be in CIDR format and within the CIDR block of 
+
+* `cidr` - (Required, String, ForceNew) Specifies the network segment on which the
+    subnet resides. The value must be in CIDR format and within the CIDR block of
     the iec vpc. Changing this parameter creates a new subnet resource.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the iec __CUSTOMER__ 
-    vpc to which the subnet belongs. 
+* `vpc_id` - (Required, String, ForceNew) Specifies the ID of the iec __CUSTOMER__
+    vpc to which the subnet belongs.
     Changing this parameter creates a new subnet resource.
 
-* `site_id` - (Required, String, ForceNew) Specifies the ID of the iec site. 
+* `site_id` - (Required, String, ForceNew) Specifies the ID of the iec site.
     Changing this parameter creates a new subnet resource.
 
-* `gateway_ip` - (Required, String, ForceNew)  Specifies the gateway of the subnet. 
-    The value must be a valid IP address and in the subnet segment. 
+* `gateway_ip` - (Required, String, ForceNew)  Specifies the gateway of the subnet.
+    The value must be a valid IP address and in the subnet segment.
     Changing this parameter creates a new subnet resource.
 
 * `dns_list` - (Optional, List) Specifies the DNS server address list of a subnet.
-    These DNS server address must be valid IP addresses. 
+    These DNS server address must be valid IP addresses.
 
 ## Attributes Reference
 
@@ -60,7 +60,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `dhcp_enable` - The status of subnet DHCP is enabled or not.
 
-* `site_info` - The located information of the iec site. It contains 
+* `site_info` - The located information of the iec site. It contains
     area, province and city.
 
 * `status` - The status of the subnet.

@@ -47,9 +47,9 @@ The `filter_tags` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `start_time` - Specifies the start time of the backup job.The value is in the HH:mm format.                                                         
+* `start_time` - Specifies the start time of the backup job.The value is in the HH:mm format.
 
-* `retain_first_backup` - Specifies whether to retain the first backup in the current month. 
+* `retain_first_backup` - Specifies whether to retain the first backup in the current month.
 
 * `rentention_num` - Specifies number of retained backups.
 
@@ -59,6 +59,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The `tags` block contains:
 
-* `key` - Specifies the tag key. 
+* `key` - Specifies the tag key.
 
-* `value` - Specifies the tag value. 
+* `value` - Specifies the tag value.

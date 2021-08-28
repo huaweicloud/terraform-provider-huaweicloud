@@ -131,7 +131,7 @@ installed, the `admin_pass` field becomes invalid.
 	+ `5_bgp`: dynamic BGP.
 	+ `5_sbgp `: static BGP.
 
-* `eip_charge_mode` - (Optional, String, ForceNew) Elastic IP billing type. If the bandwidth billing mode is bandwidth, 
+* `eip_charge_mode` - (Optional, String, ForceNew) Elastic IP billing type. If the bandwidth billing mode is bandwidth,
     both prePaid and postPaid are supported. If the bandwidth billing mode is traffic, only postPaid is supported.
     Changing this creates a new instance. Available options are:
 	+ `prePaid`: indicates the yearly/monthly billing mode.

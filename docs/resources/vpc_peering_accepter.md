@@ -66,7 +66,7 @@ The following arguments are supported:
 
 
 ## Removing huaweicloud_vpc_peering_connection_accepter from your configuration
- 
+
 huaweicloud allows a cross-tenant VPC Peering Connection to be deleted from either the requester's or accepter's side. However, Terraform only allows the VPC Peering Connection to be deleted from the requester's side by removing the corresponding `huaweicloud_vpc_peering_connection` resource from your configuration. Removing a `huaweicloud_vpc_peering_connection_accepter` resource from your configuration will remove it from your state file and management, but will not destroy the VPC Peering Connection.
 
 ## Attributes Reference

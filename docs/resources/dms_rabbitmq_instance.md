@@ -70,7 +70,7 @@ The following arguments are supported:
 * `storage_space` - (Required, Int, ForceNew) Specifies the message storage space. Value range:
   + Single-node RabbitMQ instance: 100–90000 GB
   + Cluster RabbitMQ instance: 100 GB x Number of nodes to 90000 GB, 200 GB x Number of nodes to 90000 GB, and 300 GB x Number of nodes to 90000 GB
-    
+
     Changing this creates a new instance resource.
 
 * `storage_spec_code` - (Required, String, ForceNew) Specifies the storage I/O specification. Value range:
@@ -95,7 +95,7 @@ The following arguments are supported:
     A username consists of 4 to 64 characters and supports only letters, digits, and hyphens (-).
     Changing this creates a new instance resource.
 
-* `password` - (Required, String, ForceNew) Specifies the password of the DMS rabbitmq instance. A password 
+* `password` - (Required, String, ForceNew) Specifies the password of the DMS rabbitmq instance. A password
     must meet the following complexity requirements: Must be 8 to 32 characters long.
     Must contain at least 2 of the following character types: lowercase letters, uppercase
 	letters, digits, and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
@@ -106,7 +106,7 @@ The following arguments are supported:
     The start time and end time of a maintenance time window must indicate the time segment of
 	a supported maintenance time window. The start time must be set to 22:00, 02:00, 06:00, 10:00,
     14:00, or 18:00. Parameters `maintain_begin` and `maintain_end` must be set in pairs. If
-    parameter `maintain_begin` is left blank, parameter `maintain_end` is also blank. In this case, 
+    parameter `maintain_begin` is left blank, parameter `maintain_end` is also blank. In this case,
     the system automatically allocates the default start time 02:00.
 
 * `maintain_end` - (Optional, String) Specifies the time at which a maintenance time window ends.

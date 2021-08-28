@@ -128,7 +128,7 @@ The `datastore` block supports:
 * `version` - (Required, String, ForceNew) Specifies the DB instance version. For the Community Edition,
   the valid values are 3.2, 3.4, or 4.0. For the Enhanced Edition, only 3.4 is supported now.
 
-* `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine of the DB instance. 
+* `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine of the DB instance.
   DDS Community Edition supports wiredTiger engine, and the Enhanced Edition supports rocksDB engine.
 
 The `flavor` block supports:

@@ -41,7 +41,7 @@ The following arguments are supported:
 * `server_type` (Required, String, ForceNew) - Specifies the backend resource type. The value can be **VM**, **VIP** or **LB**.
 
 * `port_id` (Required, String, ForceNew) - Specifies the ID for identifying the backend resource of the VPC endpoint service.
-    + If the `server_type` is **VM**, the value is the NIC ID of the ECS where the VPC endpoint service is deployed. 
+    + If the `server_type` is **VM**, the value is the NIC ID of the ECS where the VPC endpoint service is deployed.
     + If the `server_type` is **VIP**, the value is the NIC ID of the physical server where virtual resources are created.
     + If the `server_type` is **LB**, the value is the ID of the port bound to the private IP address of the load balancer.
 

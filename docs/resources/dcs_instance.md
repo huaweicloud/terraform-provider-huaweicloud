@@ -98,10 +98,10 @@ The following arguments are supported:
 
 * `capacity` - (Required, Float, ForceNew) Specifies the cache capacity. Unit: GB.
   + Redis4.0 and Redis5.0: Stand-alone and active/standby type instance values:
-    0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64. Cluster instance specifications 
+    0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64. Cluster instance specifications
     support 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024.
 
-  + Redis3.0: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64. 
+  + Redis3.0: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64.
     Proxy cluster instance specifications support 64, 128, 256, 512, and 1024.
 
   + Memcached: Stand-alone and active/standby type instance values: 2, 4, 8, 16, 32, 64.
@@ -129,7 +129,7 @@ The following arguments are supported:
     If the whitelist is disabled, all IP addresses connected to the VPC can access the instance.
 
 * `available_zones` - (Required, List, ForceNew) Specifies IDs of the AZs where cache nodes reside.
-    If you are creating active/standby, Proxy cluster, and Cluster cluster instances to support 
+    If you are creating active/standby, Proxy cluster, and Cluster cluster instances to support
     cross-zone deployment, you can specify the standby zone for the standby node.
     Changing this creates a new instance.
 

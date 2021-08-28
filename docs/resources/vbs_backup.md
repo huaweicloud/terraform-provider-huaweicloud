@@ -78,7 +78,7 @@ In addition to all arguments above, the following attributes are exported:
 * `object_count` - Number of objects on Object Storage Service (OBS) for the disk data.
 
 * `service_metadata` - The metadata of the vbs backup.
- 
+
 # Import
 
 VBS Backup can be imported using the `backup id`, e.g.

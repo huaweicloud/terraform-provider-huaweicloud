@@ -80,7 +80,7 @@ The following arguments are supported:
   + When bandwidth is 300MB: 1200–90000 GB
   + When bandwidth is 600MB: 2400–90000 GB
   + When bandwidth is 1200MB: 4800–90000 GB
-    
+
     Changing this creates a new instance resource.
 
 * `storage_spec_code` - (Required, String, ForceNew) Specifies the storage I/O specification. Value range:
@@ -117,7 +117,7 @@ The following arguments are supported:
     A username consists of 4 to 64 characters and supports only letters, digits, and hyphens (-).
     Changing this creates a new instance resource.
 
-* `password` - (Optional, String, ForceNew) Specifies the password of the DMS kafka instance. A password 
+* `password` - (Optional, String, ForceNew) Specifies the password of the DMS kafka instance. A password
     must meet the following complexity requirements: Must be 8 to 32 characters long.
     Must contain at least 2 of the following character types: lowercase letters, uppercase
 	letters, digits, and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
@@ -128,7 +128,7 @@ The following arguments are supported:
     The start time and end time of a maintenance time window must indicate the time segment of
 	a supported maintenance time window. The start time must be set to 22:00, 02:00, 06:00, 10:00,
     14:00, or 18:00. Parameters `maintain_begin` and `maintain_end` must be set in pairs. If
-    parameter `maintain_begin` is left blank, parameter `maintain_end` is also blank. In this case, 
+    parameter `maintain_begin` is left blank, parameter `maintain_end` is also blank. In this case,
     the system automatically allocates the default start time 02:00.
 
 * `maintain_end` - (Optional, String) Specifies the time at which a maintenance time window ends.
@@ -158,7 +158,7 @@ The following arguments are supported:
     Changing this creates a new instance resource.
 
 * `enable_auto_topic` - (Optional, Bool, ForceNew) Specifies whether to enable automatic topic creation.
-    If automatic topic creation is enabled, a topic will be automatically created with 3 partitions and 3 replicas 
+    If automatic topic creation is enabled, a topic will be automatically created with 3 partitions and 3 replicas
     when a message is produced to or consumed from a topic that does not exist.
     Changing this creates a new instance resource.
 

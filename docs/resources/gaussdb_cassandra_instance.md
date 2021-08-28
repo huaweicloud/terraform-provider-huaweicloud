@@ -62,14 +62,14 @@ The following arguments are supported:
   length and start with a letter. It is case-sensitive and can contain
   only letters, digits, hyphens (-), and underscores (_).
 
-* `flavor` - (Required, String) Specifies the instance specifications. For details, 
+* `flavor` - (Required, String) Specifies the instance specifications. For details,
   see [DB Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-geminidb/geminidb_01_0006.html)
 
 * `node_num` - (Optional, Int) Specifies the number of nodes, ranges from 3 to 12. Defaults to 3.
 
 * `volume_size` - (Required, Int) Specifies the storage space in GB. The value must be a multiple of 10.
   For a GaussDB Cassandra DB instance, the minimum storage space is 100 GB, and the maximum
-  storage space is related to the instance performance specifications. For details, 
+  storage space is related to the instance performance specifications. For details,
   see [DB Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-geminidb/geminidb_01_0006.html)
 
 * `password` - (Required, String) Specifies the database password. The value must be 8 to 32 characters

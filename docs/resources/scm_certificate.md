@@ -74,11 +74,11 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the SCM certificate resource.
     If omitted, the provider-level region will be used.
     Changing this setting will push a new certificate.
-* `name` - (Optional, String, ForceNew) Human-readable name for the Certificate. 
+* `name` - (Optional, String, ForceNew) Human-readable name for the Certificate.
     Does not have to be unique. The value contains a maximum of 63 characters.
 * `certificate` - (Required, String, ForceNew) The public encrypted key of the Certificate, PEM format.
-* `certificate_chain` - (Required, String, ForceNew) The chain of the certificate. 
-    It can be extracted from the _server.crt_ file in the Nginx directory, 
+* `certificate_chain` - (Required, String, ForceNew) The chain of the certificate.
+    It can be extracted from the _server.crt_ file in the Nginx directory,
     usually after the second paragraph is the certificate chain.
 * `private_key` - (Required, String, ForceNew) The private encrypted key of the Certificate, PEM format.
 * `target` - (Optional, List) The service to which the certificate needs to be pushed.

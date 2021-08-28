@@ -51,11 +51,11 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the supplementary information about the network ACL.
     This parameter can contain a maximum of 255 characters and cannot contain angle brackets (< or >).
 
-* `inbound_rules` - (Optional, List)  A list of the IDs of ingress rules associated with the network ACL. 
+* `inbound_rules` - (Optional, List)  A list of the IDs of ingress rules associated with the network ACL.
 
-* `outbound_rules` - (Optional, List) A list of the IDs of egress rules associated with the network ACL. 
+* `outbound_rules` - (Optional, List) A list of the IDs of egress rules associated with the network ACL.
 
-* `subnets` - (Optional, List) A list of the IDs of networks associated with the network ACL. 
+* `subnets` - (Optional, List) A list of the IDs of networks associated with the network ACL.
 
 ## Attributes Reference
 
@@ -65,7 +65,7 @@ In addition to all arguments above, the following attributes are exported:
 * `inbound_policy_id` - The ID of the ingress firewall policy for the network ACL.
 * `outbound_policy_id` - The ID of the egress firewall policy for the network ACL.
 * `ports` - A list of the port IDs of the subnet gateway.
-* `status` - The status of the network ACL. 
+* `status` - The status of the network ACL.
 
 ## Timeouts
 This resource provides the following timeouts configuration options:

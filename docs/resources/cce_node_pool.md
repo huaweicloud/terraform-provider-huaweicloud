@@ -3,7 +3,7 @@ subcategory: "Cloud Container Engine (CCE)"
 ---
 
 # huaweicloud_cce_node_pool
-Add a node pool to a container cluster. 
+Add a node pool to a container cluster.
 
 ## Example Usage
 
@@ -36,7 +36,7 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
     volumetype = "SAS"
   }
 }
-``` 
+```
 
 ## Argument Reference
 The following arguments are supported:
@@ -53,7 +53,7 @@ The following arguments are supported:
 
 *  `type` - (Optional, String, ForceNew) Node Pool type. Possible values are: "vm" and "ElasticBMS".
  
-* `availability_zone` - (Optional, String, ForceNew) specify the name of the available partition (AZ). Default value is random 
+* `availability_zone` - (Optional, String, ForceNew) specify the name of the available partition (AZ). Default value is random
     to create nodes in a random AZ in the node pool.
     Changing this parameter will create a new resource.
 
@@ -116,29 +116,29 @@ The following arguments are supported:
 The `root_volume` block supports:
 
 * `size` - (Required, Int) Disk size in GB.
-    
+
 * `volumetype` - (Required, String) Disk type.
-    
-* `extend_params` - (Optional, Map) Disk expansion parameters. 
+
+* `extend_params` - (Optional, Map) Disk expansion parameters.
 
 The `data_volumes` block supports:
-    
+
 * `size` - (Required, Int) Disk size in GB.
-    
+
 * `volumetype` - (Required, String) Disk type.
-    
-* `extend_params` - (Optional, Map) Disk expansion parameters. 
+
+* `extend_params` - (Optional, Map) Disk expansion parameters.
 
 The `taints` block supports:
-    
-* `key` - (Required, String, ForceNew) A key must contain 1 to 63 characters starting with a letter or digit. Only letters, digits, hyphens (-), 
+
+* `key` - (Required, String, ForceNew) A key must contain 1 to 63 characters starting with a letter or digit. Only letters, digits, hyphens (-),
   underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the prefix of a key.
-    
-* `value` - (Required, String) A value must start with a letter or digit and can contain a maximum of 63 characters, including letters, 
+
+* `value` - (Required, String) A value must start with a letter or digit and can contain a maximum of 63 characters, including letters,
   digits, hyphens (-), underscores (_), and periods (.).
-    
-* `effect` - (Required, String) Available options are NoSchedule, PreferNoSchedule, and NoExecute. 
-    
+
+* `effect` - (Required, String) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:

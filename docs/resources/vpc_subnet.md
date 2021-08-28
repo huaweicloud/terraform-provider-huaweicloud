@@ -82,7 +82,7 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
- 
+
 * `status` - The status of the subnet. The value can be ACTIVE, DOWN, UNKNOWN, or ERROR.
 
 * `subnet_id` - The subnet (Native OpenStack API) ID.

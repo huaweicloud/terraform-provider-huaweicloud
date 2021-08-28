@@ -39,7 +39,7 @@ The `subnets` block supports:
   * `id` - Indicates the ID of the subnet.
   * `name` - Indicates the name of the subnet.
   * `cidr` - Indicates the cidr block of the subnet.
-  * `gateway_ip` - Indicates the gateway of the subnet. 
+  * `gateway_ip` - Indicates the gateway of the subnet.
   * `dns_list` - Indicates the DNS server address list of the subnet.
   * `site_id` - Indicates the ID of the IEC site.
   * `site_info` - Indicates the located information of the iec site.

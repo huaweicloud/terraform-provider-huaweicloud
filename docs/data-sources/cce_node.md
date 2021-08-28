@@ -23,7 +23,7 @@ data "huaweicloud_cce_node" "node" {
 The following arguments are supported:
 
 * `region` - (Optional, String) The region in which to obtain the cce nodes. If omitted, the provider-level region will be used.
- 
+
 * `Cluster_id` - (Required, String) The id of container cluster.
 
 * `name` - (Optional, String) Name of the node.
@@ -37,9 +37,9 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `flavor_id` - The flavor id to be used. 
+* `flavor_id` - The flavor id to be used.
 
-* `availability_zone` - Available partitions where the node is located. 
+* `availability_zone` - Available partitions where the node is located.
 
 * `os` - Operating System of the node.
 
@@ -52,7 +52,7 @@ In addition to all arguments above, the following attributes are exported:
 * `key_pair` - Key pair name when logging in to select the key pair mode.
 
 * `billing_mode` - Node's billing mode: The value is 0 (on demand).
- 
+
 * `server_id` - The node's virtual machine ID in ECS.
 
 * `public_ip` - Elastic IP parameters of the node.

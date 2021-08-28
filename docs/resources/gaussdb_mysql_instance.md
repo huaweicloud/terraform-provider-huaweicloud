@@ -76,8 +76,8 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id. Required if EPS enabled.
   Changing this parameter will create a new resource.
 
-* `table_name_case_sensitivity` - (Optional, Bool) Whether the kernel table name is case sensitive. 
-  The value can be `true` (case sensitive) and `false` (case insensitive). Defaults to `false`. 
+* `table_name_case_sensitivity` - (Optional, Bool) Whether the kernel table name is case sensitive.
+  The value can be `true` (case sensitive) and `false` (case insensitive). Defaults to `false`.
   This parameter only works during creation.
 
 * `read_replicas` - (Optional, Int) Specifies the count of read replicas. Defaults to 1.
@@ -97,7 +97,7 @@ The following arguments are supported:
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy. Structure is documented below.
 
 * `proxy_flavor` - (Optional, String) Specifies the flavor of the proxy.
- 
+
 * `proxy_node_num` - (Optional, Int) Specifies the node count of the proxy.
 
 * `force_import` - (Optional, Bool) If specified, try to import the instance instead of creating if the name already existed.

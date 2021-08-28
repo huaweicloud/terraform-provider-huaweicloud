@@ -94,7 +94,7 @@ The `backup_cycle` block supports:
 * `interval` - (Optional, Int) Specifies the interval (in days) of backup schedule. The value ranges from 1 to 30.
   This parameter and `days` are alternative.
 
-* `execution_times` - (Required, List) Specifies the backup time. 
+* `execution_times` - (Required, List) Specifies the backup time.
   Automated backups will be triggered at the backup time.
   The current time is in the UTC format (HH:MM).
   The minutes in the list must be set to *00* and the hours cannot be repeated.

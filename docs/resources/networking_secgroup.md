@@ -30,7 +30,7 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the security group.
   Changing this creates a new security group.
 
-* `delete_default_rules` - (Optional, Bool, ForceNew) Specifies whether or not to delete the default security rules. 
+* `delete_default_rules` - (Optional, Bool, ForceNew) Specifies whether or not to delete the default security rules.
   This is `false` by default.
 
 -> **Note:** The default security rules are described in [HuaweiCloud](https://support.huaweicloud.com/intl/en-us/usermanual-vpc/SecurityGroup_0003.html).

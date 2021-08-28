@@ -66,7 +66,7 @@ The following arguments are supported:
   only letters, digits, hyphens (-), and underscores (_).
   Chinese characters must be in UTF-8 or Unicode format.
 
-* `flavor` - (Required, String) Specifies the instance specifications. For details, 
+* `flavor` - (Required, String) Specifies the instance specifications. For details,
   see [DB Instance Specifications](https://support.huaweicloud.com/intl/en-us/redisug-nosql/nosql_05_0059.html).
   Do nothing in update method if change this parameter.
 
@@ -87,7 +87,7 @@ The following arguments are supported:
 * `subnet_id` - (Required, String, ForceNew) Specifies the network ID of a subnet.
   Changing this parameter will create a new resource.
 
-* `security_group_id` - (Optional, String) Specifies the security group ID. 
+* `security_group_id` - (Optional, String) Specifies the security group ID.
   Required if the selected subnet doesn't enable network ACL.
   Do nothing in update method if change this parameter.
 

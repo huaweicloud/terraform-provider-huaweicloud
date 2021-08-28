@@ -70,7 +70,7 @@ In addition to all arguments above, the following attributes are exported:
 * `resource` block supports the following arguments:
 
     + `id` - Specifies the ID of the object to be backed up.
-    
-    + `type` - Entity object type of the backup object. 
+
+    + `type` - Entity object type of the backup object.
 
     + `name` - Specifies backup object name.

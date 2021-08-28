@@ -20,7 +20,7 @@ data "huaweicloud_lb_certificate" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to obtain the ELB certificate. 
+* `region` - (Optional, String) The region in which to obtain the ELB certificate.
   If omitted, the provider-level region will be used.
 
 * `type` - (Optional, String) Specifies the certificate type. The default value is `server`.

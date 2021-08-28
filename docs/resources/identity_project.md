@@ -4,10 +4,10 @@ subcategory: "Identity and Access Management (IAM)"
 
 # huaweicloud_identity_project
 
-Manages a Project resource within HuaweiCloud Identity And Access 
+Manages a Project resource within HuaweiCloud Identity And Access
 Management service. This is an alternative to `huaweicloud_identity_project_v3`
 
-Note: You _must_ have security admin privileges in your HuaweiCloud 
+Note: You _must_ have security admin privileges in your HuaweiCloud
 cloud to use this resource.
 
 ## Example Usage

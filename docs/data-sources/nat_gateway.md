@@ -17,7 +17,7 @@ data "huaweicloud_nat_gateway" "natgateway" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) Specifies the region in which to create the NAT gateway resource. 
+* `region` - (Optional, String) Specifies the region in which to create the NAT gateway resource.
     If omitted, the provider-level region will be used.
 
 * `id` - (Optional, String) Specifies the ID of the NAT gateway.
