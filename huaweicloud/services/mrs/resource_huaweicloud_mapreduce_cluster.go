@@ -689,6 +689,7 @@ func setMrsClusterNodeGroups(d *schema.ResourceData, mrsV1Client *golangsdk.Serv
 	}
 
 	for k, v := range values {
+		// lintignore:R001
 		if err := d.Set(k, v); err != nil {
 			return fmtp.Errorf("set nodeGroup= %s error", k)
 		}
@@ -960,6 +961,8 @@ func resourceMRSClusterV2Update(d *schema.ResourceData, meta interface{}) error 
 			return fmtp.Errorf("Error updating tags of MRS cluster:%s, err:%s", d.Id(), tagErr)
 		}
 	}
+
+	// lintignore:R019
 	if d.HasChanges("analysis_core_nodes", "streaming_core_nodes", "analysis_task_nodes",
 		"streaming_task_nodes", "custom_nodes") {
 		err = updateMRSClusterNodes(d, client)
