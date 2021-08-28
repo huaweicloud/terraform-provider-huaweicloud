@@ -6,7 +6,7 @@ subcategory: "Deprecated"
 
 Manages a V2 Neutron network resource within HuaweiCloud.
 
-!> **Warning:** It has been deprecated, use `huaweicloud_vpc_subnet` instead.
+!> **WARNING:** It has been deprecated, use `huaweicloud_vpc_subnet` instead.
 
 ## Example Usage
 
@@ -52,7 +52,8 @@ resource "huaweicloud_networking_port_v2" "port_1" {
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name            = "instance_1"
-  security_groups = [huaweicloud_networking_secgroup.secgroup_1.name]
+  security_groups = [
+    huaweicloud_networking_secgroup.secgroup_1.name]
 
   network {
     port = huaweicloud_networking_port_v2.port_1.id
@@ -64,21 +65,17 @@ resource "huaweicloud_compute_instance_v2" "instance_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the V2 Networking client.
-    A Networking client is needed to create a Neutron network. If omitted, the
-    `region` argument of the provider is used. Changing this creates a new
-    network.
+* `region` - (Optional, String, ForceNew) The region in which to create the V2 Networking client. A Networking client is
+  needed to create a Neutron network. If omitted, the
+  `region` argument of the provider is used. Changing this creates a new network.
 
-* `name` - (Optional, String) The name of the network. Changing this updates the name of
-    the existing network.
+* `name` - (Optional, String) The name of the network. Changing this updates the name of the existing network.
 
-* `shared` - (Optional, String)  Specifies whether the network resource can be accessed
-    by any tenant or not. Changing this updates the sharing capabalities of the
-    existing network.
+* `shared` - (Optional, String)  Specifies whether the network resource can be accessed by any tenant or not. Changing
+  this updates the sharing capabalities of the existing network.
 
-* `admin_state_up` - (Optional, String) The administrative state of the network.
-    Acceptable values are "true" and "false". Changing this value updates the
-    state of the existing network.
+* `admin_state_up` - (Optional, String) The administrative state of the network. Acceptable values are "true" and "
+  false". Changing this value updates the state of the existing network.
 
 * `segments` - (Optional, List, ForceNew) An array of one or more provider segment objects.
 
@@ -97,7 +94,9 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - Specifies a resource ID in UUID format.
 
 ## Timeouts
+
 This resource provides the following timeouts configuration options:
+
 * `create` - Default is 10 minute.
 * `delete` - Default is 10 minute.
 
