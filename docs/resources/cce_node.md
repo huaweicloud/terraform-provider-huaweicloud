@@ -169,7 +169,7 @@ The following arguments are supported:
 * `max_pods` - (Optional, Int, ForceNew) The maximum number of instances a node is allowed to create. Changing this
   parameter will create a new resource.
 
-* `esc_group_id` - (Optional, String, ForceNew) Ecs group id. If specified, the node will be created under the cloud
+* `ecs_group_id` - (Optional, String, ForceNew) Ecs group id. If specified, the node will be created under the cloud
   server group. Changing this parameter will create a new resource.
 
 * `preinstall` - (Optional, String, ForceNew) Script required before installation. The input value can be a Base64

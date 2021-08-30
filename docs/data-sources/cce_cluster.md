@@ -69,11 +69,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `enterprise_project_id` - The enterprise project id of the cce cluster.
 
-**endpoints**
-
-* `internal` - The address accessed within the user's subnet.
-
-* `external` - Public network access address.
+* `endpoints` - The access addresses of kube-apiserver in the cluster. Structure is documented below.
 
 * `certificate_clusters/name` - The cluster name.
 
@@ -88,3 +84,14 @@ In addition to all arguments above, the following attributes are exported:
 * `certificate_users/client_key_data` - The client key data.
 
 * `kube_config_raw` - Raw Kubernetes config to be used by kubectl and other compatible tools.
+
+The `endpoints` block supports:
+
+* `url` - The URL of the cluster access address.
+
+* `type` - The type of the cluster access address.
+
+  + `Internal` - The user's subnet access address.
+
+  + `External` - The public network access address.
+  

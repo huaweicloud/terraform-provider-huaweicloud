@@ -2,6 +2,10 @@
 subcategory: "Cloud Container Engine (CCE)"
 ---
 
+# huaweicloud_cce_addon
+
+Provides a CCE addon resource within HuaweiCloud.
+
 ## Example Usage
 
 ```hcl
