@@ -14,7 +14,8 @@ data "huaweicloud_enterprise_project" "test" {
 }
 ```
 
-## Resources Supported Currently:
+## Resources Supported Currently
+
 Service Name | Resource Name | Sub Resource Name
 ---- | --- | ---
 AS  | huaweicloud_as_group |
@@ -51,8 +52,8 @@ VPC | huaweicloud_vpc<br>huaweicloud_networking_secgroup | huaweicloud_vpc_subne
 * `id` - (Optional, String) Specifies the ID of an enterprise project. The value 0 indicates enterprise project default.
 
 * `status` - (Optional, Int) Specifies the status of an enterprise project.
-    - 1 indicates Enabled.
-    - 2 indicates Disabled.
+    + 1 indicates Enabled.
+    + 2 indicates Disabled.
 
 ## Attributes Reference
 
@@ -63,4 +64,3 @@ In addition to all arguments above, the following attributes are exported:
 * `created_at` - Specifies the time (UTC) when the enterprise project was created. Example: 2018-05-18T06:49:06Z
 
 * `updated_at` - Specifies the time (UTC) when the enterprise project was modified. Example: 2018-05-28T02:21:36Z
-

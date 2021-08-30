@@ -16,14 +16,14 @@ data "huaweicloud_gaussdb_redis_instance" "test" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the instance. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the instance. If omitted, the provider-level region will
+  be used.
 
 * `name` - (Optional, String) Specifies the name of the instance.
 
-* `vpc_id` -  (Optional, String) Specifies the VPC ID.
+* `vpc_id` - (Optional, String) Specifies the VPC ID.
 
 * `subnet_id` - (Optional, String) Specifies the network ID of a subnet.
-
 
 ## Attributes Reference
 
@@ -74,9 +74,9 @@ The `backup_strategy` block supports:
 
 The `nodes` block contains:
 
-- `id` - Indicates the node ID.
-- `name` - Indicates the node name.
-- `private_ip` - Indicates the private IP address of a node.
-- `status` - Indicates the node status.
-- `support_reduce` - Indicates whether the node support reduce.
-- `availability_zone` - Indicates the availability zone where the node resides.
+* `id` - Indicates the node ID.
+* `name` - Indicates the node name.
+* `private_ip` - Indicates the private IP address of a node.
+* `status` - Indicates the node status.
+* `support_reduce` - Indicates whether the node support reduce.
+* `availability_zone` - Indicates the availability zone where the node resides.

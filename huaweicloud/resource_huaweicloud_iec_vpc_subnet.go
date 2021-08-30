@@ -8,6 +8,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/iec/v1/subnets"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -190,7 +191,7 @@ func resourceIecSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.DhcpEnable = &dhcp
 	}
 	if d.HasChange("dns_list") {
-		dnsList := resourceSubnetDNSListV1(d, "")
+		dnsList := vpc.ResourceSubnetDNSListV1(d, "")
 		updateOpts.DNSList = &dnsList
 	}
 

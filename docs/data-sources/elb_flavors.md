@@ -27,7 +27,8 @@ resource "huaweicloud_elb_loadbalancer" "lb" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the flavors. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the flavors. If omitted, the provider-level region will be
+  used.
 
 * `type` - (Optional, String) Specifies the flavor type. Valid values are L4 and L7.
 
@@ -39,7 +40,6 @@ resource "huaweicloud_elb_loadbalancer" "lb" {
 
 * `qps` - (Optional, Int) Specifies the qps in the L7 flavor.
 
-
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -49,10 +49,10 @@ In addition to all arguments above, the following attributes are exported:
 * `ids` - A list of flavor IDs.
 
 * `flavors` - A list of flavors. Each element contains the following attributes:
-  * `id` - ID of the flavor.
-  * `name` - Name of the flavor.
-  * `type` - Type of the flavor.
-  * `max_connections` - Maximum connections of the flavor.
-  * `cps` - Cps of the flavor.
-  * `qps` - Qps of the L7 flavor.
-  * `bandwidth` - Bandwidth size(Mbit/s) of the flavor.
+  + `id` - ID of the flavor.
+  + `name` - Name of the flavor.
+  + `type` - Type of the flavor.
+  + `max_connections` - Maximum connections of the flavor.
+  + `cps` - Cps of the flavor.
+  + `qps` - Qps of the L7 flavor.
+  + `bandwidth` - Bandwidth size(Mbit/s) of the flavor.

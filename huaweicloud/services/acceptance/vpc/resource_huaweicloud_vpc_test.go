@@ -1,4 +1,4 @@
-package huaweicloud
+package vpc
 
 import (
 	"fmt"
@@ -10,19 +10,20 @@ import (
 
 	"github.com/huaweicloud/golangsdk/openstack/networking/v1/vpcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpcV1_basic(t *testing.T) {
 	var vpc vpcs.Vpc
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
+	rNameUpdate := rName + "_updated"
 	resourceName := "huaweicloud_vpc.test"
-	rNameUpdate := rName + "-updated"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -41,6 +42,7 @@ func TestAccVpcV1_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1Exists(resourceName, &vpc),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_updated"),
 				),
 			},
@@ -56,12 +58,12 @@ func TestAccVpcV1_basic(t *testing.T) {
 func TestAccVpcV1_WithEpsId(t *testing.T) {
 	var vpc vpcs.Vpc
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_vpc.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckEpsID(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -71,7 +73,7 @@ func TestAccVpcV1_WithEpsId(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "status", "OK"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
 				),
 			},
 		},
@@ -91,15 +93,15 @@ func TestAccVpcV1_WithCustomRegion(t *testing.T) {
 	var vpc1, vpc2 vpcs.Vpc
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPrecheckCustomRegion(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPrecheckCustomRegion(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: tesstAccVpcV1_WithCustomRegion(vpcName1, vpcName2, HW_CUSTOM_REGION_NAME),
+				Config: testAccVpcV1_WithCustomRegion(vpcName1, vpcName2, acceptance.HW_CUSTOM_REGION_NAME),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCustomRegionVpcV1Exists(resName1, &vpc1, HW_REGION_NAME),
-					testAccCheckCustomRegionVpcV1Exists(resName2, &vpc2, HW_CUSTOM_REGION_NAME),
+					testAccCheckCustomRegionVpcV1Exists(resName1, &vpc1, acceptance.HW_REGION_NAME),
+					testAccCheckCustomRegionVpcV1Exists(resName2, &vpc2, acceptance.HW_CUSTOM_REGION_NAME),
 				),
 			},
 		},
@@ -107,8 +109,8 @@ func TestAccVpcV1_WithCustomRegion(t *testing.T) {
 }
 
 func testAccCheckVpcV1Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	vpcClient, err := config.NetworkingV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	vpcClient, err := config.NetworkingV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating huaweicloud vpc client: %s", err)
 	}
@@ -138,7 +140,7 @@ func testAccCheckCustomRegionVpcV1Exists(name string, vpc *vpcs.Vpc, region stri
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
 		vpcClient, err := config.NetworkingV1Client(region)
 		if err != nil {
 			return fmtp.Errorf("Error creating huaweicloud vpc client: %s", err)
@@ -169,8 +171,8 @@ func testAccCheckVpcV1Exists(n string, vpc *vpcs.Vpc) resource.TestCheckFunc {
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		vpcClient, err := config.NetworkingV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		vpcClient, err := config.NetworkingV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating huaweicloud vpc client: %s", err)
 		}
@@ -208,11 +210,11 @@ func testAccVpcV1_update(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   name = "%s"
-  cidr="192.168.0.0/16"
+  cidr ="192.168.0.0/16"
 
   tags = {
-    foo = "bar"
-    key = "value_updated"
+    foo1 = "bar"
+    key  = "value_updated"
   }
 }
 `, rName)
@@ -221,24 +223,24 @@ resource "huaweicloud_vpc" "test" {
 func testAccVpcV1_epsId(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
+  name                  = "%s"
+  cidr                  = "192.168.0.0/16"
   enterprise_project_id = "%s"
 }
-`, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }
 
-func tesstAccVpcV1_WithCustomRegion(name1 string, name2 string, region string) string {
+func testAccVpcV1_WithCustomRegion(name1, name2, region string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test1" {
   name = "%s"
   cidr = "192.168.0.0/16"
 }
 
-resource "huaweicloud_vpc" "test2" {    
-  name = "%s"
+resource "huaweicloud_vpc" "test2" {   
   region = "%s"
-  cidr = "192.168.0.0/16"
+  name   = "%s"
+  cidr   = "192.168.0.0/16"
 }
-`, name1, name2, region)
+`, name1, region, name2)
 }

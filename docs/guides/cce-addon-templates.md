@@ -4,10 +4,10 @@ page_title: "CCE Addon Templates"
 
 # CCE Addon Templates
 
-Addon support configuration input depending on addon type and version. This page contains description of addon arguments.
-
-You can get up to date reference of addon arguments for your cluster using data source
-[`huaweicloud_cce_addon_template`](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/cce_addon_template).
+Addon support configuration input depending on addon type and version. This page contains description of addon
+arguments. You can get up to date reference of addon arguments for your cluster using data source
+[`huaweicloud_cce_addon_template`](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/cce_addon_template)
+.
 
 Following addon templates exist in the addon template list:
 
@@ -21,13 +21,13 @@ All addons accept `basic` and some can accept `custom` input values.
 
 ## Addon Inputs
 
-### `autoscaler`
+### autoscaler
 
 A component that automatically adjusts the size of a Kubernetes Cluster so that all pods have a place to run and there
 are no unneeded nodes.
 `template_version`: `1.19.1`
 
-##### `basic`
+#### basic
 
 ```json
 {
@@ -41,7 +41,7 @@ are no unneeded nodes.
 }
 ```
 
-##### `custom`
+#### custom
 
 ```json
 {
@@ -68,12 +68,12 @@ are no unneeded nodes.
 }
 ```
 
-### `coredns`
+### coredns
 
 CoreDNS is a DNS server that chains plugins and provides Kubernetes DNS Services.
 `template_version`: `1.17.7`
 
-##### `basic`
+#### basic
 
 ```json
 {
@@ -85,7 +85,7 @@ CoreDNS is a DNS server that chains plugins and provides Kubernetes DNS Services
 }
 ```
 
-##### `custom`
+#### custom
 
 ```json
 {
@@ -94,12 +94,12 @@ CoreDNS is a DNS server that chains plugins and provides Kubernetes DNS Services
 }
 ```
 
-### `everest`
+### everest
 
 Everest is a cloud native container storage system based on CSI, used to support cloud storages services for Kubernetes.
 `template_version`: `1.2.9`
 
-##### `basic`
+#### basic
 
 ```json
 {
@@ -120,7 +120,7 @@ Everest is a cloud native container storage system based on CSI, used to support
 }
 ```
 
-##### `custom`
+#### custom
 
 ```json
 {
@@ -131,12 +131,12 @@ Everest is a cloud native container storage system based on CSI, used to support
 }
 ```
 
-### `metrics-server`
+### metrics-server
 
 Metrics Server is a cluster-level resource usage data aggregator.
 `template_version`: `1.1.2`
 
-##### `basic`
+#### basic
 
 ```json
 {
@@ -146,16 +146,16 @@ Metrics Server is a cluster-level resource usage data aggregator.
 }
 ```
 
-##### `custom`
+#### custom
 
-_Not supported_
+The custom block is *not supported*.
 
-### `gpu-beta`
+### gpu-beta
 
 A device plugin for nvidia.com/gpu resource on nvidia driver.
 `template_version`: `1.2.2`
 
-##### `basic`
+#### basic
 
 ```json
 {
@@ -168,7 +168,7 @@ A device plugin for nvidia.com/gpu resource on nvidia driver.
 }
 ```
 
-##### `custom`
+#### custom
 
 ```json
 {

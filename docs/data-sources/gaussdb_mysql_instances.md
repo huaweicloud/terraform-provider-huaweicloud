@@ -16,14 +16,14 @@ data "huaweicloud_gaussdb_mysql_instances" "this" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the instances. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the instances. If omitted, the provider-level region will
+  be used.
 
 * `name` - (Optional, String) Specifies the name of the instance.
 
-* `vpc_id` -  (Optional, String) Specifies the VPC ID.
+* `vpc_id` - (Optional, String) Specifies the VPC ID.
 
 * `subnet_id` - (Optional, String) Specifies the network ID of a subnet.
-
 
 ## Attributes Reference
 
@@ -77,7 +77,6 @@ The `instances` block supports:
 
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
 
-
 The `datastore` block supports:
 
 * `engine` - Indicates the database engine.
@@ -90,9 +89,9 @@ The `backup_strategy` block supports:
 
 The `nodes` block contains:
 
-- `id` - Indicates the node ID.
-- `name` - Indicates the node name.
-- `type` - Indicates the node type: master or slave.
-- `status` - Indicates the node status.
-- `private_read_ip` - Indicates the private IP address of a node.
-- `availability_zone` - Indicates the availability zone where the node resides.
+* `id` - Indicates the node ID.
+* `name` - Indicates the node name.
+* `type` - Indicates the node type: master or slave.
+* `status` - Indicates the node status.
+* `private_read_ip` - Indicates the private IP address of a node.
+* `availability_zone` - Indicates the availability zone where the node resides.
