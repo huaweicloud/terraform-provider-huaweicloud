@@ -97,11 +97,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
 
-
 ## Import
 
-This resource can be imported by specifying all three arguments, separated
-by a forward slash:
+This resource can be imported by specifying all three arguments, separated by a forward slash:
 
 ```
 $ terraform import huaweicloud_compute_eip_associate.eip_1 <eip>/<instance_id>/<fixed_ip>
