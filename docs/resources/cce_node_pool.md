@@ -85,13 +85,13 @@ The following arguments are supported:
   Availiable keys :
 
   + `agency_name` - Specifies the agency name to provide temporary credentials for CCE node to access other cloud
-      services.
+    services.
   + `alpha.cce/NodeImageID` - This parameter is required when a custom image is used to create a BMS node.
   + `dockerBaseSize` - The available disk space of a single docker container on the node in device mapper mode.
   + `DockerLVMConfigOverride` - Docker data disk configurations. The following is an example default configuration:
 
 ```hcl
-extend_param = {
+  extend_param = {
   DockerLVMConfigOverride = "dockerThinpool=vgpaas/90%VG;kubernetesLV=vgpaas/10%VG;diskType=evs;lvType=linear"
 }
 ```
