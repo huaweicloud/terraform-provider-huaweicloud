@@ -187,9 +187,9 @@ The following arguments are supported:
 * `security_groups` - (Optional, String) An array of one or more security group names to associate with the server.
   Changing this results in adding/removing security groups from the existing server.
 
-* `availability_zone` - (Required, String, ForceNew) The availability zone in which to create the server. Please refer
-  to https://developer.huaweicloud.com/endpoint
-  for the values. Changing this creates a new server.
+* `availability_zone` - (Required, String, ForceNew) The availability zone in which to create the server.
+  Please refer to [endpoint reference](https://developer.huaweicloud.com/endpoint) for the values.
+  Changing this creates a new server.
 
 * `charging_mode` - (Optional, String, ForceNew) The charging mode of the instance. Valid options are: prePaid and
   postPaid, defaults to postPaid. Changing this creates a new server.

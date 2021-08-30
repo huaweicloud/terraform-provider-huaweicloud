@@ -69,8 +69,9 @@ In addition to all arguments above, the following attributes are exported:
 * `file` - the trailing path after the glance endpoint that represent the location of the image or the path to retrieve
   it.
 * `id` - A unique ID assigned by Glance.
-* `metadata` - The metadata associated with the image. Image metadata allow for meaningfully define the image properties
-  and tags. See http://docs.openstack.org/developer/glance/metadefs-concepts.html.
+* `metadata` - The metadata associated with the image.
+  Image metadata allow for meaningfully define the image properties and tags.
+  See [metadata reference](http://docs.openstack.org/developer/glance/metadefs-concepts.html).
 * `owner` - The id of the huaweicloud user who owns the image.
 * `schema` - The path to the JSON-schema that represent the image or image
 * `size_bytes` - The size in bytes of the data associated with the image.
