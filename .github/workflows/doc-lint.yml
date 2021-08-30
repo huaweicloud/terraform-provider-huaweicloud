@@ -26,4 +26,4 @@ jobs:
         with:
           config: .markdownlint.json
           files:
-            ./docs/**/*.md
+            ./*.md ./examples ./docs

@@ -4,13 +4,12 @@ subcategory: "Deprecated"
 
 # huaweicloud\_csbs\_backup
 
-!> **Warning:** It has been deprecated.
+!> **WARNING:** It has been deprecated.
 
-The HuaweiCloud CSBS Backup data source allows access of backup resources.
-This is an alternative to `huaweicloud_csbs_backup_v1`
+The HuaweiCloud CSBS Backup data source allows access of backup resources. This is an alternative
+to `huaweicloud_csbs_backup_v1`
 
 ## Example Usage
-
 
 ```hcl
 variable "backup_name" {}
@@ -21,9 +20,11 @@ data "huaweicloud_csbs_backup" "csbs" {
 ```
 
 ## Argument Reference
+
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to obtain the CSBS backups. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the CSBS backups. If omitted, the provider-level region
+  will be used.
 
 * `id` - (Optional, String) Specifies the ID of backup.
 
@@ -44,6 +45,7 @@ The following arguments are supported:
 * `vm_ip` - (Optional, String) Specifies the ip of VM.
 
 ## Attributes Reference
+
 In addition to all arguments above, the following attributes are exported:
 
 * `description` - Provides the backup description.
@@ -54,37 +56,37 @@ In addition to all arguments above, the following attributes are exported:
 
 * `size` - Specifies the backup capacity.
 
-* volume_backups 
+* volume_backups
 
   + `space_saving_ratio` - Specifies the space saving rate.
 
   + `volume_backups` block supports the following arguments:
 
-  + `status` -  Status of backup Volume.
-    
-  + `space_saving_ratio` -  Specifies space saving rate.
+  + `status` - Status of backup Volume.
 
-  + `name` -  It gives EVS disk backup name.
+  + `space_saving_ratio` - Specifies space saving rate.
 
-  + `bootable` -  Specifies whether the disk is bootable.
+  + `name` - It gives EVS disk backup name.
 
-  + `average_speed` -  Specifies the average speed.
+  + `bootable` - Specifies whether the disk is bootable.
 
-  + `source_volume_size` -  Shows source volume size in GB.
+  + `average_speed` - Specifies the average speed.
 
-  + `source_volume_id` -  It specifies source volume ID.
+  + `source_volume_size` - Shows source volume size in GB.
 
-  + `incremental` -  Shows whether incremental backup is used.
+  + `source_volume_id` - It specifies source volume ID.
 
-  + `snapshot_id` -  ID of snapshot.
+  + `incremental` - Shows whether incremental backup is used.
 
-  + `source_volume_name` -  Specifies source volume name.
+  + `snapshot_id` - ID of snapshot.
 
-  + `image_type` -  It specifies backup. The default value is backup.
+  + `source_volume_name` - Specifies source volume name.
 
-  + `id` -  Specifies Cinder backup ID.
+  + `image_type` - It specifies backup. The default value is backup.
 
-  + `size` -  Specifies accumulated size (MB) of backups.
+  + `id` - Specifies Cinder backup ID.
+
+  + `size` - Specifies accumulated size (MB) of backups.
 
 * `vm_metadata` block supports the following arguments:
 

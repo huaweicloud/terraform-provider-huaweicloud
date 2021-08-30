@@ -14,7 +14,8 @@ data "huaweicloud_enterprise_project" "test" {
 }
 ```
 
-## Resources Supported Currently:
+## Resources Supported Currently
+
 Service Name | Resource Name | Sub Resource Name
 ---- | --- | ---
 AS  | huaweicloud_as_group |
@@ -63,4 +64,3 @@ In addition to all arguments above, the following attributes are exported:
 * `created_at` - Specifies the time (UTC) when the enterprise project was created. Example: 2018-05-18T06:49:06Z
 
 * `updated_at` - Specifies the time (UTC) when the enterprise project was modified. Example: 2018-05-28T02:21:36Z
-
