@@ -24,7 +24,7 @@ resource "huaweicloud_css_cluster" "cluster" {
 
   node_config {
     flavor = "ess.spec-4u16g"
-    
+
     network_info {
       security_group_id = huaweicloud_networking_secgroup.secgroup.id
       subnet_id         = "{{ network_id }}"

@@ -102,18 +102,18 @@ The following arguments are supported:
   Changing this creates a new instance resource.
 
 * `maintain_begin` - (Optional, String) Specifies the time at which a maintenance time window starts. Format: HH:mm.
-  The start time and end time of a maintenance time window must indicate the time segment of a supported maintenance 
+  The start time and end time of a maintenance time window must indicate the time segment of a supported maintenance
   time window.
   The start time must be set to 22:00, 02:00, 06:00, 10:00, 14:00, or 18:00. Parameters `maintain_begin`
   and `maintain_end` must be set in pairs. If parameter `maintain_begin` is left blank, parameter `maintain_end` is also
   blank. In this case, the system automatically allocates the default start time 02:00.
 
-* `maintain_end` - (Optional, String) Specifies the time at which a maintenance time window ends. Format: HH:mm. 
-  The start time and end time of a maintenance time window must indicate the time segment of a supported maintenance 
-  time window. The end time is four hours later than the start time. 
+* `maintain_end` - (Optional, String) Specifies the time at which a maintenance time window ends. Format: HH:mm.
+  The start time and end time of a maintenance time window must indicate the time segment of a supported maintenance
+  time window. The end time is four hours later than the start time.
   For example, if the start time is 22:00, the end time is 02:00.
   Parameters `maintain_begin` and `maintain_end` must be set in pairs.
-  If parameter `maintain_end` is left  blank, parameter `maintain_begin` is also blank. 
+  If parameter `maintain_end` is left  blank, parameter `maintain_begin` is also blank.
   In this case, the system automatically allocates the default end time 06:00.
 
 * `ssl_enable` - (Optional, String, ForceNew) Specifies whether to enable public access for the DMS rabbitmq instance.
