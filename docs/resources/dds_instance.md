@@ -161,7 +161,7 @@ The `flavor` block supports:
   + dds.mongodb.s6.large.4.mongos and dds.mongodb.c3.large.4.config are not of the same specifications.
   This parameter can be updated when the value of `type` is mongos, shard, replica or single.
 
-The `backup_strategy ` block supports:
+The `backup_strategy` block supports:
 
 * `start_time` - (Required, String) Specifies the backup time window. Automated backups will be triggered
 	during the backup time window. The value cannot be empty. It must be a valid value in the
