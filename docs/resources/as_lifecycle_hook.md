@@ -72,4 +72,3 @@ Lifecycle hooks can be imported using the AS group ID and hook ID separated by a
 ```
 $ terraform import huaweicloud_as_lifecycle_hook.test <AS group ID>/<Lifecycle hook ID>
 ```
-

@@ -98,4 +98,3 @@ The `instances` block contains:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 30 minute.
-

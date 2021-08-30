@@ -75,4 +75,3 @@ CTS tracker can be imported using  `tracker_name`, e.g.
 ```
 $ terraform import huaweicloud_cts_tracker_v1.tracker system
 ```
-

@@ -86,4 +86,3 @@ In addition to all arguments above, the following attributes are exported:
   server-side encryption.
 * `size` - the size of the object in bytes.
 * `version_id` - A unique version ID value for the object, if bucket versioning is enabled.
-

@@ -95,4 +95,3 @@ This resource provides the following timeouts configuration options:
 
 * `create` - Default is 10 minute.
 * `delete` - Default is 10 minute.
-

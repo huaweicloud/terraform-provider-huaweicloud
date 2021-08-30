@@ -33,4 +33,3 @@ data "huaweicloud_dms_maintainwindow" "maintainwindow1" {
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a data source ID in UUID format.
-

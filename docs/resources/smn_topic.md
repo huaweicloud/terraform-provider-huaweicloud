@@ -44,4 +44,3 @@ In addition to all arguments above, the following attributes are exported:
 * `create_time` - Time when the topic was created.
 
 * `update_time` - Time when the topic was updated.
-

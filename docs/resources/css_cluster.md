@@ -154,4 +154,3 @@ This resource provides the following timeouts configuration options:
 
 * `create` - Default is 60 minute.
 * `update` - Default is 60 minute.
-

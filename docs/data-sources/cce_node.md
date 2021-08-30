@@ -70,4 +70,3 @@ In addition to all arguments above, the following attributes are exported:
   + `size` - Disk size in GB.
   + `volumetype` - Disk type.
   + `extend_params` - Disk expansion parameters.
-
