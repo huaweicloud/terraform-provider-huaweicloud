@@ -21,12 +21,12 @@ resource "huaweicloud_apig_vpc_channel" "test" {
   protocol    = "HTTPS"
   path        = "/"
   http_code   = "201,202,203"
-  
+
   members {
     id     = var.ecs_id1
     weight = 30
   }
-  
+
   members {
     id     = var.ecs_id2
     weight = 70
@@ -110,6 +110,7 @@ In addition to all arguments above, the following attributes are exported:
 
 VPC Channels can be imported using their `name` and ID of the APIG dedicated instance to which the channel
 belongs, separated by a slash, e.g.
+
 ```
 $ terraform import huaweicloud_apig_vpc_channel.test <instance id>/<channel name>
 ```
