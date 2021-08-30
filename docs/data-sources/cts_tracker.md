@@ -48,4 +48,3 @@ In addition to all arguments above, the following attributes are exported:
 * `is_send_all_key_operation` - Specifies Typical or All operations for Trigger Condition.
 
 * `need_notify_user_list` - The users using the login function.
-

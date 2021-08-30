@@ -131,4 +131,3 @@ Certificates can be imported using the `id`, e.g.
 ```shell
 terraform import huaweicloud_scm_certificate.certificate_1 scs1627959834994
 ```
-

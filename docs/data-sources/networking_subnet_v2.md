@@ -47,4 +47,3 @@ In addition to all arguments above, the following attributes are exported:
 * `enable_dhcp` - Whether the subnet has DHCP enabled or not.
 * `dns_nameservers` - DNS Nameservers of the subnet.
 * `host_routes` - Host Routes of the subnet.
-

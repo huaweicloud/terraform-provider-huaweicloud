@@ -149,4 +149,3 @@ The `scaling_policy_action` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - Specifies a resource ID in UUID format.
-

@@ -64,4 +64,3 @@ In addition to all arguments above, the following attributes are exported:
 * `trigger_pps` - The packet rate at the triggering point.
 
 * `trigger_http_pps` - The HTTP request rate at the triggering point.
-

@@ -166,7 +166,6 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the dcs instance.
 
-
 The `whitelists` block supports:
 
 * `group_name` - (Required, String) Specifies the name of IP address group.
