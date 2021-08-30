@@ -99,13 +99,11 @@ The following arguments are supported:
 * `access_to` - (Optional, String) Specifies the value that defines the access rule. The value contains 1 to 255
   characters. Changing this will create a new access rule. The value varies according to the scenario:
   + Set the VPC ID in VPC authorization scenarios.
-  + Set this parameter in IP address authorization scenario.
-
-          - For an NFS shared file system, the value in the format of *VPC_ID#IP_address#priority#user_permission*.
-          For example, 0157b53f-4974-4e80-91c9-098532bcaf00#2.2.2.2/16#100#all_squash,root_squash.
-
-          - For a CIFS shared file system, the value in the format of *VPC_ID#IP_address#priority*.
-          For example, 0157b53f-4974-4e80-91c9-098532bcaf00#2.2.2.2/16#0.
+  + Set this parameter in IP address authorization scenario:
+      - For an NFS shared file system, the value in the format of *VPC_ID#IP_address#priority#user_permission*.
+        For example, 0157b53f-4974-4e80-91c9-098532bcaf00#2.2.2.2/16#100#all_squash,root_squash.
+      - For a CIFS shared file system, the value in the format of *VPC_ID#IP_address#priority*.
+        For example, 0157b53f-4974-4e80-91c9-098532bcaf00#2.2.2.2/16#0.
 
 -> **NOTE:** If you want to create more access rules, please
 using [huaweicloud_sfs_access_rule](https://www.terraform.io/docs/providers/huaweicloud/r/sfs_access_rule.html).
