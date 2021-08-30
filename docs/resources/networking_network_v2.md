@@ -52,8 +52,7 @@ resource "huaweicloud_networking_port_v2" "port_1" {
 
 resource "huaweicloud_compute_instance_v2" "instance_1" {
   name            = "instance_1"
-  security_groups = [
-    huaweicloud_networking_secgroup.secgroup_1.name]
+  security_groups = [huaweicloud_networking_secgroup.secgroup_1.name]
 
   network {
     port = huaweicloud_networking_port_v2.port_1.id

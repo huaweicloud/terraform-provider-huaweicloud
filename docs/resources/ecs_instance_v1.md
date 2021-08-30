@@ -57,8 +57,7 @@ resource "huaweicloud_ecs_instance_v1" "basic" {
   delete_disks_on_termination = true
   availability_zone           = "cn-north-1a"
   key_name                    = "KeyPair-test"
-  security_groups             = [
-    "default"]
+  security_groups             = ["default"]
 }
 ```
 
@@ -113,8 +112,7 @@ resource "huaweicloud_ecs_instance_v1" "multi-net" {
 
   availability_zone = "cn-north-1a"
   key_name          = "KeyPair-test"
-  security_groups   = [
-    "default"]
+  security_groups   = ["default"]
 }
 
 resource "huaweicloud_compute_eip_associate" "myip" {

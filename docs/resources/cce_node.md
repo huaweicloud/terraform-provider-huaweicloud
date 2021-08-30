@@ -181,9 +181,9 @@ The following arguments are supported:
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the CCE node. Valid values are *prePaid*
   and *postPaid*, defaults to *postPaid*. Changing this creates a new resource.
 
-* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the CCE node. Valid values are
-  *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new
-  resource.
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the CCE node.
+  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
+  Changing this creates a new resource.
 
 * `period` - (Optional, Int, ForceNew) Specifies the charging period of the CCE node. If `period_unit` is set to *month*
   , the value ranges from 1 to 9. If `period_unit` is set to *year*, the value ranges from 1 to 3. This parameter is
@@ -199,7 +199,7 @@ The following arguments are supported:
   Availiable keys :
 
   + `agency_name` - Specifies the agency name to provide temporary credentials for CCE node to access other cloud
-      services.
+    services.
   + `alpha.cce/NodeImageID` - This parameter is required when a custom image is used to create a BMS node.
   + `dockerBaseSize` - The available disk space of a single docker container on the node in device mapper mode.
   + `DockerLVMConfigOverride` - Docker data disk configurations. The following is an example default configuration:
@@ -219,10 +219,10 @@ The following arguments are supported:
   contains the following parameters:
 
   + `key` - (Required, String) A key must contain 1 to 63 characters starting with a letter or digit. Only letters,
-      digits, hyphens (-), underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the prefix
-      of a key.
+    digits, hyphens (-), underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the prefix
+    of a key.
   + `value` - (Required, String) A value must start with a letter or digit and can contain a maximum of 63 characters,
-      including letters, digits, hyphens (-), underscores (_), and periods (.).
+    including letters, digits, hyphens (-), underscores (_), and periods (.).
   + `effect` - (Required, String) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
 
 ## Attributes Reference

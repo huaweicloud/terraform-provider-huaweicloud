@@ -54,8 +54,9 @@ The following arguments are supported:
 
 * `alarm_enabled` - (Optional, Bool) Specifies whether to enable the alarm. The default value is true.
 
-* `alarm_level` - (Optional, Int) Specifies the alarm severity. The value can be 1, 2, 3 or 4, which indicates
-  *critical*, *major*, *minor*, and *informational*, respectively. The default value is 2.
+* `alarm_level` - (Optional, Int) Specifies the alarm severity. The value can be 1, 2, 3 or 4,
+  which indicates *critical*, *major*, *minor*, and *informational*, respectively.
+  The default value is 2.
 
 * `alarm_actions` - (Optional, List, ForceNew) Specifies the action triggered by an alarm. The structure is described
   below. Changing this creates a new resource.
@@ -116,10 +117,10 @@ The `condition` block supports:
 
 the `alarm_actions` block supports:
 
-* `type` - (Optional, String) specifies the type of action triggered by an alarm. the value can be *notification* or
-  *autoscaling*.
-  + notification: indicates that a notification will be sent to the user.
-  + autoscaling: indicates that a scaling action will be triggered.
+* `type` - (Optional, String) specifies the type of action triggered by an alarm. the
+  value can be *notification* or *autoscaling*.
+    + notification: indicates that a notification will be sent to the user.
+    + autoscaling: indicates that a scaling action will be triggered.
 
 * `notification_list` - (Optional, List) specifies the list of objects to be notified if the alarm status changes, the
   maximum length is 5. If `type` is set to *notification*, the value of notification_list cannot be empty. If `type` is

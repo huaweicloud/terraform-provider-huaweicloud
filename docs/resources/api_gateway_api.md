@@ -54,13 +54,13 @@ The following arguments are supported:
 * `visibility` - (Optional, Int) Specifies whether the API is available to the public. The value can be 1 (public) and
   2 (private). Defaults to 2.
 
-* `auth_type` - (Required, String) Specifies the security authentication mode. The value can be 'APP', 'IAM', and
-  'NONE'.
+* `auth_type` - (Required, String) Specifies the security authentication mode. The value can be 'APP', 'IAM', and '
+  NONE'.
 
 * `request_protocol` - (Optional, String) Specifies the request protocol. The value can be 'HTTP', 'HTTPS', and 'BOTH'
   which means the API can be accessed through both 'HTTP' and 'HTTPS'. Defaults to 'HTTPS'.
 
-* `request_method` - (Required, String) Specifies the request method, including 'GET','POST','PUT' and etc.
+* `request_method` - (Required, String) Specifies the request method, including 'GET','POST','PUT' and etc..
 
 * `request_uri` - (Required, String) Specifies the request path of the API. The value must comply with URI
   specifications.

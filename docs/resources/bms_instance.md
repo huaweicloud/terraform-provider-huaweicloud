@@ -124,25 +124,25 @@ installed, the `admin_pass` field becomes invalid.
 `iptype`, `eip_charge_mode`, `bandwidth_size`, `share_type` and `bandwidth_charge_mode`.
 
 * `iptype` - (Optional, String, ForceNew) Elastic IP type. Changing this creates a new instance. Available options are:
-  + `5_bgp`: dynamic BGP.
-  + `5_sbgp `: static BGP.
+    + `5_bgp`: dynamic BGP.
+    + `5_sbgp `: static BGP.
 
 * `eip_charge_mode` - (Optional, String, ForceNew) Elastic IP billing type. If the bandwidth billing mode is bandwidth,
   both prePaid and postPaid are supported. If the bandwidth billing mode is traffic, only postPaid is supported.
   Changing this creates a new instance. Available options are:
-  + `prePaid`: indicates the yearly/monthly billing mode.
-  + `postPaid`: indicates the pay-per-use billing mode.
+    + `prePaid`: indicates the yearly/monthly billing mode.
+    + `postPaid`: indicates the pay-per-use billing mode.
 
 * `sharetype` - (Optional, String, ForceNew) Bandwidth sharing type. Changing this creates a new instance. Available
   options are:
-  + `PER`: indicates dedicated bandwidth.
-  + `WHOLE`: indicates shared bandwidth.
+    + `PER`: indicates dedicated bandwidth.
+    + `WHOLE`: indicates shared bandwidth.
 
 * `bandwidth_size` - (Optional, Int, ForceNew) Bandwidth size. Changing this creates a new instance.
 
 * `bandwidth_charge_mode` - (Optional, String, ForceNew) Bandwidth billing type. Available options are:
-  + `traffic`: billing mode is traffic.
-  + `bandwidth`: billing mode is bandwidth.
+    + `traffic`: billing mode is traffic.
+    + `bandwidth`: billing mode is bandwidth.
 
       Default to `bandwidth`. Changing this creates a new instance.
 
@@ -150,9 +150,9 @@ installed, the `admin_pass` field becomes invalid.
   disk types, see
   [Disk Types and Disk Performance](https://support.huaweicloud.com/intl/en-us/productdesc-evs/en-us_topic_0014580744.html)
   . Changing this creates a new instance. Available options are:
-  + `SSD`: ultra-high I/O disk type.
-  + `GPSSD`: general purpose SSD disk type.
-  + `SAS`: high I/O disk type.
+    + `SSD`: ultra-high I/O disk type.
+    + `GPSSD`: general purpose SSD disk type.
+    + `SAS`: high I/O disk type.
 
 * `system_disk_size` - (Optional, int, ForceNew) Specifies the system disk size in GB. The value ranges from 40 to 1024.
   The system disk size must be greater than or equal to the minimum system disk size of the image. Changing this creates
@@ -171,8 +171,8 @@ installed, the `admin_pass` field becomes invalid.
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid value is *prePaid*.
   Changing this creates a new instance.
 
-* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance. Valid values are
-  *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance. Valid values are *
+  month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new
   instance.
 
 * `period` - (Optional, Int, ForceNew) Specifies the charging period of the instance. If `period_unit` is set to *month*

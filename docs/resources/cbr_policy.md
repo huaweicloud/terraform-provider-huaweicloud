@@ -58,8 +58,9 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies a unique name of the CBR policy. This parameter can contain a maximum of 64
   characters, which may consist of chinese charactors, letters, digits, underscores(_) and hyphens (-).
 
-* `type` - (Required, String, ForceNew) Specifies the protection type of the CBR policy. Valid values are *backup* and
-  *replication*. Changing this will create a new policy.
+* `type` - (Required, String, ForceNew) Specifies the protection type of the CBR policy.
+  Valid values are *backup* and *replication*.
+  Changing this will create a new policy.
 
 * `backup_cycle` - (Required, List) Specifies the scheduling rule for the CBR policy backup execution. The backup_cycle
   structure is documented below.

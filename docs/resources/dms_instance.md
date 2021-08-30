@@ -7,7 +7,8 @@ subcategory: "Deprecated"
 !> **WARNING:** It has been deprecated, use `huaweicloud_dms_kafka_instance` or
 `huaweicloud_dms_rabbitmq_instance` instead.
 
-Manages a DMS instance in the huaweicloud DMS Service. This is an alternative to `huaweicloud_dms_instance_v1`
+Manages a DMS instance in the huaweicloud DMS Service.
+This is an alternative to `huaweicloud_dms_instance_v1`
 
 ## Example Usage
 
@@ -78,7 +79,7 @@ The following arguments are supported:
   + dms.physical.storage.high
   + dms.physical.storage.ultra
 
-    Options for a Kafka instance:
+      Options for a Kafka instance:
   + When specification is 300 MB: dms.physical.storage.high or dms.physical.storage.ultra
   + When specification is 600 MB: dms.physical.storage.ultra
   + When specification is 1200 MB: dms.physical.storage.ultra
@@ -110,19 +111,24 @@ The following arguments are supported:
 
 * `product_id` - (Required, String) Indicates a product ID.
 
-* `maintain_begin` - (Optional, String) Indicates the time at which a maintenance time window starts. Format: HH:mm:ss.
-  The start time and end time of a maintenance time window must indicate the time segment of a supported maintenance
-  time window. For details, see section Querying Maintenance Time Windows. The start time must be set to 22:00, 02:00,
-  06:00, 10:00, 14:00, or 18:00. Parameters maintain_begin and maintain_end must be set in pairs. If parameter
-  maintain_begin is left blank, parameter maintain_end is also blank. In this case, the system automatically allocates
-  the default start time 02:00.
+* `maintain_begin` - (Optional, String) Indicates the time at which a maintenance time window starts.
+  Format: HH:mm:ss.
+  The start time and end time of a maintenance time window must indicate the time segment of
+  a supported maintenance time window. For details, see section Querying Maintenance Time Windows.
+  The start time must be set to 22:00, 02:00, 06:00, 10:00, 14:00, or 18:00.
+  Parameters maintain_begin and maintain_end must be set in pairs. If parameter maintain_begin
+  is left blank, parameter maintain_end is also blank. In this case, the system automatically
+  allocates the default start time 02:00.
 
-* `maintain_end` - (Optional, String) Indicates the time at which a maintenance time window ends. Format: HH:mm:ss. The
-  start time and end time of a maintenance time window must indicate the time segment of a supported maintenance time
-  window. For details, see section Querying Maintenance Time Windows. The end time is four hours later than the start
-  time. For example, if the start time is 22:00, the end time is 02:00. Parameters maintain_begin and maintain_end must
-  be set in pairs. If parameter maintain_end is left blank, parameter maintain_begin is also blank. In this case, the
-  system automatically allocates the default end time 06:00.
+* `maintain_end` - (Optional, String) Indicates the time at which a maintenance time window ends.
+  Format: HH:mm:ss.
+  The start time and end time of a maintenance time window must indicate the time segment of
+  a supported maintenance time window. For details, see section Querying Maintenance Time Windows.
+  The end time is four hours later than the start time. For example, if the start time is 22:00,
+  the end time is 02:00.
+  Parameters maintain_begin and maintain_end must be set in pairs. If parameter maintain_end is left
+  blank, parameter maintain_begin is also blank. In this case, the system automatically allocates
+  the default end time 06:00.
 
 * `enable_publicip` - (Optional, Bool) Indicates whether to enable public access to a RabbitMQ instance. true: enable,
   false: disable

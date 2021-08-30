@@ -12,6 +12,7 @@ Manages a Dedicated ELB Ip Group resource within HuaweiCloud.
 resource "huaweicloud_elb_ipgroup" "basic" {
   name        = "basic"
   description = "basic example"
+
   ip_list {
     ip          = "192.168.10.10"
     description = "ECS01"

@@ -55,8 +55,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   capacity        = 2
   vpc_id          = huaweicloud_vpc.vpc_1.id
   subnet_id       = huaweicloud_vpc_subnet.subnet_1.id
-  available_zones = [
-    data.huaweicloud_dcs_az.az_1.id]
+  available_zones = [data.huaweicloud_dcs_az.az_1.id]
   product_id      = "redis.ha.au1.large.r2.2-h"
 
   backup_policy {
@@ -69,9 +68,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
 
   whitelists {
     group_name = "test-group1"
-    ip_address = [
-      "192.168.10.100",
-      "192.168.0.0/24"]
+    ip_address = ["192.168.10.100", "192.168.0.0/24"]
   }
   whitelists {
     group_name = "test-group2"
@@ -168,6 +165,7 @@ The following arguments are supported:
   creates a new instance.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the dcs instance.
+
 
 The `whitelists` block supports:
 

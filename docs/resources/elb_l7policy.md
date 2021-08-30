@@ -9,11 +9,14 @@ Manages an ELB L7 Policy resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
+variable listener_id {}
+variable pool_id {}
+
 resource "huaweicloud_elb_l7policy" "policy_1" {
   name             = "policy_1"
   description      = "test description"
-  listener_id      = {{ listener_id }}
-  redirect_pool_id = {{ pool_id }}
+  listener_id      = var.listener_id
+  redirect_pool_id = var.pool_id
 }
 ```
 

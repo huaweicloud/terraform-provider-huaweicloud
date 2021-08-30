@@ -56,14 +56,15 @@ The following arguments are supported:
 * `pool_id` - (Required, String, ForceNew) Specifies the id of the pool that this monitor will be assigned to. Changing
   this creates a new monitor.
 
-* `type` - (Required, String, ForceNew) Specifies the monitor protocol. The value can be *TCP*, *UDP_CONNECT*, or *HTTP*
-  . If the listener protocol is UDP, the monitor protocol must be *UDP_CONNECT*. Changing this creates a new monitor.
+* `type` - (Required, String, ForceNew) Specifies the monitor protocol.
+  The value can be *TCP*, *UDP_CONNECT*, or *HTTP*.
+  If the listener protocol is UDP, the monitor protocol must be *UDP_CONNECT*. Changing this creates a new monitor.
 
 * `delay` - (Required, Int) Specifies the maximum time between health checks in the unit of second. The value ranges
   from 1 to 50.
 
-* `timeout` - (Required, Int) Specifies the health check timeout duration in the unit of second. The value ranges from 1
-  to 50 and must be less than the `delay` value.
+* `timeout` - (Required, Int) Specifies the health check timeout duration in the unit of second.
+  The value ranges from 1 to 50 and must be less than the `delay` value.
 
 * `max_retries` - (Required, Int) Specifies the maximum number of consecutive health checks after which the backend
   servers are declared *healthy*. The value ranges from 1 to 10.
@@ -77,14 +78,14 @@ The following arguments are supported:
 * `port` - (Optional, Int) Specifies the health check port. The port number ranges from 1 to 65535. If not specified,
   the port of the backend server will be used as the health check port.
 
-* `url_path` - (Optional, String) Specifies the HTTP request path for the health check. Required for HTTP type. The
-  value starts with a slash (/) and contains a maximum of 255 characters.
+* `url_path` - (Optional, String) Specifies the HTTP request path for the health check. Required for HTTP type.
+  The value starts with a slash (/) and contains a maximum of 255 characters.
 
-* `http_method` - (Optional, String) Specifies the HTTP request method. Required for HTTP type. The default value is
-  *GET*.
+* `http_method` - (Optional, String) Specifies the HTTP request method. Required for HTTP type.
+  The default value is *GET*.
 
-* `expected_codes` - (Optional, String) Specifies the expected HTTP status code. Required for HTTP type. You can either
-  specify a single status like "200", or a range like "200-202".
+* `expected_codes` - (Optional, String) Specifies the expected HTTP status code. Required for HTTP type.
+  You can either specify a single status like "200", or a range like "200-202".
 
 ## Attributes Reference
 

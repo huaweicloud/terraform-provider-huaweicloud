@@ -38,7 +38,7 @@ The following arguments are supported:
   + When the protocol used by the listener is TCP, the protocol of the backend pool must be TCP.
   + When the protocol used by the listener is HTTP or TERMINATED_HTTPS, the protocol of the backend pool must be HTTP.
 
-    Changing this creates a new pool.
+      Changing this creates a new pool.
 
 * `loadbalancer_id` - (Optional, String, ForceNew) The load balancer on which to provision this pool. Changing this
   creates a new pool. Note:  Exactly one of LoadbalancerID or ListenerID must be provided.

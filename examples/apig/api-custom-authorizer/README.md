@@ -31,5 +31,5 @@ successful, you can debug or publish this API on the console.
 
 | Name | Version |
 | ---- | ---- |
-| terraform | > = 0.12.0 |
-| huaweicloud | > = 1.27.1 |
+| terraform | >= 0.12.0 |
+| huaweicloud | >= 1.27.1 |

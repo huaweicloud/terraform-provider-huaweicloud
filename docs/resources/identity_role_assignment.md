@@ -13,7 +13,8 @@ Note: You _must_ have admin privileges in your HuaweiCloud cloud to use this res
 
 ```hcl
 data "huaweicloud_identity_role" "role_1" {
-  name = "rds_adm" #RDS Administrator
+  # RDS Administrator
+  name = "rds_adm"
 }
 
 resource "huaweicloud_identity_group" "group_1" {
@@ -31,7 +32,8 @@ resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
 
 ```hcl
 data "huaweicloud_identity_role" "role_1" {
-  name = "secu_admin" #Security Administrator
+  # Security Administrator
+  name = "secu_admin"
 }
 
 resource "huaweicloud_identity_group" "group_1" {

@@ -40,8 +40,8 @@ The following arguments are supported:
   should receive from the pool. For example, a member with a weight of 10 receives five times as much traffic as a
   member with a weight of 2.
 
-* `admin_state_up` - (Optional, Bool) The administrative state of the member. A valid value is true (UP) or false (DOWN)
-  .
+* `admin_state_up` - (Optional, Bool) The administrative state of the member.
+  A valid value is true (UP) or false (DOWN).
 
 ## Attributes Reference
 

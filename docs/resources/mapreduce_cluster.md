@@ -23,11 +23,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   name               = var.cluster_name
   version            = "MRS 1.9.2"
   type               = "ANALYSIS"
-  component_list     = [
-    "Hadoop",
-    "Hive",
-    "Tez"
-  ]
+  component_list     = ["Hadoop", "Hive", "Tez"]
   manager_admin_pass = var.password
   node_admin_pass    = var.password
   vpc_id             = var.vpc_id
@@ -130,13 +126,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   name               = var.cluster_name
   version            = "MRS 1.9.2"
   type               = "MIXED"
-  component_list     = [
-    "Hadoop",
-    "Spark",
-    "Hive",
-    "Tez",
-    "Storm"
-  ]
+  component_list     = ["Hadoop", "Spark", "Hive", "Tez", "Storm"]
   manager_admin_pass = var.password
   node_admin_pass    = var.password
   vpc_id             = var.vpc_id

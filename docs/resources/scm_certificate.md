@@ -4,9 +4,9 @@ subcategory: "SSL Certificate Manager (SCM)"
 
 # huaweicloud_scm_certificate
 
-SSL Certificate Manager (SCM) allows you to purchase Secure Sockets Layer (SSL) certificates from
-the world's leading digital certificate authorities (CAs), upload existing SSL certificates, and
-centrally manage all your SSL certificates in one place.
+SSL Certificate Manager (SCM) allows you to purchase Secure Sockets Layer (SSL) certificates from the world's leading
+digital certificate authorities (CAs), upload existing SSL certificates, and centrally manage all your SSL certificates
+in one place.
 
 ## Example Usage
 
@@ -25,26 +25,26 @@ resource "huaweicloud_scm_certificate" "certificate_1" {
 
 ```hcl
 resource "huaweicloud_scm_certificate" "certificate_2" {
-  name              ="certificate_2"
+  name              = "certificate_2"
   certificate       = <<EOT
 -----BEGIN CERTIFICATE-----
 MIIC9DCCAl2gAwIBAgIUUcJZn3ep4l8iHu6lL/jE2UV+G8gwDQYJKoZIhvcNAQEL
 ZWlqaW5nMQswC...
-(This is an example, please replace it with a encrypted key of valid SSL certificate.) 
+(This is an example, please replace it with a encrypted key of valid SSL certificate.)
 -----END CERTIFICATE----------
 EOT
   certificate_chain = <<EOT
 -----BEGIN CERTIFICATE-----
 MIIC9DCCAl2gAwIBAgIUUcJZn3ep4l8iHu6lL/jE2UV+G8gwDQYJKoZIhvcNAQEL
 BQAwgYsxCzAJB...
-(This is an example, please replace it with a encrypted key of valid SSL certificate.) 
+(This is an example, please replace it with a encrypted key of valid SSL certificate.)
 -----END CERTIFICATE----------
 EOT
   private_key       = <<EOT
 -----BEGIN PRIVATE KEY-----
 QWH3GbHx5bGQyexHj2hre4yEahn4dAKKdjSAMUuSfLWygp2pEdNFOegYTdqk/snv
 mhNmxp74oUcVfi1Msw6KY2...
-(This is an example, please replace it with a encrypted key of valid SSL certificate.) 
+(This is an example, please replace it with a encrypted key of valid SSL certificate.)
 -----END PRIVATE KEY-----
 EOT
 }
@@ -70,6 +70,7 @@ resource "huaweicloud_scm_certificate" "certificate_3" {
   }
 }
 ```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -87,11 +88,12 @@ The following arguments are supported:
 * `target` - (Optional, List) The service to which the certificate needs to be pushed.
 
 The `target` block supports:
-* `service` - (Required, String) Service to which the certificate is pushed.
-  The options include `CDN`,`WAF` and `Enhance_ELB`.
-* `project` - (Optional, String) The project where the service you want to push a certificate to.
-  The same certificate can be pushed repeatedly to the same WAF or ELB service in the same `project`,
-  but the CDN service can only be pushed once.
+
+* `service` - (Required, String) Service to which the certificate is pushed. The options include `CDN`,`WAF`
+  and `Enhance_ELB`.
+* `project` - (Optional, String) The project where the service you want to push a certificate to. The same certificate
+  can be pushed repeatedly to the same WAF or ELB service in the same `project`, but the CDN service can only be pushed
+  once.
 
 ## Attributes Reference
 
@@ -129,3 +131,4 @@ Certificates can be imported using the `id`, e.g.
 ```shell
 terraform import huaweicloud_scm_certificate.certificate_1 scs1627959834994
 ```
+

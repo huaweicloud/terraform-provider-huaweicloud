@@ -81,19 +81,20 @@ The following arguments are supported:
 * `region` - (Required) Specifies the region where the bucket is located. This can also be sourced from the
   *AWS_DEFAULT_REGION* and *AWS_REGION* environment variables.
 
-* `endpoint` - (Required) Specifies the endpoint for HuaweiCloud OBS. The value is https://obs
-  .{{region}}.myhuaweicloud.com. This can also be sourced from the *AWS_S3_ENDPOINT* environment variable.
+* `endpoint` - (Required) Specifies the endpoint for HuaweiCloud OBS.
+  The value is https://obs.{{region}}.myhuaweicloud.com. This can also be sourced from the *AWS_S3_ENDPOINT* 
+  environment variable.
 
-* `skip_credentials_validation` - (Required) Skip credentials validation via the STS API. It's mandatory for
-  HuaweiCloud.
+* `skip_credentials_validation` - (Required) Skip credentials validation via the STS API. 
+  It's mandatory for HuaweiCloud.
 
 * `skip_region_validation` - (Required) Skip validation of provided region name. It's mandatory for HuaweiCloud.
 
 * `skip_metadata_api_check` - (Required) Skip usage of EC2 Metadata API. It's mandatory for HuaweiCloud.
 
 * `workspace_key_prefix` - (Optional) Specifies the prefix applied to the state path inside the bucket. This parameter
-  is only valid when using a non-default [workspace](https://www.terraform.io/docs/language/state/workspaces.html). When
-  using a non-default workspace, the state path will be `/workspace_key_prefix/workspace_name/key_name`.
+  is only valid when using a non-default [workspace](https://www.terraform.io/docs/language/state/workspaces.html).
+  When using a non-default workspace, the state path will be `/workspace_key_prefix/workspace_name/key_name`.
 
 ## For More Information
 

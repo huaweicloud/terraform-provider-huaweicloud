@@ -61,16 +61,16 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the name of the DMS rabbitmq instance. An instance name starts with a letter,
   consists of 4 to 64 characters, and supports only letters, digits, hyphens (-) and underscores (_).
 
-* `description` - (Optional, String) Specifies the description of the DMS rabbitmq instance. It is a character string
-  containing not more than 1024 characters.
+* `description` - (Optional, String) Specifies the description of the DMS rabbitmq instance.
+  It is a character string containing not more than 1024 characters.
 
 * `engine_version` - (Optional, String, ForceNew) Specifies the version of the rabbitmq engine. Default to "3.7.17".
   Changing this creates a new instance resource.
 
 * `storage_space` - (Required, Int, ForceNew) Specifies the message storage space. Value range:
   + Single-node RabbitMQ instance: 100–90000 GB
-  + Cluster RabbitMQ instance: 100 GB x Number of nodes to 90000 GB, 200 GB x Number of nodes to 90000 GB, and 300 GB
-      x Number of nodes to 90000 GB
+  + Cluster RabbitMQ instance: 100 GB x Number of nodes to 90000 GB, 200 GB x Number of nodes to 90000 GB,
+    and 300 GB x Number of nodes to 90000 GB
 
   Changing this creates a new instance resource.
 
@@ -97,21 +97,24 @@ The following arguments are supported:
 
 * `password` - (Required, String, ForceNew) Specifies the password of the DMS rabbitmq instance. A password must meet
   the following complexity requirements: Must be 8 to 32 characters long. Must contain at least 2 of the following
-  character types: lowercase letters, uppercase letters, digits, and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>
-  /?). Changing this creates a new instance resource.
+  character types: lowercase letters, uppercase letters, digits,
+  and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
+  Changing this creates a new instance resource.
 
-* `maintain_begin` - (Optional, String) Specifies the time at which a maintenance time window starts. Format: HH:mm. The
-  start time and end time of a maintenance time window must indicate the time segment of a supported maintenance time
-  window. The start time must be set to 22:00, 02:00, 06:00, 10:00, 14:00, or 18:00. Parameters `maintain_begin`
+* `maintain_begin` - (Optional, String) Specifies the time at which a maintenance time window starts. Format: HH:mm.
+  The start time and end time of a maintenance time window must indicate the time segment of a supported maintenance 
+  time window.
+  The start time must be set to 22:00, 02:00, 06:00, 10:00, 14:00, or 18:00. Parameters `maintain_begin`
   and `maintain_end` must be set in pairs. If parameter `maintain_begin` is left blank, parameter `maintain_end` is also
   blank. In this case, the system automatically allocates the default start time 02:00.
 
-* `maintain_end` - (Optional, String) Specifies the time at which a maintenance time window ends. Format: HH:mm. The
-  start time and end time of a maintenance time window must indicate the time segment of a supported maintenance time
-  window. The end time is four hours later than the start time. For example, if the start time is 22:00, the end time is
-  02:00. Parameters `maintain_begin`
-  and `maintain_end` must be set in pairs. If parameter `maintain_end` is left blank, parameter
-  `maintain_begin` is also blank. In this case, the system automatically allocates the default end time 06:00.
+* `maintain_end` - (Optional, String) Specifies the time at which a maintenance time window ends. Format: HH:mm. 
+  The start time and end time of a maintenance time window must indicate the time segment of a supported maintenance 
+  time window. The end time is four hours later than the start time. 
+  For example, if the start time is 22:00, the end time is 02:00.
+  Parameters `maintain_begin` and `maintain_end` must be set in pairs.
+  If parameter `maintain_end` is left  blank, parameter `maintain_begin` is also blank. 
+  In this case, the system automatically allocates the default end time 06:00.
 
 * `ssl_enable` - (Optional, String, ForceNew) Specifies whether to enable public access for the DMS rabbitmq instance.
   Changing this creates a new instance resource.

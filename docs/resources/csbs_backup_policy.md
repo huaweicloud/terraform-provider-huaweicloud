@@ -36,25 +36,32 @@ resource "huaweicloud_csbs_backup_policy" "backup_policy" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the Backup Policy resource. If omitted, the provider-level region will be used. Changing this creates a new Backup Policy resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the Backup Policy resource. If omitted, the
+  provider-level region will be used. Changing this creates a new Backup Policy resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of backup policy. The value consists of 1 to 255 characters and can contain only letters, digits, underscores (_), and hyphens (-).
+* `name` - (Required, String, ForceNew) Specifies the name of backup policy. The value consists of 1 to 255 characters
+  and can contain only letters, digits, underscores (_), and hyphens (-).
 
-* `description` - (Optional, String, ForceNew) Backup policy description. The value consists of 0 to 255 characters and must not contain a greater-than sign (>) or less-than sign (<).
+* `description` - (Optional, String, ForceNew) Backup policy description. The value consists of 0 to 255 characters and
+  must not contain a greater-than sign (>) or less-than sign (<).
 
-* `provider_id` - (Required, String) Specifies backup provider ID. Default value is **fc4d5750-22e7-4798-8a46-f48f62c4c1da**
+* `provider_id` - (Required, String) Specifies backup provider ID. Default value is **
+  fc4d5750-22e7-4798-8a46-f48f62c4c1da**
 
 * `common` - (Optional, Map) General backup policy parameters, which are blank by default.
 
 * `scheduled_operation` block supports the following arguments:
 
-  + `name` - (Optional, String) Specifies Scheduling period name.The value consists of 1 to 255 characters and can contain only letters, digits, underscores (_), and hyphens (-).
+  + `name` - (Optional, String) Specifies Scheduling period name.The value consists of 1 to 255 characters and can
+    contain only letters, digits, underscores (_), and hyphens (-).
 
-  + `description` - (Optional, String) Specifies Scheduling period description.The value consists of 0 to 255 characters and must not contain a greater-than sign (>) or less-than sign (<).
+  + `description` - (Optional, String) Specifies Scheduling period description.The value consists of 0 to 255
+    characters and must not contain a greater-than sign (>) or less-than sign (<).
 
   + `enabled` - (Optional, Bool) Specifies whether the scheduling period is enabled. Default value is **true**
 
-  + `max_backups` - (Optional, Int) Specifies maximum number of backups that can be automatically created for a backup object.
+  + `max_backups` - (Optional, Int) Specifies maximum number of backups that can be automatically created for a backup
+    object.
 
   + `retention_duration_days` - (Optional, Int) Specifies duration of retaining a backup, in days.
 
@@ -92,7 +99,6 @@ In addition to all arguments above, the following attributes are exported:
   + `trigger_name` - Specifies Scheduler name.
 
   + `trigger_type` - Specifies Scheduler type.
-
 
 ## Import
 

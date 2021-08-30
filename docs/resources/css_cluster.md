@@ -4,7 +4,8 @@ subcategory: "Cloud Search Service (CSS)"
 
 # huaweicloud_css_cluster
 
-CSS cluster management This is an alternative to `huaweicloud_css_cluster_v1`
+CSS cluster management
+This is an alternative to `huaweicloud_css_cluster_v1`
 
 ## Example Usage
 

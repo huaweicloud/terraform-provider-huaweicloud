@@ -22,10 +22,11 @@ resource "huaweicloud_elb_loadbalancer" "basic" {
   l4_flavor_id = "{{ l4_flavor_id }}"
   l7_flavor_id = "{{ l7_flavor_id }}"
 
-  availability_zone     = [
+  availability_zone = [
     "cn-north-4a",
     "cn-north-4b",
   ]
+
   enterprise_project_id = "{{ eps_id }}"
 }
 ```
@@ -46,10 +47,11 @@ resource "huaweicloud_elb_loadbalancer" "basic" {
   l4_flavor_id = "{{ l4_flavor_id }}"
   l7_flavor_id = "{{ l7_flavor_id }}"
 
-  availability_zone     = [
+  availability_zone = [
     "cn-north-4a",
     "cn-north-4b",
   ]
+
   enterprise_project_id = "{{ eps_id }}"
 
   ipv4_eip_id = "{{ eip_id }}"
@@ -72,10 +74,11 @@ resource "huaweicloud_elb_loadbalancer" "basic" {
   l4_flavor_id = "{{ l4_flavor_id }}"
   l7_flavor_id = "{{ l7_flavor_id }}"
 
-  availability_zone     = [
+  availability_zone = [
     "cn-north-4a",
     "cn-north-4b",
   ]
+  
   enterprise_project_id = "{{ eps_id }}"
 
   iptype                = "5_bgp"

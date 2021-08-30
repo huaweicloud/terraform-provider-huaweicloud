@@ -29,5 +29,5 @@ dedicated mode domain start to be created.
 
 | Name | Version |
 | ---- | ---- |
-| terraform | > = 0.12.0 |
-| huaweicloud | > = 1.28.0 |
+| terraform | >= 0.12.0 |
+| huaweicloud | >= 1.28.0 |

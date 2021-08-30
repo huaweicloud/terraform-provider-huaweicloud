@@ -32,7 +32,7 @@ resource "huaweicloud_identity_user" "user_2" {
 resource "huaweicloud_identity_group_membership" "membership_1" {
   group = huaweicloud_identity_group.group_1.id
   users = [
-    huaweicloud_identity_user.user_1.id
+    huaweicloud_identity_user.user_1.id,
     huaweicloud_identity_user.user_2.id
   ]
 }

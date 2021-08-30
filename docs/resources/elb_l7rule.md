@@ -9,8 +9,10 @@ Manages an ELB L7 Rule resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
+variable l7policy_id {}
+
 resource "huaweicloud_elb_l7rule" "l7rule_1" {
-  l7policy_id = {{ policy_id }}
+  l7policy_id  = var.l7policy_id
   type         = "PATH"
   compare_type = "EQUAL_TO"
   value        = "/api"

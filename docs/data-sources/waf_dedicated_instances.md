@@ -43,8 +43,8 @@ The `instances` block supports:
 
 * `specification_code` - The specification code of instance.
   Different specifications have different throughput. Values are:
-  * `waf.instance.professional` - The professional edition, throughput: 100 Mbit/s; QPS: 2,000 (Reference only).
-  * `waf.instance.enterprise` - The enterprise edition, throughput: 500 Mbit/s; QPS: 10,000 (Reference only).
+  + `waf.instance.professional` - The professional edition, throughput: 100 Mbit/s; QPS: 2,000 (Reference only).
+  +`waf.instance.enterprise` - The enterprise edition, throughput: 500 Mbit/s; QPS: 10,000 (Reference only).
 
 * `cpu_architecture` - The ECS cpu architecture of WAF dedicated instance.
 
@@ -61,11 +61,11 @@ The `instances` block supports:
 * `service_ip` - The service ip of the instance.
 
 * `run_status` - The running status of the instance. Values are:
-  +`0` - Instance is creating.
-  +`1` - Instance has created.
-  +`2` - Instance is deleting.
-  +`3` - Instance has deleted.
-  +`4` - Instance create failed.
+  + `0` - Instance is creating.
+  + `1` - Instance has created.
+  + `2` - Instance is deleting.
+  + `3` - Instance has deleted.
+  + `4` - Instance create failed.
 
 * `access_status` - The access status of the instance. `0`: inaccessible, `1`: accessible.
 
