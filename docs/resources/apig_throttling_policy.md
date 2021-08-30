@@ -66,12 +66,12 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies an ID of the APIG dedicated instance to which the API
   throttling policy belongs to. Changing this will create a new API throttling policy resource.
 
-* `name` - (Required, String) Specifies the name of the API throttling policy. 
-  The policy name consists of 3 to 64 characters, starting with a letter. Only letters, digits and underscores (_) 
-  are allowed.
+* `name` - (Required, String) Specifies the name of the API throttling policy.
+  The policy name consists of 3 to 64 characters, starting with a letter.
+  Only letters, digits and underscores (_) are allowed.
 
 * `period` - (Required, Int) Specifies the period of time for limiting the number of API calls.
-  This parameter applies with each of the API call limits: `max_api_requests`, `max_app_requests`, `max_ip_requests` 
+  This parameter applies with each of the API call limits: `max_api_requests`, `max_app_requests`, `max_ip_requests`
   and `max_user_requests`.
 
 * `max_api_requests` - (Required, Int) Specifies the maximum number of times an API can be accessed within a specified
@@ -94,8 +94,8 @@ The following arguments are supported:
     period.
 
 * `description` - (Optional, String) Specifies the description about the API throttling policy.
-  The description contain a maximum of 255 characters and the angle brackets (< and >) are not allowed. Chinese 
-  characters must be in UTF-8 or Unicode format.
+  The description contain a maximum of 255 characters and the angle brackets (< and >) are not allowed.
+  Chinese characters must be in UTF-8 or Unicode format.
 
 * `period_unit` - (Optional, String) Specifies the time unit for limiting the number of API calls.
   The valid values are *SECOND*, *MINUTE*, *HOUR* and *DAY*, default to *MINUTE*.

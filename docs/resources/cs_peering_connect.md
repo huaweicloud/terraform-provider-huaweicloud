@@ -29,7 +29,7 @@ resource "huaweicloud_vpc_subnet" "subnet" {
 
 resource "huaweicloud_cs_peering_connect" "peering" {
   name = "terraform_cs_peering_connect_test"
-  
+
   target_vpc_info {
     vpc_id = huaweicloud_vpc.vpc.id
   }

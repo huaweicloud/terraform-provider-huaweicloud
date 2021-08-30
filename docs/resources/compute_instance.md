@@ -194,7 +194,7 @@ resource "huaweicloud_compute_instance" "myinstance" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the instance. 
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the instance.
   If omitted, the provider-level region will be used. Changing this creates a new instance.
 
 * `name` - (Required, String) Specifies a unique name for the instance. The name consists of 1 to 64 characters,
@@ -230,7 +230,7 @@ The following arguments are supported:
 * `system_disk_type` - (Optional, String, ForceNew) Specifies the system disk type of the instance. Defaults to `GPSSD`.
   Changing this creates a new instance.
 
-  For details about disk types, see 
+  For details about disk types, see
   [Disk Types and Disk Performance](https://support.huaweicloud.com/en-us/productdesc-evs/en-us_topic_0014580744.html).
   Available options are:
   + `SAS`: high I/O disk type.
@@ -268,13 +268,12 @@ The following arguments are supported:
   and *postPaid*, defaults to *postPaid*. Changing this creates a new instance.
 
 * `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.
-  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing 
-  this creates a new
-  instance.
+  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
+  Changing this creates a new instance.
 
 * `period` - (Optional, Int, ForceNew) Specifies the charging period of the instance.
-  If `period_unit` is set to *month* , the value ranges from 1 to 9. If `period_unit` is set to *year*, the value 
-  ranges from 1 to 3. This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a 
+  If `period_unit` is set to *month* , the value ranges from 1 to 9. If `period_unit` is set to *year*, the value
+  ranges from 1 to 3. This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a
   new resource.
 
 * `auto_renew` - (Optional, String, ForceNew) Specifies whether auto renew is enabled.
@@ -293,7 +292,7 @@ The following arguments are supported:
 
 The `network` block supports:
 
-* `uuid` - (Required, String, ForceNew) Specifies the network UUID to attach to the instance. 
+* `uuid` - (Required, String, ForceNew) Specifies the network UUID to attach to the instance.
   Changing this creates a new instance.
 
 * `fixed_ip_v4` - (Optional, String, ForceNew) Specifies a fixed IPv4 address to be used on this network.
@@ -351,11 +350,11 @@ terraform import huaweicloud_compute_instance.my_instance b11b407c-e604-4e8d-8bc
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
-API response, security or some other reason. 
-The missing attributes include: `admin_pass`, `user_data`, `data_disks`, `scheduler_hints`, `stop_before_destroy`, 
-`delete_disks_on_termination`, `network/access_network`, `power_action` and arguments for pre-paid. It is generally 
-recommended running `terraform plan` after importing an instance.
-You can then decide if changes should be applied to the instance, or the resource definition should be updated to 
+API response, security or some other reason.
+The missing attributes include: `admin_pass`, `user_data`, `data_disks`, `scheduler_hints`, `stop_before_destroy`,
+`delete_disks_on_termination`, `network/access_network`, `power_action` and arguments for pre-paid.
+It is generally recommended running `terraform plan` after importing an instance.
+You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.
 
 ```

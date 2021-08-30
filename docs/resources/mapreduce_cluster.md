@@ -80,7 +80,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   type               = "STREAMING"
   version            = "MRS 1.9.2"
   manager_admin_pass = var.password
-  node_admin_pass    = var.password 
+  node_admin_pass    = var.password
   vpc_id             = var.vpc_id
   subnet_id          = var.subnet_id
   component_list     = ["Storm"]

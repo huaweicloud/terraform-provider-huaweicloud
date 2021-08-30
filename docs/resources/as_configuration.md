@@ -87,7 +87,7 @@ resource "huaweicloud_as_configuration" "my_as_config" {
 ```hcl
 resource "huaweicloud_as_configuration" "my_as_config" {
   scaling_configuration_name = "my_as_config"
-  
+
   instance_config {
     instance_id = "4579f2f5-cbe8-425a-8f32-53dcb9d9053a"
     key_name    = var.keyname
@@ -112,8 +112,8 @@ The `instance_config` block supports:
 
 * `instance_id` - (Optional, String) When using the existing instance specifications as the template to create AS
   configurations, specify this argument.
-  In this case, flavor, image, and disk arguments do not take effect. If the instance_id argument is not specified, 
-  flavor, image, and disk arguments are mandatory.
+  In this case, flavor, image, and disk arguments do not take effect.
+  If the instance_id argument is not specified, flavor, image, and disk arguments are mandatory.
 
 * `flavor` - (Required, String) The flavor name.
 

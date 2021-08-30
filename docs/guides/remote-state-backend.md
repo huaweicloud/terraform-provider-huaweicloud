@@ -85,7 +85,7 @@ The following arguments are supported:
   The value is `https://obs.{{region}}.myhuaweicloud.com`.
   This can also be sourced from the *AWS_S3_ENDPOINT* environment variable.
 
-* `skip_credentials_validation` - (Required) Skip credentials validation via the STS API. 
+* `skip_credentials_validation` - (Required) Skip credentials validation via the STS API.
   It's mandatory for HuaweiCloud.
 
 * `skip_region_validation` - (Required) Skip validation of provided region name. It's mandatory for HuaweiCloud.

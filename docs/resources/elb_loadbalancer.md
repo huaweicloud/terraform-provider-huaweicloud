@@ -78,7 +78,7 @@ resource "huaweicloud_elb_loadbalancer" "basic" {
     "cn-north-4a",
     "cn-north-4b",
   ]
-  
+
   enterprise_project_id = "{{ eps_id }}"
 
   iptype                = "5_bgp"
