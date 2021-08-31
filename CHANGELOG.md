@@ -1,10 +1,12 @@
+# CHANGELOG
+
 ## 1.27.2 (August 26, 2021)
 
 FEATURES:
 
 * **New Data Source:**
-  - `huaweicloud_gaussdb_cassandra_dedicated_resource` [GH-1412]
-  - `huaweicloud_gaussdb_mysql_dedicated_resource` [GH-1415]
+  + `huaweicloud_gaussdb_cassandra_dedicated_resource` [GH-1412]
+  + `huaweicloud_gaussdb_mysql_dedicated_resource` [GH-1415]
 
 ENHANCEMENTS:
 
@@ -16,8 +18,8 @@ ENHANCEMENTS:
 FEATURES:
 
 * **New Resurce:**
-  - `huaweicloud_mapreduce_job` [GH-1324]
-  - `huaweicloud_apig_api` [GH-1360]
+  + `huaweicloud_mapreduce_job` [GH-1324]
+  + `huaweicloud_apig_api` [GH-1360]
 
 ENHANCEMENTS:
 
@@ -36,10 +38,10 @@ BUG FIXES:
 FEATURES:
 
 * **New Resurce:**
-  - `huaweicloud_apig_throttling_policy` ([#1296](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1296))
-  - `huaweicloud_apig_custom_authorizer` ([#1297](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1297))
-  - `huaweicloud_mapreduce_cluster` ([#1324](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1324))
-  - `huaweicloud_cce_node_attach` ([#1326](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1326))
+  + `huaweicloud_apig_throttling_policy` ([#1296](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1296))
+  + `huaweicloud_apig_custom_authorizer` ([#1297](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1297))
+  + `huaweicloud_mapreduce_cluster` ([#1324](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1324))
+  + `huaweicloud_cce_node_attach` ([#1326](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1326))
 
 ENHANCEMENTS:
 
@@ -47,75 +49,81 @@ ENHANCEMENTS:
 * resource/huaweicloud_network_acl_rule: cancel the MaxItems limitation of inbound_rules and outbound_rules ([#1315](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1315))
 * resource/huaweicloud_gaussdb_mysql_instance: Support to enlarge proxy node ([1258](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1258))
 * enterprise_project_id support:
-  - `huaweicloud_smn_topic`: ([1305](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1305))
-  - `huaweicloud_css_cluster`: ([1307](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1307))
-  - `huaweicloud_dis_stream`: ([1313](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1313))
-  - `huaweicloud_dws_cluster`: ([1313](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1313))
-  - `huaweicloud_dli_queue`: ([1321](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1321))
+  + `huaweicloud_smn_topic`: ([1305](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1305))
+  + `huaweicloud_css_cluster`: ([1307](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1307))
+  + `huaweicloud_dis_stream`: ([1313](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1313))
+  + `huaweicloud_dws_cluster`: ([1313](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1313))
+  + `huaweicloud_dli_queue`: ([1321](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1321))
 
 BUG FIXES:
 
 * resource/huaweicloud_obs_bucket: Support to create parallel file system ([#1312](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1312))
 
-
 ## 1.26.1 (July 23, 2021)
 
 FEATURES:
+
 * **New Resurce:**
-  - `huaweicloud_waf_certificate` ([#1255](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1255))
-  - `huaweicloud_waf_domain` ([#1255](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1255))
-  - `huaweicloud_waf_policy` ([#1257](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1257))
-  - `huaweicloud_waf_rule_blacklist` ([#1283](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1283))
-  - `huaweicloud_waf_rule_data_masking` ([#1295](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1295))
-  - `huaweicloud_waf_rule_web_tamper_protection` ([#1298](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1298))
-  - `huaweicloud_apig_environment` ([#1267](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1267))
-  - `huaweicloud_apig_group` ([#1284](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1284))
-  - `huaweicloud_apig_response` ([#1294](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1294))
-  - `huaweicloud_apig_vpc_channel` ([#1273](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1273))
+  + `huaweicloud_waf_certificate` ([#1255](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1255))
+  + `huaweicloud_waf_domain` ([#1255](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1255))
+  + `huaweicloud_waf_policy` ([#1257](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1257))
+  + `huaweicloud_waf_rule_blacklist` ([#1283](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1283))
+  + `huaweicloud_waf_rule_data_masking` ([#1295](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1295))
+  + `huaweicloud_waf_rule_web_tamper_protection` ([#1298](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1298))
+  + `huaweicloud_apig_environment` ([#1267](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1267))
+  + `huaweicloud_apig_group` ([#1284](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1284))
+  + `huaweicloud_apig_response` ([#1294](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1294))
+  + `huaweicloud_apig_vpc_channel` ([#1273](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1273))
 
 * **New Data Source:**
-  - `huaweicloud_waf_certificate` ([#1279](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1279))
-  - `huaweicloud_elb_certificate` ([#1301](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1301))
-  - `huaweicloud_lb_certificate` ([#1303](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1303))
+  + `huaweicloud_waf_certificate` ([#1279](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1279))
+  + `huaweicloud_elb_certificate` ([#1301](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1301))
+  + `huaweicloud_lb_certificate` ([#1303](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1303))
 
 ENHANCEMENTS:
+
 * provider: use `cloud` value as basis for `auth_url` ([#1285](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1285))
 * resource/huaweicloud_vpc_eip: Add tags support ([#1262](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1262))
 * resource/huaweicloud_dds_instance: Support to update `flavor` field ([#1286](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1286))
 
 BUG FIXES:
+
 * resource/huaweicloud_compute_instance: Fix power action error ([#1268](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1268))
 * resource/huaweicloud_identity_role: Support the policy for cloud services and agencies ([#1289](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1289))
-
 
 ## 1.26.0 (June 30, 2021)
 
 FEATURES:
+
 * **New Resource:** `huaweicloud_apig_instance` ([#1221](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1221))
 * **New Resource:** `huaweicloud_apig_application` ([#1198](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1198))
 
 ENHANCEMENTS:
+
 * resource/huaweicloud_obs_bucket: Support to enable multi-AZ mode ([#1190](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1190))
 * resource/huaweicloud_vpc_eip: support prePaid charging mode ([#963](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/963))
 * resource/huaweicloud_gaussdb_mysql_instance: Add proxy support for gaussdb mysql ([#1136](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1136))
 * resource/huaweicloud_cce_*: expand PollInterval in WaitForState to avoid the API rate limits ([#1251](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1251))
 
 BUG FIXES:
-* resource/huaweicloud_rds_instance: Fix the exception of empty value conversion ([#1204](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1204))
 
+* resource/huaweicloud_rds_instance: Fix the exception of empty value conversion ([#1204](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1204))
 
 ## 1.25.1 (June 24, 2021)
 
 FEATURES:
+
 * **New Resource:** `huaweicloud_scm_certificate` ([#1218](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1218))
 
 ENHANCEMENTS:
+
 * resource/huaweicloud_fgs_function: Add urn and version support ([#1203](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1203))
 * resource/huaweicloud_gaussdb_mysql_instance: Add volume_size support ([#1201](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1201))
 
 ## 1.25.0 (May 31, 2021)
 
 FEATURES:
+
 * **New Data Source:** `huaweicloud_cce_addon_template` ([#1039](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1039))
 * **New Data Source:** `huaweicloud_iec_port` ([#1152](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1152))
 * **New Data Source:** `huaweicloud_iec_vpc` ([#1152](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1152))
@@ -139,22 +147,24 @@ FEATURES:
 * **New Resource:** `huaweicloud_dms_rabbitmq_instance` ([#1170](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1170))
 
 ENHANCEMENTS:
+
 * resource/huaweicloud_cce_node: Support import function ([#958](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/958))
 * resource/huaweicloud_cce_node_pool: Support import function ([#1005](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1005))
 * resource/huaweicloud_compute_instance: Support power action ([#914](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/914))
 * resource/huaweicloud_fgs_function: Support to update parameters ([#1140](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1040))
 * resource/huaweicloud_iec_vpc_subnet: Set the default DNS list if it was not specified ([#1157](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1157))
 * enterprise_project_id support:
-    - `huaweicloud_ces_alarmrule`: ([1137](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1137))
-    - `huaweicloud_dds_instance`: ([#1145](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1145))
+  + `huaweicloud_ces_alarmrule`: ([1137](https://github.com/huaweicloudterraform-provider-huaweicloud/pull/1137))
+  + `huaweicloud_dds_instance`: ([#1145](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1145))
 
 BUG FIXES:
+
 * data/huaweicloud_vpc_route_ids: Make list instead of set for ids ([#1141](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1141))
 * resource/huaweicloud_compute_instance: Support security_group_ids parameter ([#1128](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1128))
 
 DEPRECATE:
-* resource/huaweicloud_dms_instance: ([#1176](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1176))
 
+* resource/huaweicloud_dms_instance: ([#1176](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1176))
 
 ## 1.24.2 (May 18, 2021)
 
@@ -165,6 +175,7 @@ BUG FIXES:
 ## 1.24.1 (May 12, 2021)
 
 FEATURES:
+
 * **New Data Source:** `huaweicloud_lb_loadbalancer` ([#1113](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1113))
 
 ENHANCEMENTS:
@@ -201,8 +212,8 @@ ENHANCEMENTS:
 * resource/huaweicloud_nat_gateway: Unify network parameters ([#1087](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1087))
 * resource/huaweicloud_ces_alarmrule: Add alarm_level parameter ([#1085](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1085))
 * resource/huaweicloud_fgs_function:
-    - Rename xrole and app parameters ([#1076](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1095))
-    - `func_code` support both base64 and plain text format ([#1077](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1077))
+  + Rename xrole and app parameters ([#1076](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1095))
+  + `func_code` support both base64 and plain text format ([#1077](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1077))
 
 BUG FIXES:
 
@@ -229,12 +240,12 @@ ENHANCEMENTS:
 * resource/huaweicloud_cce_node_pool: Support `tags` field ([#980](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/980))
 
 * resource/huaweicloud_cce_node:
-    - Support prePaid charging mode ([#1001](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1001))
-    - Add possibility to set `runtime` ([#1026](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1026))
+  + Support prePaid charging mode ([#1001](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1001))
+  + Add possibility to set `runtime` ([#1026](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1026))
 
 * resource/huaweicloud_cce_cluster:
-    - Support prePaid charging mode ([#1027](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1027))
-    - Add `delete_*` parameters to delete associated resources ([#1007](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1007))
+  + Support prePaid charging mode ([#1027](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1027))
+  + Add `delete_*` parameters to delete associated resources ([#1007](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/1007))
 
 * resource/huaweicloud_api_gateway_api: Support `CORS` field ([#1015](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/1015))
 
@@ -298,8 +309,8 @@ ENHANCEMENTS:
 * resource/huaweicloud_cce_cluster: Support eni network for turbo cluster ([#934](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/934))
 
 * resource/huaweicloud_cce_node:
-    - Support ECS group_id param ([#936](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/936))
-    - Support `extend_param`, `fixed_ip` and `hw_passthrough` ([#947](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/947))
+    + Support ECS group_id param ([#936](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/936))
+    + Support `extend_param`, `fixed_ip` and `hw_passthrough` ([#947](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/947))
 
 * resource/huaweicloud_identity_agency: Support `duration` param ([#946](https://github.com/huaweicloud/terraform-provider-huaweicloud/pull/946))
 
@@ -569,7 +580,6 @@ ENHANCEMENTS:
 BUG FIXES:
 
 * resource/huaweicloud_rds_instance_v3: fix document issue ([#348](https://github.com/huaweicloud/terraform-provider-huaweicloud/issues/348))
-
 
 ## 1.15.0 (June 10, 2020)
 

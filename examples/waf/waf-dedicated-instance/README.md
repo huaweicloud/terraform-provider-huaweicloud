@@ -1,4 +1,4 @@
-# Create a professional edition WAF dedicated instance.
+# Create a professional edition WAF dedicated instance
 
 This example first creates a WAF dedicated instance, and then creates a policy. The WAF dedicated instance requires a
 VPC, Subnet, and security group. In this example, we all create them. You can replace them with resources already
