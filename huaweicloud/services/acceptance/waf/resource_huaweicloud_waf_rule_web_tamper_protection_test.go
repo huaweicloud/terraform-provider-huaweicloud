@@ -11,7 +11,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -20,16 +19,19 @@ import (
 
 func TestAccWafRuleWebTamperProtection_basic(t *testing.T) {
 	var rule rules.WebTamper
-	randName := acctest.RandString(5)
+	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_waf_rule_web_tamper_protection.rule_1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckWafWafRuleWebTamperProtectionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWafWafRuleWebTamperProtection_basic(randName),
+				Config: testAccWafRuleWebTamperProtection_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckWafRuleWebTamperProtectionExists(resourceName, &rule),
 					resource.TestCheckResourceAttr(resourceName, "domain", "www.abc.com"),
@@ -101,16 +103,14 @@ func testAccCheckWafRuleWebTamperProtectionExists(n string, rule *rules.WebTampe
 	}
 }
 
-func testAccWafWafRuleWebTamperProtection_basic(name string) string {
+func testAccWafRuleWebTamperProtection_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_waf_policy" "policy_1" {
-  name = "policy_%s"
-}
+%s
 
 resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
   policy_id = huaweicloud_waf_policy.policy_1.id
   domain    = "www.abc.com"
   path      = "/a"
 }
-`, name)
+`, testAccWafPolicyV1_basic(name))
 }

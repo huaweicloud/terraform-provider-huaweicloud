@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/golangsdk/openstack/waf/v1/certificates"
@@ -15,11 +14,14 @@ import (
 func TestAccWafCertificateV1_basic(t *testing.T) {
 	var certificate certificates.Certificate
 	resourceName := "huaweicloud_waf_certificate.certificate_1"
-	name := fmt.Sprintf("cert-%s", acctest.RandString(5))
+	name := acceptance.RandomAccResourceName()
 	updateName := name + "_update"
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckWafCertificateV1Destroy,
 		Steps: []resource.TestStep{
@@ -102,6 +104,8 @@ func testAccCheckWafCertificateV1Exists(n string, certificate *certificates.Cert
 
 func testAccWafCertificateV1_conf(name string) string {
 	return fmt.Sprintf(`
+%s
+
 resource "huaweicloud_waf_certificate" "certificate_1" {
   name = "%s"
 
@@ -159,6 +163,10 @@ x7N2mFK4skBzVtMVbjAHVjG78UitVu+FrzqGreaJXHaduhgUH2iFWfw09joOotAM
 X7ioLbTeWGBqFM+C80PkdBNp
 -----END PRIVATE KEY-----
 EOT
+
+  depends_on = [
+    huaweicloud_waf_dedicated_instance.instance_1
+  ]
 }
-`, name)
+`, testAccWafDedicatedInstanceV1_conf(name), name)
 }

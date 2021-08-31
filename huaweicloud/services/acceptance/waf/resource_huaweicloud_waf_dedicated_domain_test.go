@@ -18,7 +18,10 @@ func TestAccWafDedicateDomainV1_basic(t *testing.T) {
 	randName := acceptance.RandomAccResourceName()
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckWafDedicatedDomainV1Destroy,
 		Steps: []resource.TestStep{

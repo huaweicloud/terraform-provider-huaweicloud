@@ -15,8 +15,11 @@ func TestAccDataSourceWafDedicatedInstancesV1_basic(t *testing.T) {
 	resourceName1 := "data.huaweicloud_waf_dedicated_instances.instance_1"
 	resourceName2 := "data.huaweicloud_waf_dedicated_instances.instance_2"
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { acceptance.TestAccPreCheck(t) },
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
 		Providers: acceptance.TestAccProviders,
 		Steps: []resource.TestStep{
 			{

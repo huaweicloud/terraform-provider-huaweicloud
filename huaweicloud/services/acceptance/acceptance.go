@@ -31,6 +31,8 @@ var (
 	HW_MAPREDUCE_CUSTOM      = os.Getenv("HW_MAPREDUCE_CUSTOM")
 
 	HW_DEPRECATED_ENVIRONMENT = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
+
+	HW_WAF_ENABLE_FLAG = os.Getenv("HW_WAF_ENABLE_FLAG")
 )
 
 var TestAccProviders map[string]*schema.Provider
@@ -91,4 +93,11 @@ func TestAccPreCheckMrsCustom(t *testing.T) {
 
 func RandomAccResourceName() string {
 	return fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
+}
+
+//lintignore:AT003
+func TestAccPrecheckWafInstance(t *testing.T) {
+	if HW_WAF_ENABLE_FLAG == "" {
+		t.Skip("Jump the WAF acceptance tests.")
+	}
 }

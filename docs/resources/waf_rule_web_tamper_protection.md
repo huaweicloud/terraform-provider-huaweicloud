@@ -6,6 +6,9 @@ subcategory: "Web Application Firewall (WAF)"
 
 Manages a WAF web tamper protection rule resource within HuaweiCloud.
 
+-> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
+used. The web tamper protection rule resource can be used in Cloud Mode, Dedicated Mode and ELB Mode.
+
 ## Example Usage
 
 ```hcl

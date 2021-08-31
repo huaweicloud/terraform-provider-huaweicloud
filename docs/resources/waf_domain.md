@@ -6,6 +6,9 @@ subcategory: "Web Application Firewall (WAF)"
 
 Manages a WAF domain resource within HuaweiCloud.
 
+-> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
+used. The domain name resource can be used in Cloud Mode.
+
 ## Example Usage
 
 ```hcl

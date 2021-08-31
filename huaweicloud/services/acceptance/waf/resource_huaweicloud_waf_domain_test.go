@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -16,11 +15,14 @@ import (
 func TestAccWafDomainV1_basic(t *testing.T) {
 	var domain domains.Domain
 	resourceName := "huaweicloud_waf_domain.domain_1"
-	randName := acctest.RandString(8)
-	certificateName := acctest.RandString(8)
+	randName := acceptance.RandomAccResourceName()
+	certificateName := acceptance.RandomAccResourceName()
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckWafDomainV1Destroy,
 		Steps: []resource.TestStep{
@@ -58,11 +60,14 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 func TestAccWafDomainV1_policy(t *testing.T) {
 	var domain domains.Domain
 	resourceName := "huaweicloud_waf_domain.domain_1"
-	randName := acctest.RandString(8)
-	certificateName := acctest.RandString(8)
+	randName := acceptance.RandomAccResourceName()
+	certificateName := acceptance.RandomAccResourceName()
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckWafDomainV1Destroy,
 		Steps: []resource.TestStep{

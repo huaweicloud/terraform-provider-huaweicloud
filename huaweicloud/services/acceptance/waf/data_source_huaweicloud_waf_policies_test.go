@@ -14,8 +14,11 @@ func TestAccDataSourceWafPoliciesV1_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	dataSourceName := "data.huaweicloud_waf_policies.policies_1"
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { acceptance.TestAccPreCheck(t) },
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
 		Providers: acceptance.TestAccProviders,
 		Steps: []resource.TestStep{
 			{
@@ -51,6 +54,10 @@ func testAccWafPoliciesV1_conf(name string) string {
 
 data "huaweicloud_waf_policies" "policies_1" {
   name = huaweicloud_waf_policy.policy_1.name
+
+  depends_on = [
+    huaweicloud_waf_policy.policy_1
+  ]
 }
 `, testAccWafPolicyV1_basic(name))
 }
