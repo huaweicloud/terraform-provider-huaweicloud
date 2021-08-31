@@ -8,7 +8,7 @@ resource "huaweicloud_vpc_subnet" "mysubnet" {
   cidr       = var.subnet_cidr
   gateway_ip = var.subnet_gateway
 
-  //dns is required for cce node installing
+  # dns is required for cce node installing
   primary_dns   = var.primary_dns
   secondary_dns = var.secondary_dns
   vpc_id        = huaweicloud_vpc.myvpc.id

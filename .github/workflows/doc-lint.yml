@@ -27,3 +27,28 @@ jobs:
           config: .markdownlint.json
           files:
             ./*.md ./examples ./docs
+
+  tflint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: terraform-linters/setup-tflint@v1
+      name: Setup TFLint
+
+    - name: Show version
+      run: tflint --version
+
+    - name: Run TFLint
+      run: |
+        # Go through all dirs
+        WORK_DIR="./examples"
+        dirs=$(ls -d ${WORK_DIR}/*)
+        for sub_dir in ${dirs}; do
+          targets=$(ls -d ${sub_dir}/*)
+          for DIRECTORY in ${targets}; do
+            echo -e "\nlinting directory: ${DIRECTORY}"
+            tflint -c ${WORK_DIR}/.tflint.hcl ${DIRECTORY}
+          done
+        done
