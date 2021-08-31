@@ -299,15 +299,9 @@ func resourceVpcEIPV1Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("bandwidth", bW)
 	d.Set("address", eIP.PublicAddress)
-	d.Set("region", GetRegion(d, config))
 	d.Set("enterprise_project_id", eIP.EnterpriseProjectID)
-
-	// "DOWN" means the publicips is active but unbound
-	if eIP.Status == "DOWN" {
-		d.Set("status", "UNBOUND")
-	} else {
-		d.Set("status", eIP.Status)
-	}
+	d.Set("region", GetRegion(d, config))
+	d.Set("status", normalizeEIPStatus(eIP.Status))
 
 	// save tags
 	if vpcV2Client, err := config.NetworkingV2Client(GetRegion(d, config)); err == nil {
@@ -489,6 +483,19 @@ func unbindToPort(d *schema.ResourceData, eipID string, networkingClient *golang
 		return err
 	}
 	return waitForEIPActive(networkingClient, eipID, timeout)
+}
+
+func normalizeEIPStatus(status string) string {
+	var ret string = status
+
+	// "DOWN" means the eip is active but unbound
+	if status == "DOWN" {
+		ret = "UNBOUND"
+	} else if status == "ACTIVE" {
+		ret = "BOUND"
+	}
+
+	return ret
 }
 
 func getEIPStatus(networkingClient *golangsdk.ServiceClient, eId string) resource.StateRefreshFunc {
