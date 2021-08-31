@@ -133,9 +133,18 @@ The following arguments are supported:
 * `authentication_mode` - (Optional, String, ForceNew) Authentication mode of the cluster, possible values are
   authenticating_proxy and rbac. Defaults to *rbac*. Changing this parameter will create a new cluster resource.
 
-* `authenticating_proxy_ca` - (Optional, String, ForceNew) CA root certificate provided in the authenticating_proxy
-  mode. The CA root certificate is encoded to the Base64 format. Changing this parameter will create a new cluster
-  resource.
+* `authenticating_proxy_ca` - (Optional, String, ForceNew) CA root certificate provided in the authenticating_proxy mode.
+  The input value can be a Base64 encoded string or not. Changing this parameter will create a new cluster resource.
+
+* `authenticating_proxy_cert` - (Optional, String, ForceNew) Client certificate provided in the authenticating_proxy mode.
+  The input value can be a Base64 encoded string or not. Changing this parameter will create a new cluster resource.
+
+* `authenticating_proxy_private_key` - (Optional, String, ForceNew) Private key of the client certificate provided in the
+  authenticating_proxy mode. The input value can be a Base64 encoded string or not.
+  Changing this parameter will create a new cluster resource.
+
+-> **Note:** For more detailed description of authenticating_proxy mode for authentication_mode see
+[Enhanced authentication](https://github.com/huaweicloud/terraform-provider-huaweicloud/blob/master/examples/cce/basic/README.md).
 
 * `multi_az` - (Optional, Bool, ForceNew) Enable multiple AZs for the cluster, only when using HA flavors. Changing this
   parameter will create a new cluster resource. This parameter and `masters` are alternative
@@ -236,7 +245,7 @@ This resource provides the following timeouts configuration options:
 
 Cluster can be imported using the cluster id, e.g.
 
- ```
+```
  $ terraform import huaweicloud_cce_cluster.cluster_1 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
 ```
 
