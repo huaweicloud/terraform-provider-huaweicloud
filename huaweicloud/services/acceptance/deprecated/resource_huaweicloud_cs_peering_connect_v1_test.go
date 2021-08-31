@@ -30,7 +30,7 @@ import (
 
 func TestAccCsPeeringConnectV1_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckCsPeeringConnectV1Destroy,
 		Steps: []resource.TestStep{

@@ -32,7 +32,7 @@ import (
 
 func TestAccCsRouteV1_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckCsRouteV1Destroy,
 		Steps: []resource.TestStep{

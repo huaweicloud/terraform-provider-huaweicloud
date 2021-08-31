@@ -31,7 +31,7 @@ import (
 func TestAccCsClusterV1_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckCsClusterV1Destroy,
 		Steps: []resource.TestStep{
