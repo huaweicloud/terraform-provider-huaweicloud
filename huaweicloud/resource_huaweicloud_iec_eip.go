@@ -175,13 +175,7 @@ func resourceIecEipV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("bandwidth_size", n.BandwidthSize)
 	d.Set("bandwidth_share_type", n.BandwidthShareType)
 	d.Set("site_info", n.SiteInfo)
-
-	// "DOWN" means the publicips is active but unbound
-	if n.Status == "DOWN" {
-		d.Set("status", "UNBOUND")
-	} else {
-		d.Set("status", n.Status)
-	}
+	d.Set("status", normalizeEIPStatus(n.Status))
 
 	return nil
 }
