@@ -56,10 +56,10 @@ resource "huaweicloud_vpc" "example" {
 The Huawei Cloud provider offers a flexible means of providing credentials for authentication. The following methods are
 supported, in this order, and explained below:
 
-- Static credentials
-- Environment variables
+* Static credentials
+* Environment variables
 
-### Static credentials ###
+### Static credentials
 
 !> **WARNING:** Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage
 should this file ever be committed to a public version control system.

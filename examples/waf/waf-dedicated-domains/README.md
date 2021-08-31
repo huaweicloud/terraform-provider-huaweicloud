@@ -1,4 +1,4 @@
-# Create a WAF dedicated mode domain.
+# Create a WAF dedicated mode domain
 
 This example creates a dedicated mode domain name based on the example
 [examples/waf/waf-dedicated-instance](https://github.com/huaweicloud/terraform-provider-huaweicloud/tree/master/examples/waf/waf-dedicated-instance)
