@@ -8,7 +8,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -17,11 +16,14 @@ import (
 
 func TestAccWafPolicyV1_basic(t *testing.T) {
 	var policy policies.Policy
-	randName := acctest.RandString(5)
+	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_waf_policy.policy_1"
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckWafPolicyV1Destroy,
 		Steps: []resource.TestStep{
@@ -104,19 +106,31 @@ func testAccCheckWafPolicyV1Exists(n string, policy *policies.Policy) resource.T
 
 func testAccWafPolicyV1_basic(name string) string {
 	return fmt.Sprintf(`
+%s
+
 resource "huaweicloud_waf_policy" "policy_1" {
   name  = "%s"
   level = 1
+
+  depends_on = [
+    huaweicloud_waf_dedicated_instance.instance_1
+  ]
 }
-`, name)
+`, testAccWafDedicatedInstanceV1_conf(name), name)
 }
 
 func testAccWafPolicyV1_update(name string) string {
 	return fmt.Sprintf(`
+%s
+
 resource "huaweicloud_waf_policy" "policy_1" {
   name            = "%s_updated"
   protection_mode = "block"
   level           = 3
+
+  depends_on = [
+    huaweicloud_waf_dedicated_instance.instance_1
+  ]
 }
-`, name)
+`, testAccWafDedicatedInstanceV1_conf(name), name)
 }

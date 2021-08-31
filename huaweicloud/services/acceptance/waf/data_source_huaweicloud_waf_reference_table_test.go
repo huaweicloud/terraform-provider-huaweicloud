@@ -15,7 +15,10 @@ func TestAccDataSourceReferenceTablesV1_basic(t *testing.T) {
 	dataSourceName := "data.huaweicloud_waf_reference_tables.ref_table"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
 		Providers: acceptance.TestAccProviders,
 		Steps: []resource.TestStep{
 			{

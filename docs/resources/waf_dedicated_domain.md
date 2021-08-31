@@ -6,6 +6,9 @@ subcategory: "Web Application Firewall (WAF)"
 
 Manages a dedicated mode domain resource within HuaweiCloud.
 
+-> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
+used. The dedicated mode domain name resource can be used in Dedicated Mode and ELB Mode.
+
 ## Example Usage
 
 ```hcl

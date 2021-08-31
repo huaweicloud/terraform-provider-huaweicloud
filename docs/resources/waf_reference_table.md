@@ -7,7 +7,7 @@ subcategory: "Web Application Firewall (WAF)"
 Manages a WAF reference table resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The reference table can be used in Cloud Mode (professional version), Dedicated Mode and ELB Mode.
+used. The reference table resource can be used in Cloud Mode (professional version), Dedicated Mode and ELB Mode.
 
 ## Example Usage
 

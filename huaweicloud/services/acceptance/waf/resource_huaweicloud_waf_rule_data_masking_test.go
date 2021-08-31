@@ -11,7 +11,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -20,14 +19,17 @@ import (
 
 func TestAccWafRuleDataMasking_basic(t *testing.T) {
 	var rule rules.DataMasking
-	policyName := "policy-" + acctest.RandString(5)
+	policyName := acceptance.RandomAccResourceName()
 	resourceName1 := "huaweicloud_waf_rule_data_masking.rule_1"
 	resourceName2 := "huaweicloud_waf_rule_data_masking.rule_2"
 	resourceName3 := "huaweicloud_waf_rule_data_masking.rule_3"
 	resourceName4 := "huaweicloud_waf_rule_data_masking.rule_4"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckWafRuleDataMaskingDestroy,
 		Steps: []resource.TestStep{
@@ -121,9 +123,7 @@ func testAccCheckWafRuleDataMaskingExists(n string, rule *rules.DataMasking) res
 
 func testAccWafRuleDataMasking_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_waf_policy" "policy_1" {
-  name = "%s"
-}
+%s
 
 resource "huaweicloud_waf_rule_data_masking" "rule_1" {
   policy_id = huaweicloud_waf_policy.policy_1.id
@@ -149,14 +149,12 @@ resource "huaweicloud_waf_rule_data_masking" "rule_4" {
   field     = "cookie"
   subfield  = "password"
 }
-`, name)
+`, testAccWafPolicyV1_basic(name))
 }
 
 func testAccWafRuleDataMasking_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_waf_policy" "policy_1" {
-  name = "%s"
-}
+%s
 
 resource "huaweicloud_waf_rule_data_masking" "rule_1" {
   policy_id = huaweicloud_waf_policy.policy_1.id
@@ -182,5 +180,5 @@ resource "huaweicloud_waf_rule_data_masking" "rule_4" {
   field     = "cookie"
   subfield  = "secret"
 }
-`, name)
+`, testAccWafPolicyV1_basic(name))
 }
