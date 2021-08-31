@@ -1,5 +1,46 @@
 # CHANGELOG
 
+## 1.28.0 (August 31, 2021)
+
+FEATURES:
+
+* **New Resurce:**
+  + `huaweicloud_dms_kafka_topic` [GH-1379]
+  + `huaweicloud_gaussdb_redis_instance` [GH-1399]
+  + `huaweicloud_waf_dedicated_instance` [GH-1407]
+  + `huaweicloud_waf_dedicated_domain` [GH-1409]
+  + `huaweicloud_waf_reference_table` [GH-1426]
+
+* **New Data Source:**
+  + `huaweicloud_fgs_dependencies` [GH-1419]
+  + `huaweicloud_gaussdb_redis_instance` [GH-1399]
+  + `huaweicloud_gaussdb_cassandra_instances` [GH-1406]
+  + `huaweicloud_waf_policies` [GH-1374]
+  + `huaweicloud_waf_dedicated_instances` [GH-1420]
+  + `huaweicloud_waf_reference_tables` [GH-1435]
+
+ENHANCEMENTS:
+
+* provider: Upgrade to terraform-plugin-sdk v2 [GH-1381]
+* config: Add validation of domain name [GH-1429]
+* resource/huaweicloud_cce_node_pool: Support to update `labels` and `taints` field [GH-1385]
+* resource/huaweicloud_apig_application: Add app key and app secret attributes [GH-1401]
+* resource/huaweicloud_mapreduce_cluster: Support custom type and `host_ips` field [GH-1436]
+
+BUG FIXES:
+
+* resource/huaweicloud_compute_instance: update sdk to fix destroying error [GH-1397]
+* resource/huaweicloud_compute_servergroup: validate the server ID before removing [GH-1380]
+* resource/huaweicloud_mapreduce_cluster: get subnet_name and assemble it into creation option [GH-1396]
+* resource/huaweicloud_vpc_eip: set the eip status to *BOUND* after binding to a port [GH-1398]
+* resource/huaweicloud_vpc_eip: use v1 API to allocate EIP in per-use mod [GH-1434]
+
+DEPRECATE:
+
+* resource/huaweicloud_cs_cluster [GH-1428]
+* resource/huaweicloud_cs_route [GH-1428]
+* resource/huaweicloud_cs_peering_connect [GH-1428]
+
 ## 1.27.2 (August 26, 2021)
 
 FEATURES:
