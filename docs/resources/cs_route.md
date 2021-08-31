@@ -1,10 +1,12 @@
 ---
-subcategory: "Cloud Stream"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud_cs_route
 
 Cloud Stream Service cluster peering connect route management This is an alternative to `huaweicloud_cs_route_v1`
+
+!> **WARNING:** It has been deprecated, use `huaweicloud_dli_queue` instead.
 
 ## Example Usage
 
