@@ -141,7 +141,7 @@ func validatePrePaidBandWidth(bandwidth eips.BandwidthOpts) error {
 
 func validatePrePaidSupportedRegion(region string) error {
 	var valid bool
-	// reference to: https://support.huaweicloud.com/api-eip/eip_api_0006.html#section3
+	// reference to: https://support.huaweicloud.com/api-eip/eip_api_0006.html#section4
 	var supportedRegion = []string{
 		"cn-north-4", "cn-east-3", "cn-south-1", "cn-southwest-2",
 		"ap-southeast-2", "ap-southeast-3",
@@ -154,7 +154,7 @@ func validatePrePaidSupportedRegion(region string) error {
 		}
 	}
 	if !valid {
-		return fmtp.Errorf("prepaid charging mode is not supported in %s region", region)
+		return fmtp.Errorf("prepaid charging mode of eip is not supported in %s region", region)
 	}
 
 	return nil
@@ -168,7 +168,7 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmtp.Errorf("Error creating networking v1 client: %s", err)
 	}
-	// networkingV2Client is used to create EIP in prePaid charging mode
+	// networkingV2Client is used to create EIP in prePaid charging mode and tags
 	networkingV2Client, err := config.NetworkingV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating networking v2 client: %s", err)
@@ -184,6 +184,7 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 		createOpts.EnterpriseProjectID = epsID
 	}
 
+	var prePaid bool
 	if d.Get("charging_mode").(string) == "prePaid" {
 		if err := validatePrePaidChargeInfo(d); err != nil {
 			return err
@@ -195,6 +196,7 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 
+		prePaid = true
 		chargeInfo := &sdk_structs.ChargeInfo{
 			ChargeMode:  d.Get("charging_mode").(string),
 			PeriodType:  d.Get("period_unit").(string),
@@ -206,7 +208,13 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
-	eIP, err := eips.Apply(networkingV2Client, createOpts).Extract()
+	var eIP eips.PublicIp
+	if prePaid {
+		eIP, err = eips.Apply(networkingV2Client, createOpts).Extract()
+	} else {
+		eIP, err = eips.Apply(networkingClient, createOpts).Extract()
+	}
+
 	if err != nil {
 		return fmtp.Errorf("Error allocating EIP: %s", err)
 	}
@@ -214,6 +222,8 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 	if eIP.ID == "" {
 		return fmtp.Errorf("can not get the resource ID")
 	}
+	d.SetId(eIP.ID)
+
 	// wait for order success
 	if eIP.OrderID != "" {
 		bssClient, err := config.BssV2Client(GetRegion(d, config))
@@ -224,8 +234,6 @@ func resourceVpcEIPV1Create(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
-
-	d.SetId(eIP.ID)
 
 	logp.Printf("[DEBUG] Waiting for EIP %s to become available.", eIP.ID)
 	timeout := d.Timeout(schema.TimeoutCreate)
@@ -448,12 +456,12 @@ func resourceBandWidth(d *schema.ResourceData) eips.BandwidthOpts {
 func bindToPort(d *schema.ResourceData, eipID string, networkingClient *golangsdk.ServiceClient, timeout time.Duration) error {
 	publicIPRaw := d.Get("publicip").([]interface{})
 	rawMap := publicIPRaw[0].(map[string]interface{})
-	port_id, ok := rawMap["port_id"]
-	if !ok || port_id == "" {
+	portID, ok := rawMap["port_id"]
+	if !ok || portID == "" {
 		return nil
 	}
 
-	pd := port_id.(string)
+	pd := portID.(string)
 	logp.Printf("[DEBUG] Bind eip:%s to port: %s", eipID, pd)
 
 	updateOpts := eips.UpdateOpts{PortID: pd}
@@ -467,12 +475,12 @@ func bindToPort(d *schema.ResourceData, eipID string, networkingClient *golangsd
 func unbindToPort(d *schema.ResourceData, eipID string, networkingClient *golangsdk.ServiceClient, timeout time.Duration) error {
 	publicIPRaw := d.Get("publicip").([]interface{})
 	rawMap := publicIPRaw[0].(map[string]interface{})
-	port_id, ok := rawMap["port_id"]
-	if !ok || port_id == "" {
+	portID, ok := rawMap["port_id"]
+	if !ok || portID == "" {
 		return nil
 	}
 
-	pd := port_id.(string)
+	pd := portID.(string)
 	logp.Printf("[DEBUG] Unbind eip:%s to port: %s", eipID, pd)
 
 	updateOpts := eips.UpdateOpts{PortID: ""}
