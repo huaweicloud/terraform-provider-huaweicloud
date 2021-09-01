@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	rules "github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/datamasking_rules"
+	rules "github.com/chnsz/golangsdk/openstack/waf_hw/v1/datamasking_rules"
 )
 
 const (

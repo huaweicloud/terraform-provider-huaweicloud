@@ -9,7 +9,7 @@ import (
 
 	"testing"
 
-	"github.com/huaweicloud/golangsdk/openstack/vbs/v2/policies"
+	"github.com/chnsz/golangsdk/openstack/vbs/v2/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )

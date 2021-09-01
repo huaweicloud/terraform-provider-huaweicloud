@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions"
-	volumes_v2 "github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
-	"github.com/huaweicloud/golangsdk/openstack/evs/v3/volumes"
+	"github.com/chnsz/golangsdk/openstack/blockstorage/extensions/volumeactions"
+	volumes_v2 "github.com/chnsz/golangsdk/openstack/blockstorage/v2/volumes"
+	"github.com/chnsz/golangsdk/openstack/evs/v3/volumes"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"

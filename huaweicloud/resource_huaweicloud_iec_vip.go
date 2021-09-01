@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/golangsdk"
-	iec_common "github.com/huaweicloud/golangsdk/openstack/iec/v1/common"
-	"github.com/huaweicloud/golangsdk/openstack/iec/v1/ports"
+	"github.com/chnsz/golangsdk"
+	iec_common "github.com/chnsz/golangsdk/openstack/iec/v1/common"
+	"github.com/chnsz/golangsdk/openstack/iec/v1/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"

@@ -6,11 +6,11 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
+	"github.com/chnsz/golangsdk/openstack/iec/v1/security/groups"
+	"github.com/chnsz/golangsdk/openstack/iec/v1/security/rules"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/groups"
-	"github.com/huaweicloud/golangsdk/openstack/iec/v1/security/rules"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 

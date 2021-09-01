@@ -11,7 +11,7 @@ import (
 
 	"testing"
 
-	"github.com/huaweicloud/golangsdk/openstack/csbs/v1/backup"
+	"github.com/chnsz/golangsdk/openstack/csbs/v1/backup"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 

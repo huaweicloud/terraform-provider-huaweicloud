@@ -3,8 +3,8 @@ package waf
 import (
 	"time"
 
+	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/huaweicloud/golangsdk/openstack/waf/v1/certificates"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 

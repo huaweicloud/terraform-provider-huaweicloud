@@ -1,7 +1,7 @@
 package huaweicloud
 
 import (
-	"github.com/huaweicloud/golangsdk/openstack/sfs/v2/shares"
+	"github.com/chnsz/golangsdk/openstack/sfs/v2/shares"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
