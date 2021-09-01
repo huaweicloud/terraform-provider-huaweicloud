@@ -42,7 +42,9 @@ The following arguments are supported:
   characters, which may consist of letters, digits, underscores (_) and hyphens (-). Changing this will create a new
   MapReduce job resource.
 
-* `type` - (Required, String, ForceNew) Specifies the job type. The valid values are as <span id="jump">follows</span>:
+<!-- Placing the html block above list will lead to improperly rendered content -->
+* <a name="mapreduce_job_type">`type`</a> - (Required, String, ForceNew) Specifies the job type.
+  The valid values are as follows:
   + [Flink](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0527.html)
   + [HiveSql](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0525.html)
   + [HiveScript](https://support.huaweicloud.com/intl/en-us/usermanual-mrs/mrs_01_0525.html)
@@ -72,8 +74,8 @@ The following arguments are supported:
 * `program_parameters` - (Optional, Map, ForceNew) Specifies the the key/value pairs of the program parameters, such as
   thread, memory, and vCPUs, are used to optimize resource usage and improve job execution performance. This parameter
   can be set when `type` is __Flink__, __SparkSubmit__, __SparkSql__, __SparkScript__, __HiveSql__ or
-  __HiveScript__. Refer to the documents for each [type](#jump) of support key-values. Changing this will create a new
-  MapReduce job resource.
+  __HiveScript__. Refer to the documents for each [type](#mapreduce_job_type) of support key-values.
+  Changing this will create a new MapReduce job resource.
 
 * `service_parameters` - (Optional, Map, ForceNew) Specifies the key/value pairs used to modify service configuration.
   Parameter configurations of services are available on the Service Configuration tab page of MapReduce Manager.
