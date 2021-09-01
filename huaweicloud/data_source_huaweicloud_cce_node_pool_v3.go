@@ -240,8 +240,6 @@ func dataSourceCceNodePoolsV3Read(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	tagmap := utils.TagsToMap(NodePool.Spec.NodeTemplate.UserTags)
-	// ignore "CCE-Dynamic-Provisioning-Node"
-	delete(tagmap, "CCE-Dynamic-Provisioning-Node")
 	if err := d.Set("tags", tagmap); err != nil {
 		return fmtp.Errorf("error saving tags to state for CCE Node Pool(%s): %s", d.Id(), err)
 	}

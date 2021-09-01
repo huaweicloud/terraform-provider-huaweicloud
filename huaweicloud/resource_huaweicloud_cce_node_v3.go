@@ -708,8 +708,6 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 
 	if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
 		tagmap := utils.TagsToMap(resourceTags.Tags)
-		// ignore "CCE-Dynamic-Provisioning-Node"
-		delete(tagmap, "CCE-Dynamic-Provisioning-Node")
 		if err := d.Set("tags", tagmap); err != nil {
 			return fmtp.Errorf("Error saving tags to state for CCE Node (%s): %s", serverId, err)
 		}
