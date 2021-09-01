@@ -16,6 +16,7 @@ data "huaweicloud_enterprise_project" "test" {
 
 ## Resources Supported Currently
 
+<!-- markdownlint-disable MD033 -->
 Service Name | Resource Name | Sub Resource Name
 ---- | --- | ---
 AS  | huaweicloud_as_group |
@@ -44,6 +45,7 @@ OBS | huaweicloud_obs_bucket | huaweicloud_obs_bucket_object<br>huaweicloud_obs_
 RDS | huaweicloud_rds_instance<br>huaweicloud_rds_read_replica_instance |
 SFS | huaweicloud_sfs_file_system<br>huaweicloud_sfs_turbo | huaweicloud_sfs_access_rule
 VPC | huaweicloud_vpc<br>huaweicloud_networking_secgroup | huaweicloud_vpc_subnet<br>huaweicloud_vpc_route<br>huaweicloud_networking_secgroup_rule
+<!-- markdownlint-enable MD033 -->
 
 ## Argument Reference
 
