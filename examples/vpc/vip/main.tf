@@ -46,7 +46,7 @@ resource "huaweicloud_networking_vip" "vip_1" {
 resource "huaweicloud_networking_vip_associate" "vip_associated" {
   vip_id   = huaweicloud_networking_vip.vip_1.id
   port_ids = [
-    huaweicloud_compute_instance.mycompute[0].network.0.port,
-    huaweicloud_compute_instance.mycompute[1].network.0.port
+    huaweicloud_compute_instance.mycompute[0].network[0].port,
+    huaweicloud_compute_instance.mycompute[1].network[0].port
   ]
 }

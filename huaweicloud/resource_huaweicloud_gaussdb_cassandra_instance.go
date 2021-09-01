@@ -95,6 +95,11 @@ func resourceGeminiDBInstanceV3() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"dedicated_resource_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"datastore": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -344,6 +349,7 @@ func resourceGeminiDBInstanceV3Create(d *schema.ResourceData, meta interface{}) 
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		ConfigurationId:     d.Get("configuration_id").(string),
 		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+		DedicatedResourceId: d.Get("dedicated_resource_id").(string),
 		Mode:                "Cluster",
 		Flavor:              resourceGeminiDBFlavor(d),
 		DataStore:           resourceGeminiDBDataStore(d),
@@ -436,6 +442,7 @@ func resourceGeminiDBInstanceV3Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("vpc_id", instance.VpcId)
 	d.Set("subnet_id", instance.SubnetId)
 	d.Set("security_group_id", instance.SecurityGroupId)
+	d.Set("dedicated_resource_id", instance.DedicatedResourceId)
 	d.Set("mode", instance.Mode)
 	d.Set("db_user_name", instance.DbUserName)
 

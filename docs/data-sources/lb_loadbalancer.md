@@ -2,7 +2,7 @@
 subcategory: "Elastic Load Balance (ELB)"
 ---
 
-# huaweicloud\_lb\_loadbalancer
+# huaweicloud_lb_loadbalancer
 
 Use this data source to get available HuaweiCloud elb load balancer.
 
@@ -18,15 +18,15 @@ data "huaweicloud_lb_loadbalancer" "test" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) Specifies the region in which to obtain the load balancer.
-  If omitted, the provider-level region will be used.
+* `region` - (Optional, String) Specifies the region in which to obtain the load balancer. If omitted, the
+  provider-level region will be used.
 
 * `name` - (Optional, String) Specifies the name of the load balancer.
 
 * `id` - (Optional, String) Specifies the data source ID of the load balancer in UUID format.
 
-* `status` - (Optional, String) Specifies the operating status of the load balancer.
-  Valid values are *ONLINE* and *FROZEN*.
+* `status` - (Optional, String) Specifies the operating status of the load balancer. Valid values are *ONLINE* and
+  *FROZEN*.
 
 * `description` - (Optional, String) Specifies the supplementary information about the load balancer.
 

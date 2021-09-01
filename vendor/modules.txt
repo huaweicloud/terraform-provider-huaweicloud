@@ -152,7 +152,7 @@ github.com/hashicorp/terraform-plugin-sdk/v2/plugin
 github.com/hashicorp/terraform-plugin-sdk/v2/terraform
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20210817085035-914d19567b2a
+# github.com/huaweicloud/golangsdk v0.0.0-20210827082222-53346700881a
 ## explicit
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/internal
@@ -201,7 +201,6 @@ github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/floatingips
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/keypairs
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/schedulerhints
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups
-github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/servergroups
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/startstop
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/volumeattach
 github.com/huaweicloud/golangsdk/openstack/compute/v2/flavors
@@ -236,6 +235,7 @@ github.com/huaweicloud/golangsdk/openstack/ecs/v1/block_devices
 github.com/huaweicloud/golangsdk/openstack/ecs/v1/cloudservers
 github.com/huaweicloud/golangsdk/openstack/ecs/v1/flavors
 github.com/huaweicloud/golangsdk/openstack/ecs/v1/powers
+github.com/huaweicloud/golangsdk/openstack/ecs/v1/servergroups
 github.com/huaweicloud/golangsdk/openstack/elb/v2/certificates
 github.com/huaweicloud/golangsdk/openstack/elb/v2/loadbalancers
 github.com/huaweicloud/golangsdk/openstack/elb/v3/certificates
@@ -250,6 +250,7 @@ github.com/huaweicloud/golangsdk/openstack/eps/v1/enterpriseprojects
 github.com/huaweicloud/golangsdk/openstack/evs/v2/snapshots
 github.com/huaweicloud/golangsdk/openstack/evs/v2/tags
 github.com/huaweicloud/golangsdk/openstack/evs/v3/volumes
+github.com/huaweicloud/golangsdk/openstack/fgs/v2/dependencies
 github.com/huaweicloud/golangsdk/openstack/fgs/v2/function
 github.com/huaweicloud/golangsdk/openstack/geminidb/v3/backups
 github.com/huaweicloud/golangsdk/openstack/geminidb/v3/configurations
@@ -359,6 +360,9 @@ github.com/huaweicloud/golangsdk/openstack/waf/v1/certificates
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/datamasking_rules
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/domains
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/policies
+github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/premium_domains
+github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/premium_instances
+github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/valuelists
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/webtamperprotection_rules
 github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/whiteblackip_rules
 github.com/huaweicloud/golangsdk/pagination

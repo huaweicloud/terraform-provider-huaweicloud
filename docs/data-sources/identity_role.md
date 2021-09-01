@@ -2,7 +2,7 @@
 subcategory: "Identity and Access Management (IAM)"
 ---
 
-# huaweicloud\_identity\_role
+# huaweicloud_identity_role
 
 Use this data source to get the ID of an IAM **system-defined** role or policy.
 
@@ -90,9 +90,11 @@ data "huaweicloud_identity_role" "kms_adm" {
 
 ## Argument Reference
 
-* `display_name` - (Optional, String; Required if `name` is empty) Specifies the display name of the role displayed on the console.
+* `display_name` - (Optional, String) Specifies the display name of the role displayed on the console.
+  Required if `name` is empty.
 
-* `name` - (Optional, String; Required if `display_name` is empty) Specifies the name of the role for internal use.
+* `name` - (Optional, String) Specifies the name of the role for internal use.
+  Required if `display_name` is empty.
 
 ## Attributes Reference
 

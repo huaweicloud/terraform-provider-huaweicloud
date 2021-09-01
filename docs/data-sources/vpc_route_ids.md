@@ -2,10 +2,9 @@
 subcategory: "Virtual Private Cloud (VPC)"
 ---
 
-# huaweicloud\_vpc\_route\_ids
+# huaweicloud_vpc_route_ids
 
-Provides a list of route ids for a vpc_id.
-This is an alternative to `huaweicloud_vpc_route_ids_v2`
+Provides a list of route ids for a vpc_id. This is an alternative to `huaweicloud_vpc_route_ids_v2`
 
 This resource can be useful for getting back a list of route ids for a vpc.
 
@@ -30,7 +29,8 @@ output "route_nexthop" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the ids. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the ids. If omitted, the provider-level region will be
+  used.
 
 * `vpc_id` - (Required, String) The VPC ID that you want to filter from.
 
@@ -41,4 +41,3 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - Specifies a data source ID in UUID format.
 
 * `ids` - A list of all the route ids found. This data source will fail if none are found.
-

@@ -2,7 +2,7 @@
 subcategory: "GaussDB"
 ---
 
-# huaweicloud\_gaussdb\_mysql\_configuration
+# huaweicloud_gaussdb_mysql_configuration
 
 Use this data source to get available HuaweiCloud gaussdb mysql configuration.
 
@@ -16,7 +16,8 @@ data "huaweicloud_gaussdb_mysql_configuration" "this" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the configurations. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the configurations. If omitted, the provider-level region
+  will be used.
 
 * `name` - (Optional, String) Specifies the name of the parameter template.
 

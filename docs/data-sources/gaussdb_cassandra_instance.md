@@ -2,7 +2,7 @@
 subcategory: "GaussDB"
 ---
 
-# huaweicloud\_gaussdb\_cassandra\_instance
+# huaweicloud_gaussdb_cassandra_instance
 
 Use this data source to get available HuaweiCloud gaussdb cassandra instance.
 
@@ -16,14 +16,14 @@ data "huaweicloud_gaussdb_cassandra_instance" "this" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the instance. If omitted, the provider-level region will be used.
+* `region` - (Optional, String) The region in which to obtain the instance. If omitted, the provider-level region will
+  be used.
 
 * `name` - (Optional, String) Specifies the name of the instance.
 
-* `vpc_id` -  (Optional, String) Specifies the VPC ID.
+* `vpc_id` - (Optional, String) Specifies the VPC ID.
 
 * `subnet_id` - (Optional, String) Specifies the network ID of a subnet.
-
 
 ## Attributes Reference
 
@@ -61,7 +61,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `tags` - Indicates the key/value tags of the instance.
 
-
 The `datastore` block supports:
 
 * `engine` - Indicates the database engine.
@@ -75,9 +74,9 @@ The `backup_strategy` block supports:
 
 The `nodes` block contains:
 
-- `id` - Indicates the node ID.
-- `name` - Indicates the node name.
-- `private_ip` - Indicates the private IP address of a node.
-- `status` - Indicates the node status.
-- `support_reduce` - Indicates whether the node support reduce.
-- `availability_zone` - Indicates the availability zone where the node resides.
+* `id` - Indicates the node ID.
+* `name` - Indicates the node name.
+* `private_ip` - Indicates the private IP address of a node.
+* `status` - Indicates the node status.
+* `support_reduce` - Indicates whether the node support reduce.
+* `availability_zone` - Indicates the availability zone where the node resides.

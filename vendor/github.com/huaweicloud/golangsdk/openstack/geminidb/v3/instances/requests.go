@@ -36,6 +36,7 @@ type CreateGeminiDBOpts struct {
 	Mode                string             `json:"mode" required:"true"`
 	ConfigurationId     string             `json:"configuration_id,omitempty"`
 	EnterpriseProjectId string             `json:"enterprise_project_id,omitempty"`
+	DedicatedResourceId string             `json:"dedicated_resource_id,omitempty"`
 	Ssl                 string             `json:"ssl_option,omitempty"`
 	DataStore           DataStore          `json:"datastore" required:"true"`
 	Flavor              []FlavorOpt        `json:"flavor" required:"true"`
@@ -387,4 +388,14 @@ func UpdateSg(client *golangsdk.ServiceClient, instanceId string, opts UpdateSgB
 		MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
 	})
 	return
+}
+
+func ListDeh(client *golangsdk.ServiceClient) pagination.Pager {
+	pageList := pagination.NewPager(client, listDehURL(client), func(r pagination.PageResult) pagination.Page {
+		return DehResourcePage{pagination.SinglePageBase(r)}
+	})
+	// Headers supplies additional HTTP headers to populate on each paged request
+	pageList.Headers = map[string]string{"Content-Type": "application/json"}
+
+	return pageList
 }

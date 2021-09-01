@@ -2,7 +2,7 @@
 subcategory: "Cloud Container Engine (CCE)"
 ---
 
-# huaweicloud\_cce\_addon\_template
+# huaweicloud_cce_addon_template
 
 Use this data source to get available HuaweiCloud CCE add-on template.
 
@@ -26,14 +26,14 @@ data "huaweicloud_cce_addon_template" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to obtain the cce add-ons.
-  If omitted, the provider-level region will be used.
+* `region` - (Optional, String) Specifies the region in which to obtain the cce add-ons. If omitted, the provider-level
+  region will be used.
 
-* `cluster_id` -  (Required, String) Specifies the ID of container cluster.
+* `cluster_id` - (Required, String) Specifies the ID of container cluster.
 
-* `name` -  (Required, String) Specifies the add-on name.
+* `name` - (Required, String) Specifies the add-on name.
 
-* `version` -  (Required, String) Specifies the add-on version.
+* `version` - (Required, String) Specifies the add-on version.
 
 ## Attributes Reference
 

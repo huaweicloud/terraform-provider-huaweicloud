@@ -180,6 +180,7 @@ func dataSourceCceNodePoolsV3Read(d *schema.ResourceData, meta interface{}) erro
 
 	logp.Printf("[DEBUG] Retrieved Node Pools using given filter %s: %+v", NodePool.Metadata.Id, NodePool)
 	d.SetId(NodePool.Metadata.Id)
+
 	d.Set("node_pool_id", NodePool.Metadata.Id)
 	d.Set("name", NodePool.Metadata.Name)
 	d.Set("type", NodePool.Spec.Type)
@@ -195,10 +196,16 @@ func dataSourceCceNodePoolsV3Read(d *schema.ResourceData, meta interface{}) erro
 	d.Set("scale_down_cooldown_time", NodePool.Spec.Autoscaling.ScaleDownCooldownTime)
 	d.Set("priority", NodePool.Spec.Autoscaling.Priority)
 	d.Set("subnet_id", NodePool.Spec.NodeTemplate.NodeNicSpec.PrimaryNic.SubnetId)
-	d.Set("max_pods", NodePool.Spec.NodeTemplate.ExtendParam["maxPods"])
-	d.Set("extend_param", NodePool.Spec.NodeTemplate.ExtendParam)
 	d.Set("status", NodePool.Status.Phase)
 	d.Set("region", GetRegion(d, config))
+
+	// set extend_param
+	var extendParam = NodePool.Spec.NodeTemplate.ExtendParam
+	d.Set("max_pods", extendParam["maxPods"])
+	delete(extendParam, "maxPods")
+	if len(extendParam) > 0 {
+		d.Set("extend_param", extendParam)
+	}
 
 	labels := map[string]string{}
 	for key, val := range NodePool.Spec.NodeTemplate.K8sTags {

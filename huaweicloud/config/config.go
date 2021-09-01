@@ -497,10 +497,8 @@ func (c *Config) getDomainID() (string, error) {
 	// ResourceBase: https://iam.{CLOUD}/v3/auth/
 	identityClient.ResourceBase += "auth/"
 
-	opts := domains.ListOpts{
-		Name: c.DomainName,
-	}
-	allPages, err := domains.List(identityClient, &opts).AllPages()
+	// the List request does not support query options
+	allPages, err := domains.List(identityClient, nil).AllPages()
 	if err != nil {
 		return "", fmt.Errorf("List domains failed, err=%s", err)
 	}
@@ -512,6 +510,10 @@ func (c *Config) getDomainID() (string, error) {
 
 	if len(all) == 0 {
 		return "", fmt.Errorf("domain was not found")
+	}
+
+	if c.DomainName != "" && c.DomainName != all[0].Name {
+		return "", fmt.Errorf("domain %s was not found, got %s", c.DomainName, all[0].Name)
 	}
 
 	return all[0].ID, nil
@@ -757,6 +759,10 @@ func (c *Config) WafV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("waf", region)
 }
 
+func (c *Config) WafDedicatedV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("waf-dedicated", region)
+}
+
 // ********** client for Enterprise Intelligence **********
 func (c *Config) MrsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("mrs", region)
@@ -841,7 +847,7 @@ func (c *Config) DdsV3Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) GeminiDBV3Client(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("cassandra", region)
+	return c.NewServiceClient("geminidb", region)
 }
 
 func (c *Config) OpenGaussV3Client(region string) (*golangsdk.ServiceClient, error) {

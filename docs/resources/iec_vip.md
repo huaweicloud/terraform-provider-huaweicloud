@@ -2,7 +2,7 @@
 subcategory: "Intelligent EdgeCloud (IEC)"
 ---
 
-# huaweicloud\_iec\_vip
+# huaweicloud_iec_vip
 
 Manages a VIP resource within HuaweiCloud IEC.
 
@@ -20,8 +20,8 @@ resource "huaweicloud_iec_vip" "vip_test" {
 
 The following arguments are supported:
 
-* `subnet_id` - (Required, String, ForceNew) Specifies the ID of the network to which the vip belongs.
-    Changing this parameter creates a new vip resource.
+* `subnet_id` - (Required, String, ForceNew) Specifies the ID of the network to which the vip belongs. Changing this
+  parameter creates a new vip resource.
 
 * `port_ids` - (Required, List) Specifies an array of IDs of the ports to attach the vip to.
 
@@ -40,8 +40,9 @@ In addition to all arguments above, the following attributes are exported:
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
-- `create` - Default is 10 minute.
-- `delete` - Default is 10 minute.
+
+* `create` - Default is 10 minute.
+* `delete` - Default is 10 minute.
 
 ## Import
 

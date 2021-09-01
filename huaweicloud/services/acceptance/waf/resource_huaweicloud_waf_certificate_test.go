@@ -11,6 +11,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+func getResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := conf.WafV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
+	}
+	return certificates.Get(client, state.Primary.ID).Extract()
+}
+
 func TestAccWafCertificateV1_basic(t *testing.T) {
 	var certificate certificates.Certificate
 	resourceName := "huaweicloud_waf_certificate.certificate_1"
@@ -20,13 +28,7 @@ func TestAccWafCertificateV1_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&certificate,
-		func(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
-			wafClient, err := c.WafV1Client(acceptance.HW_REGION_NAME)
-			if err != nil {
-				return nil, fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
-			}
-			return certificates.Get(wafClient, state.Primary.ID).Extract()
-		},
+		getResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{

@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 var (
@@ -57,7 +58,6 @@ type ServiceFunc func(*config.Config, *terraform.ResourceState) (interface{}, er
 // resourceCheck resource check object, only used in the package.
 type resourceCheck struct {
 	resourceName    string
-	checkMap        map[string]string
 	resourceObject  interface{}
 	getResourceFunc ServiceFunc
 	resourceType    string
@@ -66,6 +66,8 @@ type resourceCheck struct {
 const (
 	resourceTypeCode   = "resource"
 	dataSourceTypeCode = "dataSource"
+
+	checkAttrRegexpStr = `^\$\{([^\}]+)\}$`
 )
 
 /*
@@ -100,8 +102,6 @@ func InitResourceCheck(resourceName string, resourceObject interface{}, getResou
 	}
 }
 
-const checkAttrRegexpStr = `^\$\{([^\}]+)\}$`
-
 func parseVariableToName(varStr string) (string, string, error) {
 	var resName, keyName string
 	// Check the format of the variable.
@@ -116,7 +116,7 @@ func parseVariableToName(varStr string) (string, string, error) {
 		return resName, keyName, fmtp.Errorf("The acceptance function is wrong.")
 	}
 	mArr := reg.FindStringSubmatch(varStr)
-	if len(mArr) < 1 {
+	if len(mArr) != 2 {
 		return resName, keyName, fmtp.Errorf("The type of 'variable' is error, "+
 			"expected ${resourceType.name.field} got %s", varStr)
 	}
@@ -189,8 +189,13 @@ func (rc *resourceCheck) CheckResourceDestroy() resource.TestCheckFunc {
 			}
 
 			conf := TestAccProvider.Meta().(*config.Config)
-			if _, err := rc.getResourceFunc(conf, rs); err == nil {
-				return fmtp.Errorf("failed to destroy resource. The resource of %s : %s still exists。", resourceType, rs.Primary.ID)
+			if rc.getResourceFunc != nil {
+				if _, err := rc.getResourceFunc(conf, rs); err == nil {
+					return fmtp.Errorf("failed to destroy resource. The resource of %s : %s still exists.",
+						resourceType, rs.Primary.ID)
+				}
+			} else {
+				return fmtp.Errorf("The 'getResourceFunc' is nil, please set it during initialization.")
 			}
 		}
 		return nil
@@ -218,9 +223,14 @@ func (rc *resourceCheck) CheckResourceExists() resource.TestCheckFunc {
 			conf := TestAccProvider.Meta().(*config.Config)
 			r, err := rc.getResourceFunc(conf, rs)
 			if err != nil {
-				return fmtp.Errorf("checking resource %s %s exists error: %s ", rc.resourceName, rs.Primary.ID, err)
+				return fmtp.Errorf("checking resource %s %s exists error: %s ",
+					rc.resourceName, rs.Primary.ID, err)
 			}
-			rc.resourceObject = r
+			if rc.resourceObject != nil {
+				rc.resourceObject = r
+			} else {
+				logp.Printf("[WARN] The 'resourceObject' is nil, please set it during initialization.")
+			}
 		} else {
 			return fmtp.Errorf("The 'getResourceFunc' is nil, please set it.")
 		}

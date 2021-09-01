@@ -1,11 +1,12 @@
 ---
-subcategory: "Cloud Stream"
+subcategory: "Deprecated"
 ---
 
-# huaweicloud\_cs\_cluster
+# huaweicloud_cs_cluster
 
-Cloud Stream Service cluster management
-This is an alternative to `huaweicloud_cs_cluster_v1`
+Cloud Stream Service cluster management This is an alternative to `huaweicloud_cs_cluster_v1`
+
+!> **WARNING:** It has been deprecated, use `huaweicloud_dli_queue` instead.
 
 ## Example Usage
 
@@ -21,7 +22,8 @@ resource "huaweicloud_cs_cluster" "cluster" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the cloud stream service cluster resource. If omitted, the provider-level region will be used. Changing this creates a new cloud stream service cluster resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the cloud stream service cluster resource. If
+  omitted, the provider-level region will be used. Changing this creates a new cloud stream service cluster resource.
 
 * `name` - (Required, String) Cluster name.
 
@@ -31,9 +33,11 @@ The following arguments are supported:
 
 * `subnet_cidr` - (Optional, String, ForceNew) Cluster sub segment. Changing this parameter will create a new resource.
 
-* `subnet_gateway` - (Optional, String, ForceNew) Cluster subnet gateway. Changing this parameter will create a new resource.
+* `subnet_gateway` - (Optional, String, ForceNew) Cluster subnet gateway. Changing this parameter will create a new
+  resource.
 
-* `vpc_cidr` - (Optional, String, ForceNew) Cluster VPC network segment. Changing this parameter will create a new resource.
+* `vpc_cidr` - (Optional, String, ForceNew) Cluster VPC network segment. Changing this parameter will create a new
+  resource.
 
 ## Attributes Reference
 
@@ -48,7 +52,8 @@ In addition to all arguments above, the following attributes are exported:
 * `used_spu_num` - The used SPU number of Cluster.
 
 ## Timeouts
-This resource provides the following timeouts configuration options:
-- `create` - Default is 30 minute.
-- `delete` - Default is 30 minute.
 
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 30 minute.
+* `delete` - Default is 30 minute.

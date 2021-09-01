@@ -7,7 +7,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -16,12 +15,15 @@ import (
 
 func TestAccWafRuleBlackList_basic(t *testing.T) {
 	var rule rules.WhiteBlackIP
-	randName := acctest.RandString(5)
+	randName := acceptance.RandomAccResourceName()
 	rName1 := "huaweicloud_waf_rule_blacklist.rule_1"
 	rName2 := "huaweicloud_waf_rule_blacklist.rule_2"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
 		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckWafRuleBlackListDestroy,
 		Steps: []resource.TestStep{
@@ -136,9 +138,7 @@ func testAccWafRuleImportStateIdFunc(name string) resource.ImportStateIdFunc {
 
 func testAccWafRuleBlackList_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_waf_policy" "policy_1" {
-  name = "policy_%s"
-}
+%s
 
 resource "huaweicloud_waf_rule_blacklist" "rule_1" {
   policy_id  = huaweicloud_waf_policy.policy_1.id
@@ -150,15 +150,12 @@ resource "huaweicloud_waf_rule_blacklist" "rule_2" {
   ip_address = "192.165.0.0/24"
   action     = 1
 }
-
-`, name)
+`, testAccWafPolicyV1_basic(name))
 }
 
 func testAccWafRuleBlackList_update(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_waf_policy" "policy_1" {
-  name = "policy_%s"
-}
+%s
 
 resource "huaweicloud_waf_rule_blacklist" "rule_1" {
   policy_id  = huaweicloud_waf_policy.policy_1.id
@@ -171,6 +168,5 @@ resource "huaweicloud_waf_rule_blacklist" "rule_2" {
   ip_address = "192.150.0.0/24"
   action     = 0
 }
-
-`, name)
+`, testAccWafPolicyV1_basic(name))
 }

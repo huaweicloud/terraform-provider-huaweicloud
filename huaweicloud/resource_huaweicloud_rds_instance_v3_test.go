@@ -50,7 +50,7 @@ func TestAccRdsInstanceV3_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_updated"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
-					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8635"),
+					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8636"),
 				),
 			},
 			{

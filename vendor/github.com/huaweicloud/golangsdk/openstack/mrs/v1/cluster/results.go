@@ -111,6 +111,39 @@ type ClusterResult struct {
 	Msg       string `json:"msg"`
 }
 
+type HostListResult struct {
+	Hosts []Host `json:"hosts"`
+	Total int    `json:"total"`
+}
+
+type Host struct {
+	// VM ID
+	Id string `json:"id"`
+	// VM IP address
+	Ip string `json:"ip"`
+	// VM flavor ID
+	Flavor string `json:"flavor"`
+	// VM type
+	// Currently, MasterNode, CoreNode, and TaskNode are supported.
+	Type string `json:"type"`
+	// VM name
+	Name string `json:"name"`
+	// Current VM state
+	Status string `json:"status"`
+	// Memory
+	Mem string `json:"mem"`
+	// Number of CPU cores
+	Cpu string `json:"cpu"`
+	// OS disk capacity
+	RootVolumeSize string `json:"root_volume_size"`
+	// Data disk type
+	DataVolumeType string `json:"data_volume_type"`
+	// Data disk capacity
+	DataVolumeSize int `json:"data_volume_size"`
+	// Number of data disks
+	DataVolumeCount int `json:"data_volume_count"`
+}
+
 type CreateResult struct {
 	golangsdk.Result
 }
