@@ -1,0 +1,32 @@
+version: v1
+
+labels:
+  - label: "feature"
+    matcher:
+      title: "^feat.*"
+      commits: "^feat.*"
+
+  - label: "bugfix"
+    matcher:
+      title: "^fix.*"
+      commits: "^fix.*"
+
+  - label: "documentation"
+    matcher:
+      title: "^docs.*"
+      commits: "^docs.*"
+
+  - label: "test"
+    matcher:
+      title: "^test.*"
+      commits: "^test.*"
+
+  - label: "refactor"
+    matcher:
+      title: "^refactor.*"
+      commits: "^refactor.*"
+
+  - label: "chore"
+    matcher:
+      title: "^chore.*"
+      commits: "^chore.*"
