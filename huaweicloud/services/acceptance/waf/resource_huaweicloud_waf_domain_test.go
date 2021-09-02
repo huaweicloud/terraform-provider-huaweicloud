@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
-	"github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/domains"
+	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/domains"
 )
 
 func TestAccWafDomainV1_basic(t *testing.T) {

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	domains "github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_domains"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	domains "github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/premium_domains"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"

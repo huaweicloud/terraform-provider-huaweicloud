@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/huaweicloud/golangsdk/openstack/cce/v3/nodes"
 )
 
 func TestAccCCENodeAttachV3_basic(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/huaweicloud/golangsdk/openstack/ims/v2/cloudimages"
+	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"

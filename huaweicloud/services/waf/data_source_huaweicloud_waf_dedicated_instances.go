@@ -3,9 +3,9 @@ package waf
 import (
 	"strings"
 
+	instances "github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_instances"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	instances "github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/premium_instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"

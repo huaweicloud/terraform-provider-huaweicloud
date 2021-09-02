@@ -1,8 +1,8 @@
 package huaweicloud
 
 import (
+	"github.com/chnsz/golangsdk/openstack/networking/v2/routes"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/routes"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )

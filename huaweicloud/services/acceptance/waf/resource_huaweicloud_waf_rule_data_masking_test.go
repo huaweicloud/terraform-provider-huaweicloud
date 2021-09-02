@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	rules "github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/datamasking_rules"
+	rules "github.com/chnsz/golangsdk/openstack/waf_hw/v1/datamasking_rules"
 )
 
 func TestAccWafRuleDataMasking_basic(t *testing.T) {

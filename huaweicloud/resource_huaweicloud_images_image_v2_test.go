@@ -3,7 +3,7 @@ package huaweicloud
 import (
 	"testing"
 
-	"github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images"
+	"github.com/chnsz/golangsdk/openstack/imageservice/v2/images"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 

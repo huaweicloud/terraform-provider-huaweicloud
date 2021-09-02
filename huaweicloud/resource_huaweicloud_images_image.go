@@ -3,17 +3,17 @@ package huaweicloud
 import (
 	"time"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
-	imageservice_v2 "github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images"
-	"github.com/huaweicloud/golangsdk/openstack/ims/v2/cloudimages"
-	"github.com/huaweicloud/golangsdk/openstack/ims/v2/tags"
+	imageservice_v2 "github.com/chnsz/golangsdk/openstack/imageservice/v2/images"
+	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
+	"github.com/chnsz/golangsdk/openstack/ims/v2/tags"
 )
 
 func ResourceImsImage() *schema.Resource {

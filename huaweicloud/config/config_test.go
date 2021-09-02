@@ -7,8 +7,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/huaweicloud/golangsdk"
-	th "github.com/huaweicloud/golangsdk/testhelper"
+	"github.com/chnsz/golangsdk"
+	th "github.com/chnsz/golangsdk/testhelper"
 )
 
 func testRequestRetry(t *testing.T, count int) {

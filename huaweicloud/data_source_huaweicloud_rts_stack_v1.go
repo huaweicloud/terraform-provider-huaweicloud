@@ -4,10 +4,10 @@ import (
 	"reflect"
 	"unsafe"
 
+	"github.com/chnsz/golangsdk/openstack/rts/v1/stacks"
+	"github.com/chnsz/golangsdk/openstack/rts/v1/stacktemplates"
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
-	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacktemplates"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"

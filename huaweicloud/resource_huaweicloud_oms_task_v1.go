@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/huaweicloud/golangsdk"
-	"github.com/huaweicloud/golangsdk/openstack/maas/v1/task"
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/maas/v1/task"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"

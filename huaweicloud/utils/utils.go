@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/huaweicloud/golangsdk"
-	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
+	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/rts/v1/stacks"
 	"gopkg.in/yaml.v2"
 )
 

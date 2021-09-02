@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/huaweicloud/golangsdk/openstack/waf/v1/certificates"
-	"github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/policies"
-	domains "github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/premium_domains"
+	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
+	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
+	domains "github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_domains"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"

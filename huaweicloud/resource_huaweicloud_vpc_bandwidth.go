@@ -3,9 +3,9 @@ package huaweicloud
 import (
 	"time"
 
-	"github.com/huaweicloud/golangsdk"
-	bandwidthsv1 "github.com/huaweicloud/golangsdk/openstack/networking/v1/bandwidths"
-	"github.com/huaweicloud/golangsdk/openstack/networking/v2/bandwidths"
+	"github.com/chnsz/golangsdk"
+	bandwidthsv1 "github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths"
+	"github.com/chnsz/golangsdk/openstack/networking/v2/bandwidths"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"

@@ -11,8 +11,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
+	rules "github.com/chnsz/golangsdk/openstack/waf_hw/v1/webtamperprotection_rules"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	rules "github.com/huaweicloud/golangsdk/openstack/waf_hw/v1/webtamperprotection_rules"
 )
 
 // ResourceWafRuleWebTamperProtectionV1 manages the resources for web tamper protection rules
