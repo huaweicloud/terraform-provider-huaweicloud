@@ -79,6 +79,33 @@ func TestAccCCENodeV3_basic(t *testing.T) {
 	})
 }
 
+func TestAccCCENodeV3_prePaid(t *testing.T) {
+	var node nodes.Nodes
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_node.test"
+	//clusterName here is used to provide the cluster id to fetch cce node.
+	clusterName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCCENodeV3Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCCENodeV3_prePaid(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCENodeV3Exists(resourceName, clusterName, &node),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "period_unit", "month"),
+					resource.TestCheckResourceAttr(resourceName, "period", "1"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckCCENodeV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceV3Client(HW_REGION_NAME)
@@ -329,6 +356,36 @@ resource "huaweicloud_cce_node" "test" {
 	extend_params = {
 	  test_key = "test_val"
 	}
+  }
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, testAccCCENodeV3_Base(rName), rName)
+}
+
+func testAccCCENodeV3_prePaid(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_node" "test" {
+  cluster_id        = huaweicloud_cce_cluster.test.id
+  name              = "%s"
+  flavor_id         = "s6.large.2"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  key_pair          = huaweicloud_compute_keypair.test.name
+  charging_mode     = "prePaid"
+  period_unit       = "month"
+  period            = "1"
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
   }
   tags = {
     foo = "bar"
