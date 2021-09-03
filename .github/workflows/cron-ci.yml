@@ -1,0 +1,86 @@
+# This is a periodic workflow to help you run Continuous Integration with Actions
+
+name: Continuous Integration
+
+on:
+  schedule:
+    # At 23:00 on every Sunday
+    - cron:  '00 23 * * SUN'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+
+    - name: Build
+      run: make build FLAGS='-mod=readonly'
+
+    - name: Vet
+      run: make vet
+
+  # This workflow contains a job called "tfproviderlint"
+  tfproviderlint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Runs tfproviderlint-github-action
+      - uses: bflad/tfproviderlint-github-action@master
+        with:
+          args: -V011=false -V012=false -V013=false -V014=false ./...
+
+  # This workflow contains a job called "acc-test"
+  acc-test:
+    env:
+      HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
+      HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
+      HW_REGION_NAME: cn-north-4
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+          fetch-depth: 100
+
+      # run acceptance test
+      - name: Run acceptance basic test
+        # run the step only when HW_ACCESS_KEY is setted
+        if: ${{ env.HW_ACCESS_KEY }}
+        run: |
+          commitID=$(git log --before="1 week ago" --pretty=format:"%h" -n 1)
+          all_files=$(git diff $commitID --name-only huaweicloud | grep -v "_test.go")
+          echo -e "the following files have changed since $commitID:\n$all_files\n"
+
+          for f in $all_files; do
+            path=${f%/*}
+            if [ "X$path" != "Xhuaweicloud" ]; then
+              # update path to "huaweicloud/services\acceptance/xxx"
+              path=${path/services/services\/acceptance}
+            fi
+
+            org_file=${f##*/}
+            test_file=$path/${org_file/%.go/_test.go}
+
+            if [ -f "./${test_file}" ]; then
+              basic_cases=$(grep "^func TestAcc" ./${test_file} | grep _basic | awk '{print $2}' | awk -F '(' '{print $1}')
+              if [ "X$basic_cases" != "X" ]; then
+                echo "run acceptance basic tests: $basic_cases"
+                make testacc TEST="./$path" TESTARGS="-run ${basic_cases}"
+              fi
+            else
+              echo "[skipped] --- ./${test_file} does not exist"
+            fi
+          done
