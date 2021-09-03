@@ -1,11 +1,14 @@
 package vpc
 
 import (
+	"context"
 	"time"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/vpcs"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -17,12 +20,12 @@ import (
 
 func ResourceVirtualPrivateCloudV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceVirtualPrivateCloudV1Create,
-		Read:   resourceVirtualPrivateCloudV1Read,
-		Update: resourceVirtualPrivateCloudV1Update,
-		Delete: resourceVirtualPrivateCloudV1Delete,
+		CreateContext: resourceVirtualPrivateCloudCreate,
+		ReadContext:   resourceVirtualPrivateCloudRead,
+		UpdateContext: resourceVirtualPrivateCloudUpdate,
+		DeleteContext: resourceVirtualPrivateCloudDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -82,12 +85,11 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 	}
 }
 
-func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{}) error {
+func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
-
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud vpc client: %s", err)
+		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 	}
 
 	createOpts := vpcs.CreateOpts{
@@ -96,18 +98,16 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 	}
 
 	epsID := common.GetEnterpriseProjectID(d, config)
-
 	if epsID != "" {
 		createOpts.EnterpriseProjectID = epsID
 	}
 
 	n, err := vpcs.Create(vpcClient, createOpts).Extract()
-
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC: %s", err)
+		return fmtp.DiagErrorf("Error creating Huaweicloud VPC: %s", err)
 	}
-	d.SetId(n.ID)
 
+	d.SetId(n.ID)
 	logp.Printf("[INFO] Vpc ID: %s", n.ID)
 
 	stateConf := &resource.StateChangeConf{
@@ -119,9 +119,9 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, stateErr := stateConf.WaitForState()
+	_, stateErr := stateConf.WaitForStateContext(ctx)
 	if stateErr != nil {
-		return fmtp.Errorf(
+		return fmtp.DiagErrorf(
 			"Error waiting for Vpc (%s) to become ACTIVE: %s",
 			n.ID, stateErr)
 	}
@@ -131,15 +131,15 @@ func resourceVirtualPrivateCloudV1Create(d *schema.ResourceData, meta interface{
 	if len(tagRaw) > 0 {
 		vpcV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
 		if err != nil {
-			return fmtp.Errorf("Error creating Huaweicloud vpc client: %s", err)
+			return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 		}
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(vpcV2Client, "vpcs", n.ID, taglist).ExtractErr(); tagErr != nil {
-			return fmtp.Errorf("Error setting tags of VirtualPrivateCloud %q: %s", n.ID, tagErr)
+			return fmtp.DiagErrorf("Error setting tags of VPC %q: %s", n.ID, tagErr)
 		}
 	}
 
-	return resourceVirtualPrivateCloudV1Read(d, meta)
+	return resourceVirtualPrivateCloudRead(ctx, d, meta)
 }
 
 // GetVpcById is a method to obtain vpc informations from special region through vpc ID.
@@ -152,11 +152,11 @@ func GetVpcById(config *config.Config, region, vpcId string) (*vpcs.Vpc, error) 
 	return vpcs.Get(client, vpcId).Extract()
 }
 
-func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{}) error {
+func resourceVirtualPrivateCloudRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	n, err := GetVpcById(config, config.GetRegion(d), d.Id())
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error obtain Vpc information")
+		return common.CheckDeletedDiag(d, err, "Error obtain VPC information")
 	}
 
 	d.Set("name", n.Name)
@@ -181,23 +181,23 @@ func resourceVirtualPrivateCloudV1Read(d *schema.ResourceData, meta interface{})
 		if resourceTags, err := tags.Get(vpcV2Client, "vpcs", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
-				return fmtp.Errorf("Error saving tags to state for VPC (%s): %s", d.Id(), err)
+				return fmtp.DiagErrorf("Error saving tags to state for VPC (%s): %s", d.Id(), err)
 			}
 		} else {
 			logp.Printf("[WARN] Error fetching tags of VPC (%s): %s", d.Id(), err)
 		}
 	} else {
-		return fmtp.Errorf("Error creating vpc client: %s", err)
+		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 	}
 
 	return nil
 }
 
-func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{}) error {
+func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud Vpc: %s", err)
+		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 	}
 
 	var updateOpts vpcs.UpdateOpts
@@ -211,31 +211,31 @@ func resourceVirtualPrivateCloudV1Update(d *schema.ResourceData, meta interface{
 
 	_, err = vpcs.Update(vpcClient, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating Huaweicloud Vpc: %s", err)
+		return fmtp.DiagErrorf("Error updating Huaweicloud VPC: %s", err)
 	}
 
 	//update tags
 	if d.HasChange("tags") {
 		vpcV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
 		if err != nil {
-			return fmtp.Errorf("Error creating Huaweicloud vpc client: %s", err)
+			return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 		}
 
 		tagErr := utils.UpdateResourceTags(vpcV2Client, d, "vpcs", d.Id())
 		if tagErr != nil {
-			return fmtp.Errorf("Error updating tags of VPC %s: %s", d.Id(), tagErr)
+			return fmtp.DiagErrorf("Error updating tags of VPC %s: %s", d.Id(), tagErr)
 		}
 	}
 
-	return resourceVirtualPrivateCloudV1Read(d, meta)
+	return resourceVirtualPrivateCloudRead(ctx, d, meta)
 }
 
-func resourceVirtualPrivateCloudV1Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceVirtualPrivateCloudDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud vpc: %s", err)
+		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -247,9 +247,9 @@ func resourceVirtualPrivateCloudV1Delete(d *schema.ResourceData, meta interface{
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error deleting Huaweicloud Vpc: %s", err)
+		return fmtp.DiagErrorf("Error deleting Huaweicloud VPC %s: %s", d.Id(), err)
 	}
 
 	d.SetId("")

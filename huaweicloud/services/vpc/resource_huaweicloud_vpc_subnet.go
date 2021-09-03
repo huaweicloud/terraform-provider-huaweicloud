@@ -1,11 +1,14 @@
 package vpc
 
 import (
+	"context"
 	"time"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/subnets"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -51,12 +54,12 @@ func ResourceSubnetDNSListV1(d *schema.ResourceData, region string) []string {
 
 func ResourceVpcSubnetV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceVpcSubnetV1Create,
-		Read:   resourceVpcSubnetV1Read,
-		Update: resourceVpcSubnetV1Update,
-		Delete: resourceVpcSubnetV1Delete,
+		CreateContext: resourceVpcSubnetCreate,
+		ReadContext:   resourceVpcSubnetRead,
+		UpdateContext: resourceVpcSubnetUpdate,
+		DeleteContext: resourceVpcSubnetDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -151,12 +154,12 @@ func ResourceVpcSubnetV1() *schema.Resource {
 	}
 }
 
-func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
+func resourceVpcSubnetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
 	subnetClient, err := config.NetworkingV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud networking client: %s", err)
+		return fmtp.DiagErrorf("Error creating Huaweicloud networking client: %s", err)
 	}
 
 	enable := d.Get("ipv6_enable").(bool)
@@ -176,7 +179,7 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 
 	n, err := subnets.Create(subnetClient, createOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud VPC subnet: %s", err)
+		return fmtp.DiagErrorf("Error creating Huaweicloud VPC subnet: %s", err)
 	}
 
 	d.SetId(n.ID)
@@ -191,9 +194,9 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, stateErr := stateConf.WaitForState()
+	_, stateErr := stateConf.WaitForStateContext(ctx)
 	if stateErr != nil {
-		return fmtp.Errorf(
+		return fmtp.DiagErrorf(
 			"Error waiting for Subnet (%s) to become ACTIVE: %s",
 			n.ID, stateErr)
 	}
@@ -203,15 +206,15 @@ func resourceVpcSubnetV1Create(d *schema.ResourceData, meta interface{}) error {
 	if len(tagRaw) > 0 {
 		vpcSubnetV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
 		if err != nil {
-			return fmtp.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
+			return fmtp.DiagErrorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
 		taglist := utils.ExpandResourceTags(tagRaw)
 		if tagErr := tags.Create(vpcSubnetV2Client, "subnets", n.ID, taglist).ExtractErr(); tagErr != nil {
-			return fmtp.Errorf("Error setting tags of VpcSubnet %q: %s", n.ID, tagErr)
+			return fmtp.DiagErrorf("Error setting tags of VpcSubnet %q: %s", n.ID, tagErr)
 		}
 	}
 
-	return resourceVpcSubnetV1Read(d, config)
+	return resourceVpcSubnetRead(ctx, d, config)
 
 }
 
@@ -225,12 +228,12 @@ func GetVpcSubnetById(config *config.Config, region, subentId string) (*subnets.
 	return subnets.Get(subnetClient, subentId).Extract()
 }
 
-func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
+func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 
 	n, err := GetVpcSubnetById(config, config.GetRegion(d), d.Id())
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error obtain Subnet information")
+		return common.CheckDeletedDiag(d, err, "Error obtain Subnet information")
 	}
 
 	d.Set("name", n.Name)
@@ -254,28 +257,28 @@ func resourceVpcSubnetV1Read(d *schema.ResourceData, meta interface{}) error {
 		if resourceTags, err := tags.Get(vpcSubnetV2Client, "subnets", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
-				return fmtp.Errorf("Error saving tags to state for Subnet (%s): %s", d.Id(), err)
+				return fmtp.DiagErrorf("Error saving tags to state for Subnet (%s): %s", d.Id(), err)
 			}
 		} else {
 			logp.Printf("[WARN] Error fetching tags of Subnet (%s): %s", d.Id(), err)
 		}
 	} else {
-		return fmtp.Errorf("Error creating VpcSubnet client: %s", err)
+		return fmtp.DiagErrorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 	}
 
 	return nil
 }
 
-func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
+func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud networking client: %s", err)
+		return fmtp.DiagErrorf("Error creating Huaweicloud networking client: %s", err)
 	}
 
 	var updateOpts subnets.UpdateOpts
 
-	//as name is mandatory while updating subnet
+	// name is mandatory while updating subnet
 	updateOpts.Name = d.Get("name").(string)
 
 	if d.HasChange("ipv6_enable") {
@@ -283,7 +286,7 @@ func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 			enable := d.Get("ipv6_enable").(bool)
 			updateOpts.EnableIPv6 = &enable
 		} else {
-			return fmtp.Errorf("Parameter cannot be disabled after IPv6 enable")
+			return fmtp.DiagErrorf("Parameter cannot be disabled after IPv6 enable")
 		}
 	}
 	if d.HasChange("primary_dns") {
@@ -303,50 +306,49 @@ func resourceVpcSubnetV1Update(d *schema.ResourceData, meta interface{}) error {
 		updateOpts.EnableDHCP = true
 	}
 
-	vpc_id := d.Get("vpc_id").(string)
-
-	_, err = subnets.Update(subnetClient, vpc_id, d.Id(), updateOpts).Extract()
+	vpcID := d.Get("vpc_id").(string)
+	_, err = subnets.Update(subnetClient, vpcID, d.Id(), updateOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error updating Huaweicloud VPC Subnet: %s", err)
+		return fmtp.DiagErrorf("Error updating VPC Subnet: %s", err)
 	}
 
 	//update tags
 	if d.HasChange("tags") {
 		vpcSubnetV2Client, err := config.NetworkingV2Client(config.GetRegion(d))
 		if err != nil {
-			return fmtp.Errorf("Error creating Huaweicloud VpcSubnet client: %s", err)
+			return fmtp.DiagErrorf("Error creating Huaweicloud VpcSubnet client: %s", err)
 		}
 
 		tagErr := utils.UpdateResourceTags(vpcSubnetV2Client, d, "subnets", d.Id())
 		if tagErr != nil {
-			return fmtp.Errorf("Error updating tags of VPC subnet %s: %s", d.Id(), tagErr)
+			return fmtp.DiagErrorf("Error updating tags of VPC subnet %s: %s", d.Id(), tagErr)
 		}
 	}
 
-	return resourceVpcSubnetV1Read(d, meta)
+	return resourceVpcSubnetRead(ctx, d, meta)
 }
 
-func resourceVpcSubnetV1Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceVpcSubnetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	config := meta.(*config.Config)
 	subnetClient, err := config.NetworkingV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating Huaweicloud networking client: %s", err)
+		return fmtp.DiagErrorf("Error creating Huaweicloud networking client: %s", err)
 	}
-	vpc_id := d.Get("vpc_id").(string)
 
+	vpcID := d.Get("vpc_id").(string)
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ACTIVE"},
 		Target:     []string{"DELETED"},
-		Refresh:    waitForVpcSubnetDelete(subnetClient, vpc_id, d.Id()),
+		Refresh:    waitForVpcSubnetDelete(subnetClient, vpcID, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
 
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error deleting Huaweicloud Subnet: %s", err)
+		return fmtp.DiagErrorf("Error deleting Huaweicloud Subnet: %s", err)
 	}
 
 	d.SetId("")
