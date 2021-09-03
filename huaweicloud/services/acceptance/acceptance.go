@@ -35,13 +35,31 @@ var (
 	HW_WAF_ENABLE_FLAG = os.Getenv("HW_WAF_ENABLE_FLAG")
 )
 
+// TestAccProviders is a static map containing only the main provider instance.
+//
+// Deprecated: Terraform Plugin SDK version 2 uses TestCase.ProviderFactories
+// but supports this value in TestCase.Providers for backwards compatibility.
+// In the future Providers: TestAccProviders will be changed to
+// ProviderFactories: TestAccProviderFactories
 var TestAccProviders map[string]*schema.Provider
+
+// TestAccProviderFactories is a static map containing only the main provider instance
+var TestAccProviderFactories map[string]func() (*schema.Provider, error)
+
+// TestAccProvider is the "main" provider instance
 var TestAccProvider *schema.Provider
 
 func init() {
 	TestAccProvider = huaweicloud.Provider()
+
 	TestAccProviders = map[string]*schema.Provider{
 		"huaweicloud": TestAccProvider,
+	}
+
+	TestAccProviderFactories = map[string]func() (*schema.Provider, error){
+		"huaweicloud": func() (*schema.Provider, error) {
+			return TestAccProvider, nil
+		},
 	}
 }
 
