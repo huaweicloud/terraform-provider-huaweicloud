@@ -195,7 +195,9 @@ The following arguments are supported:
 
 * `vpc_id`  - (Optional, String) Specifies the ID of VPC.
 
-* `network_id`  - (Optional, String) Specifies the ID of subnet.
+* `network_id`  - (Optional, String) Specifies the network ID of subnet.
+
+-> **NOTE:** An agency with VPC management permissions must be specified for the function.
 
 * `mount_user_id` - (Optional, String) Specifies the user ID, a non-0 integer from –1 to 65534. Default to -1.
 
