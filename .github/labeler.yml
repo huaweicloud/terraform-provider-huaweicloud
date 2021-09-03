@@ -2,31 +2,43 @@ version: v1
 
 labels:
   - label: "feature"
+    sync: true
     matcher:
       title: "^feat.*"
       commits: "^feat.*"
 
   - label: "bugfix"
+    sync: true
     matcher:
       title: "^fix.*"
       commits: "^fix.*"
 
   - label: "documentation"
+    sync: true
     matcher:
       title: "^docs.*"
       commits: "^docs.*"
 
   - label: "test"
+    sync: true
     matcher:
       title: "^test.*"
       commits: "^test.*"
 
   - label: "refactor"
+    sync: true
     matcher:
       title: "^refactor.*"
       commits: "^refactor.*"
 
   - label: "chore"
+    sync: true
     matcher:
       title: "^chore.*"
       commits: "^chore.*"
+
+  - label: "dependencies"
+    sync: true
+    matcher:
+      files:
+        any: [ "go.mod" ]
