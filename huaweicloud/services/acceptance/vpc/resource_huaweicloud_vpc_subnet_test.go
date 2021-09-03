@@ -23,9 +23,9 @@ func TestAccVpcSubnetV1_basic(t *testing.T) {
 	rNameUpdate := rName + "-updated"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckVpcSubnetV1Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckVpcSubnetV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcSubnetV1_basic(rName),
@@ -64,9 +64,9 @@ func TestAccVpcSubnetV1_ipv6(t *testing.T) {
 	resourceName := "huaweicloud_vpc_subnet.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckVpcSubnetV1Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckVpcSubnetV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcSubnetV1_basic(rName),

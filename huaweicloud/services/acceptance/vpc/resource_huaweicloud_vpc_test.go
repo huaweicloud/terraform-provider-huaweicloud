@@ -22,9 +22,9 @@ func TestAccVpcV1_basic(t *testing.T) {
 	resourceName := "huaweicloud_vpc.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckVpcV1Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcV1_basic(rName),
@@ -62,9 +62,9 @@ func TestAccVpcV1_WithEpsId(t *testing.T) {
 	resourceName := "huaweicloud_vpc.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheckEpsID(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckVpcV1Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcV1_epsId(rName),
@@ -93,9 +93,9 @@ func TestAccVpcV1_WithCustomRegion(t *testing.T) {
 	var vpc1, vpc2 vpcs.Vpc
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPrecheckCustomRegion(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckVpcV1Destroy,
+		PreCheck:          func() { acceptance.TestAccPrecheckCustomRegion(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckVpcV1Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpcV1_WithCustomRegion(vpcName1, vpcName2, acceptance.HW_CUSTOM_REGION_NAME),
