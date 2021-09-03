@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.28.1 (September 3, 2021)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cdn_domain: Add `service_area` argument support [GH-1466]
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_node: fix an issue when unsubscribing a prePaid node [GH-1464]
+
 ## 1.28.0 (August 31, 2021)
 
 FEATURES:
