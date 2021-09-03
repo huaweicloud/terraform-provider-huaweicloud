@@ -32,6 +32,8 @@ type CreateOpts struct {
 	BusinessType string `json:"business_type" required:"true"`
 	// the domain name or the IP address of the origin server
 	Sources []SourcesOpts `json:"sources" required:"true"`
+	// the area covered by the accelecration service
+	ServiceArea string `json:"service_area,omitempty"`
 	// the enterprise project ID
 	EnterpriseProjectId string `json:"enterprise_project_id,omitempty"`
 }
