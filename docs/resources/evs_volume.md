@@ -63,19 +63,20 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the disk name. The value can contain a maximum of 255 bytes.
 
-* `size` - (Optional, Int) Specifies the disk size, in GB. Its value can be as follows:
+* `size` - (Optional, Int) Specifies the disk size, in GB. The valid value is range from:
   + System disk: 1 GB to 1024 GB
   + Data disk: 10 GB to 32768 GB
 
-      This parameter is mandatory when you create an empty disk. You can specify the parameter value as required within
-      the value range.
-      <br>This parameter is mandatory when you create the disk from a snapshot. Ensure that the disk size is greater
-      than or equal to the snapshot size.
-      <br>This parameter is mandatory when you create the disk from an image. Ensure that the disk size is greater than
-      or equal to the minimum disk capacity required by min_disk in the image attributes.
-      <br>This parameter is optional when you create the disk from a backup. If this parameter is not specified, the
-      disk size is equal to the backup size.
-      <br>Shrinking the disk is not supported.
+  This parameter is required when:
+  + Create an empty disk.
+  + Create the disk from a snapshot. The disk size must be greater than or equal to the snapshot size.
+  + Create the disk from an image. The disk size must be greater than or equal to the minimum disk capacity required by
+  min_disk in the image attributes.
+
+  This parameter is optional when you create the disk from a backup. If this parameter is not specified, the
+  disk size is equal to the backup size.
+
+  -> **NOTE:** Shrinking the disk is not supported.
 
 * `description` - (Optional, String) Specifies the disk description. The value can contain a maximum of 255 bytes.
 
@@ -124,8 +125,8 @@ $ terraform import huaweicloud_evs_volume.volume_1 14a80bc7-c12c-4fe0-a38a-cb77e
 
 Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
 API response, security or some other reason. The missing attributes include: cascade.
-<br>It is generally recommended running terraform plan after importing an disk.
-<br>You can then decide if changes should be applied to the disk, or the resource definition should be updated to align
+It is generally recommended running terraform plan after importing an disk.
+You can then decide if changes should be applied to the disk, or the resource definition should be updated to align
 with the disk. Also you can ignore changes as below.
 
 ```

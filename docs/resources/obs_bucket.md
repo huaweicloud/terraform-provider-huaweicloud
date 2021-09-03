@@ -173,9 +173,11 @@ The following arguments are supported:
 
 * `logging` - (Optional, Map) A settings of bucket logging (documented below).
 
+<!-- markdownlint-disable MD033 -->
 * `quota` - (Optional, Int) Specifies bucket storage quota. Must be a positive integer in the unit of byte. The maximum
   storage quota is 2<sup>63</sup> – 1 bytes. The default bucket storage quota is 0, indicating that the bucket storage
   quota is not limited.
+<!-- markdownlint-enable MD033 -->
 
 * `website` - (Optional, List) A website object (documented below).
 

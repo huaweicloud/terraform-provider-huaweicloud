@@ -74,20 +74,20 @@ The following arguments are supported:
 
 * `available_zone_id` - (Required, String, ForceNew) ID of an available zone. The value as follows:
 
-  CN North-Beijing1 AZ1 (cn-north-1a): ae04cf9d61544df3806a3feeb401b204<br>
-  CN North-Beijing1 AZ2 (cn-north-1b): d573142f24894ef3bd3664de068b44b0<br>
-  CN North-Beijing4 AZ1 (cn-north-4a): effdcbc7d4d64a02aa1fa26b42f56533<br>
-  CN North-Beijing4 AZ2 (cn-north-4b): a0865121f83b41cbafce65930a22a6e8<br>
-  CN North-Beijing4 AZ3 (cn-north-4c): 2dcb154ac2724a6d92e9bcc859657c1e<br>
-  CN East-Shanghai1 AZ1 (cn-east-3a): e7afd64502d64fe3bfb60c2c82ec0ec6<br>
-  CN East-Shanghai1 AZ2 (cn-east-3b): d90ff6d692954373bf53be49cf3900cb<br>
-  CN East-Shanghai1 AZ3 (cn-east-3c): 2dafb4c708da4d509d0ad24864ae1c6d<br>
-  CN East-Shanghai2 AZ1 (cn-east-2a): 72d50cedc49846b9b42c21495f38d81c<br>
-  CN East-Shanghai2 AZ2 (cn-east-2b): 38b0f7a602344246bcb0da47b5d548e7<br>
-  CN East-Shanghai2 AZ3 (cn-east-2c): 5547fd6bf8f84bb5a7f9db062ad3d015<br>
-  CN South-Guangzhou AZ1 (cn-south-1a): 34f5ff4865cf4ed6b270f15382ebdec5<br>
-  CN South-Guangzhou AZ2 (cn-south-2b): 043c7e39ecb347a08dc8fcb6c35a274e<br>
-  CN South-Guangzhou AZ3 (cn-south-1c): af1687643e8c4ec1b34b688e4e3b8901<br>
+  + CN North-Beijing1 AZ1 (cn-north-1a): ae04cf9d61544df3806a3feeb401b204
+  + CN North-Beijing1 AZ2 (cn-north-1b): d573142f24894ef3bd3664de068b44b0
+  + CN North-Beijing4 AZ1 (cn-north-4a): effdcbc7d4d64a02aa1fa26b42f56533
+  + CN North-Beijing4 AZ2 (cn-north-4b): a0865121f83b41cbafce65930a22a6e8
+  + CN North-Beijing4 AZ3 (cn-north-4c): 2dcb154ac2724a6d92e9bcc859657c1e
+  + CN East-Shanghai1 AZ1 (cn-east-3a): e7afd64502d64fe3bfb60c2c82ec0ec6
+  + CN East-Shanghai1 AZ2 (cn-east-3b): d90ff6d692954373bf53be49cf3900cb
+  + CN East-Shanghai1 AZ3 (cn-east-3c): 2dafb4c708da4d509d0ad24864ae1c6d
+  + CN East-Shanghai2 AZ1 (cn-east-2a): 72d50cedc49846b9b42c21495f38d81c
+  + CN East-Shanghai2 AZ2 (cn-east-2b): 38b0f7a602344246bcb0da47b5d548e7
+  + CN East-Shanghai2 AZ3 (cn-east-2c): 5547fd6bf8f84bb5a7f9db062ad3d015
+  + CN South-Guangzhou AZ1 (cn-south-1a): 34f5ff4865cf4ed6b270f15382ebdec5
+  + CN South-Guangzhou AZ2 (cn-south-2b): 043c7e39ecb347a08dc8fcb6c35a274e
+  + CN South-Guangzhou AZ3 (cn-south-1c): af1687643e8c4ec1b34b688e4e3b8901
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID. Changing this parameter will create a new resource.
 

@@ -78,10 +78,10 @@ The following arguments are supported:
   __HTTP__, __HTTPS__ and __BOTH__.
 
 * `request_params` - (Optional, List) Specifies an array of one or more request parameters of the front-end. The maximum
-  of request parameters is 50. The [object](#request_params) structure is documented below.
+  of request parameters is 50. The [object](#apig_api_request_params) structure is documented below.
 
 * `backend_params` - (Optional, List) Specifies an array of one or more backend parameters.
-  The [object](#backend_params) structure is documented below. The maximum of request parameters is 50.
+  The [object](#apig_api_backend_params) structure is documented below. The maximum of request parameters is 50.
 
 * `security_authentication` - (Optional, String) Specifies the security authentication mode. The valid values are
   __NONE__, __APP__ and __IAM__, default to __NONE__.
@@ -111,25 +111,26 @@ The following arguments are supported:
 * `failure_response` - (Optional, String) Specifies the example response for a successful request. Ensure that the
   response does not exceed 20,480 characters. Chinese characters must be in UTF-8 or Unicode format.
 
-* `mock` - (Optional, List, ForceNew) Specifies the mock backend details. The [object](#mock) structure is documented
+* `mock` - (Optional, List, ForceNew) Specifies the mock backend details. The [object](#apig_api_mock) structure is documented
   below. Changing this will create a new API resource.
 
-* `func_graph` - (Optional, List, ForceNew) Specifies the function graph backend details. The [object](#func_graph)
+* `func_graph` - (Optional, List, ForceNew) Specifies the function graph backend details. The [object](#apig_api_func_graph)
   structure is documented below. Changing this will create a new API resource.
 
-* `web` - (Optional, List, ForceNew) Specifies the web backend details. The [object](#web) structure is documented
+* `web` - (Optional, List, ForceNew) Specifies the web backend details. The [object](#apig_api_web) structure is documented
   below. Changing this will create a new API resource.
 
 * `mock_policy` - (Optional, List) Specifies the Mock policy backends. The maximum of the policy is 5.
-  The [object](#mock_policy) structure is documented below.
+  The [object](#apig_api_mock_policy) structure is documented below.
 
 * `func_graph_policy` - (Optional, List) Specifies the Mock policy backends. The maximum of the policy is 5.
-  The [object](#func_graph_policy) structure is documented below.
+  The [object](#apig_api_func_graph_policy) structure is documented below.
 
 * `web_policy` - (Optional, List) Specifies the example response for a failed request. The maximum of the policy is 5.
-  The [object](#web_policy) structure is documented below.
+  The [object](#apig_api_web_policy) structure is documented below.
 
-The <span id="request_params">`request_params`</span> block supports:
+<a name="apig_api_request_params"></a>
+The `request_params` block supports:
 
 * `name` - (Required, String) Specifies the request parameter name, which contain of 1 to 32 characters and start with a
   letter. Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed. If Location is specified as
@@ -158,7 +159,8 @@ The <span id="request_params">`request_params`</span> block supports:
 * `description` - (Optional, String) Specifies the description of the request parameter, which contain a maximum of 255
   characters, and the angle brackets (< and >) are not allowed.
 
-The <span id="backend_params">`backend_params`</span> block supports:
+<a name="apig_api_backend_params"></a>
+The `backend_params` block supports:
 
 * `type` - (Required, String) Specifies the backend parameter type. The valid values are __REQUEST__, __CONSTANT__
   and __SYSTEM__.
@@ -177,7 +179,8 @@ The <span id="backend_params">`backend_params`</span> block supports:
 * `description` - (Optional, String) Specifies the description of the constant or system parameter, which contain a
   maximum of 255 characters, and the angle brackets (< and >) are not allowed.
 
-The <span id="mock">`mock`</span> block supports:
+<a name="apig_api_mock"></a>
+The `mock` block supports:
 
 * `response` - (Required, String) Specifies the response of the backend policy, which contain a maximum of 2,048
   characters, and the angle brackets (< and >) are not allowed.
@@ -187,7 +190,8 @@ The <span id="mock">`mock`</span> block supports:
 
 * `authorizer_id` - (Optional, String) Specifies the ID of the backend custom authorization.
 
-The <span id="func_graph">`func_graph`</span> block supports:
+<a name="apig_api_func_graph"></a>
+The `func_graph` block supports:
 
 * `function_urn` - (Required, String) Specifies the function graph URN.
 
@@ -201,7 +205,8 @@ The <span id="func_graph">`func_graph`</span> block supports:
 
 * `authorizer_id` - (Optional, String) Specifies the ID of the backend custom authorization.
 
-The <span id="web">`web`</span> block supports:
+<a name="apig_api_web"></a>
+The `web` block supports:
 
 * `path` - (Required, String) Specifies the backend request address, which can contain a maximum of 512 characters and
   must comply with URI specifications.
@@ -237,13 +242,14 @@ The <span id="web">`web`</span> block supports:
 
 * `authorizer_id` - (Optional, String) Specifies the ID of the backend custom authorization.
 
-The <span id="mock_policy">`mock_policy`</span> block supports:
+<a name="apig_api_mock_policy"></a>
+The `mock_policy` block supports:
 
 * `name` - (Required, String) Specifies the backend policy name, which can contains of 3 to 64 characters and start with
   a letter. Only letters, digits, and underscores (_) are allowed.
 
 * `conditions` - (Required, List) Specifies an array of one or more policy conditions. Up to five conditions can be set.
-  The [object](#conditions) structure is documented below.
+  The [object](#apig_api_conditions) structure is documented below.
 
 * `response` - (Optional, String) Specifies the response of the backend policy, which contain a maximum of 2,048
   characters, and the angle brackets (< and >) are not allowed.
@@ -252,11 +258,12 @@ The <span id="mock_policy">`mock_policy`</span> block supports:
   and __ANY__, default to __ANY__.
 
 * `backend_params` - (Optional, List) Specifies an array of one or more backend parameters. The maximum of request
-  parameters is 50. The [object](#backend_params) structure is documented above.
+  parameters is 50. The [object](#apig_api_backend_params) structure is documented above.
 
 * `authorizer_id` - (Optional, String) Specifies the ID of the backend custom authorization.
 
-The <span id="func_graph_policy">`func_graph_policy`</span> block supports:
+<a name="apig_api_func_graph_policy"></a>
+The `func_graph_policy` block supports:
 
 * `name` - (Required, String) Specifies the backend policy name, which can contains of 3 to 64 characters and start with
   a letter. Only letters, digits, and underscores (_) are allowed.
@@ -264,7 +271,7 @@ The <span id="func_graph_policy">`func_graph_policy`</span> block supports:
 * `function_urn` - (Required, String) Specifies the URN of the function graph.
 
 * `conditions` - (Required, List) Specifies an array of one or more policy conditions. Up to five conditions can be set.
-  The [object](#conditions) structure is documented below.
+  The [object](#apig_api_conditions) structure is documented below.
 
 * `invocation_mode` - (Optional, String) Specifies the invocation mode of the function graph. The valid values are
   __async__ and __sync__, default to __sync__.
@@ -278,11 +285,12 @@ The <span id="func_graph_policy">`func_graph_policy`</span> block supports:
 * `version` - (Optional, String) Specifies the version of the function graph.
 
 * `backend_params` - (Optional, List) Specifies an array of one or more backend parameters. The maximum of request
-  parameters is 50. The [object](#backend_params) structure is documented above.
+  parameters is 50. The [object](#apig_api_backend_params) structure is documented above.
 
 * `authorizer_id` - (Optional, String) Specifies the ID of the backend custom authorization.
 
-The <span id="web_policy">`web_policy`</span> block supports:
+<a name="apig_api_web_policy"></a>
+The `web_policy` block supports:
 
 * `name` - (Required, String) Specifies the backend policy name, which can contains of 3 to 64 characters and start with
   a letter. Only letters, digits, and underscores (_) are allowed.
@@ -299,7 +307,7 @@ The <span id="web_policy">`web_policy`</span> block supports:
   __POST__, __PUT__, __DELETE__, __HEAD__, __PATCH__, __OPTIONS__ and __ANY__.
 
 * `conditions` - (Required, List) Specifies an array of one or more policy conditions. Up to five conditions can be set.
-  The [object](#conditions) structure is documented below.
+  The [object](#apig_api_conditions) structure is documented below.
 
 * `host_header` - (Optional, String) Specifies the proxy host header. The host header can be customized for requests to
   be forwarded to cloud servers through the VPC channel. By default, the original host header of the request is used.
@@ -323,11 +331,12 @@ The <span id="web_policy">`web_policy`</span> block supports:
   valid value is range from 1 to 600,000, default to 5,000.
 
 * `backend_params` - (Optional, List) Specifies an array of one or more backend parameters. The maximum of request
-  parameters is 50. The [object](#backend_params) structure is documented above.
+  parameters is 50. The [object](#apig_api_backend_params) structure is documented above.
 
 * `authorizer_id` - (Optional, String) Specifies the ID of the backend custom authorization.
 
-The <span id="conditions">`conditions`</span> block supports:
+<a name="apig_api_conditions"></a>
+The `conditions` block supports:
 
 * `value` - (Required, String) Specifies the condition type. For a condition with the input parameter source:
   + If the condition type is __Enumerated__, separate condition values with commas.
