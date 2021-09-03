@@ -86,6 +86,13 @@ The following attributes are exported:
 
 * `upgradable` - The instance is to support upgrades. `0`: Cannot be upgraded, `1`: Can be upgraded.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 30 minute.
+* `delete` - Default is 20 minute.
+
 ## Import
 
 WAF dedicated instance can be imported using the `id`, e.g.
