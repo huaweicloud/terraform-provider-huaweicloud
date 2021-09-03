@@ -12,6 +12,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/rts/v1/stacks"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"gopkg.in/yaml.v2"
 )
 
@@ -71,6 +72,18 @@ func ExpandToIntList(v []interface{}) []int {
 			s = append(s, intVal)
 		}
 	}
+	return s
+}
+
+// ExpandToStringListBySet takes the result for a set of strings and returns a []string
+func ExpandToStringListBySet(v *schema.Set) []string {
+	s := make([]string, 0, v.Len())
+	for _, val := range v.List() {
+		if strVal, ok := val.(string); ok && strVal != "" {
+			s = append(s, strVal)
+		}
+	}
+
 	return s
 }
 

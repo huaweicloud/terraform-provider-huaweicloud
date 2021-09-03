@@ -71,8 +71,6 @@ github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d/go.mod h1:6QX/PXZ
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cheggaaa/pb v1.0.27/go.mod h1:pQciLPpbU0oxA0h+VJYYLxO+XeDQb5pZijXscXHm81s=
-github.com/chnsz/golangsdk v0.0.0-20210910073247-d53db78c6984 h1:fmhHRkpEwQQ0YiJ9eVOuhzERHz93pnOJIDVRUMdZNjY=
-github.com/chnsz/golangsdk v0.0.0-20210910073247-d53db78c6984/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
 github.com/chnsz/golangsdk v0.0.0-20210913091218-db72ff026f6c h1:GyzczyT01SFV5PluCRRKP1K/hL8E4nvOhpMaGi/POLg=
 github.com/chnsz/golangsdk v0.0.0-20210913091218-db72ff026f6c/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
