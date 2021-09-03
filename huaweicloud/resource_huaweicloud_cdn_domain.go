@@ -126,6 +126,7 @@ func resourceCdnDomainV1Create(d *schema.ResourceData, meta interface{}) error {
 		DomainName:          d.Get("name").(string),
 		BusinessType:        d.Get("type").(string),
 		Sources:             getDomainSources(d),
+		ServiceArea:         d.Get("service_area").(string),
 		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
 	}
 
