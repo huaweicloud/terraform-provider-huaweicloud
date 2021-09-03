@@ -12,11 +12,25 @@ import (
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/domains"
 )
 
+func getResourceObj(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	c, err := conf.WafV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
+	}
+	return domains.Get(c, state.Primary.ID).Extract()
+}
+
 func TestAccWafDomainV1_basic(t *testing.T) {
 	var domain domains.Domain
 	resourceName := "huaweicloud_waf_domain.domain_1"
 	randName := acceptance.RandomAccResourceName()
-	certificateName := acceptance.RandomAccResourceName()
+	domainName := fmt.Sprintf("%s.huawei.com", randName)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&domain,
+		getResourceObj,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -24,13 +38,13 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
 		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckWafDomainV1Destroy,
+		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWafDomainV1_basic(certificateName, randName),
+				Config: testAccWafDomainV1_basic(randName, domainName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafDomainV1Exists(resourceName, &domain),
-					resource.TestCheckResourceAttr(resourceName, "domain", fmt.Sprintf("www.%s.com", randName)),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "domain", domainName),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "false"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
@@ -38,9 +52,9 @@ func TestAccWafDomainV1_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccWafDomainV1_update(certificateName, randName),
+				Config: testAccWafDomainV1_update(randName, domainName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafDomainV1Exists(resourceName, &domain),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8443"),
@@ -61,7 +75,13 @@ func TestAccWafDomainV1_policy(t *testing.T) {
 	var domain domains.Domain
 	resourceName := "huaweicloud_waf_domain.domain_1"
 	randName := acceptance.RandomAccResourceName()
-	certificateName := acceptance.RandomAccResourceName()
+	domainName := fmt.Sprintf("%s.huawei.com", randName)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&domain,
+		getResourceObj,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -69,83 +89,32 @@ func TestAccWafDomainV1_policy(t *testing.T) {
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
 		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckWafDomainV1Destroy,
+		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWafDomainV1_policy(certificateName, randName),
+				Config: testAccWafDomainV1_policy(randName, domainName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafDomainV1Exists(resourceName, &domain),
-					resource.TestCheckResourceAttr(resourceName, "domain", fmt.Sprintf("www.%s.com", randName)),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "domain", domainName),
 					resource.TestCheckResourceAttr(resourceName, "proxy", "true"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8080"),
-					resource.TestCheckResourceAttrSet(resourceName, "policy_id"),
+
+					acceptance.TestCheckResourceAttrWithVariable(resourceName, "policy_id",
+						"${huaweicloud_waf_policy.policy_1.id}"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckWafDomainV1Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_waf_domain" {
-			continue
-		}
-
-		_, err := domains.Get(wafClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("Waf domain still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckWafDomainV1Exists(n string, domain *domains.Domain) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		wafClient, err := config.WafV1Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating HuaweiCloud WAF client: %s", err)
-		}
-
-		found, err := domains.Get(wafClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("Waf domain not found")
-		}
-
-		*domain = *found
-
-		return nil
-	}
-}
-
-func testAccWafDomainV1_basic(certificateName string, name string) string {
+func testAccWafDomainV1_basic(randName, domainName string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_waf_domain" "domain_1" {
-  domain           = "www.%s.com"
+  domain           = "%s"
   certificate_id   = huaweicloud_waf_certificate.certificate_1.id
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
   keep_policy      = false
@@ -158,15 +127,15 @@ resource "huaweicloud_waf_domain" "domain_1" {
     port            = 8080
   }
 }
-`, testAccWafCertificateV1_conf(name), name)
+`, testAccWafCertificateV1_conf(randName), domainName)
 }
 
-func testAccWafDomainV1_update(certificateName string, name string) string {
+func testAccWafDomainV1_update(randName, domainName string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_waf_domain" "domain_1" {
-  domain           = "www.%s.com"
+  domain           = "%s"
   certificate_id   = huaweicloud_waf_certificate.certificate_1.id
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
   keep_policy      = false
@@ -180,19 +149,19 @@ resource "huaweicloud_waf_domain" "domain_1" {
   }
 
 }
-`, testAccWafCertificateV1_conf(name), name)
+`, testAccWafCertificateV1_conf(randName), domainName)
 }
 
-func testAccWafDomainV1_policy(certificateName string, name string) string {
+func testAccWafDomainV1_policy(randName, domainName string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_waf_policy" "policy_1" {
-  name = "policy_%s"
+  name = "%s"
 }
 
 resource "huaweicloud_waf_domain" "domain_1" {
-  domain           = "www.%s.com"
+  domain           = "%s"
   certificate_id   = huaweicloud_waf_certificate.certificate_1.id
   certificate_name = huaweicloud_waf_certificate.certificate_1.name
   policy_id        = huaweicloud_waf_policy.policy_1.id
@@ -205,5 +174,5 @@ resource "huaweicloud_waf_domain" "domain_1" {
     port            = 8080
   }
 }
-`, testAccWafCertificateV1_conf(certificateName), name, name)
+`, testAccWafCertificateV1_conf(randName), randName, domainName)
 }
