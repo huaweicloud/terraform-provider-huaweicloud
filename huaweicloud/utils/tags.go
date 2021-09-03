@@ -45,6 +45,9 @@ func TagsToMap(tags []tags.ResourceTag) map[string]string {
 		result[val.Key] = val.Value
 	}
 
+	// ignore system tags to keep the tags consistent with what the user set
+	delete(result, "CCE-Dynamic-Provisioning-Node")
+
 	return result
 }
 
