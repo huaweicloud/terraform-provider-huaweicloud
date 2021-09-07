@@ -82,6 +82,22 @@ func DataSourceNetworkingPortV2() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"fixed_ips": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"subnet_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"ip_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"all_security_group_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -186,9 +202,9 @@ func dataSourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) er
 		portsList = sgPorts
 	}
 
-	if len(portsList) > 1 {
-		return fmtp.Errorf("More than one huaweicloud_networking_port found (%d)", len(portsList))
-	}
+//	if len(portsList) > 1 {
+//		return fmtp.Errorf("More than one huaweicloud_networking_port found (%d)", len(portsList))
+//	}
 
 	port := portsList[0]
 
@@ -206,6 +222,18 @@ func dataSourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("region", GetRegion(d, config))
 	d.Set("all_security_group_ids", port.SecurityGroups)
 	d.Set("all_fixed_ips", expandNetworkingPortFixedIPToStringSlice(port.FixedIPs))
+
+        fixed_ips := make([]map[string]string, 0, len(port.FixedIPs))
+	for _, v := range port.FixedIPs {
+		fixed_ip := make(map[string]string)
+		fixed_ip["subnet_id"] = v.SubnetID
+		fixed_ip["ip_address"] = v.IPAddress
+		fixed_ips = append(fixed_ips, fixed_ip)
+	}
+	err = d.Set("fixed_ips", fixed_ips)
+	if err != nil {
+		return fmtp.Errorf("Unable to retrieve huaweicloud_networking_ports_v2: %s", err)
+	}
 
 	return nil
 }

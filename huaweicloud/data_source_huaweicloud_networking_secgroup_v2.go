@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"fmt"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
@@ -36,6 +37,54 @@ func DataSourceNetworkingSecGroupV2() *schema.Resource {
 				Type:       schema.TypeString,
 				Optional:   true,
 				Deprecated: "tenant_id is deprecated",
+			},
+			"security_group_rules": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"security_group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"direction": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"protocol": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"ethertype": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"port_range_max": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"port_range_min": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"remote_ip_prefix": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"remote_group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -80,6 +129,23 @@ func dataSourceNetworkingSecGroupV2Read(d *schema.ResourceData, meta interface{}
 	d.Set("name", secGroup.Name)
 	d.Set("description", secGroup.Description)
 	d.Set("region", GetRegion(d, config))
+	security_group_rules := make([]map[string]string, 0, len(secGroup.Rules))
+	for _, v := range secGroup.Rules {
+		logp.Printf("[DEBUG] Retrieved Security Group %s", v)
+		rule := make(map[string]string)
+		rule["id"] = v.ID
+		rule["security_group_id"] = v.SecGroupID
+		rule["direction"] = v.Direction
+		rule["protocol"] = v.Protocol
+		rule["description"] = v.Description
+		rule["ethertype"] = v.EtherType
+		rule["port_range_max"] = fmt.Sprintf("%d", v.PortRangeMax)
+		rule["port_range_min"] = fmt.Sprintf("%d", v.PortRangeMin)
+		rule["remote_group_id"] = v.RemoteGroupID
+		rule["remote_ip_prefix"] = v.RemoteIPPrefix
+		security_group_rules = append(security_group_rules, rule)
+	}
+	d.Set("security_group_rules", security_group_rules)
 
 	return nil
 }
