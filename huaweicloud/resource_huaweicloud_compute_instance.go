@@ -629,7 +629,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		pending := []string{"BUILD"}
 		target := []string{"ACTIVE"}
 		timeout := d.Timeout(schema.TimeoutCreate)
-		if err := watiForServerTargetState(computeClient, d.Id(), pending, target, timeout); err != nil {
+		if err := waitForServerTargetState(computeClient, d.Id(), pending, target, timeout); err != nil {
 			return fmtp.Errorf("State waiting timeout: %s", err)
 		}
 	}
@@ -1025,7 +1025,7 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 			pending := []string{"ACTIVE"}
 			target := []string{"SHUTOFF"}
 			timeout := d.Timeout(schema.TimeoutCreate)
-			if err := watiForServerTargetState(computeClient, d.Id(), pending, target, timeout); err != nil {
+			if err := waitForServerTargetState(computeClient, d.Id(), pending, target, timeout); err != nil {
 				return fmtp.Errorf("State waiting timeout: %s", err)
 			}
 		}
@@ -1061,7 +1061,7 @@ func resourceComputeInstanceV2Delete(d *schema.ResourceData, meta interface{}) e
 	pending := []string{"ACTIVE", "SHUTOFF"}
 	target := []string{"DELETED", "SOFT_DELETED"}
 	deleteTimeout := d.Timeout(schema.TimeoutDelete)
-	if err := watiForServerTargetState(computeClient, d.Id(), pending, target, deleteTimeout); err != nil {
+	if err := waitForServerTargetState(computeClient, d.Id(), pending, target, deleteTimeout); err != nil {
 		return fmtp.Errorf("State waiting timeout: %s", err)
 	}
 
@@ -1408,7 +1408,7 @@ func checkBlockDeviceConfig(d *schema.ResourceData) error {
 	return nil
 }
 
-func watiForServerTargetState(client *golangsdk.ServiceClient, ID string, pending, target []string, timeout time.Duration) error {
+func waitForServerTargetState(client *golangsdk.ServiceClient, ID string, pending, target []string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      pending,
 		Target:       target,

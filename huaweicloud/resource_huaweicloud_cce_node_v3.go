@@ -842,7 +842,7 @@ func resourceCCENodeV3Delete(d *schema.ResourceData, meta interface{}) error {
 			pending := []string{"ACTIVE", "SHUTOFF"}
 			target := []string{"DELETED", "SOFT_DELETED"}
 			deleteTimeout := d.Timeout(schema.TimeoutDelete)
-			if err := watiForServerTargetState(computeClient, serverID, pending, target, deleteTimeout); err != nil {
+			if err := waitForServerTargetState(computeClient, serverID, pending, target, deleteTimeout); err != nil {
 				return fmtp.Errorf("State waiting timeout: %s", err)
 			}
 
