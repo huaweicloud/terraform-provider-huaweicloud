@@ -102,10 +102,6 @@ The following arguments are supported:
 * `region` - (Required) This is the Huawei Cloud region. It must be provided, but it can also be sourced from
   the `HW_REGION_NAME` environment variables.
 
-* `domain_name` - (Optional, Required for IAM resources) The
-  [Account name](https://support.huaweicloud.com/en-us/usermanual-iam/iam_01_0552.html)
-  of IAM to scope to. If omitted, the `HW_DOMAIN_NAME` environment variable is used.
-
 * `access_key` - (Optional) The access key of the HuaweiCloud to use. If omitted, the `HW_ACCESS_KEY` environment
   variable is used.
 
@@ -114,6 +110,9 @@ The following arguments are supported:
 
 * `project_name` - (Optional) The Name of the project to login with. If omitted, the `HW_PROJECT_NAME` environment
   variable or `region` is used.
+
+* `domain_name` - (Optional) The [Account name](https://support.huaweicloud.com/en-us/usermanual-iam/iam_01_0552.html)
+  of IAM to scope to. If omitted, the `HW_DOMAIN_NAME` environment variable is used.
 
 * `security_token` - (Optional) The security token to authenticate with a
   [temporary security credential](https://support.huaweicloud.com/intl/en-us/iam_faq/iam_01_0620.html). If omitted,

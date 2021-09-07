@@ -101,6 +101,11 @@ func (c *Config) LoadAndValidate() error {
 	if c.DomainID == "" {
 		if domainID, err := c.getDomainID(); err == nil {
 			c.DomainID = domainID
+
+			// update DomainClient.AKSKAuthOptions
+			if c.DomainClient.AKSKAuthOptions.AccessKey != "" {
+				c.DomainClient.AKSKAuthOptions.DomainID = c.DomainID
+			}
 		} else {
 			log.Printf("[WARN] get domain id failed: %s", err)
 		}
