@@ -63,6 +63,17 @@ func ExpandToStringList(v []interface{}) []string {
 	return s
 }
 
+// ExpandToIntList takes the result for an array of intgers and returns a []int
+func ExpandToIntList(v []interface{}) []int {
+	s := make([]int, 0, len(v))
+	for _, val := range v {
+		if intVal, ok := val.(int); ok {
+			s = append(s, intVal)
+		}
+	}
+	return s
+}
+
 // Takes list of pointers to strings. Expand to an array
 // of raw strings and returns a []interface{}
 func flattenToStringList(list []*string) []interface{} {
