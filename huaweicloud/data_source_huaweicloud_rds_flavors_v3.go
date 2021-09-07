@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -37,6 +38,14 @@ func DataSourceRdsFlavorV3() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"ha", "single", "replica",
 				}, false),
+			},
+			"vcpus": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"memory": {
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"flavors": {
 				Type:     schema.TypeList,
@@ -84,9 +93,19 @@ func dataSourceRdsFlavorV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	mode := d.Get("instance_mode").(string)
+	cpu := d.Get("vcpus").(int)
+	mem := d.Get("memory").(int)
 	flavors := make([]interface{}, 0, len(r.([]interface{})))
 	for _, item := range r.([]interface{}) {
 		val := item.(map[string]interface{})
+		vcpu, _ := strconv.Atoi(val["vcpus"].(string))
+		if cpu > 0 && vcpu != cpu {
+			continue
+		}
+
+		if mem > 0 && int(val["ram"].(float64)) != mem {
+			continue
+		}
 
 		if mode == val["instance_mode"].(string) {
 			flavors = append(flavors, map[string]interface{}{
