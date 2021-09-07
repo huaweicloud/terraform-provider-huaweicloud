@@ -41,6 +41,12 @@ func List(client *golangsdk.ServiceClient, opts ListOptsBuilder) pagination.Page
 	})
 }
 
+// List users of the group
+func ListUsers(client *golangsdk.ServiceClient, groupID string) (r UserResult) {
+	_, r.Err = client.Get(listUsersURL(client, groupID), &r.Body, nil)
+	return
+}
+
 // Get retrieves details on a single group, by ID.
 func Get(client *golangsdk.ServiceClient, id string) (r GetResult) {
 	_, r.Err = client.Get(getURL(client, id), &r.Body, nil)

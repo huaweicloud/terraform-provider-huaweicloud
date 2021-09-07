@@ -29,6 +29,41 @@ type Group struct {
 	Name string `json:"name"`
 }
 
+type User struct {
+	// IAM user name.
+	Name string `json:"name"`
+
+	// Links contains referencing links to the User.
+	Links map[string]interface{} `json:"links"`
+
+	// DomainID is the domain ID the user belongs to.
+	DomainId string `json:"domain_id"`
+
+	// Enabling status of the IAM user.
+	Enabled bool `json:"enabled"`
+
+	// ID is the unique ID of the User.
+	Id string `json:"id"`
+
+	// Time when the password will expire. null indicates that the password has unlimited validity.
+	PasswordExpiresAt string `json:"password_expires_at"`
+
+	// Description of the IAM user.
+	Description string `json:"description"`
+
+	// Password status. true means that the password needs to be changed, and false means that the password is normal.
+	PwdStatus bool `json:"pwd_status"`
+
+	// ID of the project that the IAM user lastly accessed before exiting the system.
+	LastProjectId string `json:"last_project_id"`
+
+	// Password strength. The value can be high, mid, or low.
+	PwdStrength string `json:"pwd_strength"`
+
+	// Other information about the IAM user.
+	Extra map[string]interface{} `json:"-"`
+}
+
 func (r *Group) UnmarshalJSON(b []byte) error {
 	type tmp Group
 	var s struct {
@@ -87,6 +122,10 @@ type DeleteResult struct {
 	golangsdk.ErrResult
 }
 
+type UserResult struct {
+	golangsdk.Result
+}
+
 // GroupPage is a single page of Group results.
 type GroupPage struct {
 	pagination.LinkedPageBase
@@ -120,6 +159,15 @@ func ExtractGroups(r pagination.Page) ([]Group, error) {
 	}
 	err := (r.(GroupPage)).ExtractInto(&s)
 	return s.Groups, err
+}
+
+// ExtractUsers returns a slice of users contained in a single page of results.
+func (r UserResult) Extract() ([]User, error) {
+	var s struct {
+		Users []User `json:"users"`
+	}
+	err := r.ExtractInto(&s)
+	return s.Users, err
 }
 
 // Extract interprets any group results as a Group.
