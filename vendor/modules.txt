@@ -372,8 +372,6 @@ github.com/hashicorp/terraform-plugin-sdk/v2/plugin
 github.com/hashicorp/terraform-plugin-sdk/v2/terraform
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20210831081626-d823fe11ceba
-## explicit
 # github.com/jen20/awspolicyequivalence v1.1.0
 ## explicit
 github.com/jen20/awspolicyequivalence

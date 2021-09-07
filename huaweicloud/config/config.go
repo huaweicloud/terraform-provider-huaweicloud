@@ -200,8 +200,9 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if client.AKSKAuthOptions.AccessKey != "" {
 				golangsdk.ReSign(req, golangsdk.SignOptions{
-					AccessKey: client.AKSKAuthOptions.AccessKey,
-					SecretKey: client.AKSKAuthOptions.SecretKey,
+					AccessKey:  client.AKSKAuthOptions.AccessKey,
+					SecretKey:  client.AKSKAuthOptions.SecretKey,
+					RegionName: client.AKSKAuthOptions.Region,
 				})
 			}
 			return nil
@@ -294,6 +295,9 @@ func buildClientByAKSK(c *Config) error {
 		ao.IdentityEndpoint = c.IdentityEndpoint
 		ao.AccessKey = c.AccessKey
 		ao.SecretKey = c.SecretKey
+		if c.Region != "" {
+			ao.Region = c.Region
+		}
 		if c.SecurityToken != "" {
 			ao.SecurityToken = c.SecurityToken
 			ao.WithUserCatalog = true
