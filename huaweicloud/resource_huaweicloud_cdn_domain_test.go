@@ -23,9 +23,9 @@ func TestAccCdnDomain_basic(t *testing.T) {
 			{
 				Config: testAccCdnDomainV1_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCdnDomainV1Exists("huaweicloud_cdn_domain_v1.domain_1", &domain),
+					testAccCheckCdnDomainV1Exists("huaweicloud_cdn_domain.domain_1", &domain),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cdn_domain_v1.domain_1", "name", HW_CDN_DOMAIN_NAME),
+						"huaweicloud_cdn_domain.domain_1", "name", HW_CDN_DOMAIN_NAME),
 				),
 			},
 		},
@@ -40,7 +40,7 @@ func testAccCheckCdnDomainV1Destroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_cdn_domain_v1" {
+		if rs.Type != "huaweicloud_cdn_domain" {
 			continue
 		}
 
@@ -85,9 +85,9 @@ func testAccCheckCdnDomainV1Exists(n string, domain *domains.CdnDomain) resource
 }
 
 var testAccCdnDomainV1_basic = fmt.Sprintf(`
-resource "huaweicloud_cdn_domain_v1" "domain_1" {
+resource "huaweicloud_cdn_domain" "domain_1" {
   name   = "%s"
-  type   = "web"
+  type   = "wholeSite"
   enterprise_project_id = 0
   sources {
       active = 1

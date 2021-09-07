@@ -30,8 +30,8 @@ The following arguments are supported:
 * `name` - (Required, String, ForceNew) The acceleration domain name. Changing this parameter will create a new
   resource.
 
-* `type` - (Required, String, ForceNew) The service type. The valid values are  'web', 'download' and 'video'. Changing
-  this parameter will create a new resource.
+* `type` - (Required, String, ForceNew) The service type. The valid values are  'web', 'download', 'video' and
+  'wholeSite'.  Changing this parameter will create a new resource.
 
 * `sources` - (Required, List, ForceNew) An array of one or more objects specifies the domain name of the origin server.
   The sources object structure is documented below.
