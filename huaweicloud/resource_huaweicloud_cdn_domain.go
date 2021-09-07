@@ -72,20 +72,17 @@ func resourceCdnDomainV1() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"cname": {
+			"service_area": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
+			},
+			"cname": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"domain_status": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"service_area": {
-				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 		},
