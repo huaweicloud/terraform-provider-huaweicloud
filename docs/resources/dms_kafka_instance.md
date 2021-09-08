@@ -119,6 +119,8 @@ The following arguments are supported:
   types: lowercase letters, uppercase letters, digits, and special characters (`~!@#$%^&*()-_=+\\|[{}]:'",<.>/?).
   Changing this creates a new instance resource.
 
+  -> **NOTE:** If `access_user` and `password` are specified, Kafka SASL_SSL will be automatically enabled.
+
 * `maintain_begin` - (Optional, String) Specifies the time at which a maintenance time window starts. Format: HH:mm. The
   start time and end time of a maintenance time window must indicate the time segment of a supported maintenance time
   window. The start time must be set to 22:00, 02:00, 06:00, 10:00, 14:00, or 18:00. Parameters `maintain_begin`
@@ -167,7 +169,7 @@ In addition to all arguments above, the following attributes are exported:
 * `used_storage_space` - Indicates the used message storage space. Unit: GB
 * `port` - Indicates the port number of the DMS kafka instance.
 * `status` - Indicates the status of the DMS kafka instance.
-* `ssl_enable` - Indicates whether the SSL-encrypted access is enabled.
+* `ssl_enable` - Indicates whether the Kafka SASL_SSL is enabled.
 * `enable_public_ip` - Indicates whether public access to the DMS kafka instance is enabled.
 * `resource_spec_code` - Indicates a resource specifications identifier.
 * `type` - Indicates the DMS kafka instance type.
