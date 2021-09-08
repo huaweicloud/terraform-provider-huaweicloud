@@ -96,11 +96,7 @@ func testAccPreCheckDeprecated(t *testing.T) {
 
 func testAccPreCheckAdminOnly(t *testing.T) {
 	if HW_ADMIN == "" {
-		t.Skip("Skipping test because it requires the admin user group")
-	}
-
-	if HW_DOMAIN_ID == "" && HW_DOMAIN_NAME == "" {
-		t.Fatal("HW_DOMAIN_ID or HW_DOMAIN_NAME must be set for acceptance tests with admin privileges")
+		t.Skip("Skipping test because it requires the admin privileges")
 	}
 }
 
