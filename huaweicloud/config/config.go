@@ -698,6 +698,10 @@ func (c *Config) VPCEPClient(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("vpcep", region)
 }
 
+func (c *Config) RouteTablesV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("routetables", region)
+}
+
 func (c *Config) NatGatewayClient(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("nat", region)
 }
