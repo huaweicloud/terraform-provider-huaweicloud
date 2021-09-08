@@ -222,19 +222,16 @@ func (rc *resourceCheck) CheckResourceDestroy() resource.TestCheckFunc {
 
 // CheckResourceExists check whether resources exist in HuaweiCloud.
 func (rc *resourceCheck) CheckResourceExists() resource.TestCheckFunc {
-	if strings.Compare(rc.resourceType, dataSourceTypeCode) == 0 {
-		fmtp.Errorf("Error, you built a resourceCheck with 'InitDataSourceCheck', " +
-			"it cannot run CheckResourceExists().")
-		return nil
-	}
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[rc.resourceName]
 		if !ok {
-			return fmtp.Errorf("not found: %s", rc.resourceName)
-
+			return fmtp.Errorf("Can not found the resource or data source in state: %s", rc.resourceName)
 		}
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("no id set for the resource: %s", rc.resourceName)
+			return fmtp.Errorf("No id set for the resource or data source: %s", rc.resourceName)
+		}
+		if strings.EqualFold(rc.resourceType, dataSourceTypeCode) {
+			return nil
 		}
 
 		if rc.getResourceFunc != nil {
