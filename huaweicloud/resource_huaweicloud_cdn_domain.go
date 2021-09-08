@@ -39,7 +39,7 @@ func resourceCdnDomainV1() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					"web", "download", "video",
+					"web", "download", "video", "wholeSite",
 				}, true),
 			},
 			"sources": {
