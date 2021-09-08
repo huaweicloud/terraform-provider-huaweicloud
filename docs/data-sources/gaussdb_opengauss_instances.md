@@ -29,7 +29,7 @@ data "huaweicloud_gaussdb_opengauss_instances" "this" {
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Indicates the ID of the instances.
+* `id` - Indicates the ID of the data source.
 
 The `instances` block supports:
 
