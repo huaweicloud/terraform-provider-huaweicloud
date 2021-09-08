@@ -17,8 +17,8 @@ data "huaweicloud_waf_reference_tables" "reftables" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the WAF reference table resource. If omitted,
-  the provider-level region will be used.
+* `region` - (Optional, String) The region in which to create the WAF reference table resource.
+  If omitted, the provider-level region will be used.
 
 ## Attributes Reference
 
