@@ -79,7 +79,7 @@ resource "huaweicloud_gaussdb_cassandra_instance" "test" {
 data "huaweicloud_gaussdb_cassandra_instance" "test" {
   name = huaweicloud_gaussdb_cassandra_instance.test.name
   depends_on = [
-    huaweicloud_gaussdb_cassandra_instance.test.name,
+    huaweicloud_gaussdb_cassandra_instance.test,
   ]
 }
 `, testAccVpcConfig_Base(rName), rName)

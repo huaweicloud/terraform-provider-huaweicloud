@@ -77,6 +77,9 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
 
 data "huaweicloud_gaussdb_opengauss_instance" "test" {
   name = huaweicloud_gaussdb_opengauss_instance.test.name
+  depends_on = [
+    huaweicloud_gaussdb_opengauss_instance.test,
+  ]
 }
 `, testAccVpcConfig_Base(rName), rName)
 }
