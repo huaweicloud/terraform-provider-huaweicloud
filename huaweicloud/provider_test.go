@@ -190,6 +190,12 @@ func testAccPreCheckProject(t *testing.T) {
 	}
 }
 
+func testAccPreCheckProjectID(t *testing.T) {
+	if HW_PROJECT_ID == "" {
+		t.Skip("HW_PROJECT_ID must be set for acceptance tests")
+	}
+}
+
 func testAccAsConfigPreCheck(t *testing.T) {
 	if HW_FLAVOR_ID == "" {
 		t.Skip("HW_FLAVOR_ID must be set for acceptance tests")

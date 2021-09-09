@@ -24,22 +24,43 @@ The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) The region in which to create the cce addon resource. If omitted, the
   provider-level region will be used. Changing this creates a new cce addon resource.
+
 * `cluster_id` - (Required, String, ForceNew) ID of the cluster. Changing this parameter will create a new resource.
+
 * `template_name` - (Required, String, ForceNew) Name of the addon template. Changing this parameter will create a new
   resource.
+
 * `version` - (Required, String, ForceNew) Version of the addon. Changing this parameter will create a new resource.
+
 * `values` - (Optional, List, ForceNew) Add-on template installation parameters. These parameters vary depending on the
-  add-on.
+  add-on. Structure is documented below. Changing this parameter will create a new resource.
 
 * The `values` block supports:
 
-* `basic` - (Required, Map) Key/Value pairs vary depending on the add-on.
-* `custom` - (Optional, Map) Key/Value pairs vary depending on the add-on.
-* `flavor` - (Optional, Map) Key/Value pairs vary depending on the add-on.
+* `basic` - (Optional, Map, ForceNew) Key/Value pairs vary depending on the add-on.
+  Changing this parameter will create a new resource.
 
-Arguments which can be passed to the `basic` and `custom` addon parameters depends on the addon type and version. For
-more detailed description of addons
-see [addons description](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/guides/cce-addon-templates)
+* `basic_json` - (Optional, String, ForceNew) The parameter `basic` in json string fomart.
+  This is an alternative to `basic` and should be used when the `basic` contains nested structs.
+  Changing this parameter will create a new resource.
+
+* `custom` - (Optional, Map, ForceNew) Key/Value pairs vary depending on the add-on.
+  Changing this parameter will create a new resource.
+
+* `custom_json` - (Optional, String, ForceNew) The parameter `custom` in json string fomart.
+  This is an alternative to `custom` and should be used when the `custom` contains nested structs.
+  Changing this parameter will create a new resource.
+
+* `flavor` - (Optional, Map, ForceNew) Key/Value pairs vary depending on the add-on.
+  Changing this parameter will create a new resource.
+
+* `flavor_json` - (Optional, String, ForceNew) The parameter `flavor` in json string fomart.
+  This is an alternative to `flavor` and should be used when the `flavor` contains nested structs.
+  Changing this parameter will create a new resource.
+
+Arguments which can be passed to the `basic`, `custom` and `flavor` addon parameters depends on the addon type
+and version. For more detailed description of addons
+see [addons description](https://github.com/huaweicloud/terraform-provider-huaweicloud/blob/master/examples/cce/basic/cce-addon-templates.md)
 
 ## Attributes Reference
 

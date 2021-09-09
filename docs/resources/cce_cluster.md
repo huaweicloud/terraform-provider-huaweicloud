@@ -144,7 +144,7 @@ The following arguments are supported:
   Changing this parameter will create a new cluster resource.
 
 -> **Note:** For more detailed description of authenticating_proxy mode for authentication_mode see
-[Enhanced authentication](https://github.com/huaweicloud/terraform-provider-huaweicloud/blob/master/examples/cce/basic/README.md).
+[Enhanced authentication](https://github.com/huaweicloud/terraform-provider-huaweicloud/blob/master/examples/cce/basic/cce-cluster-enhanced-authentication.md).
 
 * `multi_az` - (Optional, Bool, ForceNew) Enable multiple AZs for the cluster, only when using HA flavors. Changing this
   parameter will create a new cluster resource. This parameter and `masters` are alternative
