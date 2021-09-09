@@ -1,8 +1,13 @@
 name: Pull Request Labeler
 
 on:
+  # Triggers the workflow on pull request context
   pull_request_target:
     types: [ opened, edited, reopened, synchronize ]
+
+  # Triggers the workflow on issue or pull request comment
+  #pull_request_review_comment:
+  issue_comment:
 
 jobs:
   labeler:
