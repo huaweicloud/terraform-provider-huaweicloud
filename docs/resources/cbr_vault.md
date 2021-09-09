@@ -103,21 +103,24 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies a unique name of the CBR vault. This parameter can contain a maximum of 64
   characters, which may consist of letters, digits, underscores(_) and hyphens (-).
 
-* `type` - (Required, String, ForceNew) Specifies the object type of the CBR vault. Vaild values are: server (Cloud
-  servers), disk (EVS disks) and turbo (SFS turbo file systems). Changing this will create a new vault.
+* `type` - (Required, String, ForceNew) Specifies the object type of the CBR vault. Vaild values are: **server** (Cloud
+  servers), **disk** (EVS disks) and **turbo** (SFS turbo file systems). Changing this will create a new vault.
 
-* `consistent_level` - (Required, String, ForceNew) Specifies the backup specifications. The valid values
-  are *[crash_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)*
-  and *[app_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)*
+* `consistent_level` - (Required, String, ForceNew) Specifies the backup specifications.
+  The valid values are as follows:
+  + **[crash_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
+  + **[app_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
+
   Only server type vaults support application consistent. Changing this will create a new vault.
 
-* `protection_type` - (Required, String, ForceNew) Specifies the protection type of the CBR vault. The valid values are
-  backup and replication. Vaults of type disk don't support replication. Changing this will create a new vault.
+* `protection_type` - (Required, String, ForceNew) Specifies the protection type of the CBR vault.
+  The valid values are **backup** and **replication**. Vaults of type disk don't support **replication**.
+  Changing this will create a new vault.
 
-* `size` - (Required, Int) Specifies the vault sapacity, in GB. The valid value is ranges from 1 to 10485760.
+* `size` - (Required, Int) Specifies the vault sapacity, in GB. The valid value is ranges from 1 to 10,485,760.
 
 * `auto_expand` - (Optional, Bool) Specifies to enable auto capacity expansion for the backup protection type vault.
-  Default to false.
+  Default to **false**.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique ID in UUID format of enterprise project.
   Changing this will create a new vault.
@@ -125,11 +128,12 @@ The following arguments are supported:
 * `policy_id` - (Optional, String) Specifies a policy to associate with the CBR vault.
   `policy_id` cannot be used with the vault of replicate protection type.
 
-* `resources` - (Optional, List) Specifies an array of one or more resources to attach to the CBR vault. The resources
-  structure is documented below.
+* `resources` - (Optional, List) Specifies an array of one or more resources to attach to the CBR vault.
+  The [object](#cbr_vault_resources_args) structure is documented below.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CBR vault.
 
+<a name="cbr_vault_resources_args"></a>
 The `resources` block supports:
 
 * `id` - (Required, String) Specifies the ID of the resource to be backed up.
@@ -156,16 +160,22 @@ In addition to all arguments above, the following attributes are exported:
 
 * `used` - The used capacity, in GB.
 
-* `resources/name` - The name of the associated resource to be backup.
+* `resources` - An array of one or more resources to attach to the CBR vault.
+  The [object](#cbr_vault_resources_attr) structure is documented below.
 
-* `resources/protect_status` - The protection status of the associated resource, includes *available*, *error*,
-  *protecting*, *restoring* and *removing*.
+<a name="cbr_vault_resources_attr"></a>
+The `resources` block supports:
 
-* `resources/size` - The allocated capacity for the associated resource, in GB.
+* `name` - The name of the associated resource to be backup.
 
-* `resources/backup_size` - The size of the backup used by the associated resource.
+* `protect_status` - The protection status of the associated resource, includes **available**, **error**,
+  **protecting**, **restoring** and **removing**.
 
-* `resources/backup_count` - The number of the associated resource backups.
+* `size` - The allocated capacity for the associated resource, in GB.
+
+* `backup_size` - The size of the backup used by the associated resource.
+
+* `backup_count` - The number of the associated resource backups.
 
 ## Import
 

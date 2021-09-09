@@ -40,6 +40,9 @@ var (
 	HW_DEPRECATED_ENVIRONMENT = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
 
 	HW_WAF_ENABLE_FLAG = os.Getenv("HW_WAF_ENABLE_FLAG")
+
+	HW_DEST_REGION     = os.Getenv("HW_DEST_REGION")
+	HW_DEST_PROJECT_ID = os.Getenv("HW_DEST_PROJECT_ID")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -311,5 +314,12 @@ func RandomAccResourceName() string {
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
 		t.Skip("Jump the WAF acceptance tests.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckReplication(t *testing.T) {
+	if HW_DEST_REGION == "" || HW_DEST_PROJECT_ID == "" {
+		t.Skip("Jump the replication policy acceptance tests.")
 	}
 }

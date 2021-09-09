@@ -16,8 +16,6 @@ import (
 var (
 	HW_AVAILABILITY_ZONE            = os.Getenv("HW_AVAILABILITY_ZONE")
 	HW_DEPRECATED_ENVIRONMENT       = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
-	HW_DEST_PROJECT_ID              = os.Getenv("HW_DEST_PROJECT_ID")
-	HW_DEST_REGION                  = os.Getenv("HW_DEST_REGION")
 	HW_DNS_ENVIRONMENT              = os.Getenv("HW_DNS_ENVIRONMENT")
 	HW_EXTGW_ID                     = os.Getenv("HW_EXTGW_ID")
 	HW_FLAVOR_ID                    = os.Getenv("HW_FLAVOR_ID")
@@ -169,12 +167,6 @@ func testAccPreCheckCCINamespace(t *testing.T) {
 func testAccPreCheckCCI(t *testing.T) {
 	if HW_CCI_ENVIRONMENT == "" {
 		t.Skip("This environment does not support CCI tests")
-	}
-}
-
-func testAccPreCheckDestProject(t *testing.T) {
-	if HW_DEST_REGION == "" || HW_DEST_PROJECT_ID == "" {
-		t.Skip("This environment does not support destination project tests")
 	}
 }
 

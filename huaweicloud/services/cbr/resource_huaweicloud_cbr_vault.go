@@ -1,4 +1,4 @@
-package huaweicloud
+package cbr
 
 import (
 	"math"
@@ -10,18 +10,25 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
-var resourceType map[string]string = map[string]string{
-	"server": "OS::Nova::Server",
-	"disk":   "OS::Cinder::Volume",
-	"turbo":  "OS::Sfs::Turbo",
+const (
+	TypeServer = "server"
+	TypeDisk   = "disk"
+	TypeTurbo  = "turbo"
+)
+
+var ResourceType map[string]string = map[string]string{
+	TypeServer: "OS::Nova::Server",
+	TypeDisk:   "OS::Cinder::Volume",
+	TypeTurbo:  "OS::Sfs::Turbo",
 }
 
-func resourceCBRVaultV3() *schema.Resource {
+func ResourceCBRVaultV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCBRVaultV3Create,
 		Read:   resourceCBRVaultV3Read,
@@ -50,7 +57,7 @@ func resourceCBRVaultV3() *schema.Resource {
 				ForceNew: true,
 				//If the validation content has changed, please update the resource type map.
 				ValidateFunc: validation.StringInSlice([]string{
-					"server", "disk", "turbo",
+					TypeServer, TypeDisk, TypeTurbo,
 				}, false),
 			},
 			"consistent_level": {
@@ -133,7 +140,7 @@ func resourceCBRVaultV3() *schema.Resource {
 					},
 				},
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 			"allocated": {
 				Type:     schema.TypeFloat,
 				Computed: true,
@@ -160,17 +167,21 @@ func resourceCBRVaultV3() *schema.Resource {
 
 func resourceCBRVaultV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.CbrV3Client(GetRegion(d, config))
+	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
 	}
 
+	resources, err := buildCBRVaultResources(d.Get("type").(string), d.Get("resources").(*schema.Set))
+	if err != nil {
+		return fmtp.Errorf("Error building vault resources: %s", err)
+	}
 	opts := vaults.CreateOpts{
 		Name:                d.Get("name").(string),
 		AutoExpand:          d.Get("auto_expand").(bool),
 		BackupPolicyID:      d.Get("policy_id").(string),
-		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
-		Resources:           buildCBRVaultResources(d),
+		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
+		Resources:           resources,
 		Billing:             buildCBRVaultBilling(d),
 	}
 
@@ -201,7 +212,7 @@ func resourceCBRVaultV3Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.CbrV3Client(GetRegion(d, config))
+	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
 	}
@@ -236,7 +247,7 @@ func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	mErr := multierror.Append(
-		//required && optional
+		// Required && Optional
 		d.Set("name", vault.Name),
 		d.Set("consistent_level", vault.Billing.ConsistentLevel),
 		d.Set("type", vault.Billing.ObjectType),
@@ -246,8 +257,8 @@ func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("auto_expand", vault.AutoExpand),
 		d.Set("enterprise_project_id", vault.EnterpriseProjectID),
 		d.Set("tags", utils.TagsToMap(vault.Tags)),
-		//computed
-		//The result of 'allocated' and 'used' is in MB, and now we need to use GB as the unit.
+		// Computed
+		// The result of 'allocated' and 'used' is in MB, and now we need to use GB as the unit.
 		d.Set("allocated", getNumberInGB(float64(vault.Billing.Allocated))),
 		d.Set("used", getNumberInGB(float64(vault.Billing.Used))),
 		d.Set("spec_code", vault.Billing.SpecCode),
@@ -274,7 +285,7 @@ func resourceCBRVaultV3Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCBRVaultV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.CbrV3Client(GetRegion(d, config))
+	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
 	}
@@ -316,7 +327,7 @@ func resourceCBRVaultV3Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCBRVaultV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.CbrV3Client(GetRegion(d, config))
+	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud CBR v3 client: %s", err)
 	}
@@ -330,7 +341,7 @@ func resourceCBRVaultV3Delete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceIncludeVolume(volumes []interface{}) []vaults.ResourceExtraInfoIncludeVolumes {
+func buildIncludeVolumes(volumes []interface{}) []vaults.ResourceExtraInfoIncludeVolumes {
 	includeVolumes := make([]vaults.ResourceExtraInfoIncludeVolumes, len(volumes))
 	for i, v := range volumes {
 		includeVolumes[i] = vaults.ResourceExtraInfoIncludeVolumes{
@@ -340,7 +351,8 @@ func resourceIncludeVolume(volumes []interface{}) []vaults.ResourceExtraInfoIncl
 	return includeVolumes
 }
 
-func resourceExcludeVolume(volumes []interface{}) []string {
+// BuildExcludeVolumes is used to build a list of strings representing the evs volumes attached to the ECS server.
+func BuildExcludeVolumes(volumes []interface{}) []string {
 	includeVolumes := make([]string, len(volumes))
 	for i, v := range volumes {
 		includeVolumes[i] = v.(string)
@@ -348,25 +360,28 @@ func resourceExcludeVolume(volumes []interface{}) []string {
 	return includeVolumes
 }
 
-func buildCBRVaultResources(d *schema.ResourceData) []vaults.ResourceCreate {
-	res := make([]vaults.ResourceCreate, 0)
-	vaultType := d.Get("type").(string)
-	for _, v := range d.Get("resources").(*schema.Set).List() {
-		resourceID := v.(map[string]interface{})["id"].(string)
-		resourceType := resourceType[vaultType]
-		includes := resourceIncludeVolume(v.(map[string]interface{})["include_volumes"].([]interface{}))
-		excludes := resourceExcludeVolume(v.(map[string]interface{})["exclude_volumes"].([]interface{}))
+func buildCBRVaultResources(vaultType string, resources *schema.Set) ([]vaults.ResourceCreate, error) {
+	result := make([]vaults.ResourceCreate, resources.Len())
+	for i, v := range resources.List() {
+		resource := v.(map[string]interface{})
+		resourceID := resource["id"].(string)
+		resourceType, ok := ResourceType[vaultType]
+		if !ok {
+			return result, fmtp.Errorf("The vault type is invalid")
+		}
+		includes := buildIncludeVolumes(resource["include_volumes"].([]interface{}))
+		excludes := BuildExcludeVolumes(resource["exclude_volumes"].([]interface{}))
 		extra := vaults.ResourceExtraInfo{
 			IncludeVolumes: includes,
 			ExcludeVolumes: excludes,
 		}
-		res = append(res, vaults.ResourceCreate{
+		result[i] = vaults.ResourceCreate{
 			ID:        resourceID,
 			Type:      resourceType,
 			ExtraInfo: &extra,
-		})
+		}
 	}
-	return res
+	return result, nil
 }
 
 func buildCBRVaultBilling(d *schema.ResourceData) *vaults.BillingCreate {
@@ -421,8 +436,12 @@ func updateResources(d *schema.ResourceData, client *golangsdk.ServiceClient) er
 	}
 
 	if addRaws.Len() != 0 {
+		resourceType, ok := ResourceType[vaultType]
+		if !ok {
+			return fmtp.Errorf("The vault type is invalid")
+		}
 		_, err := vaults.AssociateResources(client, d.Id(), vaults.AssociateResourcesOpts{
-			Resources: getResources(addRaws.List(), resourceType[vaultType]),
+			Resources: getResources(addRaws.List(), resourceType),
 		}).Extract()
 		if err != nil {
 			return fmtp.Errorf("Error binding resources: %s", err)

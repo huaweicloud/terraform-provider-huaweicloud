@@ -59,28 +59,29 @@ The following arguments are supported:
   characters, which may consist of chinese charactors, letters, digits, underscores(_) and hyphens (-).
 
 * `type` - (Required, String, ForceNew) Specifies the protection type of the CBR policy.
-  Valid values are *backup* and *replication*.
+  Valid values are **backup** and **replication**.
   Changing this will create a new policy.
 
-* `backup_cycle` - (Required, List) Specifies the scheduling rule for the CBR policy backup execution. The backup_cycle
-  structure is documented below.
+* `backup_cycle` - (Required, List) Specifies the scheduling rule for the CBR policy backup execution.
+  The [object](#cbr_policy_backup_cycle) structure is documented below.
 
-* `enabled` - (Optional, Bool) Specifies whether to enable the CBR policy. Default to true.
+* `enabled` - (Optional, Bool) Specifies whether to enable the CBR policy. Default to **true**.
 
 * `destination_region` - (Optional, String) Specifies the name of the replication destination region, which is mandatory
-  for cross-region replication. Required if `protection_type` is *replication*.
+  for cross-region replication. Required if `protection_type` is **replication**.
 
 * `destination_project_id` - (Optional, String) Specifies the ID of the replication destination project, which is
-  mandatory for cross-region replication. Required if `protection_type` is *replication*.
+  mandatory for cross-region replication. Required if `protection_type` is **replication**.
 
 * `backup_quantity` - (Optional, Int) Specifies the maximum number of retained backups. The value ranges from 2 to
-  99999. This parameter and `time_period` are alternative.
+  99,999. This parameter and `time_period` are alternative.
 
 * `time_period` - (Optional, Int) Specifies the duration (in days) for retained backups. The value ranges from 2 to
-  99999.
+  99,999.
 
 -> **NOTE:** If this `backup_quantity` and `time_period` are both left blank, the backups will be retained permanently.
 
+<a name="cbr_policy_backup_cycle"></a>
 The `backup_cycle` block supports:
 
 * `days` - (Optional, String) Specifies the weekly backup day of backup schedule. It supports seven days a week (MO, TU,
@@ -91,8 +92,8 @@ The `backup_cycle` block supports:
   parameter and `days` are alternative.
 
 * `execution_times` - (Required, List) Specifies the backup time. Automated backups will be triggered at the backup
-  time. The current time is in the UTC format (HH:MM). The minutes in the list must be set to *00* and the hours cannot
-  be repeated. In the replication policy, you are advised to set one time point for one day.
+  time. The current time is in the UTC format (HH:MM). The minutes in the list must be set to **00** and the hours
+  cannot be repeated. In the replication policy, you are advised to set one time point for one day.
 
 ## Attributes Reference
 

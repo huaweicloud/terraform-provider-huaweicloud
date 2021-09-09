@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
@@ -397,8 +398,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_policy":                       ResourceASPolicy(),
 			"huaweicloud_bms_instance":                    ResourceBmsInstance(),
 			"huaweicloud_bcs_instance":                    resourceBCSInstanceV2(),
-			"huaweicloud_cbr_policy":                      resourceCBRPolicyV3(),
-			"huaweicloud_cbr_vault":                       resourceCBRVaultV3(),
+			"huaweicloud_cbr_policy":                      cbr.ResourceCBRPolicyV3(),
+			"huaweicloud_cbr_vault":                       cbr.ResourceCBRVaultV3(),
 			"huaweicloud_cce_cluster":                     ResourceCCEClusterV3(),
 			"huaweicloud_cce_node":                        ResourceCCENodeV3(),
 			"huaweicloud_cce_node_attach":                 ResourceCCENodeAttachV3(),

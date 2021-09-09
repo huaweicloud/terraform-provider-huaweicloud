@@ -1,35 +1,43 @@
-package huaweicloud
+package cbr
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/chnsz/golangsdk/openstack/cbr/v3/policies"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
-	"github.com/chnsz/golangsdk/openstack/cbr/v3/policies"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccCBRV3Policy_basic(t *testing.T) {
 	var asPolicy policies.Policy
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_cbr_policy.test"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&asPolicy,
+		func(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+			c, err := conf.CbrV3Client(acceptance.HW_REGION_NAME)
+			if err != nil {
+				return nil, fmt.Errorf("error creating HuaweiCloud CBR client: %s", err)
+			}
+			return policies.Get(c, state.Primary.ID).Extract()
+		},
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCBRV3PolicyDestroy,
+		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		Providers:    acceptance.TestAccProviders,
+		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testCBRV3Policy_basic(rName),
+				Config: testCBRV3Policy_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCBRV3PolicyExists(resourceName, &asPolicy),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "time_period", "20"),
@@ -39,10 +47,10 @@ func TestAccCBRV3Policy_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testCBRV3Policy_update(rName),
+				Config: testCBRV3Policy_update(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCBRV3PolicyExists(resourceName, &asPolicy),
-					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "type", "backup"),
 					resource.TestCheckResourceAttr(resourceName, "backup_quantity", "5"),
@@ -62,26 +70,38 @@ func TestAccCBRV3Policy_basic(t *testing.T) {
 
 func TestAccCBRV3Policy_replication(t *testing.T) {
 	var asPolicy policies.Policy
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_cbr_policy.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&asPolicy,
+		func(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+			c, err := conf.CbrV3Client(acceptance.HW_REGION_NAME)
+			if err != nil {
+				return nil, fmt.Errorf("error creating HuaweiCloud CBR client: %s", err)
+			}
+			return policies.Get(c, state.Primary.ID).Extract()
+		},
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckDestProject(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckReplication(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCBRV3PolicyDestroy,
+		Providers:    acceptance.TestAccProviders,
+		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testCBRV3Policy_replication(rName),
+				Config: testCBRV3Policy_replication(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCBRV3PolicyExists(resourceName, &asPolicy),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "type", "replication"),
-					resource.TestCheckResourceAttr(resourceName, "destination_region", HW_DEST_REGION),
-					resource.TestCheckResourceAttr(resourceName, "destination_project_id", HW_DEST_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "destination_region", acceptance.HW_DEST_REGION),
+					resource.TestCheckResourceAttr(resourceName, "destination_project_id", acceptance.HW_DEST_PROJECT_ID),
 					resource.TestCheckResourceAttr(resourceName, "time_period", "20"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.interval", "5"),
 					resource.TestCheckResourceAttr(resourceName, "backup_cycle.0.execution_times.0", "06:00"),
@@ -95,55 +115,6 @@ func TestAccCBRV3Policy_replication(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckCBRV3PolicyDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	client, err := config.CbrV3Client(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("error creating Huaweicloud CBR client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_cbr_policy" {
-			continue
-		}
-
-		_, err := policies.Get(client, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("policy still exists")
-		}
-	}
-	return nil
-}
-
-func testAccCheckCBRV3PolicyExists(n string, policy *policies.Policy) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.CbrV3Client(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("error creating Huaweicloud CBR client: %s", err)
-		}
-
-		found, err := policies.Get(client, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		logp.Printf("[DEBUG] test found is: %#v", found)
-		policy = found
-
-		return nil
-	}
 }
 
 func testCBRV3Policy_basic(rName string) string {
@@ -190,5 +161,5 @@ resource "huaweicloud_cbr_policy" "test" {
     execution_times = ["06:00", "18:00"]
   }
 }
-`, rName, HW_DEST_REGION, HW_DEST_PROJECT_ID)
+`, rName, acceptance.HW_DEST_REGION, acceptance.HW_DEST_PROJECT_ID)
 }
