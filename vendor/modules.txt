@@ -112,7 +112,9 @@ github.com/chnsz/golangsdk/openstack/compute/v2/images
 github.com/chnsz/golangsdk/openstack/compute/v2/servers
 github.com/chnsz/golangsdk/openstack/csbs/v1/backup
 github.com/chnsz/golangsdk/openstack/csbs/v1/policies
+github.com/chnsz/golangsdk/openstack/css/v1/cluster
 github.com/chnsz/golangsdk/openstack/css/v1/snapshots
+github.com/chnsz/golangsdk/openstack/css/v1/thesaurus
 github.com/chnsz/golangsdk/openstack/cts/v1/tracker
 github.com/chnsz/golangsdk/openstack/dcs/v1/availablezones
 github.com/chnsz/golangsdk/openstack/dcs/v1/instances

@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
@@ -425,7 +426,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cs_route":                        deprecated.ResourceCsRouteV1(),
 			"huaweicloud_csbs_backup":                     resourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy":              resourceCSBSBackupPolicyV1(),
-			"huaweicloud_css_cluster":                     ResourceCssClusterV1(),
+			"huaweicloud_css_cluster":                     css.ResourceCssCluster(),
 			"huaweicloud_css_snapshot":                    ResourceCssSnapshot(),
 			"huaweicloud_dcs_instance":                    ResourceDcsInstanceV1(),
 			"huaweicloud_dds_instance":                    ResourceDdsInstanceV3(),
@@ -618,7 +619,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdm_cluster_v1":                     ResourceCdmClusterV1(),
 			"huaweicloud_ges_graph_v1":                       ResourceGesGraphV1(),
 			"huaweicloud_cloudtable_cluster_v2":              resourceCloudtableClusterV2(),
-			"huaweicloud_css_cluster_v1":                     ResourceCssClusterV1(),
+			"huaweicloud_css_cluster_v1":                     css.ResourceCssCluster(),
 			"huaweicloud_dis_stream_v2":                      ResourceDisStreamV2(),
 			"huaweicloud_cs_cluster_v1":                      deprecated.ResourceCsClusterV1(),
 			"huaweicloud_cs_peering_connect_v1":              deprecated.ResourceCsPeeringConnectV1(),
