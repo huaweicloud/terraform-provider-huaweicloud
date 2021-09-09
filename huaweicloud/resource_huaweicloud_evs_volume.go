@@ -233,7 +233,6 @@ func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("description", v.Description)
 	d.Set("availability_zone", v.AvailabilityZone)
 	d.Set("snapshot_id", v.SnapshotID)
-	d.Set("source_vol_id", v.SourceVolID)
 	d.Set("volume_type", v.VolumeType)
 	d.Set("enterprise_project_id", v.EnterpriseProjectID)
 	d.Set("region", GetRegion(d, config))
