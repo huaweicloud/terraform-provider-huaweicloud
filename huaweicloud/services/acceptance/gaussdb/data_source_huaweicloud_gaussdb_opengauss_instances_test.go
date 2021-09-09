@@ -57,8 +57,6 @@ resource "huaweicloud_vpc_subnet" "test" {
   cidr          = "192.168.0.0/16"
   gateway_ip    = "192.168.0.1"
 
-  primary_dns   = "100.125.1.250"
-  secondary_dns = "100.125.21.250"
   vpc_id        = huaweicloud_vpc.test.id
 }
 `, rName, rName)
