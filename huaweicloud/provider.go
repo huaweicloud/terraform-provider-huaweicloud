@@ -7,10 +7,12 @@ import (
 	"sync"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
@@ -370,6 +372,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_az_v1":                 DataSourceDcsAZV1(),
 			"huaweicloud_dcs_maintainwindow_v1":     DataSourceDcsMaintainWindowV1(),
 			"huaweicloud_dcs_product_v1":            DataSourceDcsProductV1(),
+			"huaweicloud_dcs_flavors":               dcs.DataSourceDcsFlavorsV2(),
 			"huaweicloud_dds_flavors_v3":            DataSourceDDSFlavorV3(),
 			"huaweicloud_identity_role_v3":          DataSourceIdentityRoleV3(),
 			"huaweicloud_cdm_flavors_v1":            DataSourceCdmFlavorV1(),
