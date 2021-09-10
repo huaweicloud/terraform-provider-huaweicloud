@@ -427,7 +427,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_csbs_backup":                     resourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy":              resourceCSBSBackupPolicyV1(),
 			"huaweicloud_css_cluster":                     css.ResourceCssCluster(),
-			"huaweicloud_css_snapshot":                    ResourceCssSnapshot(),
+			"huaweicloud_css_snapshot":                    css.ResourceCssSnapshot(),
 			"huaweicloud_dcs_instance":                    ResourceDcsInstanceV1(),
 			"huaweicloud_dds_instance":                    ResourceDdsInstanceV3(),
 			"huaweicloud_dis_stream":                      ResourceDisStreamV2(),

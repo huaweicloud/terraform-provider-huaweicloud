@@ -5,9 +5,11 @@ import (
 	"time"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/css/v1/cluster"
 	"github.com/chnsz/golangsdk/openstack/css/v1/snapshots"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -68,7 +70,8 @@ func ResourceCssSnapshot() *schema.Resource {
 
 func resourceCssSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	cssClient, err := config.CssV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	cssClient, err := config.CssV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CSS client: %s", err)
 	}
@@ -121,7 +124,7 @@ func resourceCssSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	clusterID := d.Get("cluster_id").(string)
 	snapList, err := snapshots.List(cssClient, clusterID).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "snapshot")
+		return common.CheckDeleted(d, err, "snapshot")
 	}
 
 	// find the snapshot by ID
@@ -154,14 +157,15 @@ func resourceCssSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCssSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	cssClient, err := config.CssV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	cssClient, err := config.CssV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud CSS storage client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
 	if err := snapshots.Delete(cssClient, clusterID, d.Id()).ExtractErr(); err != nil {
-		return CheckDeleted(d, err, "snapshot")
+		return common.CheckDeleted(d, err, "snapshot")
 	}
 
 	d.SetId("")
@@ -204,14 +208,15 @@ func resourceCssSnapshotImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	snapshotID := parts[1]
 
 	config := meta.(*config.Config)
-	client, err := config.CssV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	cssClient, err := config.CssV1Client(region)
 	if err != nil {
 		return nil, fmtp.Errorf("Error creating css client, err=%s", err)
 	}
 
 	// check the css cluster whether exists
-	d.SetId(clusterID)
-	if _, err := sendCssClusterV1ReadRequest(d, client); err != nil {
+	cluster.Get(cssClient, clusterID)
+	if _, err := cluster.Get(cssClient, clusterID); err != nil {
 		return nil, err
 	}
 

@@ -1,9 +1,10 @@
-package huaweicloud
+package css
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk"
@@ -19,9 +20,9 @@ func TestAccCssSnapshot_basic(t *testing.T) {
 	resourceName := "huaweicloud_css_snapshot.snapshot"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCssSnapshotDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCssSnapshotDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCssSnapshot_basic(rand),
@@ -37,8 +38,8 @@ func TestAccCssSnapshot_basic(t *testing.T) {
 }
 
 func testAccCheckCssSnapshotDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	client, err := config.CssV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := config.CssV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating css client, err=%s", err)
 	}
@@ -70,8 +71,8 @@ func testAccCheckCssSnapshotDestroy(s *terraform.State) error {
 
 func testAccCheckCssSnapshotExists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.CssV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := config.CssV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating css client, err=%s", err)
 		}
@@ -98,42 +99,15 @@ func testAccCheckCssSnapshotExists() resource.TestCheckFunc {
 }
 
 func testAccCssSnapshot_basic(val string) string {
+	clusterName := acceptance.RandomAccResourceName()
+	clusterString := testAccCssCluster_basic(clusterName, 1, 1, "tag")
+
 	return fmt.Sprintf(`
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name = "terraform_test_sg-%s"
-  description = "terraform security group acceptance test"
-}
-
-resource "huaweicloud_css_cluster" "cluster" {
-  name = "tf-css-cluster-%s"
-  engine_version  = "7.1.1"
-  expect_node_num = 1
-
-  node_config {
-    flavor = "ess.spec-4u16g"
-    network_info {
-      security_group_id = huaweicloud_networking_secgroup.secgroup.id
-      subnet_id = "%s"
-      vpc_id = "%s"
-    }
-    volume {
-      volume_type = "HIGH"
-      size = 40
-    }
-    availability_zone = "%s"
-  }
-
-  backup_strategy {
-    start_time = "00:00 GMT+03:00"
-    prefix     = "snapshot"
-    keep_days  = 14
-  }
-}
-
+%s
 resource "huaweicloud_css_snapshot" "snapshot" {
   name        = "snapshot-%s"
   description = "a snapshot created by terraform acctest"
-  cluster_id  = huaweicloud_css_cluster.cluster.id
+  cluster_id  = huaweicloud_css_cluster.test.id
 }
-	`, val, val, HW_NETWORK_ID, HW_VPC_ID, HW_AVAILABILITY_ZONE, val)
+`, clusterString, val)
 }
