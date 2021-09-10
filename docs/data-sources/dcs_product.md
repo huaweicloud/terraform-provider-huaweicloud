@@ -4,7 +4,7 @@ subcategory: "Distributed Cache Service"
 
 # huaweicloud_dcs_product
 
-Use this data source to get the ID of an available Flexibleengine dcs product.
+Use this data source to get the ID of an available DCS product.
 
 ## Example Usage
 
@@ -16,8 +16,8 @@ data "huaweicloud_dcs_product" "product1" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) Specifies the region in which to obtain the dcs products. If omitted, the provider-level
-  region will be used.
+* `region` - (Optional, String) Specifies the region in which to obtain the dcs products.
+  If omitted, the provider-level region will be used.
 
 * `spec_code` - (Optional, String) Specifies the DCS instance specification code. You can query the code as follows:
   + Query the specifications
