@@ -85,7 +85,7 @@ resource "huaweicloud_vpc_subnet" "test" {
   gateway_ip = "192.168.0.1"
 }
 
-resource "huaweicloud_networking_secgroup_v2" "test" {
+resource "huaweicloud_networking_secgroup" "test" {
   name        = "%s"
   description = "terraform security group acceptance test"
 }
@@ -104,23 +104,27 @@ resource "huaweicloud_css_cluster" "test" {
   expect_node_num = %d
 
   node_config {
-    flavor = "ess.spec-4u16g"
+    flavor            = "ess.spec-4u16g"
+    availability_zone = data.huaweicloud_availability_zones.test.names[0]
+
     network_info {
-      security_group_id = huaweicloud_networking_secgroup_v2.test.id
+      security_group_id = huaweicloud_networking_secgroup.test.id
       subnet_id         = huaweicloud_vpc_subnet.test.id
       vpc_id            = huaweicloud_vpc.test.id
     }
+
     volume {
       volume_type = "HIGH"
       size        = 40
     }
-    availability_zone = data.huaweicloud_availability_zones.test.names[0]
   }
+
   backup_strategy {
     keep_days  = %d
     start_time = "00:00 GMT+08:00"
     prefix     = "snapshot"
   }
+
   tags = {
     foo = "%s"
     key = "value"
@@ -142,18 +146,21 @@ resource "huaweicloud_css_cluster" "test" {
   password        = "Test@passw0rd"
 
   node_config {
-    flavor = "ess.spec-4u16g"
+    flavor            = "ess.spec-4u16g"
+    availability_zone = data.huaweicloud_availability_zones.test.names[0]
+
     network_info {
-      security_group_id = huaweicloud_networking_secgroup_v2.test.id
+      security_group_id = huaweicloud_networking_secgroup.test.id
       subnet_id         = huaweicloud_vpc_subnet.test.id
       vpc_id            = huaweicloud_vpc.test.id
     }
+
     volume {
       volume_type = "HIGH"
       size        = 40
-    }
-    availability_zone = "cn-north-4a"
+    }  
   }
+
   tags = {
     foo = "%s"
     key = "value"

@@ -23,17 +23,18 @@ resource "huaweicloud_css_cluster" "cluster" {
 
   node_config {
     flavor = "ess.spec-4u16g"
+    availability_zone = "{{ availability_zone }}"
 
     network_info {
       security_group_id = huaweicloud_networking_secgroup.secgroup.id
       subnet_id         = "{{ network_id }}"
       vpc_id            = "{{ vpc_id }}"
     }
+
     volume {
       volume_type = "HIGH"
       size        = 40
     }
-    availability_zone = "{{ availability_zone }}"
   }
 }
 ```
@@ -52,7 +53,7 @@ The following arguments are supported:
 * `engine_type` - (Optional, String, ForceNew) Engine type. The default value is "elasticsearch". Currently, the value
   can only be "elasticsearch". Changing this parameter will create a new resource.
 
-* `engine_version` - (Required, String, ForceNew) Engine version. Versions 5.5.1, 6.2.3, 6.5.4, 7.1.1 , 7.6.2 and 7.9.3
+* `engine_version` - (Required, String, ForceNew) Engine version. Versions 5.5.1, 6.2.3, 6.5.4, 7.1.1, 7.6.2 and 7.9.3
   are supported. Changing this parameter will create a new resource.
 
 * `expect_node_num` - (Optional, Int) Number of cluster instances. The value range is 1 to 32. Defaults to 1.
@@ -172,8 +173,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-CSS cluster can be imported by  `id`. For example,
+CSS cluster can be imported by `id`. For example,
 
 ```
-terraform import huaweicloud_css_cluster.example  abc123
+terraform import huaweicloud_css_cluster.example abc123
 ```
