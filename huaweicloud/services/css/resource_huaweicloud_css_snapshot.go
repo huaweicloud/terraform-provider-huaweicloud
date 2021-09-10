@@ -1,4 +1,4 @@
-package huaweicloud
+package css
 
 import (
 	"strings"
@@ -111,9 +111,11 @@ func resourceCssSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCssSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	cssClient, err := config.CssV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	cssClient, err := config.CssV1Client(region)
+
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CSS client: %s", err)
+		return fmtp.Errorf("Error creating CSS client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
