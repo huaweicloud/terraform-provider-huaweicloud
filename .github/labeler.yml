@@ -42,3 +42,13 @@ labels:
     matcher:
       files:
         any: [ "go.mod" ]
+
+  - label: "LGTM"
+    sync: true
+    matcher:
+      comment: "^/lgtm$"
+
+  - label: "NACK"
+    sync: true
+    matcher:
+      comment: "^/nack$"
