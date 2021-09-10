@@ -18,9 +18,9 @@ func TestAccCssCluster_basic(t *testing.T) {
 	resourceName := "huaweicloud_css_cluster.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckCssClusterDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCssClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCssCluster_basic(rName, 1, 7, "bar"),
@@ -89,6 +89,8 @@ resource "huaweicloud_networking_secgroup_v2" "test" {
   name        = "%s"
   description = "terraform security group acceptance test"
 }
+
+data "huaweicloud_availability_zones" "test" {}
 `, rName, rName, rName)
 }
 
@@ -112,7 +114,7 @@ resource "huaweicloud_css_cluster" "test" {
       volume_type = "HIGH"
       size        = 40
     }
-    availability_zone = "cn-north-4a"
+    availability_zone = data.huaweicloud_availability_zones.test.names[0]
   }
   backup_strategy {
     keep_days  = %d
