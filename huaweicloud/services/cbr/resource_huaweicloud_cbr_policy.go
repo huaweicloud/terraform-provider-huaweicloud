@@ -1,4 +1,4 @@
-package huaweicloud
+package cbr
 
 import (
 	"fmt"
@@ -10,12 +10,13 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceCBRPolicyV3() *schema.Resource {
+func ResourceCBRPolicyV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCBRPolicyV3Create,
 		Read:   resourceCBRPolicyV3Read,
@@ -113,7 +114,7 @@ func resourceCBRPolicyV3() *schema.Resource {
 
 func resourceCBRPolicyV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.CbrV3Client(GetRegion(d, config))
+	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud CBR client: %s", err)
 	}
@@ -148,20 +149,20 @@ func resourceCBRPolicyV3Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCBRPolicyV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.CbrV3Client(GetRegion(d, config))
+	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud CBR client: %s", err)
 	}
 
 	cbrPolicy, err := policies.Get(client, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "Error retrieving CBRv3 policy")
+		return common.CheckDeleted(d, err, "Error retrieving CBRv3 policy")
 	}
 
 	logp.Printf("[DEBUG] Retrieved policy %s: %+v", d.Id(), cbrPolicy)
 	operationDefinition := cbrPolicy.OperationDefinition
 	mErr := multierror.Append(nil,
-		d.Set("region", GetRegion(d, config)),
+		d.Set("region", config.GetRegion(d)),
 		d.Set("enabled", cbrPolicy.Enabled),
 		d.Set("name", cbrPolicy.Name),
 		d.Set("type", cbrPolicy.OperationType),
@@ -184,7 +185,7 @@ func resourceCBRPolicyV3Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCBRPolicyV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.CbrV3Client(GetRegion(d, config))
+	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud CBR client: %s", err)
 	}
@@ -225,7 +226,7 @@ func resourceCBRPolicyV3Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceCBRPolicyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.CbrV3Client(GetRegion(d, config))
+	client, err := config.CbrV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud CBR client: %s", err)
 	}
