@@ -183,16 +183,6 @@ func ResourceCssCluster() *schema.Resource {
 
 			"tags": common.TagsSchema(),
 
-			"created": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
-			"endpoint": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"nodes": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -213,10 +203,21 @@ func ResourceCssCluster() *schema.Resource {
 					},
 				},
 			},
+
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
+			},
+
+			"created": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"endpoint": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"status": {
@@ -232,7 +233,7 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 	region := config.GetRegion(d)
 	cssV1Client, err := config.CssV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating CSS V1 client: %s", err)
+		return fmtp.DiagErrorf("Error creating CSS V1 client: %s", err)
 	}
 
 	createClusterOpts, paramErr := buildClusterCreateParameters(d, config)
@@ -242,7 +243,7 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	r, createErr := cluster.Create(cssV1Client, *createClusterOpts)
 	if createErr != nil {
-		return diag.Errorf("Error creating CssClusterV1, err=%s", createErr)
+		return fmtp.DiagErrorf("Error creating CssClusterV1, err=%s", createErr)
 	}
 
 	clusterId := r.Cluster.Id
@@ -252,12 +253,6 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(createResultErr)
 	}
 	d.SetId(clusterId)
-
-	// enable snapshot function and set policy when "backup_strategy" was specified
-	// createBackupErr := resourceCssClusterCreateBackupStrategy(d, cssV1Client)
-	// if createBackupErr != nil {
-	// 	return diag.FromErr(createBackupErr)
-	// }
 
 	return resourceCssClusterRead(ctx, d, meta)
 }
@@ -286,7 +281,7 @@ func buildClusterCreateParameters(d *schema.ResourceData, config *config.Config)
 		Tags:                utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 	}
-	//
+
 	securityMode := d.Get("security_mode").(bool)
 	if securityMode {
 		adminPassword := d.Get("password").(string)
@@ -328,12 +323,12 @@ func resourceCssClusterRead(ctx context.Context, d *schema.ResourceData, meta in
 	region := config.GetRegion(d)
 	cssV1Client, err := config.CssV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating CSS V1 client: %s", err)
+		return fmtp.DiagErrorf("Error creating CSS V1 client: %s", err)
 	}
 
 	clusterDetail, createErr := cluster.Get(cssV1Client, d.Id())
 	if createErr != nil {
-		return diag.Errorf("Query cluster detail failed,cluster_id=%s,err=%s", d.Id(), createErr)
+		return fmtp.DiagErrorf("Query cluster detail failed,cluster_id=%s,err=%s", d.Id(), createErr)
 	}
 
 	if err := setCssClusterProperties(d, cssV1Client, clusterDetail); err != nil {
@@ -421,7 +416,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	region := config.GetRegion(d)
 	cssV1Client, err := config.CssV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating CSS V1 client: %s", err)
+		return fmtp.DiagErrorf("Error creating CSS V1 client: %s", err)
 	}
 
 	clusterId := d.Id()
@@ -429,12 +424,12 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	//extend cluster
 	opts, err := buildCssClusterV1ExtendClusterParameters(d)
 	if err != nil {
-		return diag.Errorf("Error building the request body of api(extend_cluster), err=%s", err)
+		return fmtp.DiagErrorf("Error building the request body of api(extend_cluster), err=%s", err)
 	}
 	if opts != nil {
 		_, extendErr := cluster.ExtendInstanceStorage(cssV1Client, clusterId, *opts)
 		if extendErr != nil {
-			return diag.Errorf("Extend CSS cluster instance storage failed.cluster_id=%s,error=%s", clusterId,
+			return fmtp.DiagErrorf("Extend CSS cluster instance storage failed.cluster_id=%s,error=%s", clusterId,
 				extendErr)
 		}
 		checkExtendErr := checkClusterExtendResult(ctx, cssV1Client, clusterId, d.Timeout(schema.TimeoutUpdate))
@@ -458,7 +453,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 			errPolicy := snapshots.PolicyCreate(cssV1Client, &opts, d.Id()).ExtractErr()
 			if err != nil {
-				return diag.Errorf("Error updating backup strategy: %s", errPolicy)
+				return fmtp.DiagErrorf("Error updating backup strategy: %s", errPolicy)
 			}
 		} else {
 			rawList := value.([]interface{})
@@ -475,21 +470,21 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 					}
 					_, err = snapshots.UpdateSnapshotSetting(cssV1Client, clusterId, obsOpts)
 					if err != nil {
-						return diag.Errorf("error Modifying Basic Configurations of a Cluster Snapshot: %s", err)
+						return fmtp.DiagErrorf("error Modifying Basic Configurations of a Cluster Snapshot: %s", err)
 					}
 				}
 
 				// check backup strategy, if the policy was disabled, we should enable it
 				policy, err := snapshots.PolicyGet(cssV1Client, clusterId).Extract()
 				if err != nil {
-					return diag.Errorf("Error extracting Cluster backup_strategy, err: %s", err)
+					return fmtp.DiagErrorf("Error extracting Cluster backup_strategy, err: %s", err)
 				}
 
 				if policy.Enable == "false" && raw["bucket"] == nil {
 					// If obs is not specified,  create  basic configurations automatically
 					err = snapshots.Enable(cssV1Client, d.Id()).ExtractErr()
 					if err != nil {
-						return diag.Errorf("Error enable snapshot function: %s", err)
+						return fmtp.DiagErrorf("Error enable snapshot function: %s", err)
 					}
 				}
 				// update policy
@@ -504,7 +499,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 					errPolicy := snapshots.PolicyCreate(cssV1Client, &opts, d.Id()).ExtractErr()
 					if err != nil {
-						return diag.Errorf("Error updating backup strategy: %s", errPolicy)
+						return fmtp.DiagErrorf("Error updating backup strategy: %s", errPolicy)
 					}
 				}
 
@@ -516,7 +511,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(cssV1Client, d, "css-cluster", clusterId)
 		if tagErr != nil {
-			return diag.Errorf("Error updating tags of CSS cluster:%s, err:%s", d.Id(), tagErr)
+			return fmtp.DiagErrorf("Error updating tags of CSS cluster:%s, err:%s", d.Id(), tagErr)
 		}
 	}
 
@@ -558,18 +553,18 @@ func resourceCssClusterDelete(ctx context.Context, d *schema.ResourceData, meta 
 	region := config.GetRegion(d)
 	cssV1Client, err := config.CssV1Client(region)
 	if err != nil {
-		return diag.Errorf("Error creating CSS V1 client: %s", err)
+		return fmtp.DiagErrorf("Error creating CSS V1 client: %s", err)
 	}
 
 	clusterId := d.Id()
 	errResult := cluster.Delete(cssV1Client, clusterId)
 	if errResult.Err != nil {
-		return diag.Errorf("Delete CSS Cluster failed. %s", errResult.Err)
+		return fmtp.DiagErrorf("Delete CSS Cluster failed. %s", errResult.Err)
 	}
 
 	errCheckRt := checkClusterDeleteResult(ctx, cssV1Client, clusterId, d.Timeout(schema.TimeoutDelete))
 	if errCheckRt != nil {
-		return diag.Errorf("Failed to check the result of deletion %s", errCheckRt)
+		return fmtp.DiagErrorf("Failed to check the result of deletion %s", errCheckRt)
 	}
 	d.SetId("")
 	return nil

@@ -11,6 +11,10 @@ Manages CSS cluster resource within HuaweiCloud
 ### create a cluster
 
 ```hcl
+variable "availability_zone" {}
+variable "network_id" {}
+variable "vpc_id" {}
+
 resource "huaweicloud_networking_secgroup" "secgroup" {
   name        = "terraform_test_security_group"
   description = "terraform security group acceptance test"
@@ -23,12 +27,12 @@ resource "huaweicloud_css_cluster" "cluster" {
 
   node_config {
     flavor = "ess.spec-4u16g"
-    availability_zone = "{{ availability_zone }}"
+    availability_zone = var.availability_zone
 
     network_info {
       security_group_id = huaweicloud_networking_secgroup.secgroup.id
-      subnet_id         = "{{ network_id }}"
-      vpc_id            = "{{ vpc_id }}"
+      subnet_id         =  var.network_id
+      vpc_id            =  var.vpc_id
     }
 
     volume {
@@ -134,8 +138,8 @@ The `backup_strategy` block supports:
 
 * `agency` - (Optional, String) Specifies the IAM agency used to access OBS.
 
--> If the `bucket`, `backup_path`, and `agency` parameters are empty at the same time, the system will automatically
-   create an OBS bucket and IAM agent, otherwise the configured parameter values will be used.
+  -> **NOTE:**  If the `bucket`, `backup_path`, and `agency` parameters are empty at the same time, the system will
+  automatically create an OBS bucket and IAM agent, otherwise the configured parameter values will be used.
 
 ## Attributes Reference
 
@@ -176,5 +180,5 @@ This resource provides the following timeouts configuration options:
 CSS cluster can be imported by `id`. For example,
 
 ```
-terraform import huaweicloud_css_cluster.example abc123
+terraform import huaweicloud_css_cluster.example 6d793124-3d5d-47be-bf09-f694fdf2d9ed
 ```

@@ -39,13 +39,13 @@ func UpdateResourceTags(conn *golangsdk.ServiceClient, d *schema.ResourceData, r
 	return nil
 }
 
-//This is a help to query tags of resource, then set to state. The name must be: tags "css-cluster"
+//This is a help to query tags of resource, then set to state. The schema argument name must be: tags
 func SetResourceTagsToState(d *schema.ResourceData, client *golangsdk.ServiceClient, resourceType string) error {
 	// set tags
 	if resourceTags, err := tags.Get(client, resourceType, d.Id()).Extract(); err == nil {
 		tagmap := TagsToMap(resourceTags.Tags)
 		if err := d.Set("tags", tagmap); err != nil {
-			return fmt.Errorf("Error saving tags to state for CSS cluster (%s): %s", d.Id(), err)
+			return fmt.Errorf("error saving tags to state for CSS cluster (%s): %s", d.Id(), err)
 		}
 	} else {
 		log.Printf("[WARN] Error fetching tags of CSS cluster (%s): %s", d.Id(), err)
