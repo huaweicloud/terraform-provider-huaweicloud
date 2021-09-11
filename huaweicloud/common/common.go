@@ -10,10 +10,14 @@ The difference between common package and utils:
 package common
 
 import (
+	"context"
+	"strconv"
+	"time"
+
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -76,4 +80,35 @@ func UnsubscribePrePaidResource(d *schema.ResourceData, config *config.Config, r
 	}
 	_, err = orders.Unsubscribe(bssV2Client, unsubscribeOpts).Extract()
 	return err
+}
+
+func WaitOrderComplete(ctx context.Context, d *schema.ResourceData, config *config.Config, orderNum string) error {
+	bssV2Client, err := config.BssV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
+	}
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"3"},
+		Target:       []string{"5"},
+		Refresh:      refreshOrderStatus(bssV2Client, orderNum),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        5 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmtp.Errorf("[DEBUG] Error while waiting for the order to complete payment. %s : %#v",
+			d.Id(), err)
+	}
+	return nil
+}
+
+func refreshOrderStatus(c *golangsdk.ServiceClient, orderNum string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		r, err := orders.Get(c, orderNum).Extract()
+		if err != nil {
+			return nil, "Error", err
+		}
+		return r, strconv.Itoa(r.OrderInfo.Status), nil
+	}
 }

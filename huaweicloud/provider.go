@@ -2,6 +2,7 @@ package huaweicloud
 
 import (
 	"fmt"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"log"
 	"strings"
 	"sync"
@@ -429,6 +430,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_css_cluster":                     css.ResourceCssCluster(),
 			"huaweicloud_css_snapshot":                    ResourceCssSnapshot(),
 			"huaweicloud_dcs_instance":                    ResourceDcsInstanceV1(),
+			"huaweicloud_dcs_redis_instance":              dcs.ResourceDcsRedisInstance(),
 			"huaweicloud_dds_instance":                    ResourceDdsInstanceV3(),
 			"huaweicloud_dis_stream":                      ResourceDisStreamV2(),
 			"huaweicloud_dli_queue":                       dli.ResourceDliQueue(),

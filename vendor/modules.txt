@@ -56,7 +56,7 @@ github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 github.com/bgentry/go-netrc/netrc
-# github.com/chnsz/golangsdk v0.0.0-20210913091218-db72ff026f6c
+# github.com/chnsz/golangsdk v0.0.0-20210915060946-9b6e7408a88f
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -114,12 +114,13 @@ github.com/chnsz/golangsdk/openstack/csbs/v1/backup
 github.com/chnsz/golangsdk/openstack/csbs/v1/policies
 github.com/chnsz/golangsdk/openstack/css/v1/cluster
 github.com/chnsz/golangsdk/openstack/css/v1/snapshots
-github.com/chnsz/golangsdk/openstack/css/v1/thesaurus
 github.com/chnsz/golangsdk/openstack/cts/v1/tracker
 github.com/chnsz/golangsdk/openstack/dcs/v1/availablezones
 github.com/chnsz/golangsdk/openstack/dcs/v1/instances
 github.com/chnsz/golangsdk/openstack/dcs/v1/maintainwindows
 github.com/chnsz/golangsdk/openstack/dcs/v1/products
+github.com/chnsz/golangsdk/openstack/dcs/v2/instances
+github.com/chnsz/golangsdk/openstack/dcs/v2/tags
 github.com/chnsz/golangsdk/openstack/dcs/v2/whitelists
 github.com/chnsz/golangsdk/openstack/dds/v3/flavors
 github.com/chnsz/golangsdk/openstack/dds/v3/instances
