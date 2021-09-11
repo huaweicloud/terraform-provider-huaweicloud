@@ -341,6 +341,8 @@ func (conf *config) getTransport() error {
 				return err
 			}
 			conf.transport.Proxy = http.ProxyURL(proxyURL)
+		} else {
+			conf.transport.Proxy = http.ProxyFromEnvironment
 		}
 
 		tlsConfig := &tls.Config{InsecureSkipVerify: !conf.sslVerify}

@@ -19,6 +19,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -102,6 +103,9 @@ func (input ListBucketsInput) trans(isObs bool) (params map[string]string, heade
 	headers = make(map[string][]string)
 	if input.QueryLocation && !isObs {
 		setHeaders(headers, HEADER_LOCATION_AMZ, []string{"true"}, isObs)
+	}
+	if input.BucketType != "" {
+		setHeaders(headers, HEADER_BUCKET_TYPE, []string{string(input.BucketType)}, true)
 	}
 	return
 }
@@ -672,6 +676,34 @@ func (input PutObjectInput) trans(isObs bool) (params map[string]string, headers
 	if err != nil {
 		return
 	}
+	if input.Body != nil {
+		data = input.Body
+	}
+	return
+}
+
+func (input AppendObjectInput) trans(isObs bool) (params map[string]string, headers map[string][]string, data interface{}, err error) {
+	params, headers, data, err = input.PutObjectBasicInput.trans(isObs)
+	if err != nil {
+		return
+	}
+	params[string(SubResourceAppend)] = ""
+	params["position"] = strconv.FormatInt(input.Position, 10)
+	if input.Body != nil {
+		data = input.Body
+	}
+	return
+}
+
+func (input ModifyObjectInput) trans(isObs bool) (params map[string]string, headers map[string][]string, data interface{}, err error) {
+	headers = make(map[string][]string)
+	params = make(map[string]string)
+	params[string(SubResourceModify)] = ""
+	params["position"] = strconv.FormatInt(input.Position, 10)
+	if input.ContentLength > 0 {
+		headers[HEADER_CONTENT_LENGTH_CAMEL] = []string{Int64ToString(input.ContentLength)}
+	}
+
 	if input.Body != nil {
 		data = input.Body
 	}

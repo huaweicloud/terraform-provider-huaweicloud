@@ -1411,3 +1411,61 @@ func (obsClient ObsClient) GetBucketFetchJob(input *GetBucketFetchJobInput, exte
 	}
 	return
 }
+func (obsClient ObsClient) AppendObject(input *AppendObjectInput, extensions ...extensionOptions) (output *AppendObjectOutput, err error) {
+	if input == nil {
+		return nil, errors.New("AppendObjectInput is nil")
+	}
+
+	if input.ContentType == "" && input.Key != "" {
+		if contentType, ok := mimeTypes[strings.ToLower(input.Key[strings.LastIndex(input.Key, ".")+1:])]; ok {
+			input.ContentType = contentType
+		}
+	}
+	output = &AppendObjectOutput{}
+	var repeatable bool
+	if input.Body != nil {
+		_, repeatable = input.Body.(*strings.Reader)
+		if input.ContentLength > 0 {
+			input.Body = &readerWrapper{reader: input.Body, totalCount: input.ContentLength}
+		}
+	}
+	if repeatable {
+		err = obsClient.doActionWithBucketAndKey("AppendObject", HTTP_POST, input.Bucket, input.Key, input, output, extensions)
+	} else {
+		err = obsClient.doActionWithBucketAndKeyUnRepeatable("AppendObject", HTTP_POST, input.Bucket, input.Key, input, output, extensions)
+	}
+	if err != nil {
+		output = nil
+	} else {
+		if err = ParseAppendObjectOutput(output); err != nil {
+			output = nil
+		}
+	}
+	return
+}
+
+func (obsClient ObsClient) ModifyObject(input *ModifyObjectInput, extensions ...extensionOptions) (output *ModifyObjectOutput, err error) {
+	if input == nil {
+		return nil, errors.New("ModifyObjectInput is nil")
+	}
+
+	output = &ModifyObjectOutput{}
+	var repeatable bool
+	if input.Body != nil {
+		_, repeatable = input.Body.(*strings.Reader)
+		if input.ContentLength > 0 {
+			input.Body = &readerWrapper{reader: input.Body, totalCount: input.ContentLength}
+		}
+	}
+	if repeatable {
+		err = obsClient.doActionWithBucketAndKey("ModifyObject", HTTP_PUT, input.Bucket, input.Key, input, output, extensions)
+	} else {
+		err = obsClient.doActionWithBucketAndKeyUnRepeatable("ModifyObject", HTTP_PUT, input.Bucket, input.Key, input, output, extensions)
+	}
+	if err != nil {
+		output = nil
+	} else {
+		ParseModifyObjectOutput(output)
+	}
+	return
+}

@@ -30,6 +30,7 @@ func TestAccObsBucket_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
 					resource.TestCheckResourceAttr(resourceName, "multi_az", "false"),
 					resource.TestCheckResourceAttr(resourceName, "parallel_fs", "false"),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "false"),
 					resource.TestCheckResourceAttr(resourceName, "region", HW_REGION_NAME),
 					resource.TestCheckResourceAttr(resourceName, "bucket_version", "3.0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
@@ -128,6 +129,38 @@ func TestAccObsBucket_parallelFS(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.parallel_fs", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.multi_az", "3az"),
 					resource.TestCheckNoResourceAttr(resourceName, "bucket_version"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccObsBucket_encryption(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "huaweicloud_obs_bucket.bucket"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheckOBS(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckObsBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccObsBucket_basic(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "bucket", testAccObsBucketName(rInt)),
+					resource.TestCheckResourceAttr(resourceName, "bucket_domain_name", testAccObsBucketDomainName(rInt)),
+					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
+					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "false"),
+				),
+			},
+			{
+				Config: testAccObsBucket_encryption(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "kms_key_id"),
 				),
 			},
 		},
@@ -409,6 +442,28 @@ resource "huaweicloud_obs_bucket" "bucket" {
   }
 }
 `, randInt)
+}
+
+func testAccObsBucket_encryption(randInt int) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "key_1" {
+  key_alias    = "kms-%d"
+  pending_days = "7"
+}
+
+resource "huaweicloud_obs_bucket" "bucket" {
+  bucket        = "tf-test-bucket-%d"
+  storage_class = "STANDARD"
+  acl           = "private"
+  encryption    = true
+  kms_key_id    = huaweicloud_kms_key.key_1.id
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, randInt, randInt)
 }
 
 func testAccObsBucket_epsId(randInt int) string {

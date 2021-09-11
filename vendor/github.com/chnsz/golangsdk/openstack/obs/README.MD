@@ -1,4 +1,12 @@
-Version:3.21.1
+# README
 
-You can get the latest source code from [here](https://obssdk.obs.cn-north-1.myhuaweicloud.com/current/go/go.zip),
-then unzip the file.
+## Version
+
+3.21.8
+
+You can get the latest source code from [huaweicloud-sdk-go-obs](https://github.com/huaweicloud/huaweicloud-sdk-go-obs).
+
+## Backporting
+
+Please backport [GH-11](https://github.com/chnsz/golangsdk/pull/11) after updating the sdk from
+huaweicloud-sdk-go-obs.

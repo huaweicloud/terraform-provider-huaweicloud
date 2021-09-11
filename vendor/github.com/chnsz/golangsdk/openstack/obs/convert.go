@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -731,7 +732,7 @@ func ParseGetBucketMetadataOutput(output *GetBucketMetadataOutput) {
 		output.Epid = ret[0]
 	}
 	if ret, ok := output.ResponseHeaders[HEADER_AZ_REDUNDANCY]; ok {
-		output.AvailableZone = ret[0]
+		output.AZRedundancy = ret[0]
 	}
 	if ret, ok := output.ResponseHeaders[headerFSFileInterface]; ok {
 		output.FSStatus = parseStringToFSStatusType(ret[0])
@@ -1085,4 +1086,29 @@ func decodeInitiateMultipartUploadOutput(output *InitiateMultipartUploadOutput) 
 func decodeCompleteMultipartUploadOutput(output *CompleteMultipartUploadOutput) (err error) {
 	output.Key, err = url.QueryUnescape(output.Key)
 	return
+}
+
+// ParseAppendObjectOutput sets AppendObjectOutput field values with response headers
+func ParseAppendObjectOutput(output *AppendObjectOutput) (err error) {
+	if ret, ok := output.ResponseHeaders[HEADER_VERSION_ID]; ok {
+		output.VersionId = ret[0]
+	}
+	output.SseHeader = parseSseHeader(output.ResponseHeaders)
+	if ret, ok := output.ResponseHeaders[HEADER_ETAG]; ok {
+		output.ETag = ret[0]
+	}
+	if ret, ok := output.ResponseHeaders[HEADER_NEXT_APPEND_POSITION]; ok {
+		output.NextAppendPosition, err = strconv.ParseInt(ret[0], 10, 64)
+		if err != nil {
+			err = fmt.Errorf("failed to parse next append position with error [%v]", err)
+		}
+	}
+	return
+}
+
+// ParseModifyObjectOutput sets ModifyObjectOutput field values with response headers
+func ParseModifyObjectOutput(output *ModifyObjectOutput) {
+	if ret, ok := output.ResponseHeaders[HEADER_ETAG]; ok {
+		output.ETag = ret[0]
+	}
 }
