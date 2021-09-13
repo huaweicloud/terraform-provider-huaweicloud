@@ -468,7 +468,7 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 		return fmtp.Errorf("Error fetching job id after creating cce cluster: %s", clusterName)
 	}
 
-	clusterID, err := getCCEClusterIDFromJob(cceClient, jobID)
+	clusterID, err := getCCEClusterIDFromJob(cceClient, jobID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -480,7 +480,7 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 		Target:       []string{"Available"},
 		Refresh:      waitForCCEClusterActive(cceClient, clusterID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        150 * time.Second,
+		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
 	}
 
@@ -718,15 +718,14 @@ func waitForCCEClusterDelete(cceClient *golangsdk.ServiceClient, clusterId strin
 	}
 }
 
-func getCCEClusterIDFromJob(client *golangsdk.ServiceClient, jobID string) (string, error) {
+func getCCEClusterIDFromJob(client *golangsdk.ServiceClient, jobID string, timeout time.Duration) (string, error) {
 	stateJob := &resource.StateChangeConf{
-		Pending: []string{"Initializing"},
-		Target:  []string{"Running", "Success"},
-		Refresh: waitForJobStatus(client, jobID),
-		Timeout: 5 * time.Minute,
-		// waiting for 35 seconds to avoid 401 response code
-		Delay:        35 * time.Second,
-		PollInterval: 10 * time.Second,
+		Pending:      []string{"Initializing", "Running"},
+		Target:       []string{"Success"},
+		Refresh:      waitForJobStatus(client, jobID),
+		Timeout:      timeout,
+		Delay:        150 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 
 	v, err := stateJob.WaitForState()
@@ -755,7 +754,7 @@ func resourceCCEClusterV3Hibernate(d *schema.ResourceData, cceClient *golangsdk.
 		Target:       []string{"Hibernation"},
 		Refresh:      waitForCCEClusterActive(cceClient, clusterID),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        100 * time.Second,
+		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
 	}
 
