@@ -17,7 +17,7 @@ import (
 func TestAccComputeV2Keypair_basic(t *testing.T) {
 	var keypair keypairs.KeyPair
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_compute_keypair.kp_1"
+	resourceName := "huaweicloud_compute_keypair.test"
 	publicKey, _, _ := acctest.RandSSHKeyPair("Generated-by-AccTest")
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -35,6 +35,27 @@ func TestAccComputeV2Keypair_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeV2Keypair_privateKey(t *testing.T) {
+	var keypair keypairs.KeyPair
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_compute_keypair.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeV2KeypairDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeV2Keypair_privateKey(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeV2KeypairExists(resourceName, &keypair),
+					resource.TestCheckResourceAttrSet(resourceName, "key_file"),
+				),
 			},
 		},
 	})
@@ -95,9 +116,17 @@ func testAccCheckComputeV2KeypairExists(n string, kp *keypairs.KeyPair) resource
 
 func testAccComputeV2Keypair_basic(rName, keypair string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_compute_keypair" "kp_1" {
+resource "huaweicloud_compute_keypair" "test" {
   name       = "%s"
   public_key = "%s"
 }
 `, rName, keypair)
+}
+
+func testAccComputeV2Keypair_privateKey(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_compute_keypair" "test" {
+  name = "%s"
+}
+`, rName)
 }
