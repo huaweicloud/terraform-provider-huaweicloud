@@ -1,12 +1,11 @@
-package huaweicloud
+package fgs
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -14,32 +13,56 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getResourceObj(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	c, err := conf.FgsV2Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmt.Errorf("error creating HuaweiCloud FunctionGraph client: %s", err)
+	}
+	return function.GetMetadata(c, state.Primary.ID).Extract()
+}
+
 func TestAccFgsV2Function_basic(t *testing.T) {
 	var f function.Function
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_fgs_function.test"
 
+	dc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckFgsV2FunctionDestroy,
+		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		Providers:    acceptance.TestAccProviders,
+		CheckDestroy: dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFgsV2Function_basic(rName),
+				Config: testAccFgsV2Function_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFgsV2FunctionExists(resourceName, &f),
+					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
 				),
 			},
 			{
-				Config: testAccFgsV2Function_update(rName),
+				Config: testAccFgsV2Function_update(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFgsV2FunctionExists(resourceName, &f),
+					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "description", "fuction test update"),
 					resource.TestCheckResourceAttrSet(resourceName, "urn"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"app",
+					"package",
+					"func_code",
+				},
 			},
 		},
 	})
@@ -47,20 +70,40 @@ func TestAccFgsV2Function_basic(t *testing.T) {
 
 func TestAccFgsV2Function_withEpsId(t *testing.T) {
 	var f function.Function
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_fgs_function.test"
 
+	dc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckFgsV2FunctionDestroy,
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		Providers:    acceptance.TestAccProviders,
+		CheckDestroy: dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFgsV2Function_withEpsId(rName),
+				Config: testAccFgsV2Function_withEpsId(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFgsV2FunctionExists(resourceName, &f),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
+						acceptance.HW_ENTERPRISE_PROJECT_ID),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"app",
+					"package",
+					"func_code",
+				},
 			},
 		},
 	})
@@ -68,19 +111,35 @@ func TestAccFgsV2Function_withEpsId(t *testing.T) {
 
 func TestAccFgsV2Function_text(t *testing.T) {
 	var f function.Function
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_fgs_function.test"
 
+	dc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckFgsV2FunctionDestroy,
+		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		Providers:    acceptance.TestAccProviders,
+		CheckDestroy: dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFgsV2Function_text(rName),
+				Config: testAccFgsV2Function_text(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFgsV2FunctionExists(resourceName, &f),
+					dc.CheckResourceExists(),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"app",
+					"package",
+					"func_code",
+				},
 			},
 		},
 	})
@@ -88,78 +147,41 @@ func TestAccFgsV2Function_text(t *testing.T) {
 
 func TestAccFgsV2Function_agency(t *testing.T) {
 	var f function.Function
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	randName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_fgs_function.test"
 
+	dc := acceptance.InitResourceCheck(
+		resourceName,
+		&f,
+		getResourceObj,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckFgsV2FunctionDestroy,
+		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		Providers:    acceptance.TestAccProviders,
+		CheckDestroy: dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccFgsV2Function_agency(rName),
+				Config: testAccFgsV2Function_agency(randName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckFgsV2FunctionExists(resourceName, &f),
-					resource.TestCheckResourceAttr(resourceName, "agency", rName),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "agency", randName),
 					resource.TestCheckResourceAttr(resourceName, "func_mounts.0.mount_type", "sfs"),
 					resource.TestCheckResourceAttr(resourceName, "func_mounts.0.status", "active"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"xrole",
+					"agency",
+					"func_code",
+				},
+			},
 		},
 	})
-}
-
-func testAccCheckFgsV2FunctionDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	fgsClient, err := config.FgsV2Client(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_fgs_function" {
-			continue
-		}
-
-		_, err := function.GetMetadata(fgsClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("Function still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckFgsV2FunctionExists(n string, ft *function.Function) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		fgsClient, err := config.FgsV2Client(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
-		}
-
-		found, err := function.GetMetadata(fgsClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.FuncUrn != rs.Primary.ID {
-			return fmtp.Errorf("Function not found")
-		}
-
-		*ft = *found
-
-		return nil
-	}
 }
 
 func testAccFgsV2Function_basic(rName string) string {
@@ -237,7 +259,7 @@ resource "huaweicloud_fgs_function" "test" {
   enterprise_project_id = "%s"
   func_code             = "aW1wb3J0IGpzb24KZGVmIGhhbmRsZXIgKGV2ZW50LCBjb250ZXh0KToKICAgIG91dHB1dCA9ICdIZWxsbyBtZXNzYWdlOiAnICsganNvbi5kdW1wcyhldmVudCkKICAgIHJldHVybiBvdXRwdXQ="
 }
-`, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }
 
 func testAccFgsV2Function_agency(rName string) string {
