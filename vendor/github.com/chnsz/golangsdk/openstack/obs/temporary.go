@@ -834,3 +834,59 @@ func (obsClient ObsClient) GetBucketRequestPaymentWithSignedUrl(signedUrl string
 	}
 	return
 }
+
+// SetBucketEncryptionWithSignedURL sets bucket encryption setting for a bucket with the specified signed url and signed request headers and data
+func (obsClient ObsClient) SetBucketEncryptionWithSignedURL(signedURL string, actualSignedRequestHeaders http.Header, data io.Reader) (output *BaseModel, err error) {
+	output = &BaseModel{}
+	err = obsClient.doHTTPWithSignedURL("SetBucketEncryption", HTTP_PUT, signedURL, actualSignedRequestHeaders, data, output, true)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
+// GetBucketEncryptionWithSignedURL gets bucket encryption setting of a bucket with the specified signed url and signed request headers
+func (obsClient ObsClient) GetBucketEncryptionWithSignedURL(signedURL string, actualSignedRequestHeaders http.Header) (output *GetBucketEncryptionOutput, err error) {
+	output = &GetBucketEncryptionOutput{}
+	err = obsClient.doHTTPWithSignedURL("GetBucketEncryption", HTTP_GET, signedURL, actualSignedRequestHeaders, nil, output, true)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
+// DeleteBucketEncryptionWithSignedURL deletes bucket encryption setting of a bucket with the specified signed url and signed request headers
+func (obsClient ObsClient) DeleteBucketEncryptionWithSignedURL(signedURL string, actualSignedRequestHeaders http.Header) (output *BaseModel, err error) {
+	output = &BaseModel{}
+	err = obsClient.doHTTPWithSignedURL("DeleteBucketEncryption", HTTP_DELETE, signedURL, actualSignedRequestHeaders, nil, output, true)
+	if err != nil {
+		output = nil
+	}
+	return
+}
+
+// AppendObjectWithSignedUrl uploads an object to the specified bucket with the specified signed url and signed request headers and data
+func (obsClient ObsClient) AppendObjectWithSignedURL(signedURL string, actualSignedRequestHeaders http.Header, data io.Reader) (output *AppendObjectOutput, err error) {
+	output = &AppendObjectOutput{}
+	err = obsClient.doHTTPWithSignedURL("AppendObject", HTTP_POST, signedURL, actualSignedRequestHeaders, data, output, true)
+	if err != nil {
+		output = nil
+	} else {
+		if err = ParseAppendObjectOutput(output); err != nil {
+			output = nil
+		}
+	}
+	return
+}
+
+// ModifyObjectWithSignedUrl uploads an object to the specified bucket with the specified signed url and signed request headers and data
+func (obsClient ObsClient) ModifyObjectWithSignedURL(signedURL string, actualSignedRequestHeaders http.Header, data io.Reader) (output *ModifyObjectOutput, err error) {
+	output = &ModifyObjectOutput{}
+	err = obsClient.doHTTPWithSignedURL("ModifyObject", HTTP_PUT, signedURL, actualSignedRequestHeaders, data, output, true)
+	if err != nil {
+		output = nil
+	} else {
+		ParseModifyObjectOutput(output)
+	}
+	return
+}

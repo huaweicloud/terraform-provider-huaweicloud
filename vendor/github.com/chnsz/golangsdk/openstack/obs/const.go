@@ -13,7 +13,7 @@
 package obs
 
 const (
-	obsSdkVersion          = "3.21.1"
+	obsSdkVersion          = "3.21.8"
 	USER_AGENT             = "obs-sdk-go/" + obsSdkVersion
 	HEADER_PREFIX          = "x-amz-"
 	HEADER_PREFIX_META     = "x-amz-meta-"
@@ -72,6 +72,7 @@ const (
 	HEADER_CONTENT_DISPOSITION              = "content-disposition"
 	HEADER_CONTENT_ENCODING                 = "content-encoding"
 	HEADER_AZ_REDUNDANCY                    = "az-redundancy"
+	HEADER_BUCKET_TYPE                      = "bucket-type"
 	headerOefMarker                         = "oef-marker"
 
 	HEADER_ETAG         = "etag"
@@ -258,6 +259,7 @@ var (
 		"encryption":                   true,
 		"tagging":                      true,
 		"append":                       true,
+		"modify":                       true,
 		"position":                     true,
 		"replication":                  true,
 		"response-content-type":        true,
@@ -731,6 +733,12 @@ const (
 
 	// SubResourceRequestPayment subResource value: requestPayment
 	SubResourceRequestPayment SubResourceType = "requestPayment"
+
+	// SubResourceAppend subResource value: append
+	SubResourceAppend SubResourceType = "append"
+
+	// SubResourceModify subResource value: modify
+	SubResourceModify SubResourceType = "modify"
 )
 
 // objectKeyType defines the objectKey value
@@ -949,4 +957,12 @@ type FSStatusType string
 const (
 	FSStatusEnabled  FSStatusType = "Enabled"
 	FSStatusDisabled FSStatusType = "Disabled"
+)
+
+// BucketType defines type of bucket
+type BucketType string
+
+const (
+	OBJECT BucketType = "OBJECT"
+	POSIX  BucketType = "POSIX"
 )

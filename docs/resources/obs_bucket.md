@@ -201,6 +201,10 @@ The following arguments are supported:
   bucket, but the name of a deleted bucket can be reused for another bucket at least 30 minutes after the deletion.
   Exercise caution when changing this field.
 
+* `encryption` - (Optional, Bool) Whether enable default server-side encryption of the bucket in SSE-KMS mode.
+
+* `kms_key_id` - (Optional, String) Specifies the ID of a kms key. If omitted, the default master key will be used.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the OBS bucket. Changing
   this will create a new bucket.
 

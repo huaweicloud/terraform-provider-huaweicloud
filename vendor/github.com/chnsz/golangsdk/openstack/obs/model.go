@@ -52,6 +52,7 @@ type Initiator struct {
 // ListBucketsInput is the input parameter of ListBuckets function
 type ListBucketsInput struct {
 	QueryLocation bool
+	BucketType    BucketType
 }
 
 // ListBucketsOutput is the result of ListBuckets function
@@ -531,7 +532,7 @@ type GetBucketMetadataOutput struct {
 	MaxAgeSeconds int
 	ExposeHeader  string
 	Epid          string
-	AvailableZone string
+	AZRedundancy  string
 	FSStatus      FSStatusType
 }
 
@@ -1270,4 +1271,31 @@ type JobResponse struct {
 	CallBackHost     string `json:"callbackhost"`
 	FileType         string `json:"file_type"`
 	IgnoreSameKey    bool   `json:"ignore_same_key"`
+}
+
+type AppendObjectInput struct {
+	PutObjectBasicInput
+	Body     io.Reader
+	Position int64
+}
+
+type AppendObjectOutput struct {
+	BaseModel
+	VersionId          string
+	SseHeader          ISseHeader
+	NextAppendPosition int64
+	ETag               string
+}
+
+type ModifyObjectInput struct {
+	Bucket        string
+	Key           string
+	Position      int64
+	Body          io.Reader
+	ContentLength int64
+}
+
+type ModifyObjectOutput struct {
+	BaseModel
+	ETag string
 }
