@@ -1,17 +1,20 @@
-package huaweicloud
+package deprecated
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
 	"github.com/chnsz/golangsdk/openstack/dcs/v1/products"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceDcsProductV1() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceDcsProductV1Read,
+		DeprecationMessage: "this is deprecated." +
+			"This data source is used for the \"product_id\" of the \"huaweicloud_dcs_instance\" resource. " +
+			"Now \"product_id\" has been deprecated and this data source is no longer used.",
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -47,7 +50,8 @@ func DataSourceDcsProductV1() *schema.Resource {
 
 func dataSourceDcsProductV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	dcsV1Client, err := config.DcsV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error get dcs product client: %s", err)
 	}

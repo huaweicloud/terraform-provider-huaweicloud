@@ -1,10 +1,13 @@
 ---
-subcategory: "Distributed Cache Service"
+subcategory: "Deprecated"
 ---
 
 # huaweicloud_dcs_az
 
-Use this data source to get the ID of an available Huaweicloud dcs az.
+Use this data source to get the ID of an available HuaweiCloud dcs az.
+
+!> **WARNING:** It has been deprecated. This data source is used for the `available_zones` of the
+`huaweicloud_dcs_instance` resource. Now `available_zones` has been deprecated and this data source is no longer used.
 
 ## Example Usage
 

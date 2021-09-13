@@ -1,8 +1,10 @@
-package huaweicloud
+package deprecated
 
 import (
 	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -12,8 +14,8 @@ func TestAccDcsAZV1DataSource_basic(t *testing.T) {
 	resourceName := "data.huaweicloud_dcs_az.az1"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDcsAZV1DataSource_basic,
