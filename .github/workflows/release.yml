@@ -32,6 +32,7 @@ jobs:
       - name: Run acceptance basic test
         # run the step only when HW_ACCESS_KEY is setted
         if: ${{ env.HW_ACCESS_KEY }}
+        shell: bash {0}
         run: |
           last_tag=$(git tag --sort=-creatordate | sed -n 2p)
           all_files=$(git diff $last_tag --name-only huaweicloud | grep -v "_test.go")
