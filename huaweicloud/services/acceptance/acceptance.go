@@ -36,6 +36,7 @@ var (
 	HW_SUBNET_ID             = os.Getenv("HW_SUBNET_ID")
 	HW_ENTERPRISE_PROJECT_ID = os.Getenv("HW_ENTERPRISE_PROJECT_ID")
 	HW_MAPREDUCE_CUSTOM      = os.Getenv("HW_MAPREDUCE_CUSTOM")
+	HW_ADMIN                 = os.Getenv("HW_ADMIN")
 
 	HW_DEPRECATED_ENVIRONMENT = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
 
@@ -308,5 +309,12 @@ func RandomAccResourceName() string {
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
 		t.Skip("Jump the WAF acceptance tests.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckAdminOnly(t *testing.T) {
+	if HW_ADMIN == "" {
+		t.Skip("Skipping test because it requires the admin privileges")
 	}
 }

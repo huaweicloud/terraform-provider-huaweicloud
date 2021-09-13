@@ -310,10 +310,15 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 	prereqtok := req.Header.Get("X-Auth-Token")
 
 	if client.AKSKAuthOptions.AccessKey != "" {
-		Sign(req, SignOptions{
+		signOpts := SignOptions{
 			AccessKey: client.AKSKAuthOptions.AccessKey,
 			SecretKey: client.AKSKAuthOptions.SecretKey,
-		})
+		}
+		// get region from request headers
+		if region, ok := options.MoreHeaders["region"]; ok {
+			signOpts.RegionName = region
+		}
+		Sign(req, signOpts)
 		if client.AKSKAuthOptions.ProjectId != "" {
 			req.Header.Set("X-Project-Id", client.AKSKAuthOptions.ProjectId)
 		}
@@ -489,13 +494,13 @@ func defaultOkCodes(method string) []int {
 	case "GET", "HEAD":
 		return []int{200}
 	case "POST":
-		return []int{201, 202}
+		return []int{200, 201, 202}
 	case "PUT":
-		return []int{201, 202}
+		return []int{200, 201, 202}
 	case "PATCH":
 		return []int{200, 202, 204}
 	case "DELETE":
-		return []int{202, 204}
+		return []int{200, 202, 204}
 	}
 
 	return []int{}
