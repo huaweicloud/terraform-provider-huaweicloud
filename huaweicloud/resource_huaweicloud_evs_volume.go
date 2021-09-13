@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -214,51 +215,24 @@ func resourceEvsVolumeV3Create(d *schema.ResourceData, meta interface{}) error {
 	return resourceEvsVolumeV3Read(d, meta)
 }
 
-func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
+func setEvsVolumeDeviceType(d *schema.ResourceData, resp *volumes.Volume) error {
+	if value, ok := resp.Metadata["hw:passthrough"]; ok && value == "true" {
+		return d.Set("device_type", "SCSI")
 	}
+	return d.Set("device_type", "VBD")
+}
 
-	v, err := volumes.Get(blockStorageClient, d.Id()).Extract()
-	if err != nil {
-		return CheckDeleted(d, err, "volume")
+func setEvsVolumeImageId(d *schema.ResourceData, resp *volumes.Volume) error {
+	if value, ok := resp.VolumeImageMetadata["image_id"]; ok {
+		return d.Set("image_id", value)
 	}
+	return nil
+}
 
-	logp.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), v)
-
-	d.Set("name", v.Name)
-	d.Set("size", v.Size)
-	d.Set("description", v.Description)
-	d.Set("availability_zone", v.AvailabilityZone)
-	d.Set("snapshot_id", v.SnapshotID)
-	d.Set("source_vol_id", v.SourceVolID)
-	d.Set("volume_type", v.VolumeType)
-	d.Set("enterprise_project_id", v.EnterpriseProjectID)
-	d.Set("region", GetRegion(d, config))
-	d.Set("wwn", v.WWN)
-	if value, ok := v.Metadata["hw:passthrough"]; ok && value == "true" {
-		d.Set("device_type", "SCSI")
-	} else {
-		d.Set("device_type", "VBD")
-	}
-	if value, ok := v.VolumeImageMetadata["image_id"]; ok {
-		d.Set("image_id", value)
-	}
-	d.Set("multiattach", v.Multiattach)
-	// set tags
-	tags := make(map[string]string)
-	for key, val := range v.Tags {
-		tags[key] = val
-	}
-	if err := d.Set("tags", tags); err != nil {
-		return fmtp.Errorf("[DEBUG] Error saving tags to state for HuaweiCloud evs storage (%s): %s", d.Id(), err)
-	}
-
+func setEvsVolumeAttachment(d *schema.ResourceData, resp *volumes.Volume) error {
 	// set attachments
-	attachments := make([]map[string]interface{}, len(v.Attachments))
-	for i, attachment := range v.Attachments {
+	attachments := make([]map[string]interface{}, len(resp.Attachments))
+	for i, attachment := range resp.Attachments {
 		attachments[i] = make(map[string]interface{})
 		attachments[i]["id"] = attachment.ID
 		attachments[i]["instance_id"] = attachment.ServerID
@@ -267,6 +241,41 @@ func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	if err := d.Set("attachment", attachments); err != nil {
 		return fmtp.Errorf("[DEBUG] Error saving attachment to state for HuaweiCloud evs storage (%s): %s", d.Id(), err)
+	}
+	return nil
+}
+
+func resourceEvsVolumeV3Read(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*config.Config)
+	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("Error creating HuaweiCloud EVS storage client: %s", err)
+	}
+
+	resp, err := volumes.Get(blockStorageClient, d.Id()).Extract()
+	if err != nil {
+		return CheckDeleted(d, err, "volume")
+	}
+
+	logp.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), resp)
+	mErr := multierror.Append(
+		d.Set("name", resp.Name),
+		d.Set("size", resp.Size),
+		d.Set("description", resp.Description),
+		d.Set("availability_zone", resp.AvailabilityZone),
+		d.Set("snapshot_id", resp.SnapshotID),
+		d.Set("volume_type", resp.VolumeType),
+		d.Set("enterprise_project_id", resp.EnterpriseProjectID),
+		d.Set("region", GetRegion(d, config)),
+		d.Set("wwn", resp.WWN),
+		d.Set("multiattach", resp.Multiattach),
+		d.Set("tags", resp.Tags),
+		setEvsVolumeDeviceType(d, resp),
+		setEvsVolumeImageId(d, resp),
+		setEvsVolumeAttachment(d, resp),
+	)
+	if err = mErr.ErrorOrNil(); err != nil {
+		return fmtp.Errorf("Error setting vault fields: %s", err)
 	}
 
 	return nil
