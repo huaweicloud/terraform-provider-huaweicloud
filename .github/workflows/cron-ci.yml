@@ -61,6 +61,7 @@ jobs:
         if: ${{ env.HW_ACCESS_KEY }}
         shell: bash {0}
         run: |
+          result=0
           commitID=$(git log --before="1 week ago" --pretty=format:"%h" -n 1)
           all_files=$(git diff $commitID --name-only huaweicloud | grep -v "_test.go")
           echo -e "the following files have changed since $commitID:\n$all_files\n"
@@ -80,8 +81,12 @@ jobs:
               if [ "X$basic_cases" != "X" ]; then
                 echo "run acceptance basic tests: $basic_cases"
                 make testacc TEST="./$path" TESTARGS="-run ${basic_cases}"
+                if [ $? -ne 0 ]; then
+                  result=`expr $result + 1`
+                fi
               fi
             else
               echo "[skipped] --- ./${test_file} does not exist"
             fi
           done
+          exit $result
