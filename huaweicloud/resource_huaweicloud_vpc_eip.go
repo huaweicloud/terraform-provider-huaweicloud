@@ -13,6 +13,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -385,6 +386,13 @@ func resourceVpcEIPV1Delete(d *schema.ResourceData, meta interface{}) error {
 	networkingClient, err := config.NetworkingV1Client(GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating VPC client: %s", err)
+	}
+
+	// check whether the eip exists before delete it
+	// because resource could not be found cannot be deleteed
+	_, err = eips.Get(networkingClient, d.Id()).Extract()
+	if err != nil {
+		return common.CheckDeleted(d, err, "Error retrieving HuaweiCloud EIP")
 	}
 
 	timeout := d.Timeout(schema.TimeoutDelete)
