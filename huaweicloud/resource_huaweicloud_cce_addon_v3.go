@@ -1,17 +1,20 @@
 package huaweicloud
 
 import (
+	"encoding/json"
 	"strings"
 	"time"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/addons"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func ResourceCCEAddonV3() *schema.Resource {
@@ -67,19 +70,58 @@ func ResourceCCEAddonV3() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"basic": {
-							Type:     schema.TypeMap,
-							Required: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:         schema.TypeMap,
+							Optional:     true,
+							ForceNew:     true,
+							Elem:         &schema.Schema{Type: schema.TypeString},
+							ExactlyOneOf: []string{"values.0.basic", "values.0.basic_json"},
+						},
+						"basic_json": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringIsJSON,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
+								return equal
+							},
+							ExactlyOneOf: []string{"values.0.basic", "values.0.basic_json"},
 						},
 						"custom": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:          schema.TypeMap,
+							Optional:      true,
+							ForceNew:      true,
+							Elem:          &schema.Schema{Type: schema.TypeString},
+							ConflictsWith: []string{"values.0.custom_json"},
+						},
+						"custom_json": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringIsJSON,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
+								return equal
+							},
+							ConflictsWith: []string{"values.0.custom"},
 						},
 						"flavor": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							Type:          schema.TypeMap,
+							Optional:      true,
+							ForceNew:      true,
+							Elem:          &schema.Schema{Type: schema.TypeString},
+							ConflictsWith: []string{"values.0.flavor_json"},
+						},
+						"flavor_json": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.StringIsJSON,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
+								return equal
+							},
+							ConflictsWith: []string{"values.0.flavor"},
 						},
 					},
 				},
@@ -96,18 +138,39 @@ func getValuesValues(d *schema.ResourceData) (basic, custom, flavor map[string]i
 	}
 	valuesMap := values[0].(map[string]interface{})
 
-	basicRaw, ok := valuesMap["basic"]
-	if !ok {
-		err = fmtp.Errorf("no basic values are set for CCE addon") // should be impossible, as Required: true
-		return
+	if basicRaw := valuesMap["basic"].(map[string]interface{}); len(basicRaw) != 0 {
+		basic = basicRaw
 	}
-	if customRaw, ok := valuesMap["custom"]; ok {
-		custom = customRaw.(map[string]interface{})
+	if basicJsonRaw := valuesMap["basic_json"].(string); basicJsonRaw != "" {
+		err = json.Unmarshal([]byte(basicJsonRaw), &basic)
+		if err != nil {
+			err = fmtp.Errorf("Error unmarshalling basic json: %s", err)
+			return
+		}
 	}
-	if flavorRaw, ok := valuesMap["flavor"]; ok {
-		flavor = flavorRaw.(map[string]interface{})
+
+	if customRaw := valuesMap["custom"].(map[string]interface{}); len(customRaw) != 0 {
+		custom = customRaw
 	}
-	basic = basicRaw.(map[string]interface{})
+	if customJsonRaw := valuesMap["custom_json"].(string); customJsonRaw != "" {
+		err = json.Unmarshal([]byte(customJsonRaw), &custom)
+		if err != nil {
+			err = fmtp.Errorf("Error unmarshalling custom json: %s", err)
+			return
+		}
+	}
+
+	if flavorRaw := valuesMap["flavor"].(map[string]interface{}); len(flavorRaw) != 0 {
+		flavor = flavorRaw
+	}
+	if flavorJsonRaw := valuesMap["flavor_json"].(string); flavorJsonRaw != "" {
+		err = json.Unmarshal([]byte(flavorJsonRaw), &flavor)
+		if err != nil {
+			err = fmtp.Errorf("Error unmarshalling flavor json %s", err)
+			return
+		}
+	}
+
 	return
 }
 
@@ -155,7 +218,7 @@ func resourceCCEAddonV3Create(d *schema.ResourceData, meta interface{}) error {
 	logp.Printf("[DEBUG] Waiting for HuaweiCloud CCEAddon (%s) to become available", create.Metadata.Id)
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"installing", "abnormal"},
-		Target:       []string{"running"},
+		Target:       []string{"running", "available"},
 		Refresh:      waitForCCEAddonActive(cceClient, create.Metadata.Id, cluster_id),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,

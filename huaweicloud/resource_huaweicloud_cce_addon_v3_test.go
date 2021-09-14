@@ -43,6 +43,32 @@ func TestAccCCEAddonV3_basic(t *testing.T) {
 	})
 }
 
+func TestAccCCEAddonV3_values(t *testing.T) {
+	var addon addons.Addon
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_addon.test"
+	clusterName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccPreCheckProjectID(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCCEAddonV3Destroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCCEAddonV3_values(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCCEAddonV3Exists(resourceName, clusterName, &addon),
+					resource.TestCheckResourceAttr(resourceName, "status", "available"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckCCEAddonV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*config.Config)
 	cceClient, err := config.CceAddonV3Client(HW_REGION_NAME)
@@ -162,4 +188,36 @@ resource "huaweicloud_cce_addon" "test" {
   depends_on    = [huaweicloud_cce_node.test]
 }
 `, testAccCCEAddonV3_Base(rName))
+}
+
+func testAccCCEAddonV3_values(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+data "huaweicloud_cce_addon_template" "test" {
+  cluster_id = huaweicloud_cce_cluster.test.id
+  name       = "autoscaler"
+  version    = "1.19.6"
+}
+
+resource "huaweicloud_cce_addon" "test" {
+  cluster_id    = huaweicloud_cce_cluster.test.id
+  template_name = "autoscaler"
+  version       = "1.19.6"
+
+  values {
+    basic  = jsondecode(data.huaweicloud_cce_addon_template.test.spec).basic
+    custom = merge(
+      jsondecode(data.huaweicloud_cce_addon_template.test.spec).parameters.custom,
+      {
+        cluster_id = huaweicloud_cce_cluster.test.id
+        tenant_id  = "%s"
+      }
+    )
+    flavor_json = jsonencode(jsondecode(data.huaweicloud_cce_addon_template.test.spec).parameters.flavor2)
+  }
+  
+  depends_on = [huaweicloud_cce_node.test]
+}
+`, testAccCCEAddonV3_Base(rName), HW_PROJECT_ID)
 }
