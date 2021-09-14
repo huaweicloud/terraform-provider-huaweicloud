@@ -4,8 +4,8 @@ name: Continuous Integration
 
 on:
   schedule:
-    # At 23:00 on every Sunday
-    - cron:  '00 23 * * SUN'
+    # UTC time, schedule at 22:00 (UTC+8) on every Sunday
+    - cron:  '00 14 * * SUN'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -59,7 +59,9 @@ jobs:
       - name: Run acceptance basic test
         # run the step only when HW_ACCESS_KEY is setted
         if: ${{ env.HW_ACCESS_KEY }}
+        shell: bash {0}
         run: |
+          result=0
           commitID=$(git log --before="1 week ago" --pretty=format:"%h" -n 1)
           all_files=$(git diff $commitID --name-only huaweicloud | grep -v "_test.go")
           echo -e "the following files have changed since $commitID:\n$all_files\n"
@@ -79,8 +81,12 @@ jobs:
               if [ "X$basic_cases" != "X" ]; then
                 echo "run acceptance basic tests: $basic_cases"
                 make testacc TEST="./$path" TESTARGS="-run ${basic_cases}"
+                if [ $? -ne 0 ]; then
+                  result=`expr $result + 1`
+                fi
               fi
             else
               echo "[skipped] --- ./${test_file} does not exist"
             fi
           done
+          exit $result

@@ -32,7 +32,9 @@ jobs:
       - name: Run acceptance basic test
         # run the step only when HW_ACCESS_KEY is setted
         if: ${{ env.HW_ACCESS_KEY }}
+        shell: bash {0}
         run: |
+          result=0
           last_tag=$(git tag --sort=-creatordate | sed -n 2p)
           all_files=$(git diff $last_tag --name-only huaweicloud | grep -v "_test.go")
           echo -e "the following files have changed since $last_tag:\n$all_files\n"
@@ -52,11 +54,15 @@ jobs:
               if [ "X$basic_cases" != "X" ]; then
                 echo "run acceptance basic tests: $basic_cases"
                 make testacc TEST="./$path" TESTARGS="-run ${basic_cases}"
+                if [ $? -ne 0 ]; then
+                  result=`expr $result + 1`
+                fi
               fi
             else
               echo "[skipped] --- ./${test_file} does not exist"
             fi
           done
+          exit $result
 
   goreleaser:
     runs-on: ubuntu-latest
