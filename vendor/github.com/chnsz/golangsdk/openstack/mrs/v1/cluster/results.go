@@ -75,22 +75,23 @@ type Component struct {
 }
 
 type NodeGroup struct {
-	GroupName                  string `json:"groupName"`
-	NodeNum                    int    `json:"nodeNum"`
-	NodeSize                   string `json:"nodeSize"`
-	NodeSpecId                 string `json:"nodeSpecId"`
-	NodeProductId              string `json:"nodeProductId"`
-	VMProductId                string `json:"vmProductId"`
-	VMSpecCode                 string `json:"vmSpecCode"`
-	RootVolumeSize             int    `json:"rootVolumeSize"`
-	RootVolumeType             string `json:"rootVolumeType"`
-	RootVolumeProductId        string `json:"rootVolumeProductId"`
-	RootVolumeResourceSpecCode string `json:"rootVolumeResourceSpecCode"`
-	DataVolumeType             string `json:"dataVolumeType"`
-	DataVolumeSize             int    `json:"dataVolumeSize"`
-	DataVolumeCount            int    `json:"dataVolumeCount"`
-	DataVolumeResourceSpecCode string `json:"dataVolumeResourceSpecCode"`
-	DataVolumeResourceType     string `json:"dataVolumeResourceType"`
+	GroupName                  string   `json:"groupName"`
+	NodeNum                    int      `json:"nodeNum"`
+	NodeSize                   string   `json:"nodeSize"`
+	NodeSpecId                 string   `json:"nodeSpecId"`
+	NodeProductId              string   `json:"nodeProductId"`
+	VMProductId                string   `json:"vmProductId"`
+	VMSpecCode                 string   `json:"vmSpecCode"`
+	RootVolumeSize             int      `json:"rootVolumeSize"`
+	RootVolumeType             string   `json:"rootVolumeType"`
+	RootVolumeProductId        string   `json:"rootVolumeProductId"`
+	RootVolumeResourceSpecCode string   `json:"rootVolumeResourceSpecCode"`
+	DataVolumeType             string   `json:"dataVolumeType"`
+	DataVolumeSize             int      `json:"dataVolumeSize"`
+	DataVolumeCount            int      `json:"dataVolumeCount"`
+	DataVolumeResourceSpecCode string   `json:"dataVolumeResourceSpecCode"`
+	DataVolumeResourceType     string   `json:"dataVolumeResourceType"`
+	AssignedRoles              []string `json:"assignedRoles"`
 }
 
 type BootStrapScript struct {

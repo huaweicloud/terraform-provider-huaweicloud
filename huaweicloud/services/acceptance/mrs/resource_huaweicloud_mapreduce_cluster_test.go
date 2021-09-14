@@ -326,31 +326,6 @@ func TestAccMrsMapReduceCluster_custom_compact(t *testing.T) {
 					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "CUSTOM"),
-					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
-					resource.TestCheckResourceAttr(resourceName, "status", "running"),
-					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.node_number", "3"),
-					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.host_ips.#", "3"),
-				),
-			},
-			{
-				Config: testAccMrsMapReduceClusterConfig_customCompact(rName, password, 4),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "CUSTOM"),
-					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
-					resource.TestCheckResourceAttr(resourceName, "status", "running"),
-					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.node_number", "4"),
-					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.host_ips.#", "4"),
-				),
-			},
-			{
-				Config: testAccMrsMapReduceClusterConfig_customCompact(rName, password, 3),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "CUSTOM"),
-					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
 					resource.TestCheckResourceAttr(resourceName, "status", "running"),
 					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.node_number", "3"),
 					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.host_ips.#", "3"),
@@ -363,6 +338,7 @@ func TestAccMrsMapReduceCluster_custom_compact(t *testing.T) {
 				ImportStateVerifyIgnore: []string{
 					"manager_admin_pass",
 					"node_admin_pass",
+					"template_id",
 				},
 			},
 		},
@@ -397,36 +373,13 @@ func TestAccMrsMapReduceCluster_custom_seperate(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccMrsMapReduceClusterConfig_customSeperate(rName, password, 4),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "CUSTOM"),
-					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
-					resource.TestCheckResourceAttr(resourceName, "status", "running"),
-					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.node_number", "4"),
-					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.host_ips.#", "4"),
-				),
-			},
-			{
-				Config: testAccMrsMapReduceClusterConfig_customSeperate(rName, password, 3),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "CUSTOM"),
-					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
-					resource.TestCheckResourceAttr(resourceName, "status", "running"),
-					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.node_number", "3"),
-					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.host_ips.#", "3"),
-				),
-			},
-			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"manager_admin_pass",
 					"node_admin_pass",
+					"template_id",
 				},
 			},
 		},
@@ -461,36 +414,13 @@ func TestAccMrsMapReduceCluster_custom_fullsize(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccMrsMapReduceClusterConfig_customFullsize(rName, password, 4),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "CUSTOM"),
-					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
-					resource.TestCheckResourceAttr(resourceName, "status", "running"),
-					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.node_number", "4"),
-					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.host_ips.#", "4"),
-				),
-			},
-			{
-				Config: testAccMrsMapReduceClusterConfig_customFullsize(rName, password, 3),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMRSV2ClusterExists(resourceName, &clusterGet),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "type", "CUSTOM"),
-					resource.TestCheckResourceAttr(resourceName, "safe_mode", "true"),
-					resource.TestCheckResourceAttr(resourceName, "status", "running"),
-					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.node_number", "3"),
-					resource.TestCheckResourceAttr(resourceName, "custom_nodes.0.host_ips.#", "3"),
-				),
-			},
-			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"manager_admin_pass",
 					"node_admin_pass",
+					"template_id",
 				},
 			},
 		},
@@ -890,7 +820,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   subnet_id          = huaweicloud_vpc_subnet.test.id
   vpc_id             = huaweicloud_vpc.test.id
   template_id        = "mgmt_control_combined_v4"
-  component_list     = ["Hadoop", "ZooKeeper", "Ranger"]
+  component_list     = ["DBService", "Hadoop", "ZooKeeper", "Ranger", "ClickHouse"]
 
 master_nodes {
     flavor            = "c6.4xlarge.4.linux.bigdata"
@@ -900,7 +830,7 @@ master_nodes {
     data_volume_type  = "SAS"
     data_volume_size  = 600
     data_volume_count = 1
-    assigned_roles = [
+	assigned_roles = [
       "OMSServer:1,2",
       "SlapdServer:1,2",
       "KerberosServer:1,2",
@@ -919,7 +849,8 @@ master_nodes {
       "TagSync:2",
       "KerberosClient",
       "SlapdClient",
-      "meta"
+      "meta",
+      "ClickHouseBalancer:1,2"
     ]
   }
 
@@ -935,13 +866,27 @@ master_nodes {
     assigned_roles = [
       "DataNode",
       "NodeManager",
-      "RegionServer",
-      "Flume",
       "KerberosClient",
       "SlapdClient",
       "meta"
     ]
+  }
 
+  custom_nodes {
+    group_name        = "ClickHouse"
+    flavor            = "c6.4xlarge.4.linux.bigdata"
+    node_number       = 2
+    root_volume_type  = "SAS"
+    root_volume_size  = 480
+    data_volume_type  = "SAS"
+    data_volume_size  = 600
+    data_volume_count = 1
+    assigned_roles = [
+      "ClickHouseServer",
+      "meta",
+      "KerberosClient",
+      "SlapdClient"
+    ]
   }
   
 }`, testAccMrsMapReduceClusterConfig_base(rName), rName, pwd, pwd, nodeNum1)
