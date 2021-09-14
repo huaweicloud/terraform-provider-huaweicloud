@@ -56,7 +56,7 @@ github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 github.com/bgentry/go-netrc/netrc
-# github.com/chnsz/golangsdk v0.0.0-20210910073247-d53db78c6984
+# github.com/chnsz/golangsdk v0.0.0-20210913091218-db72ff026f6c
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -201,6 +201,7 @@ github.com/chnsz/golangsdk/openstack/mrs/v2/clusters
 github.com/chnsz/golangsdk/openstack/mrs/v2/jobs
 github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths
 github.com/chnsz/golangsdk/openstack/networking/v1/eips
+github.com/chnsz/golangsdk/openstack/networking/v1/routables
 github.com/chnsz/golangsdk/openstack/networking/v1/security/securitygroups
 github.com/chnsz/golangsdk/openstack/networking/v1/subnets
 github.com/chnsz/golangsdk/openstack/networking/v1/vpcs
