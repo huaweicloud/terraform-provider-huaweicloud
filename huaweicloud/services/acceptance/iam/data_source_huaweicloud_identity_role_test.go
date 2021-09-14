@@ -1,8 +1,9 @@
-package huaweicloud
+package iam
 
 import (
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -14,10 +15,10 @@ func TestAccIdentityRoleDataSource_basic(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers: testAccProviders,
+		Providers: acceptance.TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityRoleDataSource_by_name,

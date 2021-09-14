@@ -1,9 +1,10 @@
-package huaweicloud
+package iam
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/identity/v3/agency"
@@ -21,10 +22,10 @@ func TestAccIdentityAgency_basic(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    testAccProviders,
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckIdentityAgencyDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -66,10 +67,10 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    testAccProviders,
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckIdentityAgencyDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -78,7 +79,7 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 					testAccCheckIdentityAgencyExists(resourceName, &agency),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a test agency"),
-					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", HW_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", acceptance.HW_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "1"),
 				),
@@ -94,7 +95,7 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 					testAccCheckIdentityAgencyExists(resourceName, &agency),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "This is a updated test agency"),
-					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", HW_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(resourceName, "delegated_domain_name", acceptance.HW_DOMAIN_NAME),
 					resource.TestCheckResourceAttr(resourceName, "duration", "FOREVER"),
 					resource.TestCheckResourceAttr(resourceName, "domain_roles.#", "2"),
 				),
@@ -104,8 +105,8 @@ func TestAccIdentityAgency_domain(t *testing.T) {
 }
 
 func testAccCheckIdentityAgencyDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	client, err := config.IAMV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
 	}
@@ -135,8 +136,8 @@ func testAccCheckIdentityAgencyExists(n string, ag *agency.Agency) resource.Test
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.IAMV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud Identity Agency: %s", err)
 		}
@@ -193,7 +194,7 @@ resource "huaweicloud_identity_agency" "test" {
     "Anti-DDoS Administrator",
   ]
 }
-`, rName, HW_DOMAIN_NAME)
+`, rName, acceptance.HW_DOMAIN_NAME)
 }
 
 func testAccIdentityAgency_domainUpdate(rName string) string {
@@ -208,5 +209,5 @@ resource "huaweicloud_identity_agency" "test" {
     "Ticket Administrator",
   ]
 }
-`, rName, HW_DOMAIN_NAME)
+`, rName, acceptance.HW_DOMAIN_NAME)
 }

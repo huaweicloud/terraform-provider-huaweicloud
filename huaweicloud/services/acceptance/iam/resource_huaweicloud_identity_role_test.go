@@ -1,9 +1,10 @@
-package huaweicloud
+package iam
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -22,10 +23,10 @@ func TestAccIdentityRole_basic(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    testAccProviders,
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckIdentityRoleDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -62,10 +63,10 @@ func TestAccIdentityRole_agency(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    testAccProviders,
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckIdentityRoleDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -87,8 +88,8 @@ func TestAccIdentityRole_agency(t *testing.T) {
 }
 
 func testAccCheckIdentityRoleDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	identityClient, err := config.IAMV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	identityClient, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -118,8 +119,8 @@ func testAccCheckIdentityRoleExists(n string, role *policies.Role) resource.Test
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		identityClient, err := config.IAMV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		identityClient, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}
@@ -195,7 +196,7 @@ resource "huaweicloud_identity_role" test {
 }
 EOF
 }
-`, roleName, HW_REGION_NAME)
+`, roleName, acceptance.HW_REGION_NAME)
 }
 
 func testAccIdentityRole_agency(roleName string) string {

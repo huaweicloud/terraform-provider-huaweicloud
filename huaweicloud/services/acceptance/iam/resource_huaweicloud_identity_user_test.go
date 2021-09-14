@@ -1,9 +1,10 @@
-package huaweicloud
+package iam
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -21,10 +22,10 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    testAccProviders,
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckIdentityV3UserDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -61,8 +62,8 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 }
 
 func testAccCheckIdentityV3UserDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	iamClient, err := config.IAMV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	iamClient, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -92,8 +93,8 @@ func testAccCheckIdentityV3UserExists(n string, user *users.User) resource.TestC
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		iamClient, err := config.IAMV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		iamClient, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}

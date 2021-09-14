@@ -1,4 +1,4 @@
-package huaweicloud
+package iam
 
 import (
 	"fmt"
@@ -48,7 +48,7 @@ func ResourceIdentityRoleAssignmentV3() *schema.Resource {
 
 func resourceIdentityRoleAssignmentV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -76,7 +76,7 @@ func resourceIdentityRoleAssignmentV3Create(d *schema.ResourceData, meta interfa
 
 func resourceIdentityRoleAssignmentV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -85,7 +85,7 @@ func resourceIdentityRoleAssignmentV3Read(d *schema.ResourceData, meta interface
 	if err != nil {
 		return fmtp.Errorf("Error getting role assignment: %s", err)
 	}
-	domainID, projectID, groupID, _ := extractRoleAssignmentID(d.Id())
+	domainID, projectID, groupID, _ := ExtractRoleAssignmentID(d.Id())
 
 	logp.Printf("[DEBUG] Retrieved HuaweiCloud role assignment: %#v", roleAssignment)
 	d.Set("role_id", roleAssignment.ID)
@@ -98,12 +98,12 @@ func resourceIdentityRoleAssignmentV3Read(d *schema.ResourceData, meta interface
 
 func resourceIdentityRoleAssignmentV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
-	domainID, projectID, groupID, roleID := extractRoleAssignmentID(d.Id())
+	domainID, projectID, groupID, roleID := ExtractRoleAssignmentID(d.Id())
 	var opts roles.UnassignOpts
 	opts = roles.UnassignOpts{
 		GroupID:   groupID,
@@ -119,7 +119,7 @@ func resourceIdentityRoleAssignmentV3Delete(d *schema.ResourceData, meta interfa
 }
 
 func getRoleAssignment(identityClient *golangsdk.ServiceClient, d *schema.ResourceData) (roles.RoleAssignment, error) {
-	domainID, projectID, groupID, roleID := extractRoleAssignmentID(d.Id())
+	domainID, projectID, groupID, roleID := ExtractRoleAssignmentID(d.Id())
 
 	var opts roles.ListAssignmentsOpts
 	opts = roles.ListAssignmentsOpts{
@@ -155,7 +155,7 @@ func buildRoleAssignmentID(domainID, projectID, groupID, roleID string) string {
 	return fmt.Sprintf("%s/%s/%s/%s", domainID, projectID, groupID, roleID)
 }
 
-func extractRoleAssignmentID(roleAssignmentID string) (string, string, string, string) {
+func ExtractRoleAssignmentID(roleAssignmentID string) (string, string, string, string) {
 	split := strings.Split(roleAssignmentID, "/")
 	return split[0], split[1], split[2], split[3]
 }

@@ -1,4 +1,4 @@
-package huaweicloud
+package iam
 
 import (
 	"encoding/json"
@@ -56,7 +56,7 @@ func DataSourceIdentityCustomRole() *schema.Resource {
 
 func dataSourceIdentityCustomRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IAMV3Client(GetRegion(d, config))
+	identityClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}

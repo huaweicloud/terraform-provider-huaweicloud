@@ -1,4 +1,4 @@
-package huaweicloud
+package iam
 
 import (
 	"github.com/chnsz/golangsdk"
@@ -37,7 +37,7 @@ func ResourceIdentityGroupMembershipV3() *schema.Resource {
 
 func resourceIdentityGroupMembershipV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -57,7 +57,7 @@ func resourceIdentityGroupMembershipV3Create(d *schema.ResourceData, meta interf
 
 func resourceIdentityGroupMembershipV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -90,7 +90,7 @@ func resourceIdentityGroupMembershipV3Read(d *schema.ResourceData, meta interfac
 
 func resourceIdentityGroupMembershipV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -125,7 +125,7 @@ func resourceIdentityGroupMembershipV3Update(d *schema.ResourceData, meta interf
 
 func resourceIdentityGroupMembershipV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}

@@ -1,9 +1,11 @@
-package huaweicloud
+package iam
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/identity/v3/groups"
@@ -23,10 +25,10 @@ func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    testAccProviders,
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckIdentityV3RoleAssignmentDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -35,7 +37,7 @@ func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 					testAccCheckIdentityV3RoleAssignmentExists(resourceName, &role, &group),
 					resource.TestCheckResourceAttrPtr(resourceName, "group_id", &group.ID),
 					resource.TestCheckResourceAttrPtr(resourceName, "role_id", &role.ID),
-					resource.TestCheckResourceAttr(resourceName, "project_id", HW_PROJECT_ID),
+					resource.TestCheckResourceAttr(resourceName, "project_id", acceptance.HW_PROJECT_ID),
 				),
 			},
 			{
@@ -44,7 +46,7 @@ func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 					testAccCheckIdentityV3RoleAssignmentExists(resourceName, &role, &group),
 					resource.TestCheckResourceAttrPtr(resourceName, "group_id", &group.ID),
 					resource.TestCheckResourceAttrPtr(resourceName, "role_id", &role.ID),
-					resource.TestCheckResourceAttr(resourceName, "domain_id", HW_DOMAIN_ID),
+					resource.TestCheckResourceAttr(resourceName, "domain_id", acceptance.HW_DOMAIN_ID),
 				),
 			},
 		},
@@ -52,8 +54,8 @@ func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 }
 
 func testAccCheckIdentityV3RoleAssignmentDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	identityClient, err := config.IdentityV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	identityClient, err := config.IdentityV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -83,13 +85,13 @@ func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, grou
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		identityClient, err := config.IdentityV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		identityClient, err := config.IdentityV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 		}
 
-		domainID, projectID, groupID, roleID := extractRoleAssignmentID(rs.Primary.ID)
+		domainID, projectID, groupID, roleID := iam.ExtractRoleAssignmentID(rs.Primary.ID)
 
 		var opts roles.ListAssignmentsOpts
 		opts = roles.ListAssignmentsOpts{
@@ -150,7 +152,7 @@ resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
   group_id   = huaweicloud_identity_group.group_1.id
   project_id = "%s"
 }
-`, rName, HW_PROJECT_ID)
+`, rName, acceptance.HW_PROJECT_ID)
 }
 
 func testAccIdentityV3RoleAssignment_domain(rName string) string {
@@ -168,5 +170,5 @@ resource "huaweicloud_identity_role_assignment" "role_assignment_1" {
   group_id   = huaweicloud_identity_group.group_1.id
   domain_id = "%s"
 }
-`, rName, HW_DOMAIN_ID)
+`, rName, acceptance.HW_DOMAIN_ID)
 }
