@@ -1,9 +1,9 @@
 package huaweicloud
 
 import (
-	"fmt"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -15,6 +15,51 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
+
+var sgRuleComputedSchema = &schema.Schema{
+	Type:     schema.TypeList,
+	Computed: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"direction": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"ethertype": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"port_range_min": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"port_range_max": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"protocol": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"remote_ip_prefix": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"remote_group_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	},
+}
 
 func ResourceNetworkingSecGroupV2() *schema.Resource {
 	return &schema.Resource{
@@ -57,6 +102,7 @@ func ResourceNetworkingSecGroupV2() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"rules": sgRuleComputedSchema,
 
 			"tenant_id": {
 				Type:       schema.TypeString,
@@ -64,54 +110,6 @@ func ResourceNetworkingSecGroupV2() *schema.Resource {
 				ForceNew:   true,
 				Computed:   true,
 				Deprecated: "tenant_id is deprecated",
-			},
-			"security_group_rules": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"security_group_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"direction": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"protocol": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"description": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"ethertype": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"port_range_max": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"port_range_min": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"remote_ip_prefix": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"remote_group_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
 			},
 		},
 	}
@@ -175,35 +173,44 @@ func resourceNetworkingSecGroupV2Read(d *schema.ResourceData, meta interface{}) 
 	}
 
 	logp.Printf("[DEBUG] Retrieve information about security group: %s", d.Id())
-	securityGroup, err := securitygroups.Get(segClient, d.Id()).Extract()
-
+	secGroup, err := securitygroups.Get(segClient, d.Id()).Extract()
 	if err != nil {
 		return CheckDeleted(d, err, "HuaweiCloud Security group")
 	}
 
-	d.Set("region", GetRegion(d, config))
-	d.Set("name", securityGroup.Name)
-	d.Set("description", securityGroup.Description)
-	d.Set("enterprise_project_id", securityGroup.EnterpriseProjectId)
-	security_group_rules := make([]map[string]string, 0, len(securityGroup.SecurityGroupRules))
-	for _, v := range securityGroup.SecurityGroupRules {
-		logp.Printf("[DEBUG] Retrieved Security Group %s", v)
-		rule := make(map[string]string)
-		rule["id"] = v.ID
-		rule["security_group_id"] = v.ID
-		rule["direction"] = v.Direction
-		rule["protocol"] = v.Protocol
-		rule["description"] = v.Description
-		rule["ethertype"] = v.Ethertype
-		rule["port_range_max"] = fmt.Sprintf("%d", v.PortRangeMax)
-		rule["port_range_min"] = fmt.Sprintf("%d", v.PortRangeMin)
-		rule["remote_group_id"] = v.RemoteGroupId
-		rule["remote_ip_prefix"] = v.RemoteIpPrefix
-		security_group_rules = append(security_group_rules, rule)
+	logp.Printf("[DEBUG] Retrieved Security Group %s: %+v", d.Id(), secGroup)
+
+	mErr := multierror.Append(nil,
+		d.Set("region", GetRegion(d, config)),
+		d.Set("name", secGroup.Name),
+		d.Set("description", secGroup.Description),
+		d.Set("enterprise_project_id", secGroup.EnterpriseProjectId),
+		d.Set("rules", flattenSecurityGroupRules(secGroup)),
+	)
+	if mErr.ErrorOrNil() != nil {
+		return mErr
 	}
-	d.Set("security_group_rules", security_group_rules)
 
 	return nil
+}
+
+func flattenSecurityGroupRules(secGroup *securitygroups.SecurityGroup) []map[string]interface{} {
+	sgRules := make([]map[string]interface{}, len(secGroup.SecurityGroupRules))
+	for i, rule := range secGroup.SecurityGroupRules {
+		sgRules[i] = map[string]interface{}{
+			"id":               rule.ID,
+			"direction":        rule.Direction,
+			"protocol":         rule.Protocol,
+			"ethertype":        rule.Ethertype,
+			"port_range_max":   rule.PortRangeMax,
+			"port_range_min":   rule.PortRangeMin,
+			"remote_ip_prefix": rule.RemoteIpPrefix,
+			"remote_group_id":  rule.RemoteGroupId,
+			"description":      rule.Description,
+		}
+	}
+
+	return sgRules
 }
 
 func resourceNetworkingSecGroupV2Update(d *schema.ResourceData, meta interface{}) error {
@@ -282,8 +289,7 @@ func waitForSecGroupDelete(segClient *golangsdk.ServiceClient, secGroupId string
 			return r, "ACTIVE", err
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud Security Group %s still active.\n", secGroupId)
+		logp.Printf("[DEBUG] HuaweiCloud Security Group %s still active", secGroupId)
 		return r, "ACTIVE", nil
 	}
 }
-

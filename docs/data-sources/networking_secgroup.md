@@ -30,3 +30,19 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The data source ID in UUID format.
 
 * `description`- The description of the security group.
+
+* `rules` - The array of security group rules associating with the security group.
+  The [rule object](#security_group_rule) is documented below.
+
+<a name="security_group_rule"></a>
+The `rules` block supports:
+
+* `id` - The security group rule ID.
+* `description` - The supplementary information about the security group rule.
+* `direction` - The direction of the rule. The value can be *egress* or *ingress*.
+* `ethertype` - The IP protocol version. The value can be *IPv4* or *IPv6*.
+* `protocol` - The protocol type.
+* `port_range_min` - The lower part of the allowed port range.
+* `port_range_max` - The higher part of the allowed port range.
+* `remote_ip_prefix` - The remote IP address. The value can be in the CIDR format or IP addresses.
+* `remote_group_id` - The ID of the peer security group.

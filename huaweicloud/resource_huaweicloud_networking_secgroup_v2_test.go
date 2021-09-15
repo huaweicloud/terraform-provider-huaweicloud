@@ -14,7 +14,7 @@ import (
 )
 
 func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
-	var security_group groups.SecGroup
+	var secGroup groups.SecGroup
 	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
 	updatedName := fmt.Sprintf("%s-updated", name)
 	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
@@ -27,9 +27,10 @@ func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 			{
 				Config: testAccSecGroup_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2SecGroupExists(resourceName, &security_group),
-					testAccCheckNetworkingV2SecGroupRuleCount(&security_group, 6),
+					testAccCheckNetworkingV2SecGroupExists(resourceName, &secGroup),
+					testAccCheckNetworkingV2SecGroupRuleCount(&secGroup, 6),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "rules.#", "6"),
 				),
 			},
 			{
@@ -40,7 +41,7 @@ func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 			{
 				Config: testAccSecGroup_update(updatedName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPtr(resourceName, "id", &security_group.ID),
+					resource.TestCheckResourceAttrPtr(resourceName, "id", &secGroup.ID),
 					resource.TestCheckResourceAttr(resourceName, "name", updatedName),
 				),
 			},
@@ -49,7 +50,7 @@ func TestAccNetworkingV2SecGroup_basic(t *testing.T) {
 }
 
 func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
-	var security_group groups.SecGroup
+	var secGroup groups.SecGroup
 	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
 
@@ -61,7 +62,7 @@ func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
 			{
 				Config: testAccSecGroup_epsId(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2SecGroupExists(resourceName, &security_group),
+					testAccCheckNetworkingV2SecGroupExists(resourceName, &secGroup),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
@@ -71,7 +72,7 @@ func TestAccNetworkingV2SecGroup_withEpsId(t *testing.T) {
 }
 
 func TestAccNetworkingV2SecGroup_noDefaultRules(t *testing.T) {
-	var security_group groups.SecGroup
+	var secGroup groups.SecGroup
 	name := fmt.Sprintf("seg-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_networking_secgroup.secgroup_1"
 
@@ -83,9 +84,10 @@ func TestAccNetworkingV2SecGroup_noDefaultRules(t *testing.T) {
 			{
 				Config: testAccSecGroup_noDefaultRules(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2SecGroupExists(resourceName, &security_group),
-					testAccCheckNetworkingV2SecGroupRuleCount(&security_group, 0),
+					testAccCheckNetworkingV2SecGroupExists(resourceName, &secGroup),
+					testAccCheckNetworkingV2SecGroupRuleCount(&secGroup, 0),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "rules.#", "0"),
 				),
 			},
 		},
@@ -113,7 +115,7 @@ func testAccCheckNetworkingV2SecGroupDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckNetworkingV2SecGroupExists(n string, security_group *groups.SecGroup) resource.TestCheckFunc {
+func testAccCheckNetworkingV2SecGroupExists(n string, secGroup *groups.SecGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -139,7 +141,7 @@ func testAccCheckNetworkingV2SecGroupExists(n string, security_group *groups.Sec
 			return fmtp.Errorf("Security group not found")
 		}
 
-		*security_group = *found
+		*secGroup = *found
 
 		return nil
 	}
