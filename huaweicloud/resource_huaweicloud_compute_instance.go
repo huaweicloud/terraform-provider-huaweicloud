@@ -426,6 +426,10 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		return fmtp.Errorf("Error creating HuaweiCloud ecs client: %s", err)
 	}
 
+	if err := validateComputeInstanceConfig(d, config); err != nil {
+		return err
+	}
+
 	// Determines the Image ID using the following rules:
 	// If a bootable block_device was specified, ignore the image altogether.
 	// If an image_id was specified, use it.
@@ -501,9 +505,8 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		}
 
 		var metadata cloudservers.MetaData
-		if hasFilledOpt(d, "user_id") {
-			metadata.OpSvcUserId = d.Get("user_id").(string)
-		}
+		metadata.OpSvcUserId = getOpSvcUserID(d, config)
+
 		if hasFilledOpt(d, "agency_name") {
 			metadata.AgencyName = d.Get("agency_name").(string)
 		}
@@ -1149,6 +1152,25 @@ func resourceInstanceSecGroupIdsV1(client *golangsdk.ServiceClient, d *schema.Re
 		}
 	}
 	return secgroups, nil
+}
+
+func getOpSvcUserID(d *schema.ResourceData, config *config.Config) string {
+	if v, ok := d.GetOk("user_id"); ok {
+		return v.(string)
+	}
+	return config.UserID
+}
+
+func validateComputeInstanceConfig(d *schema.ResourceData, config *config.Config) error {
+	_, hasSSH := d.GetOk("key_pair")
+	if d.Get("charging_mode").(string) == "prePaid" && hasSSH {
+		if getOpSvcUserID(d, config) == "" {
+			return fmtp.Errorf("user_id must be specified when charging_mode is set to prePaid and " +
+				"the ECS is logged in using an SSH key")
+		}
+	}
+
+	return nil
 }
 
 func resourceInstanceSecGroupsV2(d *schema.ResourceData) []string {
