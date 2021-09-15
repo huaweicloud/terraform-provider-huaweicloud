@@ -527,6 +527,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_eip":                         ResourceVpcEIPV1(),
 			"huaweicloud_vpc_peering_connection":          ResourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_peering_connection_accepter": resourceVpcPeeringConnectionAccepterV2(),
+			"huaweicloud_vpc_route_table":                 ResourceVPCRouteTable(),
 			"huaweicloud_vpc_route":                       ResourceVPCRouteV2(),
 			"huaweicloud_vpc_subnet":                      vpc.ResourceVpcSubnetV1(),
 			"huaweicloud_vpcep_approval":                  ResourceVPCEndpointApproval(),
