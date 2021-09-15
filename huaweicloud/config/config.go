@@ -15,6 +15,7 @@ import (
 	huaweisdk "github.com/chnsz/golangsdk/openstack"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/domains"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/projects"
+	"github.com/chnsz/golangsdk/openstack/identity/v3/users"
 	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -108,6 +109,14 @@ func (c *Config) LoadAndValidate() error {
 			}
 		} else {
 			log.Printf("[WARN] get domain id failed: %s", err)
+		}
+	}
+
+	if c.UserID == "" && c.Username != "" {
+		if userID, err := c.getUserIDbyName(c.Username); err == nil {
+			c.UserID = userID
+		} else {
+			log.Printf("[WARN] get user id failed: %s", err)
 		}
 	}
 
@@ -519,6 +528,32 @@ func (c *Config) getDomainID() (string, error) {
 
 	if c.DomainName != "" && c.DomainName != all[0].Name {
 		return "", fmt.Errorf("domain %s was not found, got %s", c.DomainName, all[0].Name)
+	}
+
+	return all[0].ID, nil
+}
+
+func (c *Config) getUserIDbyName(name string) (string, error) {
+	identityClient, err := c.IdentityV3Client(c.Region)
+	if err != nil {
+		return "", fmt.Errorf("Error creating IAM client: %s", err)
+	}
+
+	opts := users.ListOpts{
+		Name: name,
+	}
+	allPages, err := users.List(identityClient, opts).AllPages()
+	if err != nil {
+		return "", fmt.Errorf("query IAM user %s failed, err=%s", name, err)
+	}
+
+	all, err := users.ExtractUsers(allPages)
+	if err != nil {
+		return "", fmt.Errorf("Extract users failed, err=%s", err)
+	}
+
+	if len(all) == 0 {
+		return "", fmt.Errorf("IAM user %s was not found", name)
 	}
 
 	return all[0].ID, nil
