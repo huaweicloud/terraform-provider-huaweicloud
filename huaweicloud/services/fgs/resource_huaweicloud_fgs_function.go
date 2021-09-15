@@ -1,4 +1,4 @@
-package huaweicloud
+package fgs
 
 import (
 	"crypto/sha1"
@@ -9,7 +9,9 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/fgs/v2/function"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -42,33 +44,9 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"package": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"app"},
-				Deprecated:    "use app instead",
-			},
-			"app": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"package"},
-			},
 			"code_type": {
 				Type:     schema.TypeString,
 				Required: true,
-			},
-			"code_url": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"code_filename": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
 			},
 			"handler": {
 				Type:     schema.TypeString,
@@ -86,6 +64,30 @@ func ResourceFgsFunctionV2() *schema.Resource {
 			"timeout": {
 				Type:     schema.TypeInt,
 				Required: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"package": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"app"},
+				Deprecated:    "use app instead",
+			},
+			"app": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"package"},
+			},
+			"code_url": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"code_filename": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"user_data": {
 				Type:     schema.TypeString,
@@ -161,14 +163,6 @@ func ResourceFgsFunctionV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"version": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"urn": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"func_mounts": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -198,22 +192,24 @@ func ResourceFgsFunctionV2() *schema.Resource {
 					},
 				},
 			},
+			"version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"urn": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
 
-func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fgsClient, err := config.FgsV2Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
-	}
-
+func buildFgsFunctionV2Parameters(d *schema.ResourceData, config *config.Config) (function.CreateOpts, error) {
 	// check app and package
 	app, app_ok := d.GetOk("app")
 	pkg, pkg_ok := d.GetOk("package")
 	if !app_ok && !pkg_ok {
-		return fmtp.Errorf("One of app or package must be configured")
+		return function.CreateOpts{}, fmtp.Errorf("One of app or package must be configured")
 	}
 	pack_v := ""
 	if app_ok {
@@ -222,15 +218,14 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 		pack_v = pkg.(string)
 	}
 
-	// get value from agency or xrole
+	// get value from agency or xrole (xrole is deplicated)
 	agency_v := ""
 	if v, ok := d.GetOk("agency"); ok {
 		agency_v = v.(string)
 	} else if v, ok := d.GetOk("xrole"); ok {
 		agency_v = v.(string)
 	}
-
-	createOpts := function.CreateOpts{
+	result := function.CreateOpts{
 		FuncName:            d.Get("name").(string),
 		Package:             pack_v,
 		CodeType:            d.Get("code_type").(string),
@@ -243,17 +238,29 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 		Timeout:             d.Get("timeout").(int),
 		UserData:            d.Get("user_data").(string),
 		Xrole:               agency_v,
-		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 	}
-
 	if v, ok := d.GetOk("func_code"); ok {
 		funcCode := funcCodeEncode(v.(string))
 		func_code := function.FunctionCodeOpts{
 			File: funcCode,
 		}
-		createOpts.FuncCode = func_code
+		result.FuncCode = func_code
+	}
+	return result, nil
+}
+
+func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*config.Config)
+	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
+	if err != nil {
+		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 	}
 
+	createOpts, err := buildFgsFunctionV2Parameters(d, config)
+	if err != nil {
+		return err
+	}
 	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
 	f, err := function.Create(fgsClient, createOpts).Extract()
 	if err != nil {
@@ -263,16 +270,15 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 	// The "func_urn" is the unique identifier of the function
 	// in terraform, we convert to id, not using FuncUrn
 	d.SetId(f.FuncUrn)
-	if hasFilledOpt(d, "vpc_id") || hasFilledOpt(d, "func_mounts") || hasFilledOpt(d, "app_agency") ||
-		hasFilledOpt(d, "initializer_handler") || hasFilledOpt(d, "initializer_timeout") {
-		urn := resourceFgsFunctionUrn(d.Id())
+	urn := resourceFgsFunctionUrn(d.Id())
+	// lintignore:R019
+	if d.HasChanges("vpc_id", "func_mounts", "app_agency", "initializer_handler", "initializer_timeout") {
 		err := resourceFgsFunctionV2MetadataUpdate(fgsClient, urn, d)
 		if err != nil {
 			return err
 		}
 	}
-	if hasFilledOpt(d, "depend_list") {
-		urn := resourceFgsFunctionUrn(d.Id())
+	if d.HasChange("depend_list") {
 		err := resourceFgsFunctionV2CodeUpdate(fgsClient, urn, d)
 		if err != nil {
 			return err
@@ -282,62 +288,36 @@ func resourceFgsFunctionV2Create(d *schema.ResourceData, meta interface{}) error
 	return resourceFgsFunctionV2Read(d, meta)
 }
 
-func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	fgsClient, err := config.FgsV2Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
-	}
-
-	f, err := function.GetMetadata(fgsClient, d.Id()).Extract()
-	if err != nil {
-		return CheckDeleted(d, err, "function")
-	}
-
-	logp.Printf("[DEBUG] Retrieved Function %s: %+v", d.Id(), f)
-
-	d.Set("name", f.FuncName)
-	d.Set("code_type", f.CodeType)
-	d.Set("code_url", f.CodeUrl)
-	d.Set("description", f.Description)
-	d.Set("code_filename", f.CodeFileName)
-	d.Set("handler", f.Handler)
-	d.Set("memory_size", f.MemorySize)
-	d.Set("runtime", f.Runtime)
-	d.Set("timeout", f.Timeout)
-	d.Set("user_data", f.UserData)
-	d.Set("version", f.Version)
-
-	urn := resourceFgsFunctionUrn(d.Id())
-	d.Set("urn", urn)
-
+func setFgsFunctionApp(d *schema.ResourceData, app string) error {
 	if _, ok := d.GetOk("app"); ok {
-		d.Set("app", f.Package)
-	} else {
-		d.Set("package", f.Package)
+		return d.Set("app", app)
 	}
+	return d.Set("package", app)
+}
 
+func setFgsFunctionAgency(d *schema.ResourceData, agency string) error {
 	if _, ok := d.GetOk("agency"); ok {
-		d.Set("agency", f.Xrole)
-	} else {
-		d.Set("xrole", f.Xrole)
+		return d.Set("agency", agency)
 	}
-	d.Set("app_agency", f.AppXrole)
-	d.Set("depend_list", f.DependList)
-	d.Set("initializer_handler", f.InitializerHandler)
-	d.Set("initializer_timeout", f.InitializerTimeout)
-	d.Set("enterprise_project_id", f.EnterpriseProjectID)
+	return d.Set("xrole", agency)
+}
 
-	// set func_vpc
-	if f.FuncVpc != (function.FuncVpc{}) {
-		d.Set("vpc_id", f.FuncVpc.VpcId)
-		d.Set("network_id", f.FuncVpc.SubnetId)
+func setFgsFunctionVpcAccess(d *schema.ResourceData, FuncVpc function.FuncVpc) error {
+	mErr := multierror.Append(
+		d.Set("vpc_id", FuncVpc.VpcId),
+		d.Set("network_id", FuncVpc.SubnetId),
+	)
+	if err := mErr.ErrorOrNil(); err != nil {
+		return fmtp.Errorf("Error setting vault fields: %s", err)
 	}
+	return nil
+}
 
+func setFuncionMountConfig(d *schema.ResourceData, mountConfig function.MountConfig) error {
 	// set mount_config
-	if f.MountConfig.MountUser != (function.MountUser{}) {
-		funcMounts := make([]map[string]string, 0, len(f.MountConfig.FuncMounts))
-		for _, v := range f.MountConfig.FuncMounts {
+	if mountConfig.MountUser != (function.MountUser{}) {
+		funcMounts := make([]map[string]string, 0, len(mountConfig.FuncMounts))
+		for _, v := range mountConfig.FuncMounts {
 			funcMount := map[string]string{
 				"mount_type":       v.MountType,
 				"mount_resource":   v.MountResource,
@@ -347,9 +327,56 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 			}
 			funcMounts = append(funcMounts, funcMount)
 		}
-		d.Set("func_mounts", funcMounts)
-		d.Set("mount_user_id", f.MountConfig.MountUser.UserId)
-		d.Set("mount_user_group_id", f.MountConfig.MountUser.UserGroupId)
+		mErr := multierror.Append(
+			d.Set("func_mounts", funcMounts),
+			d.Set("mount_user_id", mountConfig.MountUser.UserId),
+			d.Set("mount_user_group_id", mountConfig.MountUser.UserGroupId),
+		)
+		if err := mErr.ErrorOrNil(); err != nil {
+			return fmtp.Errorf("Error setting vault fields: %s", err)
+		}
+	}
+	return nil
+}
+
+func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*config.Config)
+	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
+	if err != nil {
+		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
+	}
+
+	f, err := function.GetMetadata(fgsClient, d.Id()).Extract()
+	if err != nil {
+		return common.CheckDeleted(d, err, "function")
+	}
+
+	logp.Printf("[DEBUG] Retrieved Function %s: %+v", d.Id(), f)
+	mErr := multierror.Append(
+		d.Set("name", f.FuncName),
+		d.Set("code_type", f.CodeType),
+		d.Set("code_url", f.CodeUrl),
+		d.Set("description", f.Description),
+		d.Set("code_filename", f.CodeFileName),
+		d.Set("handler", f.Handler),
+		d.Set("memory_size", f.MemorySize),
+		d.Set("runtime", f.Runtime),
+		d.Set("timeout", f.Timeout),
+		d.Set("user_data", f.UserData),
+		d.Set("version", f.Version),
+		d.Set("urn", resourceFgsFunctionUrn(d.Id())),
+		d.Set("app_agency", f.AppXrole),
+		d.Set("depend_list", f.DependList),
+		d.Set("initializer_handler", f.InitializerHandler),
+		d.Set("initializer_timeout", f.InitializerTimeout),
+		d.Set("enterprise_project_id", f.EnterpriseProjectID),
+		setFgsFunctionApp(d, f.Package),
+		setFgsFunctionAgency(d, f.Xrole),
+		setFgsFunctionVpcAccess(d, f.FuncVpc),
+		setFuncionMountConfig(d, f.MountConfig),
+	)
+	if err := mErr.ErrorOrNil(); err != nil {
+		return fmtp.Errorf("Error setting vault fields: %s", err)
 	}
 
 	return nil
@@ -357,21 +384,21 @@ func resourceFgsFunctionV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	fgsClient, err := config.FgsV2Client(GetRegion(d, config))
+	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 	}
 
 	urn := resourceFgsFunctionUrn(d.Id())
 
-	//lintignore:R019
+	// lintignore:R019
 	if d.HasChanges("code_type", "code_url", "code_filename", "depend_list", "func_code") {
 		err := resourceFgsFunctionV2CodeUpdate(fgsClient, urn, d)
 		if err != nil {
 			return err
 		}
 	}
-	//lintignore:R019
+	// lintignore:R019
 	if d.HasChanges("app", "handler", "depend_list", "memory_size", "timeout",
 		"user_data", "agency", "app_agency", "description", "initializer_handler", "initializer_timeout",
 		"vpc_id", "network_id", "mount_user_id", "mount_user_group_id", "func_mounts") {
@@ -386,7 +413,7 @@ func resourceFgsFunctionV2Update(d *schema.ResourceData, meta interface{}) error
 
 func resourceFgsFunctionV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	fgsClient, err := config.FgsV2Client(GetRegion(d, config))
+	fgsClient, err := config.FgsV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud FGS V2 client: %s", err)
 	}
