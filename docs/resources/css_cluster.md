@@ -4,14 +4,17 @@ subcategory: "Cloud Search Service (CSS)"
 
 # huaweicloud_css_cluster
 
-CSS cluster management
-This is an alternative to `huaweicloud_css_cluster_v1`
+Manages CSS cluster resource within HuaweiCloud
 
 ## Example Usage
 
 ### create a cluster
 
 ```hcl
+variable "availability_zone" {}
+variable "network_id" {}
+variable "vpc_id" {}
+
 resource "huaweicloud_networking_secgroup" "secgroup" {
   name        = "terraform_test_security_group"
   description = "terraform security group acceptance test"
@@ -24,17 +27,18 @@ resource "huaweicloud_css_cluster" "cluster" {
 
   node_config {
     flavor = "ess.spec-4u16g"
+    availability_zone = var.availability_zone
 
     network_info {
       security_group_id = huaweicloud_networking_secgroup.secgroup.id
-      subnet_id         = "{{ network_id }}"
-      vpc_id            = "{{ vpc_id }}"
+      subnet_id         =  var.network_id
+      vpc_id            =  var.vpc_id
     }
+
     volume {
       volume_type = "HIGH"
       size        = 40
     }
-    availability_zone = "{{ availability_zone }}"
   }
 }
 ```
@@ -53,8 +57,8 @@ The following arguments are supported:
 * `engine_type` - (Optional, String, ForceNew) Engine type. The default value is "elasticsearch". Currently, the value
   can only be "elasticsearch". Changing this parameter will create a new resource.
 
-* `engine_version` - (Required, String, ForceNew) Engine version. Versions 5.5.1, 6.2.3, 6.5.4, 7.1.1 and 7.6.2 are
-  supported. Changing this parameter will create a new resource.
+* `engine_version` - (Required, String, ForceNew) Engine version. Versions 5.5.1, 6.2.3, 6.5.4, 7.1.1, 7.6.2 and 7.9.3
+  are supported. Changing this parameter will create a new resource.
 
 * `expect_node_num` - (Optional, Int) Number of cluster instances. The value range is 1 to 32. Defaults to 1.
 
@@ -127,6 +131,16 @@ The `backup_strategy` block supports:
 * `prefix` - (Optional, String) Specifies the prefix of the snapshot that is automatically created. The default value
   is "snapshot".
 
+* `bucket` - (Optional, String) Specifies the OBS bucket used for index data backup. If there is snapshot data in an OBS
+   bucket, only the OBS bucket is used and cannot be changed.
+
+* `backup_path` - (Optional, String) Specifies the storage path of the snapshot in the OBS bucket.
+
+* `agency` - (Optional, String) Specifies the IAM agency used to access OBS.
+
+  -> **NOTE:**  If the `bucket`, `backup_path`, and `agency` parameters are empty at the same time, the system will
+  automatically create an OBS bucket and IAM agent, otherwise the configured parameter values will be used.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -138,15 +152,20 @@ In addition to all arguments above, the following attributes are exported:
 * `created` - Time when a cluster is created. The format is ISO8601:
   CCYY-MM-DDThh:mm:ss.
 
+* `status` - Indicateds the cluster status
+  + `100`: The operation, such as instance creation, is in progress.
+  + `200`: The cluster is available.
+  + `303`: The cluster is unavailable.
+
 * `nodes` - List of node objects. Structure is documented below.
 
-The `nodes` block contains:
+  The `nodes` block contains:
 
-* `id` - Instance ID.
+  + `id` - Instance ID.
 
-* `name` - Instance name.
+  + `name` - Instance name.
 
-* `type` - Supported type: ess (indicating the Elasticsearch node).
+  + `type` - Supported type: ess (indicating the Elasticsearch node).
 
 ## Timeouts
 
@@ -154,3 +173,12 @@ This resource provides the following timeouts configuration options:
 
 * `create` - Default is 60 minute.
 * `update` - Default is 60 minute.
+* `delete` - Default is 60 minute.
+
+## Import
+
+CSS cluster can be imported by `id`. For example,
+
+```
+terraform import huaweicloud_css_cluster.example 6d793124-3d5d-47be-bf09-f694fdf2d9ed
+```
