@@ -191,10 +191,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "vpcep",
 		Version: "v1",
 	},
-	"routetables": {
-			Name:    "vpc",
-			Version: "v1",
-	},
 	"dns": {
 		Name:             "dns",
 		Version:          "v2",
