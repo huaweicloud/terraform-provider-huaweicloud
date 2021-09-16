@@ -26,6 +26,18 @@ func (opts PolicyCreateOpts) ToSnapshotCreateMap() (map[string]interface{}, erro
 	return golangsdk.BuildRequestBody(opts, "")
 }
 
+type UpdateSnapshotSettingReq struct {
+	// OBS bucket used for index data backup. If there is snapshot data in an OBS bucket, only the OBS bucket is used
+	// and cannot be changed.
+	Bucket   string `json:"bucket" required:"true"`
+	BasePath string `json:"basePath" required:"true"` // Storage path of the snapshot in the OBS bucket.
+	Agency   string `json:"agency" required:"true"`   // IAM agency used to access OBS.
+}
+
+var RequestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
+}
+
 // PolicyCreate will create a new snapshot policy based on the values in PolicyCreateOpts.
 func PolicyCreate(client *golangsdk.ServiceClient, opts CreateOptsBuilder, clusterId string) (r ErrorResult) {
 	b, err := opts.ToSnapshotCreateMap()
@@ -104,4 +116,18 @@ func Delete(client *golangsdk.ServiceClient, clusterId, id string) (r ErrorResul
 		MoreHeaders: map[string]string{"Content-Type": "application/json"},
 	})
 	return
+}
+
+// UpdateSnapshotSetting
+func UpdateSnapshotSetting(c *golangsdk.ServiceClient, clusterId string, opts UpdateSnapshotSettingReq) (*golangsdk.Result, error) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var r golangsdk.Result
+	_, err = c.Post(settingURL(c, clusterId), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	return &r, err
 }
