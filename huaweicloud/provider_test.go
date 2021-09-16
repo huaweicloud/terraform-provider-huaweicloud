@@ -47,7 +47,6 @@ var (
 	HW_CLOUDTABLE_AVAILABILITY_ZONE = os.Getenv("HW_CLOUDTABLE_AVAILABILITY_ZONE")
 	HW_CDN_DOMAIN_NAME              = os.Getenv("HW_CDN_DOMAIN_NAME")
 	HW_ADMIN                        = os.Getenv("HW_ADMIN")
-	HW_CHARGING_MODE                = os.Getenv("HW_CHARGING_MODE")
 	HW_ENTERPRISE_PROJECT_ID_TEST   = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
 	HW_USER_ID                      = os.Getenv("HW_USER_ID")
 
@@ -79,12 +78,6 @@ func testAccPreCheck(t *testing.T) {
 func testAccPrecheckCustomRegion(t *testing.T) {
 	if HW_CUSTOM_REGION_NAME == "" {
 		t.Skip("This environment does not support custom region tests")
-	}
-}
-
-func testAccPreCheckChargingMode(t *testing.T) {
-	if HW_CHARGING_MODE != "prePaid" {
-		t.Skip("This environment does not support prepaid tests")
 	}
 }
 

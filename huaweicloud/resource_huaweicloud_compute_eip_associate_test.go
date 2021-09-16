@@ -145,6 +145,38 @@ func testAccCheckComputeV2EIPAssociateAssociated(
 	}
 }
 
+func testAccCheckVpcV1EIPExists(n string, eip *eips.PublicIp) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*config.Config)
+		networkingClient, err := config.NetworkingV1Client(HW_REGION_NAME)
+		if err != nil {
+			return fmt.Errorf("Error creating networking client: %s", err)
+		}
+
+		found, err := eips.Get(networkingClient, rs.Primary.ID).Extract()
+		if err != nil {
+			return err
+		}
+
+		if found.ID != rs.Primary.ID {
+			return fmt.Errorf("EIP not found")
+		}
+
+		*eip = found
+
+		return nil
+	}
+}
+
 func testAccComputeV2EIPAssociate_Base(rName string) string {
 	return fmt.Sprintf(`
 %s
