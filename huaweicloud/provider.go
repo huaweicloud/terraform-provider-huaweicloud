@@ -24,6 +24,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/swr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 )
@@ -531,6 +532,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_smn_topic":                       ResourceTopic(),
 			"huaweicloud_smn_subscription":                ResourceSubscription(),
 			"huaweicloud_swr_organization":                resourceSWROrganization(),
+			"huaweicloud_swr_organization_permissions":    swr.ResourceSWROrganizationPermissions(),
 			"huaweicloud_vbs_backup":                      resourceVBSBackupV2(),
 			"huaweicloud_vbs_backup_policy":               resourceVBSBackupPolicyV2(),
 			"huaweicloud_vpc":                             vpc.ResourceVirtualPrivateCloudV1(),
