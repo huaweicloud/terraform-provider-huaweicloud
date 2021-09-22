@@ -18,11 +18,11 @@ import (
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/secgroups"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/startstop"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/flavors"
-	"github.com/chnsz/golangsdk/openstack/compute/v2/images"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/servers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/powers"
+	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/subnets"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -425,12 +425,16 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud ecs client: %s", err)
 	}
+	imsClient, err := config.ImageV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
+	}
 
 	// Determines the Image ID using the following rules:
 	// If a bootable block_device was specified, ignore the image altogether.
 	// If an image_id was specified, use it.
 	// If an image_name was specified, look up the image ID, report if error.
-	imageId, err := getImageIDFromConfig(computeClient, d)
+	imageId, err := getImageIDFromConfig(imsClient, d)
 	if err != nil {
 		return err
 	}
@@ -661,11 +665,14 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 
 func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
 	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
 	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
+	}
+	imsClient, err := config.ImageV2Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	server, err := cloudservers.Get(ecsClient, d.Id()).Extract()
@@ -694,7 +701,7 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	d.Set("flavor_name", flavorInfo.Name)
 
 	// Set the instance's image information appropriately
-	if err := setImageInformation(d, computeClient, server.Image.ID); err != nil {
+	if err := setImageInformation(d, imsClient, server.Image.ID); err != nil {
 		return err
 	}
 
@@ -1246,7 +1253,38 @@ func resourceInstanceSchedulerHintsV2(d *schema.ResourceData, schedulerHintsRaw 
 	return schedulerHints
 }
 
-func getImageIDFromConfig(computeClient *golangsdk.ServiceClient, d *schema.ResourceData) (string, error) {
+func getImage(client *golangsdk.ServiceClient, id, name string) (*cloudimages.Image, error) {
+	listOpts := &cloudimages.ListOpts{
+		ID:    id,
+		Name:  name,
+		Limit: 1,
+	}
+	allPages, err := cloudimages.List(client, listOpts).AllPages()
+	if err != nil {
+		return nil, fmtp.Errorf("Unable to query images: %s", err)
+	}
+
+	allImages, err := cloudimages.ExtractImages(allPages)
+	if err != nil {
+		return nil, fmtp.Errorf("Unable to retrieve images: %s", err)
+	}
+
+	if len(allImages) < 1 {
+		return nil, fmtp.Errorf("Unable to find images %s: Maybe not existed", id)
+	}
+
+	img := allImages[0]
+	if id != "" && img.ID != id {
+		return nil, fmtp.Errorf("Unexpected images ID")
+	}
+	if name != "" && img.Name != name {
+		return nil, fmtp.Errorf("Unexpected images Name")
+	}
+	logp.Printf("[DEBUG] Retrieved Image %s: %#v", id, img)
+	return &img, nil
+}
+
+func getImageIDFromConfig(imsClient *golangsdk.ServiceClient, d *schema.ResourceData) (string, error) {
 	// If block_device was used, an Image does not need to be specified, unless an image/local
 	// combination was used. This emulates normal boot behavior. Otherwise, ignore the image altogether.
 	if vL, ok := d.GetOk("block_device"); ok {
@@ -1267,17 +1305,17 @@ func getImageIDFromConfig(computeClient *golangsdk.ServiceClient, d *schema.Reso
 	}
 
 	if imageName := d.Get("image_name").(string); imageName != "" {
-		imageID, err := images.IDFromName(computeClient, imageName)
+		img, err := getImage(imsClient, "", imageName)
 		if err != nil {
 			return "", err
 		}
-		return imageID, nil
+		return img.ID, nil
 	}
 
 	return "", fmtp.Errorf("Neither a boot device, image ID, or image name were able to be determined.")
 }
 
-func setImageInformation(d *schema.ResourceData, computeClient *golangsdk.ServiceClient, imageID string) error {
+func setImageInformation(d *schema.ResourceData, imsClient *golangsdk.ServiceClient, imageID string) error {
 	// If block_device was used, an Image does not need to be specified, unless an image/local
 	// combination was used. This emulates normal boot behavior. Otherwise, ignore the image altogether.
 	if vL, ok := d.GetOk("block_device"); ok {
@@ -1296,15 +1334,13 @@ func setImageInformation(d *schema.ResourceData, computeClient *golangsdk.Servic
 
 	if imageID != "" {
 		d.Set("image_id", imageID)
-		if image, err := images.Get(computeClient, imageID).Extract(); err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				// If the image name can't be found, set the value to "Image not found".
-				// The most likely scenario is that the image no longer exists in the Image Service
-				// but the instance still has a record from when it existed.
-				d.Set("image_name", "Image not found")
-				return nil
-			}
-			return err
+		image, err := getImage(imsClient, imageID, "")
+		if err != nil {
+			// If the image name can't be found, set the value to "Image not found".
+			// The most likely scenario is that the image no longer exists in the Image Service
+			// but the instance still has a record from when it existed.
+			d.Set("image_name", "Image not found")
+			return nil
 		} else {
 			d.Set("image_name", image.Name)
 		}
