@@ -47,7 +47,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - Indicates the status of the thesaurus loading
 
-* `update_time` - Specifies the time (UTC) when the thesaurus was modified. Example: 1631241332000
+* `update_time` - Specifies the time (UTC) when the thesaurus was modified. The format is ISO8601:YYYY-MM-DDThh:mm:ssZ
 
 ## Timeouts
 
@@ -59,8 +59,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-CSS thesaurus can be imported by  `id`. For example,
+CSS thesaurus can be imported by `id`. For example,
 
 ```
-terraform import huaweicloud_css_thesaurus.example  e9ee3f48-f097-406a-aa74-cfece0af3e31
+terraform import huaweicloud_css_thesaurus.example e9ee3f48-f097-406a-aa74-cfece0af3e31
 ```
