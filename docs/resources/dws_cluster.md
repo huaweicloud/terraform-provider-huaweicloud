@@ -11,6 +11,14 @@ Manages Cluster in the Data Warehouse Service.
 ### Dws Cluster Example
 
 ```hcl
+
+variable "availability_zone" {}
+variable "network_id" {}
+variable "vpc_id" {}
+variable "user_name" {}
+variable "user_pwd" {}
+variable "dws_cluster_name" {}
+
 resource "huaweicloud_networking_secgroup" "secgroup" {
   name        = "security_group_2"
   description = "terraform security group"
@@ -19,18 +27,13 @@ resource "huaweicloud_networking_secgroup" "secgroup" {
 resource "huaweicloud_dws_cluster" "cluster" {
   node_type         = "dws.m3.xlarge"
   number_of_node    = 3
-  network_id        = "{{ network_id }}"
-  vpc_id            = "{{ vpc_id }}"
+  network_id        = var.network_id
+  vpc_id            = var.vpc_id
   security_group_id = huaweicloud_networking_secgroup.secgroup.id
-  availability_zone = "{{ availability_zone }}"
-  name              = "terraform_dws_cluster_test"
-  user_name         = "test_cluster_admin"
-  user_pwd          = "cluster123@!"
-
-  timeouts {
-    create = "30m"
-    delete = "30m"
-  }
+  availability_zone = var.availability_zone
+  name              = var.dws_cluster_name
+  user_name         = var.user_name
+  user_pwd          = var.user_pwd
 }
 ```
 
@@ -48,7 +51,8 @@ The following arguments are supported:
 
 * `node_type` - (Required, String, ForceNew) Node type
 
-* `number_of_node` - (Required, Int, ForceNew) Number of nodes in a cluster. The value ranges from 3 to 32
+* `number_of_node` - (Required, Int) Number of nodes in a cluster. The value ranges from 3 to 32. When expanding,
+  add at least 3 nodes.
 
 * `security_group_id` - (Required, String, ForceNew) ID of a security group. The ID is used for configuring cluster
   network
@@ -59,7 +63,7 @@ The following arguments are supported:
 
 * `vpc_id` - (Required, String, ForceNew) VPC ID, which is used for configuring cluster network
 
-* `user_pwd` - (Required, String, ForceNew) Administrator password for logging in to a data warehouse cluster A password
+* `user_pwd` - (Required, String) Administrator password for logging in to a data warehouse cluster A password
   must conform to the following rules:  Contains 8 to 32 characters. Cannot be the same as the username or the username
   written in reverse order. Contains three types of the following:
   Lowercase letters Uppercase letters Digits Special characters
@@ -68,8 +72,6 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id of the dws cluster,
   Value 0 indicates the default enterprise project.
   Changing this parameter will create a new resource.
-
-- - -
 
 * `availability_zone` - (Optional, String, ForceNew) AZ in a cluster
 
@@ -83,6 +85,11 @@ The `public_ip` block supports:
 
 * `public_bind_type` - (Optional, String, ForceNew) Binding type of an EIP. The value can be either of the following:
   auto_assign not_use bind_existing The default value is not_use.
+
+* `number_of_cn` - (Optional, int, ForceNew) Specifies the number of CN. If you use a large-scale cluster, deploy
+  multiple CNs.
+
+* `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the cluster.
 
 ## Attributes Reference
 
@@ -115,6 +122,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `version` - Data warehouse version
 
+* `private_ip` - List of private network IP address
+
 The `endpoints` block contains:
 
 * `connect_info` - (Optional, String) Private network connection information
@@ -144,5 +153,23 @@ This resource provides the following timeouts configuration options:
 Cluster can be imported using the following format:
 
 ```
-$ terraform import huaweicloud_dws_cluster.default {{ resource id}}
+$ terraform import huaweicloud_dws_cluster.test 47ad727e-9dcc-4833-bde0-bb298607c719
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attrubutes missing from the
+API response, security or some other reason. The missing attributes include: `user_pwd`, `number_of_cn`.
+It is generally recommended running `terraform plan` after importing a cluster.
+You can then decide if changes should be applied to the cluster, or the resource definition
+should be updated to align with the cluster. Also you can ignore changes as below.
+
+```
+resource "huaweicloud_dws_cluster" "test" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      user_pwd, number_of_cn,
+    ]
+  }
+}
 ```

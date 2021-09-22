@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dws"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/gaussdb"
@@ -443,7 +444,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_ptrrecord":                   ResourceDNSPtrRecordV2(),
 			"huaweicloud_dns_recordset":                   ResourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone":                        ResourceDNSZoneV2(),
-			"huaweicloud_dws_cluster":                     ResourceDwsCluster(),
+			"huaweicloud_dws_cluster":                     dws.ResourceDwsCluster(),
 			"huaweicloud_elb_certificate":                 ResourceCertificateV3(),
 			"huaweicloud_elb_l7policy":                    ResourceL7PolicyV3(),
 			"huaweicloud_elb_l7rule":                      ResourceL7RuleV3(),
