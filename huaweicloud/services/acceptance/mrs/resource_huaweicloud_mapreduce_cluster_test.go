@@ -830,7 +830,7 @@ master_nodes {
     data_volume_type  = "SAS"
     data_volume_size  = 600
     data_volume_count = 1
-	assigned_roles = [
+    assigned_roles = [
       "OMSServer:1,2",
       "SlapdServer:1,2",
       "KerberosServer:1,2",
