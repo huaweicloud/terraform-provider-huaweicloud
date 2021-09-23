@@ -611,7 +611,8 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	nodeID, err := getResourceIDFromJob(nodeClient, s.Status.JobID, "CreateNode", "CreateNodeVM")
+	nodeID, err := getResourceIDFromJob(nodeClient, s.Status.JobID, "CreateNode", "CreateNodeVM",
+		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return err
 	}
@@ -623,7 +624,7 @@ func resourceCCENodeV3Create(d *schema.ResourceData, meta interface{}) error {
 		Target:       []string{"Active"},
 		Refresh:      waitForCceNodeActive(nodeClient, clusterid, nodeID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        120 * time.Second,
+		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
 	}
 	_, err = stateConf.WaitForState()
@@ -872,15 +873,16 @@ func resourceCCENodeV3Delete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func getResourceIDFromJob(client *golangsdk.ServiceClient, jobID, jobType, subJobType string) (string, error) {
-	// prePaid: waiting for the job to become running
+func getResourceIDFromJob(client *golangsdk.ServiceClient, jobID, jobType, subJobType string,
+	timeout time.Duration) (string, error) {
+
 	stateJob := &resource.StateChangeConf{
-		Pending:      []string{"Initializing"},
-		Target:       []string{"Running", "Success"},
+		Pending:      []string{"Initializing", "Running"},
+		Target:       []string{"Success"},
 		Refresh:      waitForJobStatus(client, jobID),
-		Timeout:      5 * time.Minute,
-		Delay:        20 * time.Second,
-		PollInterval: 10 * time.Second,
+		Timeout:      timeout,
+		Delay:        120 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 
 	v, err := stateJob.WaitForState()
