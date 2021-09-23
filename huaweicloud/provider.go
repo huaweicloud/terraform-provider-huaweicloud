@@ -7,11 +7,13 @@ import (
 	"sync"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
@@ -430,7 +432,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_csbs_backup_policy":              resourceCSBSBackupPolicyV1(),
 			"huaweicloud_css_cluster":                     css.ResourceCssCluster(),
 			"huaweicloud_css_snapshot":                    ResourceCssSnapshot(),
-			"huaweicloud_dcs_instance":                    ResourceDcsInstanceV1(),
+			"huaweicloud_dcs_instance":                    dcs.ResourceDcsInstance(),
 			"huaweicloud_dds_instance":                    ResourceDdsInstanceV3(),
 			"huaweicloud_dis_stream":                      ResourceDisStreamV2(),
 			"huaweicloud_dli_queue":                       dli.ResourceDliQueue(),
@@ -560,7 +562,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_ptrrecord_v2":                   ResourceDNSPtrRecordV2(),
 			"huaweicloud_dns_recordset_v2":                   ResourceDNSRecordSetV2(),
 			"huaweicloud_dns_zone_v2":                        ResourceDNSZoneV2(),
-			"huaweicloud_dcs_instance_v1":                    ResourceDcsInstanceV1(),
+			"huaweicloud_dcs_instance_v1":                    dcs.ResourceDcsInstance(),
 			"huaweicloud_dds_instance_v3":                    ResourceDdsInstanceV3(),
 			"huaweicloud_fw_firewall_group_v2":               resourceFWFirewallGroupV2(),
 			"huaweicloud_fw_policy_v2":                       resourceFWPolicyV2(),
