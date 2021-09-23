@@ -1,13 +1,13 @@
 package huaweicloud
 
 import (
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/security/groups"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func DataSourceNetworkingSecGroupV2() *schema.Resource {
@@ -32,6 +32,8 @@ func DataSourceNetworkingSecGroupV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"rules": sgRuleComputedSchema,
+
 			"tenant_id": {
 				Type:       schema.TypeString,
 				Optional:   true,
@@ -77,9 +79,34 @@ func dataSourceNetworkingSecGroupV2Read(d *schema.ResourceData, meta interface{}
 	logp.Printf("[DEBUG] Retrieved Security Group %s: %+v", secGroup.ID, secGroup)
 	d.SetId(secGroup.ID)
 
-	d.Set("name", secGroup.Name)
-	d.Set("description", secGroup.Description)
-	d.Set("region", GetRegion(d, config))
+	mErr := multierror.Append(nil,
+		d.Set("region", GetRegion(d, config)),
+		d.Set("name", secGroup.Name),
+		d.Set("description", secGroup.Description),
+		d.Set("rules", flattenSecurityGroupDataRules(&secGroup)),
+	)
+	if mErr.ErrorOrNil() != nil {
+		return mErr
+	}
 
 	return nil
+}
+
+func flattenSecurityGroupDataRules(secGroup *groups.SecGroup) []map[string]interface{} {
+	sgRules := make([]map[string]interface{}, len(secGroup.Rules))
+	for i, rule := range secGroup.Rules {
+		sgRules[i] = map[string]interface{}{
+			"id":               rule.ID,
+			"direction":        rule.Direction,
+			"protocol":         rule.Protocol,
+			"ethertype":        rule.EtherType,
+			"port_range_max":   rule.PortRangeMax,
+			"port_range_min":   rule.PortRangeMin,
+			"remote_ip_prefix": rule.RemoteIPPrefix,
+			"remote_group_id":  rule.RemoteGroupID,
+			"description":      rule.Description,
+		}
+	}
+
+	return sgRules
 }
