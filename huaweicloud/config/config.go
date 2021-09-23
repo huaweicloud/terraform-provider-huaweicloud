@@ -556,6 +556,10 @@ func (c *Config) getUserIDbyName(name string) (string, error) {
 		return "", fmt.Errorf("IAM user %s was not found", name)
 	}
 
+	if name != "" && name != all[0].Name {
+		return "", fmt.Errorf("IAM user %s was not found, got %s", name, all[0].Name)
+	}
+
 	return all[0].ID, nil
 }
 
