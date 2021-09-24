@@ -53,3 +53,52 @@ func Delete(c *golangsdk.ServiceClient, id string) (r DeleteResult) {
 	})
 	return
 }
+
+// CreateAccessOptsBuilder allows extensions to add additional parameters to the create request.
+type CreateAccessOptsBuilder interface {
+	ToAccessCreateMap() (map[string]interface{}, error)
+}
+
+// CreateAccessOpts contains all the values needed to create access of a namespace
+type CreateAccessOpts struct {
+	Users []User
+}
+
+// Access information of a user
+type User struct {
+	// ID of the user
+	UserID string `json:"user_id" required:"true"`
+	// Name of the user
+	UserName string `json:"user_name" required:"true"`
+	// Permission of the user, 7: Manage. 3: Write. 1: Read
+	Auth int `json:"auth" required:"true"`
+}
+
+// ToAccessCreateMap builds a create request body from CreateAccessOpts.
+func (opts CreateAccessOpts) ToAccessCreateMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// CreateAccess accepts a CreateAccessOpts struct and uses the values to create access of a namespace.
+func CreateAccess(c *golangsdk.ServiceClient, opts CreateAccessOptsBuilder, namespace string) (r CreateAccessResult) {
+	b, err := opts.ToAccessCreateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Post(accessURL(c, namespace), b["Users"], &r.Body, nil)
+	return
+}
+
+// Get retrieves the access of a namespace.
+func GetAccess(c *golangsdk.ServiceClient, namespace string) (r GetAccessResult) {
+	_, r.Err = c.Get(accessURL(c, namespace), &r.Body, nil)
+	return
+}
+
+// Delete will permanently delete the access of a namespace.
+func DeleteAccess(c *golangsdk.ServiceClient, userIDs []string, namespace string) (r DeleteAccessResult) {
+	reqOpt := &golangsdk.RequestOpts{JSONBody: userIDs}
+	_, r.Err = c.Delete(accessURL(c, namespace), reqOpt)
+	return
+}

@@ -37,15 +37,14 @@ The following arguments are supported:
 * `server_id` - (Required, String, ForceNew) Specifies the ecs server id. Changing this parameter will create a new
   resource.
 
-* `os` - (Required, String, ForceNew) Specifies the operating System of the node. Changing this parameter will create a
-  new resource.
+* `os` - (Required, String) Specifies the operating System of the node. Changing this parameter will reset the node.
   + For VM nodes, clusters of v1.13 and later support *EulerOS 2.5* and *CentOS 7.6*.
 
-* `key_pair` - (Optional, String, ForceNew) Specifies the key pair name when logging in to select the key pair mode.
-  This parameter and `password` are alternative. Changing this parameter will create a new resource.
+* `key_pair` - (Optional, String) Specifies the key pair name when logging in to select the key pair mode.
+  This parameter and `password` are alternative. Changing this parameter will reset the node.
 
-* `password` - (Optional, String, ForceNew) Specifies the root password when logging in to select the password mode.
-  This parameter must be salted and alternative to `key_pair`. Changing this parameter will create a new resource.
+* `password` - (Optional, String) Specifies the root password when logging in to select the password mode.
+  This parameter must be salted and alternative to `key_pair`. Changing this parameter will reset the node.
 
 * `max_pods` - (Optional, Int, ForceNew) Specifies the the maximum number of instances a node is allowed to create.
   Changing this parameter will create a new resource.
@@ -68,7 +67,20 @@ Changing this parameter will create a new resource.
 * `postinstall` - (Optional, String, ForceNew) Specifies the script required after installation. The input value can be
   a Base64 encoded string or not. Changing this parameter will create a new resource.
 
+* `labels` - (Optional, Map, ForceNew) Tags of a Kubernetes node, key/value pair format. Changing this parameter will
+  create a new resource.
+
 * `tags` - (Optional, Map) Specifies the tags of a VM node, key/value pair format.
+
+* `taints` - (Optional, List, ForceNew) You can add taints to created nodes to configure anti-affinity. Each taint
+  contains the following parameters:
+
+  + `key` - (Required, String, ForceNew) A key must contain 1 to 63 characters starting with a letter or digit. Only letters,
+    digits, hyphens (-), underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the prefix
+    of a key.
+  + `value` - (Required, String, ForceNew) A value must start with a letter or digit and can contain a maximum of 63 characters,
+    including letters, digits, hyphens (-), underscores (_), and periods (.).
+  + `effect` - (Required, String, ForceNew) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
 
 ## Attributes Reference
 
@@ -91,4 +103,5 @@ In addition to all arguments above, the following attributes are exported:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 20 minute.
+* `update` - Default is 20 minute.
 * `delete` - Default is 20 minute.

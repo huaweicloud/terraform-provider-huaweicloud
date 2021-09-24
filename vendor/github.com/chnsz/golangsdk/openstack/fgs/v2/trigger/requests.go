@@ -24,7 +24,7 @@ type CreateOpts struct {
 	//   DISABLED
 	TriggerStatus string `json:"trigger_status,omitempty"`
 	// Message code.
-	EventTypeCode string `json:"event_type_code" required:"true"`
+	EventTypeCode string `json:"event_type_code,omitempty"`
 	// Event struct.
 	EventData map[string]interface{} `json:"event_data" required:"true"`
 }
