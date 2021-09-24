@@ -659,6 +659,10 @@ func (c *Config) ImageV2Client(region string) (*golangsdk.ServiceClient, error) 
 	return c.NewServiceClient("ims", region)
 }
 
+func (c *Config) CceV1Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("ccev1", region)
+}
+
 func (c *Config) CceV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cce", region)
 }
