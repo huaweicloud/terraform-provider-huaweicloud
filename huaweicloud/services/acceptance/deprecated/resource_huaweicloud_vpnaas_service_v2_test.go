@@ -1,23 +1,24 @@
-package huaweicloud
+package deprecated
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/services"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpnServiceV2_basic(t *testing.T) {
 	var service services.Service
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVpnServiceV2Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckVpnServiceV2Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVpnServiceV2_basic,
@@ -33,8 +34,8 @@ func TestAccVpnServiceV2_basic(t *testing.T) {
 }
 
 func testAccCheckVpnServiceV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -64,8 +65,8 @@ func testAccCheckVpnServiceV2Exists(n string, serv *services.Service) resource.T
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
@@ -82,14 +83,13 @@ func testAccCheckVpnServiceV2Exists(n string, serv *services.Service) resource.T
 	}
 }
 
-var testAccVpnServiceV2_basic = fmt.Sprintf(`
-	resource "huaweicloud_networking_router_v2" "router_1" {
-	  name = "router_1"
-	  admin_state_up = "true"
-	  external_network_id = "%s"
-	}
-	resource "huaweicloud_vpnaas_service_v2" "service_1" {
-		name = "vpngw-acctest"
-		router_id = "${huaweicloud_networking_router_v2.router_1.id}"
-	}
-	`, HW_EXTGW_ID)
+const testAccVpnServiceV2_basic = `
+data "huaweicloud_vpc" "test" {
+  name = "vpc-default"
+}
+
+resource "huaweicloud_vpnaas_service_v2" "service_1" {
+  name      = "vpngw-acctest"
+  router_id = data.huaweicloud_vpc.test.id
+}
+`
