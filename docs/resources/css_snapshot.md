@@ -8,7 +8,7 @@ CSS cluster snapshot management
 
 ## Example Usage
 
-### create a snapshot
+### Create a snapshot
 
 ```hcl
 resource "huaweicloud_css_snapshot" "snapshot" {

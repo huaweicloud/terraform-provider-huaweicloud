@@ -118,7 +118,7 @@ func resourceCssSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	cssClient, err := config.CssV1Client(region)
 
 	if err != nil {
-		return fmtp.Errorf("Error creating CSS client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CSS client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
@@ -160,7 +160,7 @@ func resourceCssSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
 	region := config.GetRegion(d)
 	cssClient, err := config.CssV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud CSS storage client: %s", err)
+		return fmtp.Errorf("Error creating HuaweiCloud CSS client: %s", err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
@@ -211,11 +211,10 @@ func resourceCssSnapshotImport(d *schema.ResourceData, meta interface{}) ([]*sch
 	region := config.GetRegion(d)
 	cssClient, err := config.CssV1Client(region)
 	if err != nil {
-		return nil, fmtp.Errorf("Error creating css client, err=%s", err)
+		return nil, fmtp.Errorf("Error creating HuaweiCloud CSS client, err=%s", err)
 	}
 
 	// check the css cluster whether exists
-	cluster.Get(cssClient, clusterID)
 	if _, err := cluster.Get(cssClient, clusterID); err != nil {
 		return nil, err
 	}
