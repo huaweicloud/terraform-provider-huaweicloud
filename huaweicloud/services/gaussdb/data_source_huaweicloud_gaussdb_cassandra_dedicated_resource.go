@@ -1,4 +1,4 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceGeminiDBDehResource() *schema.Resource {
+func DataSourceGeminiDBDehResource() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGeminiDBDehResourceRead,
 
@@ -54,7 +54,7 @@ func dataSourceGeminiDBDehResource() *schema.Resource {
 
 func dataSourceGeminiDBDehResourceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	client, err := config.GeminiDBV3Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)

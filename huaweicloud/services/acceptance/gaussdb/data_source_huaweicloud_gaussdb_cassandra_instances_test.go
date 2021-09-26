@@ -1,9 +1,10 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -11,39 +12,40 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccGaussRedisInstanceDataSource_basic(t *testing.T) {
+func TestAccGeminiDBInstancesDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:  func() { acceptance.TestAccPreCheck(t) },
+		Providers: acceptance.TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGaussRedisInstanceDataSource_basic(rName),
+				Config: testAccGeminiDBInstancesDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGaussRedisInstanceDataSourceID("data.huaweicloud_gaussdb_redis_instance.test"),
+					testAccCheckGeminiDBInstancesDataSourceID("data.huaweicloud_gaussdb_cassandra_instances.test"),
+					resource.TestCheckResourceAttr("data.huaweicloud_gaussdb_cassandra_instances.test", "instances.#", "1"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckGaussRedisInstanceDataSourceID(n string) resource.TestCheckFunc {
+func testAccCheckGeminiDBInstancesDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Can't find GaussDB Redis instance data source: %s ", n)
+			return fmtp.Errorf("Can't find GaussDB cassandra instance data source: %s ", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("GaussDB Redis instance data source ID not set ")
+			return fmtp.Errorf("GaussDB cassandra instances data source ID not set ")
 		}
 
 		return nil
 	}
 }
 
-func testAccGaussRedisInstanceDataSource_basic(rName string) string {
+func testAccGeminiDBInstancesDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -53,10 +55,10 @@ data "huaweicloud_networking_secgroup" "test" {
   name = "default"
 }
 
-resource "huaweicloud_gaussdb_redis_instance" "test" {
+resource "huaweicloud_gaussdb_cassandra_instance" "test" {
   name        = "%s"
   password    = "Test@123"
-  flavor      = "nosql.redis.xlarge.4"
+  flavor      = "geminidb.cassandra.xlarge.4"
   volume_size = 100
   vpc_id      = huaweicloud_vpc.test.id
   subnet_id   = huaweicloud_vpc_subnet.test.id
@@ -76,10 +78,10 @@ resource "huaweicloud_gaussdb_redis_instance" "test" {
   }
 }
 
-data "huaweicloud_gaussdb_redis_instance" "test" {
-  name = huaweicloud_gaussdb_redis_instance.test.name
+data "huaweicloud_gaussdb_cassandra_instances" "test" {
+  name = huaweicloud_gaussdb_cassandra_instance.test.name
   depends_on = [
-    huaweicloud_gaussdb_redis_instance.test,
+    huaweicloud_gaussdb_cassandra_instance.test,
   ]
 }
 `, testAccVpcConfig_Base(rName), rName)

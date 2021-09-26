@@ -1,4 +1,4 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"sort"
@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func dataSourceGaussRedisInstance() *schema.Resource {
+func DataSourceGaussRedisInstance() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGaussRedisInstanceRead,
 
@@ -167,7 +167,7 @@ func dataSourceGaussRedisInstance() *schema.Resource {
 
 func dataSourceGaussRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	client, err := config.GeminiDBV3Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB for Redis client: %s", err)

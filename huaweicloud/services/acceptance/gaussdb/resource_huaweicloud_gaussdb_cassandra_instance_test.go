@@ -1,9 +1,10 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/geminidb/v3/instances"
@@ -20,8 +21,8 @@ func TestAccGeminiDBInstance_basic(t *testing.T) {
 	resourceName := "huaweicloud_gaussdb_cassandra_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckGeminiDBInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -37,8 +38,8 @@ func TestAccGeminiDBInstance_basic(t *testing.T) {
 }
 
 func testAccCheckGeminiDBInstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	client, err := config.GeminiDBV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := config.GeminiDBV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
 	}
@@ -71,8 +72,8 @@ func testAccCheckGeminiDBInstanceExists(n string, instance *instances.GeminiDBIn
 			return fmtp.Errorf("No ID is set.")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.GeminiDBV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := config.GeminiDBV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud GeminiDB client: %s", err)
 		}
@@ -101,9 +102,6 @@ resource "huaweicloud_vpc_subnet" "test" {
   name          = "%s"
   cidr          = "192.168.0.0/16"
   gateway_ip    = "192.168.0.1"
-
-  primary_dns   = "100.125.1.250"
-  secondary_dns = "100.125.21.250"
   vpc_id        = huaweicloud_vpc.test.id
 }
 `, rName, rName)

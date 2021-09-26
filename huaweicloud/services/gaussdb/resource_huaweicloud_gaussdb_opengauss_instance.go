@@ -1,4 +1,4 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"context"
@@ -13,12 +13,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceOpenGaussInstance() *schema.Resource {
+func ResourceOpenGaussInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceOpenGaussInstanceCreate,
 		Read:   resourceOpenGaussInstanceRead,
@@ -323,13 +324,13 @@ func OpenGaussInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instance
 
 func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.OpenGaussV3Client(GetRegion(d, config))
+	client, err := config.OpenGaussV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}
 
 	// If force_import set, try to import it instead of creating
-	if hasFilledOpt(d, "force_import") {
+	if _, ok := d.GetOk("force_import"); ok {
 		logp.Printf("[DEBUG] Gaussdb opengauss instance force_import is set, try to import it instead of creating")
 		listOpts := instances.ListGaussDBInstanceOpts{
 			Name: d.Get("name").(string),
@@ -354,12 +355,12 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	createOpts := instances.CreateGaussDBOpts{
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor").(string),
-		Region:              GetRegion(d, config),
+		Region:              config.GetRegion(d),
 		VpcId:               d.Get("vpc_id").(string),
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		Port:                d.Get("port").(string),
-		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 		TimeZone:            d.Get("time_zone").(string),
 		AvailabilityZone:    d.Get("availability_zone").(string),
 		ConfigurationId:     d.Get("configuration_id").(string),
@@ -430,8 +431,8 @@ func resourceOpenGaussInstanceCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	client, err := config.OpenGaussV3Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	client, err := config.OpenGaussV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -439,7 +440,7 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 	instanceID := d.Id()
 	instance, err := instances.GetInstanceByID(client, instanceID)
 	if err != nil {
-		return CheckDeleted(d, err, "OpenGauss instance")
+		return common.CheckDeleted(d, err, "OpenGauss instance")
 	}
 	if instance.Id == "" {
 		d.SetId("")
@@ -535,7 +536,7 @@ func resourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceOpenGaussInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.OpenGaussV3Client(GetRegion(d, config))
+	client, err := config.OpenGaussV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}
@@ -543,7 +544,7 @@ func resourceOpenGaussInstanceDelete(d *schema.ResourceData, meta interface{}) e
 	instanceId := d.Id()
 	result := instances.Delete(client, instanceId)
 	if result.Err != nil {
-		return CheckDeleted(d, result.Err, "OpenGauss instance")
+		return common.CheckDeleted(d, result.Err, "OpenGauss instance")
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -567,7 +568,7 @@ func resourceOpenGaussInstanceDelete(d *schema.ResourceData, meta interface{}) e
 
 func resourceOpenGaussInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.OpenGaussV3Client(GetRegion(d, config))
+	client, err := config.OpenGaussV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}

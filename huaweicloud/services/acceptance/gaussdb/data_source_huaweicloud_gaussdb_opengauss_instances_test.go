@@ -45,23 +45,6 @@ func testAccCheckOpenGaussInstancesDataSourceID(n string) resource.TestCheckFunc
 	}
 }
 
-func testAccVpcConfig_Base(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name          = "%s"
-  cidr          = "192.168.0.0/16"
-  gateway_ip    = "192.168.0.1"
-
-  vpc_id        = huaweicloud_vpc.test.id
-}
-`, rName, rName)
-}
-
 func testAccOpenGaussInstancesDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s

@@ -1,4 +1,4 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"strconv"
@@ -12,7 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceGaussDBMysqlInstance() *schema.Resource {
+func DataSourceGaussDBMysqlInstance() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGaussDBMysqlInstanceRead,
 
@@ -156,7 +156,7 @@ func dataSourceGaussDBMysqlInstance() *schema.Resource {
 
 func dataSourceGaussDBMysqlInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	client, err := config.GaussdbV3Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)

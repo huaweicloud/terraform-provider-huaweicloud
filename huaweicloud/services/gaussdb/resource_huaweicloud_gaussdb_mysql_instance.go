@@ -1,4 +1,4 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"context"
@@ -13,12 +13,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceGaussDBInstance() *schema.Resource {
+func ResourceGaussDBInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGaussDBInstanceCreate,
 		Update: resourceGaussDBInstanceUpdate,
@@ -311,13 +312,13 @@ func GaussDBInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID
 
 func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.GaussdbV3Client(GetRegion(d, config))
+	client, err := config.GaussdbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}
 
 	// If force_import set, try to import it instead of creating
-	if hasFilledOpt(d, "force_import") {
+	if _, ok := d.GetOk("force_import"); ok {
 		logp.Printf("[DEBUG] Gaussdb mysql instance force_import is set, try to import it instead of creating")
 		listOpts := instances.ListTaurusDBInstanceOpts{
 			Name: d.Get("name").(string),
@@ -342,12 +343,12 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	createOpts := instances.CreateTaurusDBOpts{
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor").(string),
-		Region:              GetRegion(d, config),
+		Region:              config.GetRegion(d),
 		VpcId:               d.Get("vpc_id").(string),
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		ConfigurationId:     d.Get("configuration_id").(string),
-		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 		DedicatedResourceId: d.Get("dedicated_resource_id").(string),
 		TimeZone:            d.Get("time_zone").(string),
 		SlaveCount:          d.Get("read_replicas").(int),
@@ -370,7 +371,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		createOpts.MasterAZ = v.(string)
 	}
 
-	if hasFilledOpt(d, "volume_size") {
+	if _, ok := d.GetOk("volume_size"); ok {
 		volume := &instances.VolumeOpt{
 			Size: d.Get("volume_size").(int),
 		}
@@ -379,7 +380,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 	// PrePaid
 	if d.Get("charging_mode") == "prePaid" {
-		if err := validatePrePaidChargeInfo(d); err != nil {
+		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
 			return err
 		}
 
@@ -443,7 +444,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 			id, err)
 	}
 
-	if hasFilledOpt(d, "backup_strategy") {
+	if _, ok := d.GetOk("backup_strategy"); ok {
 		var updateOpts backups.UpdateOpts
 		backupRaw := d.Get("backup_strategy").([]interface{})
 		rawMap := backupRaw[0].(map[string]interface{})
@@ -460,7 +461,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	if hasFilledOpt(d, "proxy_flavor") {
+	if _, ok := d.GetOk("proxy_flavor"); ok {
 		proxyOpts := instances.ProxyOpts{
 			Flavor:  d.Get("proxy_flavor").(string),
 			NodeNum: d.Get("proxy_node_num").(int),
@@ -482,7 +483,7 @@ func resourceGaussDBInstanceCreate(d *schema.ResourceData, meta interface{}) err
 
 func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	client, err := config.GaussdbV3Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
@@ -491,7 +492,7 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 	instanceID := d.Id()
 	instance, err := instances.Get(client, instanceID).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "GaussDB instance")
+		return common.CheckDeleted(d, err, "GaussDB instance")
 	}
 	if instance.Id == "" {
 		d.SetId("")
@@ -597,11 +598,11 @@ func resourceGaussDBInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.GaussdbV3Client(GetRegion(d, config))
+	client, err := config.GaussdbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}
-	bssClient, err := config.BssV2Client(GetRegion(d, config))
+	bssClient, err := config.BssV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
 	}
@@ -822,7 +823,7 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("proxy_flavor") {
-		if hasFilledOpt(d, "proxy_flavor") {
+		if _, ok := d.GetOk("proxy_flavor"); ok {
 			proxyOpts := instances.ProxyOpts{
 				Flavor:  d.Get("proxy_flavor").(string),
 				NodeNum: d.Get("proxy_node_num").(int),
@@ -851,7 +852,8 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("proxy_node_num") {
 		oldnum, newnum := d.GetChange("proxy_node_num")
-		if oldnum.(int) != 0 && newnum.(int) > oldnum.(int) && hasFilledOpt(d, "proxy_flavor") {
+		_, pf_ok := d.GetOk("proxy_flavor")
+		if oldnum.(int) != 0 && newnum.(int) > oldnum.(int) && pf_ok {
 			enlarge_size := newnum.(int) - oldnum.(int)
 			enlargeProxyOpts := instances.EnlargeProxyOpts{
 				NodeNum: enlarge_size,
@@ -877,24 +879,24 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceGaussDBInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.GaussdbV3Client(GetRegion(d, config))
+	client, err := config.GaussdbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s ", err)
 	}
 
 	instanceId := d.Id()
 	if d.Get("charging_mode") == "prePaid" {
-		if err := UnsubscribePrePaidResource(d, config, []string{instanceId}); err != nil {
+		if err := common.UnsubscribePrePaidResource(d, config, []string{instanceId}); err != nil {
 			// try to delete the instance directly if unsubscribing failed
 			res := instances.Delete(client, instanceId)
 			if res.Err != nil {
-				return CheckDeleted(d, res.Err, "GaussDB instance")
+				return common.CheckDeleted(d, res.Err, "GaussDB instance")
 			}
 		}
 	} else {
 		result := instances.Delete(client, instanceId)
 		if result.Err != nil {
-			return CheckDeleted(d, result.Err, "GaussDB instance")
+			return common.CheckDeleted(d, result.Err, "GaussDB instance")
 		}
 	}
 

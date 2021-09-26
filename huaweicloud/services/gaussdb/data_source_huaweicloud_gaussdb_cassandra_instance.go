@@ -1,7 +1,8 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -9,14 +10,15 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/opengauss/v3/instances"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/geminidb/v3/instances"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func dataSourceOpenGaussInstance() *schema.Resource {
+func DataSourceGeminiDBInstance() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceOpenGaussInstanceRead,
+		Read: dataSourceGeminiDBInstanceRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -40,7 +42,7 @@ func dataSourceOpenGaussInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"type": {
+			"mode": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -56,28 +58,12 @@ func dataSourceOpenGaussInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"time_zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"availability_zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"flavor": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"port": {
 				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"switch_strategy": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"maintenance_window": {
-				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"datastore": {
@@ -86,6 +72,10 @@ func dataSourceOpenGaussInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"engine": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"storage_engine": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -112,41 +102,13 @@ func dataSourceOpenGaussInstance() *schema.Resource {
 					},
 				},
 			},
-			"ha": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"replication_mode": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"coordinator_num": {
+			"node_num": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"sharding_num": {
+			"volume_size": {
 				Type:     schema.TypeInt,
 				Computed: true,
-			},
-			"volume": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"size": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-					},
-				},
 			},
 			"private_ips": {
 				Type:     schema.TypeList,
@@ -154,6 +116,10 @@ func dataSourceOpenGaussInstance() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"flavor": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"nodes": {
 				Type:     schema.TypeList,
@@ -168,12 +134,16 @@ func dataSourceOpenGaussInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"private_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"status": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"role": {
-							Type:     schema.TypeString,
+						"support_reduce": {
+							Type:     schema.TypeBool,
 							Computed: true,
 						},
 						"availability_zone": {
@@ -183,19 +153,26 @@ func dataSourceOpenGaussInstance() *schema.Resource {
 					},
 				},
 			},
+			"tags": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
 
-func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceGeminiDBInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
-	client, err := config.OpenGaussV3Client(region)
+	region := config.GetRegion(d)
+	client, err := config.GeminiDBV3Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
 
-	listOpts := instances.ListGaussDBInstanceOpts{
+	listOpts := instances.ListGeminiDBInstanceOpts{
 		Name:     d.Get("name").(string),
 		VpcId:    d.Get("vpc_id").(string),
 		SubnetId: d.Get("subnet_id").(string),
@@ -206,7 +183,7 @@ func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	allInstances, err := instances.ExtractGaussDBInstances(pages)
+	allInstances, err := instances.ExtractGeminiDBInstances(pages)
 	if err != nil {
 		return fmtp.Errorf("Unable to retrieve instances: %s", err)
 	}
@@ -226,98 +203,90 @@ func dataSourceOpenGaussInstanceRead(d *schema.ResourceData, meta interface{}) e
 	logp.Printf("[DEBUG] Retrieved Instance %s: %+v", instance.Id, instance)
 	d.SetId(instance.Id)
 
-	d.Set("region", region)
 	d.Set("name", instance.Name)
+	d.Set("region", instance.Region)
 	d.Set("status", instance.Status)
-	d.Set("type", instance.Type)
 	d.Set("vpc_id", instance.VpcId)
 	d.Set("subnet_id", instance.SubnetId)
 	d.Set("security_group_id", instance.SecurityGroupId)
 	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
+	d.Set("mode", instance.Mode)
 	d.Set("db_user_name", instance.DbUserName)
-	d.Set("time_zone", instance.TimeZone)
-	d.Set("flavor", instance.FlavorRef)
-	d.Set("port", instance.Port)
-	d.Set("switch_strategy", instance.SwitchStrategy)
-	d.Set("maintenance_window", instance.MaintenanceWindow)
 
-	if len(instance.PrivateIps) > 0 {
-		private_ips := instance.PrivateIps[0]
-		ip_list := strings.Split(private_ips, "/")
-		for i := 0; i < len(ip_list); i++ {
-			ip_list[i] = strings.Trim(ip_list[i], " ")
-		}
-		d.Set("private_ips", ip_list)
+	if dbPort, err := strconv.Atoi(instance.Port); err == nil {
+		d.Set("port", dbPort)
 	}
 
-	// set data store
-	dbList := make([]map[string]interface{}, 1)
+	dbList := make([]map[string]interface{}, 0, 1)
 	db := map[string]interface{}{
-		"version": instance.DataStore.Version,
-		"engine":  instance.DataStore.Type,
+		"engine":         instance.DataStore.Type,
+		"version":        instance.DataStore.Version,
+		"storage_engine": instance.Engine,
 	}
-	dbList[0] = db
+	dbList = append(dbList, db)
 	d.Set("datastore", dbList)
 
-	// set nodes
-	sharding_num := 0
-	coordinator_num := 0
+	specCode := ""
+	wrongFlavor := "Inconsistent Flavor"
+	ipsList := []string{}
 	azList := []string{}
 	nodesList := make([]map[string]interface{}, 0, 1)
-	for _, raw := range instance.Nodes {
-		node := map[string]interface{}{
-			"id":                raw.Id,
-			"name":              raw.Name,
-			"status":            raw.Status,
-			"role":              raw.Role,
-			"availability_zone": raw.AvailabilityZone,
+	for _, group := range instance.Groups {
+		for _, Node := range group.Nodes {
+			node := map[string]interface{}{
+				"id":                Node.Id,
+				"name":              Node.Name,
+				"status":            Node.Status,
+				"private_ip":        Node.PrivateIp,
+				"support_reduce":    Node.SupportReduce,
+				"availability_zone": Node.AvailabilityZone,
+			}
+			if specCode == "" {
+				specCode = Node.SpecCode
+			} else if specCode != Node.SpecCode && specCode != wrongFlavor {
+				specCode = wrongFlavor
+			}
+			nodesList = append(nodesList, node)
+			azList = append(azList, Node.AvailabilityZone)
+			// Only return Node private ips which doesn't support reduce
+			if !Node.SupportReduce {
+				ipsList = append(ipsList, Node.PrivateIp)
+			}
 		}
-		nodesList = append(nodesList, node)
-		azList = append(azList, raw.AvailabilityZone)
-		if strings.Contains(raw.Name, "_gaussdbv5cn") {
-			coordinator_num += 1
-		} else if strings.Contains(raw.Name, "_gaussdbv5dn") {
-			sharding_num += 1
+		if volSize, err := strconv.Atoi(group.Volume.Size); err == nil {
+			d.Set("volume_size", volSize)
+		}
+		if specCode != "" {
+			logp.Printf("[DEBUG] Node SpecCode: %s", specCode)
+			d.Set("flavor", specCode)
 		}
 	}
 	d.Set("nodes", nodesList)
-	d.Set("coordinator_num", coordinator_num)
-
-	dn_num := sharding_num / 3
-	d.Set("sharding_num", dn_num)
+	d.Set("private_ips", ipsList)
 
 	//remove duplicate az
 	azList = utils.RemoveDuplicateElem(azList)
 	sort.Strings(azList)
 	d.Set("availability_zone", strings.Join(azList, ","))
+	d.Set("node_num", len(nodesList))
 
-	// set backup_strategy
-	backupStrategyList := make([]map[string]interface{}, 1)
+	backupStrategyList := make([]map[string]interface{}, 0, 1)
 	backupStrategy := map[string]interface{}{
 		"start_time": instance.BackupStrategy.StartTime,
 		"keep_days":  instance.BackupStrategy.KeepDays,
 	}
-	backupStrategyList[0] = backupStrategy
+	backupStrategyList = append(backupStrategyList, backupStrategy)
 	d.Set("backup_strategy", backupStrategyList)
 
-	// set ha
-	haList := make([]map[string]interface{}, 1)
-	ha := map[string]interface{}{
-		"replication_mode": instance.Ha.ReplicationMode,
+	//save geminidb tags
+	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
+		tagmap := utils.TagsToMap(resourceTags.Tags)
+		if err := d.Set("tags", tagmap); err != nil {
+			return fmtp.Errorf("Error saving tags to state for geminidb (%s): %s", d.Id(), err)
+		}
+	} else {
+		logp.Printf("[WARN] Error fetching tags of geminidb (%s): %s", d.Id(), err)
 	}
-	haList[0] = ha
-	d.Set("ha", haList)
-
-	// set volume
-	volume_size := instance.Volume.Size
-	dn_size := volume_size / dn_num
-	volumeList := make([]map[string]interface{}, 1)
-	volume := map[string]interface{}{
-		"type": instance.Volume.Type,
-		"size": dn_size,
-	}
-	volumeList[0] = volume
-	d.Set("volume", volumeList)
 
 	return nil
 }

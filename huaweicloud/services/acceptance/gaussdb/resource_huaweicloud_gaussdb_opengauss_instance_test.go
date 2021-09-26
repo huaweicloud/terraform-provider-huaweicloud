@@ -1,9 +1,10 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk/openstack/opengauss/v3/instances"
@@ -22,8 +23,8 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 	resourceName := "huaweicloud_gaussdb_opengauss_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckOpenGaussInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -49,8 +50,8 @@ func TestAccOpenGaussInstance_basic(t *testing.T) {
 }
 
 func testAccCheckOpenGaussInstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	client, err := config.OpenGaussV3Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	client, err := config.OpenGaussV3Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -80,8 +81,8 @@ func testAccCheckOpenGaussInstanceExists(n string, instance *instances.GaussDBIn
 			return fmtp.Errorf("No ID is set.")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		client, err := config.OpenGaussV3Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		client, err := config.OpenGaussV3Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 		}

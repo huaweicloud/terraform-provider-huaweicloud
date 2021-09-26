@@ -1,4 +1,4 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
-func dataSourceGaussdbMysqlFlavors() *schema.Resource {
+func DataSourceGaussdbMysqlFlavors() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGaussdbMysqlFlavorsRead,
 
@@ -69,7 +69,7 @@ func dataSourceGaussdbMysqlFlavors() *schema.Resource {
 func dataSourceGaussdbMysqlFlavorsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 
-	client, err := config.GaussdbV3Client(GetRegion(d, config))
+	client, err := config.GaussdbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}

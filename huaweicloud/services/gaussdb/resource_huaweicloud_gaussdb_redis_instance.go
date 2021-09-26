@@ -1,4 +1,4 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"fmt"
@@ -12,13 +12,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceGaussRedisInstanceV3() *schema.Resource {
+func ResourceGaussRedisInstanceV3() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGaussRedisInstanceV3Create,
 		Read:   resourceGaussRedisInstanceV3Read,
@@ -230,7 +231,7 @@ func resourceGaussRedisInstanceV3() *schema.Resource {
 				}, false),
 			},
 
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -295,13 +296,13 @@ func GaussRedisInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanc
 
 func resourceGaussRedisInstanceV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.GeminiDBV3Client(GetRegion(d, config))
+	client, err := config.GeminiDBV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB for Redis client: %s ", err)
 	}
 
 	// If force_import set, try to import it instead of creating
-	if hasFilledOpt(d, "force_import") {
+	if _, ok := d.GetOk("force_import"); ok {
 		logp.Printf("[DEBUG] Gaussdb Redis instance force_import is set, try to import it instead of creating")
 		listOpts := instances.ListGeminiDBInstanceOpts{
 			Name: d.Get("name").(string),
@@ -325,12 +326,12 @@ func resourceGaussRedisInstanceV3Create(d *schema.ResourceData, meta interface{}
 
 	createOpts := instances.CreateGeminiDBOpts{
 		Name:                d.Get("name").(string),
-		Region:              GetRegion(d, config),
+		Region:              config.GetRegion(d),
 		AvailabilityZone:    d.Get("availability_zone").(string),
 		VpcId:               d.Get("vpc_id").(string),
 		SubnetId:            d.Get("subnet_id").(string),
 		SecurityGroupId:     d.Get("security_group_id").(string),
-		EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 		Mode:                "Cluster",
 		Flavor:              resourceGaussRedisFlavor(d),
 		DataStore:           resourceGaussRedisDataStore(d),
@@ -339,7 +340,7 @@ func resourceGaussRedisInstanceV3Create(d *schema.ResourceData, meta interface{}
 
 	// PrePaid
 	if d.Get("charging_mode") == "prePaid" {
-		if err := validatePrePaidChargeInfo(d); err != nil {
+		if err := common.ValidatePrePaidChargeInfo(d); err != nil {
 			return err
 		}
 
@@ -396,7 +397,7 @@ func resourceGaussRedisInstanceV3Create(d *schema.ResourceData, meta interface{}
 
 func resourceGaussRedisInstanceV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.GeminiDBV3Client(GetRegion(d, config))
+	client, err := config.GeminiDBV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussRedis client: %s", err)
 	}
@@ -404,7 +405,7 @@ func resourceGaussRedisInstanceV3Read(d *schema.ResourceData, meta interface{}) 
 	instanceID := d.Id()
 	instance, err := instances.GetInstanceByID(client, instanceID)
 	if err != nil {
-		return CheckDeleted(d, err, "GaussRedis")
+		return common.CheckDeleted(d, err, "GaussRedis")
 	}
 	if instance.Id == "" {
 		d.SetId("")
@@ -495,14 +496,14 @@ func resourceGaussRedisInstanceV3Read(d *schema.ResourceData, meta interface{}) 
 
 func resourceGaussRedisInstanceV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.GeminiDBV3Client(GetRegion(d, config))
+	client, err := config.GeminiDBV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussRedis client: %s ", err)
 	}
 
 	instanceId := d.Id()
 	if d.Get("charging_mode") == "prePaid" {
-		if err := UnsubscribePrePaidResource(d, config, []string{instanceId}); err != nil {
+		if err := common.UnsubscribePrePaidResource(d, config, []string{instanceId}); err != nil {
 			// Try to delete resource directly when unsubscrbing failed
 			res := instances.Delete(client, instanceId)
 			if res.Err != nil {
@@ -538,11 +539,11 @@ func resourceGaussRedisInstanceV3Delete(d *schema.ResourceData, meta interface{}
 
 func resourceGaussRedisInstanceV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.GeminiDBV3Client(GetRegion(d, config))
+	client, err := config.GeminiDBV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating Huaweicloud GaussRedis client: %s", err)
 	}
-	bssClient, err := config.BssV2Client(GetRegion(d, config))
+	bssClient, err := config.BssV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud bss V2 client: %s", err)
 	}

@@ -1,4 +1,4 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func dataSourceGaussdbMysqlConfigurations() *schema.Resource {
+func DataSourceGaussdbMysqlConfigurations() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceGaussdbMysqlConfigurationsRead,
 
@@ -42,7 +42,7 @@ func dataSourceGaussdbMysqlConfigurations() *schema.Resource {
 func dataSourceGaussdbMysqlConfigurationsRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 
-	client, err := config.GaussdbV3Client(GetRegion(d, config))
+	client, err := config.GaussdbV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud GaussDB client: %s", err)
 	}
@@ -56,7 +56,7 @@ func dataSourceGaussdbMysqlConfigurationsRead(d *schema.ResourceData, meta inter
 			"Please change your search criteria and try again.")
 	}
 
-	if hasFilledOpt(d, "name") {
+	if _, ok := d.GetOk("name"); ok {
 		var filteredConfigs []configurations.Configuration
 		for _, conf := range configsList {
 			if conf.Name == d.Get("name").(string) {

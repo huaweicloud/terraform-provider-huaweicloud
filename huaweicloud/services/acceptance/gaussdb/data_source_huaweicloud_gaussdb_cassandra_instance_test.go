@@ -1,9 +1,10 @@
-package huaweicloud
+package gaussdb
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -11,25 +12,24 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccGeminiDBInstancesDataSource_basic(t *testing.T) {
+func TestAccGeminiDBInstanceDataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:  func() { acceptance.TestAccPreCheck(t) },
+		Providers: acceptance.TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccGeminiDBInstancesDataSource_basic(rName),
+				Config: testAccGeminiDBInstanceDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGeminiDBInstancesDataSourceID("data.huaweicloud_gaussdb_cassandra_instances.test"),
-					resource.TestCheckResourceAttr("data.huaweicloud_gaussdb_cassandra_instances.test", "instances.#", "1"),
+					testAccCheckGeminiDBInstanceDataSourceID("data.huaweicloud_gaussdb_cassandra_instance.test"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckGeminiDBInstancesDataSourceID(n string) resource.TestCheckFunc {
+func testAccCheckGeminiDBInstanceDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -37,14 +37,14 @@ func testAccCheckGeminiDBInstancesDataSourceID(n string) resource.TestCheckFunc 
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("GaussDB cassandra instances data source ID not set ")
+			return fmtp.Errorf("GaussDB cassandra instance data source ID not set ")
 		}
 
 		return nil
 	}
 }
 
-func testAccGeminiDBInstancesDataSource_basic(rName string) string {
+func testAccGeminiDBInstanceDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -77,7 +77,7 @@ resource "huaweicloud_gaussdb_cassandra_instance" "test" {
   }
 }
 
-data "huaweicloud_gaussdb_cassandra_instances" "test" {
+data "huaweicloud_gaussdb_cassandra_instance" "test" {
   name = huaweicloud_gaussdb_cassandra_instance.test.name
   depends_on = [
     huaweicloud_gaussdb_cassandra_instance.test,
