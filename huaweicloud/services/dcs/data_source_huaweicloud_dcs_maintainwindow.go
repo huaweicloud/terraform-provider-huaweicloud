@@ -1,19 +1,21 @@
-package huaweicloud
+package dcs
 
 import (
+	"context"
 	"strconv"
 
+	"github.com/chnsz/golangsdk/openstack/dcs/v2/maintainwindows"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
-
-	"github.com/chnsz/golangsdk/openstack/dcs/v1/maintainwindows"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
-func DataSourceDcsMaintainWindowV1() *schema.Resource {
+func DataSourceDcsMaintainWindow() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceDcsMaintainWindowV1Read,
+		ReadContext: dataSourceDcsMaintainWindowRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -45,20 +47,20 @@ func DataSourceDcsMaintainWindowV1() *schema.Resource {
 	}
 }
 
-func dataSourceDcsMaintainWindowV1Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceDcsMaintainWindowRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	dcsV1Client, err := config.DcsV1Client(GetRegion(d, config))
+	dcsV2Client, err := config.DcsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating dcs key client: %s", err)
+		return fmtp.DiagErrorf("Error creating dcs key client: %s", err)
 	}
 
-	v, err := maintainwindows.Get(dcsV1Client).Extract()
+	v, err := maintainwindows.Get(dcsV2Client).Extract()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	maintainWindows := v.MaintainWindows
-	var filteredMVs []maintainwindows.MaintainWindow
+	filteredMVs := make([]maintainwindows.MaintainWindow, 0, len(maintainWindows))
 	for _, mv := range maintainWindows {
 		seq := d.Get("seq").(int)
 		if seq != 0 && mv.ID != seq {
@@ -74,14 +76,15 @@ func dataSourceDcsMaintainWindowV1Read(d *schema.ResourceData, meta interface{})
 			continue
 		}
 
-		df := d.Get("default").(bool)
-		if mv.Default != df {
+		df, ok := d.GetOk("default")
+		if ok && mv.Default != df.(bool) {
 			continue
 		}
 		filteredMVs = append(filteredMVs, mv)
 	}
 	if len(filteredMVs) < 1 {
-		return fmtp.Errorf("Your query returned no results. Please change your filters and try again.")
+		return fmtp.DiagErrorf("Your query returned no results. " +
+			"Please change your search criteria and try again.")
 	}
 	mw := filteredMVs[0]
 	d.SetId(strconv.Itoa(mw.ID))
