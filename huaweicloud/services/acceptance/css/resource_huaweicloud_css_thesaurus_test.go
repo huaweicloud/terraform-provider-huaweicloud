@@ -23,8 +23,8 @@ func TestAccCssThesaurus_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckOBS(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckCssThesaurusDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckCssThesaurusDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCssThesaurus_basic(rName, bucketName, "main.txt"),

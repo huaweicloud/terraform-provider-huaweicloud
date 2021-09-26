@@ -8,7 +8,7 @@ Manages CSS thesaurus resource within HuaweiCloud
 
 ## Example Usage
 
-### create a thesaurus
+### Create a thesaurus
 
 ```hcl
 
