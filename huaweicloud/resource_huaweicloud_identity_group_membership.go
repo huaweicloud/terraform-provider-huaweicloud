@@ -5,9 +5,11 @@ import (
 	"github.com/chnsz/golangsdk/openstack/identity/v3/users"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceIdentityGroupMembershipV3() *schema.Resource {
@@ -65,12 +67,7 @@ func resourceIdentityGroupMembershipV3Read(d *schema.ResourceData, meta interfac
 
 	allPages, err := users.ListInGroup(identityClient, group, users.ListOpts{}).AllPages()
 	if err != nil {
-		if _, b := err.(golangsdk.ErrDefault404); b {
-			d.SetId("")
-			return nil
-		} else {
-			return fmtp.Errorf("Unable to query groups: %s", err)
-		}
+		return common.CheckDeleted(d, err, "Unable to query groups")
 	}
 
 	allUsers, err := users.ExtractUsers(allPages)
@@ -147,7 +144,7 @@ func resourceIdentityGroupMembershipV3Delete(d *schema.ResourceData, meta interf
 func addUsersToGroup(identityClient *golangsdk.ServiceClient, group string, userList []string) error {
 	for _, u := range userList {
 		if r := users.AddToGroup(identityClient, group, u).ExtractErr(); r != nil {
-			return fmtp.Errorf("Error add user %s to group %s: %s ", group, u, r)
+			return fmtp.Errorf("Error add user %s to group %s: %s ", u, group, r)
 		}
 	}
 	return nil
@@ -156,7 +153,11 @@ func addUsersToGroup(identityClient *golangsdk.ServiceClient, group string, user
 func removeUsersFromGroup(identityClient *golangsdk.ServiceClient, group string, userList []string) error {
 	for _, u := range userList {
 		if r := users.RemoveFromGroup(identityClient, group, u).ExtractErr(); r != nil {
-			return fmtp.Errorf("Error remove user %s from group %s: %s", group, u, r)
+			if _, ok := r.(golangsdk.ErrDefault404); ok {
+				logp.Printf("[WARN] the user %s is not exist, ignore to remove it from the group", u)
+				continue
+			}
+			return fmtp.Errorf("Error remove user %s from group %s: %s", u, group, r)
 		}
 	}
 	return nil
