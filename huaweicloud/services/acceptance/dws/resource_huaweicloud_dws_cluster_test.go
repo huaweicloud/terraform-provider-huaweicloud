@@ -93,18 +93,18 @@ func testAccDwsCluster_basic(rName string, numberOfNode int, publicIpBindType st
 %s
 
 resource "huaweicloud_dws_cluster" "test" {
-  name = "%s"
-  node_type = "dws.m3.xlarge"
-  number_of_node = %d
+  name              = "%s"
+  node_type         = "dws.m3.xlarge"
+  number_of_node    = %d
   vpc_id            = huaweicloud_vpc.test.id
-  network_id         = huaweicloud_vpc_subnet.test.id
+  network_id        = huaweicloud_vpc_subnet.test.id
   security_group_id = huaweicloud_networking_secgroup.test.id
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  user_name = "test_cluster_admin"
-  user_pwd = "%s"
+  user_name         = "test_cluster_admin"
+  user_pwd          = "%s"
 
   public_ip {
-      public_bind_type = "%s"
+    public_bind_type = "%s"
   }
 }
 `, baseResource, rName, numberOfNode, password, publicIpBindType)

@@ -224,7 +224,7 @@ func resourceDwsClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 	region := config.GetRegion(d)
 	client, err := config.DwsV1Client(region)
 	if err != nil {
-		return diag.Errorf("error creating DWS v1 client, err=%s", err)
+		return fmtp.DiagErrorf("error creating DWS v1 client, err=%s", err)
 	}
 
 	opts := &cluster.CreateOpts{
@@ -276,7 +276,7 @@ func resourceDwsClusterRead(ctx context.Context, d *schema.ResourceData, meta in
 	region := config.GetRegion(d)
 	client, err := config.DwsV1Client(region)
 	if err != nil {
-		return diag.Errorf("error creating DWS v1 client, err=%s", err)
+		return fmtp.DiagErrorf("error creating DWS v1 client, err=%s", err)
 	}
 
 	clusterDetail, dErr := cluster.Get(client, d.Id())
@@ -332,7 +332,7 @@ func resourceDwsClusterDelete(ctx context.Context, d *schema.ResourceData, meta 
 	region := config.GetRegion(d)
 	client, err := config.DwsV1Client(region)
 	if err != nil {
-		return diag.Errorf("error creating DWS v1 client, err=%s", err)
+		return fmtp.DiagErrorf("error creating DWS v1 client, err=%s", err)
 	}
 
 	clusterId := d.Id()
@@ -354,7 +354,7 @@ func resourceDwsClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	region := config.GetRegion(d)
 	client, err := config.DwsV1Client(region)
 	if err != nil {
-		return diag.Errorf("error creating DWS v1 client, err=%s", err)
+		return fmtp.DiagErrorf("error creating DWS v1 client, err=%s", err)
 	}
 
 	clusterId := d.Id()
