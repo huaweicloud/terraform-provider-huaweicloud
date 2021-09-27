@@ -272,6 +272,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"huaweicloud_antiddos":                             dataSourceAntiDdosV1(),
 			"huaweicloud_availability_zones":                   DataSourceAvailabilityZones(),
+			"huaweicloud_bms_flavors":                          DataSourceBmsFlavors(),
 			"huaweicloud_cce_addon_template":                   DataSourceCCEAddonTemplateV3(),
 			"huaweicloud_cce_cluster":                          DataSourceCCEClusterV3(),
 			"huaweicloud_cce_node":                             DataSourceCCENodeV3(),
