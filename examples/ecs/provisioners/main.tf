@@ -1,64 +1,91 @@
-data "huaweicloud_availability_zones" "myaz" {}
+data "huaweicloud_availability_zones" "default" {}
 
-data "huaweicloud_compute_flavors" "myflavor" {
-  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+data "huaweicloud_images_image" "default" {
+  name        = var.image_name
+  most_recent = true
+}
+
+data "huaweicloud_compute_flavors" "default" {
+  availability_zone = data.huaweicloud_availability_zones.default.names[0]
   performance_type  = "normal"
   cpu_core_count    = 2
   memory_size       = 4
 }
 
-data "huaweicloud_vpc_subnet" "mynet" {
-  name = "subnet-default"
+resource "huaweicloud_compute_keypair" "default" {
+  name     = var.keypair_name
+  key_file = var.private_key_path
 }
 
-data "huaweicloud_images_image" "myimage" {
-  name        = "Ubuntu 18.04 server 64bit"
-  most_recent = true
+resource "huaweicloud_vpc" "default" {
+  name = var.vpc_name
+  cidr = var.vpc_cidr
 }
 
-resource "huaweicloud_compute_instance" "myinstance" {
-  name              = "basic"
-  image_id          = data.huaweicloud_images_image.myimage.id
-  flavor_id         = data.huaweicloud_compute_flavors.myflavor.ids[0]
-  security_groups   = ["default"]
-  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
-
-  admin_pass = "Test@123"
-
-  network {
-    uuid = data.huaweicloud_vpc_subnet.mynet.id
-  }
+resource "huaweicloud_vpc_subnet" "default" {
+  name       = var.subnet_name
+  cidr       = var.subnet_cidr
+  vpc_id     = huaweicloud_vpc.default.id
+  gateway_ip = var.gateway_ip
 }
 
-resource "huaweicloud_vpc_eip" "myeip" {
+resource "huaweicloud_networking_secgroup" "default" {
+  name = var.security_group_name
+}
+
+resource "huaweicloud_vpc_eip" "default" {
   publicip {
     type = "5_bgp"
   }
+
   bandwidth {
-    name        = "mybandwidth"
-    size        = 8
+    name        = var.bandwidth_name
+    size        = 5
     share_type  = "PER"
     charge_mode = "traffic"
   }
 }
 
-resource "huaweicloud_compute_eip_associate" "associated" {
-  public_ip   = huaweicloud_vpc_eip.myeip.address
-  instance_id = huaweicloud_compute_instance.myinstance.id
+resource "huaweicloud_compute_instance" "default" {
+  name              = var.ecs_instance_name
+  image_id          = data.huaweicloud_images_image.default.id
+  flavor_id         = data.huaweicloud_compute_flavors.default.ids[0]
+  availability_zone = data.huaweicloud_availability_zones.default.names[0]
+  key_pair          = huaweicloud_compute_keypair.default.name
+  user_data         = <<-EOF
+#!/bin/bash
+echo '${file("./test.txt")}' > /home/test.txt
+EOF
+
+  system_disk_type = "SAS"
+  system_disk_size = 50
+
+  security_groups = [
+    huaweicloud_networking_secgroup.default.name
+  ]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.default.id
+  }
+}
+
+resource "huaweicloud_compute_eip_associate" "default" {
+  public_ip   = huaweicloud_vpc_eip.default.address
+  instance_id = huaweicloud_compute_instance.default.id
 }
 
 resource "null_resource" "provision" {
-  depends_on = [huaweicloud_compute_eip_associate.associated]
+  depends_on = [huaweicloud_compute_eip_associate.default]
 
   provisioner "remote-exec" {
     connection {
-      user     = "root"
-      password = "Test@123"
-      host     = huaweicloud_vpc_eip.myeip.address
+      user        = "root"
+      private_key = file(var.private_key_path)
+      host        = huaweicloud_vpc_eip.default.address
     }
 
     inline = [
-      "ls -la",
+      "cat /home/test.txt"
     ]
   }
 }
