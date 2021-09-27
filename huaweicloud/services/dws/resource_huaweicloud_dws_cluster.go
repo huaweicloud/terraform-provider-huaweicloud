@@ -14,7 +14,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 func ResourceDwsCluster() *schema.Resource {
@@ -76,8 +75,9 @@ func ResourceDwsCluster() *schema.Resource {
 			},
 
 			"user_pwd": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
 			},
 
 			"vpc_id": {
@@ -253,7 +253,6 @@ func resourceDwsClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 	opts.PublicIp = publicIPProp
 
-	logp.Printf("[DEBUG] Creating new Cluster: %#v", opts)
 	rst, createErr := cluster.Create(client, opts)
 	if createErr != nil {
 		return fmtp.DiagErrorf("Error creating DWS Cluster: %s", createErr)
