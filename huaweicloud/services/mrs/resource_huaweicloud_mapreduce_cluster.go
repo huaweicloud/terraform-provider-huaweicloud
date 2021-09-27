@@ -411,9 +411,9 @@ func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultNa
 		opts := optsRaw[i].(map[string]interface{})
 
 		nodeGroup.GroupName = defaultName
-		customeName := opts["group_name"]
-		if customeName != nil {
-			nodeGroup.GroupName = customeName.(string)
+		customName := opts["group_name"]
+		if customName != nil {
+			nodeGroup.GroupName = customName.(string)
 		}
 
 		nodeGroup.NodeSize = opts["flavor"].(string)
@@ -871,7 +871,7 @@ func getNodeResizeNumber(oldList, newList []interface{}) int {
 }
 
 // calculate the number of the custom group resize option. Dont support add new nodeGroup
-func parseCustomeNodeResize(oldList, newList []interface{}) map[string]int {
+func parseCustomNodeResize(oldList, newList []interface{}) map[string]int {
 	var rst = make(map[string]int)
 
 	for newIndex := 0; newIndex < len(oldList); newIndex++ {
@@ -933,7 +933,7 @@ func updateMRSClusterNodes(d *schema.ResourceData, client *golangsdk.ServiceClie
 	if clusterType == typeCustom {
 		if d.HasChange("custom_nodes") {
 			oldRaws, newRaws := d.GetChange("custom_nodes")
-			scaleMap := parseCustomeNodeResize(oldRaws.([]interface{}), newRaws.([]interface{}))
+			scaleMap := parseCustomNodeResize(oldRaws.([]interface{}), newRaws.([]interface{}))
 			for k, num := range scaleMap {
 				err := resizeMRSClusterCoreNodes(client, d.Id(), k, num)
 				if err != nil {
