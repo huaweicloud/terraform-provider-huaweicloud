@@ -55,7 +55,7 @@ func DataSourceDcsFlavorsV2() *schema.Resource {
 					"single", "ha", "cluster", "proxy", "ha_rw_split",
 				}, false),
 			},
-			"resource_spec_code": {
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -72,7 +72,7 @@ func DataSourceDcsFlavorsV2() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"resource_spec_code": {
+						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -131,7 +131,7 @@ func dataSourceDcsFlavorsV2Read(_ context.Context, d *schema.ResourceData, meta 
 		Engine:        d.Get("engine").(string),
 		EngineVersion: d.Get("engine_version").(string),
 		Capacity:      capacity,
-		SpecCode:      d.Get("resource_spec_code").(string),
+		SpecCode:      d.Get("name").(string),
 		CPUType:       d.Get("cpu_architecture").(string),
 	}
 	logp.Printf("[DEBUG] The options of list DCS flavors : %#v", opts)
@@ -152,15 +152,15 @@ func dataSourceDcsFlavorsV2Read(_ context.Context, d *schema.ResourceData, meta 
 			}
 			cap, _ := strconv.ParseFloat(v.Capacity[0], floatBitSize)
 			fla := map[string]interface{}{
-				"resource_spec_code": v.SpecCode,
-				"cache_mode":         v.CacheMode,
-				"engine":             v.Engine,
-				"engine_versions":    v.EngineVersion,
-				"cpu_architecture":   v.CPUType,
-				"capacity":           cap,
-				"available_zones":    v.AvailableZones[0].AzCodes,
-				"charging_modes":     v.BillingMode,
-				"ip_count":           v.TenantIPCount,
+				"name":             v.SpecCode,
+				"cache_mode":       v.CacheMode,
+				"engine":           v.Engine,
+				"engine_versions":  v.EngineVersion,
+				"cpu_architecture": v.CPUType,
+				"capacity":         cap,
+				"available_zones":  v.AvailableZones[0].AzCodes,
+				"charging_modes":   v.BillingMode,
+				"ip_count":         v.TenantIPCount,
 			}
 			flavors = append(flavors, fla)
 			ids = append(ids, v.SpecCode)
