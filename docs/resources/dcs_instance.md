@@ -15,7 +15,6 @@ You can use this resource to manage Memcached instances that exist in HuaweiClou
 ### Create a single mode Redis instance
 
 ```hcl
-variable az_code {}
 variable vpc_id {}
 variable subnet_id {}
 
@@ -29,8 +28,8 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   engine             = "Redis"
   engine_version     = "5.0"
   capacity           = data.huaweicloud_dcs_flavors.single_flavors.capacity
-  resource_spec_code = data.huaweicloud_dcs_flavors.single_flavors.flavors[0].resource_spec_code
-  availability_zones = [var.az_code]
+  flavor             = data.huaweicloud_dcs_flavors.single_flavors.flavors[0].name
+  availability_zones = ["cn-north-1a"]
   password           = "YourPassword@123"
   vpc_id             = var.vpc_id
   subnet_id          = var.subnet_id
@@ -40,8 +39,6 @@ resource "huaweicloud_dcs_instance" "instance_1" {
 ### Create Master/Standby mode Redis instances with backup policy
 
 ```hcl
-variable primary_az {}
-variable standby_az {}
 variable vpc_id {}
 variable subnet_id {}
 
@@ -50,8 +47,10 @@ resource "huaweicloud_dcs_instance" "instance_2" {
   engine             = "Redis"
   engine_version     = "5.0"
   capacity           = 4
-  resource_spec_code = "redis.ha.xu1.large.r2.4"
-  availability_zones = [var.primary_az, var.standby_az]
+  flavor             = "redis.ha.xu1.large.r2.4"
+  # The first is the primary availability zone (cn-north-1a),
+  # and the second is the standby availability zone (cn-north-1b).
+  availability_zones = ["cn-north-1a", "cn-north-1b"]
   password           = "YourPassword@123"
   vpc_id             = var.vpc_id
   subnet_id          = var.subnet_id
@@ -106,11 +105,11 @@ The following arguments are supported:
     Proxy cluster instance specifications support `64`, `128`, `256`, `512`, and `1024`.
   + **Memcached**: Stand-alone and active/standby type instance values: `2`, `4`, `8`, `16`, `32` and `64`.
 
-* `resource_spec_code` - (Required, String) The specification code of the cache instance, which including the total
-  memory, available memory, maximum number of connections allowed, maximum/assured bandwidth and reference performance.
-  It also includes the type of Redis instances. You can query the *resource_spec_code* as follows:
+* `flavor` - (Required, String) The flavor of the cache instance, which including the total memory, available memory,
+  maximum number of connections allowed, maximum/assured bandwidth and reference performance.
+  It also includes the modes of Redis instances. You can query the *flavor* as follows:
   + It can be obtained through this data source `huaweicloud_dcs_flavors`.
-  + Query some specifications
+  + Query some flavors
     in [DCS Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-dcs/dcs-pd-200713003.html)
   + Log in to the DCS console, click *Buy DCS Instance*, and find the corresponding instance specification.
 
@@ -128,7 +127,7 @@ The following arguments are supported:
 * `security_group_id` - (Optional, String) The ID of the security group which the instance belongs to.
   This parameter is mandatory for Memcached and Redis 3.0 version.
 
-* `ip` - (Optional, String, ForceNew) The IP address of the DCS instance,
+* `private_ip` - (Optional, String, ForceNew) The IP address of the DCS instance,
   which can only be the currently available IP address the selected subnet.
   You can specify an available IP for the Redis instance (except for the Redis Cluster type).
   If omitted, the system will automatically allocate an available IP address to the Redis instance.
@@ -281,4 +280,24 @@ DCS instance can be imported using the `id`, e.g.
 
 ```sh
 terraform import huaweicloud_dcs_instance.instance_1 80e373f9-872e-4046-aae9-ccd9ddc55511
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason.
+The missing attributes include: `password`, `auto_renew`, `period`, `period_unit`, `rename_commands`,
+`internal_version`, `save_days`, `backup_type`, `begin_at`, `period_type`, `backup_at`.
+It is generally recommended running `terraform plan` after importing an instance.
+You can then decide if changes should be applied to the instance, or the resource definition should be updated to
+align with the instance. Also you can ignore changes as below.
+
+```
+resource "huaweicloud_dcs_instance" "instance_1" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      password, rename_commands,
+    ]
+  }
+}
 ```

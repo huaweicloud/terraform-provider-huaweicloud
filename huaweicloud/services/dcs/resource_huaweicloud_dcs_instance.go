@@ -88,7 +88,7 @@ func ResourceDcsInstance() *schema.Resource {
 				Type:     schema.TypeFloat,
 				Required: true,
 			},
-			"resource_spec_code": {
+			"flavor": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
@@ -115,7 +115,7 @@ func ResourceDcsInstance() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{"whitelists"},
 			},
-			"ip": {
+			"private_ip": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -276,13 +276,12 @@ func ResourceDcsInstance() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
-				AtLeastOneOf: []string{"product_id", "resource_spec_code"},
-				Deprecated:   "Deprecated, please use `resource_spec_code` instead",
+				AtLeastOneOf: []string{"product_id", "flavor"},
+				Deprecated:   "Deprecated, please use `flavor` instead",
 			},
 			"available_zones": {
 				Type:         schema.TypeList,
 				Optional:     true,
-				Computed:     true,
 				ForceNew:     true,
 				Elem:         &schema.Schema{Type: schema.TypeString},
 				AtLeastOneOf: []string{"available_zones", "availability_zones"},
@@ -298,7 +297,12 @@ func ResourceDcsInstance() *schema.Resource {
 			"internal_version": {
 				Type:       schema.TypeString,
 				Computed:   true,
-				Deprecated: "Deprecated and no longer provide internal version number.",
+				Deprecated: "Deprecated, please us `engine_version` instead.",
+			},
+			"ip": {
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "Deprecated, please us `private_ip` instead.",
 			},
 			"user_id": {
 				Type:       schema.TypeString,
@@ -496,7 +500,7 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 		noPasswordAccess = false
 	}
 	// resourceSpecCode
-	resourceSpecCode := d.Get("resource_spec_code").(string)
+	resourceSpecCode := d.Get("flavor").(string)
 	if pid, ok := d.GetOk("product_id"); ok {
 		productID := pid.(string)
 		resourceSpecCode = productID[0 : len(productID)-2]
@@ -529,7 +533,7 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 		SecurityGroupId:     d.Get("security_group_id").(string),
 		EnterpriseProjectId: common.GetEnterpriseProjectID(d, conf),
 		Description:         d.Get("description").(string),
-		PrivateIp:           d.Get("ip").(string),
+		PrivateIp:           d.Get("private_ip").(string),
 		MaintainBegin:       d.Get("maintain_begin").(string),
 		MaintainEnd:         d.Get("maintain_end").(string),
 		NoPasswordAccess:    &noPasswordAccess,
@@ -655,9 +659,11 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 	if capacity == 0 {
 		capacity, _ = strconv.ParseFloat(r.CapacityMinor, floatBitSize)
 	}
-	azCodes, err := getAvailableZoneIDByCode(client, r.AzCodes)
-	if err != nil {
-		return diag.FromErr(err)
+
+	securityGroupID := r.SecurityGroupId
+	// If security_group_id is not set, the default value is returned: securityGroupId. Bad design.
+	if securityGroupID == "securityGroupId" {
+		securityGroupID = ""
 	}
 
 	// batch set attributes
@@ -667,17 +673,17 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("engine", r.Engine),
 		d.Set("engine_version", r.EngineVersion),
 		d.Set("capacity", capacity),
-		d.Set("resource_spec_code", r.SpecCode),
-		d.Set("available_zones", azCodes),
+		d.Set("flavor", r.SpecCode),
 		d.Set("availability_zones", r.AzCodes),
 		d.Set("vpc_id", r.VpcId),
 		d.Set("vpc_name", r.VpcName),
 		d.Set("subnet_id", r.SubnetId),
 		d.Set("subnet_name", r.SubnetName),
-		d.Set("security_group_id", r.SecurityGroupId),
+		d.Set("security_group_id", securityGroupID),
 		d.Set("security_group_name", r.SecurityGroupName),
 		d.Set("enterprise_project_id", r.EnterpriseProjectId),
 		d.Set("description", r.Description),
+		d.Set("private_ip", r.Ip),
 		d.Set("ip", r.Ip),
 		d.Set("maintain_begin", r.MaintainBegin),
 		d.Set("maintain_end", r.MaintainEnd),
@@ -747,7 +753,6 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-//lintignore:R019
 func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.DcsV2Client(config.GetRegion(d))
@@ -875,8 +880,8 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 		return fmtp.Errorf("error creating HuaweiCloud DCS Client(v2): %s", err)
 	}
 
-	if d.HasChanges("resource_spec_code", "capacity") {
-		specCode := d.Get("resource_spec_code").(string)
+	if d.HasChanges("flavor", "capacity") {
+		specCode := d.Get("flavor").(string)
 		opts := instances.ResizeInstanceOpts{
 			SpecCode:    specCode,
 			NewCapacity: d.Get("capacity").(float64),
@@ -909,13 +914,13 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 
 		// check the result of the change
-		inst, err := instances.Get(client, d.Id())
+		instance, err := instances.Get(client, d.Id())
 		if err != nil {
 			return common.CheckDeleted(d, err, "DCS instance")
 		}
-		if inst.SpecCode != d.Get("resource_spec_code").(string) {
-			return fmtp.Errorf("[ERROR] Change specification failed, "+
-				"the specification code of DCS instance still is: %s, expected: %s.", inst.SpecCode, specCode)
+		if instance.SpecCode != d.Get("flavor").(string) {
+			return fmtp.Errorf("[ERROR] Change flavor failed, "+
+				"after changed the DCS flavor still is: %s, expected: %s.", instance.SpecCode, specCode)
 		}
 	}
 	return nil
@@ -950,33 +955,6 @@ func resourceDcsInstancesDelete(ctx context.Context, d *schema.ResourceData, met
 
 	d.SetId("")
 	return nil
-}
-
-func getAvailableZoneIDByCode(client *golangsdk.ServiceClient, azCodes []string) ([]string, error) {
-	azID := make([]string, 0, len(azCodes))
-	if len(azCodes) == 0 {
-		return azID, nil
-	}
-
-	list, err := availablezones.List(client)
-	if err != nil {
-		return azID, err
-	}
-
-	mapping := make(map[string]string)
-	for _, v := range list.AvailableZones {
-		mapping[v.Code] = v.ID
-	}
-
-	for _, azCode := range azCodes {
-		if v, ok := mapping[azCode]; ok {
-			azID = append(azID, v)
-		} else {
-			return azID, fmtp.Errorf("Invalid available zone id: %s", azCode)
-		}
-	}
-
-	return azID, nil
 }
 
 func getAvailableZoneCodeByID(client *golangsdk.ServiceClient, azIds []interface{}) ([]string, error) {

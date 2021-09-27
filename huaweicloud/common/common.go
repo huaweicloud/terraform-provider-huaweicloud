@@ -114,8 +114,7 @@ func WaitOrderComplete(ctx context.Context, d *schema.ResourceData, config *conf
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmtp.Errorf("Error while waiting for the order(%s) to complete payment: %#v",
-			d.Id(), err)
+		return fmtp.Errorf("Error while waiting for the order(%s) to complete payment: %#v", d.Id(), err)
 	}
 	return nil
 }

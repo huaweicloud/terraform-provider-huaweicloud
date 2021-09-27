@@ -53,7 +53,7 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					acceptance.TestCheckResourceAttrWithVariable(resourceName, "availability_zones.0",
 						"${data.huaweicloud_availability_zones.test.names.0}"),
 
-					resource.TestCheckResourceAttrSet(resourceName, "ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
 				),
 			},
@@ -224,7 +224,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   vpc_id             = data.huaweicloud_vpc.test.id
   subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  resource_spec_code = "redis.ha.xu1.tiny.r2.128"
+  flavor             = "redis.ha.xu1.tiny.r2.128"
   maintain_begin     = "22:00:00"
   maintain_end       = "02:00:00"
 
@@ -265,7 +265,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   vpc_id             = data.huaweicloud_vpc.test.id
   subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  resource_spec_code = "redis.ha.xu1.tiny.r2.128"
+  flavor             = "redis.ha.xu1.tiny.r2.128"
   maintain_begin     = "06:00:00"
   maintain_end       = "10:00:00"
 
@@ -305,7 +305,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   vpc_id             = data.huaweicloud_vpc.test.id
   subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  resource_spec_code = "redis.ha.xu1.tiny.r2.128"
+  flavor             = "redis.ha.xu1.tiny.r2.128"
 
   backup_policy {
     backup_type = "auto"
@@ -339,7 +339,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   vpc_id             = data.huaweicloud_vpc.test.id
   subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  resource_spec_code = "redis.ha.xu1.tiny.r2.128"
+  flavor             = "redis.ha.xu1.tiny.r2.128"
   
   backup_policy {
     backup_type = "auto"
@@ -372,7 +372,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   vpc_id             = data.huaweicloud_vpc.test.id
   subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  resource_spec_code = "redis.single.xu1.large.2"
+  flavor             = "redis.single.xu1.large.2"
 }`, instanceName)
 }
 
@@ -397,7 +397,7 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   vpc_id             = data.huaweicloud_vpc.test.id
   subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  resource_spec_code = "redis.ha.xu1.large.r2.2"
+  flavor             = "redis.ha.xu1.large.r2.2"
   
   backup_policy {
     backup_type = "auto"
