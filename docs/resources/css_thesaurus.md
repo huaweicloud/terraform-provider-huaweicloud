@@ -6,18 +6,18 @@ subcategory: "Cloud Search Service (CSS)"
 
 Manages CSS thesaurus resource within HuaweiCloud
 
+-> Only one thesaurus resource can be created for the specified cluster
+
 ## Example Usage
 
 ### Create a thesaurus
 
 ```hcl
-
 resource "huaweicloud_css_thesaurus" "test" {
   cluster_id  = {{ css_cluster_id }}
   bucket_name = {{ bucket_name }}
   main_object = {{ bucket_obj_key }}
 }
-
 ```
 
 ## Argument Reference
@@ -27,17 +27,19 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the thesaurus resource. If omitted, the
   provider-level region will be used. Changing this creates a new thesaurus resource.
 
-* `cluster_id` - (Required, String, ForceNew) Cluster Id. Specify the cluster ID for configuring the thesaurus
+* `cluster_id` - (Required, String, ForceNew) Specifies the CSS cluster ID for configuring the thesaurus.
   Changing this parameter will create a new resource.
 
-* `bucket_name` - (Optional, String) Specifies the OBS bucket where the thesaurus files are stored (the bucket type
-   must be standard storage or low-frequency storage, and archive storage is not supported).
+* `bucket_name` - (Required, String, ForceNew) Specifies the OBS bucket where the thesaurus files are stored
+ (the bucket type must be standard storage or low-frequency storage, and archive storage is not supported).
 
 * `main_object` - (Optional, String) Specifies the path of the main thesaurus file object.
 
 * `stop_object` - (Optional, String) Specifies the path of the stop word library file object.
 
 * `synonym_object` - (Optional, String) Specifies the path of the synonyms thesaurus file object.
+
+-> Specifies at least one of `main_object`,`stop_object`,`synonym_object`
 
 ## Attributes Reference
 

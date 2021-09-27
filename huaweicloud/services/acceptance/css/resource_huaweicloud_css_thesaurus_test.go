@@ -42,6 +42,11 @@ func TestAccCssThesaurus_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "main_object", "main2.txt"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

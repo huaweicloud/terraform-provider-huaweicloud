@@ -44,11 +44,13 @@ func ResourceCssthesaurus() *schema.Resource {
 			},
 			"bucket_name": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
+				ForceNew: true,
 			},
 			"main_object": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				AtLeastOneOf: []string{"main_object", "stop_object", "synonym_object"},
 			},
 			"stop_object": {
 				Type:     schema.TypeString,
