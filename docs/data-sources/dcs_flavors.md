@@ -43,7 +43,7 @@ The following arguments are supported:
   + `proxy` - Proxy Cluster.
   + `ha_rw_split` - Read/Write splitting.
   
-* `resource_spec_code` - (Optional, String) The specification code of the cache instance.
+* `name` - (Optional, String) The flavor name of the cache instance.
 
 * `cpu_architecture` - (Optional, String) The CPU architecture of cache instance.
   Valid values *x86_64* and *aarch64*.
@@ -56,7 +56,7 @@ In addition to all arguments above, the following attributes are exported:
 
 The `flavors` block supports:
 
-* `resource_spec_code` - The specification code of the cache instance.
+* `name` - The flavor name of the cache instance.
 
 * `cache_mode` - The mode of a cache instance.
 
