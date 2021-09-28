@@ -1,8 +1,9 @@
-package huaweicloud
+package deprecated
 
 import (
 	"github.com/chnsz/golangsdk/openstack/dcs/v1/availablezones"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -11,6 +12,9 @@ import (
 func DataSourceDcsAZV1() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceDcsAZV1Read,
+		DeprecationMessage: "this is deprecated. " +
+			"This data source is used for the \"available_zones\" of the \"huaweicloud_dcs_instance\" resource. " +
+			"Now `available_zones` has been deprecated and this data source is no longer used.",
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -39,7 +43,7 @@ func DataSourceDcsAZV1() *schema.Resource {
 
 func dataSourceDcsAZV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	region := GetRegion(d, config)
+	region := config.GetRegion(d)
 	dcsV1Client, err := config.DcsV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating DCS client: %s", err)
