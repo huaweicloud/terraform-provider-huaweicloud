@@ -38,7 +38,7 @@ jobs:
       # Runs tfproviderlint-github-action
       - uses: bflad/tfproviderlint-github-action@master
         with:
-          args: -V011=false -V012=false -V013=false -V014=false ./...
+          args: -V011=false -V012=false -V013=false -V014=false -R019=false ./...
 
   # This workflow contains a job called "acc-test"
   acc-test:

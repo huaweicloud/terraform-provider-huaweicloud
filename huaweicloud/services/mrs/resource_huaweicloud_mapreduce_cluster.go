@@ -210,7 +210,7 @@ func ResourceMRSClusterV2() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
-				Elem:     nodeGroupSchemaResource("", true, 1, 500),
+				Elem:     nodeGroupSchemaResource("", false, 1, 500),
 			},
 
 			"tags": {
@@ -411,9 +411,9 @@ func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultNa
 		opts := optsRaw[i].(map[string]interface{})
 
 		nodeGroup.GroupName = defaultName
-		customeName := opts["group_name"]
-		if customeName != nil {
-			nodeGroup.GroupName = customeName.(string)
+		customName := opts["group_name"]
+		if customName != nil {
+			nodeGroup.GroupName = customName.(string)
 		}
 
 		nodeGroup.NodeSize = opts["flavor"].(string)
@@ -678,7 +678,7 @@ func setMrsClusterNodeGroups(d *schema.ResourceData, mrsV1Client *golangsdk.Serv
 			groupMap["group_name"] = node.GroupName
 		}
 
-		groupMap["assigned_roles"] = parseAssignedRoles(d, node.GroupName, isCustomNode)
+		groupMap["assigned_roles"] = node.AssignedRoles
 		if node.DataVolumeCount != 0 {
 			groupMap["data_volume_type"] = node.DataVolumeType
 			groupMap["data_volume_size"] = node.DataVolumeSize
@@ -695,29 +695,6 @@ func setMrsClusterNodeGroups(d *schema.ResourceData, mrsV1Client *golangsdk.Serv
 		}
 	}
 
-	return nil
-}
-
-func parseAssignedRoles(d *schema.ResourceData, groupName string, isCustomNode bool) []string {
-	if isCustomNode {
-		if optsRaw, ok := d.GetOk("custom_nodes"); ok {
-			opts := optsRaw.([]interface{})
-			for i := 0; i < len(opts); i++ {
-				groupOpts := opts[i].(map[string]interface{})
-				groupNameInConfig := groupOpts["group_name"].(string)
-				if groupName == groupNameInConfig {
-					return groupOpts["assigned_roles"].([]string)
-				}
-
-			}
-		}
-	} else {
-		ids := d.Get(fmt.Sprintf("%s.%s", groupName, "assigned_roles"))
-		if ids != nil {
-			return ids.([]string)
-		}
-
-	}
 	return nil
 }
 
@@ -893,6 +870,25 @@ func getNodeResizeNumber(oldList, newList []interface{}) int {
 	return newSize - oldSize
 }
 
+// calculate the number of the custom group resize option. Dont support add new nodeGroup
+func parseCustomNodeResize(oldList, newList []interface{}) map[string]int {
+	var rst = make(map[string]int)
+
+	for newIndex := 0; newIndex < len(oldList); newIndex++ {
+		newNode := newList[newIndex].(map[string]interface{})
+
+		groupName := newNode["group_name"].(string)
+		newSize := newNode["node_number"].(int)
+
+		oldNode := oldList[newIndex].(map[string]interface{})
+		oldSize := oldNode["node_number"].(int)
+
+		// Distinguish scale out and scale in by positive and negative
+		rst[groupName] = newSize - oldSize
+	}
+	return rst
+}
+
 func updateMRSClusterNodes(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	clusterType := d.Get("type").(string)
 	if clusterType == typeAnalysis || clusterType == typeHybrid {
@@ -937,11 +933,14 @@ func updateMRSClusterNodes(d *schema.ResourceData, client *golangsdk.ServiceClie
 	if clusterType == typeCustom {
 		if d.HasChange("custom_nodes") {
 			oldRaws, newRaws := d.GetChange("custom_nodes")
-			num := getNodeResizeNumber(oldRaws.([]interface{}), newRaws.([]interface{}))
-			err := resizeMRSClusterCoreNodes(client, d.Id(), customNodeGroup, num)
-			if err != nil {
-				return err
+			scaleMap := parseCustomNodeResize(oldRaws.([]interface{}), newRaws.([]interface{}))
+			for k, num := range scaleMap {
+				err := resizeMRSClusterCoreNodes(client, d.Id(), k, num)
+				if err != nil {
+					return err
+				}
 			}
+
 		}
 	}
 
