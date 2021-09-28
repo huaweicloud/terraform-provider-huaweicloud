@@ -308,6 +308,10 @@ func RandomAccResourceName() string {
 	return fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 }
 
+func RandomAccResourceNameWithDash() string {
+	return fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+}
+
 //lintignore:AT003
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
@@ -326,5 +330,12 @@ func TestAccPreCheckAdminOnly(t *testing.T) {
 func TestAccPreCheckReplication(t *testing.T) {
 	if HW_DEST_REGION == "" || HW_DEST_PROJECT_ID == "" {
 		t.Skip("Jump the replication policy acceptance tests.")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckOBS(t *testing.T) {
+	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" {
+		t.Skip("HW_ACCESS_KEY and HW_SECRET_KEY must be set for OBS acceptance tests")
 	}
 }
