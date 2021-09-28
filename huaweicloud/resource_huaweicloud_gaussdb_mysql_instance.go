@@ -103,9 +103,10 @@ func resourceGaussDBInstance() *schema.Resource {
 				Default:  1,
 			},
 			"volume_size": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
+				Type:         schema.TypeInt,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: validation.All(validation.IntBetween(40, 128000), validation.IntDivisibleBy(10)),
 			},
 			"time_zone": {
 				Type:     schema.TypeString,
