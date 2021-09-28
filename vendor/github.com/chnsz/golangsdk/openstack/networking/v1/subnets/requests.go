@@ -40,7 +40,16 @@ type ListOpts struct {
 	AvailabilityZone string `json:"availability_zone"`
 
 	//Specifies the ID of the VPC to which the subnet belongs.
-	VPC_ID string `json:"vpc_id"`
+	VPC_ID string `q:"vpc_id"`
+}
+
+// ToSubnetListQuery formats a ListOpts into a query string
+func (opts ListOpts) ToSubnetListQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	if err != nil {
+		return "", err
+	}
+	return q.String(), nil
 }
 
 // List returns collection of
@@ -49,10 +58,18 @@ type ListOpts struct {
 //
 // Default policy settings return only those subnets that are owned by the
 // tenant who submits the request, unless an admin user submits the request.
-
 func List(c *golangsdk.ServiceClient, opts ListOpts) ([]Subnet, error) {
-	u := rootURL(c)
-	pages, err := pagination.NewPager(c, u, func(r pagination.PageResult) pagination.Page {
+	url := rootURL(c)
+
+	if opts.VPC_ID != "" {
+		query, err := opts.ToSubnetListQuery()
+		if err != nil {
+			return nil, err
+		}
+		url += query
+	}
+
+	pages, err := pagination.NewPager(c, url, func(r pagination.PageResult) pagination.Page {
 		return SubnetPage{pagination.LinkedPageBase{PageResult: r}}
 	}).AllPages()
 	if err != nil {
