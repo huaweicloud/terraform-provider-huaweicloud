@@ -1,22 +1,24 @@
-package huaweicloud
+package deprecated
 
 import (
 	"testing"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/ikepolicies"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 func TestAccVpnIKEPolicyV2_basic(t *testing.T) {
 	var policy ikepolicies.Policy
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIKEPolicyV2Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckIKEPolicyV2Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIKEPolicyV2_basic,
@@ -43,9 +45,9 @@ func TestAccVpnIKEPolicyV2_basic(t *testing.T) {
 func TestAccVpnIKEPolicyV2_withLifetime(t *testing.T) {
 	var policy ikepolicies.Policy
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIKEPolicyV2Destroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckIKEPolicyV2Destroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIKEPolicyV2_withLifetime,
@@ -68,8 +70,8 @@ func TestAccVpnIKEPolicyV2_withLifetime(t *testing.T) {
 }
 
 func testAccCheckIKEPolicyV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -99,8 +101,8 @@ func testAccCheckIKEPolicyV2Exists(n string, policy *ikepolicies.Policy) resourc
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		networkingClient, err := config.NetworkingV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		networkingClient, err := config.NetworkingV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}

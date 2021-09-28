@@ -309,6 +309,10 @@ func RandomAccResourceName() string {
 	return fmt.Sprintf("tf_acc_test_%s", acctest.RandString(5))
 }
 
+func RandomAccResourceNameWithDash() string {
+	return fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+}
+
 //lintignore:AT003
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
@@ -334,5 +338,12 @@ func TestAccPreCheckReplication(t *testing.T) {
 func TestAccPreCheckProject(t *testing.T) {
 	if HW_ENTERPRISE_PROJECT_ID_TEST != "" {
 		t.Skip("This environment does not support project tests")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckOBS(t *testing.T) {
+	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" {
+		t.Skip("HW_ACCESS_KEY and HW_SECRET_KEY must be set for OBS acceptance tests")
 	}
 }

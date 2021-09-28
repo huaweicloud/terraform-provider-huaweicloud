@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"time"
@@ -7,6 +7,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/ikepolicies"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -14,10 +15,11 @@ import (
 
 func ResourceVpnIKEPolicyV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceVpnIKEPolicyV2Create,
-		Read:   resourceVpnIKEPolicyV2Read,
-		Update: resourceVpnIKEPolicyV2Update,
-		Delete: resourceVpnIKEPolicyV2Delete,
+		Create:             resourceVpnIKEPolicyV2Create,
+		Read:               resourceVpnIKEPolicyV2Read,
+		Update:             resourceVpnIKEPolicyV2Update,
+		Delete:             resourceVpnIKEPolicyV2Delete,
+		DeprecationMessage: "VPN has been deprecated.",
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -104,7 +106,7 @@ func ResourceVpnIKEPolicyV2() *schema.Resource {
 
 func resourceVpnIKEPolicyV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -158,14 +160,14 @@ func resourceVpnIKEPolicyV2Read(d *schema.ResourceData, meta interface{}) error 
 	logp.Printf("[DEBUG] Retrieve information about IKE policy: %s", d.Id())
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	policy, err := ikepolicies.Get(networkingClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "IKE policy")
+		return common.CheckDeleted(d, err, "IKE policy")
 	}
 
 	logp.Printf("[DEBUG] Read HuaweiCloud IKE Policy %s: %#v", d.Id(), policy)
@@ -178,7 +180,7 @@ func resourceVpnIKEPolicyV2Read(d *schema.ResourceData, meta interface{}) error 
 	d.Set("pfs", policy.PFS)
 	d.Set("phase1_negotiation_mode", policy.Phase1NegotiationMode)
 	d.Set("ike_version", policy.IKEVersion)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	// Set the lifetime
 	var lifetimeMap map[string]interface{}
@@ -196,7 +198,7 @@ func resourceVpnIKEPolicyV2Read(d *schema.ResourceData, meta interface{}) error 
 
 func resourceVpnIKEPolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -271,7 +273,7 @@ func resourceVpnIKEPolicyV2Delete(d *schema.ResourceData, meta interface{}) erro
 	logp.Printf("[DEBUG] Destroy IKE policy: %s", d.Id())
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

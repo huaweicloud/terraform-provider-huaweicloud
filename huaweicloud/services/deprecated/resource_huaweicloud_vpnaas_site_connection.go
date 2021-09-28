@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"time"
@@ -8,6 +8,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/siteconnections"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,10 +17,11 @@ import (
 
 func ResourceVpnSiteConnectionV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceVpnSiteConnectionV2Create,
-		Read:   resourceVpnSiteConnectionV2Read,
-		Update: resourceVpnSiteConnectionV2Update,
-		Delete: resourceVpnSiteConnectionV2Delete,
+		Create:             resourceVpnSiteConnectionV2Create,
+		Read:               resourceVpnSiteConnectionV2Read,
+		Update:             resourceVpnSiteConnectionV2Update,
+		Delete:             resourceVpnSiteConnectionV2Delete,
+		DeprecationMessage: "VPN has been deprecated.",
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -141,7 +143,7 @@ func ResourceVpnSiteConnectionV2() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -149,7 +151,7 @@ func ResourceVpnSiteConnectionV2() *schema.Resource {
 func resourceVpnSiteConnectionV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -229,14 +231,14 @@ func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) e
 	logp.Printf("[DEBUG] Retrieve information about site connection: %s", d.Id())
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	conn, err := siteconnections.Get(networkingClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "site_connection")
+		return common.CheckDeleted(d, err, "site_connection")
 	}
 
 	logp.Printf("[DEBUG] Read HuaweiCloud SiteConnection %s: %#v", d.Id(), conn)
@@ -289,7 +291,7 @@ func resourceVpnSiteConnectionV2Read(d *schema.ResourceData, meta interface{}) e
 func resourceVpnSiteConnectionV2Update(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -408,7 +410,7 @@ func resourceVpnSiteConnectionV2Delete(d *schema.ResourceData, meta interface{})
 	logp.Printf("[DEBUG] Destroy service: %s", d.Id())
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}

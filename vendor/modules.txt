@@ -56,7 +56,7 @@ github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 github.com/bgentry/go-netrc/netrc
-# github.com/chnsz/golangsdk v0.0.0-20210913091218-db72ff026f6c
+# github.com/chnsz/golangsdk v0.0.0-20210923031548-f3f0e90684f4
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -137,6 +137,7 @@ github.com/chnsz/golangsdk/openstack/dms/v2/rabbitmq/instances
 github.com/chnsz/golangsdk/openstack/dns/v2/ptrrecords
 github.com/chnsz/golangsdk/openstack/dns/v2/recordsets
 github.com/chnsz/golangsdk/openstack/dns/v2/zones
+github.com/chnsz/golangsdk/openstack/dws/cluster
 github.com/chnsz/golangsdk/openstack/ecs/v1/auto_recovery
 github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices
 github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers
@@ -159,6 +160,7 @@ github.com/chnsz/golangsdk/openstack/evs/v2/tags
 github.com/chnsz/golangsdk/openstack/evs/v3/volumes
 github.com/chnsz/golangsdk/openstack/fgs/v2/dependencies
 github.com/chnsz/golangsdk/openstack/fgs/v2/function
+github.com/chnsz/golangsdk/openstack/fgs/v2/trigger
 github.com/chnsz/golangsdk/openstack/geminidb/v3/backups
 github.com/chnsz/golangsdk/openstack/geminidb/v3/configurations
 github.com/chnsz/golangsdk/openstack/geminidb/v3/instances
@@ -371,6 +373,8 @@ github.com/hashicorp/terraform-plugin-sdk/v2/plugin
 github.com/hashicorp/terraform-plugin-sdk/v2/terraform
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
+# github.com/huaweicloud/golangsdk v0.0.0-20210831081626-d823fe11ceba
+## explicit
 # github.com/jen20/awspolicyequivalence v1.1.0
 ## explicit
 github.com/jen20/awspolicyequivalence

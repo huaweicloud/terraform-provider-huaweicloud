@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"time"
@@ -7,6 +7,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/ipsecpolicies"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -14,10 +15,11 @@ import (
 
 func ResourceVpnIPSecPolicyV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceVpnIPSecPolicyV2Create,
-		Read:   resourceVpnIPSecPolicyV2Read,
-		Update: resourceVpnIPSecPolicyV2Update,
-		Delete: resourceVpnIPSecPolicyV2Delete,
+		Create:             resourceVpnIPSecPolicyV2Create,
+		Read:               resourceVpnIPSecPolicyV2Read,
+		Update:             resourceVpnIPSecPolicyV2Update,
+		Delete:             resourceVpnIPSecPolicyV2Delete,
+		DeprecationMessage: "VPN has been deprecated.",
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -105,7 +107,7 @@ func ResourceVpnIPSecPolicyV2() *schema.Resource {
 
 func resourceVpnIPSecPolicyV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -160,14 +162,14 @@ func resourceVpnIPSecPolicyV2Read(d *schema.ResourceData, meta interface{}) erro
 	logp.Printf("[DEBUG] Retrieve information about IPSec policy: %s", d.Id())
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	policy, err := ipsecpolicies.Get(networkingClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "IPSec policy")
+		return common.CheckDeleted(d, err, "IPSec policy")
 	}
 
 	logp.Printf("[DEBUG] Read HuaweiCloud IPSec policy %s: %#v", d.Id(), policy)
@@ -180,7 +182,7 @@ func resourceVpnIPSecPolicyV2Read(d *schema.ResourceData, meta interface{}) erro
 	d.Set("transform_protocol", policy.TransformProtocol)
 	d.Set("pfs", policy.PFS)
 	d.Set("auth_algorithm", policy.AuthAlgorithm)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	// Set the lifetime
 	var lifetimeMap map[string]interface{}
@@ -198,7 +200,7 @@ func resourceVpnIPSecPolicyV2Read(d *schema.ResourceData, meta interface{}) erro
 
 func resourceVpnIPSecPolicyV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -276,7 +278,7 @@ func resourceVpnIPSecPolicyV2Delete(d *schema.ResourceData, meta interface{}) er
 	logp.Printf("[DEBUG] Destroy IPSec policy: %s", d.Id())
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
