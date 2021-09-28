@@ -1,4 +1,4 @@
-package huaweicloud
+package iam
 
 import (
 	"bytes"
@@ -92,7 +92,7 @@ func resourceIdentityACLCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIdentityACLRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(GetRegion(d, config))
+	iamClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud iam client: %s", err)
 	}
@@ -152,7 +152,7 @@ func resourceIdentityACLUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIdentityACLDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(GetRegion(d, config))
+	iamClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud iam client: %s", err)
 	}
@@ -185,7 +185,7 @@ func resourceIdentityACLDelete(d *schema.ResourceData, meta interface{}) error {
 
 func updateACLPolicy(d *schema.ResourceData, meta interface{}, id string) error {
 	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(GetRegion(d, config))
+	iamClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud iam client: %s", err)
 	}

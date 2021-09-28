@@ -1,4 +1,4 @@
-package huaweicloud
+package iam
 
 import (
 	"encoding/csv"
@@ -10,13 +10,14 @@ import (
 	"github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/encryption"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceIdentityKey() *schema.Resource {
+func ResourceIdentityKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIdentityKeyCreate,
 		Read:   resourceIdentityKeyRead,
@@ -84,7 +85,7 @@ func resourceIdentityKey() *schema.Resource {
 
 func resourceIdentityKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(GetRegion(d, config))
+	iamClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud iam client: %s", err)
 	}
@@ -140,14 +141,14 @@ func resourceIdentityKeyCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIdentityKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(GetRegion(d, config))
+	iamClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud iam client: %s", err)
 	}
 
 	accessKey, err := credentials.Get(iamClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "access key")
+		return common.CheckDeleted(d, err, "access key")
 	}
 
 	d.Set("status", accessKey.Status)
@@ -157,7 +158,7 @@ func resourceIdentityKeyRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIdentityKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(GetRegion(d, config))
+	iamClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud iam client: %s", err)
 	}
@@ -179,7 +180,7 @@ func resourceIdentityKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIdentityKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(GetRegion(d, config))
+	iamClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud iam client: %s", err)
 	}

@@ -1,4 +1,4 @@
-package huaweicloud
+package iam
 
 import (
 	"bytes"
@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -258,11 +259,11 @@ func diffChangeOfProjectRole(old, newv *schema.Set) (delete, add []string) {
 
 func resourceIAMAgencyV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(GetRegion(d, config))
+	iamClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
 	}
-	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -343,18 +344,18 @@ func resourceIAMAgencyV3Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIAMAgencyV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(GetRegion(d, config))
+	iamClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
 	}
-	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	a, err := agency.Get(iamClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "IAM-Agency")
+		return common.CheckDeleted(d, err, "IAM-Agency")
 	}
 	logp.Printf("[DEBUG] Retrieved IAM-Agency %s: %#v", d.Id(), a)
 
@@ -424,11 +425,11 @@ func resourceIAMAgencyV3Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(GetRegion(d, config))
+	iamClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
 	}
-	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -455,7 +456,7 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 		err = resource.Retry(timeout, func() *resource.RetryError {
 			_, err := agency.Update(iamClient, agencyID, updateOpts).Extract()
 			if err != nil {
-				return checkForRetryableError(err)
+				return common.CheckForRetryableError(err)
 			}
 			return nil
 		})
@@ -548,7 +549,7 @@ func resourceIAMAgencyV3Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIAMAgencyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	iamClient, err := config.IAMV3Client(GetRegion(d, config))
+	iamClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud client: %s", err)
 	}
@@ -561,7 +562,7 @@ func resourceIAMAgencyV3Delete(d *schema.ResourceData, meta interface{}) error {
 	err = resource.Retry(timeout, func() *resource.RetryError {
 		err := agency.Delete(iamClient, rID).ExtractErr()
 		if err != nil {
-			return checkForRetryableError(err)
+			return common.CheckForRetryableError(err)
 		}
 		return nil
 	})

@@ -1,9 +1,10 @@
-package huaweicloud
+package iam
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -16,10 +17,10 @@ func TestAccIdentityCustomRoleDataSource_basic(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers: testAccProviders,
+		Providers: acceptance.TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityCustomRoleDataSource_basic(rName),
@@ -74,6 +75,10 @@ EOF
 
 data "huaweicloud_identity_custom_role" "role_1" {
   name = huaweicloud_identity_role.test.name
+
+  depends_on = [
+	huaweicloud_identity_role.test
+  ]
 }
 `, rName)
 }

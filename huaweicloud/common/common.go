@@ -14,6 +14,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -76,4 +77,20 @@ func UnsubscribePrePaidResource(d *schema.ResourceData, config *config.Config, r
 	}
 	_, err = orders.Unsubscribe(bssV2Client, unsubscribeOpts).Extract()
 	return err
+}
+
+func CheckForRetryableError(err error) *resource.RetryError {
+	switch errCode := err.(type) {
+	case golangsdk.ErrDefault500:
+		return resource.RetryableError(err)
+	case golangsdk.ErrUnexpectedResponseCode:
+		switch errCode.Actual {
+		case 409, 503:
+			return resource.RetryableError(err)
+		default:
+			return resource.NonRetryableError(err)
+		}
+	default:
+		return resource.NonRetryableError(err)
+	}
 }

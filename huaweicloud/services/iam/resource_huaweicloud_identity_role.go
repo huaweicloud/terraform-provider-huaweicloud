@@ -1,4 +1,4 @@
-package huaweicloud
+package iam
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/identity/v3.0/policies"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -54,7 +55,7 @@ func ResourceIdentityRole() *schema.Resource {
 
 func resourceIdentityRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IAMV3Client(GetRegion(d, config))
+	identityClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -86,14 +87,14 @@ func resourceIdentityRoleCreate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceIdentityRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IAMV3Client(GetRegion(d, config))
+	identityClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	role, err := policies.Get(identityClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "role")
+		return common.CheckDeleted(d, err, "role")
 	}
 
 	logp.Printf("[DEBUG] Retrieved HuaweiCloud Role: %#v", role)
@@ -114,7 +115,7 @@ func resourceIdentityRoleRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceIdentityRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IAMV3Client(GetRegion(d, config))
+	identityClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
@@ -144,7 +145,7 @@ func resourceIdentityRoleUpdate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceIdentityRoleDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IAMV3Client(GetRegion(d, config))
+	identityClient, err := config.IAMV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}

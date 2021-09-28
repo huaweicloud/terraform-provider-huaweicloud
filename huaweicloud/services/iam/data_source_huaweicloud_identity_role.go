@@ -1,4 +1,4 @@
-package huaweicloud
+package iam
 
 import (
 	"encoding/json"
@@ -49,7 +49,7 @@ func DataSourceIdentityRoleV3() *schema.Resource {
 // dataSourceIdentityRoleV3Read performs the role lookup.
 func dataSourceIdentityRoleV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	identityClient, err := config.IdentityV3Client(GetRegion(d, config))
+	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
 	}
