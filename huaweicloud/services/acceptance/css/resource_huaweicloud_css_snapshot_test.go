@@ -33,6 +33,18 @@ func TestAccCssSnapshot_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "backup_type", "manual"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: func(s *terraform.State) (string, error) {
+					rs, ok := s.RootModule().Resources[resourceName]
+					if !ok {
+						return "", fmtp.Errorf("Not found: %s", resourceName)
+					}
+					return fmt.Sprintf("%s/%s", rs.Primary.Attributes["cluster_id"], rs.Primary.ID), nil
+				},
+			},
 		},
 	})
 }
