@@ -11,7 +11,6 @@ Manages Cluster in the Data Warehouse Service.
 ### Dws Cluster Example
 
 ```hcl
-
 variable "availability_zone" {}
 variable "network_id" {}
 variable "vpc_id" {}
@@ -47,21 +46,21 @@ The following arguments are supported:
 * `name` - (Required, String, ForceNew) Cluster name, which must be unique and contains 4 to 64 characters, which
   consist of letters, digits, hyphens(-), or underscores(_) only and must start with a letter.
 
-* `network_id` - (Required, String, ForceNew) Network ID, which is used for configuring cluster network
+* `network_id` - (Required, String, ForceNew) Network ID, which is used for configuring cluster network.
 
-* `node_type` - (Required, String, ForceNew) Node type
+* `node_type` - (Required, String, ForceNew) Node type.
 
 * `number_of_node` - (Required, Int) Number of nodes in a cluster. The value ranges from 3 to 32. When expanding,
   add at least 3 nodes.
 
 * `security_group_id` - (Required, String, ForceNew) ID of a security group. The ID is used for configuring cluster
-  network
+  network.
 
 * `user_name` - (Required, String, ForceNew) Administrator username for logging in to a data warehouse cluster The
   administrator username must:  Consist of lowercase letters, digits, or underscores. Start with a lowercase letter or
   an underscore. Contain 1 to 63 characters. Cannot be a keyword of the DWS database.
 
-* `vpc_id` - (Required, String, ForceNew) VPC ID, which is used for configuring cluster network
+* `vpc_id` - (Required, String, ForceNew) VPC ID, which is used for configuring cluster network.
 
 * `user_pwd` - (Required, String) Administrator password for logging in to a data warehouse cluster A password
   must conform to the following rules:  Contains 8 to 32 characters. Cannot be the same as the username or the username
@@ -73,7 +72,7 @@ The following arguments are supported:
   Value 0 indicates the default enterprise project.
   Changing this parameter will create a new resource.
 
-* `availability_zone` - (Optional, String, ForceNew) AZ in a cluster
+* `availability_zone` - (Optional, String, ForceNew) AZ in a cluster.
 
 * `port` - (Optional, Int) Service port of a cluster (8000 to 10000). The default value is 8000.
 
@@ -81,7 +80,7 @@ The following arguments are supported:
 
 The `public_ip` block supports:
 
-* `eip_id` - (Optional, String, ForceNew) EIP ID
+* `eip_id` - (Optional, String, ForceNew) EIP ID.
 
 * `public_bind_type` - (Optional, String, ForceNew) Binding type of an EIP. The value can be either of the following:
   auto_assign not_use bind_existing The default value is not_use.
@@ -104,9 +103,9 @@ In addition to all arguments above, the following attributes are exported:
 * `public_endpoints` - Public network connection information about the cluster. If the value is not specified, the
   public network connection information is not used by default Structure is documented below.
 
-* `recent_event` - The recent event number
+* `recent_event` - The recent event number.
 
-* `status` - Cluster status, which can be one of the following:  CREATING AVAILABLE UNAVAILABLE CREATION FAILED
+* `status` - Cluster status, which can be one of the following:  CREATING AVAILABLE UNAVAILABLE CREATION FAILED.
 
 * `sub_status` - Sub-status of clusters in the AVAILABLE state. The value can be one of the following:  NORMAL READONLY
   REDISTRIBUTING REDISTRIBUTION-FAILURE UNBALANCED UNBALANCED | READONLY DEGRADED DEGRADED | READONLY DEGRADED |
@@ -120,13 +119,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `updated` - Last modification time of a cluster. The format is ISO8601:YYYY-MM-DDThh:mm:ssZ
 
-* `version` - Data warehouse version
+* `version` - Data warehouse version.
 
-* `private_ip` - List of private network IP address
+* `private_ip` - List of private network IP address.
 
 The `endpoints` block contains:
 
-* `connect_info` - (Optional, String) Private network connection information
+* `connect_info` - (Optional, String) Private network connection information.
 
 * `jdbc_url` - (Optional, String)
   JDBC URL. The following is the default format:
@@ -139,7 +138,7 @@ The `public_endpoints` block contains:
   jdbc:postgresql://< public_connect_info>/<YOUR_DATABASE_NAME>
 
 * `public_connect_info` - (Optional, String)
-  Public network connection information
+  Public network connection information.
 
 ## Timeouts
 
