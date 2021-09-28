@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"time"
@@ -7,6 +7,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/networking/v2/extensions/vpnaas/endpointgroups"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -14,10 +15,11 @@ import (
 
 func ResourceVpnEndpointGroupV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceVpnEndpointGroupV2Create,
-		Read:   resourceVpnEndpointGroupV2Read,
-		Update: resourceVpnEndpointGroupV2Update,
-		Delete: resourceVpnEndpointGroupV2Delete,
+		Create:             resourceVpnEndpointGroupV2Create,
+		Read:               resourceVpnEndpointGroupV2Read,
+		Update:             resourceVpnEndpointGroupV2Update,
+		Delete:             resourceVpnEndpointGroupV2Delete,
+		DeprecationMessage: "VPN has been deprecated.",
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -75,7 +77,7 @@ func ResourceVpnEndpointGroupV2() *schema.Resource {
 func resourceVpnEndpointGroupV2Create(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -132,14 +134,14 @@ func resourceVpnEndpointGroupV2Read(d *schema.ResourceData, meta interface{}) er
 	logp.Printf("[DEBUG] Retrieve information about group: %s", d.Id())
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
 
 	group, err := endpointgroups.Get(networkingClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "group")
+		return common.CheckDeleted(d, err, "group")
 	}
 
 	logp.Printf("[DEBUG] Read HuaweiCloud Endpoint EndpointGroup %s: %#v", d.Id(), group)
@@ -149,7 +151,7 @@ func resourceVpnEndpointGroupV2Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("tenant_id", group.TenantID)
 	d.Set("type", group.Type)
 	d.Set("endpoints", group.Endpoints)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", config.GetRegion(d))
 
 	return nil
 }
@@ -157,7 +159,7 @@ func resourceVpnEndpointGroupV2Read(d *schema.ResourceData, meta interface{}) er
 func resourceVpnEndpointGroupV2Update(d *schema.ResourceData, meta interface{}) error {
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
@@ -212,7 +214,7 @@ func resourceVpnEndpointGroupV2Delete(d *schema.ResourceData, meta interface{}) 
 	logp.Printf("[DEBUG] Destroy group: %s", d.Id())
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
 	}
