@@ -18,6 +18,7 @@ modules-dev/
 .vscode
 *.iml
 *.test
+*.pem
 
 
 # Test exclusions

@@ -241,7 +241,6 @@ func resourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) error
 	d.Set("share_proto", n.ShareProto)
 	d.Set("size", n.Size)
 	d.Set("description", n.Description)
-	d.Set("share_type", n.ShareType)
 	d.Set("is_public", n.IsPublic)
 	d.Set("availability_zone", n.AvailabilityZone)
 	d.Set("region", GetRegion(d, config))

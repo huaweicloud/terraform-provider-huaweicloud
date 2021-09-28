@@ -25,6 +25,7 @@ func TestAccNetworkingSecGroupV2DataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSecGroupV2DataSourceID(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttrSet(resourceName, "rules.#"),
 				),
 			},
 		},
@@ -47,6 +48,7 @@ func TestAccNetworkingSecGroupV2DataSource_byID(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSecGroupV2DataSourceID(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttrSet(resourceName, "rules.#"),
 				),
 			},
 		},

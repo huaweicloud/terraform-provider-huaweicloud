@@ -7,10 +7,13 @@ import (
 	"sync"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dli"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
@@ -334,6 +337,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_peering_connection":               dataSourceVpcPeeringConnectionV2(),
 			"huaweicloud_vpc_route":                            DataSourceVPCRouteV2(),
 			"huaweicloud_vpc_route_ids":                        dataSourceVPCRouteIdsV2(),
+			"huaweicloud_vpc_route_table":                      DataSourceVPCRouteTable(),
 			"huaweicloud_vpc_subnet":                           DataSourceVpcSubnetV1(),
 			"huaweicloud_vpc_subnet_ids":                       DataSourceVpcSubnetIdsV1(),
 			"huaweicloud_vpcep_public_services":                DataSourceVPCEPPublicServices(),
@@ -370,6 +374,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_az_v1":                 DataSourceDcsAZV1(),
 			"huaweicloud_dcs_maintainwindow_v1":     DataSourceDcsMaintainWindowV1(),
 			"huaweicloud_dcs_product_v1":            DataSourceDcsProductV1(),
+			"huaweicloud_dcs_flavors":               dcs.DataSourceDcsFlavorsV2(),
 			"huaweicloud_dds_flavors_v3":            DataSourceDDSFlavorV3(),
 			"huaweicloud_identity_role_v3":          DataSourceIdentityRoleV3(),
 			"huaweicloud_cdm_flavors_v1":            DataSourceCdmFlavorV1(),
@@ -402,8 +407,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_policy":                       ResourceASPolicy(),
 			"huaweicloud_bms_instance":                    ResourceBmsInstance(),
 			"huaweicloud_bcs_instance":                    resourceBCSInstanceV2(),
-			"huaweicloud_cbr_policy":                      resourceCBRPolicyV3(),
-			"huaweicloud_cbr_vault":                       resourceCBRVaultV3(),
+			"huaweicloud_cbr_policy":                      cbr.ResourceCBRPolicyV3(),
+			"huaweicloud_cbr_vault":                       cbr.ResourceCBRVaultV3(),
 			"huaweicloud_cce_cluster":                     ResourceCCEClusterV3(),
 			"huaweicloud_cce_node":                        ResourceCCENodeV3(),
 			"huaweicloud_cce_node_attach":                 ResourceCCENodeAttachV3(),
@@ -428,6 +433,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_csbs_backup_policy":              resourceCSBSBackupPolicyV1(),
 			"huaweicloud_css_cluster":                     css.ResourceCssCluster(),
 			"huaweicloud_css_snapshot":                    css.ResourceCssSnapshot(),
+			"huaweicloud_css_thesaurus":                   css.ResourceCssthesaurus(),
 			"huaweicloud_dcs_instance":                    ResourceDcsInstanceV1(),
 			"huaweicloud_dds_instance":                    ResourceDdsInstanceV3(),
 			"huaweicloud_dis_stream":                      ResourceDisStreamV2(),
@@ -454,6 +460,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_evs_snapshot":                    ResourceEvsSnapshotV2(),
 			"huaweicloud_evs_volume":                      ResourceEvsStorageVolumeV3(),
 			"huaweicloud_fgs_function":                    fgs.ResourceFgsFunctionV2(),
+			"huaweicloud_fgs_trigger":                     fgs.ResourceFunctionGraphTrigger(),
 			"huaweicloud_gaussdb_cassandra_instance":      resourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_mysql_instance":          resourceGaussDBInstance(),
 			"huaweicloud_gaussdb_opengauss_instance":      resourceOpenGaussInstance(),

@@ -12,6 +12,8 @@ Manages a CBR Vault resource within Huaweicloud.
 
 ```hcl
 variable "vault_name" {}
+variable "ecs_instance_id" {}
+variable "evs_volume_id" {}
 
 data "huaweicloud_compute_instance" "test" {
   ...
@@ -25,7 +27,11 @@ resource "huaweicloud_cbr_vault" "test" {
   size             = 100
 
   resources {
-    id = data.huaweicloud_compute_instance.test.id
+    server_id = var.ecs_instance_id
+  
+    excludes = [
+      var.evs_volume_id
+    ]
   }
 
   tags = {
@@ -38,10 +44,7 @@ resource "huaweicloud_cbr_vault" "test" {
 
 ```hcl
 variable "vault_name" {}
-
-data "huaweicloud_evs_volume" "test" {
-  ...
-}
+variable "evs_volume_id" {}
 
 resource "huaweicloud_cbr_vault" "test" {
   name             = var.vault_name
@@ -52,7 +55,13 @@ resource "huaweicloud_cbr_vault" "test" {
   auto_expand      = true
 
   resources {
-    id = data.huaweicloud_evs_volume.test.id
+    includes = [
+      var.evs_volume_id
+    ]
+  }
+
+  tags = {
+    foo = "bar"
   }
 }
 ```
@@ -61,10 +70,7 @@ resource "huaweicloud_cbr_vault" "test" {
 
 ```hcl
 variable "vault_name" {}
-
-resource "huaweicloud_sfs_turbo" "test" {
-  ...
-}
+variable "sfs_turbo_id" {}
 
 resource "huaweicloud_cbr_vault" "test" {
   name             = var.vault_name
@@ -74,7 +80,13 @@ resource "huaweicloud_cbr_vault" "test" {
   size             = 1000
 
   resources {
-    id = huaweicloud_sfs_turbo.test.id
+    includes = [
+      var.sfs_turbo_id
+    ]
+  }
+
+  tags = {
+    foo = "bar"
   }
 }
 ```
@@ -103,21 +115,27 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies a unique name of the CBR vault. This parameter can contain a maximum of 64
   characters, which may consist of letters, digits, underscores(_) and hyphens (-).
 
-* `type` - (Required, String, ForceNew) Specifies the object type of the CBR vault. Vaild values are: server (Cloud
-  servers), disk (EVS disks) and turbo (SFS turbo file systems). Changing this will create a new vault.
+* `type` - (Required, String, ForceNew) Specifies the object type of the CBR vault.
+  Changing this will create a new vault. Vaild values are as follows:
+  + **server** (Cloud Servers)
+  + **disk** (EVS Disks)
+  + **turbo** (SFS Turbo file systems)
 
-* `consistent_level` - (Required, String, ForceNew) Specifies the backup specifications. The valid values
-  are *[crash_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)*
-  and *[app_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)*
+* `consistent_level` - (Required, String, ForceNew) Specifies the backup specifications.
+  The valid values are as follows:
+  + **[crash_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
+  + **[app_consistent](https://support.huaweicloud.com/intl/en-us/usermanual-cbr/cbr_03_0109.html)**
+
   Only server type vaults support application consistent. Changing this will create a new vault.
 
-* `protection_type` - (Required, String, ForceNew) Specifies the protection type of the CBR vault. The valid values are
-  backup and replication. Vaults of type disk don't support replication. Changing this will create a new vault.
+* `protection_type` - (Required, String, ForceNew) Specifies the protection type of the CBR vault.
+  The valid values are **backup** and **replication**. Vaults of type **disk** don't support **replication**.
+  Changing this will create a new vault.
 
-* `size` - (Required, Int) Specifies the vault sapacity, in GB. The valid value is ranges from 1 to 10485760.
+* `size` - (Required, Int) Specifies the vault sapacity, in GB. The valid value range is `1` to `10,485,760`.
 
 * `auto_expand` - (Optional, Bool) Specifies to enable auto capacity expansion for the backup protection type vault.
-  Default to false.
+  Default to **false**.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies a unique ID in UUID format of enterprise project.
   Changing this will create a new vault.
@@ -125,20 +143,21 @@ The following arguments are supported:
 * `policy_id` - (Optional, String) Specifies a policy to associate with the CBR vault.
   `policy_id` cannot be used with the vault of replicate protection type.
 
-* `resources` - (Optional, List) Specifies an array of one or more resources to attach to the CBR vault. The resources
-  structure is documented below.
+* `resources` - (Optional, List) Specifies an array of one or more resources to attach to the CBR vault.
+  The [object](#cbr_vault_resources) structure is documented below.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CBR vault.
 
+<a name="cbr_vault_resources"></a>
 The `resources` block supports:
 
-* `id` - (Required, String) Specifies the ID of the resource to be backed up.
+* `server_id` - (Optional, String) Specifies the ID of the ECS instance to be backed up.
 
-* `exclude_volumes` - (Optional, List) Specifies the disks included in the backup except for the array that contains one
-  or more disk IDs.
+* `excludes` - (Optional, List) Specifies the array of disk IDs which will be excluded in the backup.
+  Only **server** vault support this parameter.
 
-* `include_volumes` - (Optional, List) Specifies the array of disk IDs which will be included in the backup. This
-  parameter and `exclude_volumes` are alternative.
+* `includes` - (Optional, List) Specifies the array of disk or SFS file system IDs which will be included in the backup.
+  Only **disk** and **turbo** vault support this parameter.
 
 ## Attributes Reference
 
@@ -148,24 +167,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `allocated` - The allocated capacity of the vault, in GB.
 
+* `used` - The used capacity, in GB.
+
 * `spec_code` - The specification code.
 
 * `status` - The vault status.
 
 * `storage` - The name of the bucket for the vault.
-
-* `used` - The used capacity, in GB.
-
-* `resources/name` - The name of the associated resource to be backup.
-
-* `resources/protect_status` - The protection status of the associated resource, includes *available*, *error*,
-  *protecting*, *restoring* and *removing*.
-
-* `resources/size` - The allocated capacity for the associated resource, in GB.
-
-* `resources/backup_size` - The size of the backup used by the associated resource.
-
-* `resources/backup_count` - The number of the associated resource backups.
 
 ## Import
 

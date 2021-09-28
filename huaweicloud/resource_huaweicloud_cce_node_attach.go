@@ -236,7 +236,7 @@ func resourceCCENodeAttachV3Create(d *schema.ResourceData, meta interface{}) err
 	_, err = stateCluster.WaitForState()
 
 	addOpts := nodes.AddOpts{
-		Kind:       "Node",
+		Kind:       "List",
 		ApiVersion: "v3",
 	}
 
@@ -309,7 +309,9 @@ func resourceCCENodeAttachV3Create(d *schema.ResourceData, meta interface{}) err
 		return fmtp.Errorf("Error adding HuaweiCloud Node: %s", err)
 	}
 
-	nodeID, err := getResourceIDFromJob(nodeClient, s.JobID, "CreateNode", "InstallNode")
+	nodeID, err := getResourceIDFromJob(nodeClient, s.JobID, "CreateNode", "InstallNode",
+		d.Timeout(schema.TimeoutCreate))
+
 	if err != nil {
 		return err
 	}
@@ -320,7 +322,7 @@ func resourceCCENodeAttachV3Create(d *schema.ResourceData, meta interface{}) err
 		Target:       []string{"Active"},
 		Refresh:      waitForCceNodeActive(nodeClient, clusterid, nodeID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        120 * time.Second,
+		Delay:        20 * time.Second,
 		PollInterval: 20 * time.Second,
 	}
 	_, err = stateConf.WaitForState()
