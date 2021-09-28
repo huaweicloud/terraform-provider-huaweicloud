@@ -730,7 +730,13 @@ func getCCEClusterIDFromJob(client *golangsdk.ServiceClient, jobID string, timeo
 
 	v, err := stateJob.WaitForState()
 	if err != nil {
-		return "", fmtp.Errorf("Error waiting for job (%s) to become running: %s", jobID, err)
+		if job, ok := v.(*nodes.Job); ok {
+			return "", fmtp.Errorf("Error waiting for job (%s) to become success: %s, reason: %s",
+				jobID, err, job.Status.Reason)
+		} else {
+			return "", fmtp.Errorf("Error waiting for job (%s) to become success: %s", jobID, err)
+		}
+
 	}
 
 	job := v.(*nodes.Job)
