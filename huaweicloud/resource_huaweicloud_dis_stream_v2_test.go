@@ -71,7 +71,10 @@ func testAccCheckDisStreamV2Destroy(s *terraform.State) error {
 		url = client.ServiceURL(url)
 
 		_, err = client.Get(url, nil, &golangsdk.RequestOpts{
-			MoreHeaders: map[string]string{"Content-Type": "application/json"}})
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+				"region":       HW_REGION_NAME,
+			}})
 		if err == nil {
 			return fmtp.Errorf("huaweicloud_dis_stream_v2 still exists at %s", url)
 		}
@@ -100,7 +103,10 @@ func testAccCheckDisStreamV2Exists() resource.TestCheckFunc {
 		url = client.ServiceURL(url)
 
 		_, err = client.Get(url, nil, &golangsdk.RequestOpts{
-			MoreHeaders: map[string]string{"Content-Type": "application/json"}})
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+				"region":       HW_REGION_NAME,
+			}})
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return fmtp.Errorf("huaweicloud_dis_stream_v2.stream is not exist")

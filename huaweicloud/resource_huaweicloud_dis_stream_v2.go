@@ -173,7 +173,8 @@ func resourceDisStreamV2UserInputParams(d *schema.ResourceData) map[string]inter
 
 func resourceDisStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.DisV2Client(GetRegion(d, config))
+	region := GetRegion(d, config)
+	client, err := config.DisV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -184,7 +185,7 @@ func resourceDisStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmtp.Errorf("Error building the request body of api(create), err=%s", err)
 	}
-	_, err = sendDisStreamV2CreateRequest(d, params, client)
+	_, err = sendDisStreamV2CreateRequest(d, params, client, region)
 	if err != nil {
 		return fmtp.Errorf("Error creating DisStreamV2, err=%s", err)
 	}
@@ -196,14 +197,15 @@ func resourceDisStreamV2Create(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDisStreamV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.DisV2Client(GetRegion(d, config))
+	region := GetRegion(d, config)
+	client, err := config.DisV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
 
 	res := make(map[string]interface{})
 
-	v, err := sendDisStreamV2ReadRequest(d, client)
+	v, err := sendDisStreamV2ReadRequest(d, client, region)
 	if err != nil {
 		return err
 	}
@@ -214,7 +216,8 @@ func resourceDisStreamV2Read(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDisStreamV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.DisV2Client(GetRegion(d, config))
+	region := GetRegion(d, config)
+	client, err := config.DisV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -226,7 +229,7 @@ func resourceDisStreamV2Update(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("Error building the request body of api(update), err=%s", err)
 	}
 	if e, _ := isEmptyValue(reflect.ValueOf(params)); !e {
-		_, err = sendDisStreamV2UpdateRequest(d, params, client)
+		_, err = sendDisStreamV2UpdateRequest(d, params, client, region)
 		if err != nil {
 			return fmtp.Errorf("Error updating (DisStreamV2: %v), err=%s", d.Id(), err)
 		}
@@ -237,7 +240,8 @@ func resourceDisStreamV2Update(d *schema.ResourceData, meta interface{}) error {
 
 func resourceDisStreamV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	client, err := config.DisV2Client(GetRegion(d, config))
+	region := GetRegion(d, config)
+	client, err := config.DisV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating sdk client, err=%s", err)
 	}
@@ -254,7 +258,10 @@ func resourceDisStreamV2Delete(d *schema.ResourceData, meta interface{}) error {
 		OkCodes:      successHTTPCodes,
 		JSONBody:     nil,
 		JSONResponse: nil,
-		MoreHeaders:  map[string]string{"Content-Type": "application/json"},
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       region,
+		},
 	})
 	if r.Err != nil {
 		return fmtp.Errorf("Error deleting Stream %q, err=%s", d.Id(), r.Err)
@@ -470,12 +477,13 @@ func expandDisStreamV2CreateTags(d interface{}, arrayIndex map[string]int) (inte
 }
 
 func sendDisStreamV2CreateRequest(d *schema.ResourceData, params interface{},
-	client *golangsdk.ServiceClient) (interface{}, error) {
+	client *golangsdk.ServiceClient, region string) (interface{}, error) {
 	url := client.ServiceURL("streams")
 
 	r := golangsdk.Result{}
 	_, r.Err = client.Post(url, params, nil, &golangsdk.RequestOpts{
-		OkCodes: successHTTPCodes,
+		OkCodes:     successHTTPCodes,
+		MoreHeaders: map[string]string{"region": region},
 	})
 	if r.Err != nil {
 		return nil, fmtp.Errorf("Error running api(create), err=%s", r.Err)
@@ -510,7 +518,7 @@ func buildDisStreamV2UpdateParameters(opts map[string]interface{}, arrayIndex ma
 }
 
 func sendDisStreamV2UpdateRequest(d *schema.ResourceData, params interface{},
-	client *golangsdk.ServiceClient) (interface{}, error) {
+	client *golangsdk.ServiceClient, region string) (interface{}, error) {
 	url, err := replaceVars(d, "streams/{id}", nil)
 	if err != nil {
 		return nil, err
@@ -519,7 +527,8 @@ func sendDisStreamV2UpdateRequest(d *schema.ResourceData, params interface{},
 
 	r := golangsdk.Result{}
 	_, r.Err = client.Put(url, params, nil, &golangsdk.RequestOpts{
-		OkCodes: successHTTPCodes,
+		OkCodes:     successHTTPCodes,
+		MoreHeaders: map[string]string{"region": region},
 	})
 	if r.Err != nil {
 		return nil, fmtp.Errorf("Error running api(update), err=%s", r.Err)
@@ -527,7 +536,7 @@ func sendDisStreamV2UpdateRequest(d *schema.ResourceData, params interface{},
 	return r.Body, nil
 }
 
-func sendDisStreamV2ReadRequest(d *schema.ResourceData, client *golangsdk.ServiceClient) (interface{}, error) {
+func sendDisStreamV2ReadRequest(d *schema.ResourceData, client *golangsdk.ServiceClient, region string) (interface{}, error) {
 	url, err := replaceVars(d, "streams/{id}", nil)
 	if err != nil {
 		return nil, err
@@ -536,7 +545,10 @@ func sendDisStreamV2ReadRequest(d *schema.ResourceData, client *golangsdk.Servic
 
 	r := golangsdk.Result{}
 	_, r.Err = client.Get(url, &r.Body, &golangsdk.RequestOpts{
-		MoreHeaders: map[string]string{"Content-Type": "application/json"}})
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       region,
+		}})
 	if r.Err != nil {
 		return nil, fmtp.Errorf("Error running api(read) for resource(DisStreamV2), err=%s", r.Err)
 	}
