@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -59,34 +60,21 @@ func dataSourceDcsMaintainWindowRead(_ context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	maintainWindows := v.MaintainWindows
-	filteredMVs := make([]maintainwindows.MaintainWindow, 0, len(maintainWindows))
-	for _, mv := range maintainWindows {
-		seq := d.Get("seq").(int)
-		if seq != 0 && mv.ID != seq {
-			continue
-		}
-
-		begin := d.Get("begin").(string)
-		if begin != "" && mv.Begin != begin {
-			continue
-		}
-		end := d.Get("end").(string)
-		if end != "" && mv.End != end {
-			continue
-		}
-
-		df, ok := d.GetOk("default")
-		if ok && mv.Default != df.(bool) {
-			continue
-		}
-		filteredMVs = append(filteredMVs, mv)
+	filteredMVs, err := utils.FliterSliceWithField(v.MaintainWindows, map[string]interface{}{
+		"ID":      d.Get("seq").(int),
+		"Begin":   d.Get("begin").(string),
+		"End":     d.Get("end").(string),
+		"Default": d.Get("default").(bool),
+	})
+	if err != nil {
+		return fmtp.DiagErrorf("Error while filtering data : %s", err)
 	}
+
 	if len(filteredMVs) < 1 {
 		return fmtp.DiagErrorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
-	mw := filteredMVs[0]
+	mw := filteredMVs[0].(maintainwindows.MaintainWindow)
 	d.SetId(strconv.Itoa(mw.ID))
 	d.Set("begin", mw.Begin)
 	d.Set("end", mw.End)
