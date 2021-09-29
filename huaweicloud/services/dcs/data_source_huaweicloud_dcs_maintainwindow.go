@@ -47,11 +47,11 @@ func DataSourceDcsMaintainWindow() *schema.Resource {
 	}
 }
 
-func dataSourceDcsMaintainWindowRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceDcsMaintainWindowRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	dcsV2Client, err := config.DcsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating dcs key client: %s", err)
+		return fmtp.DiagErrorf("Error creating DCS key client: %s", err)
 	}
 
 	v, err := maintainwindows.Get(dcsV2Client).Extract()

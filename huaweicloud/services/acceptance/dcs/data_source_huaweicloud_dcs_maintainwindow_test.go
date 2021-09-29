@@ -31,7 +31,6 @@ func TestAccDcsMaintainWindowDataSource_basic(t *testing.T) {
 
 var testAccDcsMaintainWindowDataSource_basic = fmt.Sprintf(`
 data "huaweicloud_dcs_maintainwindow" "maintainwindow1" {
-seq = 1
-default = false
+  seq = 1
 }
 `)
