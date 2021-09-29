@@ -399,6 +399,24 @@ The `nodes` block supports:
 
   Changing this will create a new MapReduce cluster resource.
 
+* `assigned_roles` - (Optional, List, ForceNew) Specifies the roles deployed in a node group.This argument is mandatory
+ when the cluster type is CUSTOM. Each character string represents a role expression.
+
+  **Role expression definition:**
+
+   + If the role is deployed on all nodes in the node group, set this parameter to role_name, for example: `DataNode`.
+   + If the role is deployed on a specified subscript node in the node group: role_name:index1,index2..., indexN,
+ for example: `DataNode:1,2`. The subscript starts from 1.
+   + Some roles support multi-instance deployment (that is, multiple instances of the same role are deployed on a node):
+  role_name[instance_count], for example: `EsNode[9]`.
+  
+  [For details about components](https://support.huaweicloud.com/intl/en-us/productdesc-mrs/mrs_08_0005.html)
+
+  [Mapping between roles and components](https://support.huaweicloud.com/intl/en-us/api-mrs/mrs_02_0106.html)
+
+  -> `DBService` is a basic component of a cluster. Components such as Hive, Hue, Oozie, Loader, and Redis, and Loader
+   store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
