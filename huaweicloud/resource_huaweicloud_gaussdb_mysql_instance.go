@@ -631,7 +631,6 @@ func resourceGaussDBInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		updatePassOpts := instances.UpdatePassOpts{
 			Password: newPass,
 		}
-		logp.Printf("[DEBUG] Update Password Options: %+v", updatePassOpts)
 
 		_, err := instances.UpdatePass(client, instanceId, updatePassOpts).ExtractJobResponse()
 		if err != nil {
