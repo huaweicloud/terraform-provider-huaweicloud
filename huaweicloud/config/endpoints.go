@@ -173,7 +173,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "elb",
 		Version: "v3",
 	},
-	"loadbalancer": {
+	"elb": {
 		Name:    "elb",
 		Version: "v2",
 	},

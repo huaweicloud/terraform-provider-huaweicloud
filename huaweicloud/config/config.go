@@ -745,19 +745,19 @@ func (c *Config) NatGatewayClient(region string) (*golangsdk.ServiceClient, erro
 	return c.NewServiceClient("nat", region)
 }
 
-// client for v2.0 api
+// ElbV2Client is the client for elb v2.0 (openstack) api
 func (c *Config) ElbV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("elbv2", region)
 }
 
-// client for v3 api
+// ElbV3Client is the client for elb v3 api
 func (c *Config) ElbV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("elbv3", region)
 }
 
-// client for v2 api
+// LoadBalancerClient is the client for elb v2 api
 func (c *Config) LoadBalancerClient(region string) (*golangsdk.ServiceClient, error) {
-	return c.NewServiceClient("loadbalancer", region)
+	return c.NewServiceClient("elb", region)
 }
 
 func (c *Config) FwV2Client(region string) (*golangsdk.ServiceClient, error) {
