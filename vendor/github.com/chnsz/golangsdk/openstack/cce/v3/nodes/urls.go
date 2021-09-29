@@ -26,3 +26,7 @@ func removeNodeURL(c *golangsdk.ServiceClient, clusterid string) string {
 func addNodeURL(c *golangsdk.ServiceClient, clusterid string) string {
 	return c.ServiceURL(rootPath, clusterid, resourcePath, "add")
 }
+
+func resetNodeURL(c *golangsdk.ServiceClient, clusterid string) string {
+	return c.ServiceURL(rootPath, clusterid, resourcePath, "reset")
+}

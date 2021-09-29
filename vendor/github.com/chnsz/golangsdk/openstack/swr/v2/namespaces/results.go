@@ -40,3 +40,34 @@ type GetResult struct {
 type DeleteResult struct {
 	golangsdk.ErrResult
 }
+
+type Access struct {
+	// ID of the access
+	ID int `json:"id"`
+	// Name of the Namespace
+	Name string `json:"name"`
+	// Creator Name of the Namespace
+	CreatorName string `json:"creator_name"`
+	// Permission of current user
+	SelfAuth User `json:"self_auth"`
+	// Permission of other users
+	OthersAuths []User `json:"others_auths"`
+}
+
+type CreateAccessResult struct {
+	golangsdk.ErrResult
+}
+
+type GetAccessResult struct {
+	commonResult
+}
+
+type DeleteAccessResult struct {
+	golangsdk.ErrResult
+}
+
+func (r GetAccessResult) Extract() (*Access, error) {
+	var s Access
+	err := r.ExtractInto(&s)
+	return &s, err
+}

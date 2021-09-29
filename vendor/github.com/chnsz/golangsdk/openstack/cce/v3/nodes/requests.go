@@ -4,6 +4,7 @@ import (
 	"reflect"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 )
 
 var RequestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
@@ -135,7 +136,7 @@ func Create(c *golangsdk.ServiceClient, clusterid string, opts CreateOptsBuilder
 }
 
 type AddOpts struct {
-	// API type, fixed value Node
+	// API type, fixed value List
 	Kind string `json:"kind" required:"true"`
 	// API version, fixed value v3
 	ApiVersion string `json:"apiversion" required:"true"`
@@ -149,31 +150,69 @@ type AddNode struct {
 }
 
 type AddNodeSpec struct {
-	VolumeConfig  *VolumeConfig          `json:"volumeConfig,omitempty"`
-	RuntimeConfig *RuntimeConfig         `json:"runtimeConfig,omitempty"`
-	K8sOptions    *K8sOptions            `json:"k8sOptions,omitempty"`
-	Lifecycle     *Lifecycle             `json:"lifecycle,omitempty"`
-	Login         LoginSpec              `json:"login" required:"true"`
-	Os            string                 `json:"os,omitempty"`
-	ExtendParam   map[string]interface{} `json:"extendParam,omitempty"`
+	// The OS of the node
+	Os string `json:"os" required:"true"`
+	// Node login parameters
+	Login LoginSpec `json:"login" required:"true"`
+	//Node name
+	Name string `json:"name,omitempty"`
+	// ECS server config of the node
+	ServerConfig *ServerConfig `json:"serverConfig,omitempty"`
+	// Volume management config of the node
+	VolumeConfig *VolumeConfig `json:"volumeConfig,omitempty"`
+	// Runtime config of the node
+	RuntimeConfig *RuntimeConfig `json:"runtimeConfig,omitempty"`
+	// Kubernetes options of the node
+	K8sOptions *K8sOptions `json:"k8sOptions,omitempty"`
+	// Custom lifecycle config of the node
+	Lifecycle *Lifecycle `json:"lifecycle,omitempty"`
+	// Extended parameter
+	ExtendParam map[string]interface{} `json:"extendParam,omitempty"`
+}
+
+type ServerConfig struct {
+	// Tag of a VM, key value pair format
+	UserTags []tags.ResourceTag `json:"userTags,omitempty"`
+	// System disk parameter of the node
+	RootVolume *RootVolume
+}
+
+type RootVolume struct {
+	// Custom image ID
+	ImageID string `json:"imageID,omitempty"`
+	// User master key ID, default to empty, means the disk in not encrypted
+	CmkID string `json:"cmkID,omitempty"`
 }
 
 type VolumeConfig struct {
+	// Docker data disk configurations
 	LvmConfig string `json:"lvmConfig,omitempty"`
 }
 
 type RuntimeConfig struct {
+	// The available disk space of a single Docker container on the node in device mapper mode
 	DockerBaseSize int `json:"dockerBaseSize,omitempty"`
+	// The runtime spec
+	Runtime *RunTimeSpec `json:"runtime,omitempty"`
 }
 
 type K8sOptions struct {
-	MaxPods       int    `json:"maxPods,omitempty"`
+	// Tag of a Kubernetes node, key value pair format
+	Labels map[string]string `json:"labels,omitempty"`
+	// taints to created nodes to configure anti-affinity
+	Taints []TaintSpec `json:"taints,omitempty"`
+	// The maximum number of pods allowed to be created on a node
+	MaxPods int `json:"maxPods,omitempty"`
+	// NIC queue number configuration
 	NicMultiQueue string `json:"nicMultiqueue,omitempty"`
-	NicThreshold  string `json:"nicThreshold,omitempty"`
+	// NIC pre-binding ratio configuration
+	NicThreshold string `json:"nicThreshold,omitempty"`
 }
 
 type Lifecycle struct {
-	Preinstall  string `json:"preInstall,omitempty"`
+	// Preinstall script
+	Preinstall string `json:"preInstall,omitempty"`
+	// Postinstall script
 	PostInstall string `json:"postInstall,omitempty"`
 }
 
@@ -193,6 +232,38 @@ func Add(c *golangsdk.ServiceClient, clusterid string, opts AddOptsBuilder) (r A
 	}
 	reqOpt := &golangsdk.RequestOpts{OkCodes: []int{200}}
 	_, r.Err = c.Post(addNodeURL(c, clusterid), b, &r.Body, reqOpt)
+	return
+}
+
+type ResetOpts struct {
+	// API type, fixed value List
+	Kind string `json:"kind" required:"true"`
+	// API version, fixed value v3
+	ApiVersion string `json:"apiversion" required:"true"`
+	// List of nodes to reset
+	NodeList []ResetNode `json:"nodeList" required:"true"`
+}
+
+type ResetNode struct {
+	NodeID string      `json:"nodeID" required:"true"`
+	Spec   AddNodeSpec `json:"spec" required:"true"`
+}
+
+type ResetOptsBuilder interface {
+	ToNodeResetMap() (map[string]interface{}, error)
+}
+
+func (opts ResetOpts) ToNodeResetMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+func Reset(c *golangsdk.ServiceClient, clusterid string, opts ResetOptsBuilder) (r AddResult) {
+	b, err := opts.ToNodeResetMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = c.Post(resetNodeURL(c, clusterid), b, &r.Body, nil)
 	return
 }
 
