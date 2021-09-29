@@ -118,10 +118,12 @@ github.com/chnsz/golangsdk/openstack/css/v1/snapshots
 github.com/chnsz/golangsdk/openstack/css/v1/thesaurus
 github.com/chnsz/golangsdk/openstack/cts/v1/tracker
 github.com/chnsz/golangsdk/openstack/dcs/v1/availablezones
-github.com/chnsz/golangsdk/openstack/dcs/v1/instances
 github.com/chnsz/golangsdk/openstack/dcs/v1/maintainwindows
 github.com/chnsz/golangsdk/openstack/dcs/v1/products
+github.com/chnsz/golangsdk/openstack/dcs/v2/availablezones
 github.com/chnsz/golangsdk/openstack/dcs/v2/flavors
+github.com/chnsz/golangsdk/openstack/dcs/v2/instances
+github.com/chnsz/golangsdk/openstack/dcs/v2/tags
 github.com/chnsz/golangsdk/openstack/dcs/v2/whitelists
 github.com/chnsz/golangsdk/openstack/dds/v3/flavors
 github.com/chnsz/golangsdk/openstack/dds/v3/instances
