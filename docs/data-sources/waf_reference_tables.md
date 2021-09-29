@@ -10,6 +10,7 @@ Use this data source to get a list of WAF reference tables.
 
 ```hcl
 data "huaweicloud_waf_reference_tables" "reftables" {
+  name = "reference_table_name"
 }
 ```
 
@@ -19,6 +20,8 @@ The following arguments are supported:
 
 * `region` - (Optional, String) The region in which to create the WAF reference table resource.
   If omitted, the provider-level region will be used.
+
+* `name` - (Optional, String) The name of the reference table. The value is case sensitive and matches exactly.
 
 ## Attributes Reference
 

@@ -5,9 +5,11 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
@@ -21,6 +23,10 @@ func DataSourceWafReferenceTablesV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"tables": {
 				Type:     schema.TypeList,
@@ -74,20 +80,24 @@ func dataSourceWafReferenceTablesRead(d *schema.ResourceData, meta interface{}) 
 	if len(r.Items) == 0 {
 		return fmtp.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
-
+	// filter data by name
+	filterData, err := utils.FliterSliceWithField(r.Items, map[string]interface{}{
+		"Name": d.Get("name").(string),
+	})
+	tables := make([]map[string]interface{}, 0, len(filterData))
 	ids := make([]string, 0, len(r.Items))
-	tables := make([]map[string]interface{}, 0, len(r.Items))
-	for _, t := range r.Items {
+	for _, t := range filterData {
+		v := t.(valuelists.WafValueList)
 		tab := map[string]interface{}{
-			"id":            t.Id,
-			"name":          t.Name,
-			"type":          t.Type,
-			"conditions":    t.Values,
-			"description":   t.Description,
-			"creation_time": time.Unix(t.CreationTime/1000, 0).Format("2006-01-02 15:04:05"),
+			"id":            v.Id,
+			"name":          v.Name,
+			"type":          v.Type,
+			"conditions":    v.Values,
+			"description":   v.Description,
+			"creation_time": time.Unix(v.CreationTime/1000, 0).Format("2006-01-02 15:04:05"),
 		}
 		tables = append(tables, tab)
-		ids = append(ids, t.Id)
+		ids = append(ids, v.Id)
 	}
 
 	d.SetId(hashcode.Strings(ids))
