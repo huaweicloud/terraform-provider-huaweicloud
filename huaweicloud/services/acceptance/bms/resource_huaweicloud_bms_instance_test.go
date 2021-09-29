@@ -24,8 +24,8 @@ func TestAccBmsInstance_basic(t *testing.T) {
 			acceptance.TestAccPreCheckBms(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckBmsInstanceDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckBmsInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBmsInstance_basic(rName),
@@ -99,7 +99,6 @@ func testAccCheckBmsInstanceExists(n string, instance *baremetalservers.CloudSer
 
 func testAccBmsInstance_basic(rName string) string {
 	return fmt.Sprintf(`
-
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc" "test" {
@@ -112,6 +111,10 @@ data "huaweicloud_vpc_subnet" "test" {
 
 data "huaweicloud_networking_secgroup" "test" {
   name = "default"
+}
+
+data "huaweicloud_bms_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
 }
 
 resource "huaweicloud_compute_keypair" "test" {
@@ -138,25 +141,19 @@ resource "huaweicloud_vpc_eip" "myeip" {
 
 resource "huaweicloud_bms_instance" "test" {
   name                  = "%s"
-  image_id              = "519ea918-1fea-4ebc-911a-593739b1a3bc"
-  flavor_id             = "physical.s4.xlarge"
   user_id               = "%s"
+  # CentOS 7.4 64bit for BareMetal
+  image_id              = "519ea918-1fea-4ebc-911a-593739b1a3bc"
+  flavor_id             = data.huaweicloud_bms_flavors.test.flavors[0].id
   security_groups       = [data.huaweicloud_networking_secgroup.test.id]
   availability_zone     = data.huaweicloud_availability_zones.test.names[0]
   vpc_id                = data.huaweicloud_vpc.test.id
   eip_id                = huaweicloud_vpc_eip.myeip.id
-  system_disk_size      = 150
-  system_disk_type      = "SSD"
   charging_mode         = "prePaid"
   period_unit           = "month"
   period                = "1"
   key_pair              = huaweicloud_compute_keypair.test.name
   enterprise_project_id = "%s"
-
-  data_disks {
-    type = "SSD"
-    size = 100
-  }
 
   nics {
     subnet_id = data.huaweicloud_vpc_subnet.test.id

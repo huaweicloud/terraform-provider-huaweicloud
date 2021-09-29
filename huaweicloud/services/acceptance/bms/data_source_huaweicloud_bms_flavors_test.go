@@ -12,8 +12,8 @@ import (
 func TestAccBmsFlavorsDataSource_basic(t *testing.T) {
 	resourceName := "data.huaweicloud_bms_flavors.demo"
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { acceptance.TestAccPreCheck(t) },
-		Providers: acceptance.TestAccProviders,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBmsFlavorsDataSource_basic,
