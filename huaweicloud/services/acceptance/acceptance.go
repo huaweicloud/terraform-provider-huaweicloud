@@ -45,6 +45,7 @@ var (
 
 	HW_DEST_REGION     = os.Getenv("HW_DEST_REGION")
 	HW_DEST_PROJECT_ID = os.Getenv("HW_DEST_PROJECT_ID")
+	HW_CHARGING_MODE   = os.Getenv("HW_CHARGING_MODE")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -313,6 +314,15 @@ func RandomAccResourceNameWithDash() string {
 	return fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 }
 
+func RandomCidr() string {
+	return fmt.Sprintf("172.16.%d.0/24", acctest.RandIntRange(0, 255))
+}
+
+func RandomCidrAndGatewayIp() (string, string) {
+	seed := acctest.RandIntRange(0, 255)
+	return fmt.Sprintf("172.16.%d.0/24", seed), fmt.Sprintf("172.16.%d.1", seed)
+}
+
 //lintignore:AT003
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
@@ -345,5 +355,12 @@ func TestAccPreCheckProject(t *testing.T) {
 func TestAccPreCheckOBS(t *testing.T) {
 	if HW_ACCESS_KEY == "" || HW_SECRET_KEY == "" {
 		t.Skip("HW_ACCESS_KEY and HW_SECRET_KEY must be set for OBS acceptance tests")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckChargingMode(t *testing.T) {
+	if HW_CHARGING_MODE != "prePaid" {
+		t.Skip("This environment does not support prepaid tests")
 	}
 }
