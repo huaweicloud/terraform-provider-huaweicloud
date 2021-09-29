@@ -1,4 +1,4 @@
-package huaweicloud
+package bms
 
 import (
 	"fmt"
@@ -6,13 +6,14 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccBmsFlavorsDataSource_basic(t *testing.T) {
 	resourceName := "data.huaweicloud_bms_flavors.demo"
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:  func() { acceptance.TestAccPreCheck(t) },
+		Providers: acceptance.TestAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBmsFlavorsDataSource_basic,

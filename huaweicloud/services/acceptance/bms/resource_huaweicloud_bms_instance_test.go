@@ -1,16 +1,16 @@
-package huaweicloud
+package bms
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
 	"github.com/chnsz/golangsdk/openstack/bms/v1/baremetalservers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccBmsInstance_basic(t *testing.T) {
@@ -20,8 +20,11 @@ func TestAccBmsInstance_basic(t *testing.T) {
 	resourceName := "huaweicloud_bms_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckBms(t); testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
+		PreCheck: func() {
+			acceptance.TestAccPreCheckBms(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckBmsInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -32,7 +35,7 @@ func TestAccBmsInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID),
 				),
 			},
 		},
@@ -40,10 +43,10 @@ func TestAccBmsInstance_basic(t *testing.T) {
 }
 
 func testAccCheckBmsInstanceDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	bmsClient, err := config.BmsV1Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	bmsClient, err := config.BmsV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud bms client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud bms client: %s", err)
 	}
 
 	for _, rs := range s.RootModule().Resources {
@@ -54,7 +57,7 @@ func testAccCheckBmsInstanceDestroy(s *terraform.State) error {
 		server, err := baremetalservers.Get(bmsClient, rs.Primary.ID).Extract()
 		if err == nil {
 			if server.Status != "DELETED" {
-				return fmtp.Errorf("Instance still exists")
+				return fmt.Errorf("Instance still exists")
 			}
 		}
 	}
@@ -66,17 +69,17 @@ func testAccCheckBmsInstanceExists(n string, instance *baremetalservers.CloudSer
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
+			return fmt.Errorf("Not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
+			return fmt.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		bmsClient, err := config.BmsV1Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		bmsClient, err := config.BmsV1Client(acceptance.HW_REGION_NAME)
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud bms client: %s", err)
+			return fmt.Errorf("Error creating HuaweiCloud bms client: %s", err)
 		}
 
 		found, err := baremetalservers.Get(bmsClient, rs.Primary.ID).Extract()
@@ -85,7 +88,7 @@ func testAccCheckBmsInstanceExists(n string, instance *baremetalservers.CloudSer
 		}
 
 		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Instance not found")
+			return fmt.Errorf("Instance not found")
 		}
 
 		*instance = *found
@@ -164,5 +167,5 @@ resource "huaweicloud_bms_instance" "test" {
     key = "value"
   }
 }
-`, rName, rName, rName, HW_USER_ID, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, rName, rName, rName, acceptance.HW_USER_ID, acceptance.HW_ENTERPRISE_PROJECT_ID)
 }

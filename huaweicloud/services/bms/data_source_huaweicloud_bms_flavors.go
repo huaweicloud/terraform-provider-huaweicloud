@@ -1,4 +1,4 @@
-package huaweicloud
+package bms
 
 import (
 	"context"
@@ -77,7 +77,8 @@ func DataSourceBmsFlavors() *schema.Resource {
 
 func dataSourceBmsFlavorsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	bmsClient, err := config.BmsV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	bmsClient, err := config.BmsV1Client(region)
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud BMS client: %s", err)
 	}
@@ -143,7 +144,7 @@ func dataSourceBmsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	d.SetId(hashcode.Strings(ids))
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", region)
 	d.Set("flavors", resultFlavors)
 
 	return nil

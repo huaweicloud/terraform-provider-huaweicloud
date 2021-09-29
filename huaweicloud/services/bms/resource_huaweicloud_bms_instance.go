@@ -1,4 +1,4 @@
-package huaweicloud
+package bms
 
 import (
 	"crypto/sha1"
@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -235,12 +236,12 @@ func ResourceBmsInstance() *schema.Resource {
 					},
 				},
 			},
-			"charging_mode": schemeChargingMode([]string{}),
-			"period_unit":   schemaPeriodUnit([]string{}),
-			"period":        schemaPeriod([]string{}),
-			"auto_renew":    schemaAutoRenew([]string{}),
+			"charging_mode": common.SchemeChargingMode([]string{}),
+			"period_unit":   common.SchemaPeriodUnit([]string{}),
+			"period":        common.SchemaPeriod([]string{}),
+			"auto_renew":    common.SchemaAutoRenew([]string{}),
 
-			"tags": tagsForceNewSchema(),
+			"tags": common.TagsForceNewSchema(),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -283,7 +284,7 @@ func ResourceBmsInstance() *schema.Resource {
 
 func resourceBmsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	bmsClient, err := config.BmsV1Client(GetRegion(d, config))
+	bmsClient, err := config.BmsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud bms client: %s", err)
 	}
@@ -310,28 +311,32 @@ func resourceBmsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 			PeriodNum:           d.Get("period").(int),
 			IsAutoPay:           "true",
 			IsAutoRenew:         d.Get("auto_renew").(string),
-			EnterpriseProjectId: GetEnterpriseProjectID(d, config),
+			EnterpriseProjectId: config.GetEnterpriseProjectID(d),
 		},
 	}
 
-	if hasFilledOpt(d, "eip_id") || hasFilledOpt(d, "iptype") {
-		var publicIp baremetalservers.PublicIp
-		if hasFilledOpt(d, "eip_id") {
-			publicIp.Id = d.Get("eip_id").(string)
-		} else {
-			publicIp.Eip = &baremetalservers.Eip{
-				IpType: d.Get("iptype").(string),
-				BandWidth: baremetalservers.BandWidth{
-					ShareType:  d.Get("sharetype").(string),
-					Size:       d.Get("bandwidth_size").(int),
-					ChargeMode: d.Get("bandwidth_charge_mode").(string),
-				},
-				ExtendParam: baremetalservers.EipExtendParam{
-					ChargingMode: d.Get("eip_charge_mode").(string),
-				},
-			}
+	var eipOpts baremetalservers.PublicIp
+	var hasEIP bool
+	if eipID, ok := d.GetOk("eip_id"); ok {
+		hasEIP = true
+		eipOpts.Id = eipID.(string)
+
+	} else if eipType, ok := d.GetOk("iptype"); ok {
+		hasEIP = true
+		eipOpts.Eip = &baremetalservers.Eip{
+			IpType: eipType.(string),
+			BandWidth: baremetalservers.BandWidth{
+				ShareType:  d.Get("sharetype").(string),
+				Size:       d.Get("bandwidth_size").(int),
+				ChargeMode: d.Get("bandwidth_charge_mode").(string),
+			},
+			ExtendParam: baremetalservers.EipExtendParam{
+				ChargingMode: d.Get("eip_charge_mode").(string),
+			},
 		}
-		createOpts.PublicIp = &publicIp
+	}
+	if hasEIP {
+		createOpts.PublicIp = &eipOpts
 	}
 
 	if v, ok := d.GetOk("system_disk_type"); ok {
@@ -342,8 +347,8 @@ func resourceBmsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 		createOpts.RootVolume = &volRequest
 	}
 
-	if hasFilledOpt(d, "tags") {
-		tagRaw := d.Get("tags").(map[string]interface{})
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
 		taglist := utils.ExpandResourceTags(tagRaw)
 		createOpts.ServerTags = taglist
 	}
@@ -374,14 +379,15 @@ func resourceBmsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceBmsInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	bmsClient, err := config.BmsV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	bmsClient, err := config.BmsV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
 
 	server, err := baremetalservers.Get(bmsClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "server")
+		return common.CheckDeleted(d, err, "server")
 	}
 	if server.Status == "DELETED" {
 		d.SetId("")
@@ -390,7 +396,7 @@ func resourceBmsInstanceRead(d *schema.ResourceData, meta interface{}) error {
 
 	logp.Printf("[DEBUG] Retrieved Server %s: %+v", d.Id(), server)
 
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", region)
 	d.Set("name", server.Name)
 	d.Set("image_id", server.Image.ID)
 	d.Set("flavor_id", server.Flavor.ID)
@@ -430,7 +436,7 @@ func resourceBmsInstanceRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceBmsInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	bmsClient, err := config.BmsV1Client(GetRegion(d, config))
+	bmsClient, err := config.BmsV1Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -450,7 +456,8 @@ func resourceBmsInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceBmsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	bmsClient, err := config.BmsV1Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	bmsClient, err := config.BmsV1Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
 	}
@@ -470,19 +477,19 @@ func resourceBmsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 
 	// unsubscribe the eip if necessary
 	if _, ok := d.GetOk("iptype"); ok && publicIP != "" && d.Get("eip_charge_mode").(string) == "prePaid" {
-		eipClient, err := config.NetworkingV1Client(GetRegion(d, config))
+		eipClient, err := config.NetworkingV1Client(region)
 		if err != nil {
 			return fmtp.Errorf("Error creating networking client: %s", err)
 		}
 
-		if eipID, err := getEipIDbyAddress(eipClient, publicIP); err == nil {
+		if eipID, err := common.GetEipIDbyAddress(eipClient, publicIP); err == nil {
 			resourceIDs = append(resourceIDs, eipID)
 		} else {
 			return fmtp.Errorf("Error fetching EIP ID of BMS server (%s): %s", d.Id(), err)
 		}
 	}
 
-	if err := UnsubscribePrePaidResource(d, config, resourceIDs); err != nil {
+	if err := common.UnsubscribePrePaidResource(d, config, resourceIDs); err != nil {
 		return fmtp.Errorf("Error unsubscribing HuaweiCloud BMS server: %s", err)
 	}
 
@@ -549,7 +556,7 @@ func flattenBmsInstanceNicsV1(d *schema.ResourceData, meta interface{},
 	addresses map[string][]baremetalservers.Address) []map[string]interface{} {
 
 	config := meta.(*config.Config)
-	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
+	networkingClient, err := config.NetworkingV2Client(config.GetRegion(d))
 	if err != nil {
 		logp.Printf("Error creating HuaweiCloud networking client: %s", err)
 	}
