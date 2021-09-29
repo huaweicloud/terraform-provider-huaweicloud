@@ -164,11 +164,6 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "nat",
 		Version: "v2",
 	},
-	"elb": {
-		Name:             "elb",
-		Version:          "v1.0",
-		WithOutProjectID: true,
-	},
 	"elbv2": {
 		Name:             "elb",
 		Version:          "v2.0",
