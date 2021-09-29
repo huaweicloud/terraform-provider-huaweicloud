@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## 1.29.0 (September 29, 2021)
+
+* **New Resurce:**
+  + `huaweicloud_vpc_route_table` [GH-1359]
+  + `huaweicloud_fgs_trigger` [GH-1372]
+  + `huaweicloud_css_thesaurus` [GH-1513]
+  + `huaweicloud_cce_pvc` [GH-1552]
+
+* **New Data Source:**
+  + `huaweicloud_gaussdb_opengauss_instances` [GH-1483]
+  + `huaweicloud_identity_group` [GH-1485]
+  + `huaweicloud_vpc_route_table` [GH-1493]
+  + `huaweicloud_dcs_flavors` [GH-1498]
+  + `huaweicloud_bms_flavors` [GH-1557]
+
+ENHANCEMENTS:
+
+* IAM: Make `domain_name` optional for IAM resources [GH-1480]
+* data/huaweicloud_rds_flavors: Support vcpus and memory arguments [GH-1484]
+* resource/huaweicloud_obs_bucket: Support default encryption for a bucket [GH-1518]
+* resource/huaweicloud_compute_keypair: Add key file parameter of the private key creation path [GH-1524]
+* resource/huaweicloud_dcs_instance: Upgrade DCS API version to V2 [GH-1547]
+* resource/huaweicloud_cce_node_attach: Support reset operation [GH-1555]
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_addon: Support json string in values block [GH-1479]
+* resource/huaweicloud_vpc_eip: Check whether the eip exists before delete [GH-1522]
+* resource/huaweicloud_mapreduce_cluster: fix the type error when handling assigned_roles of node [GH-1526]
+* resource/huaweicloud_identity_group_membership: Check whether the user exists before remove [GH-1533]
+
+DEPRECATE:
+
+* data/huaweicloud_dcs_az [GH-1521]
+* data/huaweicloud_dcs_product [GH-1521]
+
 ## 1.28.1 (September 3, 2021)
 
 ENHANCEMENTS:
