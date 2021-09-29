@@ -56,7 +56,7 @@ github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 github.com/bgentry/go-netrc/netrc
-# github.com/chnsz/golangsdk v0.0.0-20210928074820-0a4d68220e60
+# github.com/chnsz/golangsdk v0.0.0-20210928081733-8c72e1fb0e6c
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -88,6 +88,7 @@ github.com/chnsz/golangsdk/openstack/bms/v1/flavors
 github.com/chnsz/golangsdk/openstack/bss/v2/orders
 github.com/chnsz/golangsdk/openstack/cbr/v3/policies
 github.com/chnsz/golangsdk/openstack/cbr/v3/vaults
+github.com/chnsz/golangsdk/openstack/cce/v1/persistentvolumeclaims
 github.com/chnsz/golangsdk/openstack/cce/v3/addons
 github.com/chnsz/golangsdk/openstack/cce/v3/clusters
 github.com/chnsz/golangsdk/openstack/cce/v3/nodepools
@@ -158,6 +159,7 @@ github.com/chnsz/golangsdk/openstack/elb/v3/loadbalancers
 github.com/chnsz/golangsdk/openstack/elb/v3/monitors
 github.com/chnsz/golangsdk/openstack/elb/v3/pools
 github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects
+github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes
 github.com/chnsz/golangsdk/openstack/evs/v2/snapshots
 github.com/chnsz/golangsdk/openstack/evs/v2/tags
 github.com/chnsz/golangsdk/openstack/evs/v3/volumes
