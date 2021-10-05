@@ -8,7 +8,7 @@ import (
 const rootPath = "namespaces"
 
 func createURL(client *golangsdk.ServiceClient, clusterId, ns string) string {
-	return addons.CCEServiceURL(client, clusterId, rootPath, ns, "cloudpersistentvolumeclaims")
+	return addons.CCEServiceURL(client, clusterId, rootPath, ns, "persistentvolumeclaims")
 }
 
 func listURL(client *golangsdk.ServiceClient, clusterId, ns string) string {

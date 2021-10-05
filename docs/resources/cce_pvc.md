@@ -8,53 +8,60 @@ Manages a CCE Persistent Volume Claim resource within HuaweiCloud.
 
 ## Example Usage
 
-### Create PVC by importing EVS volume
+### Create PVC with EVS
 
 ```hcl
 variable "cluster_id" {}
 variable "namespace" {}
 variable "pvc_name" {}
-variable "volume_id" {}
 
 resource "huaweicloud_cce_pvc" "test" {
   namespace   = var.namespace
   name        = var.pvc_name
-  volume_type = "bs"
-  volume_id   = var.volume_id
+  annotations = {
+    "everest.io/disk-volume-type" = "SSD"
+  }
+  storage_class_name = "csi-disk"
+  access_modes = ["ReadWriteOnce"]
+  storage = "10Gi"
 }
 ```
 
-### Create PVC by importing OBS bucket
+### Create PVC with OBS
 
 ```hcl
 variable "cluster_id" {}
 variable "namespace" {}
 variable "pvc_name" {}
-variable "obs_bucket_id" {}
 
 resource "huaweicloud_cce_pvc" "test" {
   clsuter_id  = var.cluster_id
   namespace   = var.namespace
   name        = var.pvc_name
-  volume_type = "obs"
-  volume_id   = var.obs_bucket_id
+  annotations = {
+    "everest.io/obs-volume-type" = "STANDARD"
+    "csi.storage.k8s.io/fstype" =  "obsfs"
+  }
+  storage_class_name = "csi-obs"
+  access_modes = ["ReadWriteMany"]
+  storage = "1Gi"
 }
 ```
 
-### Create PVC by importing SFS file system
+### Create PVC with SFS
 
 ```hcl
 variable "cluster_id" {}
 variable "namespace" {}
 variable "pvc_name" {}
-variable "sfs_file_system_id" {}
 
 resource "huaweicloud_cce_pvc" "test" {
   clsuter_id  = var.cluster_id
   namespace   = var.namespace
   name        = var.pvc_name
-  volume_type = "nfs"
-  volume_id   = var.sfs_file_system_id
+  storage_class_name = "csi-nas"
+  access_modes = ["ReadWriteMany"]
+  storage = "10Gi"
 }
 ```
 
@@ -74,19 +81,26 @@ The following arguments are supported:
   maximum of 63 characters, which may consist of lowercase letters, digits and hyphens (-), and must start and end with
   lowercase letters and digits. Changing this will create a new PVC resource.
 
-* `volume_id` - (Required, String, ForceNew) Specifies the ID of the storage bound to the CCE namespace. Changing this
+* `annotations` - (Optional, Map, ForceNew) An unstructured key value map for external parameters. Changing this
   will create a new PVC resource.
 
-* `volume_type` - (Optional, String, ForceNew) Specifies the type of the storage bound to the CCE namespace.
+* `labels` - (Optional, Map, ForceNew) Map of string keys and values for labels. Changing this
+  will create a new PVC resource.
+
+* `storage_class_name` - (Required, String, ForceNew) Specifies the type of the storage bound to the CCE pvc.
   The valid values are as follows:
-  + **bs**: EVS disk.
-  + **obs**: OBS bucket.
-  + **nfs**: SFS file system.
+  + **csi-disk**: EVS.
+  + **csi-obs**: OBS.
+  + **csi-nas**: SFS.
+  + **csi-sfsturbo**: SFS-Turbo.
 
-  default to **bs**.
+* `access_modes` - (Required, List, ForceNew) Specifies the desired access modes the volume should have.
+  The valid values are as follows:
+  + **ReadWriteOnce**: The volume can be mounted as read-write by a single node.
+  + **ReadOnlyMany**: The volume can be mounted as read-only by many nodes.
+  + **ReadWriteMany**: The volume can be mounted as read-write by many nodes.
 
-* `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone in which to create the PVC.
-  Please following [reference](https://developer.huaweicloud.com/intl/en-us/endpoint?CCE) for the values.
+* `storage` - (Required, String, ForceNew) Specifies the minimum amount of storage resources required.
   Changing this creates a new PVC resource.
 
 ## Attributes Reference
@@ -100,20 +114,6 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - The current phase of the PVC.
   + **Pending**: Not yet bound.
   + **Bound**: Already bound.
-
-* `access_modes` - Access mode of the volume (EVS disk, OBS bucket or SFS file system).
-  + **ReadWriteOnce**: The volume can be mounted as read-write by a single node.
-  + **ReadOnlyMany**: The volume can be mounted as read-only by many nodes.
-  + **ReadWriteMany**: The volume can be mounted as read-write by many nodes.
-
-## Import
-
-PVCs can be imported using their `id`, `namespace` and the `cluster_id` to which the pvc and namespace belongs,
-separated by a slash, e.g.
-
-```
-$ terraform import huaweicloud_cce_pvc.test <cluster_id>/<namespace>/<id>
-```
 
 ## Timeouts
 

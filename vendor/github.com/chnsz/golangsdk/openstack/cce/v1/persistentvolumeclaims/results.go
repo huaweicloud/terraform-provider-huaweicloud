@@ -27,7 +27,7 @@ type MetaResp struct {
 	Namespace string `json:"namespace"`
 	// An unstructured key value map stored with a resource that may be set by external tools to store and retrieve
 	// arbitrary metadata.
-	Annotations Annotations `json:"annotations"`
+	Annotations map[string]string `json:"annotations"`
 	// ID of the Persistent Volume Claim in UUID format.
 	UID string `json:"uid"`
 	// String that identifies the server's internal version of this object that can be used by clients to determine
@@ -38,26 +38,12 @@ type MetaResp struct {
 	// SelfLink is a URL representing this object.
 	SelfLink string `json:"selfLink"`
 	// Map of string keys and values that can be used to organize and categorize (scope and select) objects.
-	Labels Labels `json:"labels"`
+	Labels map[string]string `json:"labels"`
 	// Each finalizer string of array is an identifier for the responsible component that will remove the entry form
 	// the list.
 	Finalizers []string `json:"finalizers"`
 	// Enable identify whether the resource is available.
 	Enable bool `json:"enable"`
-}
-
-// Annotations is an object struct that indicates the storage plugin and the storage class.
-type Annotations struct {
-	// Type of the EVS disk.
-	EvsVolumeType string `json:"everest.io/disk-volume-type"`
-	// Type of the file system.
-	FileSystemType string `json:"csi.storage.k8s.io/fstype"`
-	// Type of the Obs bucket.
-	ObsVolumeType string `json:"everest.io/obs-volume-type"`
-	// Whether volume is bound.
-	BindCompleted string `json:"pv.kubernetes.io/bind-completed"`
-	// Name of the storage provisioner used by CCE.
-	StorageProvisioner string `json:"volume.beta.kubernetes.io/storage-provisioner"`
 }
 
 // SpecResp is an object struct that represents the detailed description.
