@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.29.1 (October 6, 2021)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_pvc: Update with kubernetes API [GH-1572]
+
 ## 1.29.0 (September 29, 2021)
 
 * **New Resurce:**
