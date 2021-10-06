@@ -20,34 +20,18 @@ type CreateOpts struct {
 
 // Metadata is an object which will be build up standard object metadata.
 type Metadata struct {
-	// The name of the persistent volume claim, must be unique within a namespace. Cannot be updated.
-	Name string `json:"name" required:"true"`
-	// Map of string keys and values that can be used to organize and categorize (scope and select) objects.
-	// May match selectors of replication controllers and services.
-	Labels *Labels `json:"labels,omitempty"`
-}
-
-// Labels is an object that can be used to organize and categorize (scope and select) objects.
-type Labels struct {
-	// Role-based access control (RBAC).
-	// If enabled, access to resources in the namespace will be controlled by RBAC policies.
-	Region string `json:"failure-domain.beta.kubernetes.io/region,omitempty"`
-	// ID of enterprise project.
-	AvailabilityZone string `json:"failure-domain.beta.kubernetes.io/zone,omitempty"`
+	// The name of the persistent volume claim.
+	Name string `json:"name,omitempty"`
+	// The namespace of the persistent volume claim.
+	Namespace string `json:"namespace,omitempty"`
+	// The labels of the persistent volume claim.
+	Labels map[string]string `json:"labels,omitempty"`
+	// The annotations of the persistent volume claim.
+	Annotations map[string]string `json:"annotations,omitempty"`
 }
 
 // Spec defines the detailed description of the cluster object.
 type Spec struct {
-	// ID of an existing storage volume.
-	// If an SFS, SFS Turbo, or EVS volume is used, set this parameter to the ID of the volume.
-	// If an OBS bucket is used, set this parameter to the OBS bucket name.
-	VolumeID string `json:"volumeID" required:"true"`
-	// Cloud storage class. This parameter is used together with volumeID. That is, volumeID and storageType must be configured at the same time.
-	// bs: EVS. For details, see Using EVS Disks as Storage Volumes.
-	// nfs: SFS. For details, see Using SFS File Systems as Storage Volumes.
-	// obs: OBS. For details, see Using OBS Buckets as Storage Volumes].
-	// efs: SFS Turbo. For details, see Using SFS Turbo File Systems as Storage Volumes
-	StorageType string `json:"storageType" required:"true"`
 	// Access mode of the volume. Only the first value in all selected options is valid.
 	// ReadWriteOnce: The volume can be mounted as read-write by a single node.
 	// NOTE:
@@ -56,11 +40,25 @@ type Spec struct {
 	// ReadWriteMany: The volume can be mounted as read-write by many nodes.
 	AccessModes []string `json:"accessModes" required:"true"`
 	// Storage class name of the PVC.
-	StorageClassName string `json:"storageClassName"`
+	StorageClassName string `json:"storageClassName,omitempty"`
+	// Resources represents the minimum resources the volume should have.
+	Resources ResourceRequest `json:"resources" required:"true"`
 	// Name of the PV bound to the PVC.
-	VolumeName string `json:"volumeName"`
-	// PV type specified by the PVC.
-	VolumeMode string `json:"volumeMode"`
+	VolumeName string `json:"volumeName,omitempty"`
+}
+
+// ResourceRequest is an object struct that represents the detailed of the volume.
+type ResourceRequest struct {
+	// Minimum amount of compute resources required.
+	// If requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	// otherwise to an implementation-defined value.
+	Requests CapacityReq `json:"requests" required:"true"`
+}
+
+// CapacityReq is an object struct that represents the volume capacity.
+type CapacityReq struct {
+	// Volume size, in GB format: 'xGi'.
+	Storage string `json:"storage" required:"true"`
 }
 
 // CreateOptsBuilder allows extensions to add additional parameters to the Create request.

@@ -8,8 +8,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cce/v1/persistentvolumeclaims"
-	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
-	"github.com/chnsz/golangsdk/openstack/sfs/v2/shares"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -19,21 +17,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
-
-const (
-	// EvsVolume is the type of the EVS disk.
-	EvsVolume = "bs"
-	// ObsVolume is the type of the OBS bucket.
-	ObsVolume = "obs"
-	// SfsVolume is the type of the SFS file system.
-	SfsVolume = "nfs"
-)
-
-var storageClassType = map[string]string{
-	"csi-disk": EvsVolume,
-	"csi-obs":  ObsVolume,
-	"csi-nas":  SfsVolume,
-}
 
 type StateRefresh struct {
 	Pending      []string
@@ -70,6 +53,18 @@ func ResourceCcePersistentVolumeClaimsV1() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"annotations": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"namespace": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -83,29 +78,29 @@ func ResourceCcePersistentVolumeClaimsV1() *schema.Resource {
 					"The name consists of 1 to 63 characters, including lowercase letters, digits and hyphens, "+
 						"and must start and end with lowercase letters and digits"),
 			},
-			"volume_id": {
+			"access_modes": {
+				Type:     schema.TypeSet,
+				Required: true,
+				ForceNew: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+					ValidateFunc: validation.StringInSlice([]string{
+						"ReadWriteOnce",
+						"ReadOnlyMany",
+						"ReadWriteMany",
+					}, false),
+				},
+				Set: schema.HashString,
+			},
+			"storage": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"volume_type": {
+			"storage_class_name": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ForceNew: true,
-				Default:  EvsVolume,
-				ValidateFunc: validation.StringInSlice([]string{
-					EvsVolume, ObsVolume, SfsVolume,
-				}, false),
-			},
-			"availability_zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"access_mode": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"creation_timestamp": {
 				Type:     schema.TypeString,
@@ -119,33 +114,51 @@ func ResourceCcePersistentVolumeClaimsV1() *schema.Resource {
 	}
 }
 
+func resourcePvcLabels(d *schema.ResourceData) map[string]string {
+	m := make(map[string]string)
+	for key, val := range d.Get("labels").(map[string]interface{}) {
+		m[key] = val.(string)
+	}
+	return m
+}
+
+func resourcePvcAnnotations(d *schema.ResourceData) map[string]string {
+	m := make(map[string]string)
+	for key, val := range d.Get("annotations").(map[string]interface{}) {
+		m[key] = val.(string)
+	}
+	return m
+}
+
+func resourcePvcAccessMode(d *schema.ResourceData) []string {
+	rawAccessModes := d.Get("access_modes").(*schema.Set).List()
+	accessModes := make([]string, len(rawAccessModes))
+	for i, raw := range rawAccessModes {
+		accessModes[i] = raw.(string)
+	}
+	return accessModes
+}
+
 func buildCcePersistentVolumeClaimCreateOpts(d *schema.ResourceData,
 	config *config.Config) (persistentvolumeclaims.CreateOpts, error) {
-	var volumeType = d.Get("volume_type").(string)
-	var accessMode string
-	switch volumeType {
-	case EvsVolume:
-		accessMode = "ReadWriteOnce"
-	case ObsVolume, SfsVolume:
-		accessMode = "ReadWriteMany"
-	default:
-		return persistentvolumeclaims.CreateOpts{}, fmtp.Errorf("Volumes does not support this type: %s", volumeType)
-	}
 	createOpts := persistentvolumeclaims.CreateOpts{
 		ApiVersion: "v1",                    // The value is fixed at v1.
 		Kind:       "PersistentVolumeClaim", // The value is fixed at PersistentVolumeClaim.
 		Metadata: persistentvolumeclaims.Metadata{
-			Name: d.Get("name").(string),
-			Labels: &persistentvolumeclaims.Labels{
-				Region:           config.GetRegion(d),
-				AvailabilityZone: d.Get("availability_zone").(string),
-			},
+			Name:        d.Get("name").(string),
+			Namespace:   d.Get("namespace").(string),
+			Labels:      resourcePvcLabels(d),
+			Annotations: resourcePvcAnnotations(d),
 		},
 		Spec: persistentvolumeclaims.Spec{
-			VolumeID:    d.Get("volume_id").(string),
-			StorageType: volumeType,
-			// Only the first value in all selected options is valid.
-			AccessModes: []string{accessMode},
+			AccessModes:      resourcePvcAccessMode(d),
+			StorageClassName: d.Get("storage_class_name").(string),
+			// resources
+			Resources: persistentvolumeclaims.ResourceRequest{
+				Requests: persistentvolumeclaims.CapacityReq{
+					Storage: d.Get("storage").(string),
+				},
+			},
 		},
 	}
 
@@ -189,69 +202,17 @@ func resourceCcePersistentVolumeClaimV1Create(ctx context.Context, d *schema.Res
 	return resourceCcePersistentVolumeClaimV1Read(ctx, d, meta)
 }
 
-func setCcePersistentVolumeClaimVolumeParams(d *schema.ResourceData, config *config.Config,
-	spec persistentvolumeclaims.SpecResp) error {
-	var volumeId, volumeType string
-
-	switch spec.StorageClassName {
-	case "csi-disk":
-		c, err := config.BlockStorageV2Client(config.GetRegion(d))
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud EVS v2 client: %s", err)
-		}
-		volumeType = EvsVolume
-		pages, err := cloudvolumes.List(c, cloudvolumes.ListOpts{Name: spec.VolumeName}).AllPages()
-		if err != nil {
-			return err
-		}
-		volumes, err := cloudvolumes.ExtractVolumes(pages)
-		if err != nil {
-			return err
-		}
-		if len(volumes) <= 0 {
-			return fmtp.Errorf("EVS disk (%s) not found.", spec.VolumeName)
-		}
-		volumeId = volumes[0].ID
-	case "csi-obs":
-		volumeId = spec.VolumeName
-		volumeType = ObsVolume
-	case "csi-nas":
-		c, err := config.SfsV2Client(config.GetRegion(d))
-		if err != nil {
-			return fmtp.Errorf("Error creating Huaweicloud File Share v2 Client: %s", err)
-		}
-		systems, err := shares.List(c, shares.ListOpts{Name: spec.VolumeName})
-		if len(systems) <= 0 {
-			return fmtp.Errorf("SFS file system (%s) not found.", spec.VolumeName)
-		}
-		volumeId = systems[0].ID
-		volumeType = SfsVolume
-	default:
-		return fmtp.Errorf("Storage Classes does not support this type: %s", spec.StorageClassName)
-	}
-	return multierror.Append(nil,
-		d.Set("volume_id", volumeId),
-		d.Set("volume_type", volumeType),
-	)
-}
-
-func setCcePersistentVolumeClaimAccessMode(d *schema.ResourceData, accessModes []string) error {
-	if len(accessModes) > 0 {
-		return d.Set("access_mode", accessModes[0])
-	}
-	return nil
-}
-
 func saveCcePersistentVolumeClaimState(d *schema.ResourceData, config *config.Config,
 	resp *persistentvolumeclaims.PersistentVolumeClaim) error {
 	metadata := &resp.Metadata
 
 	mErr := multierror.Append(nil,
-		d.Set("availability_zone", metadata.Labels.AvailabilityZone),
-		d.Set("region", metadata.Labels.Region),
+		d.Set("region", config.GetRegion(d)),
 		d.Set("name", metadata.Name),
-		setCcePersistentVolumeClaimVolumeParams(d, config, resp.Spec),
-		setCcePersistentVolumeClaimAccessMode(d, resp.Spec.AccessModes),
+		d.Set("namespace", metadata.Namespace),
+		d.Set("access_modes", resp.Spec.AccessModes),
+		d.Set("storage_class_name", resp.Spec.StorageClassName),
+		d.Set("storage", resp.Spec.Resources.Requests.Storage),
 		d.Set("creation_timestamp", metadata.CreationTimestamp),
 		d.Set("status", &resp.Status.Phase),
 	)
