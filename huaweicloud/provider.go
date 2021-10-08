@@ -382,6 +382,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_role_v3":          iam.DataSourceIdentityRoleV3(),
 			"huaweicloud_cdm_flavors_v1":            DataSourceCdmFlavorV1(),
 			"huaweicloud_dis_partition_v2":          DataSourceDisPartitionV2(),
+			"huaweicloud_dws_flavors":               dws.DataSourceDwsFlavlors(),
+
 			// Deprecated
 			"huaweicloud_compute_availability_zones_v2": dataSourceComputeAvailabilityZonesV2(),
 			"huaweicloud_networking_network_v2":         dataSourceNetworkingNetworkV2(),
