@@ -16,6 +16,7 @@ variable "namespace" {}
 variable "pvc_name" {}
 
 resource "huaweicloud_cce_pvc" "test" {
+  cluster_id  = var.cluster_id
   namespace   = var.namespace
   name        = var.pvc_name
   annotations = {
@@ -35,7 +36,7 @@ variable "namespace" {}
 variable "pvc_name" {}
 
 resource "huaweicloud_cce_pvc" "test" {
-  clsuter_id  = var.cluster_id
+  cluster_id  = var.cluster_id
   namespace   = var.namespace
   name        = var.pvc_name
   annotations = {
@@ -56,7 +57,7 @@ variable "namespace" {}
 variable "pvc_name" {}
 
 resource "huaweicloud_cce_pvc" "test" {
-  clsuter_id  = var.cluster_id
+  cluster_id  = var.cluster_id
   namespace   = var.namespace
   name        = var.pvc_name
   storage_class_name = "csi-nas"
