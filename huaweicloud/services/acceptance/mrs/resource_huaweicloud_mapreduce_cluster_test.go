@@ -29,9 +29,9 @@ func TestAccMrsMapReduceCluster_basic(t *testing.T) {
 		acctest.RandIntRange(0, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckMRSV2ClusterDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMrsMapReduceClusterConfig_basic(rName, password),
@@ -78,9 +78,9 @@ func TestAccMrsMapReduceCluster_keypair(t *testing.T) {
 		acctest.RandIntRange(0, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckMRSV2ClusterDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMrsMapReduceClusterConfig_keypair(rName, password),
@@ -112,9 +112,9 @@ func TestAccMrsMapReduceCluster_analysis(t *testing.T) {
 		acctest.RandIntRange(0, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckMRSV2ClusterDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMrsMapReduceClusterConfig_analysis(rName, password, buildGroupNodeNumbers(2, 0, 1, 0)),
@@ -173,9 +173,9 @@ func TestAccMrsMapReduceCluster_stream(t *testing.T) {
 		acctest.RandIntRange(0, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckMRSV2ClusterDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMrsMapReduceClusterConfig_stream(rName, password, buildGroupNodeNumbers(0, 2, 0, 1)),
@@ -234,9 +234,9 @@ func TestAccMrsMapReduceCluster_hybrid(t *testing.T) {
 		acctest.RandIntRange(0, 99))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckMRSV2ClusterDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMrsMapReduceClusterConfig_hybrid(rName, password, buildGroupNodeNumbers(2, 2, 1, 1)),
@@ -317,8 +317,8 @@ func TestAccMrsMapReduceCluster_custom_compact(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMrsCustom(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckMRSV2ClusterDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMrsMapReduceClusterConfig_customCompact(rName, password, 3),
@@ -357,8 +357,8 @@ func TestAccMrsMapReduceCluster_custom_seperate(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMrsCustom(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckMRSV2ClusterDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMrsMapReduceClusterConfig_customSeperate(rName, password, 3),
@@ -398,8 +398,8 @@ func TestAccMrsMapReduceCluster_custom_fullsize(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckMrsCustom(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckMRSV2ClusterDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckMRSV2ClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMrsMapReduceClusterConfig_customFullsize(rName, password, 3),
@@ -546,6 +546,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
     node_number       = 1
     root_volume_type  = "SAS"
     root_volume_size  = 300
+    data_volume_count = 0
   }
 
   tags = {
@@ -593,6 +594,7 @@ resource "huaweicloud_mapreduce_cluster" "test" {
     node_number       = 1
     root_volume_type  = "SAS"
     root_volume_size  = 300
+    data_volume_count = 0
   }
 
   tags = {

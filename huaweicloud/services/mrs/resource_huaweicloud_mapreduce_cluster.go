@@ -288,12 +288,12 @@ func nodeGroupSchemaResource(groupName string, nodeScalable bool, minNodeNum, ma
 			},
 			"data_volume_type": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"data_volume_size": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 			"data_volume_count": {
@@ -314,6 +314,12 @@ func nodeGroupSchemaResource(groupName string, nodeScalable bool, minNodeNum, ma
 				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
+				},
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if clusterType := d.Get("type").(string); clusterType != typeCustom {
+						return true
+					}
+					return false
 				},
 			},
 		},
@@ -438,9 +444,12 @@ func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultNa
 		}
 		nodeGroup.DataVolumeCount = golangsdk.IntToPointer(volumeCount)
 		// This parameter is mandatory when the cluster type is CUSTOM. Specifies the roles deployed in a node group.
-		for _, v := range opts["assigned_roles"].([]interface{}) {
-			nodeGroup.AssignedRoles = append(nodeGroup.AssignedRoles, v.(string))
+		if clusterType := d.Get("type").(string); clusterType == typeCustom {
+			for _, v := range opts["assigned_roles"].([]interface{}) {
+				nodeGroup.AssignedRoles = append(nodeGroup.AssignedRoles, v.(string))
+			}
 		}
+
 		result = append(result, nodeGroup)
 	}
 	return result
