@@ -72,15 +72,17 @@ Changing this parameter will create a new resource.
 
 * `tags` - (Optional, Map) Specifies the tags of a VM node, key/value pair format.
 
-* `taints` - (Optional, List, ForceNew) You can add taints to created nodes to configure anti-affinity. Each taint
-  contains the following parameters:
+* `taints` - (Optional, List, ForceNew) You can add taints to created nodes to configure anti-affinity.
+  Changing this parameter will create a new resource. Each taint contains the following parameters:
 
-  + `key` - (Required, String, ForceNew) A key must contain 1 to 63 characters starting with a letter or digit. Only letters,
-    digits, hyphens (-), underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the prefix
-    of a key.
-  + `value` - (Required, String, ForceNew) A value must start with a letter or digit and can contain a maximum of 63 characters,
-    including letters, digits, hyphens (-), underscores (_), and periods (.).
+  + `key` - (Required, String, ForceNew) A key must contain 1 to 63 characters starting with a letter or digit.
+    Only letters, digits, hyphens (-), underscores (_), and periods (.) are allowed. A DNS subdomain name can be used
+    as the prefix of a key. Changing this parameter will create a new resource.
+  + `value` - (Required, String, ForceNew) A value must start with a letter or digit and can contain a maximum of 63
+    characters, including letters, digits, hyphens (-), underscores (_), and periods (.). Changing this parameter will
+    create a new resource.
   + `effect` - (Required, String, ForceNew) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
+    Changing this parameter will create a new resource.
 
 ## Attributes Reference
 

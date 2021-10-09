@@ -136,16 +136,18 @@ The following arguments are supported:
 * `root_volume` - (Required, List, ForceNew) It corresponds to the system disk related configuration. Changing this
   parameter will create a new resource.
 
-  + `size` - (Required, Int) Disk size in GB.
-  + `volumetype` - (Required, String) Disk type.
-  + `extend_params` - (Optional, Map) Disk expansion parameters.
+  + `size` - (Required, Int, ForceNew) Disk size in GB. Changing this parameter will create a new resource.
+  + `volumetype` - (Required, String, ForceNew) Disk type. Changing this parameter will create a new resource.
+  + `extend_params` - (Optional, Map, ForceNew) Disk expansion parameters. Changing this parameter will create
+    a new resource.
 
 * `data_volumes` - (Required, List, ForceNew) Represents the data disk to be created. Changing this parameter will
   create a new resource.
 
-  + `size` - (Required, Int) Disk size in GB.
-  + `volumetype` - (Required, String) Disk type.
-  + `extend_params` - (Optional, Map) Disk expansion parameters.
+  + `size` - (Required, Int, ForceNew) Disk size in GB. Changing this parameter will create a new resource.
+  + `volumetype` - (Required, String, ForceNew) Disk type. Changing this parameter will create a new resource.
+  + `extend_params` - (Optional, Map, ForceNew) Disk expansion parameters. Changing this parameter will create
+    a new resource.
 
 * `subnet_id` - (Optional, String, ForceNew) The ID of the subnet to which the NIC belongs. Changing this parameter will
   create a new resource.
@@ -215,15 +217,17 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Tags of a VM node, key/value pair format.
 
-* `taints` - (Optional, List, ForceNew) You can add taints to created nodes to configure anti-affinity. Each taint
-  contains the following parameters:
+* `taints` - (Optional, List, ForceNew) You can add taints to created nodes to configure anti-affinity.
+  Changing this parameter will create a new resource. Each taint contains the following parameters:
 
-  + `key` - (Required, String) A key must contain 1 to 63 characters starting with a letter or digit. Only letters,
-    digits, hyphens (-), underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the prefix
-    of a key.
-  + `value` - (Required, String) A value must start with a letter or digit and can contain a maximum of 63 characters,
-    including letters, digits, hyphens (-), underscores (_), and periods (.).
-  + `effect` - (Required, String) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
+  + `key` - (Required, String, ForceNew) A key must contain 1 to 63 characters starting with a letter or digit.
+    Only letters, digits, hyphens (-), underscores (_), and periods (.) are allowed. A DNS subdomain name can be used
+    as the prefix of a key. Changing this parameter will create a new resource.
+  + `value` - (Required, String, ForceNew) A value must start with a letter or digit and can contain a maximum of 63
+    characters, including letters, digits, hyphens (-), underscores (_), and periods (.). Changing this parameter will
+    create a new resource.
+  + `effect` - (Required, String, ForceNew) Available options are NoSchedule, PreferNoSchedule, and NoExecute.
+    Changing this parameter will create a new resource.
 
 ## Attributes Reference
 

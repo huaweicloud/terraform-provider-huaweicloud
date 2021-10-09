@@ -78,23 +78,28 @@ func ResourceCCENodePool() *schema.Resource {
 						"size": {
 							Type:     schema.TypeInt,
 							Required: true,
+							ForceNew: true,
 						},
 						"volumetype": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 						"hw_passthrough": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							ForceNew: true,
 						},
 						"extend_param": {
 							Type:       schema.TypeString,
 							Optional:   true,
+							ForceNew:   true,
 							Deprecated: "use extend_params instead",
 						},
 						"extend_params": {
 							Type:     schema.TypeMap,
 							Optional: true,
+							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					}},
@@ -108,23 +113,28 @@ func ResourceCCENodePool() *schema.Resource {
 						"size": {
 							Type:     schema.TypeInt,
 							Required: true,
+							ForceNew: true,
 						},
 						"volumetype": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 						"hw_passthrough": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							ForceNew: true,
 						},
 						"extend_param": {
 							Type:       schema.TypeString,
 							Optional:   true,
+							ForceNew:   true,
 							Deprecated: "use extend_params instead",
 						},
 						"extend_params": {
 							Type:     schema.TypeMap,
 							Optional: true,
+							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					}},
@@ -138,6 +148,7 @@ func ResourceCCENodePool() *schema.Resource {
 			"os": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Computed: true,
 			},
 			"key_pair": {
