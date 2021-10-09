@@ -362,7 +362,8 @@ func chooseDNSClientbyZoneID(d *schema.ResourceData, zoneID string, meta interfa
 		logp.Printf("[WARN] fetching zone failed with DNS global endpoint: %s", err)
 
 		// try to ues the DNS region endpoint
-		client, clientErr := config.DnsWithRegionClient(region)
+		var clientErr error
+		client, clientErr = config.DnsWithRegionClient(region)
 		if clientErr != nil {
 			// it looks tricky as we return the fetching error rather than clientErr
 			return nil, "", err

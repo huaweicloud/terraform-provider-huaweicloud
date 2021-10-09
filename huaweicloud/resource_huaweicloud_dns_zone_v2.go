@@ -259,7 +259,8 @@ func resourceDNSZoneV2Read(d *schema.ResourceData, meta interface{}) error {
 		logp.Printf("[WARN] fetching zone failed with DNS global endpoint: %s", err)
 		// an error occurred while fetching the zone with DNS global endpoint
 		// try to fetch it again with DNS region endpoint
-		dnsClient, clientErr := config.DnsWithRegionClient(GetRegion(d, config))
+		var clientErr error
+		dnsClient, clientErr = config.DnsWithRegionClient(GetRegion(d, config))
 		if clientErr != nil {
 			// it looks tricky as we return the fetching error rather than clientErr
 			return CheckDeleted(d, err, "zone")
