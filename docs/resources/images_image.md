@@ -11,6 +11,9 @@ Manages an Image resource within HuaweiCloud IMS.
 ### Creating an image from ECS
 
 ```hcl
+variable "instance_name" {}
+variable "image_name" {}
+
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_vpc_subnet" "test" {
@@ -18,7 +21,7 @@ data "huaweicloud_vpc_subnet" "test" {
 }
 
 resource "huaweicloud_compute_instance" "test" {
-  name              = "%s"
+  name              = var.instance_name
   image_name        = "Ubuntu 18.04 server 64bit"
   security_groups   = ["default"]
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
@@ -29,7 +32,7 @@ resource "huaweicloud_compute_instance" "test" {
 }
 
 resource "huaweicloud_images_image" "test" {
-  name        = "%s"
+  name        = var.image_name
   instance_id = huaweicloud_compute_instance.test.id
   description = "created by Terraform"
 
@@ -64,19 +67,19 @@ The following arguments are supported:
 
 * `description` - (Optional, String, ForceNew) A description of the image.
 
-* `min_ram` - (Optional, Int, ForceNew) The minimum memory of the image in the unit of MB. The default value is 0,
-  indicating that the memory is not restricted.
-
-* `max_ram` - (Optional, Int, ForceNew) The maximum memory of the image in the unit of MB.
-
-* `tags` - (Optional, Map) The tags of the image.
-
 * `instance_id` - (Optional, String, ForceNew) The ID of the ECS that needs to be converted into an image. This
   parameter is mandatory when you create a privete image from an ECS.
 
 * `image_url` - (Optional, String, ForceNew) The URL of the external image file in the OBS bucket. This parameter is
   mandatory when you create a private image from an external file uploaded to an OBS bucket. The format is *OBS bucket
   name:Image file name*.
+
+* `min_ram` - (Optional, Int, ForceNew) The minimum memory of the image in the unit of MB. The default value is 0,
+  indicating that the memory is not restricted.
+
+* `max_ram` - (Optional, Int, ForceNew) The maximum memory of the image in the unit of MB.
+
+* `tags` - (Optional, Map) The tags of the image.
 
 * `min_disk` - (Optional, Int, ForceNew) The minimum size of the system disk in the unit of GB. This parameter is
   mandatory when you create a private image from an external file uploaded to an OBS bucket. The value ranges from 1 GB
