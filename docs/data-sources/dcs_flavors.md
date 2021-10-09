@@ -1,5 +1,5 @@
 ---
-subcategory: "Distributed Cache Service"
+subcategory: "Distributed Cache Service (DCS)"
 ---
 
 # huaweicloud_dcs_flavors
