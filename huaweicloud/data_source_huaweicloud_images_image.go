@@ -2,12 +2,13 @@ package huaweicloud
 
 import (
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
-	"github.com/chnsz/golangsdk/openstack/imageservice/v2/images"
+	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -47,16 +48,6 @@ func DataSourceImagesImageV2() *schema.Resource {
 				Optional: true,
 			},
 
-			"size_min": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-
-			"size_max": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-
 			"sort_key": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -82,6 +73,18 @@ func DataSourceImagesImageV2() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
+			},
+
+			// Deprecated values
+			"size_min": {
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Deprecated: "size_min is deprecated",
+			},
+			"size_max": {
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Deprecated: "size_max is deprecated",
 			},
 
 			// Computed values
@@ -150,15 +153,11 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
-	visibility := resourceImagesImageV2VisibilityFromString(d.Get("visibility").(string))
-
-	listOpts := images.ListOpts{
+	listOpts := cloudimages.ListOpts{
 		Name:       d.Get("name").(string),
-		Visibility: visibility,
+		Visibility: d.Get("visibility").(string),
 		Owner:      d.Get("owner").(string),
-		Status:     images.ImageStatusActive,
-		SizeMin:    int64(d.Get("size_min").(int)),
-		SizeMax:    int64(d.Get("size_max").(int)),
+		Status:     "active",
 		SortKey:    d.Get("sort_key").(string),
 		SortDir:    d.Get("sort_direction").(string),
 		Tag:        d.Get("tag").(string),
@@ -166,13 +165,13 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 
 	logp.Printf("[DEBUG] List Options: %#v", listOpts)
 
-	var image images.Image
-	allPages, err := images.List(imageClient, listOpts).AllPages()
+	var image cloudimages.Image
+	allPages, err := cloudimages.List(imageClient, listOpts).AllPages()
 	if err != nil {
 		return fmtp.Errorf("Unable to query images: %s", err)
 	}
 
-	allImages, err := images.ExtractImages(allPages)
+	allImages, err := cloudimages.ExtractImages(allPages)
 	if err != nil {
 		return fmtp.Errorf("Unable to retrieve images: %s", err)
 	}
@@ -201,33 +200,33 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 }
 
 // dataSourceImagesImageV2Attributes populates the fields of an Image resource.
-func dataSourceImagesImageV2Attributes(d *schema.ResourceData, image *images.Image) error {
+func dataSourceImagesImageV2Attributes(d *schema.ResourceData, image *cloudimages.Image) error {
 	logp.Printf("[DEBUG] huaweicloud_images_image details: %#v", image)
 
 	d.SetId(image.ID)
 	d.Set("name", image.Name)
 	d.Set("container_format", image.ContainerFormat)
 	d.Set("disk_format", image.DiskFormat)
-	d.Set("min_disk_gb", image.MinDiskGigabytes)
-	d.Set("min_ram_mb", image.MinRAMMegabytes)
+	d.Set("min_disk_gb", image.MinDisk)
+	d.Set("min_ram_mb", image.MinRam)
 	d.Set("owner", image.Owner)
 	d.Set("protected", image.Protected)
 	d.Set("visibility", image.Visibility)
 	d.Set("checksum", image.Checksum)
-	d.Set("size_bytes", image.SizeBytes)
-	if err := d.Set("metadata", image.Metadata); err != nil {
-		return fmtp.Errorf("[DEBUG] Error saving metadata to state for HuaweiCloud image (%s): %s", d.Id(), err)
-	}
 	d.Set("file", image.File)
 	d.Set("schema", image.Schema)
 	d.Set("status", image.Status)
 	d.Set("created_at", image.CreatedAt.Format(time.RFC3339))
 	d.Set("updated_at", image.UpdatedAt.Format(time.RFC3339))
 
+	if size, err := strconv.Atoi(image.ImageSize); err == nil {
+		d.Set("size_bytes", size)
+	}
+
 	return nil
 }
 
-type imageSort []images.Image
+type imageSort []cloudimages.Image
 
 func (a imageSort) Len() int      { return len(a) }
 func (a imageSort) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
@@ -238,7 +237,7 @@ func (a imageSort) Less(i, j int) bool {
 }
 
 // Returns the most recent Image out of a slice of images.
-func mostRecentImage(images []images.Image) images.Image {
+func mostRecentImage(images []cloudimages.Image) cloudimages.Image {
 	sortedImages := images
 	sort.Sort(imageSort(sortedImages))
 	return sortedImages[len(sortedImages)-1]

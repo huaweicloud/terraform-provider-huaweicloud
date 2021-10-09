@@ -12,7 +12,7 @@ import (
 )
 
 func TestAccImsImageDataSource_basic(t *testing.T) {
-	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	imageName := "CentOS 7.4 64bit"
 	dataSourceName := "data.huaweicloud_images_image.test"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -20,15 +20,12 @@ func TestAccImsImageDataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccImsImageDataSource_ubuntu(rName),
-			},
-			{
-				Config: testAccImsImageDataSource_basic(rName),
+				Config: testAccImsImageDataSource_public(imageName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesV2DataSourceID(dataSourceName),
-					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
-					resource.TestCheckResourceAttr(dataSourceName, "protected", "false"),
-					resource.TestCheckResourceAttr(dataSourceName, "visibility", "private"),
+					resource.TestCheckResourceAttr(dataSourceName, "name", imageName),
+					resource.TestCheckResourceAttr(dataSourceName, "protected", "true"),
+					resource.TestCheckResourceAttr(dataSourceName, "visibility", "public"),
 					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
 				),
 			},
@@ -45,22 +42,20 @@ func TestAccImsImageDataSource_testQueries(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccImsImageDataSource_ubuntu(rName),
+				Config: testAccImsImageDataSource_base(rName),
+			},
+			{
+				Config: testAccImsImageDataSource_queryName(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckImagesV2DataSourceID(dataSourceName),
+					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
+					resource.TestCheckResourceAttr(dataSourceName, "protected", "false"),
+					resource.TestCheckResourceAttr(dataSourceName, "visibility", "private"),
+					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
+				),
 			},
 			{
 				Config: testAccImsImageDataSource_queryTag(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesV2DataSourceID(dataSourceName),
-				),
-			},
-			{
-				Config: testAccImsImageDataSource_querySizeMin(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckImagesV2DataSourceID(dataSourceName),
-				),
-			},
-			{
-				Config: testAccImsImageDataSource_querySizeMax(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesV2DataSourceID(dataSourceName),
 				),
@@ -84,7 +79,16 @@ func testAccCheckImagesV2DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccImsImageDataSource_ubuntu(rName string) string {
+func testAccImsImageDataSource_public(imageName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_images_image" "test" {
+  name        = "%s"
+  most_recent = true
+}
+`, imageName)
+}
+
+func testAccImsImageDataSource_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -121,11 +125,10 @@ resource "huaweicloud_images_image" "test" {
     key = "value"
   }
 }
-
 `, rName, rName)
 }
 
-func testAccImsImageDataSource_basic(rName string) string {
+func testAccImsImageDataSource_queryName(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -133,7 +136,7 @@ data "huaweicloud_images_image" "test" {
   most_recent = true
   name        = huaweicloud_images_image.test.name
 }
-`, testAccImsImageDataSource_ubuntu(rName))
+`, testAccImsImageDataSource_base(rName))
 }
 
 func testAccImsImageDataSource_queryTag(rName string) string {
@@ -145,29 +148,5 @@ data "huaweicloud_images_image" "test" {
   visibility  = "private"
   tag         = "foo=bar"
 }
-`, testAccImsImageDataSource_ubuntu(rName))
-}
-
-func testAccImsImageDataSource_querySizeMin(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_images_image" "test" {
-  most_recent = true
-  visibility  = "private"
-  size_min    = "13000000"
-}
-`, testAccImsImageDataSource_ubuntu(rName))
-}
-
-func testAccImsImageDataSource_querySizeMax(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_images_image" "test" {
-  most_recent = true
-  visibility  = "private"
-  size_max    = "23000000"
-}
-`, testAccImsImageDataSource_ubuntu(rName))
+`, testAccImsImageDataSource_base(rName))
 }
