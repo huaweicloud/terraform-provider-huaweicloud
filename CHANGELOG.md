@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.29.2 (October 9, 2021)
+
+BUG FIXES:
+
+* resource/huaweicloud_dns_recordset: Update to use region client for private zone [GH-1579]
+
 ## 1.29.1 (October 6, 2021)
 
 ENHANCEMENTS:
