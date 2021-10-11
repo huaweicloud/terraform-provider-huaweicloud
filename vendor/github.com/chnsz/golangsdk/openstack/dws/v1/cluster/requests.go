@@ -132,14 +132,3 @@ func Resize(c *golangsdk.ServiceClient, clusterId string, scaleOutCount int) (*g
 		MoreHeaders: RequestOpts.MoreHeaders})
 	return &r, err
 }
-
-func ListNodeTypes(c *golangsdk.ServiceClient) (*NodeTypes, error) {
-	var rst NodeTypes
-	_, err := c.Get(listNodeTypesURL(c), &rst, &golangsdk.RequestOpts{
-		MoreHeaders: RequestOpts.MoreHeaders,
-	})
-	if err == nil {
-		return &rst, nil
-	}
-	return nil, err
-}
