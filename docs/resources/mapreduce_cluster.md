@@ -383,13 +383,7 @@ The `nodes` block supports:
 * `root_volume_size` - (Required, Int, ForceNew) Specifies the system disk size of the nodes. Changing this will create
   a new MapReduce cluster resource.
 
-* `data_volume_type` - (Optional, String, ForceNew) Specifies the data disk flavor of the nodes. Required
-  if `data_volume_count` is not empty. Changing this will create a new MapReduce cluster resource.
-
-* `data_volume_size` - (Optional, Int, ForceNew) Specifies the data disk size of the nodes. Required
-  if `data_volume_count` is not empty. Changing this will create a new MapReduce cluster resource.
-
-* `data_volume_count` - (Optional, Int, ForceNew) Specifies the data disk number of the nodes. The number configuration
+* `data_volume_count` - (Required, Int, ForceNew) Specifies the data disk number of the nodes. The number configuration
   of each node are as follows:
   + master_nodes: 1.
   + analysis_core_nodes: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
@@ -398,6 +392,17 @@ The `nodes` block supports:
   + streaming_task_nodes: minimum is zero and the maximum is subject to the configuration of the corresponding flavor.
 
   Changing this will create a new MapReduce cluster resource.
+  
+* `data_volume_type` - (Optional, String, ForceNew) Specifies the data disk flavor of the nodes.
+  Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce cluster resource.
+   The following disk types are supported:
+  + `SATA`: common I/O disk
+  + `SAS`: high I/O disk
+  + `SSD`: ultra-high I/O disk
+
+* `data_volume_size` - (Optional, Int, ForceNew) Specifies the data disk size of the nodes,in GB. The value range is 10
+  to 32768. Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce
+  cluster resource.
 
 * `assigned_roles` - (Optional, List, ForceNew) Specifies the roles deployed in a node group.This argument is mandatory
  when the cluster type is CUSTOM. Each character string represents a role expression.
