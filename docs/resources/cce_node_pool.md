@@ -60,8 +60,8 @@ The following arguments are supported:
 * `availability_zone` - (Optional, String, ForceNew) specify the name of the available partition (AZ). Default value is
   random to create nodes in a random AZ in the node pool. Changing this parameter will create a new resource.
 
-* `os` - (Optional, String) Operating System of the node. The value can be EulerOS 2.5 and CentOS 7.6. Changing this
-  parameter will create a new resource.
+* `os` - (Optional, String, ForceNew) Operating System of the node. The value can be EulerOS 2.5 and CentOS 7.6.
+  Changing this parameter will create a new resource.
 
 * `key_pair` - (Optional, String, ForceNew) Key pair name when logging in to select the key pair mode. This parameter
   and `password` are alternative. Changing this parameter will create a new resource.
@@ -123,24 +123,26 @@ The following arguments are supported:
 
 The `root_volume` block supports:
 
-* `size` - (Required, Int) Disk size in GB.
+* `size` - (Required, Int, ForceNew) Disk size in GB. Changing this parameter will create a new resource.
 
-* `volumetype` - (Required, String) Disk type.
+* `volumetype` - (Required, String, ForceNew) Disk type. Changing this parameter will create a new resource.
 
-* `extend_params` - (Optional, Map) Disk expansion parameters.
+* `extend_params` - (Optional, Map, ForceNew) Disk expansion parameters.
+  Changing this parameter will create a new resource.
 
 The `data_volumes` block supports:
 
-* `size` - (Required, Int) Disk size in GB.
+* `size` - (Required, Int, ForceNew) Disk size in GB. Changing this parameter will create a new resource.
 
-* `volumetype` - (Required, String) Disk type.
+* `volumetype` - (Required, String, ForceNew) Disk type. Changing this parameter will create a new resource.
 
-* `extend_params` - (Optional, Map) Disk expansion parameters.
+* `extend_params` - (Optional, Map, ForceNew) Disk expansion parameters.
+  Changing this parameter will create a new resource.
 
 The `taints` block supports:
 
-* `key` - (Required, String, ForceNew) A key must contain 1 to 63 characters starting with a letter or digit. Only
-  letters, digits, hyphens (-), underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the
+* `key` - (Required, String) A key must contain 1 to 63 characters starting with a letter or digit. Only letters,
+  digits, hyphens (-), underscores (_), and periods (.) are allowed. A DNS subdomain name can be used as the
   prefix of a key.
 
 * `value` - (Required, String) A value must start with a letter or digit and can contain a maximum of 63 characters,

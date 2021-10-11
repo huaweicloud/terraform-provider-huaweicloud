@@ -94,23 +94,28 @@ func ResourceCCENodeV3() *schema.Resource {
 						"size": {
 							Type:     schema.TypeInt,
 							Required: true,
+							ForceNew: true,
 						},
 						"volumetype": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 						"hw_passthrough": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							ForceNew: true,
 						},
 						"extend_param": {
 							Type:       schema.TypeString,
 							Optional:   true,
+							ForceNew:   true,
 							Deprecated: "use extend_params instead",
 						},
 						"extend_params": {
 							Type:     schema.TypeMap,
 							Optional: true,
+							ForceNew: true,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
@@ -125,23 +130,28 @@ func ResourceCCENodeV3() *schema.Resource {
 						"size": {
 							Type:     schema.TypeInt,
 							Required: true,
+							ForceNew: true,
 						},
 						"volumetype": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 						"hw_passthrough": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							ForceNew: true,
 						},
 						"extend_param": {
 							Type:       schema.TypeString,
 							Optional:   true,
+							ForceNew:   true,
 							Deprecated: "use extend_params instead",
 						},
 						"extend_params": {
 							Type:     schema.TypeMap,
 							Optional: true,
+							ForceNew: true,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
@@ -156,14 +166,17 @@ func ResourceCCENodeV3() *schema.Resource {
 						"key": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 						"value": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 						"effect": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
 						},
 					}},
 			},
