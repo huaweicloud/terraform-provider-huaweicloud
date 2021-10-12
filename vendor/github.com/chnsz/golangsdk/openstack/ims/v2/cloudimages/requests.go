@@ -26,13 +26,14 @@ type ListOpts struct {
 	DiskFormat             string `q:"disk_format"`
 	MinRam                 int    `q:"min_ram"`
 	MinDisk                int    `q:"min_disk"`
-	OsBit                  string `q:"__os_bit"`
-	Platform               string `q:"__platform"`
 	Marker                 string `q:"marker"`
 	Limit                  int    `q:"limit"`
 	SortKey                string `q:"sort_key"`
 	SortDir                string `q:"sort_dir"`
 	OsType                 string `q:"__os_type"`
+	Platform               string `q:"__platform"`
+	OsVersion              string `q:"__os_version"`
+	OsBit                  string `q:"__os_bit"`
 	Tag                    string `q:"tag"`
 	MemberStatus           string `q:"member_status"`
 	SupportKvm             string `q:"__support_kvm"`
@@ -45,6 +46,7 @@ type ListOpts struct {
 	SupportXenHana         string `q:"__support_xen_hana"`
 	SupportKvmInfiniband   string `q:"__support_kvm_infiniband"`
 	VirtualEnvType         string `q:"virtual_env_type"`
+	Architecture           string `q:"architecture"`
 	// CreatedAtQuery filters images based on their creation date.
 	CreatedAtQuery *ImageDateQuery
 	// UpdatedAtQuery filters images based on their updated date.

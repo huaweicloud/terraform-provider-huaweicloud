@@ -27,8 +27,3 @@ func resetPasswordURL(c *golangsdk.ServiceClient, clusterId string) string {
 func resizeURL(c *golangsdk.ServiceClient, clusterId string) string {
 	return c.ServiceURL(resourcePath, clusterId, "resize")
 }
-
-// listNodeTypesURL /v2/{project_id}/node-types
-func listNodeTypesURL(c *golangsdk.ServiceClient) string {
-	return c.ServiceURL("node-types")
-}
