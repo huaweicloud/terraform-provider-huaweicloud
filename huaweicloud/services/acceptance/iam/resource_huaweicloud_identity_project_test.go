@@ -7,7 +7,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -15,10 +14,24 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getIdentityProjectResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+	}
+	return projects.Get(client, state.Primary.ID).Extract()
+}
+
 func TestAccIdentityV3Project_basic(t *testing.T) {
 	var project projects.Project
-	var projectName = fmt.Sprintf("ACCPTTEST-%s", acctest.RandString(5))
+	var projectName = acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_identity_project.project_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&project,
+		getIdentityProjectResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -26,13 +39,13 @@ func TestAccIdentityV3Project_basic(t *testing.T) {
 			acceptance.TestAccPreCheckAdminOnly(t)
 			acceptance.TestAccPreCheckProject(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckIdentityV3ProjectDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityV3Project_basic(projectName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3ProjectExists(resourceName, &project),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPtr(resourceName, "name", &project.Name),
 					resource.TestCheckResourceAttr(resourceName, "description", "A project"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
@@ -47,7 +60,7 @@ func TestAccIdentityV3Project_basic(t *testing.T) {
 			{
 				Config: testAccIdentityV3Project_update(projectName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3ProjectExists(resourceName, &project),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPtr(resourceName, "name", &project.Name),
 					resource.TestCheckResourceAttr(resourceName, "description", "An updated project"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
@@ -56,59 +69,6 @@ func TestAccIdentityV3Project_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckIdentityV3ProjectDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	identityClient, err := config.IdentityV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_project" {
-			continue
-		}
-
-		_, err := projects.Get(identityClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("Project still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckIdentityV3ProjectExists(n string, project *projects.Project) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		identityClient, err := config.IdentityV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
-		}
-
-		found, err := projects.Get(identityClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Project not found")
-		}
-
-		*project = *found
-
-		return nil
-	}
 }
 
 func testAccIdentityV3Project_basic(projectName string) string {

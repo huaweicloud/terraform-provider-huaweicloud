@@ -7,7 +7,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -15,23 +14,37 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getIdentityUserResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+	}
+	return users.Get(client, state.Primary.ID).Extract()
+}
+
 func TestAccIdentityV3User_basic(t *testing.T) {
 	var user users.User
-	var userName = fmt.Sprintf("acc-user-%s", acctest.RandString(5))
+	var userName = acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_identity_user.user_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&user,
+		getIdentityUserResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckIdentityV3UserDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityV3User_basic(userName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3UserExists(resourceName, &user),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", userName),
 					resource.TestCheckResourceAttr(resourceName, "description", "tested by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
@@ -50,7 +63,7 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 			{
 				Config: testAccIdentityV3User_update(userName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3UserExists(resourceName, &user),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", userName),
 					resource.TestCheckResourceAttr(resourceName, "description", "updated by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "enabled", "false"),
@@ -59,59 +72,6 @@ func TestAccIdentityV3User_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckIdentityV3UserDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	iamClient, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_user" {
-			continue
-		}
-
-		_, err := users.Get(iamClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("User still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckIdentityV3UserExists(n string, user *users.User) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		iamClient, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
-		}
-
-		found, err := users.Get(iamClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("User not found")
-		}
-
-		*user = *found
-
-		return nil
-	}
 }
 
 func testAccIdentityV3User_basic(userName string) string {

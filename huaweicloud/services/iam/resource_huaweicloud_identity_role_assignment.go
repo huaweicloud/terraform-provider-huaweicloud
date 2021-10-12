@@ -1,12 +1,15 @@
 package iam
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/roles"
 	"github.com/chnsz/golangsdk/pagination"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -15,9 +18,9 @@ import (
 
 func ResourceIdentityRoleAssignmentV3() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceIdentityRoleAssignmentV3Create,
-		Read:   resourceIdentityRoleAssignmentV3Read,
-		Delete: resourceIdentityRoleAssignmentV3Delete,
+		CreateContext: resourceIdentityRoleAssignmentV3Create,
+		ReadContext:   resourceIdentityRoleAssignmentV3Read,
+		DeleteContext: resourceIdentityRoleAssignmentV3Delete,
 
 		Schema: map[string]*schema.Schema{
 			"role_id": {
@@ -46,11 +49,11 @@ func ResourceIdentityRoleAssignmentV3() *schema.Resource {
 	}
 }
 
-func resourceIdentityRoleAssignmentV3Create(d *schema.ResourceData, meta interface{}) error {
+func resourceIdentityRoleAssignmentV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	roleID := d.Get("role_id").(string)
@@ -66,53 +69,58 @@ func resourceIdentityRoleAssignmentV3Create(d *schema.ResourceData, meta interfa
 
 	err = roles.Assign(identityClient, roleID, opts).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error assigning role: %s", err)
+		return fmtp.DiagErrorf("Error assigning role: %s", err)
 	}
 
 	d.SetId(buildRoleAssignmentID(domainID, projectID, groupID, roleID))
 
-	return resourceIdentityRoleAssignmentV3Read(d, meta)
+	return resourceIdentityRoleAssignmentV3Read(ctx, d, meta)
 }
 
-func resourceIdentityRoleAssignmentV3Read(d *schema.ResourceData, meta interface{}) error {
+func resourceIdentityRoleAssignmentV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	roleAssignment, err := getRoleAssignment(identityClient, d)
 	if err != nil {
-		return fmtp.Errorf("Error getting role assignment: %s", err)
+		return fmtp.DiagErrorf("Error getting role assignment: %s", err)
 	}
 	domainID, projectID, groupID, _ := ExtractRoleAssignmentID(d.Id())
 
 	logp.Printf("[DEBUG] Retrieved HuaweiCloud role assignment: %#v", roleAssignment)
-	d.Set("role_id", roleAssignment.ID)
-	d.Set("group_id", groupID)
-	d.Set("domain_id", domainID)
-	d.Set("project_id", projectID)
+
+	mErr := multierror.Append(nil,
+		d.Set("role_id", roleAssignment.ID),
+		d.Set("group_id", groupID),
+		d.Set("domain_id", domainID),
+		d.Set("project_id", projectID),
+	)
+	if err = mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("error setting identity role assignment fields: %s", err)
+	}
 
 	return nil
 }
 
-func resourceIdentityRoleAssignmentV3Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceIdentityRoleAssignmentV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	identityClient, err := config.IdentityV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud identity client: %s", err)
 	}
 
 	domainID, projectID, groupID, roleID := ExtractRoleAssignmentID(d.Id())
-	var opts roles.UnassignOpts
-	opts = roles.UnassignOpts{
+	opts := roles.UnassignOpts{
 		GroupID:   groupID,
 		DomainID:  domainID,
 		ProjectID: projectID,
 	}
 	roles.Unassign(identityClient, roleID, opts).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error unassigning role: %s", err)
+		return fmtp.DiagErrorf("Error unassigning role: %s", err)
 	}
 
 	return nil
@@ -121,8 +129,7 @@ func resourceIdentityRoleAssignmentV3Delete(d *schema.ResourceData, meta interfa
 func getRoleAssignment(identityClient *golangsdk.ServiceClient, d *schema.ResourceData) (roles.RoleAssignment, error) {
 	domainID, projectID, groupID, roleID := ExtractRoleAssignmentID(d.Id())
 
-	var opts roles.ListAssignmentsOpts
-	opts = roles.ListAssignmentsOpts{
+	opts := roles.ListAssignmentsOpts{
 		GroupID:        groupID,
 		ScopeDomainID:  domainID,
 		ScopeProjectID: projectID,

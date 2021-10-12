@@ -5,48 +5,32 @@ import (
 	"testing"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccIdentityCustomRoleDataSource_basic(t *testing.T) {
-	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "data.huaweicloud_identity_custom_role.role_1"
+	rName := acceptance.RandomAccResourceName()
+	dc := acceptance.InitDataSourceCheck(resourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers: acceptance.TestAccProviders,
+		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityCustomRoleDataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityCustomDataSourceID("data.huaweicloud_identity_custom_role.role_1"),
+					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_identity_custom_role.role_1", "name", rName),
 				),
 			},
 		},
 	})
-}
-
-func testAccCheckIdentityCustomDataSourceID(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Can't find role data source: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("Role data source ID not set")
-		}
-
-		return nil
-	}
 }
 
 func testAccIdentityCustomRoleDataSource_basic(rName string) string {

@@ -15,26 +15,40 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getIdentityRoleResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+	}
+	return policies.Get(client, state.Primary.ID).Extract()
+}
+
 func TestAccIdentityRole_basic(t *testing.T) {
 	var role policies.Role
-	var roleName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var roleName = acceptance.RandomAccResourceName()
 	var roleNameUpdate = roleName + "update"
 	resourceName := "huaweicloud_identity_role.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&role,
+		getIdentityRoleResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckIdentityRoleDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityRole_basic(roleName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityRoleExists(resourceName, &role),
-					resource.TestCheckResourceAttrPtr(resourceName, "name", &role.Name),
-					resource.TestCheckResourceAttrPtr(resourceName, "description", &role.Description),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", roleName),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "type", "AX"),
 				),
 			},
@@ -46,9 +60,9 @@ func TestAccIdentityRole_basic(t *testing.T) {
 			{
 				Config: testAccIdentityRole_update(roleNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityRoleExists(resourceName, &role),
-					resource.TestCheckResourceAttrPtr(resourceName, "name", &role.Name),
-					resource.TestCheckResourceAttrPtr(resourceName, "description", &role.Description),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", roleNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "type", "AX"),
 				),
 			},
@@ -61,20 +75,26 @@ func TestAccIdentityRole_agency(t *testing.T) {
 	var roleName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	resourceName := "huaweicloud_identity_role.agency"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&role,
+		getIdentityRoleResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckIdentityRoleDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityRole_agency(roleName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityRoleExists(resourceName, &role),
-					resource.TestCheckResourceAttrPtr(resourceName, "name", &role.Name),
-					resource.TestCheckResourceAttrPtr(resourceName, "description", &role.Description),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", roleName),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "type", "AX"),
 				),
 			},
@@ -85,59 +105,6 @@ func TestAccIdentityRole_agency(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckIdentityRoleDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	identityClient, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_role" {
-			continue
-		}
-
-		_, err := policies.Get(identityClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("Role still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckIdentityRoleExists(n string, role *policies.Role) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		identityClient, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
-		}
-
-		found, err := policies.Get(identityClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Role not found")
-		}
-
-		*role = *found
-
-		return nil
-	}
 }
 
 func testAccIdentityRole_basic(roleName string) string {

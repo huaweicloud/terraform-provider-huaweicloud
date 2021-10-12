@@ -7,7 +7,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -16,9 +15,9 @@ import (
 )
 
 func TestAccIdentityV3GroupMembership_basic(t *testing.T) {
-	var groupName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	var userName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	var userName2 = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var groupName = acceptance.RandomAccResourceName()
+	var userName = acceptance.RandomAccResourceName()
+	var userName2 = acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_identity_group_membership.membership_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -26,8 +25,8 @@ func TestAccIdentityV3GroupMembership_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckIdentityV3GroupMembershipDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckIdentityV3GroupMembershipDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityV3GroupMembership_basic(groupName, userName),

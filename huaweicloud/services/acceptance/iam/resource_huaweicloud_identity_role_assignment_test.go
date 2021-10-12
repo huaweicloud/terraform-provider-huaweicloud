@@ -11,7 +11,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/identity/v3/groups"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/roles"
 	"github.com/chnsz/golangsdk/pagination"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -20,7 +19,7 @@ import (
 func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 	var role roles.Role
 	var group groups.Group
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_identity_role_assignment.role_assignment_1"
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -28,8 +27,8 @@ func TestAccIdentityV3RoleAssignment_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckIdentityV3RoleAssignmentDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckIdentityV3RoleAssignmentDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityV3RoleAssignment_project(rName),
@@ -93,8 +92,7 @@ func testAccCheckIdentityV3RoleAssignmentExists(n string, role *roles.Role, grou
 
 		domainID, projectID, groupID, roleID := iam.ExtractRoleAssignmentID(rs.Primary.ID)
 
-		var opts roles.ListAssignmentsOpts
-		opts = roles.ListAssignmentsOpts{
+		opts := roles.ListAssignmentsOpts{
 			GroupID:        groupID,
 			ScopeDomainID:  domainID,
 			ScopeProjectID: projectID,

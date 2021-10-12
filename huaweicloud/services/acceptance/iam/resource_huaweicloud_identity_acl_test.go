@@ -13,22 +13,59 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getIdentitACLResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+	}
+
+	switch state.Primary.Attributes["type"] {
+	case "console":
+		v, err := acl.ConsoleACLPolicyGet(client, state.Primary.ID).ConsoleExtract()
+		if err != nil {
+			return nil, err
+		}
+		if len(v.AllowAddressNetmasks) == 0 && len(v.AllowIPRanges) == 1 &&
+			v.AllowIPRanges[0].IPRange == "0.0.0.0-255.255.255.255" {
+			return nil, fmtp.Errorf("Identity ACL for console access <%s> not exists", state.Primary.ID)
+		}
+		return v, nil
+	case "api":
+		v, err := acl.APIACLPolicyGet(client, state.Primary.ID).APIExtract()
+		if err != nil {
+			return nil, err
+		}
+		if len(v.AllowAddressNetmasks) == 0 && len(v.AllowIPRanges) == 1 &&
+			v.AllowIPRanges[0].IPRange == "0.0.0.0-255.255.255.255" {
+			return nil, fmtp.Errorf("Identity ACL for console access <%s> not exists", state.Primary.ID)
+		}
+		return v, nil
+	}
+	return nil, nil
+}
+
 func TestAccIdentitACL_basic(t *testing.T) {
 	var acl acl.ACLPolicy
 	resourceName := "huaweicloud_identity_acl.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&acl,
+		getIdentitACLResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckIdentityACLDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityACL_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityACLExists(resourceName, &acl),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "console"),
 					resource.TestCheckResourceAttr(resourceName, "ip_ranges.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ip_cidrs.#", "1"),
@@ -37,7 +74,7 @@ func TestAccIdentitACL_basic(t *testing.T) {
 			{
 				Config: testAccIdentityACL_update(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityACLExists(resourceName, &acl),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "console"),
 					resource.TestCheckResourceAttr(resourceName, "ip_ranges.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "ip_cidrs.#", "2"),
@@ -51,18 +88,24 @@ func TestAccIdentitACL_apiAccess(t *testing.T) {
 	var acl acl.ACLPolicy
 	resourceName := "huaweicloud_identity_acl.test"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&acl,
+		getIdentitACLResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckIdentityACLDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityACL_apiAccess(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityACLExists(resourceName, &acl),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "api"),
 					resource.TestCheckResourceAttr(resourceName, "ip_ranges.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ip_cidrs.#", "1"),
@@ -71,7 +114,7 @@ func TestAccIdentitACL_apiAccess(t *testing.T) {
 			{
 				Config: testAccIdentityACL_apiUpdate(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityACLExists(resourceName, &acl),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "api"),
 					resource.TestCheckResourceAttr(resourceName, "ip_ranges.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "ip_cidrs.#", "2"),
@@ -79,80 +122,6 @@ func TestAccIdentitACL_apiAccess(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckIdentityACLExists(n string, ac *acl.ACLPolicy) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		client, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
-		}
-
-		switch rs.Primary.Attributes["type"] {
-		case "console":
-			v, err := acl.ConsoleACLPolicyGet(client, rs.Primary.ID).ConsoleExtract()
-			if err != nil {
-				return err
-			}
-			if len(v.AllowAddressNetmasks) == 0 && len(v.AllowIPRanges) == 1 &&
-				v.AllowIPRanges[0].IPRange == "0.0.0.0-255.255.255.255" {
-				return fmtp.Errorf("Identity ACL for console access <%s> not exists", rs.Primary.ID)
-			}
-			ac = v
-		case "api":
-			v, err := acl.APIACLPolicyGet(client, rs.Primary.ID).APIExtract()
-			if err != nil {
-				return err
-			}
-			if len(v.AllowAddressNetmasks) == 0 && len(v.AllowIPRanges) == 1 &&
-				v.AllowIPRanges[0].IPRange == "0.0.0.0-255.255.255.255" {
-				return fmtp.Errorf("Identity ACL for console access <%s> not exists", rs.Primary.ID)
-			}
-			ac = v
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckIdentityACLDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	client, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_acl" {
-			continue
-		}
-		switch rs.Primary.Attributes["type"] {
-		case "console":
-			v, err := acl.ConsoleACLPolicyGet(client, rs.Primary.ID).ConsoleExtract()
-			if err == nil && len(v.AllowAddressNetmasks) == len(rs.Primary.Attributes["ip_cidrs.#"]) &&
-				(len(v.AllowIPRanges) > 1 || (len(v.AllowIPRanges) == 1 &&
-					v.AllowIPRanges[0].IPRange != "0.0.0.0-255.255.255.255")) {
-				return fmtp.Errorf("Identity ACL for console access <%s> still exists", rs.Primary.ID)
-			}
-		case "api":
-			v, err := acl.APIACLPolicyGet(client, rs.Primary.ID).APIExtract()
-			if err == nil && len(v.AllowAddressNetmasks) == len(rs.Primary.Attributes["ip_cidrs.#"]) &&
-				(len(v.AllowIPRanges) > 1 || (len(v.AllowIPRanges) == 1 &&
-					v.AllowIPRanges[0].IPRange != "0.0.0.0-255.255.255.255")) {
-				return fmtp.Errorf("Identity ACL for api access <%s> still exists", rs.Primary.ID)
-			}
-		}
-	}
-
-	return nil
 }
 
 func testAccIdentityACL_basic() string {

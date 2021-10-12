@@ -7,7 +7,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -15,23 +14,46 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getIdentityAccessKeyResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	iamClient, err := c.IAMV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
+	}
+
+	found, err := credentials.Get(iamClient, state.Primary.ID).Extract()
+	if err != nil {
+		return nil, err
+	}
+
+	if found.AccessKey != state.Primary.ID {
+		return nil, fmtp.Errorf("Access Key not found")
+	}
+	return found, nil
+}
+
 func TestAccIdentityAccessKey_basic(t *testing.T) {
 	var cred credentials.Credential
-	var userName = fmt.Sprintf("acc-user-%s", acctest.RandString(5))
+	var userName = acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_identity_access_key.key_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&cred,
+		getIdentityAccessKeyResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckIdentityAccessKeyDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityAccessKey_basic(userName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityAccessKeyExists(resourceName, &cred),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "status", "active"),
 					resource.TestCheckResourceAttr(resourceName, "description", "access key by terraform"),
 					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
@@ -46,59 +68,6 @@ func TestAccIdentityAccessKey_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckIdentityAccessKeyDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	iamClient, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_access_key" {
-			continue
-		}
-
-		_, err := credentials.Get(iamClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("Access Key still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckIdentityAccessKeyExists(n string, cred *credentials.Credential) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		iamClient, err := config.IAMV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
-		}
-
-		found, err := credentials.Get(iamClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.AccessKey != rs.Primary.ID {
-			return fmtp.Errorf("Access Key not found")
-		}
-
-		*cred = *found
-
-		return nil
-	}
 }
 
 func testAccIdentityAccessKey_basic(userName string) string {
