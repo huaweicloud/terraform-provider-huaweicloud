@@ -12,7 +12,6 @@ to `huaweicloud_images_image_v2`
 ```hcl
 data "huaweicloud_images_image" "ubuntu" {
   name        = "Ubuntu 18.04 server 64bit"
-  visibility  = "public"
   most_recent = true
 }
 ```
@@ -26,21 +25,17 @@ data "huaweicloud_images_image" "ubuntu" {
 
 * `name` - (Optional, String) The name of the image.
 
+* `visibility` - (Optional, String) The visibility of the image. Must be one of
+  "public", "private" or "shared".
+
 * `owner` - (Optional, String) The owner (UUID) of the image.
 
-* `size_min` - (Optional, Int) The minimum size (in bytes) of the image to return.
-
-* `size_max` - (Optional, Int) The maximum size (in bytes) of the image to return.
+* `tag` - (Optional, String) Search for images with a specific tag in "Key=Value" format.
 
 * `sort_direction` - (Optional, String) Order the results in either `asc` or `desc`.
 
 * `sort_key` - (Optional, String) Sort images based on a certain key. Must be one of
   "name", "container_format", "disk_format", "status", "id" or "size". Defaults to `name`.
-
-* `tag` - (Optional, String) Search for images with a specific tag.
-
-* `visibility` - (Optional, String) The visibility of the image. Must be one of
-  "public", "private", "community", or "shared". Defaults to `private`.
 
 ## Attributes Reference
 
