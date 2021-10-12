@@ -195,12 +195,6 @@ func testAccAsConfigPreCheck(t *testing.T) {
 	}
 }
 
-func testAccPreCheckBms(t *testing.T) {
-	if HW_USER_ID == "" {
-		t.Skip("HW_USER_ID must be set for BMS acceptance tests")
-	}
-}
-
 func TestProvider(t *testing.T) {
 	if err := Provider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)

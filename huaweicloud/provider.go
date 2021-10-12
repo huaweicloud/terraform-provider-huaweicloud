@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cce"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
@@ -273,7 +274,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"huaweicloud_antiddos":                             dataSourceAntiDdosV1(),
 			"huaweicloud_availability_zones":                   DataSourceAvailabilityZones(),
-			"huaweicloud_bms_flavors":                          DataSourceBmsFlavors(),
+			"huaweicloud_bms_flavors":                          bms.DataSourceBmsFlavors(),
 			"huaweicloud_cce_addon_template":                   DataSourceCCEAddonTemplateV3(),
 			"huaweicloud_cce_cluster":                          DataSourceCCEClusterV3(),
 			"huaweicloud_cce_node":                             DataSourceCCENodeV3(),
@@ -408,7 +409,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_group":                        ResourceASGroup(),
 			"huaweicloud_as_lifecycle_hook":               ResourceASLifecycleHook(),
 			"huaweicloud_as_policy":                       ResourceASPolicy(),
-			"huaweicloud_bms_instance":                    ResourceBmsInstance(),
+			"huaweicloud_bms_instance":                    bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance":                    resourceBCSInstanceV2(),
 			"huaweicloud_cbr_policy":                      cbr.ResourceCBRPolicyV3(),
 			"huaweicloud_cbr_vault":                       cbr.ResourceCBRVaultV3(),
