@@ -56,7 +56,7 @@ The following arguments are supported:
   and basically all other non-HTTP/S traffic. If a proxy such as public network ELB (or Nginx) has been used, set
   proxy `true` to ensure that the WAF security policy takes effect for the real source IP address.
 
-* `keep_proxy` - (Optional, Bool) Specifies whether to retain the policy when deleting a domain name.
+* `keep_policy` - (Optional, Bool) Specifies whether to retain the policy when deleting a domain name.
   Defaults to `true`.
 
 * `protect_status` - (Optional, Int) The protection status of domain, `0`: suspended, `1`: enabled.
