@@ -65,8 +65,7 @@ The following arguments are supported:
   digits, hyphens (-), and underscores (_). Chinese characters must be in UTF-8 or Unicode format.
 
 * `flavor` - (Required, String) Specifies the instance specifications. For details,
-  see [DB Instance Specifications](https://support.huaweicloud.com/intl/en-us/redisug-nosql/nosql_05_0059.html). Do
-  nothing in update method if change this parameter.
+  see [DB Instance Specifications](https://support.huaweicloud.com/intl/en-us/redisug-nosql/nosql_05_0059.html).
 
 * `node_num` - (Optional, Int) Specifies the number of nodes, ranges from 2 to 12. Defaults to 3.
 
@@ -84,7 +83,7 @@ The following arguments are supported:
   new resource.
 
 * `security_group_id` - (Optional, String) Specifies the security group ID. Required if the selected subnet doesn't
-  enable network ACL. Do nothing in update method if change this parameter.
+  enable network ACL.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project id, Only valid for users who
   have enabled the enterprise multi-project service. Changing this parameter will create a new resource.
