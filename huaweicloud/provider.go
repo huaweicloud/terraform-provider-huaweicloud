@@ -579,7 +579,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_queue_v1":                       ResourceDmsQueuesV1(),
 			"huaweicloud_dms_group_v1":                       ResourceDmsGroupsV1(),
 			"huaweicloud_dms_instance_v1":                    ResourceDmsInstancesV1(),
-			"huaweicloud_images_image_v2":                    resourceImagesImageV2(),
 			"huaweicloud_lb_certificate_v2":                  ResourceCertificateV2(),
 			"huaweicloud_lb_loadbalancer_v2":                 ResourceLoadBalancerV2(),
 			"huaweicloud_lb_listener_v2":                     ResourceListenerV2(),
@@ -663,6 +662,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rts_stack_v1":                       resourceRTSStackV1(),
 			"huaweicloud_rts_software_config_v1":             resourceSoftwareConfigV1(),
 			"huaweicloud_cts_tracker":                        deprecated.ResourceCTSTrackerV1(),
+			"huaweicloud_images_image_v2":                    deprecated.ResourceImagesImageV2(),
 		},
 	}
 
