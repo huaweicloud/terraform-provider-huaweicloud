@@ -92,7 +92,7 @@ func CheckDeletedDiag(d *schema.ResourceData, err error, msg string) diag.Diagno
 		return nil
 	}
 
-	return diag.Errorf("%s: %s", msg, err)
+	return fmtp.DiagErrorf("%s: %s", msg, err)
 }
 
 // UnsubscribePrePaidResource impl the action of unsubscribe resource
