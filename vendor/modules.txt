@@ -128,6 +128,7 @@ github.com/chnsz/golangsdk/openstack/dcs/v2/tags
 github.com/chnsz/golangsdk/openstack/dcs/v2/whitelists
 github.com/chnsz/golangsdk/openstack/dds/v3/flavors
 github.com/chnsz/golangsdk/openstack/dds/v3/instances
+github.com/chnsz/golangsdk/openstack/dli/v1/databases
 github.com/chnsz/golangsdk/openstack/dli/v1/queues
 github.com/chnsz/golangsdk/openstack/dms/v1/availablezones
 github.com/chnsz/golangsdk/openstack/dms/v1/groups
