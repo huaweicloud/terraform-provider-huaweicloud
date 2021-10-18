@@ -51,6 +51,10 @@ func dataSourceGaussdbMysqlFlavors() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"mode": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -58,6 +62,11 @@ func dataSourceGaussdbMysqlFlavors() *schema.Resource {
 						"version": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						"az_status": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
@@ -88,11 +97,13 @@ func dataSourceGaussdbMysqlFlavorsRead(d *schema.ResourceData, meta interface{})
 		val := item.(map[string]interface{})
 
 		flavors = append(flavors, map[string]interface{}{
-			"vcpus":   val["vcpus"],
-			"memory":  val["ram"],
-			"name":    val["spec_code"],
-			"mode":    val["instance_mode"],
-			"version": val["version_name"],
+			"vcpus":     val["vcpus"],
+			"memory":    val["ram"],
+			"name":      val["spec_code"],
+			"type":      val["type"],
+			"mode":      val["instance_mode"],
+			"version":   val["version_name"],
+			"az_status": val["az_status"],
 		})
 	}
 

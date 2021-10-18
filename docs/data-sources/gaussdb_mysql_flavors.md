@@ -38,5 +38,7 @@ The `flavors` block contains:
 * `name` - The name of the gaussdb mysql flavor.
 * `vcpus` - Indicates the CPU size.
 * `memory` - Indicates the memory size in GB.
+* `type` - Indicates the arch type of the flavor.
 * `mode` - Indicates the database mode.
 * `version` - Indicates the database version.
+* `az_status` - Indicates the flavor status in each az.
