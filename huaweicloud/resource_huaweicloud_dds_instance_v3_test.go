@@ -68,6 +68,14 @@ func TestAccDDSV3Instance_basic(t *testing.T) {
 					testAccCheckDDSV3InstanceFlavor(&instance, "mongos", "spec_code", "dds.mongodb.c6.large.4.mongos"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"availability_zone", "flavor", "password",
+				},
+			},
 		},
 	})
 }
