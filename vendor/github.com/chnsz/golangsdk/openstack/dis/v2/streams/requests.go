@@ -133,10 +133,6 @@ type CreatePolicyOpt struct {
 	Effect string `json:"effect" required:"true"`
 }
 
-var RequestOpts = golangsdk.RequestOpts{
-	MoreHeaders: map[string]string{"Content-Type": "application/json", "X-Language": "en-us"},
-}
-
 func Create(c *golangsdk.ServiceClient, opts CreateOpts) (*golangsdk.Result, error) {
 	b, err := golangsdk.BuildRequestBody(opts, "")
 	if err != nil {
@@ -145,7 +141,10 @@ func Create(c *golangsdk.ServiceClient, opts CreateOpts) (*golangsdk.Result, err
 
 	var r golangsdk.Result
 	_, r.Err = c.Post(rootURL(c), b, nil, &golangsdk.RequestOpts{
-		MoreHeaders: RequestOpts.MoreHeaders,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       c.AKSKAuthOptions.Region,
+		},
 	})
 	return &r, r.Err
 }
@@ -161,7 +160,10 @@ func Get(c *golangsdk.ServiceClient, streamName string, opts GetOpts) (*StreamDe
 
 	var rst StreamDetail
 	_, err = c.Get(url, &rst, &golangsdk.RequestOpts{
-		MoreHeaders: RequestOpts.MoreHeaders,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       c.AKSKAuthOptions.Region,
+		},
 	})
 
 	if err == nil {
@@ -173,7 +175,10 @@ func Get(c *golangsdk.ServiceClient, streamName string, opts GetOpts) (*StreamDe
 func Delete(c *golangsdk.ServiceClient, streamName string) *golangsdk.ErrResult {
 	var r golangsdk.ErrResult
 	_, r.Err = c.Delete(resourceURL(c, streamName), &golangsdk.RequestOpts{
-		MoreHeaders: RequestOpts.MoreHeaders,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       c.AKSKAuthOptions.Region,
+		},
 	})
 	return &r
 }
@@ -187,7 +192,12 @@ func List(c *golangsdk.ServiceClient, opts ListStreamsOpts) (*ListResult, error)
 	url := rootURL(c) + query.String()
 
 	var rst ListResult
-	_, err = c.Get(url, &rst, &golangsdk.RequestOpts{MoreHeaders: RequestOpts.MoreHeaders})
+	_, err = c.Get(url, &rst, &golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       c.AKSKAuthOptions.Region,
+		},
+	})
 	if err == nil {
 		return &rst, nil
 	}
@@ -202,7 +212,10 @@ func UpdatePartition(c *golangsdk.ServiceClient, name string, opts UpdatePartiti
 
 	var r golangsdk.Result
 	_, err = c.Put(resourceURL(c, name), b, nil, &golangsdk.RequestOpts{
-		MoreHeaders: RequestOpts.MoreHeaders,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       c.AKSKAuthOptions.Region,
+		},
 	})
 	return &r, err
 }
@@ -215,7 +228,10 @@ func CreatePolicy(c *golangsdk.ServiceClient, streamName string, opts CreatePoli
 
 	var r golangsdk.Result
 	_, err = c.Post(policiesURL(c, streamName), b, nil, &golangsdk.RequestOpts{
-		MoreHeaders: RequestOpts.MoreHeaders,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       c.AKSKAuthOptions.Region,
+		},
 	})
 	return &r, err
 }
@@ -223,7 +239,10 @@ func CreatePolicy(c *golangsdk.ServiceClient, streamName string, opts CreatePoli
 func ListPolicies(c *golangsdk.ServiceClient, streamName string) (*ListPolicyResult, error) {
 	var rst ListPolicyResult
 	_, err := c.Get(policiesURL(c, streamName), &rst, &golangsdk.RequestOpts{
-		MoreHeaders: RequestOpts.MoreHeaders,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       c.AKSKAuthOptions.Region,
+		},
 	})
 	if err == nil {
 		return &rst, nil
