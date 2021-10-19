@@ -929,6 +929,18 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("dli endpoint:\t %s", actualURL)
 
+	// test the endpoint of DLI v2.0 service
+	serviceClient, err = config.DliV2Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating dli v2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dli.%s.%s/v2.0/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("dli endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("dli endpoint:\t %s", actualURL)
+
 	serviceClient, err = config.DwsV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating dws css client: %s", err)
