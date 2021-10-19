@@ -139,6 +139,9 @@ The `data_volumes` block supports:
 * `extend_params` - (Optional, Map, ForceNew) Disk expansion parameters.
   Changing this parameter will create a new resource.
 
+* `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a kms key. This is used to encrypt the volume.
+  Changing this parameter will create a new resource.
+
 The `taints` block supports:
 
 * `key` - (Required, String) A key must contain 1 to 63 characters starting with a letter or digit. Only letters,
