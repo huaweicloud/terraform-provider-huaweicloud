@@ -142,6 +142,17 @@ type VolumeSpec struct {
 	HwPassthrough bool `json:"hw:passthrough,omitempty"`
 	// Disk extension parameter
 	ExtendParam map[string]interface{} `json:"extendParam,omitempty"`
+	// Disk encryption information.
+	Metadata *VolumeMetadata `json:"metadata,omitempty"`
+}
+
+type VolumeMetadata struct {
+	// Whether the EVS disk is encrypted.
+	// The value 0 indicates that the EVS disk is not encrypted,
+	// and the value 1 indicates that the EVS disk is encrypted.
+	SystemEncrypted string `json:"__system__encrypted,omitempty"`
+	// CMK ID, which indicates encryption in metadata.
+	SystemCmkid string `json:"__system__cmkid,omitempty"`
 }
 
 type PublicIPSpec struct {

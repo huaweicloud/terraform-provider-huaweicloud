@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v1/routables"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/routetables"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -83,16 +83,16 @@ func dataSourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta
 		return fmtp.DiagErrorf("Error creating VPC client: %s", err)
 	}
 
-	listOpts := routables.ListOpts{
+	listOpts := routetables.ListOpts{
 		VpcID: d.Get("vpc_id").(string),
 		ID:    d.Get("id").(string),
 	}
-	pages, err := routables.List(vpcClient, listOpts).AllPages()
+	pages, err := routetables.List(vpcClient, listOpts).AllPages()
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to retrieve route tables: %s", err)
 	}
 
-	allRouteTables, err := routables.ExtractRouteTables(pages)
+	allRouteTables, err := routetables.ExtractRouteTables(pages)
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to extract route tables: %s", err)
 	}
@@ -125,7 +125,7 @@ func dataSourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	// call Get API to retrieve more details about the route table
-	routeTable, err := routables.Get(vpcClient, rtbID).Extract()
+	routeTable, err := routetables.Get(vpcClient, rtbID).Extract()
 	if err != nil {
 		return fmtp.DiagErrorf("Unable to retrieve route table %s: %s", rtbID, err)
 	}

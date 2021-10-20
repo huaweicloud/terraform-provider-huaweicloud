@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/networking/v1/routables"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/routetables"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
@@ -17,11 +17,11 @@ func getRouteTableResourceFunc(conf *config.Config, state *terraform.ResourceSta
 	if err != nil {
 		return nil, fmt.Errorf("error creating HuaweiCloud Network v1 client: %s", err)
 	}
-	return routables.Get(c, state.Primary.ID).Extract()
+	return routetables.Get(c, state.Primary.ID).Extract()
 }
 
 func TestAccVpcRouteTable_basic(t *testing.T) {
-	var route routables.RouteTable
+	var route routetables.RouteTable
 
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_vpc_route_table.test"

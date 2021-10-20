@@ -352,3 +352,67 @@ func ExtractApis(r pagination.Page) ([]APIResp, error) {
 type DeleteResult struct {
 	golangsdk.ErrResult
 }
+
+// PublishResult represents a result of the Publish method.
+type PublishResult struct {
+	commonResult
+}
+
+// PublishResp is a struct that represents the result of extract operation.
+type PublishResp struct {
+	// Publication record ID.
+	PublishId string `json:"publish_id"`
+	// API ID.
+	ApiId string `json:"api_id"`
+	// API name.
+	ApiName string `json:"api_name"`
+	// ID of the environment in which the API has been published.
+	EnvId string `json:"env_id"`
+	// Description about the publication.
+	Description string `json:"remark"`
+	// Publication time.
+	PublishTime string `json:"publish_time"`
+	// API version currently in use.
+	VersionId string `json:"version_id"`
+}
+
+// Extract is a method to extract an struct of publish response.
+func (r PublishResult) Extract() (*PublishResp, error) {
+	var s PublishResp
+	err := r.ExtractInto(&s)
+	return &s, err
+}
+
+// PublishHistoriesPage represents the publish history pages of the ListPublishHistories operation.
+type PublishHistoriesPage struct {
+	pagination.SinglePageBase
+}
+
+// ApiVersionInfo is a struct that represents the result of ExtractHistories operation.
+type ApiVersionInfo struct {
+	// API version ID.
+	VersionId string `json:"version_id"`
+	// API version.
+	Version string `json:"version_no"`
+	// API ID.
+	ApiId string `json:"api_id"`
+	// ID of the environment in which the API has been published.
+	EnvId string `json:"env_id"`
+	// Name of the environment in which the API has been published.
+	EnvName string `json:"env_name"`
+	// Description about the publication.
+	Description string `json:"remark"`
+	// Publication time.
+	PublishTime string `json:"publish_time"`
+	// Version status.
+	// 1: effective
+	// 2: not effective
+	Status int `json:"status"`
+}
+
+// ExtractHistories is a method which to extract the response to a version information list.
+func ExtractHistories(r pagination.Page) ([]ApiVersionInfo, error) {
+	var s []ApiVersionInfo
+	err := r.(PublishHistoriesPage).Result.ExtractIntoSlicePtr(&s, "api_versions")
+	return s, err
+}
