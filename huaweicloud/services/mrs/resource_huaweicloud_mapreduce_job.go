@@ -196,7 +196,7 @@ func buildMRSSparkSubmitJobRequestArguments(d *schema.ResourceData) []string {
 
 	// The capacity of the result array is the sum of the respective lengths of '--master', 'yarn-cluster',
 	// jar path (/python path), program parameters and parameters.
-	result := make([]string, 3+len(programs)+len(parameters))
+	result := make([]string, 0, 3+len(programs)+len(parameters))
 
 	result = append(result, programs...)
 	result = append(result, "--master")
@@ -484,6 +484,12 @@ func setMRSJobProperties(d *schema.ResourceData, resp string) error {
 	return d.Set("service_parameters", properties)
 }
 
+func setMRSTimeProperties(d *schema.ResourceData, key string, value int) error {
+	keyTime := time.Unix(int64(value), 0)
+	// lintignore:R001
+	return d.Set(key, keyTime.Format(time.RFC3339))
+}
+
 func resourceMRSJobV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
 	client, err := config.MrsV2Client(config.GetRegion(d))
@@ -504,11 +510,11 @@ func resourceMRSJobV2Read(d *schema.ResourceData, meta interface{}) error {
 		d.Set("type", resp.JobType),
 		d.Set("name", resp.JobName),
 		d.Set("status", resp.JobState),
-		d.Set("start_time", resp.StartedTime),
-		d.Set("submit_time", resp.SubmittedTime),
-		d.Set("finish_time", resp.FinishedTime),
 		setMRSJobParametersByArguments(d, resp),
 		setMRSJobProperties(d, resp.Properties),
+		setMRSTimeProperties(d, "start_time", resp.StartedTime/1000),
+		setMRSTimeProperties(d, "submit_time", resp.SubmittedTime/1000),
+		setMRSTimeProperties(d, "finish_time", resp.FinishedTime/1000),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return fmtp.Errorf("Error setting MRS job fields: %s", err)
