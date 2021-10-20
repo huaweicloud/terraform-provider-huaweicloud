@@ -475,3 +475,112 @@ func Delete(client *golangsdk.ServiceClient, instanceId, apiId string) (r Delete
 	_, r.Err = client.Delete(resourceURL(client, instanceId, apiId), nil)
 	return
 }
+
+// PublishOpts allows to publish a new version or offline an exist version for API using given parameters.
+type PublishOpts struct {
+	// Operation to perform.
+	//   online: publishing the APIs
+	//   offline: taking the APIs offline
+	Action string `json:"action" required:"true"`
+	// ID of the environment in which the API will be published.
+	EnvId string `json:"env_id" required:"true"`
+	// ID of the API to be published or taken offline.
+	ApiId string `json:"api_id" required:"true"`
+	// Description about the operation, which can contain a maximum of 255 characters.
+	// Chinese characters must be in UTF-8 or Unicode format.
+	Description string `json:"remark,omitempty"`
+}
+
+// PublishOptsBuilder is an interface which to support request body build of the API publish method.
+type PublishOptsBuilder interface {
+	ToPublishOptsMap() (map[string]interface{}, error)
+}
+
+// ToPublishOptsMap is a method which to build a request body by the ToPublishOptsMap.
+func (opts PublishOpts) ToPublishOptsMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// ToPublishOptsMap is a method which to publish a new version or offline an exist version for API.
+func Publish(client *golangsdk.ServiceClient, instanceId string, opts PublishOptsBuilder) (r PublishResult) {
+	reqBody, err := opts.ToPublishOptsMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Post(releaseURL(client, instanceId), reqBody, &r.Body, nil)
+	return
+}
+
+// VersionSwitchOpts allows to switch a specified version using version ID.
+type VersionSwitchOpts struct {
+	// API version ID.
+	VersionId string `json:"version_id,omitempty"`
+}
+
+// VersionSwitchOptsBuilder is an interface which to support request body build of the API version switch method.
+type VersionSwitchOptsBuilder interface {
+	ToVersionSwitchOptsMap() (map[string]interface{}, error)
+}
+
+// ToVersionSwitchOptsMap is a method which to build a request body by the VersionSwitchOpts.
+func (opts VersionSwitchOpts) ToVersionSwitchOptsMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// SwitchSpecVersion is a method which to switch a specified version.
+func SwitchSpecVersion(client *golangsdk.ServiceClient, instanceId, apiId, versionId string) (r PublishResult) {
+	opts := VersionSwitchOpts{
+		VersionId: versionId,
+	}
+	reqBody, err := opts.ToVersionSwitchOptsMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	_, r.Err = client.Put(publishVersionURL(client, instanceId, apiId), reqBody, &r.Body, nil)
+	return
+}
+
+// ListPublishHistoriesOpts allows to obtains a list of publish histories using given parameters.
+type ListPublishHistoriesOpts struct {
+	// Environment ID.
+	EnvId string `q:"env_id"`
+	// Environment name.
+	EnvName string `q:"env_name"`
+	// Offset from which the query starts. If the offset is less than 0, the value is automatically converted to 0.
+	// Default: 0
+	Offset int `q:"offset"`
+	// Number of items displayed on each page.
+	// Minimum: 1
+	// Maximum: 500
+	// Default: 20
+	Limit int `q:"limit"`
+}
+
+// ListPublishHistoriesBuilder is an interface which to support request query build of the publish histories search.
+type ListPublishHistoriesBuilder interface {
+	ToListPublishHistoriesQuery() (string, error)
+}
+
+// ToListPublishHistoriesQuery is a method which to build a request query by the ListPublishHistoriesOpts.
+func (opts ListPublishHistoriesOpts) ToListPublishHistoriesQuery() (string, error) {
+	q, err := golangsdk.BuildQueryString(opts)
+	return q.String(), err
+}
+
+// ListPublishHistories is a method to obtains a list of publish histories of the API.
+func ListPublishHistories(client *golangsdk.ServiceClient, instanceId, apiId string,
+	opts ListPublishHistoriesBuilder) pagination.Pager {
+	url := publishVersionURL(client, instanceId, apiId)
+	if opts != nil {
+		query, err := opts.ToListPublishHistoriesQuery()
+		if err != nil {
+			return pagination.Pager{Err: err}
+		}
+		url += query
+	}
+	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
+		return PublishHistoriesPage{pagination.SinglePageBase(r)}
+	})
+}

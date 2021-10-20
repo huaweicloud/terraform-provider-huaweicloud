@@ -1,4 +1,4 @@
-package routables
+package routetables
 
 import "github.com/chnsz/golangsdk"
 
