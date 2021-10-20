@@ -41,4 +41,4 @@ The `flavors` block contains:
 * `type` - Indicates the arch type of the flavor.
 * `mode` - Indicates the database mode.
 * `version` - Indicates the database version.
-* `az_status` - Indicates the flavor status in each az.
+* `az_status` - Indicates the flavor status in each availability zone.
