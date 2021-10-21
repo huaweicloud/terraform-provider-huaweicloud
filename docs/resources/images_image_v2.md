@@ -6,6 +6,8 @@ subcategory: "Deprecated"
 
 Manages a Image resource within HuaweiCloud IMS.
 
+!> **WARNING:** It has been deprecated, please use `huaweicloud_images_image` instead.
+
 ## Example Usage
 
 ```hcl

@@ -1,10 +1,11 @@
-package huaweicloud
+package deprecated
 
 import (
 	"testing"
 
 	"github.com/chnsz/golangsdk/openstack/imageservice/v2/images"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -15,8 +16,8 @@ func TestAccImagesImageV2_basic(t *testing.T) {
 	var image images.Image
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -52,8 +53,8 @@ func TestAccImagesImageV2_name(t *testing.T) {
 	var image images.Image
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -80,8 +81,8 @@ func TestAccImagesImageV2_tags(t *testing.T) {
 	var image images.Image
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -121,10 +122,9 @@ func TestAccImagesImageV2_visibility(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheckDeprecated(t)
-			testAccPreCheckAdminOnly(t)
+			acceptance.TestAccPreCheckDeprecated(t)
 		},
-		Providers:    testAccProviders,
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -143,8 +143,8 @@ func TestAccImagesImageV2_timeout(t *testing.T) {
 	var image images.Image
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckDeprecated(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAccPreCheckDeprecated(t) },
+		Providers:    acceptance.TestAccProviders,
 		CheckDestroy: testAccCheckImagesImageV2Destroy,
 		Steps: []resource.TestStep{
 			{
@@ -158,8 +158,8 @@ func TestAccImagesImageV2_timeout(t *testing.T) {
 }
 
 func testAccCheckImagesImageV2Destroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	imageClient, err := config.ImageV2Client(HW_REGION_NAME)
+	config := acceptance.TestAccProvider.Meta().(*config.Config)
+	imageClient, err := config.ImageV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
 	}
@@ -189,8 +189,8 @@ func testAccCheckImagesImageV2Exists(n string, image *images.Image) resource.Tes
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		imageClient, err := config.ImageV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
@@ -221,8 +221,8 @@ func testAccCheckImagesImageV2HasTag(n, tag string) resource.TestCheckFunc {
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		imageClient, err := config.ImageV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
@@ -257,8 +257,8 @@ func testAccCheckImagesImageV2TagCount(n string, expected int) resource.TestChec
 			return fmtp.Errorf("No ID is set")
 		}
 
-		config := testAccProvider.Meta().(*config.Config)
-		imageClient, err := config.ImageV2Client(HW_REGION_NAME)
+		config := acceptance.TestAccProvider.Meta().(*config.Config)
+		imageClient, err := config.ImageV2Client(acceptance.HW_REGION_NAME)
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud Image: %s", err)
 		}
