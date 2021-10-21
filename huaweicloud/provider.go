@@ -443,6 +443,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_instance":                    dcs.ResourceDcsInstance(),
 			"huaweicloud_dds_instance":                    ResourceDdsInstanceV3(),
 			"huaweicloud_dis_stream":                      ResourceDisStreamV2(),
+			"huaweicloud_dli_database":                    dli.ResourceDliSqlDatabaseV1(),
 			"huaweicloud_dli_queue":                       dli.ResourceDliQueue(),
 			"huaweicloud_dms_group":                       ResourceDmsGroupsV1(),
 			"huaweicloud_dms_instance":                    ResourceDmsInstancesV1(),
