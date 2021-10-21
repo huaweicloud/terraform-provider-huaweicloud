@@ -201,3 +201,30 @@ This resource provides the following timeouts configuration options:
 
 * `create` - Default is 30 minute.
 * `delete` - Default is 30 minute.
+
+## Import
+
+DDS instance can be imported using the `id`, e.g.
+
+```sh
+terraform import huaweicloud_dds_instance.instance 9c6d6ff2cba3434293fd479571517e16in02
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason.
+The missing attributes include: `password`, `availability_zone`, `flavor`.
+It is generally recommended running `terraform plan` after importing an instance.
+You can then decide if changes should be applied to the instance, or the resource definition should be updated to
+align with the instance. Also you can ignore changes as below.
+
+```
+resource "huaweicloud_dds_instance" "instance" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      password, availability_zone, flavor,
+    ]
+  }
+}
+```
