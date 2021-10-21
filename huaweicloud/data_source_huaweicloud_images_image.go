@@ -1,6 +1,7 @@
 package huaweicloud
 
 import (
+	"regexp"
 	"sort"
 	"strconv"
 	"time"
@@ -35,6 +36,13 @@ func DataSourceImagesImageV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+
+			"name_regex": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"name"},
+				ValidateFunc:  validation.StringIsValidRegExp,
 			},
 
 			"visibility": {
@@ -73,6 +81,26 @@ func DataSourceImagesImageV2() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
+			},
+
+			"architecture": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"x86", "arm",
+				}, false),
+			},
+			"os": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"os_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"image_type": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			// Deprecated values
@@ -153,14 +181,23 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
+	visibility := d.Get("visibility").(string)
+	if visibility == "public" {
+		visibility = "gold"
+	}
+
 	listOpts := cloudimages.ListOpts{
-		Name:       d.Get("name").(string),
-		Visibility: d.Get("visibility").(string),
-		Owner:      d.Get("owner").(string),
-		Status:     "active",
-		SortKey:    d.Get("sort_key").(string),
-		SortDir:    d.Get("sort_direction").(string),
-		Tag:        d.Get("tag").(string),
+		Name:           d.Get("name").(string),
+		Owner:          d.Get("owner").(string),
+		SortKey:        d.Get("sort_key").(string),
+		SortDir:        d.Get("sort_direction").(string),
+		Tag:            d.Get("tag").(string),
+		Platform:       d.Get("os").(string),
+		OsVersion:      d.Get("os_version").(string),
+		Architecture:   d.Get("architecture").(string),
+		VirtualEnvType: d.Get("image_type").(string),
+		Imagetype:      visibility,
+		Status:         "active",
 	}
 
 	logp.Printf("[DEBUG] List Options: %#v", listOpts)
@@ -181,18 +218,39 @@ func dataSourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error
 			"Please change your search criteria and try again.")
 	}
 
-	if len(allImages) > 1 {
+	// filter images by name_regex
+	var filteredImages []cloudimages.Image
+	if nameRegex, ok := d.GetOk("name_regex"); ok {
+		r, err := regexp.Compile(nameRegex.(string))
+		if err != nil {
+			return fmtp.Errorf("name_regex format error: %s", err)
+		}
+
+		for _, image := range allImages {
+			if r.MatchString(image.Name) {
+				filteredImages = append(filteredImages, image)
+			}
+		}
+	} else {
+		filteredImages = allImages[:]
+	}
+
+	if len(filteredImages) < 1 {
+		return fmtp.Errorf("Your query returned no results. " +
+			"Please change your search criteria and try again.")
+	}
+
+	if len(filteredImages) > 1 {
 		recent := d.Get("most_recent").(bool)
-		logp.Printf("[DEBUG] Multiple results found and `most_recent` is set to: %t", recent)
+		logp.Printf("[DEBUG] Multiple images %d found and `most_recent` is set to: %t", len(filteredImages), recent)
 		if recent {
-			image = mostRecentImage(allImages)
+			image = mostRecentImage(filteredImages)
 		} else {
-			logp.Printf("[DEBUG] Multiple results found: %#v", allImages)
 			return fmtp.Errorf("Your query returned more than one result. Please try a more " +
 				"specific search criteria, or set `most_recent` attribute to true.")
 		}
 	} else {
-		image = allImages[0]
+		image = filteredImages[0]
 	}
 
 	logp.Printf("[DEBUG] Single Image found: %s", image.ID)
@@ -212,6 +270,9 @@ func dataSourceImagesImageV2Attributes(d *schema.ResourceData, image *cloudimage
 	d.Set("owner", image.Owner)
 	d.Set("protected", image.Protected)
 	d.Set("visibility", image.Visibility)
+	d.Set("image_type", image.VirtualEnvType)
+	d.Set("os", image.Platform)
+	d.Set("os_version", image.OsVersion)
 	d.Set("checksum", image.Checksum)
 	d.Set("file", image.File)
 	d.Set("schema", image.Schema)
@@ -231,8 +292,8 @@ type imageSort []cloudimages.Image
 func (a imageSort) Len() int      { return len(a) }
 func (a imageSort) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a imageSort) Less(i, j int) bool {
-	itime := a[i].CreatedAt
-	jtime := a[j].CreatedAt
+	itime := a[i].UpdatedAt
+	jtime := a[j].UpdatedAt
 	return itime.Unix() < jtime.Unix()
 }
 

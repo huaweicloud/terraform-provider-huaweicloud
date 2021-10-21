@@ -20,10 +20,28 @@ func TestAccImsImageDataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccImsImageDataSource_public(imageName),
+				Config: testAccImsImageDataSource_publicName(imageName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImagesV2DataSourceID(dataSourceName),
 					resource.TestCheckResourceAttr(dataSourceName, "name", imageName),
+					resource.TestCheckResourceAttr(dataSourceName, "protected", "true"),
+					resource.TestCheckResourceAttr(dataSourceName, "visibility", "public"),
+					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
+				),
+			},
+			{
+				Config: testAccImsImageDataSource_osVersion(imageName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckImagesV2DataSourceID(dataSourceName),
+					resource.TestCheckResourceAttr(dataSourceName, "protected", "true"),
+					resource.TestCheckResourceAttr(dataSourceName, "visibility", "public"),
+					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
+				),
+			},
+			{
+				Config: testAccImsImageDataSource_nameRegex("^CentOS 7.4"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckImagesV2DataSourceID(dataSourceName),
 					resource.TestCheckResourceAttr(dataSourceName, "protected", "true"),
 					resource.TestCheckResourceAttr(dataSourceName, "visibility", "public"),
 					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
@@ -79,13 +97,36 @@ func testAccCheckImagesV2DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccImsImageDataSource_public(imageName string) string {
+func testAccImsImageDataSource_publicName(imageName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_images_image" "test" {
   name        = "%s"
+  visibility  = "public"
   most_recent = true
 }
 `, imageName)
+}
+
+func testAccImsImageDataSource_nameRegex(regexp string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_images_image" "test" {
+  architecture = "x86"
+  name_regex   = "%s"
+  visibility   = "public"
+  most_recent  = true
+}
+`, regexp)
+}
+
+func testAccImsImageDataSource_osVersion(osVersion string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_images_image" "test" {
+  architecture = "x86"
+  os_version   = "%s"
+  visibility   = "public"
+  most_recent  = true
+}
+`, osVersion)
 }
 
 func testAccImsImageDataSource_base(rName string) string {
