@@ -90,9 +90,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - ID of the MapReduce job in UUID format.
 * `status` - Status of the MapReduce job.
-* `start_time` - The creation time of the MapReduce job, in 13-bit timestamp format.
-* `submit_time` - The submission time of the MapReduce job, in 13-bit timestamp format.
-* `finish_time` - The completion time of the MapReduce job, in 13-bit timestamp format.
+* `start_time` - The creation time of the MapReduce job.
+* `submit_time` - The submission time of the MapReduce job.
+* `finish_time` - The completion time of the MapReduce job.
 
 ## Timeouts
 

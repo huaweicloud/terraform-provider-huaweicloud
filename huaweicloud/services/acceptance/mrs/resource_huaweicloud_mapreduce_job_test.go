@@ -123,23 +123,23 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   node_admin_pass    = "%s"
   subnet_id          = huaweicloud_vpc_subnet.test.id
   vpc_id             = huaweicloud_vpc.test.id
-  component_list     = ["Hadoop", "Hive", "Tez"]
+  component_list     = ["Hadoop", "Spark", "Hive", "Tez"]
 
   master_nodes {
     flavor            = "c6.2xlarge.4.linux.bigdata"
     node_number       = 1
-    root_volume_type  = "SAS"
+    root_volume_type  = "SSD"
     root_volume_size  = 300
-    data_volume_type  = "SAS"
+    data_volume_type  = "SSD"
     data_volume_size  = 480
     data_volume_count = 1
   }
   analysis_core_nodes {
     flavor            = "c6.2xlarge.4.linux.bigdata"
     node_number       = 1
-    root_volume_type  = "SAS"
+    root_volume_type  = "SSD"
     root_volume_size  = 300
-    data_volume_type  = "SAS"
+    data_volume_type  = "SSD"
     data_volume_size  = 480
     data_volume_count = 1
   }
