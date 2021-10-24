@@ -15,6 +15,28 @@ data "huaweicloud_images_image" "ubuntu" {
   visibility  = "public"
   most_recent = true
 }
+
+data "huaweicloud_images_image" "centos-1" {
+  architecture = "x86"
+  os_version   = "CentOS 7.4 64bit"
+  visibility   = "public"
+  most_recent  = true
+}
+
+data "huaweicloud_images_image" "centos-2" {
+  architecture = "x86"
+  name_regex   = "^CentOS 7.4"
+  visibility   = "public"
+  most_recent  = true
+}
+
+data "huaweicloud_images_image" "bms_image" {
+  architecture = "x86"
+  image_type   = "Ironic"
+  os_version   = "CentOS 7.4 64bit"
+  visibility   = "public"
+  most_recent  = true
+}
 ```
 
 ## Argument Reference
@@ -22,25 +44,34 @@ data "huaweicloud_images_image" "ubuntu" {
 * `region` - (Optional, String) The region in which to obtain the images. If omitted, the provider-level region will be
   used.
 
-* `most_recent` - (Optional, Bool) If more than one result is returned, use the most recent image.
+* `most_recent` - (Optional, Bool) If more than one result is returned, use the latest updated image.
 
-* `name` - (Optional, String) The name of the image.
+* `name` - (Optional, String) The name of the image. Cannot be used simultaneously with `name_regex`.
+
+* `name_regex` - (Optional, String) The regular expressian of the name of the image.
+  Cannot be used simultaneously with `name`.
+
+* `visibility` - (Optional, String) The visibility of the image. Must be one of
+  **public**, **private** or **shared**.
+
+* `architecture` (Optional, String) Specifies the image architecture type. The value can be **x86** and **arm**.
+
+* `os` - (Optional, String) Specifies the image OS type. The value can be **Windows**, **Ubuntu**,
+  **RedHat**, **SUSE**, **CentOS**, **Debian**, **OpenSUSE**, **Oracle Linux**, **Fedora**, **Other**,
+  **CoreOS**, or **EulerOS**.
+
+* `os_version` - (Optional, String) Specifies the OS version. For example, *CentOS 7.4 64bit* or *Ubuntu 18.04 server 64bit*.
+
+* `image_type` (Optional, String) Specifies the environment where the image is used. For a BMS image, the value is **Ironic**.
 
 * `owner` - (Optional, String) The owner (UUID) of the image.
 
-* `size_min` - (Optional, Int) The minimum size (in bytes) of the image to return.
-
-* `size_max` - (Optional, Int) The maximum size (in bytes) of the image to return.
+* `tag` - (Optional, String) Search for images with a specific tag in "Key=Value" format.
 
 * `sort_direction` - (Optional, String) Order the results in either `asc` or `desc`.
 
 * `sort_key` - (Optional, String) Sort images based on a certain key. Must be one of
   "name", "container_format", "disk_format", "status", "id" or "size". Defaults to `name`.
-
-* `tag` - (Optional, String) Search for images with a specific tag.
-
-* `visibility` - (Optional, String) The visibility of the image. Must be one of
-  "public", "private", "community", or "shared". Defaults to `private`.
 
 ## Attributes Reference
 

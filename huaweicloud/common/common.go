@@ -16,6 +16,8 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -46,6 +48,31 @@ func GetEnterpriseProjectID(d *schema.ResourceData, config *config.Config) strin
 	return config.EnterpriseProjectID
 }
 
+// GetEipIDbyAddress returns the EIP ID of address when success.
+func GetEipIDbyAddress(client *golangsdk.ServiceClient, address string) (string, error) {
+	listOpts := &eips.ListOpts{
+		PublicIp: address,
+	}
+	pages, err := eips.List(client, listOpts).AllPages()
+	if err != nil {
+		return "", err
+	}
+
+	allEips, err := eips.ExtractPublicIPs(pages)
+	if err != nil {
+		return "", fmtp.Errorf("Unable to retrieve eips: %s ", err)
+	}
+
+	total := len(allEips)
+	if total == 0 {
+		return "", fmtp.Errorf("queried none results with %s", address)
+	} else if total > 1 {
+		return "", fmtp.Errorf("queried more results with %s", address)
+	}
+
+	return allEips[0].ID, nil
+}
+
 // CheckDeleted checks the error to see if it's a 404 (Not Found) and, if so,
 // sets the resource ID to the empty string instead of throwing an error.
 func CheckDeleted(d *schema.ResourceData, err error, msg string) error {
@@ -65,7 +92,7 @@ func CheckDeletedDiag(d *schema.ResourceData, err error, msg string) diag.Diagno
 		return nil
 	}
 
-	return diag.Errorf("%s: %s", msg, err)
+	return fmtp.DiagErrorf("%s: %s", msg, err)
 }
 
 // UnsubscribePrePaidResource impl the action of unsubscribe resource

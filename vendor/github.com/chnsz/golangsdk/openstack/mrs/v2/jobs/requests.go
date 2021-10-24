@@ -5,6 +5,10 @@ import (
 	"github.com/chnsz/golangsdk/pagination"
 )
 
+var requestOpts golangsdk.RequestOpts = golangsdk.RequestOpts{
+	MoreHeaders: map[string]string{"Content-Type": "application/json"},
+}
+
 // CreateOpts is a structure representing information of the job creation.
 type CreateOpts struct {
 	// Type of a job, and the valid values are as follows:
@@ -63,15 +67,16 @@ func Create(client *golangsdk.ServiceClient, clusterId string, opts CreateOptsBu
 		r.Err = err
 		return
 	}
-	_, r.Err = client.Post(rootURL(client, clusterId), reqBody, &r.Body, &golangsdk.RequestOpts{
-		OkCodes: []int{200},
-	})
+	_, r.Err = client.Post(rootURL(client, clusterId), reqBody, &r.Body, nil)
 	return
 }
 
 // Get is a method to get an existing mapreduce job by cluster ID and job ID.
 func Get(client *golangsdk.ServiceClient, clsuterId, jobId string) (r GetResult) {
-	_, r.Err = client.Get(resourceURL(client, clsuterId, jobId), &r.Body, nil)
+	_, r.Err = client.Get(resourceURL(client, clsuterId, jobId), &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: requestOpts.MoreHeaders,
+		OkCodes:     []int{200, 202},
+	})
 	return
 }
 

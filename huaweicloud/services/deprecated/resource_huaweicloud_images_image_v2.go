@@ -1,4 +1,4 @@
-package huaweicloud
+package deprecated
 
 import (
 	"crypto/md5"
@@ -15,13 +15,14 @@ import (
 	"github.com/chnsz/golangsdk/openstack/imageservice/v2/images"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func resourceImagesImageV2() *schema.Resource {
+func ResourceImagesImageV2() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceImagesImageV2Create,
 		Read:   resourceImagesImageV2Read,
@@ -31,6 +32,7 @@ func resourceImagesImageV2() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
+		DeprecationMessage: "It has been deprecated. Please use huaweicloud_images_image instead",
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
 		},
@@ -172,7 +174,7 @@ func resourceImagesImageV2() *schema.Resource {
 
 func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	imageClient, err := config.ImageV2Client(GetRegion(d, config))
+	imageClient, err := config.ImageV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
@@ -219,11 +221,11 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 		return fmtp.Errorf("Error opening file %q: %s", imgFilePath, err)
 	}
 	defer imgFile.Close()
-	logp.Printf("[WARN] Uploading image %s (%d bytes). This can be pretty long.", d.Id(), fileSize)
 
+	logp.Printf("[DEBUG] Uploading image file %s (%d bytes).", imgFilePath, fileSize)
 	res := imagedata.Upload(imageClient, d.Id(), imgFile)
 	if res.Err != nil {
-		return fmtp.Errorf("Error while uploading file %q: %s", imgFilePath, res.Err)
+		return fmtp.Errorf("Error while uploading file %s: %s", imgFilePath, res.Err)
 	}
 
 	//wait for active
@@ -245,14 +247,15 @@ func resourceImagesImageV2Create(d *schema.ResourceData, meta interface{}) error
 
 func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	imageClient, err := config.ImageV2Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	imageClient, err := config.ImageV2Client(region)
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
 
 	img, err := images.Get(imageClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "image")
+		return common.CheckDeleted(d, err, "image")
 	}
 
 	logp.Printf("[DEBUG] Retrieved Image %s: %#v", d.Id(), img)
@@ -280,14 +283,14 @@ func resourceImagesImageV2Read(d *schema.ResourceData, meta interface{}) error {
 		return fmtp.Errorf("[DEBUG] Error saving tags to state for HuaweiCloud image (%s): %s", d.Id(), err)
 	}
 	d.Set("visibility", img.Visibility)
-	d.Set("region", GetRegion(d, config))
+	d.Set("region", region)
 
 	return nil
 }
 
 func resourceImagesImageV2Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	imageClient, err := config.ImageV2Client(GetRegion(d, config))
+	imageClient, err := config.ImageV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}
@@ -325,7 +328,7 @@ func resourceImagesImageV2Update(d *schema.ResourceData, meta interface{}) error
 
 func resourceImagesImageV2Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*config.Config)
-	imageClient, err := config.ImageV2Client(GetRegion(d, config))
+	imageClient, err := config.ImageV2Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud image client: %s", err)
 	}

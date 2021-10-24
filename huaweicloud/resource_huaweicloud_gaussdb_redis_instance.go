@@ -719,6 +719,37 @@ func resourceGaussRedisInstanceV3Update(d *schema.ResourceData, meta interface{}
 		}
 	}
 
+	if d.HasChange("flavor") {
+		err := GaussRedisInstanceUpdateFlavor(d, client, bssClient)
+		if err != nil {
+			return nil
+		}
+	}
+
+	if d.HasChange("security_group_id") {
+		updateSgOpts := instances.UpdateSgOpts{
+			SecurityGroupID: d.Get("security_group_id").(string),
+		}
+
+		result := instances.UpdateSg(client, d.Id(), updateSgOpts)
+		if result.Err != nil {
+			return fmtp.Errorf("Error updating security group for huaweicloud_gaussdb_redis_instance %s: %s", d.Id(), result.Err)
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"MODIFY_SECURITYGROUP"},
+			Target:       []string{"available"},
+			Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "MODIFY_SECURITYGROUP"),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			PollInterval: 3 * time.Second,
+		}
+
+		_, err := stateConf.WaitForState()
+		if err != nil {
+			return fmtp.Errorf("Error waiting for huaweicloud_gaussdb_redis_instance %s to become ready: %s", d.Id(), err)
+		}
+	}
+
 	return resourceGaussRedisInstanceV3Read(d, meta)
 }
 
@@ -740,4 +771,109 @@ func GaussRedisInstanceUpdateRefreshFunc(client *golangsdk.ServiceClient, instan
 
 		return instance, "available", nil
 	}
+}
+
+func GaussRedisInstanceUpdateFlavor(d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
+	instance, err := instances.GetInstanceByID(client, d.Id())
+	if err != nil {
+		return fmtp.Errorf("Error fetching huaweicloud_gaussdb_redis_instance %s: %s", d.Id(), err)
+	}
+
+	specCode := ""
+	for _, action := range instance.Actions {
+		if action != "RESIZE_FLAVOR" {
+			continue
+		}
+		// Wait here if the instance already in RESIZE_FLAVOR state
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{"RESIZE_FLAVOR"},
+			Target:       []string{"available"},
+			Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			PollInterval: 20 * time.Second,
+		}
+
+		res, err := stateConf.WaitForState()
+		if err != nil {
+			return fmtp.Errorf("Error waiting for huaweicloud_gaussdb_redis_instance %s to become ready: %s", d.Id(), err)
+		}
+		instance := res.(instances.GeminiDBInstance)
+
+		// Fetch node flavor
+		wrongFlavor := "Inconsistent Flavor"
+		for _, group := range instance.Groups {
+			for _, Node := range group.Nodes {
+				if specCode == "" {
+					specCode = Node.SpecCode
+				} else if specCode != Node.SpecCode && specCode != wrongFlavor {
+					specCode = wrongFlavor
+				}
+			}
+		}
+		break
+	}
+
+	flavor := d.Get("flavor").(string)
+	if specCode == flavor {
+		return nil
+	}
+	logp.Printf("[DEBUG] Inconsistent Node SpecCode: %s, Flavor: %s", specCode, flavor)
+	// Do resize action
+	resizeOpts := instances.ResizeOpts{
+		Resize: instances.ResizeOpt{
+			InstanceID: d.Id(),
+			SpecCode:   d.Get("flavor").(string),
+		},
+	}
+	if d.Get("charging_mode") == "prePaid" {
+		resizeOpts.IsAutoPay = "true"
+	}
+
+	n, err := instances.Resize(client, d.Id(), resizeOpts).Extract()
+	if err != nil {
+		return fmtp.Errorf("Error resizing huaweicloud_gaussdb_redis_instance %s: %s", d.Id(), err)
+	}
+	// 1. wait for order success
+	if n.OrderId != "" {
+		if err := orders.WaitForOrderSuccess(bssClient, int(d.Timeout(schema.TimeoutUpdate)/time.Second), n.OrderId); err != nil {
+			return err
+		}
+	}
+
+	// 2. wait for instance status.
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"RESIZE_FLAVOR"},
+		Target:       []string{"available"},
+		Refresh:      GeminiDBInstanceUpdateRefreshFunc(client, d.Id(), "RESIZE_FLAVOR"),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		PollInterval: 20 * time.Second,
+	}
+
+	_, err = stateConf.WaitForState()
+	if err != nil {
+		return fmt.Errorf("Error waiting for huaweicloud_gaussdb_redis_instance %s to become ready: %s", d.Id(), err)
+	}
+
+	// 3. check whether the order take effect
+	if n.OrderId == "" {
+		return nil
+	}
+
+	instance, err = instances.GetInstanceByID(client, d.Id())
+	if err != nil {
+		return err
+	}
+	currFlavor := ""
+	for _, group := range instance.Groups {
+		for _, Node := range group.Nodes {
+			if currFlavor == "" {
+				currFlavor = Node.SpecCode
+				break
+			}
+		}
+	}
+	if currFlavor != d.Get("flavor").(string) {
+		return fmtp.Errorf("Error updating flavor for instance %s: order failed", d.Id())
+	}
+	return nil
 }

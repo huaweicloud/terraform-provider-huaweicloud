@@ -115,7 +115,7 @@ func (lrt *LogRoundTripper) logRequest(original io.ReadCloser, contentType strin
 		debugInfo := lrt.formatJSON(bs.Bytes(), true)
 		log.Printf("[DEBUG] API Request Body: %s", debugInfo)
 	} else {
-		log.Printf("[DEBUG] API Request Body: %s", bs.String())
+		log.Printf("[DEBUG] Not logging because the request body isn't JSON")
 	}
 
 	return ioutil.NopCloser(strings.NewReader(bs.String())), nil
@@ -138,7 +138,7 @@ func (lrt *LogRoundTripper) logResponse(original io.ReadCloser, contentType stri
 		return ioutil.NopCloser(strings.NewReader(bs.String())), nil
 	}
 
-	log.Printf("[DEBUG] Not logging because response body isn't JSON")
+	log.Printf("[DEBUG] Not logging because the response body isn't JSON")
 	return original, nil
 }
 

@@ -1,5 +1,5 @@
 ---
-subcategory: "SoftWare Repository for Container (SWR)"
+subcategory: "Software Repository for Container (SWR)"
 ---
 
 # huaweicloud_swr_organization

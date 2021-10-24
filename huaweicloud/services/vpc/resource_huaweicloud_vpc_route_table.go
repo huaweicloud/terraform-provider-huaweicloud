@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/networking/v1/routables"
+	"github.com/chnsz/golangsdk/openstack/networking/v1/routetables"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -96,7 +96,7 @@ func resourceVpcRouteTableCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	allRouteOpts := buildVpcRTRoutes(d)
-	createOpts := routables.CreateOpts{
+	createOpts := routetables.CreateOpts{
 		VpcID:       d.Get("vpc_id").(string),
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
@@ -104,7 +104,7 @@ func resourceVpcRouteTableCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	logp.Printf("[DEBUG] VPC route table create options: %#v", createOpts)
-	routeTable, err := routables.Create(vpcClient, createOpts).Extract()
+	routeTable, err := routetables.Create(vpcClient, createOpts).Extract()
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating VPC route table: %s", err)
 	}
@@ -130,7 +130,7 @@ func resourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta i
 		return fmtp.DiagErrorf("Error creating VPC client: %s", err)
 	}
 
-	routeTable, err := routables.Get(vpcClient, d.Id()).Extract()
+	routeTable, err := routetables.Get(vpcClient, d.Id()).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "VPC route table")
 	}
@@ -159,7 +159,7 @@ func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	var changed bool
-	var updateOpts routables.UpdateOpts
+	var updateOpts routetables.UpdateOpts
 	if d.HasChanges("name", "description") {
 		changed = true
 		desc := d.Get("description").(string)
@@ -169,17 +169,17 @@ func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, me
 
 	if d.HasChange("route") {
 		changed = true
-		routesOpts := map[string][]routables.RouteOpts{}
+		routesOpts := map[string][]routetables.RouteOpts{}
 
 		old, new := d.GetChange("route")
 		addRaws := new.(*schema.Set).Difference(old.(*schema.Set))
 		delRaws := old.(*schema.Set).Difference(new.(*schema.Set))
 
 		if delLen := delRaws.Len(); delLen > 0 {
-			delRouteOpts := make([]routables.RouteOpts, delLen)
+			delRouteOpts := make([]routetables.RouteOpts, delLen)
 			for i, item := range delRaws.List() {
 				opts := item.(map[string]interface{})
-				delRouteOpts[i] = routables.RouteOpts{
+				delRouteOpts[i] = routetables.RouteOpts{
 					Type:        opts["type"].(string),
 					NextHop:     opts["nexthop"].(string),
 					Destination: opts["destination"].(string),
@@ -189,11 +189,11 @@ func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 
 		if addLen := addRaws.Len(); addLen > 0 {
-			addRouteOpts := make([]routables.RouteOpts, addLen)
+			addRouteOpts := make([]routetables.RouteOpts, addLen)
 			for i, item := range addRaws.List() {
 				opts := item.(map[string]interface{})
 				desc := opts["description"].(string)
-				addRouteOpts[i] = routables.RouteOpts{
+				addRouteOpts[i] = routetables.RouteOpts{
 					Type:        opts["type"].(string),
 					NextHop:     opts["nexthop"].(string),
 					Destination: opts["destination"].(string),
@@ -207,7 +207,7 @@ func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, me
 
 	if changed {
 		logp.Printf("[DEBUG] VPC route table update options: %#v", updateOpts)
-		if _, err := routables.Update(vpcClient, d.Id(), updateOpts).Extract(); err != nil {
+		if _, err := routetables.Update(vpcClient, d.Id(), updateOpts).Extract(); err != nil {
 			return fmtp.DiagErrorf("Error updating VPC route table: %s", err)
 		}
 	}
@@ -252,7 +252,7 @@ func resourceVpcRouteTableDelete(_ context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	err = routables.Delete(vpcClient, d.Id()).ExtractErr()
+	err = routetables.Delete(vpcClient, d.Id()).ExtractErr()
 	if err != nil {
 		return fmtp.DiagErrorf("Error deleting VPC route table: %s", err)
 	}
@@ -270,7 +270,7 @@ func disassociateRouteTableSubnets(client *golangsdk.ServiceClient, id string, s
 }
 
 func ipmlVpcRTSubnetsAction(client *golangsdk.ServiceClient, id, action string, subnets []string) error {
-	var opts routables.ActionSubnetsOpts
+	var opts routetables.ActionSubnetsOpts
 	switch action {
 	case "associate":
 		opts.Associate = subnets
@@ -280,23 +280,23 @@ func ipmlVpcRTSubnetsAction(client *golangsdk.ServiceClient, id, action string, 
 		return fmtp.Errorf("action should be associate or disassociate, but got %s", action)
 	}
 
-	actionOpts := routables.ActionOpts{
+	actionOpts := routetables.ActionOpts{
 		Subnets: opts,
 	}
 
 	logp.Printf("[DEBUG] %s subnets %v with VPC route table %s", action, subnets, id)
-	_, err := routables.Action(client, id, actionOpts).Extract()
+	_, err := routetables.Action(client, id, actionOpts).Extract()
 	return err
 }
 
-func buildVpcRTRoutes(d *schema.ResourceData) []routables.RouteOpts {
+func buildVpcRTRoutes(d *schema.ResourceData) []routetables.RouteOpts {
 	rawRoutes := d.Get("route").(*schema.Set).List()
-	routeOpts := make([]routables.RouteOpts, len(rawRoutes))
+	routeOpts := make([]routetables.RouteOpts, len(rawRoutes))
 
 	for i, raw := range rawRoutes {
 		opts := raw.(map[string]interface{})
 		routeDesc := opts["description"].(string)
-		routeOpts[i] = routables.RouteOpts{
+		routeOpts[i] = routetables.RouteOpts{
 			Type:        opts["type"].(string),
 			NextHop:     opts["nexthop"].(string),
 			Destination: opts["destination"].(string),
@@ -307,7 +307,7 @@ func buildVpcRTRoutes(d *schema.ResourceData) []routables.RouteOpts {
 	return routeOpts
 }
 
-func expandVpcRTRoutes(routes []routables.Route) []map[string]interface{} {
+func expandVpcRTRoutes(routes []routetables.Route) []map[string]interface{} {
 	rtRules := make([]map[string]interface{}, 0, len(routes))
 
 	for _, item := range routes {
@@ -328,7 +328,7 @@ func expandVpcRTRoutes(routes []routables.Route) []map[string]interface{} {
 	return rtRules
 }
 
-func expandVpcRTSubnets(subnets []routables.Subnet) []string {
+func expandVpcRTSubnets(subnets []routetables.Subnet) []string {
 	rtSubnets := make([]string, len(subnets))
 
 	for i, item := range subnets {

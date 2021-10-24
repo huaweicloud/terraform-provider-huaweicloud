@@ -23,6 +23,7 @@ var (
 	HW_AVAILABILITY_ZONE          = os.Getenv("HW_AVAILABILITY_ZONE")
 	HW_ACCESS_KEY                 = os.Getenv("HW_ACCESS_KEY")
 	HW_SECRET_KEY                 = os.Getenv("HW_SECRET_KEY")
+	HW_USER_ID                    = os.Getenv("HW_USER_ID")
 	HW_PROJECT_ID                 = os.Getenv("HW_PROJECT_ID")
 	HW_DOMAIN_ID                  = os.Getenv("HW_DOMAIN_ID")
 	HW_DOMAIN_NAME                = os.Getenv("HW_DOMAIN_NAME")
@@ -296,6 +297,13 @@ func TestAccPreCheckDeprecated(t *testing.T) {
 func TestAccPreCheckEpsID(t *testing.T) {
 	if HW_ENTERPRISE_PROJECT_ID == "" {
 		t.Skip("This environment does not support Enterprise Project ID tests")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckBms(t *testing.T) {
+	if HW_USER_ID == "" {
+		t.Skip("HW_USER_ID must be set for BMS acceptance tests")
 	}
 }
 

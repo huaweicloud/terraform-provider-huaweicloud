@@ -11,6 +11,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cce"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/css"
@@ -24,6 +25,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/swr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
 )
@@ -273,7 +275,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"huaweicloud_antiddos":                             dataSourceAntiDdosV1(),
 			"huaweicloud_availability_zones":                   DataSourceAvailabilityZones(),
-			"huaweicloud_bms_flavors":                          DataSourceBmsFlavors(),
+			"huaweicloud_bms_flavors":                          bms.DataSourceBmsFlavors(),
 			"huaweicloud_cce_addon_template":                   DataSourceCCEAddonTemplateV3(),
 			"huaweicloud_cce_cluster":                          DataSourceCCEClusterV3(),
 			"huaweicloud_cce_node":                             DataSourceCCENodeV3(),
@@ -410,7 +412,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_as_group":                        ResourceASGroup(),
 			"huaweicloud_as_lifecycle_hook":               ResourceASLifecycleHook(),
 			"huaweicloud_as_policy":                       ResourceASPolicy(),
-			"huaweicloud_bms_instance":                    ResourceBmsInstance(),
+			"huaweicloud_bms_instance":                    bms.ResourceBmsInstance(),
 			"huaweicloud_bcs_instance":                    resourceBCSInstanceV2(),
 			"huaweicloud_cbr_policy":                      cbr.ResourceCBRPolicyV3(),
 			"huaweicloud_cbr_vault":                       cbr.ResourceCBRVaultV3(),
@@ -443,6 +445,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_instance":                    dcs.ResourceDcsInstance(),
 			"huaweicloud_dds_instance":                    ResourceDdsInstanceV3(),
 			"huaweicloud_dis_stream":                      ResourceDisStreamV2(),
+			"huaweicloud_dli_database":                    dli.ResourceDliSqlDatabaseV1(),
 			"huaweicloud_dli_queue":                       dli.ResourceDliQueue(),
 			"huaweicloud_dms_group":                       ResourceDmsGroupsV1(),
 			"huaweicloud_dms_instance":                    ResourceDmsInstancesV1(),
@@ -532,7 +535,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_turbo":                       ResourceSFSTurbo(),
 			"huaweicloud_smn_topic":                       ResourceTopic(),
 			"huaweicloud_smn_subscription":                ResourceSubscription(),
-			"huaweicloud_swr_organization":                resourceSWROrganization(),
+			"huaweicloud_swr_organization":                swr.ResourceSWROrganization(),
+			"huaweicloud_swr_organization_permissions":    swr.ResourceSWROrganizationPermissions(),
 			"huaweicloud_vbs_backup":                      resourceVBSBackupV2(),
 			"huaweicloud_vbs_backup_policy":               resourceVBSBackupPolicyV2(),
 			"huaweicloud_vpc":                             vpc.ResourceVirtualPrivateCloudV1(),
@@ -580,7 +584,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_queue_v1":                       ResourceDmsQueuesV1(),
 			"huaweicloud_dms_group_v1":                       ResourceDmsGroupsV1(),
 			"huaweicloud_dms_instance_v1":                    ResourceDmsInstancesV1(),
-			"huaweicloud_images_image_v2":                    resourceImagesImageV2(),
 			"huaweicloud_lb_certificate_v2":                  ResourceCertificateV2(),
 			"huaweicloud_lb_loadbalancer_v2":                 ResourceLoadBalancerV2(),
 			"huaweicloud_lb_listener_v2":                     ResourceListenerV2(),
@@ -664,6 +667,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rts_stack_v1":                       resourceRTSStackV1(),
 			"huaweicloud_rts_software_config_v1":             resourceSoftwareConfigV1(),
 			"huaweicloud_cts_tracker":                        deprecated.ResourceCTSTrackerV1(),
+			"huaweicloud_images_image_v2":                    deprecated.ResourceImagesImageV2(),
 		},
 	}
 
