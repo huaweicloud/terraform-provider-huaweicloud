@@ -22,6 +22,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Admin:            true,
 		WithOutProjectID: true,
 	},
+	"iam_no_version": {
+		Name:             "iam",
+		Version:          "",
+		Scope:            "global",
+		Admin:            true,
+		WithOutProjectID: true,
+	},
 	// iam is used for huaweicloud IAM APIs
 	"iam": {
 		Name:             "iam",

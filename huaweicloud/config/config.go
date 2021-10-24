@@ -19,6 +19,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/obs"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/pathorcontents"
 )
 
@@ -437,7 +438,7 @@ func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient,
 }
 
 func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalog ServiceCatalog, region string) (*golangsdk.ServiceClient, error) {
-	if catalog.Name == "" || catalog.Version == "" {
+	if catalog.Name == "" && catalog.Version == "" {
 		return nil, fmt.Errorf("must specify the service name and api version")
 	}
 
@@ -474,7 +475,10 @@ func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalo
 		sc.Endpoint = fmt.Sprintf("https://%s.%s.%s/", catalog.Name, region, c.Cloud)
 	}
 
-	sc.ResourceBase = sc.Endpoint + catalog.Version + "/"
+	sc.ResourceBase = sc.Endpoint
+	if catalog.Version != "" {
+		sc.ResourceBase = sc.ResourceBase + catalog.Version + "/"
+	}
 	if !catalog.WithOutProjectID {
 		sc.ResourceBase = sc.ResourceBase + projectID + "/"
 	}
@@ -628,6 +632,10 @@ func (c *Config) IAMV3Client(region string) (*golangsdk.ServiceClient, error) {
 
 func (c *Config) IdentityV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("identity", region)
+}
+
+func (c *Config) IAMNoVersionClient(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("iam_no_version", region)
 }
 
 func (c *Config) CdnV1Client(region string) (*golangsdk.ServiceClient, error) {
