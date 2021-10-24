@@ -148,6 +148,8 @@ The following arguments are supported:
   + `volumetype` - (Required, String, ForceNew) Disk type. Changing this parameter will create a new resource.
   + `extend_params` - (Optional, Map, ForceNew) Disk expansion parameters. Changing this parameter will create
     a new resource.
+  + `kms_key_id` - (Optional, String, ForceNew) Specifies the ID of a kms key. This is used to encrypt the volume.
+    Changing this parameter will create a new resource.
 
 * `subnet_id` - (Optional, String, ForceNew) The ID of the subnet to which the NIC belongs. Changing this parameter will
   create a new resource.
