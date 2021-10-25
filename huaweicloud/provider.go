@@ -350,6 +350,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_policies":                         waf.DataSourceWafPoliciesV1(),
 			"huaweicloud_waf_dedicated_instances":              waf.DataSourceWafDedicatedInstancesV1(),
 			"huaweicloud_waf_reference_tables":                 waf.DataSourceWafReferenceTablesV1(),
+			"huaweicloud_dws_flavors":                          dws.DataSourceDwsFlavlors(),
 
 			// Legacy
 			"huaweicloud_images_image_v2":           DataSourceImagesImageV2(),
@@ -384,7 +385,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_role_v3":          iam.DataSourceIdentityRoleV3(),
 			"huaweicloud_cdm_flavors_v1":            DataSourceCdmFlavorV1(),
 			"huaweicloud_dis_partition_v2":          DataSourceDisPartitionV2(),
-			"huaweicloud_dws_flavors":               dws.DataSourceDwsFlavlors(),
 
 			// Deprecated
 			"huaweicloud_compute_availability_zones_v2": dataSourceComputeAvailabilityZonesV2(),

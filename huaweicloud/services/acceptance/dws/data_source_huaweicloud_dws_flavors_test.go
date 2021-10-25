@@ -46,7 +46,7 @@ func TestAccDwsFlavorsDataSource_memory(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "flavors.0.volumetype"),
 					resource.TestCheckResourceAttrSet(resourceName, "flavors.0.size"),
 					resource.TestCheckResourceAttrSet(resourceName, "flavors.0.availability_zone"),
-					resource.TestCheckResourceAttr(resourceName, "flavors.0.ram", "64"),
+					resource.TestCheckResourceAttr(resourceName, "flavors.0.memory", "64"),
 				),
 			},
 		},
@@ -69,7 +69,7 @@ func TestAccDwsFlavorsDataSource_all(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "flavors.0.size"),
 					resource.TestCheckResourceAttrSet(resourceName, "flavors.0.availability_zone"),
 					resource.TestCheckResourceAttr(resourceName, "flavors.0.vcpus", "8"),
-					resource.TestCheckResourceAttr(resourceName, "flavors.0.ram", "64"),
+					resource.TestCheckResourceAttr(resourceName, "flavors.0.memory", "64"),
 					resource.TestCheckResourceAttrPair(resourceName, "flavors.0.availability_zone",
 						"data.huaweicloud_availability_zones.test", "names.0"),
 				),
@@ -123,7 +123,7 @@ data "huaweicloud_dws_flavors" "test" {
 
 const testAccDwsFlavorsDataSource_memory = `
 data "huaweicloud_dws_flavors" "test" {
-  ram = 64
+  memory = 64
 }
 `
 const testAccDwsFlavorsDataSource_all = `
@@ -131,7 +131,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_dws_flavors" "test" {
   vcpus             = 8
-  ram               = 64
+  memory            = 64
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 }
 `

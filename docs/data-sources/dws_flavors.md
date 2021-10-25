@@ -23,7 +23,7 @@ data "huaweicloud_dws_flavors" "flavor" {
 
 * `vcpus` - (Optional, String) Specifies the vcpus of the dws node flavor.
 
-* `ram` - (Optional, String) Specifies the ram of the dws node flavor in GB.
+* `memory` - (Optional, String) Specifies the ram of the dws node flavor in GB.
 
 ## Attributes Reference
 
@@ -37,7 +37,7 @@ The `flavors` block contains:
 
 * `flavor_id` - The name of the dws node flavor. It is referenced by `node_type` in `huaweicloud_dws_flavors`.
 * `vcpus` - Indicates the vcpus of the dws node flavor.
-* `ram` - Indicates the ram of the dws node flavor in GB.
+* `memory` - Indicates the ram of the dws node flavor in GB.
 * `volumetype` - Indicates Disk type.
   + **LOCAL_DISK**: common I/O disk
   + **SSD**: ultra-high I/O disk

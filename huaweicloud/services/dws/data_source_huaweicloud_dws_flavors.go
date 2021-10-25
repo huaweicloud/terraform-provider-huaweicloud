@@ -33,7 +33,7 @@ func DataSourceDwsFlavlors() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"ram": {
+			"memory": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
@@ -50,7 +50,7 @@ func DataSourceDwsFlavlors() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"ram": {
+						"memory": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -77,7 +77,7 @@ func dataSourceDwsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	config := meta.(*config.Config)
 	client, err := config.DwsV2Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating DWS V1 client: %s", err)
+		return fmtp.DiagErrorf("Error creating DWS V2 client: %s", err)
 	}
 
 	resp, rErr := flavors.ListNodeTypes(client)
@@ -88,7 +88,7 @@ func dataSourceDwsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 
 	az := d.Get("availability_zone").(string)
 	cpu := d.Get("vcpus").(int)
-	mem := d.Get("ram").(int)
+	mem := d.Get("memory").(int)
 
 	flavors := []dwsFlavor{}
 	//filter flavors by arguments
@@ -99,7 +99,7 @@ func dataSourceDwsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 			continue
 		}
 
-		if mem > 0 && nodeTmp.ram != mem {
+		if mem > 0 && nodeTmp.memory != mem {
 			continue
 		}
 
@@ -137,7 +137,7 @@ type dwsFlavor struct {
 	id                string
 	specCode          string
 	vcpus             int
-	ram               int
+	memory            int
 	volumetype        string
 	size              int
 	availabilityZones []string
@@ -156,7 +156,7 @@ func parseNodeDetail(node flavors.NodeType) dwsFlavor {
 			nodeTmp.size, _ = strconv.Atoi(v.Value)
 			nodeTmp.volumetype = v.Type
 		case "mem":
-			nodeTmp.ram, _ = strconv.Atoi(v.Value)
+			nodeTmp.memory, _ = strconv.Atoi(v.Value)
 		case "availableZones":
 			nodeTmp.availabilityZones = strings.Split(v.Value, ",")
 		}
@@ -177,7 +177,7 @@ func (flavor *dwsFlavor) flattenDwsFlavor() []map[string]interface{} {
 		newFlavor := map[string]interface{}{
 			"flavor_id":         flavor.specCode,
 			"vcpus":             flavor.vcpus,
-			"ram":               flavor.ram,
+			"memory":            flavor.memory,
 			"volumetype":        flavor.volumetype,
 			"size":              flavor.size,
 			"availability_zone": availableZone,
