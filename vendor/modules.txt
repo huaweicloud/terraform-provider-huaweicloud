@@ -56,7 +56,7 @@ github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 github.com/bgentry/go-netrc/netrc
-# github.com/chnsz/golangsdk v0.0.0-20211019093707-47c835c53b0e
+# github.com/chnsz/golangsdk v0.0.0-20211025073953-ef49bcb18cc1
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -170,6 +170,11 @@ github.com/chnsz/golangsdk/openstack/fgs/v2/trigger
 github.com/chnsz/golangsdk/openstack/geminidb/v3/backups
 github.com/chnsz/golangsdk/openstack/geminidb/v3/configurations
 github.com/chnsz/golangsdk/openstack/geminidb/v3/instances
+github.com/chnsz/golangsdk/openstack/identity/federatedauth/mappings
+github.com/chnsz/golangsdk/openstack/identity/federatedauth/metadatas
+github.com/chnsz/golangsdk/openstack/identity/federatedauth/oidcconfig
+github.com/chnsz/golangsdk/openstack/identity/federatedauth/protocols
+github.com/chnsz/golangsdk/openstack/identity/federatedauth/providers
 github.com/chnsz/golangsdk/openstack/identity/v2/tenants
 github.com/chnsz/golangsdk/openstack/identity/v2/tokens
 github.com/chnsz/golangsdk/openstack/identity/v3.0/acl

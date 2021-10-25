@@ -91,7 +91,7 @@ The following arguments are supported:
   The [object](#conversion_rules) structure is documented below.
 
 * `status` - (Optional, String) Specifies the status of the identity provider.
-  Valid values are *enabled* and  *disabled*. Default value is *enabled*.
+  Valid values are *enabled* and *disabled*. Default value is *enabled*.
 
 * `sso_type` - (Optional, String, ForceNew) Specifies the type of the identity provider.
   Valid values are *virtual_user_sso* and *iam_user_sso*. Default value is *virtual_user_sso*.
@@ -125,16 +125,17 @@ The following arguments are supported:
 <br/>2. A maximum of 10 values can be specified, and they must be separated with spaces.
 <br/>Example: openid email host.
 
-* `response_type` - (Optional, String) Response type. Valid values is *id_token*, default value is *id_token*.
+* `response_type` - (Optional, String) Response type. Only support *id_token* currently.
   This field is required only if the protocol is set to *oidc* and the access type is set to programmatic
   access and management console access.
 
 * `response_mode` - (Optional, String) Response mode.
-  Valid values is *form_post* and *fragment*, default value is *form_post*.
+  Valid values are *form_post* and *fragment*, default value is *form_post*.
   This field is required only if the protocol is set to *oidc* and the access type is set to programmatic
   access and management console access.
 
-* `metadata` - (Optional, String) Specifies the metadata of the IdP server.
+* `metadata` - (Optional, String) Specifies the metadata of the IdP(Identity Provider) server.
+  To obtain the metadata file of your enterprise IdP, contact the enterprise administrator.
   This field is used to import a metadata file to IAM to implement federated identity authentication.
   This field is required only if the protocol is set to *saml*.
 
@@ -170,7 +171,7 @@ The `remote` block supports:
 
 -> **NOTE:** 1. The condition result is Boolean rather than the argument that is passed as input.
   <br/>2. In a remote array, `any_one_of` and `not_any_of` are mutually exclusive and cannot be set at the same time.
-  
+
 * `value` - (Optional, List) Specifies the rule is matched only if the specified strings appear in the attribute type.
 
 ## Attributes Reference
