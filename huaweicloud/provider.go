@@ -562,6 +562,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_rule_web_tamper_protection":  waf.ResourceWafRuleWebTamperProtectionV1(),
 			"huaweicloud_waf_dedicated_instance":          waf.ResourceWafDedicatedInstanceV1(),
 			"huaweicloud_waf_dedicated_domain":            waf.ResourceWafDedicatedDomainV1(),
+			"huaweicloud_waf_instance_group":              waf.ResourceWafInstanceGroup(),
 			"huaweicloud_waf_reference_table":             waf.ResourceWafReferenceTableV1(),
 
 			// Legacy
