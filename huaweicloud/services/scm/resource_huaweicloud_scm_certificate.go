@@ -1,13 +1,18 @@
-package huaweicloud
+package scm
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/scm/v3/certificates"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -23,14 +28,14 @@ const (
 	targetServiceEnhanceElb = "Enhance_ELB"
 )
 
-func resourceScmCertificateV3() *schema.Resource {
+func ResourceScmCertificate() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScmCertificateV3Create,
-		Update: resourceScmCertificateV3Update,
-		Read:   resourceScmCertificateV3Read,
-		Delete: resourceScmCertificateV3Delete,
+		CreateContext: resourceScmCertificateCreate,
+		UpdateContext: resourceScmCertificateUpdate,
+		ReadContext:   resourceScmCertificateRead,
+		DeleteContext: resourceScmCertificateDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -134,34 +139,35 @@ func resourceScmCertificateV3() *schema.Resource {
 	}
 }
 
-func resourceScmCertificateV3Create(d *schema.ResourceData, meta interface{}) error {
+func resourceScmCertificateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	scmClient, err := config.ScmV3Client(GetRegion(d, config))
+	scmClient, err := config.ScmV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud SCM client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud SCM client: %s", err)
 	}
 
 	importOpts := certificates.ImportOpts{
 		Name:             d.Get("name").(string),
-		PrivateKey:       d.Get("private_key").(string),
 		Certificate:      d.Get("certificate").(string),
+		PrivateKey:       "***",
 		CertificateChain: d.Get("certificate_chain").(string),
 	}
+	logp.Printf("[DEBUG] Imported certificate options %s: %#v", d.Id(), importOpts)
+	importOpts.PrivateKey = d.Get("private_key").(string)
 
 	c, err := certificates.Import(scmClient, importOpts).Extract()
 	if err != nil {
-		return fmtp.Errorf("Error importing certificate: %s", err)
+		return fmtp.DiagErrorf("Error importing certificate: %s", err)
 	}
 	// If all has been successful, set the ID on the resource
 	d.SetId(c.CertificateId)
-	logp.Printf("[DEBUG] Imported certificate %s: %#v", d.Id(), importOpts)
 
 	// Get targets and push certificate to the target service.
 	targets := d.Get("target").([]interface{})
 	logp.Printf("[DEBUG] SCM Certificate target: %#v", targets)
 	parseTargetsAndPush(scmClient, d, targets)
 
-	return resourceScmCertificateV3Read(d, meta)
+	return resourceScmCertificateRead(ctx, d, meta)
 }
 
 // parseTargetsAndPush pushes the certificate to the service.
@@ -212,14 +218,14 @@ func parseTargetsAndPush(c *golangsdk.ServiceClient, d *schema.ResourceData, tar
 	d.Set("target", tag)
 }
 
-func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) error {
+func resourceScmCertificateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	scmClient, err := config.ScmV3Client(GetRegion(d, config))
+	scmClient, err := config.ScmV3Client(config.GetRegion(d))
 
 	oldVal, newVal := d.GetChange("target")
 	newPushCert, err := parsePushCertificateToMap(newVal.([]interface{}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	oldPushCert, _ := parsePushCertificateToMap(oldVal.([]interface{}))
 
@@ -234,7 +240,7 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 			err := pushCertificateToService(d.Id(), pushOpts, scmClient)
 			if err != nil {
 				d.Set("target", oldVal)
-				return err
+				return diag.FromErr(err)
 			}
 		} else {
 			projectToAdd := newProjects
@@ -250,14 +256,14 @@ func resourceScmCertificateV3Update(d *schema.ResourceData, meta interface{}) er
 				err := pushCertificateToService(d.Id(), pushOpts, scmClient)
 				if err != nil {
 					d.Set("target", oldVal)
-					return err
+					return diag.FromErr(err)
 				}
 				logp.Printf("[DEBUG] Successfully push the certificate to the %s of %s.", service, project)
 			}
 		}
 	}
 
-	return resourceScmCertificateV3Read(d, meta)
+	return resourceScmCertificateRead(ctx, d, meta)
 }
 
 func pushCertificateToService(id string, pushOpts certificates.PushOpts, scmClient *golangsdk.ServiceClient) error {
@@ -275,30 +281,35 @@ func pushCertificateToService(id string, pushOpts certificates.PushOpts, scmClie
 	return nil
 }
 
-func resourceScmCertificateV3Read(d *schema.ResourceData, meta interface{}) error {
+func resourceScmCertificateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	scmClient, err := config.ScmV3Client(GetRegion(d, config))
+	scmClient, err := config.ScmV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud SCM client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud SCM client: %s", err)
 	}
 	certDetail, err := certificates.Get(scmClient, d.Id()).Extract()
 	if err != nil {
-		return CheckDeleted(d, err, "Error obtain certificate information")
+		return common.CheckDeletedDiag(d, err, "Error obtain certificate information")
 	}
 	logp.Printf("[DEBUG] Retrieved certificate %s: %#v", d.Id(), certDetail)
 
-	d.Set("region", GetRegion(d, config))
-	d.Set("status", certDetail.Status)
-	d.Set("name", certDetail.Name)
-	d.Set("push_support", certDetail.PushSupport)
-	d.Set("not_before", certDetail.NotBefore)
-	d.Set("not_after", certDetail.NotAfter)
-	d.Set("domain", certDetail.Domain)
-	d.Set("domain_count", certDetail.DomainCount)
-
 	// convert the type of 'certDetail.Authentifications' to TypeList
 	auths := buildAuthtificatesAttribute(certDetail.Authentifications)
-	d.Set("authentifications", auths)
+	mErr := multierror.Append(nil,
+		d.Set("region", config.GetRegion(d)),
+		d.Set("status", certDetail.Status),
+		d.Set("name", certDetail.Name),
+		d.Set("push_support", certDetail.PushSupport),
+		d.Set("authentifications", auths),
+		d.Set("domain", certDetail.Domain),
+		d.Set("domain_count", certDetail.DomainCount),
+		d.Set("not_before", certDetail.NotBefore),
+		d.Set("not_after", certDetail.NotAfter),
+	)
+
+	if err = mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("error setting SCM certificate attributes: %s", err)
+	}
 
 	return nil
 }
@@ -317,17 +328,17 @@ func buildAuthtificatesAttribute(authentifications []certificates.Authentificati
 	return auth
 }
 
-func resourceScmCertificateV3Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceScmCertificateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	scmClient, err := config.ScmV3Client(GetRegion(d, config))
+	scmClient, err := config.ScmV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud SCM client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud SCM client: %s", err)
 	}
 
 	logp.Printf("[DEBUG] Deleting certificate: %s", d.Id())
 	err = certificates.Delete(scmClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.Errorf("Error deleting certificate error %s: %s", d.Id(), err)
+		return common.CheckDeletedDiag(d, err, "Error deleting certificate error")
 	}
 
 	return nil
