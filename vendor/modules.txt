@@ -56,7 +56,7 @@ github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 github.com/bgentry/go-netrc/netrc
-# github.com/chnsz/golangsdk v0.0.0-20211019093707-47c835c53b0e
+# github.com/chnsz/golangsdk v0.0.0-20211022061627-cc5815ea690b
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -276,6 +276,7 @@ github.com/chnsz/golangsdk/openstack/waf/v1/certificates
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/datamasking_rules
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/domains
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies
+github.com/chnsz/golangsdk/openstack/waf_hw/v1/pools
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_domains
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_instances
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists
