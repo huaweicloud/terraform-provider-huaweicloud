@@ -174,10 +174,12 @@ func resourceGaussDBInstance() *schema.Resource {
 			"proxy_flavor": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"proxy_node_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 			},
 			"force_import": {
 				Type:     schema.TypeBool,

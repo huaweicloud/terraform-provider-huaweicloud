@@ -470,6 +470,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_trigger":                     fgs.ResourceFunctionGraphTrigger(),
 			"huaweicloud_gaussdb_cassandra_instance":      resourceGeminiDBInstanceV3(),
 			"huaweicloud_gaussdb_mysql_instance":          resourceGaussDBInstance(),
+			"huaweicloud_gaussdb_mysql_proxy":             gaussdb.ResourceGaussDBProxy(),
 			"huaweicloud_gaussdb_opengauss_instance":      resourceOpenGaussInstance(),
 			"huaweicloud_gaussdb_redis_instance":          resourceGaussRedisInstanceV3(),
 			"huaweicloud_ges_graph":                       ResourceGesGraphV1(),
