@@ -48,7 +48,7 @@ func getVpcRTBRouteResourceFunc(conf *config.Config, state *terraform.ResourceSt
 func TestAccVpcRTBRoute_basic(t *testing.T) {
 	var route routetables.Route
 	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_vpc_route_table_route.test"
+	resourceName := "huaweicloud_vpc_route.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -66,6 +66,7 @@ func TestAccVpcRTBRoute_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "peering"),
+					resource.TestCheckResourceAttr(resourceName, "description", "peering route"),
 					resource.TestCheckResourceAttrSet(resourceName, "route_table_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "route_table_name"),
 					acceptance.TestCheckResourceAttrWithVariable(resourceName, "nexthop",
@@ -88,7 +89,7 @@ func TestAccVpcRTBRoute_basic(t *testing.T) {
 func TestAccVpcRTBRoute_vip(t *testing.T) {
 	var route routetables.Route
 	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_vpc_route_table_route.vip"
+	resourceName := "huaweicloud_vpc_route.vip"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -106,6 +107,7 @@ func TestAccVpcRTBRoute_vip(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "vip"),
+					resource.TestCheckResourceAttr(resourceName, "description", "vip route"),
 					resource.TestCheckResourceAttr(resourceName, "route_table_name", randName),
 					acceptance.TestCheckResourceAttrWithVariable(resourceName, "nexthop",
 						"${huaweicloud_networking_vip.test.ip_address}"),
@@ -142,11 +144,12 @@ resource "huaweicloud_vpc_peering_connection" "test" {
   peer_vpc_id = huaweicloud_vpc.test2.id
 }
 
-resource "huaweicloud_vpc_route_table_route" "test" {
+resource "huaweicloud_vpc_route" "test" {
   vpc_id      = huaweicloud_vpc.test1.id
   destination = huaweicloud_vpc.test2.cidr
   type        = "peering"
   nexthop     = huaweicloud_vpc_peering_connection.test.id
+  description = "peering route"
 }
 `, rName, rName, rName)
 }
@@ -176,12 +179,13 @@ resource "huaweicloud_networking_vip" "test" {
   network_id = huaweicloud_vpc_subnet.test.id
 }
 
-resource "huaweicloud_vpc_route_table_route" "vip" {
+resource "huaweicloud_vpc_route" "vip" {
   vpc_id         = huaweicloud_vpc.test.id
   route_table_id = huaweicloud_vpc_route_table.test.id
   destination    = "10.10.10.0/24"
   type           = "vip"
   nexthop        = huaweicloud_networking_vip.test.ip_address
+  description    = "vip route"
 }
 `, rName, rName, rName)
 }

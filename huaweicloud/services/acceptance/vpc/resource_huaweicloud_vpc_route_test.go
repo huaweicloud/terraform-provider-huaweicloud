@@ -20,6 +20,8 @@ func getRouteResourceFunc(conf *config.Config, state *terraform.ResourceState) (
 	return routes.Get(c, state.Primary.ID).Extract()
 }
 
+// TestAccVpcRoute_basic: This function is *deprecated* as the resource ID format
+// has changed, please run TestAccVpcRTBRoute_basic
 func TestAccVpcRoute_basic(t *testing.T) {
 	var route routes.Route
 

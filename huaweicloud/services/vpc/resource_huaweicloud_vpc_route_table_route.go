@@ -8,6 +8,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/routetables"
+	"github.com/chnsz/golangsdk/openstack/networking/v2/routes"
 	"github.com/chnsz/golangsdk/pagination"
 
 	"github.com/hashicorp/go-multierror"
@@ -132,10 +133,29 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 		return fmtp.DiagErrorf("Error creating VPC client: %s", err)
 	}
 
+	var diags diag.Diagnostics
 	routeTableID, destination := parseResourceID(d.Id())
+
+	// Compatible with previous versions: conver ID to new format
+	if routeTableID == "" {
+		oldID := d.Id()
+		logp.Printf("[WARN] The resource ID %s is in the old format, try to upgrade it to the new format", oldID)
+
+		newID, subDiags := convertRouteIDtoNewFormat(d, config, oldID)
+		if subDiags.HasError() {
+			return subDiags
+		}
+
+		diags = subDiags
+		d.SetId(newID)
+		logp.Printf("[DEBUG] The resource ID %s has upgraded to %s", oldID, d.Id())
+		routeTableID, destination = parseResourceID(newID)
+	}
+
 	routeTable, err := routetables.Get(vpcClient, routeTableID).Extract()
 	if err != nil {
-		return fmtp.DiagErrorf("Error retrieving VPC route table %s: %s", routeTableID, err)
+		diags = append(diags, fmtp.DiagErrorf("Error retrieving VPC route table %s: %s", routeTableID, err)[0])
+		return diags
 	}
 
 	var route *routetables.Route
@@ -147,7 +167,8 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	if route == nil {
-		return fmtp.DiagErrorf("can not find the vpc route %s with %s", routeTableID, destination)
+		diags = append(diags, fmtp.DiagErrorf("can not find the vpc route %s with %s", routeTableID, destination)[0])
+		return diags
 	}
 
 	mErr := multierror.Append(nil,
@@ -162,10 +183,10 @@ func resourceVpcRTBRouteRead(_ context.Context, d *schema.ResourceData, meta int
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error saving VPC route: %s", err)
+		diags = append(diags, fmtp.DiagErrorf("Error saving VPC route: %s", err)[0])
 	}
 
-	return nil
+	return diags
 }
 
 func resourceVpcRTBRouteUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -273,4 +294,80 @@ func resourceVpcRTBRouteImportState(_ context.Context, d *schema.ResourceData,
 	}
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func convertRouteIDtoNewFormat(d *schema.ResourceData, conf *config.Config, oldID string) (string, diag.Diagnostics) {
+	var diags = diag.Diagnostics{
+		diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "Deprecated ID format",
+			Detail:   fmt.Sprintf("The resource ID %s is in the old format, try to upgrade it to the new format", oldID),
+		},
+	}
+
+	region := conf.GetRegion(d)
+	vpcClient, err := conf.NetworkingV1Client(region)
+	if err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Error creating VPC client",
+			Detail:   err.Error(),
+		})
+		return "", diags
+	}
+	networkClient, err := conf.NetworkingV2Client(region)
+	if err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Error creating network client",
+			Detail:   err.Error(),
+		})
+		return "", diags
+	}
+
+	if _, err := routes.Get(networkClient, oldID).Extract(); err != nil {
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  fmt.Sprintf("The resource %s does not exist", oldID),
+			})
+			d.SetId("")
+		} else {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Error retrieving VPC route",
+				Detail:   err.Error(),
+			})
+		}
+
+		return "", diags
+	}
+
+	destination := d.Get("destination").(string)
+	rtbID := d.Get("route_table_id").(string)
+	if destination == "" || rtbID != "" {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "can not get the destination or the route_table_id is not empty",
+		})
+		return "", diags
+	}
+
+	vpcID := d.Get("vpc_id").(string)
+	routeTableID, err := getDefaultRouteTable(vpcClient, vpcID)
+	if err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "failed to get the default route table",
+			Detail:   err.Error(),
+		})
+		return "", diags
+	}
+
+	newRouteID := fmt.Sprintf("%s/%s", routeTableID, destination)
+	diags = append(diags, diag.Diagnostic{
+		Severity: diag.Warning,
+		Summary:  fmt.Sprintf("The resource ID is upgraded to %s", newRouteID),
+	})
+	return newRouteID, diags
 }
