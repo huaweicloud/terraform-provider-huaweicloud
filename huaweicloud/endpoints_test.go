@@ -917,6 +917,17 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("dws endpoint:\t %s", actualURL)
 
+	serviceClient, err = config.DwsV2Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating dws v2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dws.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("dws V2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("dws V2 endpoint:\t %s", actualURL)
+
 	serviceClient, err = config.GesV1Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating ges css client: %s", err)

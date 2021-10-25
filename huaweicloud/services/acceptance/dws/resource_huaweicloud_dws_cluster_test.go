@@ -1,4 +1,4 @@
-package huaweicloud
+package dws
 
 import (
 	"fmt"

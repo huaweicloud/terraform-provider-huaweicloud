@@ -282,6 +282,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "dws",
 		Version: "v1.0",
 	},
+	"dwsV2": {
+		Name:    "dws",
+		Version: "v2",
+	},
 	"dli": {
 		Name:    "dli",
 		Version: "v1.0",

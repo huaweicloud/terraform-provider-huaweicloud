@@ -824,6 +824,10 @@ func (c *Config) DwsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dws", region)
 }
 
+func (c *Config) DwsV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dwsV2", region)
+}
+
 func (c *Config) DliV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dli", region)
 }
