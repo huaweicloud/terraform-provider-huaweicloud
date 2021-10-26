@@ -1,9 +1,11 @@
 package waf
 
 import (
+	"context"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -34,15 +36,15 @@ const (
 	payPerUseMode = 30
 )
 
-// ResourceWafDedicatedInstanceV1 the resource of managing a dedicated mode instance within HuaweiCloud.
-func ResourceWafDedicatedInstanceV1() *schema.Resource {
+// ResourceWafDedicatedInstance the resource of managing a dedicated mode instance within HuaweiCloud.
+func ResourceWafDedicatedInstance() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceDedicatedInstanceV1Create,
-		Read:   resourceDedicatedInstanceV1Read,
-		Update: resourceDedicatedInstanceV1Update,
-		Delete: resourceDedicatedInstanceV1Delete,
+		CreateContext: resourceDedicatedInstanceCreate,
+		ReadContext:   resourceDedicatedInstanceRead,
+		UpdateContext: resourceDedicatedInstanceUpdate,
+		DeleteContext: resourceDedicatedInstanceDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -98,6 +100,11 @@ func ResourceWafDedicatedInstanceV1() *schema.Resource {
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"group_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 
 			// The following are the attributes
 			"server_id": {
@@ -144,6 +151,7 @@ func buildCreateOpts(d *schema.ResourceData, region string) *instances.CreateIns
 		SubnetId:      d.Get("subnet_id").(string),
 		SecurityGroup: groups,
 		Count:         defaultCount,
+		PoolId:        d.Get("group_id").(string),
 	}
 	return &createOpts
 }
@@ -168,17 +176,17 @@ func waitForInstanceCreated(c *golangsdk.ServiceClient, id string) resource.Stat
 	}
 }
 
-func resourceDedicatedInstanceV1Create(d *schema.ResourceData, meta interface{}) error {
+func resourceDedicatedInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	client, err := conf.WafDedicatedV1Client(conf.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF dedicated client : %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client : %s", err)
 	}
 
 	createOpts := buildCreateOpts(d, conf.GetRegion(d))
 	r, err := instances.CreateInstance(client, *createOpts)
 	if err != nil {
-		return fmtp.Errorf("error creating WAF dedicated : %w", err)
+		return fmtp.DiagErrorf("error creating WAF dedicated : %w", err)
 	}
 	d.SetId(r.Instances[0].Id)
 
@@ -191,28 +199,28 @@ func resourceDedicatedInstanceV1Create(d *schema.ResourceData, meta interface{})
 		Delay:        5 * time.Second,
 		PollInterval: 15 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err == nil {
 		err = updateInstanceName(client, r.Instances[0].Id, d.Get("name").(string))
 	}
 	if err != nil {
 		logp.Printf("[DEBUG] Error while waiting to create  Waf dedicated instance. %s : %#v", d.Id(), err)
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceDedicatedInstanceV1Read(d, meta)
+	return resourceDedicatedInstanceRead(ctx, d, meta)
 }
 
-func resourceDedicatedInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
+func resourceDedicatedInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.WafDedicatedV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF dedicated client: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client: %s", err)
 	}
 
 	r, err := instances.GetInstance(client, d.Id())
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error obtain WAF dedicated instance information.")
+		return common.CheckDeletedDiag(d, err, "Error obtain WAF dedicated instance information.")
 	}
 	logp.Printf("[DEBUG] Get a WAF dedicated instance :%#v", r)
 
@@ -232,9 +240,11 @@ func resourceDedicatedInstanceV1Read(d *schema.ResourceData, meta interface{}) e
 		d.Set("upgradable", r.Upgradable),
 		d.Set("specification_code", r.ResourceSpecCode),
 	)
+	// Only ELB mode uses this field
+	d.Set("group_id", r.PoolId)
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.Errorf("error setting WAF dedicated instance fields: %s", err)
+		return fmtp.DiagErrorf("error setting WAF dedicated instance fields: %s", err)
 	}
 	return nil
 }
@@ -251,20 +261,20 @@ func updateInstanceName(c *golangsdk.ServiceClient, id, name string) error {
 	return nil
 }
 
-func resourceDedicatedInstanceV1Update(d *schema.ResourceData, meta interface{}) error {
+func resourceDedicatedInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	if d.HasChanges("name") {
 		config := meta.(*config.Config)
 		client, err := config.WafDedicatedV1Client(config.GetRegion(d))
 		if err != nil {
-			return fmtp.Errorf("error creating HuaweiCloud WAF dedicated client: %s", err)
+			return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client: %s", err)
 		}
 
 		err = updateInstanceName(client, d.Id(), d.Get("name").(string))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
-	return resourceDedicatedInstanceV1Read(d, meta)
+	return resourceDedicatedInstanceRead(ctx, d, meta)
 }
 
 func waitForInstanceDeleted(c *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
@@ -291,16 +301,16 @@ func waitForInstanceDeleted(c *golangsdk.ServiceClient, id string) resource.Stat
 	}
 }
 
-func resourceDedicatedInstanceV1Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceDedicatedInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.WafDedicatedV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF dedicated client: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client: %s", err)
 	}
 
 	_, err = instances.Delete(client, d.Id())
 	if err != nil {
-		return fmtp.Errorf("error deleting WAF dedicated : %w", err)
+		return fmtp.DiagErrorf("error deleting WAF dedicated : %w", err)
 	}
 
 	logp.Printf("[DEBUG] Waiting for WAF dedicated instance to be deleted(ID:%s).", d.Id())
@@ -312,10 +322,10 @@ func resourceDedicatedInstanceV1Delete(d *schema.ResourceData, meta interface{})
 		Delay:        5 * time.Second,
 		PollInterval: 15 * time.Second,
 	}
-	_, err = stateConf.WaitForState()
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
 		logp.Printf("[DEBUG] Error while waiting to delete Waf dedicated instance. \n%s : %#v", d.Id(), err)
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId("")
 	return nil
