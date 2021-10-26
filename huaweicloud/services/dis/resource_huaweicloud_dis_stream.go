@@ -96,17 +96,19 @@ func ResourceDisStream() *schema.Resource {
 			},
 
 			"auto_scale_min_partition_count": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeInt,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"auto_scale_max_partition_count"},
 			},
 
 			"auto_scale_max_partition_count": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeInt,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"auto_scale_min_partition_count"},
 			},
 
 			"enterprise_project_id": {
