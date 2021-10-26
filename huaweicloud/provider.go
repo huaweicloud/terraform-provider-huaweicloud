@@ -340,8 +340,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_eip":                              vpc.DataSourceVpcEip(),
 			"huaweicloud_vpc_ids":                              vpc.DataSourceVpcIdsV1(),
 			"huaweicloud_vpc_peering_connection":               vpc.DataSourceVpcPeeringConnectionV2(),
-			"huaweicloud_vpc_route":                            vpc.DataSourceVpcRouteV2(),
-			"huaweicloud_vpc_route_ids":                        vpc.DataSourceVpcRouteIdsV2(),
 			"huaweicloud_vpc_route_table":                      vpc.DataSourceVPCRouteTable(),
 			"huaweicloud_vpc_subnet":                           vpc.DataSourceVpcSubnetV1(),
 			"huaweicloud_vpc_subnet_ids":                       vpc.DataSourceVpcSubnetIdsV1(),
@@ -363,8 +361,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_v1":                    vpc.DataSourceVpcV1(),
 			"huaweicloud_vpc_ids_v1":                vpc.DataSourceVpcIdsV1(),
 			"huaweicloud_vpc_peering_connection_v2": vpc.DataSourceVpcPeeringConnectionV2(),
-			"huaweicloud_vpc_route_v2":              vpc.DataSourceVpcRouteV2(),
-			"huaweicloud_vpc_route_ids_v2":          vpc.DataSourceVpcRouteIdsV2(),
 			"huaweicloud_vpc_subnet_v1":             vpc.DataSourceVpcSubnetV1(),
 			"huaweicloud_vpc_subnet_ids_v1":         vpc.DataSourceVpcSubnetIdsV1(),
 			"huaweicloud_cce_cluster_v3":            DataSourceCCEClusterV3(),
@@ -385,6 +381,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_identity_role_v3":          iam.DataSourceIdentityRoleV3(),
 			"huaweicloud_cdm_flavors_v1":            DataSourceCdmFlavorV1(),
 			"huaweicloud_dis_partition_v2":          DataSourceDisPartitionV2(),
+
+			// Deprecated ongoing (without DeprecationMessage), used by other providers
+			"huaweicloud_vpc_route":        vpc.DataSourceVpcRouteV2(),
+			"huaweicloud_vpc_route_ids":    vpc.DataSourceVpcRouteIdsV2(),
+			"huaweicloud_vpc_route_v2":     vpc.DataSourceVpcRouteV2(),
+			"huaweicloud_vpc_route_ids_v2": vpc.DataSourceVpcRouteIdsV2(),
 
 			// Deprecated
 			"huaweicloud_compute_availability_zones_v2": dataSourceComputeAvailabilityZonesV2(),
