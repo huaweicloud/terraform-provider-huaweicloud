@@ -16,7 +16,9 @@ func TestAccVpcRouteIdsDataSource_basic(t *testing.T) {
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheckDeprecated(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      dc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
