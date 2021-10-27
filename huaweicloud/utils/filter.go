@@ -13,19 +13,19 @@ const (
 	matchRuleByNumGt = 1  // number value match by : greater than
 )
 
-// FliterSliceWithField can filter the slice all through a map filter.
+// FilterSliceWithField can filter the slice all through a map filter.
 // If the field is a nested value, using dot(.) to split them, e.g. "SubBlock.SubField".
 // If value in the map is zero, it will be ignored.
-func FliterSliceWithField(all interface{}, filter map[string]interface{}) ([]interface{}, error) {
-	return fliterSliceWithFieldRaw(all, filter, true)
+func FilterSliceWithField(all interface{}, filter map[string]interface{}) ([]interface{}, error) {
+	return filterSliceWithFieldRaw(all, filter, true)
 }
 
-// FliterSliceWithZeroField can filter the slice all through a map filter.
-func FliterSliceWithZeroField(all interface{}, filter map[string]interface{}) ([]interface{}, error) {
-	return fliterSliceWithFieldRaw(all, filter, false)
+// FilterSliceWithZeroField can filter the slice all through a map filter.
+func FilterSliceWithZeroField(all interface{}, filter map[string]interface{}) ([]interface{}, error) {
+	return filterSliceWithFieldRaw(all, filter, false)
 }
 
-func fliterSliceWithFieldRaw(all interface{}, filter map[string]interface{}, ignoreZero bool) ([]interface{}, error) {
+func filterSliceWithFieldRaw(all interface{}, filter map[string]interface{}, ignoreZero bool) ([]interface{}, error) {
 	var result []interface{}
 	var matched bool
 
