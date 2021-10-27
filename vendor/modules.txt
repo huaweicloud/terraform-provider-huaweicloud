@@ -88,6 +88,7 @@ github.com/chnsz/golangsdk/openstack/bms/v1/flavors
 github.com/chnsz/golangsdk/openstack/bss/v2/orders
 github.com/chnsz/golangsdk/openstack/cbr/v3/policies
 github.com/chnsz/golangsdk/openstack/cbr/v3/vaults
+github.com/chnsz/golangsdk/openstack/cce/v1/namespaces
 github.com/chnsz/golangsdk/openstack/cce/v1/persistentvolumeclaims
 github.com/chnsz/golangsdk/openstack/cce/v3/addons
 github.com/chnsz/golangsdk/openstack/cce/v3/clusters
