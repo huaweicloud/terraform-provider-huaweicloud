@@ -105,7 +105,7 @@ func dataSourceBmsFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 		"OsExtraSpecs.CPUArch": d.Get("cpu_arch"),
 	}
 
-	filterFlavors, err := utils.FliterSliceWithField(allFlavors, filter)
+	filterFlavors, err := utils.FilterSliceWithField(allFlavors, filter)
 	if err != nil {
 		return fmtp.DiagErrorf("filter BMS flavors failed: %s", err)
 	}

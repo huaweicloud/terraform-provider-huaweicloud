@@ -81,7 +81,7 @@ func dataSourceWafReferenceTablesRead(d *schema.ResourceData, meta interface{}) 
 		return fmtp.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
 	// filter data by name
-	filterData, err := utils.FliterSliceWithField(r.Items, map[string]interface{}{
+	filterData, err := utils.FilterSliceWithField(r.Items, map[string]interface{}{
 		"Name": d.Get("name").(string),
 	})
 	tables := make([]map[string]interface{}, 0, len(filterData))

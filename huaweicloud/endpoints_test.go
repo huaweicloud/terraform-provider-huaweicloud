@@ -875,6 +875,17 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("dis endpoint:\t %s", actualURL)
 
+	serviceClient, err = config.DisV3Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud dis client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dis.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("dis v3 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("dis v3 endpoint:\t %s", actualURL)
+
 	serviceClient, err = config.CloudtableV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cloudtable client: %s", err)

@@ -844,6 +844,10 @@ func (c *Config) DisV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("disv2", region)
 }
 
+func (c *Config) DisV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("disv3", region)
+}
+
 func (c *Config) CssV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("css", region)
 }
