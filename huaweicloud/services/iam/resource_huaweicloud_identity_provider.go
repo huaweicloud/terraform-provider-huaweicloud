@@ -358,7 +358,7 @@ func createMappingAndProtocol(client *golangsdk.ServiceClient, d *schema.Resourc
 	}
 	mapArr, err := mappings.ExtractMappings(r)
 	mErr := multierror.Append(nil, err)
-	filterData, err := utils.FliterSliceWithField(mapArr, map[string]interface{}{
+	filterData, err := utils.FilterSliceWithField(mapArr, map[string]interface{}{
 		"ID": mappingID,
 	})
 	mErr = multierror.Append(mErr, err)
