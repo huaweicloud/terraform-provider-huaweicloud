@@ -17,7 +17,7 @@ type CreateOpts struct {
 	// all
 	// NOTE:
 	// If the type is not specified, the default value sql is used.
-	QueueType string `json:"queue_type ,omitempty"`
+	QueueType string `json:"queue_type,omitempty"`
 
 	// Description of a queue.
 	Description string `json:"description,omitempty"`

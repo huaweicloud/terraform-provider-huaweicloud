@@ -227,6 +227,18 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	}
 	t.Logf("GeminiDB/Cassandra endpoint:\t %s", actualURL)
 
+	// test the endpoint of GeminiDB V3.1 service
+	serviceClient, err = config.GeminiDBV31Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud GeminiDBV31 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://gaussdb-nosql.%s.%s/v3.1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("GeminiDBV31 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("GeminiDB/CassandraV31 endpoint:\t %s", actualURL)
+
 	// test the endpoint of gaussdb service
 	serviceClient, err = config.GaussdbV3Client(HW_REGION_NAME)
 	if err != nil {
