@@ -543,6 +543,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_smn_subscription":                ResourceSubscription(),
 			"huaweicloud_swr_organization":                swr.ResourceSWROrganization(),
 			"huaweicloud_swr_organization_permissions":    swr.ResourceSWROrganizationPermissions(),
+			"huaweicloud_swr_repository":                  swr.ResourceSWRRepository(),
 			"huaweicloud_vbs_backup":                      resourceVBSBackupV2(),
 			"huaweicloud_vbs_backup_policy":               resourceVBSBackupPolicyV2(),
 			"huaweicloud_vpc":                             vpc.ResourceVirtualPrivateCloudV1(),

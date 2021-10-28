@@ -56,7 +56,7 @@ github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 github.com/bgentry/go-netrc/netrc
-# github.com/chnsz/golangsdk v0.0.0-20211028075622-502b13e4ce51
+# github.com/chnsz/golangsdk v0.0.0-20211029021403-fce195499c7f
 ## explicit
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/internal
@@ -266,6 +266,7 @@ github.com/chnsz/golangsdk/openstack/sfs_turbo/v1/shares
 github.com/chnsz/golangsdk/openstack/smn/v2/subscriptions
 github.com/chnsz/golangsdk/openstack/smn/v2/topics
 github.com/chnsz/golangsdk/openstack/swr/v2/namespaces
+github.com/chnsz/golangsdk/openstack/swr/v2/repositories
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/configurations
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances
