@@ -24,7 +24,7 @@ func getDliSqlJobResourceFunc(config *config.Config, state *terraform.ResourceSt
 //check the DDL sql
 func TestAccResourceDliSqlJob_basic(t *testing.T) {
 	var sqlJobObj sqljob.SqlJobOpts
-	resourceName := "huaweicloud_dli_sqljob.test"
+	resourceName := "huaweicloud_dli_sql_job.test"
 	name := acceptance.RandomAccResourceName()
 
 	rc := acceptance.InitResourceCheck(
@@ -59,7 +59,7 @@ func TestAccResourceDliSqlJob_basic(t *testing.T) {
 
 func TestAccResourceDliSqlJob_query(t *testing.T) {
 	var sqlJobObj sqljob.SqlJobOpts
-	resourceName := "huaweicloud_dli_sqljob.test"
+	resourceName := "huaweicloud_dli_sql_job.test"
 	name := acceptance.RandomAccResourceName()
 
 	rc := acceptance.InitResourceCheck(
@@ -107,20 +107,20 @@ resource "huaweicloud_dli_table" "test" {
   description        = "dli table test"
 
   columns {
-    column_name = "name"
+    name = "name"
     type        = "string"
     description = "person name"
   }
 
   columns {
-    column_name = "addrss"
+    name = "addrss"
     type        = "string"
     description = "home address"
   }
 
 }
 
-resource "huaweicloud_dli_sqljob" "test" {
+resource "huaweicloud_dli_sql_job" "test" {
   sql = "DESC ${huaweicloud_dli_table.test.name}"
   database_name = huaweicloud_dli_database.test.name
 }
@@ -141,20 +141,20 @@ resource "huaweicloud_dli_table" "test" {
   description        = "dli table test"
 
   columns {
-    column_name = "name"
+    name = "name"
     type        = "string"
     description = "person name"
   }
 
   columns {
-    column_name = "addrss"
+    name = "addrss"
     type        = "string"
     description = "home address"
   }
 
 }
 
-resource "huaweicloud_dli_sqljob" "test" {
+resource "huaweicloud_dli_sql_job" "test" {
   sql = "SELECT * FROM ${huaweicloud_dli_table.test.name}"
   database_name = huaweicloud_dli_database.test.name
 }
@@ -169,14 +169,14 @@ func testAccCheckDliSqlJobDestroy(s *terraform.State) error {
 	}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_dli_sqljob" {
+		if rs.Type != "huaweicloud_dli_sql_job" {
 			continue
 		}
 
 		res, err := sqljob.Status(client, rs.Primary.ID)
 		if err == nil && res != nil && (res.Status != sqljob.JobStatusCancelled &&
 			res.Status != sqljob.JobStatusFinished && res.Status != sqljob.JobStatusFailed) {
-			return fmtp.Errorf("huaweicloud_dli_sqljob still exists:%s,%+v,%+v", rs.Primary.ID, err, res)
+			return fmtp.Errorf("huaweicloud_dli_sql_job still exists:%s,%+v,%+v", rs.Primary.ID, err, res)
 		}
 	}
 

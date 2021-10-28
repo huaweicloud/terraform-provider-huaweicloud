@@ -72,7 +72,7 @@ func ResourceSqlJob() *schema.Resource {
 							ForceNew: true,
 						},
 						"spark_sql_dynamic_partition_overwrite_enabled": {
-							Type:     schema.TypeInt,
+							Type:     schema.TypeBool,
 							Optional: true,
 							ForceNew: true,
 						},
@@ -82,12 +82,12 @@ func ResourceSqlJob() *schema.Resource {
 							ForceNew: true,
 						},
 						"spark_sql_bad_records_path": {
-							Type:     schema.TypeInt,
+							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
 						"dli_sql_sqlasync_enabled": {
-							Type:     schema.TypeInt,
+							Type:     schema.TypeBool,
 							Optional: true,
 							ForceNew: true,
 						},
