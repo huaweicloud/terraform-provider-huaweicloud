@@ -30,7 +30,7 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies the instance ID of the proxy.
   Changing this parameter will create a new resource.
 
-* `proxy_flavor` - (Required, String, ForceNew) Specifies the flavor of the proxy.
+* `flavor` - (Required, String, ForceNew) Specifies the flavor of the proxy.
   Changing this parameter will create a new resource.
 
 * `node_num` - (Required, Int) Specifies the node count of the proxy.
