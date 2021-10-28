@@ -98,9 +98,9 @@ func dataSourceVpcEipRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(Eip.ID)
 	d.Set("region", config.GetRegion(d))
+	d.Set("status", NormalizeEIPStatus(Eip.Status))
 	d.Set("public_ip", Eip.PublicAddress)
 	d.Set("port_id", Eip.PortID)
-	d.Set("status", Eip.Status)
 	d.Set("type", Eip.Type)
 	d.Set("private_ip", Eip.PrivateAddress)
 	d.Set("bandwidth_id", Eip.BandwidthID)
