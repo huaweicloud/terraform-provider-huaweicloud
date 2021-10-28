@@ -11,26 +11,31 @@ Manages DLI Table resource within HuaweiCloud
 ### Create a Table
 
 ```hcl
-variable "databaseName" {}
+variable "database_name" {}
+
+resource "huaweicloud_dli_database" "test" {
+  name = var.database_name
+}
 
 resource "huaweicloud_dli_table" "test" {
-  database_name = var.databaseName
-  table_name    = "table_1"
-  table_type    = "DLI"
+  database_name = huaweicloud_dli_database.test.name
+  name          = "table_1"
+  data_location = "DLI"
   description   = "SQL table_1 description"
 
   columns {
-    column_name = "column1"
+    name        = "column_1"
     type        = "string"
     description = "the first column"
   }
 
   columns {
-    column_name = "column1"
+    name        = "column_2"
     type        = "string"
     description = "the second column"
   }
 }
+
 ```
 
 ## Argument Reference
@@ -40,9 +45,9 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the dli table resource. If omitted,
   the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew)Specifies the table name. Name of a newly created resource table. The name can contain
-  only digits, letters, and underscores (_), but cannot contain only digits or start with an underscore (_). Length
-  range: 1 to 128 characters. Changing this parameter will create a new resource.
+* `name` - (Required, String, ForceNew) Specifies the table name.The name can contain only digits, letters,
+ and underscores (_), but cannot contain only digits or start with an underscore (_). Length range: 1 to 128 characters.
+ Changing this parameter will create a new resource.
 
 * `database_name` - (Required, String, ForceNew) Specifies the database name which the table belongs to.
  Changing this parameter will create a new resource.
@@ -59,11 +64,10 @@ The following arguments are supported:
 * `Columns` - (Required, List, ForceNew) Specifies Columns of the new table. Structure is documented below.
 
  The `column` block supports:
-
-   * `column_name` - (Optional, String, ForceNew) Specifies the name of column
-   * `type` - (Optional, String, ForceNew) Specifies data type of column
-   * `description` - (Optional, String, ForceNew) Specifies the description of column
-   * `is_partition_column` - (Optional, String, ForceNew) Specifies whether the column is a partition column. The value
+    + `name` - (Optional, String, ForceNew) Specifies the name of column
+    + `type` - (Optional, String, ForceNew) Specifies data type of column
+    + `description` - (Optional, String, ForceNew) Specifies the description of column
+    + `is_partition` - (Optional, Bool, ForceNew) Specifies whether the column is a partition column. The value
     true indicates a partition column, and the value false indicates a non-partition column. The default value is false.
   
   -> When creating a partition table, ensure that at least one column in the table is a non-partition column.
@@ -76,7 +80,7 @@ The following arguments are supported:
  -> If you need to import data stored in OBS to the OBS table, set this parameter to the path of a folder. If the table
   creation path is a file, data fails to be imported. which must be a path on OBS and must begin with obs.
 
-* `with_column_header` - (Optional, Boolean, ForceNew) Specifies whether the table header is included in the data file.
+* `with_column_header` - (Optional, Bool, ForceNew) Specifies whether the table header is included in the data file.
   Only data in CSV files has this attribute. Changing this parameter will create a new resource.
 
 * `delimiter` - (Optional, String, ForceNew) Specifies data delimiter. Only data in CSV files has this
@@ -98,7 +102,8 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - A resource ID in format of **database.table**
+* `id` - A resource ID in format of **database_name/table_name**. It is composed of the name of database which table
+ belongs and the name of table, separated by a slash.
 
 ## Timeouts
 
@@ -108,8 +113,9 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-DLI table can be imported by `id`. For example,
+DLI table can be imported by `id`. It is composed of the name of database which table belongs and the name of table,
+ separated by a slash. For example,
 
 ```
-terraform import huaweicloud_dli_table.example database.table
+terraform import huaweicloud_dli_table.example <database_name>/<table_name>
 ```

@@ -75,13 +75,13 @@ resource "huaweicloud_dli_table" "test" {
   description   = "dli table test"
 
   columns {
-    column_name = "name"
+    name = "name"
     type        = "string"
     description = "person name"
   }
 
   columns {
-    column_name = "addrss"
+    name = "addrss"
     type        = "string"
     description = "home address"
   }
@@ -93,6 +93,7 @@ func TestAccResourceDliTable_OBS(t *testing.T) {
 	var TableObj tables.CreateTableOpts
 	resourceName := "huaweicloud_dli_table.test"
 	name := acceptance.RandomAccResourceName()
+	obsBucketName := acceptance.RandomAccResourceNameWithDash()
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -109,7 +110,7 @@ func TestAccResourceDliTable_OBS(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDliTableResource_OBS(name),
+				Config: testAccDliTableResource_OBS(name, obsBucketName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "database_name", name),
@@ -127,11 +128,11 @@ func TestAccResourceDliTable_OBS(t *testing.T) {
 	})
 }
 
-func testAccDliTableResource_OBS(name string) string {
+func testAccDliTableResource_OBS(name string, obsBucketName string) string {
 
 	return fmt.Sprintf(`
 resource "huaweicloud_obs_bucket" "test" {
-  bucket = "tf-acc-test-dli"
+  bucket = "%s"
   acl    = "private"
 }
 
@@ -157,17 +158,17 @@ resource "huaweicloud_dli_table" "test" {
   bucket_location = "obs://${huaweicloud_obs_bucket_object.test.bucket}/user/data"
 
   columns {
-    column_name = "name"
+    name = "name"
     type        = "string"
     description = "person name"
   }
 
   columns {
-    column_name = "addrss"
+    name = "addrss"
     type        = "string"
     description = "home address"
   }
 
 }
-`, name, name)
+`, obsBucketName, name, name)
 }

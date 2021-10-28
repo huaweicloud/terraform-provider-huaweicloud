@@ -53,7 +53,7 @@ func ResourceDliTableJob() *schema.Resource {
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"column_name": {
+						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
@@ -68,7 +68,7 @@ func ResourceDliTableJob() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
-						"is_partition_column": {
+						"is_partition": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							ForceNew: true,
@@ -169,7 +169,7 @@ func resourceDliTableCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return fmtp.DiagErrorf("Error creating DLI table: %s", rst.Message)
 	}
 
-	d.SetId(fmt.Sprintf("%s.%s", databaseName, tableName))
+	d.SetId(fmt.Sprintf("%s/%s", databaseName, tableName))
 	return resourceDliTableRead(ctx, d, meta)
 }
 
@@ -235,10 +235,10 @@ func setColumnsToState(d *schema.ResourceData, columns []tables.Column) error {
 	result := make([]interface{}, 0, len(columns))
 	for _, column := range columns {
 		item := map[string]interface{}{
-			"column_name":         column.ColumnName,
-			"type":                column.Type,
-			"description":         column.Description,
-			"is_partition_column": column.IsPartitionColumn,
+			"name":         column.ColumnName,
+			"type":         column.Type,
+			"description":  column.Description,
+			"is_partition": column.IsPartitionColumn,
 		}
 		result = append(result, item)
 	}
@@ -303,10 +303,10 @@ func buildColumnParam(d *schema.ResourceData) []tables.ColumnOpts {
 		for _, raw := range columns {
 			config := raw.(map[string]interface{})
 			column := tables.ColumnOpts{
-				ColumnName:        config["column_name"].(string),
+				ColumnName:        config["name"].(string),
 				Type:              config["type"].(string),
 				Description:       config["description"].(string),
-				IsPartitionColumn: utils.Bool(config["is_partition_column"].(bool)),
+				IsPartitionColumn: utils.Bool(config["is_partition"].(bool)),
 			}
 			rt = append(rt, column)
 		}
@@ -317,7 +317,7 @@ func buildColumnParam(d *schema.ResourceData) []tables.ColumnOpts {
 }
 
 func ParseTableInfoFromId(id string) (databaseName, tableName string) {
-	idArrays := strings.Split(id, ".")
+	idArrays := strings.Split(id, "/")
 	databaseName = idArrays[0]
 	tableName = idArrays[1]
 	return
