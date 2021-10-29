@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -67,17 +66,15 @@ func DataSourceWafInstanceGroups() *schema.Resource {
 							Computed: true,
 						},
 						"write_timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      10,
-							ValidateFunc: validation.IntBetween(1, 20),
+							Type:     schema.TypeInt,
+							Computed: true,
 						},
 						"read_timeout": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"load_balances": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
