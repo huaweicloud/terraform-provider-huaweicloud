@@ -451,6 +451,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_instance":                    ResourceDdsInstanceV3(),
 			"huaweicloud_dis_stream":                      dis.ResourceDisStream(),
 			"huaweicloud_dli_database":                    dli.ResourceDliSqlDatabaseV1(),
+			"huaweicloud_dli_package":                     dli.ResourceDliPackageV2(),
 			"huaweicloud_dli_queue":                       dli.ResourceDliQueue(),
 			"huaweicloud_dli_table":                       dli.ResourceDliTableJob(),
 			"huaweicloud_dms_group":                       ResourceDmsGroupsV1(),
