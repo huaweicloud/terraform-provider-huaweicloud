@@ -1,11 +1,14 @@
 package waf
 
 import (
+	"context"
 	"strings"
 
 	instances "github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_instances"
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
@@ -14,7 +17,7 @@ import (
 
 func DataSourceWafDedicatedInstancesV1() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceWafDedicatedInstanceV1Read,
+		ReadContext: dataSourceWafDedicatedInstanceRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -88,6 +91,10 @@ func DataSourceWafDedicatedInstancesV1() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -95,26 +102,27 @@ func DataSourceWafDedicatedInstancesV1() *schema.Resource {
 	}
 }
 
-func dataSourceWafDedicatedInstanceV1Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceWafDedicatedInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	client, err := config.WafDedicatedV1Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF dedicated client: %s", err)
+		return fmtp.DiagErrorf("error creating HuaweiCloud WAF dedicated client: %s", err)
 	}
 
 	instanceId, hasId := d.GetOk("id")
 	var items []instances.DedicatedInstance
 	if hasId {
-		ins, err := instances.GetInstance(client, instanceId.(string))
+		instance, err := instances.GetInstance(client, instanceId.(string))
 		if err != nil {
-			return fmtp.Errorf("Your query returned no results. Please change your search criteria and try again.")
+			return fmtp.DiagErrorf("Your query returned no results. " +
+				"Please change your search criteria and try again.")
 		}
 		d.SetId(instanceId.(string))
-		items = append(items, *ins)
+		items = append(items, *instance)
 
 		if n, ok := d.GetOk("name"); ok {
 			// If the instance name does not match name form schema, then clear the items
-			if strings.Index(strings.ToLower(ins.InstanceName), strings.ToLower(n.(string))) == -1 {
+			if strings.Index(strings.ToLower(instance.InstanceName), strings.ToLower(n.(string))) == -1 {
 				items = []instances.DedicatedInstance{}
 			}
 		}
@@ -126,13 +134,14 @@ func dataSourceWafDedicatedInstanceV1Read(d *schema.ResourceData, meta interface
 
 		rst, err := instances.ListInstance(client, opts)
 		if err != nil {
-			return common.CheckDeleted(d, err, "Error obtain WAF dedicated instance information.")
+			return common.CheckDeletedDiag(d, err, "Error obtain WAF dedicated instance information.")
 		}
 		items = rst.Items
 	}
 
 	if len(items) == 0 {
-		return fmtp.Errorf("Your query returned no results. Please change your search criteria and try again.")
+		return fmtp.DiagErrorf("Your query returned no results. " +
+			"Please change your search criteria and try again.")
 	}
 
 	ids := make([]string, 0, len(items))
@@ -153,6 +162,7 @@ func dataSourceWafDedicatedInstanceV1Read(d *schema.ResourceData, meta interface
 			"run_status":       r.RunStatus,
 			"access_status":    r.AccessStatus,
 			"upgradable":       r.Upgradable,
+			"group_id":         r.PoolId,
 		}
 		instances = append(instances, eng)
 		ids = append(ids, r.Id)
@@ -167,7 +177,7 @@ func dataSourceWafDedicatedInstanceV1Read(d *schema.ResourceData, meta interface
 	)
 
 	if mErr.ErrorOrNil() != nil {
-		return fmtp.Errorf("error setting WAF dedicated instance fields: %s", err)
+		return fmtp.DiagErrorf("error setting WAF dedicated instance fields: %s", mErr)
 	}
 
 	return nil

@@ -70,3 +70,5 @@ The `instances` block supports:
 * `access_status` - The access status of the instance. `0`: inaccessible, `1`: accessible.
 
 * `upgradable` - The instance is to support upgrades. `0`: Cannot be upgraded, `1`: Can be upgraded.
+
+* `group_id` - The instance group ID used by the WAF dedicated instance in ELB mode.

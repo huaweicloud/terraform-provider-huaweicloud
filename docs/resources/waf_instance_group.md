@@ -22,7 +22,7 @@ resource "huaweicloud_waf_instance_group" "group_1" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) The region in which to create the instance group.
-  If omitted, the provider-level region will be used. Changing this setting will create a new certificate.
+  If omitted, the provider-level region will be used. Changing this setting will create a new resource.
 
 * `name` - (Required, String) Specifies the instance group name.
   The maximum length is 64 characters. Only letters, digits and underscores (_) are allowed.
