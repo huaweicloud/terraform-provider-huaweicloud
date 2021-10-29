@@ -129,7 +129,7 @@ func ResourceSqlJob() *schema.Resource {
 				Computed: true,
 			},
 			"start_time": {
-				Type:     schema.TypeInt,
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"duration": {
@@ -182,7 +182,7 @@ func resourceSqlJobCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	return resourceSqlJobRead(ctx, d, meta)
 }
 
-func resourceSqlJobRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSqlJobRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	region := config.GetRegion(d)
 	client, err := config.DliV1Client(region)
@@ -208,7 +208,7 @@ func resourceSqlJobRead(ctx context.Context, d *schema.ResourceData, meta interf
 		d.Set("queue_name", dt.QueueName),
 		d.Set("job_type", dt.JobType),
 		d.Set("owner", dt.Owner),
-		d.Set("start_time", dt.StartTime),
+		d.Set("start_time", utils.FormatTimeStampRFC3339(int64(dt.StartTime))),
 		d.Set("duration", dt.Duration),
 		d.Set("status", dt.Status),
 		d.Set("tags", utils.TagsToMap(dt.Tags)),
@@ -251,13 +251,13 @@ func resourceSqlJobDelete(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 
 	}
-	d.SetId("")
 
 	errCheckRt := checkSqlJobCancelledResult(ctx, client, jobId, d.Timeout(schema.TimeoutDelete))
 	if errCheckRt != nil {
 		return fmtp.DiagErrorf("Failed to check the result of deletion %s", errCheckRt)
 	}
 
+	d.SetId("")
 	return nil
 }
 

@@ -96,24 +96,24 @@ func TestAccResourceDliSqlJob_query(t *testing.T) {
 func testAccSqlJobBaseResource_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dli_database" "test" {
-  name                  = "%s"
-  description           = "For terraform acc test"
+  name        = "%s"
+  description = "For terraform acc test"
 }
 
 resource "huaweicloud_dli_table" "test" {
-  database_name      = huaweicloud_dli_database.test.name
-  name               = "acc_test_table"
-  data_location      = "DLI"
-  description        = "dli table test"
+  database_name = huaweicloud_dli_database.test.name
+  name          = "acc_test_table"
+  data_location = "DLI"
+  description   = "dli table test"
 
   columns {
-    name = "name"
+    name        = "name"
     type        = "string"
     description = "person name"
   }
 
   columns {
-    name = "addrss"
+    name        = "addrss"
     type        = "string"
     description = "home address"
   }
@@ -121,33 +121,34 @@ resource "huaweicloud_dli_table" "test" {
 }
 
 resource "huaweicloud_dli_sql_job" "test" {
-  sql = "DESC ${huaweicloud_dli_table.test.name}"
+  sql           = "DESC ${huaweicloud_dli_table.test.name}"
   database_name = huaweicloud_dli_database.test.name
 }
+
 `, name)
 }
 
 func testAccSqlJobBaseResource_query(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dli_database" "test" {
-  name                  = "%s"
-  description           = "For terraform acc test"
+  name        = "%s"
+  description = "For terraform acc test"
 }
 
 resource "huaweicloud_dli_table" "test" {
-  database_name      = huaweicloud_dli_database.test.name
-  name               = "%s"
-  data_location      = "DLI"
-  description        = "dli table test"
+  database_name = huaweicloud_dli_database.test.name
+  name          = "%s"
+  data_location = "DLI"
+  description   = "dli table test"
 
   columns {
-    name = "name"
+    name        = "name"
     type        = "string"
     description = "person name"
   }
 
   columns {
-    name = "addrss"
+    name        = "addrss"
     type        = "string"
     description = "home address"
   }
@@ -155,9 +156,10 @@ resource "huaweicloud_dli_table" "test" {
 }
 
 resource "huaweicloud_dli_sql_job" "test" {
-  sql = "SELECT * FROM ${huaweicloud_dli_table.test.name}"
+  sql           = "SELECT * FROM ${huaweicloud_dli_table.test.name}"
   database_name = huaweicloud_dli_database.test.name
 }
+
 `, name, name)
 }
 

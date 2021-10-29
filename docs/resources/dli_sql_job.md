@@ -91,7 +91,7 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - Status of a job, including **RUNNING**, **SCALING**, **LAUNCHING**, **FINISHED**, **FAILED**,
   and **CANCELLED.**
 
-* `start_time` - Time when a job is started. The timestamp is expressed in milliseconds.
+* `start_time` - Time when a job is started, in RFC-3339 format. e.g. `2019-10-12T07:20:50.52Z`
 
 * `duration` - Job running duration (unit: millisecond).
 
