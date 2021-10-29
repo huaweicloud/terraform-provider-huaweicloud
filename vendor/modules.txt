@@ -280,6 +280,7 @@ github.com/chnsz/golangsdk/openstack/waf/v1/certificates
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/datamasking_rules
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/domains
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies
+github.com/chnsz/golangsdk/openstack/waf_hw/v1/pools
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_domains
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_instances
 github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists
