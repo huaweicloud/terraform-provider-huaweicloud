@@ -57,6 +57,8 @@ var (
 	HW_CERTIFICATE_SERVICE          = os.Getenv("HW_CERTIFICATE_SERVICE")
 	HW_CERTIFICATE_PROJECT          = os.Getenv("HW_CERTIFICATE_PROJECT")
 	HW_CERTIFICATE_PROJECT_UPDATED  = os.Getenv("HW_CERTIFICATE_PROJECT_UPDATED")
+
+	HW_DLI_FLINK_JAR_OBS_PATH = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -404,5 +406,12 @@ func TestAccPreCheckSWRDomian(t *testing.T) {
 	if HW_SWR_SHARING_ACCOUNT == "" {
 		t.Skip("HW_SWR_SHARING_ACCOUNT must be set for swr domian tests, " +
 			"the value of HW_SWR_SHARING_ACCOUNT should be another IAM user name")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckDliJarPath(t *testing.T) {
+	if HW_DLI_FLINK_JAR_OBS_PATH == "" {
+		t.Skip("HW_DLI_FLINK_JAR_OBS_PATH must be set for DLI Flink Jar job acceptance tests.")
 	}
 }
