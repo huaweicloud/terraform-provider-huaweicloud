@@ -24,9 +24,9 @@ func TestAccVpcEipDataSource_basic(t *testing.T) {
 				Config: testAccDataSourceVpcEipConfig_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "status", "DOWN"),
+					resource.TestCheckResourceAttr(dataSourceName, "status", "UNBOUND"),
 					resource.TestCheckResourceAttr(dataSourceName, "type", "5_bgp"),
-					resource.TestCheckResourceAttr(dataSourceName, "bandwidth_size", "8"),
+					resource.TestCheckResourceAttr(dataSourceName, "bandwidth_size", "5"),
 					resource.TestCheckResourceAttr(dataSourceName, "bandwidth_share_type", "PER"),
 				),
 			},
@@ -42,7 +42,7 @@ resource "huaweicloud_vpc_eip" "test" {
   }
   bandwidth {
     name        = "%s"
-    size        = 8
+    size        = 5
     share_type  = "PER"
     charge_mode = "traffic"
   }

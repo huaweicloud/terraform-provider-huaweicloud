@@ -693,7 +693,9 @@ func resourceCCENodeV3Read(d *schema.ResourceData, meta interface{}) error {
 		volume["hw_passthrough"] = pairObject.HwPassthrough
 		volume["extend_params"] = pairObject.ExtendParam
 		volume["extend_param"] = ""
-		volume["kms_key_id"] = pairObject.Metadata.SystemCmkid
+		if pairObject.Metadata != nil {
+			volume["kms_key_id"] = pairObject.Metadata.SystemCmkid
+		}
 		volumes = append(volumes, volume)
 	}
 	if err := d.Set("data_volumes", volumes); err != nil {

@@ -112,11 +112,13 @@ func dataSourceVpcRouteTableRead(_ context.Context, d *schema.ResourceData, meta
 			}
 		}
 	} else {
-		if len(allRouteTables) > 1 {
-			return fmtp.DiagErrorf("Your query returned more than one result. " +
-				"Please try a more specific search criteria.")
+		// find the default route table if name was not specified
+		for _, rtb := range allRouteTables {
+			if rtb.Default {
+				rtbID = rtb.ID
+				break
+			}
 		}
-		rtbID = allRouteTables[0].ID
 	}
 
 	if rtbID == "" {
