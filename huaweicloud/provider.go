@@ -298,6 +298,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_enterprise_project":                   DataSourceEnterpriseProject(),
 			"huaweicloud_fgs_dependencies":                     fgs.DataSourceFunctionGraphDependencies(),
 			"huaweicloud_gaussdb_cassandra_dedicated_resource": dataSourceGeminiDBDehResource(),
+			"huaweicloud_gaussdb_cassandra_flavors":            gaussdb.DataSourceCassandraFlavors(),
 			"huaweicloud_gaussdb_cassandra_instance":           dataSourceGeminiDBInstance(),
 			"huaweicloud_gaussdb_cassandra_instances":          dataSourceGeminiDBInstances(),
 			"huaweicloud_gaussdb_opengauss_instance":           dataSourceOpenGaussInstance(),

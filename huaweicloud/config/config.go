@@ -906,6 +906,10 @@ func (c *Config) GeminiDBV3Client(region string) (*golangsdk.ServiceClient, erro
 	return c.NewServiceClient("geminidb", region)
 }
 
+func (c *Config) GeminiDBV31Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("geminidbv31", region)
+}
+
 func (c *Config) OpenGaussV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("opengauss", region)
 }

@@ -220,6 +220,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "gaussdb-nosql",
 		Version: "v3",
 	},
+	"geminidbv31": {
+		Name:    "gaussdb-nosql",
+		Version: "v3.1",
+	},
 	"gaussdb": {
 		Name:    "gaussdb",
 		Version: "mysql/v3",
