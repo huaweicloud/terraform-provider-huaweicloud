@@ -32,6 +32,7 @@ func TestAccVpcV1_basic(t *testing.T) {
 					testAccCheckVpcV1Exists(resourceName, &vpc),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "cidr", "192.168.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
 					resource.TestCheckResourceAttr(resourceName, "status", "OK"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
@@ -42,6 +43,7 @@ func TestAccVpcV1_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVpcV1Exists(resourceName, &vpc),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "description", "updated by acc test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_updated"),
 				),
@@ -195,8 +197,9 @@ func testAccCheckVpcV1Exists(n string, vpc *vpcs.Vpc) resource.TestCheckFunc {
 func testAccVpcV1_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr = "192.168.0.0/16"
+  name        = "%s"
+  cidr        = "192.168.0.0/16"
+  description = "created by acc test"
 
   tags = {
     foo = "bar"
@@ -209,8 +212,9 @@ resource "huaweicloud_vpc" "test" {
 func testAccVpcV1_update(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
-  name = "%s"
-  cidr ="192.168.0.0/16"
+  name        = "%s"
+  cidr        ="192.168.0.0/16"
+  description = "updated by acc test"
 
   tags = {
     foo1 = "bar"

@@ -50,6 +50,10 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 				Required:     true,
 				ValidateFunc: utils.ValidateCIDR,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -60,13 +64,10 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"shared": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
 			"routes": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:       schema.TypeList,
+				Computed:   true,
+				Deprecated: "use huaweicloud_vpc_route_table data source to get all routes",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"destination": {
@@ -93,8 +94,9 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	createOpts := vpcs.CreateOpts{
-		Name: d.Get("name").(string),
-		CIDR: d.Get("cidr").(string),
+		Name:        d.Get("name").(string),
+		CIDR:        d.Get("cidr").(string),
+		Description: d.Get("description").(string),
 	}
 
 	epsID := common.GetEnterpriseProjectID(d, config)
@@ -161,6 +163,7 @@ func resourceVirtualPrivateCloudRead(_ context.Context, d *schema.ResourceData, 
 
 	d.Set("name", n.Name)
 	d.Set("cidr", n.CIDR)
+	d.Set("description", n.Description)
 	d.Set("enterprise_project_id", n.EnterpriseProjectID)
 	d.Set("status", n.Status)
 	d.Set("region", config.GetRegion(d))
@@ -200,18 +203,20 @@ func resourceVirtualPrivateCloudUpdate(ctx context.Context, d *schema.ResourceDa
 		return fmtp.DiagErrorf("Error creating Huaweicloud VPC client: %s", err)
 	}
 
-	var updateOpts vpcs.UpdateOpts
+	if d.HasChanges("name", "cidr", "description") {
+		updateOpts := vpcs.UpdateOpts{
+			Name: d.Get("name").(string),
+			CIDR: d.Get("cidr").(string),
+		}
+		if d.HasChange("description") {
+			desc := d.Get("description").(string)
+			updateOpts.Description = &desc
+		}
 
-	if d.HasChange("name") {
-		updateOpts.Name = d.Get("name").(string)
-	}
-	if d.HasChange("cidr") {
-		updateOpts.CIDR = d.Get("cidr").(string)
-	}
-
-	_, err = vpcs.Update(vpcClient, d.Id(), updateOpts).Extract()
-	if err != nil {
-		return fmtp.DiagErrorf("Error updating Huaweicloud VPC: %s", err)
+		_, err = vpcs.Update(vpcClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return fmtp.DiagErrorf("Error updating Huaweicloud VPC: %s", err)
+		}
 	}
 
 	//update tags

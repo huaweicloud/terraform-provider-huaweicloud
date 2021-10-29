@@ -824,12 +824,20 @@ func (c *Config) DwsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dws", region)
 }
 
+func (c *Config) DwsV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("dwsV2", region)
+}
+
 func (c *Config) DliV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("dli", region)
 }
 
 func (c *Config) DisV2Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("disv2", region)
+}
+
+func (c *Config) DisV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("disv3", region)
 }
 
 func (c *Config) CssV1Client(region string) (*golangsdk.ServiceClient, error) {
@@ -896,6 +904,10 @@ func (c *Config) DdsV3Client(region string) (*golangsdk.ServiceClient, error) {
 
 func (c *Config) GeminiDBV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("geminidb", region)
+}
+
+func (c *Config) GeminiDBV31Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("geminidbv31", region)
 }
 
 func (c *Config) OpenGaussV3Client(region string) (*golangsdk.ServiceClient, error) {

@@ -4,7 +4,7 @@ subcategory: "Document Database Service (DDS)"
 
 # huaweicloud_dds_flavors
 
-Use this data source to get the ID of an available HuaweiCloud dds flavor. This is an alternative
+Use this data source to get the details of available DDS flavors. This is an alternative
 to `huaweicloud_dds_flavors_v3`
 
 ## Example Usage
@@ -18,8 +18,8 @@ data "huaweicloud_dds_flavors" "flavor" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) Specifies the region in which to obtain the V3 dds client. If omitted, the
-  provider-level region will be used.
+* `region` - (Optional, String) Specifies the region in which to obtain the flavors. If omitted,
+  the provider-level region will be used.
 
 * `engine_name` - (Required, String) Specifies the engine name of the dds, "DDS-Community" and "DDS-Enhanced" are
   supported.
@@ -35,13 +35,13 @@ data "huaweicloud_dds_flavors" "flavor" {
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a data source ID in UUID format.
+* `id` - The data source ID.
 
 * `flavors` - Indicates the flavors information. Structure is documented below.
 
 The `flavors` block contains:
 
-* `spec_code - The name of the rds flavor.
+* `spec_code` - The name of the dds flavor.
 * `type` - See `type` above.
 * `vcpus` - See `vcpus` above.
-* `memory` - See 'memory' above.
+* `memory` - See `memory` above.

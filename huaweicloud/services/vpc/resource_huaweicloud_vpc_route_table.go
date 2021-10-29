@@ -88,6 +88,9 @@ func ResourceVPCRouteTable() *schema.Resource {
 	}
 }
 
+// MaxCreateRoutes is the limitation of creating API
+const MaxCreateRoutes int = 5
+
 func resourceVpcRouteTableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	vpcClient, err := config.NetworkingV1Client(config.GetRegion(d))
@@ -95,12 +98,15 @@ func resourceVpcRouteTableCreate(ctx context.Context, d *schema.ResourceData, me
 		return fmtp.DiagErrorf("Error creating VPC client: %s", err)
 	}
 
-	allRouteOpts := buildVpcRTRoutes(d)
 	createOpts := routetables.CreateOpts{
 		VpcID:       d.Get("vpc_id").(string),
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
-		Routes:      allRouteOpts,
+	}
+
+	allRouteOpts := buildVpcRTRoutes(d)
+	if len(allRouteOpts) <= MaxCreateRoutes {
+		createOpts.Routes = allRouteOpts
 	}
 
 	logp.Printf("[DEBUG] VPC route table create options: %#v", createOpts)
@@ -116,6 +122,20 @@ func resourceVpcRouteTableCreate(ctx context.Context, d *schema.ResourceData, me
 		err = associateRouteTableSubnets(vpcClient, d.Id(), subnets)
 		if err != nil {
 			return fmtp.DiagErrorf("Error associating subnets with VPC route table %s: %s", d.Id(), err)
+		}
+	}
+
+	if len(allRouteOpts) > MaxCreateRoutes {
+		updateOpts := routetables.UpdateOpts{
+			Routes: map[string][]routetables.RouteOpts{
+				"add": allRouteOpts,
+			},
+		}
+
+		logp.Printf("[DEBUG] add routes to VPC route table %s: %#v", d.Id(), updateOpts)
+		_, err = routetables.Update(vpcClient, d.Id(), updateOpts).Extract()
+		if err != nil {
+			return fmtp.DiagErrorf("Error creating VPC route: %s", err)
 		}
 	}
 

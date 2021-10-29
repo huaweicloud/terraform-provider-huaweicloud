@@ -227,6 +227,18 @@ func TestAccServiceEndpoints_Database(t *testing.T) {
 	}
 	t.Logf("GeminiDB/Cassandra endpoint:\t %s", actualURL)
 
+	// test the endpoint of GeminiDB V3.1 service
+	serviceClient, err = config.GeminiDBV31Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud GeminiDBV31 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://gaussdb-nosql.%s.%s/v3.1/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("GeminiDBV31 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("GeminiDB/CassandraV31 endpoint:\t %s", actualURL)
+
 	// test the endpoint of gaussdb service
 	serviceClient, err = config.GaussdbV3Client(HW_REGION_NAME)
 	if err != nil {
@@ -862,6 +874,17 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 	}
 	t.Logf("dis endpoint:\t %s", actualURL)
 
+	serviceClient, err = config.DisV3Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating HuaweiCloud dis client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dis.%s.%s/v3/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("dis v3 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("dis v3 endpoint:\t %s", actualURL)
+
 	serviceClient, err = config.CloudtableV2Client(HW_REGION_NAME)
 	if err != nil {
 		t.Fatalf("Error creating HuaweiCloud cloudtable client: %s", err)
@@ -916,6 +939,17 @@ func TestAccServiceEndpoints_EnterpriseIntelligence(t *testing.T) {
 		t.Fatalf("dws endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
 	}
 	t.Logf("dws endpoint:\t %s", actualURL)
+
+	serviceClient, err = config.DwsV2Client(HW_REGION_NAME)
+	if err != nil {
+		t.Fatalf("Error creating dws v2 client: %s", err)
+	}
+	expectedURL = fmt.Sprintf("https://dws.%s.%s/v2/%s/", HW_REGION_NAME, config.Cloud, config.TenantID)
+	actualURL = serviceClient.ResourceBaseURL()
+	if actualURL != expectedURL {
+		t.Fatalf("dws V2 endpoint: expected %s but got %s", green(expectedURL), yellow(actualURL))
+	}
+	t.Logf("dws V2 endpoint:\t %s", actualURL)
 
 	serviceClient, err = config.GesV1Client(HW_REGION_NAME)
 	if err != nil {

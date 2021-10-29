@@ -76,6 +76,36 @@ func TestAccVpcRouteTable_basic(t *testing.T) {
 	})
 }
 
+func TestAccVpcRouteTable_multiRoutes(t *testing.T) {
+	var route routetables.RouteTable
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_vpc_route_table.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&route,
+		getRouteTableResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAccPreCheck(t) },
+		Providers:    acceptance.TestAccProviders,
+		CheckDestroy: rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVpcRouteTable_multiRoutes(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by terraform with multi routes"),
+					resource.TestCheckResourceAttr(resourceName, "route.#", "6"),
+					resource.TestCheckResourceAttr(resourceName, "subnets.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func testAccVpcRouteTable_base(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test1" {
@@ -173,6 +203,61 @@ resource "huaweicloud_vpc_route_table" "test" {
     type        = "peering"
     nexthop     = huaweicloud_vpc_peering_connection.test.id
     description = "peering rule"
+  }
+}
+`, testAccVpcRouteTable_base(rName), rName, rName)
+}
+
+func testAccVpcRouteTable_multiRoutes(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpc_peering_connection" "test" {
+  name        = "%s"
+  vpc_id      = huaweicloud_vpc.test1.id
+  peer_vpc_id = huaweicloud_vpc.test2.id
+}
+
+resource "huaweicloud_vpc_route_table" "test" {
+  name        = "%s"
+  vpc_id      = huaweicloud_vpc.test1.id
+  description = "created by terraform with multi routes"
+
+  route {
+    destination = "172.16.1.0/24"
+    type        = "peering"
+    nexthop     = huaweicloud_vpc_peering_connection.test.id
+    description = "peering one rule"
+  }
+  route {
+    destination = "172.16.2.0/24"
+    type        = "peering"
+    nexthop     = huaweicloud_vpc_peering_connection.test.id
+    description = "peering two rule"
+  }
+  route {
+    destination = "172.16.3.0/24"
+    type        = "peering"
+    nexthop     = huaweicloud_vpc_peering_connection.test.id
+    description = "peering three rule"
+  }
+  route {
+    destination = "172.16.4.0/24"
+    type        = "peering"
+    nexthop     = huaweicloud_vpc_peering_connection.test.id
+    description = "peering four rule"
+  }
+  route {
+    destination = "172.16.5.0/24"
+    type        = "peering"
+    nexthop     = huaweicloud_vpc_peering_connection.test.id
+    description = "peering five rule"
+  }
+  route {
+    destination = "172.16.6.0/24"
+    type        = "peering"
+    nexthop     = huaweicloud_vpc_peering_connection.test.id
+    description = "peering six rule"
   }
 }
 `, testAccVpcRouteTable_base(rName), rName, rName)

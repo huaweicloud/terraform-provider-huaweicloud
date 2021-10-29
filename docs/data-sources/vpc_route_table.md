@@ -11,7 +11,13 @@ Provides details about a specific VPC route table.
 ```hcl
 variable "vpc_id" {}
 
-data "huaweicloud_vpc_route_table" "rtb" {
+# get the default route table
+data "huaweicloud_vpc_route_table" "default" {
+  vpc_id = var.vpc_id
+}
+
+# get a custom route table
+data "huaweicloud_vpc_route_table" "custom" {
   vpc_id = var.vpc_id
   name   = "demo"
 }

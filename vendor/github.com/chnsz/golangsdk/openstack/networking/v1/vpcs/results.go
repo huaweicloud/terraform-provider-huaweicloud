@@ -27,6 +27,9 @@ type Vpc struct {
 	// unique.
 	Name string `json:"name"`
 
+	// Description provides supplementary information about the VPC
+	Description string `json:"description"`
+
 	//Specifies the range of available subnets in the VPC.
 	CIDR string `json:"cidr"`
 
