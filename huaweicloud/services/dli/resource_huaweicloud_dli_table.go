@@ -17,7 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-func ResourceDliTableJob() *schema.Resource {
+func ResourceDliTable() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDliTableCreate,
 		ReadContext:   resourceDliTableRead,
