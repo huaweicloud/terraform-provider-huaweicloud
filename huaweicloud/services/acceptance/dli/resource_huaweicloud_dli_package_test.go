@@ -44,8 +44,9 @@ func TestAccDliPackage_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "group_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "type", "pyFile"),
-					resource.TestCheckResourceAttr(resourceName, "object_path",
-						fmt.Sprintf("https://%s/dli/packages/", rName)),
+					resource.TestCheckResourceAttr(resourceName, "object_path", fmt.Sprintf(
+						"https://%s.obs.%s.myhuaweicloud.com/dli/packages/simple_pyspark_test_DLF_refresh.py",
+						rName, acceptance.HW_REGION_NAME)),
 					resource.TestCheckResourceAttr(resourceName, "object_name", "simple_pyspark_test_DLF_refresh.py"),
 					resource.TestCheckResourceAttr(resourceName, "status", "READY"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
@@ -126,8 +127,7 @@ EOF
 resource "huaweicloud_dli_package" "test" {
   group_name  = "%s"
   type        = "pyFile"
-  object_path = "https://${huaweicloud_obs_bucket_object.test.bucket}/dli/packages/"
-  object_name = "simple_pyspark_test_DLF_refresh.py"
+  object_path = "https://${huaweicloud_obs_bucket.test.bucket_domain_name}/dli/packages/simple_pyspark_test_DLF_refresh.py"
 }
 `, rName, acceptance.HW_ACCESS_KEY, acceptance.HW_SECRET_KEY, rName)
 }

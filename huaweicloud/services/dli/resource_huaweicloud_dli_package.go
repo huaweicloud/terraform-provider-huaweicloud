@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 const (
@@ -62,11 +63,6 @@ func ResourceDliPackageV2() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"object_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
 			"is_async": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -76,6 +72,10 @@ func ResourceDliPackageV2() *schema.Resource {
 			"owner": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+			},
+			"object_name": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"status": {
@@ -96,7 +96,7 @@ func ResourceDliPackageV2() *schema.Resource {
 
 func buildDliDependentPackageCreateOpts(d *schema.ResourceData) resources.CreateGroupAndUploadOpts {
 	result := resources.CreateGroupAndUploadOpts{
-		Paths:   []string{fmt.Sprintf("%s%s", d.Get("object_path").(string), d.Get("object_name").(string))},
+		Paths:   []string{d.Get("object_path").(string)},
 		Kind:    d.Get("type").(string),
 		Group:   d.Get("group_name").(string),
 		IsAsync: d.Get("is_async").(bool),
@@ -106,9 +106,7 @@ func buildDliDependentPackageCreateOpts(d *schema.ResourceData) resources.Create
 
 func buildDliDependentPackageUploadOpts(d *schema.ResourceData) resources.UploadOpts {
 	result := resources.UploadOpts{
-		Paths: []string{
-			fmt.Sprintf("%s/%s", d.Get("object_path").(string), d.Get("object_name").(string)),
-		},
+		Paths: []string{d.Get("object_path").(string)},
 		Group: d.Get("group_name").(string),
 	}
 	return result
@@ -130,10 +128,15 @@ func ResourceDliDependentPackageV2Create(ctx context.Context, d *schema.Resource
 	filterData, err := utils.FilterSliceWithField(resList.Groups, map[string]interface{}{
 		"GroupName": d.Get("group_name").(string),
 	})
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
+	var resp *resources.Group
+	// If the group exists, upload the package to this group, otherwise create a new group before uploading the group.
 	if len(filterData) == 0 {
 		opt := buildDliDependentPackageCreateOpts(d)
-		_, err = resources.CreateGroupAndUpload(c, opt)
+		resp, err = resources.CreateGroupAndUpload(c, opt)
 		if err != nil {
 			return fmtp.DiagErrorf("A error occurred when creating group and upload package: %s", err)
 		}
@@ -141,14 +144,21 @@ func ResourceDliDependentPackageV2Create(ctx context.Context, d *schema.Resource
 		opt := buildDliDependentPackageUploadOpts(d)
 		resType := d.Get("type").(string)
 
-		_, err = resources.Upload(c, uploadPath[resType], opt)
+		resp, err = resources.Upload(c, uploadPath[resType], opt)
 		if err != nil {
 			return fmtp.DiagErrorf("Error uploading %s package to OBS bucket: %s", resType, err)
 		}
 	}
 
-	d.SetId(fmt.Sprintf("%s/%s", d.Get("group_name").(string), d.Get("object_name").(string)))
+	// If the object list of resources.Resources is not empty, it means that the object has been uploaded successfully,
+	// and the element with an index of zero is the object name.
+	if len(resp.Resources) < 1 {
+		return fmtp.DiagErrorf("Failed to upload package (%s).", d.Get("object_path").(string))
+	}
+	// object_path is not unique and cannot be used for ID setting, because the object can exist in multiple groups.
+	d.SetId(fmt.Sprintf("%s/%s", d.Get("group_name").(string), resp.Resources[0]))
 
+	// If the owner of the configuration is not the creater, update it.
 	pkg, err := GetDliDependentPackageInfo(c, d.Id())
 	if err != nil {
 		return fmtp.DiagErrorf("An error occurred while getting the package: %s", err)
@@ -178,6 +188,7 @@ func setDliDependentPackageParameters(d *schema.ResourceData, resp *resources.Re
 func getGroupNameAndPackageName(id string) (groupName, packageName string, err error) {
 	names := strings.Split(id, "/")
 	if len(names) < 2 {
+		logp.Printf("[DEBUG] The resource ID of the DLI package is: %s", id)
 		err = fmtp.Errorf("ID is incomplete, missing key information")
 		return
 	}
@@ -185,18 +196,17 @@ func getGroupNameAndPackageName(id string) (groupName, packageName string, err e
 }
 
 func GetDliDependentPackageInfo(c *golangsdk.ServiceClient, id string) (*resources.Resource, error) {
-	var resp *resources.Resource
 	groupName, packageName, err := getGroupNameAndPackageName(id)
 	if err != nil {
-		return resp, fmt.Errorf("error parsing resource ID (%s): %s", id, err)
+		return nil, fmt.Errorf("error parsing resource ID (%s): %s", id, err)
 	}
 
 	opt := resources.ResourceLocatedOpts{
 		Group: groupName,
 	}
-	resp, err = resources.Get(c, packageName, opt)
+	resp, err := resources.Get(c, packageName, opt)
 	if err != nil {
-		return resp, err
+		return nil, err
 	}
 	return resp, nil
 }
