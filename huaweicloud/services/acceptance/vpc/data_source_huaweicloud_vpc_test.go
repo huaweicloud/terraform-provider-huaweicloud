@@ -111,8 +111,8 @@ func testAccDataSourceVpc_byCidr(rName, cidr string) string {
 %s
 
 data "huaweicloud_vpc" "test" {
-	cidr = huaweicloud_vpc.test.cidr
-  }
+  cidr = huaweicloud_vpc.test.cidr
+}
 `, testAccDataSourceVpc_base(rName, cidr))
 }
 
@@ -121,7 +121,7 @@ func testAccDataSourceVpc_byName(rName, cidr string) string {
 %s
 
 data "huaweicloud_vpc" "test" {
-	name = huaweicloud_vpc.test.name
-  }
+  name = huaweicloud_vpc.test.name
+}
 `, testAccDataSourceVpc_base(rName, cidr))
 }

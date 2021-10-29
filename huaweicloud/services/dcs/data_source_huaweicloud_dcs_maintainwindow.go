@@ -60,7 +60,7 @@ func dataSourceDcsMaintainWindowRead(_ context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	filteredMVs, err := utils.FliterSliceWithField(v.MaintainWindows, map[string]interface{}{
+	filteredMVs, err := utils.FilterSliceWithField(v.MaintainWindows, map[string]interface{}{
 		"ID":      d.Get("seq").(int),
 		"Begin":   d.Get("begin").(string),
 		"End":     d.Get("end").(string),

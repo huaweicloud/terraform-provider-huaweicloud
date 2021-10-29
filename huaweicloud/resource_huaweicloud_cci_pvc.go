@@ -73,9 +73,12 @@ func ResourceCCIPersistentVolumeClaimV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$"),
-					"The name consists of 1 to 63 characters, including lowercase letters, digits and hyphens, "+
-						"and must start and end with lowercase letters and digits"),
+				ValidateFunc: validation.All(
+					validation.StringMatch(regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`),
+						"The name can only consist of lowercase letters, numbers, and hyphens (-), "+
+							"and it must start and end with a letter or digit."),
+					validation.StringLenBetween(1, 63),
+				),
 			},
 			"volume_id": {
 				Type:     schema.TypeString,
