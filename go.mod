@@ -3,7 +3,7 @@ module github.com/huaweicloud/terraform-provider-huaweicloud
 go 1.14
 
 require (
-	github.com/chnsz/golangsdk v0.0.0-20211028075622-502b13e4ce51
+	github.com/chnsz/golangsdk v0.0.0-20211029021403-fce195499c7f
 	github.com/hashicorp/errwrap v1.0.0
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-multierror v1.0.0
