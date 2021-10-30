@@ -131,6 +131,7 @@ github.com/chnsz/golangsdk/openstack/dds/v3/flavors
 github.com/chnsz/golangsdk/openstack/dds/v3/instances
 github.com/chnsz/golangsdk/openstack/dis/v2/streams
 github.com/chnsz/golangsdk/openstack/dli/v1/databases
+github.com/chnsz/golangsdk/openstack/dli/v1/flinkjob
 github.com/chnsz/golangsdk/openstack/dli/v1/queues
 github.com/chnsz/golangsdk/openstack/dli/v1/sqljob
 github.com/chnsz/golangsdk/openstack/dli/v1/tables

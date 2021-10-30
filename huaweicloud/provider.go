@@ -459,6 +459,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dli_spark_job":                   dli.ResourceDliSparkJobV2(),
 			"huaweicloud_dli_table":                       dli.ResourceDliTable(),
 			"huaweicloud_dli_sql_job":                     dli.ResourceSqlJob(),
+			"huaweicloud_dli_flinksql_job":                dli.ResourceFlinkSqlJob(),
 			"huaweicloud_dms_group":                       ResourceDmsGroupsV1(),
 			"huaweicloud_dms_instance":                    ResourceDmsInstancesV1(),
 			"huaweicloud_dms_queue":                       ResourceDmsQueuesV1(),
