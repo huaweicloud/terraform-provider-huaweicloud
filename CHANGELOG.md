@@ -1,5 +1,52 @@
 # CHANGELOG
 
+## 1.30.0 (October 30, 2021)
+
+* **New Resurce:**
+  + `huaweicloud_apig_api_publishment` [GH-1595]
+  + `huaweicloud_cce_namespace` [GH-1650]
+  + `huaweicloud_dli_database` [GH-1607]
+  + `huaweicloud_dli_table` [GH-1621]
+  + `huaweicloud_dli_package` [GH-1622]
+  + `huaweicloud_dli_sql_job` [GH-1623]
+  + `huaweicloud_dli_spark_job` [GH-1651]
+  + `huaweicloud_dli_flinksql_job` [GH-1659]
+  + `huaweicloud_gaussdb_mysql_proxy` [GH-1635]
+  + `huaweicloud_swr_organization_permissions` [GH-1575]
+  + `huaweicloud_swr_repository` [GH-1658]
+  + `huaweicloud_waf_instance_group` [GH-1628]
+
+* **New Data Source:**
+  + `huaweicloud_compute_instances` [GH-1645]
+  + `huaweicloud_dws_flavors` [GH-1593]
+  + `huaweicloud_gaussdb_cassandra_flavors` [GH-1652]
+  + `huaweicloud_waf_instance_groups` [GH-1637]
+
+ENHANCEMENTS:
+
+* cce: Support data volume encryption [GH-1616]
+* vpc: Add `description` field and deprecate `routes` field [GH-1644]
+* resource/huaweicloud_dds_instance: Support import function [GH-1613]
+* resource/huaweicloud_gaussdb_redis_instance: Support to update `flavor` and `security_group_id` fields  [GH-1576]
+* resource/huaweicloud_waf_dedicated_instance: Add `group_id` parameter [GH-1638]
+* resource/huaweicloud_vpc_route_table: Support more than 5 routes when creating [GH-1624]
+* resource/huaweicloud_vpc_route: Support `description` and more route types [GH-1619]
+* data/huaweicloud_images_image: Add more querying options: name_regex, architecture, os, os_version and image_type [GH-1597]
+* data/huaweicloud_gaussdb_mysql_flavors: Add `type` and `az_status` attributes [GH-1614]
+* data/huaweicloud_waf_dedicated_instances: Add `group_id` attribute [GH-1640]
+* data/huaweicloud_waf_reference_tables: Support to filter data by `name` [GH-1570]
+
+BUG FIXES:
+
+* cce: add missing ForceNew limits [GH-1582]
+* data/huaweicloud_vpc_route_table: Retrieve the default route table if name was not specified [GH-1643]
+
+DEPRECATE:
+
+* resource/huaweicloud_images_image_v2 [GH-1604]
+* data/huaweicloud_vpc_route_ids [GH-1641]
+* data/huaweicloud_vpc_route [GH-1641]
+
 ## 1.29.2 (October 9, 2021)
 
 BUG FIXES:
