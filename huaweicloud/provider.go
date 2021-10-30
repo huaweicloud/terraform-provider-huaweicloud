@@ -284,6 +284,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdm_flavors":                          DataSourceCdmFlavorV1(),
 			"huaweicloud_compute_flavors":                      DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":                     DataSourceComputeInstance(),
+			"huaweicloud_compute_instances":                    DataSourceComputeInstances(),
 			"huaweicloud_csbs_backup":                          dataSourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy":                   dataSourceCSBSBackupPolicyV1(),
 			"huaweicloud_dcs_az":                               deprecated.DataSourceDcsAZV1(),
