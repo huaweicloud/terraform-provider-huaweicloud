@@ -2,7 +2,7 @@
 subcategory: "Software Repository for Container (SWR)"
 ---
 
-# huaweicloud_swr_organization
+# huaweicloud_swr_organization_permissions
 
 Manages user permissions for the SWR organization resource within HuaweiCloud.
 
