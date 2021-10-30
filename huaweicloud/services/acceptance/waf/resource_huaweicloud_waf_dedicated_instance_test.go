@@ -11,25 +11,40 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
-func TestAccWafDedicatedInstanceV1_basic(t *testing.T) {
+func getWafDedicatedInstanceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.WafDedicatedV1Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmtp.Errorf("error creating HuaweiCloud WAF dedicated client : %s", err)
+	}
+	return instances.GetInstance(client, state.Primary.ID)
+}
+
+func TestAccWafDedicatedInstance_basic(t *testing.T) {
 	var instance instances.DedicatedInstance
 	resourceName := "huaweicloud_waf_dedicated_instance.instance_1"
 	name := acceptance.RandomAccResourceName()
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getWafDedicatedInstanceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckWafDedicatedInstanceV1Destroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWafDedicatedInstanceV1_conf(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafDedicatedInstanceV1Exists(resourceName, &instance),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "cpu_architecture", "x86"),
 					resource.TestCheckResourceAttr(resourceName, "specification_code", "waf.instance.professional"),
@@ -46,9 +61,9 @@ func TestAccWafDedicatedInstanceV1_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccWafDedicatedInstanceV1_update(name),
+				Config: testAccWafDedicatedInstance_update(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafDedicatedInstanceV1Exists(resourceName, &instance),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name+"_updated"),
 					resource.TestCheckResourceAttr(resourceName, "cpu_architecture", "x86"),
 					resource.TestCheckResourceAttr(resourceName, "specification_code", "waf.instance.professional"),
@@ -73,50 +88,48 @@ func TestAccWafDedicatedInstanceV1_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckWafDedicatedInstanceV1Destroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	c, err := config.WafDedicatedV1Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating HuaweiCloud WAF dedicated client: %s", err)
-	}
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_waf_dedicated_instance" {
-			continue
-		}
-		_, err := instances.GetInstance(c, rs.Primary.ID)
-		if err == nil {
-			return fmt.Errorf("Waf domain still exists")
-		}
-	}
-	return nil
-}
+func TestAccWafDedicatedInstance_elb_model(t *testing.T) {
+	var instance instances.DedicatedInstance
+	resourceName := "huaweicloud_waf_dedicated_instance.instance_1"
+	name := acceptance.RandomAccResourceName()
 
-func testAccCheckWafDedicatedInstanceV1Exists(n string, instance *instances.DedicatedInstance) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
-		}
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getWafDedicatedInstanceFunc,
+	)
 
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		c, err := config.WafDedicatedV1Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating HuaweiCloud WAF dedicated client: %s", err)
-		}
-
-		found, err := instances.GetInstance(c, rs.Primary.ID)
-		if err != nil {
-			return err
-		}
-		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("Waf dedicated instance not found")
-		}
-		*instance = *found
-		return nil
-	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWafDedicatedInstance_elb_model(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "cpu_architecture", "x86"),
+					resource.TestCheckResourceAttr(resourceName, "specification_code", "waf.instance.professional"),
+					resource.TestCheckResourceAttr(resourceName, "security_group.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "run_status", "1"),
+					resource.TestCheckResourceAttr(resourceName, "access_status", "0"),
+					resource.TestCheckResourceAttr(resourceName, "upgradable", "0"),
+					resource.TestCheckResourceAttrSet(resourceName, "server_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_ip"),
+					resource.TestCheckResourceAttrSet(resourceName, "subnet_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "vpc_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "ecs_flavor"),
+					resource.TestCheckResourceAttrSet(resourceName, "available_zone"),
+					acceptance.TestCheckResourceAttrWithVariable(resourceName, "group_id",
+						"${huaweicloud_waf_instance_group.group_1.id}"),
+				),
+			},
+		},
+	})
 }
 
 func baseDependResource(name string) string {
@@ -167,7 +180,7 @@ resource "huaweicloud_waf_dedicated_instance" "instance_1" {
 `, baseDependResource(name), name)
 }
 
-func testAccWafDedicatedInstanceV1_update(name string) string {
+func testAccWafDedicatedInstance_update(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -184,4 +197,29 @@ resource "huaweicloud_waf_dedicated_instance" "instance_1" {
   ]
 }
 `, baseDependResource(name), name)
+}
+
+func testAccWafDedicatedInstance_elb_model(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_waf_instance_group" "group_1" {
+  name   = "%s"
+  vpc_id = huaweicloud_vpc.vpc_1.id
+}
+
+resource "huaweicloud_waf_dedicated_instance" "instance_1" {
+  name               = "%s"
+  available_zone     = data.huaweicloud_availability_zones.zones.names[1]
+  specification_code = "waf.instance.professional"
+  ecs_flavor         = data.huaweicloud_compute_flavors.flavors.ids[0]
+  vpc_id             = huaweicloud_vpc.vpc_1.id
+  subnet_id          = huaweicloud_vpc_subnet.vpc_subnet_1.id
+  group_id           = huaweicloud_waf_instance_group.group_1.id
+  
+  security_group = [
+    huaweicloud_networking_secgroup.secgroup.id
+  ]
+}
+`, baseDependResource(name), name, name)
 }
