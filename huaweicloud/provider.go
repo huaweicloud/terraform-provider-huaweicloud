@@ -427,6 +427,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_node_attach":                 ResourceCCENodeAttachV3(),
 			"huaweicloud_cce_addon":                       ResourceCCEAddonV3(),
 			"huaweicloud_cce_node_pool":                   ResourceCCENodePool(),
+			"huaweicloud_cce_namespace":                   cce.ResourceCCENamespaceV1(),
 			"huaweicloud_cce_pvc":                         cce.ResourceCcePersistentVolumeClaimsV1(),
 			"huaweicloud_cci_network":                     resourceCCINetworkV1(),
 			"huaweicloud_cci_pvc":                         ResourceCCIPersistentVolumeClaimV1(),
