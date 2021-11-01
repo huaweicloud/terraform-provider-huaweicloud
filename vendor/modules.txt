@@ -271,6 +271,7 @@ github.com/chnsz/golangsdk/openstack/sfs/v2/shares
 github.com/chnsz/golangsdk/openstack/sfs_turbo/v1/shares
 github.com/chnsz/golangsdk/openstack/smn/v2/subscriptions
 github.com/chnsz/golangsdk/openstack/smn/v2/topics
+github.com/chnsz/golangsdk/openstack/swr/v2/domains
 github.com/chnsz/golangsdk/openstack/swr/v2/namespaces
 github.com/chnsz/golangsdk/openstack/swr/v2/repositories
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups

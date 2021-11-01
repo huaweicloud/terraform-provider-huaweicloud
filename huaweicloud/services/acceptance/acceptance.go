@@ -45,9 +45,10 @@ var (
 
 	HW_WAF_ENABLE_FLAG = os.Getenv("HW_WAF_ENABLE_FLAG")
 
-	HW_DEST_REGION     = os.Getenv("HW_DEST_REGION")
-	HW_DEST_PROJECT_ID = os.Getenv("HW_DEST_PROJECT_ID")
-	HW_CHARGING_MODE   = os.Getenv("HW_CHARGING_MODE")
+	HW_DEST_REGION         = os.Getenv("HW_DEST_REGION")
+	HW_DEST_PROJECT_ID     = os.Getenv("HW_DEST_PROJECT_ID")
+	HW_CHARGING_MODE       = os.Getenv("HW_CHARGING_MODE")
+	HW_SWR_SHARING_ACCOUNT = os.Getenv("HW_SWR_SHARING_ACCOUNT")
 
 	HW_CERTIFICATE_KEY_PATH         = os.Getenv("HW_CERTIFICATE_KEY_PATH")
 	HW_CERTIFICATE_CHAIN_PATH       = os.Getenv("HW_CERTIFICATE_CHAIN_PATH")
@@ -389,5 +390,13 @@ func TestAccPreCheckScm(t *testing.T) {
 		t.Skip("HW_CERTIFICATE_KEY_PATH, HW_CERTIFICATE_CHAIN_PATH, HW_CERTIFICATE_PRIVATE_KEY_PATH, " +
 			"HW_CERTIFICATE_SERVICE, HW_CERTIFICATE_PROJECT and HW_CERTIFICATE_TARGET_UPDATED " +
 			"can not be empty for SCM certificate tests")
+	}
+}
+
+//lintignore:AT003
+func TestAccPreCheckSWRDomian(t *testing.T) {
+	if HW_SWR_SHARING_ACCOUNT == "" {
+		t.Skip("HW_SWR_SHARING_ACCOUNT must be set for swr domian tests, " +
+			"the value of HW_SWR_SHARING_ACCOUNT should be another IAM user name")
 	}
 }
