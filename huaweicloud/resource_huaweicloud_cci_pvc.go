@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"regexp"
 	"strings"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
@@ -70,15 +70,10 @@ func ResourceCCIPersistentVolumeClaimV1() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`),
-						"The name can only consist of lowercase letters, numbers, and hyphens (-), "+
-							"and it must start and end with a letter or digit."),
-					validation.StringLenBetween(1, 63),
-				),
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: common.LowercaseVerifyWithHyphensAndStartEnd(1, 63),
 			},
 			"volume_id": {
 				Type:     schema.TypeString,

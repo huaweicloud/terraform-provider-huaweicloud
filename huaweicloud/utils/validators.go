@@ -48,42 +48,6 @@ func ValidateStackTemplate(v interface{}, k string) (ws []string, errors []error
 	return
 }
 
-//lintignore:V001
-func ValidateName(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if len(value) > 64 {
-		errors = append(errors, fmt.Errorf(
-			"%q cannot be longer than 64 characters: %q", k, value))
-	}
-
-	pattern := `^[\.\-_A-Za-z0-9]+$`
-	if !regexp.MustCompile(pattern).MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q doesn't comply with restrictions (%q): %q",
-			k, pattern, value))
-	}
-
-	return
-}
-
-//lintignore:V001
-func ValidateString64WithChinese(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if len(value) > 64 {
-		errors = append(errors, fmt.Errorf(
-			"%q cannot be longer than 64 characters: %q", k, value))
-	}
-
-	pattern := "^[\\-._A-Za-z0-9\u4e00-\u9fa5]+$"
-	if !regexp.MustCompile(pattern).MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q doesn't comply with restrictions (%q): %q",
-			k, pattern, value))
-	}
-
-	return
-}
-
 func ValidateCIDR(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	_, ipnet, err := net.ParseCIDR(value)
@@ -172,40 +136,6 @@ func ValidateVBSPolicyName(v interface{}, k string) (ws []string, errors []error
 }
 
 //lintignore:V001
-func ValidateVBSTagKey(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-
-	if len(value) > 36 {
-		errors = append(errors, fmt.Errorf(
-			"%q cannot be longer than 36 characters: %q", k, value))
-	}
-	pattern := `^[\.\-_A-Za-z0-9]+$`
-	if !regexp.MustCompile(pattern).MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q doesn't comply with restrictions (%q): %q",
-			k, pattern, value))
-	}
-	return
-}
-
-//lintignore:V001
-func ValidateVBSTagValue(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-
-	if len(value) > 43 {
-		errors = append(errors, fmt.Errorf(
-			"%q cannot be longer than 43 characters: %q", k, value))
-	}
-	pattern := `^[\.\-_A-Za-z0-9]+$`
-	if !regexp.MustCompile(pattern).MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q doesn't comply with restrictions (%q): %q",
-			k, pattern, value))
-	}
-	return
-}
-
-//lintignore:V001
 func ValidateVBSBackupName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if strings.HasPrefix(strings.ToLower(value), "autobk") {
@@ -218,22 +148,6 @@ func ValidateVBSBackupName(v interface{}, k string) (ws []string, errors []error
 			"%q cannot be longer than 64 characters: %q", k, value))
 	}
 	pattern := `^[\.\-_A-Za-z0-9]+$`
-	if !regexp.MustCompile(pattern).MatchString(value) {
-		errors = append(errors, fmt.Errorf(
-			"%q doesn't comply with restrictions (%q): %q",
-			k, pattern, value))
-	}
-	return
-}
-
-//lintignore:V001
-func ValidateVBSBackupDescription(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if len(value) > 64 {
-		errors = append(errors, fmt.Errorf(
-			"%q cannot be longer than 64 characters: %q", k, value))
-	}
-	pattern := `^[^<>]+$`
 	if !regexp.MustCompile(pattern).MatchString(value) {
 		errors = append(errors, fmt.Errorf(
 			"%q doesn't comply with restrictions (%q): %q",

@@ -2,7 +2,6 @@ package dli
 
 import (
 	"context"
-	"regexp"
 	"time"
 
 	"github.com/chnsz/golangsdk"
@@ -12,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -84,11 +84,10 @@ func ResourceDliSparkJobV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"group_name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile(`[\w-.]/*`), "Only digits, letters,"+
-								" dots (.), underscores (_), and hyphens (-) are allowed for group name."),
+							Type:         schema.TypeString,
+							Required:     true,
+							ForceNew:     true,
+							ValidateFunc: common.StandardVerifyWithHyphensAndDots(1, 64),
 						},
 						"packages": {
 							Type:     schema.TypeList,

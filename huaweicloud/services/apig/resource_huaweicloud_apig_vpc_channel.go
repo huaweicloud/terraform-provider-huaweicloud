@@ -1,7 +1,6 @@
 package apig
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/v2/channels"
@@ -61,12 +60,9 @@ func ResourceApigVpcChannelV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^([\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z-_0-9]{2,63})$"),
-					"The name contains of 3 to 64 characters, starting with a letter. Only letters, digits, "+
-						"hyphens (-) and underscore (_) are allowed."),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: common.StandardVerifyWithHyphensChinesesAndStart(3, 64),
 			},
 			"port": {
 				Type:         schema.TypeInt,

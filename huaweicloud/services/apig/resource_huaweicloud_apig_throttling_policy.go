@@ -1,7 +1,6 @@
 package apig
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/chnsz/golangsdk"
@@ -58,12 +57,9 @@ func ResourceApigThrottlingPolicyV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^([\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z_0-9]{2,63})$"),
-					"The name contains of 3 to 64 characters, starting with a letter. Only letters, digits "+
-						"and underscore (_) are allowed."),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: common.StandardVerifyWithChinesesAndStart(3, 64),
 			},
 			"period": {
 				Type:     schema.TypeInt,
@@ -74,11 +70,9 @@ func ResourceApigThrottlingPolicyV2() *schema.Resource {
 				Required: true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{1,255}$"),
-					"The description contain a maximum of 255 characters, "+
-						"and the angle brackets (< and >) are not allowed."),
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: common.StringVerifyWithoutAngleBrackets(1, 255),
 			},
 			"max_app_requests": {
 				Type:     schema.TypeInt,

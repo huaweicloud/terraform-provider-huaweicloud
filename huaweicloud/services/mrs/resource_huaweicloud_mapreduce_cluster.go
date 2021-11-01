@@ -79,13 +79,10 @@ func ResourceMRSClusterV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^[A-Za-z][A-Za-z0-9_-]{1,63}$"),
-					"The name consists of 2 to 64 characters, starting with a letter. "+
-						"Only letters, digits, hyphens (-) and underscores (_) are allowed."),
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: common.StandardVerifyWithHyphens(2, 64),
 			},
 			"version": {
 				Type:     schema.TypeString,

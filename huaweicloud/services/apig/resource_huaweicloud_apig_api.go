@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -87,11 +88,9 @@ func ResourceApigAPIV2() *schema.Resource {
 				}, false),
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^([\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z_0-9]{2,63})$"),
-					"The name contains of 3 to 64 characters, starting with a letter. Only letters, digits, "+
-						"hyphens (-) and underscore (_) are allowed."),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: common.StandardVerifyWithHyphensChinesesAndStart(3, 64),
 			},
 			"request_method": {
 				Type:     schema.TypeString,
@@ -118,11 +117,9 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile("^([A-Za-z][A-Za-z0-9-_\\.]{0,31})$"),
-								"The name can contains of 1 to 32 characters and start with a letter."+
-									"Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed."),
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: common.StandardVerifyWithHyphensDotsAndStart(1, 32),
 						},
 						"required": {
 							Type:     schema.TypeBool,
@@ -153,25 +150,19 @@ func ResourceApigAPIV2() *schema.Resource {
 							Optional: true,
 						},
 						"example": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{1,255}$"),
-								"The example value contain a maximum of 255 characters, "+
-									"and the angle brackets (< and >) are not allowed."),
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: common.StringVerifyWithoutAngleBrackets(1, 255),
 						},
 						"default": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{1,255}$"),
-								"The default value contain a maximum of 255 characters, "+
-									"and the angle brackets (< and >) are not allowed."),
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: common.StringVerifyWithoutAngleBrackets(1, 255),
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{1,255}$"),
-								"The description contain a maximum of 255 characters, "+
-									"and the angle brackets (< and >) are not allowed."),
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: common.StringVerifyWithoutAngleBrackets(1, 255),
 						},
 					},
 				},
@@ -210,11 +201,9 @@ func ResourceApigAPIV2() *schema.Resource {
 				Default:  false,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{1,255}$"),
-					"The description contain a maximum of 255 characters, "+
-						"and the angle brackets (< and >) are not allowed."),
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: common.StringVerifyWithoutAngleBrackets(1, 255),
 			},
 			"matching": {
 				Type:     schema.TypeString,
@@ -363,11 +352,9 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile("^([A-Za-z][A-Za-z0-9_]{2,63})$"),
-								"The name can contains of 3 to 64 characters and start with a letter."+
-									"Only letters, digits and underscores (_) are allowed."),
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: common.StandardVerifyWithStart(3, 64),
 						},
 						"conditions": {
 							Type:     schema.TypeSet,
@@ -409,11 +396,9 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile("^([A-Za-z][A-Za-z0-9_]{2,63})$"),
-								"The name can contains of 3 to 64 characters and start with a letter."+
-									"Only letters, digits and underscores (_) are allowed."),
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: common.StandardVerifyWithStart(3, 64),
 						},
 						"function_urn": {
 							Type:     schema.TypeString,
@@ -472,11 +457,9 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile("^([A-Za-z][A-Za-z0-9_]{2,63})$"),
-								"The name can contains of 3 to 64 characters and start with a letter."+
-									"Only letters, digits and underscores (_) are allowed."),
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: common.StandardVerifyWithStart(3, 64),
 						},
 						"path": {
 							Type:     schema.TypeString,
@@ -595,11 +578,9 @@ func backendParamSchemaResource() *schema.Resource {
 				}, false),
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^([A-Za-z][A-Za-z0-9-_\\.]{0,31})$"),
-					"The name can contains of 1 to 32 characters and start with a letter."+
-						"Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed."),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: common.StandardVerifyWithHyphensDotsAndStart(1, 32),
 			},
 			"location": {
 				Type:     schema.TypeString,
@@ -609,18 +590,14 @@ func backendParamSchemaResource() *schema.Resource {
 				}, false),
 			},
 			"value": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{1,255}$"),
-					"The value contain a maximum of 255 characters, "+
-						"and the angle brackets (< and >) are not allowed."),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: common.StringVerifyWithoutAngleBrackets(1, 255),
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{1,255}$"),
-					"The description contain a maximum of 255 characters, "+
-						"and the angle brackets (< and >) are not allowed."),
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: common.StringVerifyWithoutAngleBrackets(1, 255),
 			},
 		},
 	}

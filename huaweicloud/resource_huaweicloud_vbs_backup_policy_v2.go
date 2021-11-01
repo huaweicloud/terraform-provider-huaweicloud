@@ -8,6 +8,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/vbs/v2/tags"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -99,12 +100,12 @@ func resourceVBSBackupPolicyV2() *schema.Resource {
 						"key": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: utils.ValidateVBSTagKey,
+							ValidateFunc: common.StandardVerifyWithHyphensAndDots(1, 36),
 						},
 						"value": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: utils.ValidateVBSTagValue,
+							ValidateFunc: common.StandardVerifyWithHyphensAndDots(1, 43),
 						},
 					},
 				},

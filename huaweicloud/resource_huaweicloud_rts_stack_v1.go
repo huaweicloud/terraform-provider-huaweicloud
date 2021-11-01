@@ -8,6 +8,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/rts/v1/stacktemplates"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -42,7 +43,7 @@ func resourceRTSStackV1() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: utils.ValidateName,
+				ValidateFunc: common.StandardVerifyWithHyphensAndDots(1, 64),
 			},
 			"template_body": {
 				Type:         schema.TypeString,

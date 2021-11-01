@@ -2,7 +2,6 @@ package apig
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/chnsz/golangsdk"
@@ -43,12 +42,9 @@ func ResourceApigCustomAuthorizerV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^[A-Za-z][\\w]{2,63}$"),
-					"The name consists of 3 to 64 characters, starting with a letter. "+
-						"Only letters, digits and underscores (_) are allowed."),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: common.StandardVerifyWithStart(3, 64),
 			},
 			"function_urn": {
 				Type:     schema.TypeString,

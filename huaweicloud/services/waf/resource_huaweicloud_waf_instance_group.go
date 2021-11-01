@@ -2,7 +2,6 @@ package waf
 
 import (
 	"context"
-	"regexp"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/pools"
@@ -35,11 +34,9 @@ func ResourceWafInstanceGroup() *schema.Resource {
 				Computed: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[\w]{1,64}$`),
-					"The maximum length is 64 characters. "+
-						"Only letters, digits and underscores (_) are allowed"),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: common.StandardVerify(1, 64),
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,

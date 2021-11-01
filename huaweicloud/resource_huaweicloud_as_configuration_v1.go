@@ -3,13 +3,13 @@ package huaweicloud
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"regexp"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/configurations"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -32,7 +32,7 @@ func ResourceASConfiguration() *schema.Resource {
 			"scaling_configuration_name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: resourceASConfigurationValidateName,
+				ValidateFunc: common.StandardVerifyWithHyphens(1, 64),
 				ForceNew:     true,
 			},
 			"instance_config": {
@@ -417,17 +417,5 @@ func resourceASConfigurationValidateIpType(v interface{}, k string) (ws []string
 		}
 	}
 	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, IpTypes))
-	return
-}
-
-//lintignore:V001
-func resourceASConfigurationValidateName(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if len(value) > 64 || len(value) < 1 {
-		errors = append(errors, fmtp.Errorf("%q must contain more than 1 and less than 64 characters", k))
-	}
-	if !regexp.MustCompile(`^[0-9a-zA-Z-_]+$`).MatchString(value) {
-		errors = append(errors, fmtp.Errorf("only alphanumeric characters, hyphens, and underscores allowed in %q", k))
-	}
 	return
 }

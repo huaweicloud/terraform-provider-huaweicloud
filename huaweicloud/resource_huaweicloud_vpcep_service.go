@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"regexp"
 	"strings"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -80,10 +80,9 @@ func ResourceVPCEndpointService() *schema.Resource {
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[a-zA-Z0-9_-]{0,16}$"),
-					"The name must have a maximum of 16 characters, and only contains letters, digits, underscores (_), and hyphens (-)."),
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: common.StandardVerifyWithHyphens(1, 16),
 			},
 			"service_type": {
 				Type:         schema.TypeString,

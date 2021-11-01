@@ -1,14 +1,12 @@
 package apig
 
 import (
-	"regexp"
-
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/apigw/v2/apigroups"
 	"github.com/chnsz/golangsdk/openstack/apigw/v2/environments"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
@@ -39,18 +37,16 @@ func ResourceApigGroupV2() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z_0-9]{2,63}$"),
-					"The name consists of 3 to 64 characters, starting with a letter. "+
-						"Only letters, digits and underscores (_) are allowed. "+
-						"Chinese characters must be in UTF-8 or Unicode format."),
+				ValidateFunc: common.CustomVerify("^[\u4e00-\u9fa5A-Za-z0-9][\u4e00-\u9fa5\\w-./()、（）：:]*?$",
+					"The value can only consist of Chinese characters, letters, digits, hyphens (-), underscores (_), "+
+						"dots (.), slashes (/), brackets (()) and colons (:) in Chinese and English formats, and "+
+						"commas in Chinese formats, and can only start with English, Chinese characters and digits.",
+					3, 255),
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{1,255}$"),
-					"The description contain a maximum of 255 characters, "+
-						"and the angle brackets (< and >) are not allowed."),
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: common.StringVerifyWithoutAngleBrackets(1, 255),
 			},
 			"environment": {
 				Type:     schema.TypeSet,
@@ -63,20 +59,16 @@ func ResourceApigGroupV2() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
-										Type:     schema.TypeString,
-										Required: true,
-										ValidateFunc: validation.StringMatch(
-											regexp.MustCompile("^[A-Za-z][\\w_-]{2,31}$"),
-											"The name consists of 3 to 32 characters, starting with a letter. "+
-												"Only letters, digits, hyphens (-) and underscores (_) are allowed."),
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: common.StandardVerifyWithHyphensAndStart(3, 32),
 									},
 									"value": {
 										Type:     schema.TypeString,
 										Required: true,
-										ValidateFunc: validation.StringMatch(
-											regexp.MustCompile("^[\\w:/.-]{1,255}$"),
-											"The value consists of 1 to 255 characters, only letters, digit and "+
-												"following special characters are allowed: _-/.:"),
+										ValidateFunc: common.CustomVerify("^[\\w:/.-]*$",
+											"The value can only consist of letters, digit and following special "+
+												"characters are allowed: _-/.:", 1, 255),
 									},
 									"variable_id": {
 										Type:     schema.TypeString,

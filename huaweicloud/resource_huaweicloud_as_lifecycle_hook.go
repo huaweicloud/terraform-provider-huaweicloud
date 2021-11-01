@@ -1,7 +1,6 @@
 package huaweicloud
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -9,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/lifecyclehooks"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
@@ -73,8 +73,9 @@ func ResourceASLifecycleHook() *schema.Resource {
 			"notification_message": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^()<>&']{1,256}$"),
-					"The 'notification_message' of the lifecycle hook has special character"),
+				ValidateFunc: common.CustomVerify("^[^()<>&']*$",
+					"The 'notification_message' cannot conatin parentheses (()), angle brackets (<>), "+
+						"ampersands (&) and single quotes (').", 1, 256),
 			},
 			"notification_topic_name": {
 				Type:     schema.TypeString,

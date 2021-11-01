@@ -1,13 +1,13 @@
 package apig
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/v2/responses"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
@@ -40,11 +40,9 @@ func ResourceApigResponseV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^[A-Za-z0-9_-]{1,64}$"), "The name consists of 1 to 64 characters. "+
-						"Only letters, digits, hyphens(-), and underscores (_) are allowed."),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: common.StandardVerifyWithHyphens(1, 64),
 			},
 			"rule": {
 				Type:     schema.TypeSet,

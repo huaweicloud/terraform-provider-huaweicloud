@@ -3,7 +3,6 @@ package dli
 import (
 	"fmt"
 	"math"
-	"regexp"
 	"time"
 
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -11,13 +10,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
-
-var regexp4Name = regexp.MustCompile(`^[a-z0-9_]{1,128}$`)
 
 const CU_16, CU_64, CU_256 = 16, 64, 256
 const RESOURCE_MODE_SHARED, RESOURCE_MODE_EXCLUSIVE = 0, 1
@@ -53,7 +51,7 @@ func ResourceDliQueue() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringMatch(regexp4Name, " only contain digits, lower letters, and underscores (_)"),
+				ValidateFunc: common.LowercaseVerifyWithUnderscores(1, 128),
 			},
 
 			"queue_type": {

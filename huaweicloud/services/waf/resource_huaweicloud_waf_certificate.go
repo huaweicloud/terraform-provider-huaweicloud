@@ -1,13 +1,11 @@
 package waf
 
 import (
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/chnsz/golangsdk/openstack/waf/v1/certificates"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -37,10 +35,9 @@ func ResourceWafCertificateV1() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[\w-]{1,256}$`),
-					"The maximum length is 256 characters. Only digits, letters, underscores (_), and hyphens (-) are allowed"),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: common.StandardVerifyWithHyphens(1, 256),
 			},
 			"certificate": {
 				Type:     schema.TypeString,

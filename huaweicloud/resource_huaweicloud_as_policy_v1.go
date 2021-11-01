@@ -1,12 +1,12 @@
 package huaweicloud
 
 import (
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -30,7 +30,7 @@ func ResourceASPolicy() *schema.Resource {
 			"scaling_policy_name": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: resourceASPolicyValidateName,
+				ValidateFunc: common.StandardVerifyWithHyphens(1, 64),
 			},
 			"scaling_group_id": {
 				Type:     schema.TypeString,
@@ -346,17 +346,5 @@ func resourceASPolicyValidatePolicyType(v interface{}, k string) (ws []string, e
 		}
 	}
 	errors = append(errors, fmtp.Errorf("%q must be one of %v", k, PolicyTypes))
-	return
-}
-
-//lintignore:V001
-func resourceASPolicyValidateName(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	if len(value) > 64 || len(value) < 1 {
-		errors = append(errors, fmtp.Errorf("%q must contain more than 1 and less than 64 characters", value))
-	}
-	if !regexp.MustCompile(`^[0-9a-zA-Z-_]+$`).MatchString(value) {
-		errors = append(errors, fmtp.Errorf("only alphanumeric characters, hyphens, and underscores allowed in %q", value))
-	}
 	return
 }

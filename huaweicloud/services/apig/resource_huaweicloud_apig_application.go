@@ -2,7 +2,6 @@ package apig
 
 import (
 	"log"
-	"regexp"
 	"strings"
 
 	"github.com/chnsz/golangsdk"
@@ -10,6 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
@@ -37,20 +37,14 @@ func ResourceApigApplicationV2() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z_0-9]{2,63}$"),
-					"The name consists of 3 to 64 characters, starting with a letter. "+
-						"Only letters, digits and underscores (_) are allowed. "+
-						"Chinese characters must be in UTF-8 or Unicode format."),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: common.StandardVerifyWithChinesesAndStart(3, 64),
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[^<>]{1,255}$"),
-					"The description contain a maximum of 255 characters, "+
-						"and the angle brackets (< and >) are not allowed."),
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: common.StringVerifyWithoutAngleBrackets(1, 255),
 			},
 			"app_codes": {
 				Type:     schema.TypeSet,
@@ -58,11 +52,9 @@ func ResourceApigApplicationV2() *schema.Resource {
 				MaxItems: 5,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
-					ValidateFunc: validation.StringMatch(
-						regexp.MustCompile("^[A-Za-z0-9+=][\\w!@#$%+-/=]{63,179}$"),
-						"The code consists of 64 to 180 characters, starting with a letter, digit, "+
-							"plus sign (+) or slash (/). Only letters, digits and following special special "+
-							"characters are allowed: !@#$%+-_/="),
+					ValidateFunc: common.CustomVerify("^[A-Za-z0-9+=][\\w!@#$%+-/=]+$",
+						"The code starting with a letter, digit, plus sign (+) or equal sign (=). Only letters, digits and following special special "+
+							"characters are allowed: !@#$%+-_/=", 64, 180),
 				},
 			},
 			"secret_action": {
