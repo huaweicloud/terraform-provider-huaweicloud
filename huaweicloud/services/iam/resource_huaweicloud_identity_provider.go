@@ -432,12 +432,10 @@ func resourceIdentityProviderRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("status", status),
 		d.Set("login_link", url),
 		getAndSetConversionRulesAttrs(client, d),
+		d.Set("description", provider.Description),
+		getAndSetMetadataAttr(client, d),
+		getAndSetAccessTypeAttrs(client, d),
 	)
-	d.Set("description", provider.Description)
-	// Get and set access type to attribute.
-	getAndSetAccessTypeAttrs(client, d)
-	// Get and set metadata to attribute
-	getAndSetMetadataAttr(client, d)
 
 	if err = mErr.ErrorOrNil(); err != nil {
 		logp.Printf("[ERROR] Error in setting identity provider attributes %s: %s", d.Id(), err)
@@ -455,17 +453,20 @@ func getAndSetMetadataAttr(client *golangsdk.ServiceClient, d *schema.ResourceDa
 		}
 		return err
 	}
-	d.Set("metadata", r.Data)
-	return nil
+
+	return d.Set("metadata", r.Data)
 }
 
 func getAndSetAccessTypeAttrs(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var mErr *multierror.Error
 	// The access type only work on OIDC protocol.
 	if protocol, ok := d.GetOk("protocol"); ok && protocol == protocolSAML {
 		// Because response_mode and response_type has default values, so set default values for them.
-		d.Set("response_mode", "form_post")
-		d.Set("response_type", "id_token")
-		return nil
+		mErr = multierror.Append(
+			d.Set("response_mode", "form_post"),
+			d.Set("response_type", "id_token"),
+		)
+		return mErr
 	}
 
 	providerID := d.Get("name").(string)
@@ -476,22 +477,20 @@ func getAndSetAccessTypeAttrs(client *golangsdk.ServiceClient, d *schema.Resourc
 		}
 		return err
 	}
-	mErr := multierror.Append(
+
+	scopes := strings.Split(accType.Scope, scopeSpilt)
+	mErr = multierror.Append(
 		d.Set("access_type", accType.AccessMode),
 		d.Set("provider_url", accType.IdpURL),
 		d.Set("client_id", accType.ClientID),
 		d.Set("signing_key", accType.SigningKey),
+		d.Set("scopes", scopes),
+		d.Set("response_mode", accType.ResponseMode),
+		d.Set("authorization_endpoint", accType.AuthorizationEndpoint),
+		d.Set("response_type", accType.ResponseType),
 	)
-	scopes := strings.Split(accType.Scope, scopeSpilt)
-	d.Set("scopes", scopes)
-	d.Set("response_mode", accType.ResponseMode)
-	d.Set("authorization_endpoint", accType.AuthorizationEndpoint)
-	d.Set("response_type", accType.ResponseType)
 
-	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("failed to set access type attributes: %s", err)
-	}
-	return nil
+	return mErr
 }
 
 func queryProtocolName(client *golangsdk.ServiceClient, d *schema.ResourceData) string {
