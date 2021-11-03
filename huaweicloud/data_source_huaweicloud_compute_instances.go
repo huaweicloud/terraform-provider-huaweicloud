@@ -146,7 +146,7 @@ func DataSourceComputeInstances() *schema.Resource {
 	}
 }
 
-func buildEcsListOptsWithoutIP(d *schema.ResourceData, conf *config.Config) *cloudservers.ListOpts {
+func buildListOptsWithoutIP(d *schema.ResourceData, conf *config.Config) *cloudservers.ListOpts {
 	result := cloudservers.ListOpts{
 		Limit:               100,
 		EnterpriseProjectID: GetEnterpriseProjectID(d, conf),
@@ -198,7 +198,7 @@ func dataSourceComputeInstancesRead(_ context.Context, d *schema.ResourceData, m
 		return fmtp.DiagErrorf("Error creating HuaweiCloud ECS v1 client: %s", err)
 	}
 
-	opt := buildEcsListOptsWithoutIP(d, conf)
+	opt := buildListOptsWithoutIP(d, conf)
 
 	allServers, err := queryEcsInstances(ecsClient, opt)
 	if err != nil {

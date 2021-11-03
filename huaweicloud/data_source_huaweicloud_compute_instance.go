@@ -1,22 +1,25 @@
 package huaweicloud
 
 import (
+	"context"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/blockstorage/v2/volumes"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func DataSourceComputeInstance() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceComputeInstanceRead,
+		ReadContext: dataSourceComputeInstanceRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -165,113 +168,62 @@ func DataSourceComputeInstance() *schema.Resource {
 	}
 }
 
-func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud ECS client: %s", err)
-	}
-
-	epsID := GetEnterpriseProjectID(d, config)
-	listOpts := &cloudservers.ListOpts{
+func buildListOptsWithoutStatus(d *schema.ResourceData, conf *config.Config) *cloudservers.ListOpts {
+	result := cloudservers.ListOpts{
+		Limit:               100,
+		EnterpriseProjectID: GetEnterpriseProjectID(d, conf),
 		Name:                d.Get("name").(string),
 		Flavor:              d.Get("flavor_id").(string),
 		IP:                  d.Get("fixed_ip_v4").(string),
-		EnterpriseProjectID: epsID,
 	}
 
-	pages, err := cloudservers.List(ecsClient, listOpts).AllPages()
-	if err != nil {
-		return err
+	return &result
+}
+
+func parseEcsInstanceSecurityGroups(groups []cloudservers.SecurityGroups) []string {
+	result := make([]string, len(groups))
+
+	for i, sg := range groups {
+		result[i] = sg.Name
 	}
 
-	allServers, err := cloudservers.ExtractServers(pages)
-	if err != nil {
-		return fmtp.Errorf("Unable to retrieve cloud servers: %s ", err)
-	}
+	return result
+}
 
-	if len(allServers) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
-			"Please change your search criteria and try again.")
+func setEcsInstanceSchedulerHints(d *schema.ResourceData, hints cloudservers.OsSchedulerHints) error {
+	if len(hints.Group) > 0 {
+		return d.Set("scheduler_hints", parseEcsInstanceSchedulerHintInfo(hints))
 	}
-	if len(allServers) > 1 {
-		return fmtp.Errorf("Your query returned more than one result. " +
-			"Please try a more specific search criteria.")
-	}
+	return nil
+}
 
-	server := allServers[0]
-	logp.Printf("[DEBUG] fetching the ecs instance: %#v", server)
-
-	d.SetId(server.ID)
-	d.Set("region", GetRegion(d, config))
-	d.Set("availability_zone", server.AvailabilityZone)
-	d.Set("name", server.Name)
-	d.Set("status", server.Status)
-
-	flavorInfo := server.Flavor
-	d.Set("flavor_id", flavorInfo.ID)
-	d.Set("flavor_name", flavorInfo.Name)
-	d.Set("image_id", server.Image.ID)
-
-	metaData := server.Metadata
-	if metaData.ImageName != "" {
-		d.Set("image_name", metaData.ImageName)
+func setEcsInstanceTags(d *schema.ResourceData, tags []string) error {
+	if len(tags) > 0 {
+		return d.Set("tags", parseEcsInstanceTagInfo(tags))
 	}
-	if server.KeyName != "" {
-		d.Set("key_pair", server.KeyName)
-	}
-	if server.UserData != "" {
-		d.Set("user_data", server.UserData)
-	}
-	if epsID != "" {
-		d.Set("enterprise_project_id", epsID)
-	}
+	return nil
+}
 
-	// set security groups
-	secGrpNames := make([]string, len(server.SecurityGroups))
-	for i, sg := range server.SecurityGroups {
-		secGrpNames[i] = sg.Name
-	}
-	d.Set("security_groups", secGrpNames)
-
-	secGrpIDs := make([]string, len(server.SecurityGroups))
-	for i, sg := range server.SecurityGroups {
-		secGrpIDs[i] = sg.ID
-	}
-	d.Set("security_group_ids", secGrpIDs)
-
-	// set os:scheduler_hints
-	osHints := server.OsSchedulerHints
-	if len(osHints.Group) > 0 {
-		schedulerHints := make([]map[string]interface{}, len(osHints.Group))
-		for i, v := range osHints.Group {
-			schedulerHints[i] = map[string]interface{}{
-				"group": v,
-			}
-		}
-		d.Set("scheduler_hints", schedulerHints)
-	}
-
+func setEcsInstancePublicIp(d *schema.ResourceData, client *golangsdk.ServiceClient,
+	addresses map[string][]cloudservers.Address) error {
 	// Set the instance network and address information
-	networks, eip := flattenComputeNetworks(d, meta, &server)
-	if err := d.Set("network", networks); err != nil {
-		logp.Printf("[WARN] Error setting network of ecs instance %s: %s", d.Id(), err)
-	}
-	if eip != "" {
-		d.Set("public_ip", eip)
-	}
 
+	networks, eip := flattenComputeNetworks(d, client, addresses)
+	mErr := multierror.Append(nil,
+		d.Set("network", networks),
+		d.Set("public_ip", eip),
+	)
+	return mErr.ErrorOrNil()
+}
+
+func setEcsInstanceVolumeAttached(d *schema.ResourceData, ecsClient, evsClient *golangsdk.ServiceClient,
+	attached []cloudservers.VolumeAttached) error {
 	// Set volume attached
-	if len(server.VolumeAttached) > 0 {
-		blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud EVS client: %s", err)
-		}
-
-		bds := make([]map[string]interface{}, len(server.VolumeAttached))
-		for i, b := range server.VolumeAttached {
+	if len(attached) > 0 {
+		bds := make([]map[string]interface{}, len(attached))
+		for i, b := range attached {
 			// retrieve volume `size` and `type`
-			volumeInfo, err := volumes.Get(blockStorageClient, b.ID).Extract()
+			volumeInfo, err := volumes.Get(evsClient, b.ID).Extract()
 			if err != nil {
 				return err
 			}
@@ -296,36 +248,80 @@ func dataSourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) err
 				d.Set("system_disk_id", b.ID)
 			}
 		}
-		d.Set("volume_attached", bds)
+		return d.Set("volume_attached", bds)
 	}
-
-	// Set instance tags
-	resourceTags, err := tags.Get(ecsClient, "cloudservers", d.Id()).Extract()
-	if err == nil {
-		tagmap := utils.TagsToMap(resourceTags.Tags)
-		d.Set("tags", tagmap)
-	} else {
-		logp.Printf("[WARN] Error fetching tags of ecs instance %s: %s", d.Id(), err)
-	}
-
 	return nil
 }
 
-// flattenComputeNetworks collects instance network information
-func flattenComputeNetworks(
-	d *schema.ResourceData, meta interface{}, server *cloudservers.CloudServer) ([]map[string]interface{}, string) {
-
-	config := meta.(*config.Config)
+func setEcsInstanceParams(d *schema.ResourceData, config *config.Config, ecsClient *golangsdk.ServiceClient,
+	server cloudservers.CloudServer) diag.Diagnostics {
 	networkingClient, err := config.NetworkingV2Client(GetRegion(d, config))
 	if err != nil {
-		logp.Printf("[ERROR] failed to create HuaweiCloud networking client: %s", err)
-		return nil, ""
+		return fmtp.DiagErrorf("Error creating HuaweiCloud networking v2 client: %s", err)
+	}
+	blockStorageClient, err := config.BlockStorageV3Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.DiagErrorf("Error creating HuaweiCloud EVS client: %s", err)
+	}
+	mErr := multierror.Append(nil,
+		d.Set("region", GetRegion(d, config)),
+		d.Set("availability_zone", server.AvailabilityZone),
+		d.Set("name", server.Name),
+		d.Set("status", server.Status),
+		d.Set("flavor_id", server.Flavor.ID),
+		d.Set("flavor_name", server.Flavor.Name),
+		d.Set("image_id", server.Image.ID),
+		d.Set("image_name", golangsdk.MaybeString(server.Metadata.ImageName)),
+		d.Set("key_pair", golangsdk.MaybeString(server.KeyName)),
+		d.Set("user_data", golangsdk.MaybeString(server.UserData)),
+		d.Set("enterprise_project_id", server.EnterpriseProjectID),
+		d.Set("security_group_ids", parseEcsInstanceSecurityGroupIds(server.SecurityGroups)),
+		d.Set("security_groups", parseEcsInstanceSecurityGroups(server.SecurityGroups)),
+		setEcsInstanceSchedulerHints(d, server.OsSchedulerHints),
+		setEcsInstancePublicIp(d, networkingClient, server.Addresses),
+		setEcsInstanceVolumeAttached(d, ecsClient, blockStorageClient, server.VolumeAttached),
+		setEcsInstanceTags(d, server.Tags),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func dataSourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*config.Config)
+	ecsClient, err := config.ComputeV1Client(GetRegion(d, config))
+	if err != nil {
+		return fmtp.DiagErrorf("Error creating HuaweiCloud ECS v1 client: %s", err)
 	}
 
+	opt := buildListOptsWithoutStatus(d, config)
+	allServers, err := queryEcsInstances(ecsClient, opt)
+	if err != nil {
+		return fmtp.DiagErrorf("Unable to retrieve cloud servers: %s", err)
+	}
+
+	if len(allServers) < 1 {
+		return fmtp.DiagErrorf("Your query returned no results, please change your search criteria and try again.")
+	}
+	if len(allServers) > 1 {
+		return fmtp.DiagErrorf("Your query returned more than one result, please try a more specific search criteria.")
+	}
+
+	server := allServers[0]
+	logp.Printf("[DEBUG] fetching the ecs instance: %#v", server)
+
+	d.SetId(server.ID)
+
+	// Set instance parameters
+
+	return setEcsInstanceParams(d, config, ecsClient, server)
+}
+
+// flattenComputeNetworks collects instance network information
+func flattenComputeNetworks(d *schema.ResourceData, client *golangsdk.ServiceClient,
+	addressResp map[string][]cloudservers.Address) ([]map[string]interface{}, string) {
 	publicIP := ""
 	networks := []map[string]interface{}{}
 
-	for _, addresses := range server.Addresses {
+	for _, addresses := range addressResp {
 		for _, addr := range addresses {
 			if addr.Type == "floating" {
 				publicIP = addr.Addr
@@ -334,7 +330,7 @@ func flattenComputeNetworks(
 
 			// get networkID
 			var networkID string
-			p, err := ports.Get(networkingClient, addr.PortID).Extract()
+			p, err := ports.Get(client, addr.PortID).Extract()
 			if err != nil {
 				networkID = ""
 				logp.Printf("[DEBUG] failed to fetch port %s", addr.PortID)
