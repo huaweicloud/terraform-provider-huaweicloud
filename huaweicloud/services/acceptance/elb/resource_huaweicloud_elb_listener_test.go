@@ -1,34 +1,47 @@
-package huaweicloud
+package elb
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/chnsz/golangsdk/openstack/elb/v3/listeners"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/elb/v3/listeners"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
+
+func getELBListenerResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.ElbV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+	}
+	return listeners.Get(client, state.Primary.ID).Extract()
+}
 
 func TestAccElbV3Listener_basic(t *testing.T) {
 	var listener listeners.Listener
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_elb_listener.test"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&listener,
+		getELBListenerResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3ListenerDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbV3ListenerConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckElbV3ListenerExists(resourceName, &listener),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "forward_eip", "true"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
@@ -46,60 +59,6 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckElbV3ListenerDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.ElbV3Client(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_elb_listener" {
-			continue
-		}
-
-		_, err := listeners.Get(elbClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("Listener still exists: %s", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckElbV3ListenerExists(
-	n string, listener *listeners.Listener) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.ElbV3Client(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
-		}
-
-		found, err := listeners.Get(elbClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Member not found")
-		}
-
-		*listener = *found
-
-		return nil
-	}
 }
 
 func testAccElbV3ListenerConfig_basic(rName string) string {

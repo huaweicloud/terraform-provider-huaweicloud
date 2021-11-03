@@ -1,34 +1,47 @@
-package huaweicloud
+package elb
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/chnsz/golangsdk/openstack/elb/v3/loadbalancers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/elb/v3/loadbalancers"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
+
+func getELBResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.ElbV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
+	}
+	return loadbalancers.Get(client, state.Primary.ID).Extract()
+}
 
 func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	rNameUpdate := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_elb_loadbalancer.test"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&lb,
+		getELBResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3LoadBalancerDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbV3LoadBalancerConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckElbV3LoadBalancerExists(resourceName, &lb),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_backend", "false"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
@@ -50,78 +63,30 @@ func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 
 func TestAccElbV3LoadBalancer_withEpsId(t *testing.T) {
 	var lb loadbalancers.LoadBalancer
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_elb_loadbalancer.test"
 
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&lb,
+		getELBResourceFunc,
+	)
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckEpsID(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckElbV3LoadBalancerDestroy,
+		PreCheck:          func() { acceptance.TestAccPreCheckEpsID(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccElbV3LoadBalancerConfig_withEpsId(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckElbV3LoadBalancerExists(resourceName, &lb),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				),
 			},
 		},
 	})
-}
-
-func testAccCheckElbV3LoadBalancerDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*config.Config)
-	elbClient, err := config.ElbV3Client(HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_elb_loadbalancer" {
-			continue
-		}
-
-		_, err := loadbalancers.Get(elbClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("LoadBalancer still exists: %s", rs.Primary.ID)
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckElbV3LoadBalancerExists(
-	n string, lb *loadbalancers.LoadBalancer) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := testAccProvider.Meta().(*config.Config)
-		elbClient, err := config.ElbV3Client(HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud elb client: %s", err)
-		}
-
-		found, err := loadbalancers.Get(elbClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Member not found")
-		}
-
-		*lb = *found
-
-		return nil
-	}
 }
 
 func testAccElbV3LoadBalancerConfig_basic(rName string) string {
@@ -196,5 +161,5 @@ resource "huaweicloud_elb_loadbalancer" "test" {
     owner = "terraform"
   }
 }
-`, rName, HW_ENTERPRISE_PROJECT_ID_TEST)
+`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
