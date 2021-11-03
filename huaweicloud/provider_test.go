@@ -49,13 +49,6 @@ var (
 	HW_ADMIN                        = os.Getenv("HW_ADMIN")
 	HW_ENTERPRISE_PROJECT_ID_TEST   = os.Getenv("HW_ENTERPRISE_PROJECT_ID_TEST")
 	HW_USER_ID                      = os.Getenv("HW_USER_ID")
-
-	HW_CERTIFICATE_KEY_PATH         = os.Getenv("HW_CERTIFICATE_KEY_PATH")
-	HW_CERTIFICATE_CHAIN_PATH       = os.Getenv("HW_CERTIFICATE_CHAIN_PATH")
-	HW_CERTIFICATE_PRIVATE_KEY_PATH = os.Getenv("HW_CERTIFICATE_PRIVATE_KEY_PATH")
-	HW_CERTIFICATE_SERVICE          = os.Getenv("HW_CERTIFICATE_SERVICE")
-	HW_CERTIFICATE_PROJECT          = os.Getenv("HW_CERTIFICATE_PROJECT")
-	HW_CERTIFICATE_PROJECT_UPDATED  = os.Getenv("HW_CERTIFICATE_PROJECT_UPDATED")
 )
 
 var testAccProviders map[string]*schema.Provider
@@ -342,14 +335,4 @@ func envVarFile(varName string) (string, error) {
 		return "", fmtp.Errorf("Error closing temp file: %s", err)
 	}
 	return tmpFile.Name(), nil
-}
-
-func testAccPreCheckScm(t *testing.T) {
-	if HW_CERTIFICATE_KEY_PATH == "" || HW_CERTIFICATE_CHAIN_PATH == "" ||
-		HW_CERTIFICATE_PRIVATE_KEY_PATH == "" || HW_CERTIFICATE_SERVICE == "" ||
-		HW_CERTIFICATE_PROJECT == "" || HW_CERTIFICATE_PROJECT_UPDATED == "" {
-		t.Skip("HW_CERTIFICATE_KEY_PATH, HW_CERTIFICATE_CHAIN_PATH, HW_CERTIFICATE_PRIVATE_KEY_PATH, " +
-			"HW_CERTIFICATE_SERVICE, HW_CERTIFICATE_PROJECT and HW_CERTIFICATE_TARGET_UPDATED " +
-			"can not be empty for SCM certificate tests")
-	}
 }

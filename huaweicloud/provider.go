@@ -26,6 +26,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/scm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/swr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/waf"
@@ -570,7 +571,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpnaas_ipsec_policy":             deprecated.ResourceVpnIPSecPolicyV2(),
 			"huaweicloud_vpnaas_service":                  deprecated.ResourceVpnServiceV2(),
 			"huaweicloud_vpnaas_site_connection":          deprecated.ResourceVpnSiteConnectionV2(),
-			"huaweicloud_scm_certificate":                 resourceScmCertificateV3(),
+			"huaweicloud_scm_certificate":                 scm.ResourceScmCertificate(),
 			"huaweicloud_waf_certificate":                 waf.ResourceWafCertificateV1(),
 			"huaweicloud_waf_domain":                      waf.ResourceWafDomainV1(),
 			"huaweicloud_waf_policy":                      waf.ResourceWafPolicyV1(),
