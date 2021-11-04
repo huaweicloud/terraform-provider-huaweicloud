@@ -3,6 +3,7 @@ package iam
 import (
 	"context"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/projects"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -76,7 +77,7 @@ func resourceIdentityProjectV3Read(_ context.Context, d *schema.ResourceData, me
 
 	project, err := projects.Get(identityClient, d.Id()).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "project")
+		return common.CheckDeletedDiag(d, err, "IAM project")
 	}
 
 	logp.Printf("[DEBUG] Retrieved Huaweicloud project: %#v", project)
@@ -134,7 +135,17 @@ func resourceIdentityProjectV3Delete(_ context.Context, d *schema.ResourceData, 
 
 	err = projects.Delete(identityClient, d.Id()).ExtractErr()
 	if err != nil {
-		return fmtp.DiagErrorf("Error deleting Huaweicloud project: %s", err)
+		if _, ok := err.(golangsdk.ErrDefault404); ok {
+			errorMsg := "Deleting projects is not supported. The project is only removed from the state, but it remains in the cloud."
+			return diag.Diagnostics{
+				diag.Diagnostic{
+					Severity: diag.Warning,
+					Summary:  errorMsg,
+				},
+			}
+		}
+
+		return fmtp.DiagErrorf("Error deleting IAM project: %s", err)
 	}
 
 	return nil
