@@ -129,7 +129,7 @@ func DataSourceIdentityGroupV3Read(_ context.Context, d *schema.ResourceData, me
 		d.Set("name", group.Name),
 		d.Set("description", group.Description),
 	)
-	if mErr.ErrorOrNil() != nil {
+	if err = mErr.ErrorOrNil(); err != nil {
 		return fmtp.DiagErrorf("error setting identity group fields: %s", err)
 	}
 

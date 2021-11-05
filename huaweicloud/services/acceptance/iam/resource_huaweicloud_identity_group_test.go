@@ -7,7 +7,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
@@ -15,25 +14,39 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+func getIdentityGroupResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := c.IdentityV3Client(acceptance.HW_REGION_NAME)
+	if err != nil {
+		return nil, fmtp.Errorf("Error creating HuaweiCloud IAM client: %s", err)
+	}
+	return groups.Get(client, state.Primary.ID).Extract()
+}
+
 func TestAccIdentityV3Group_basic(t *testing.T) {
 	var group groups.Group
-	var groupName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	var groupName = acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_identity_group.group_1"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&group,
+		getIdentityGroupResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckAdminOnly(t)
 		},
-		Providers:    acceptance.TestAccProviders,
-		CheckDestroy: testAccCheckIdentityV3GroupDestroy,
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIdentityV3Group_basic(groupName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3GroupExists(resourceName, &group),
-					resource.TestCheckResourceAttrPtr(resourceName, "name", &group.Name),
-					resource.TestCheckResourceAttrPtr(resourceName, "description", &group.Description),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", groupName),
+					resource.TestCheckResourceAttr(resourceName, "description", "A ACC test group"),
 				),
 			},
 			{
@@ -44,66 +57,13 @@ func TestAccIdentityV3Group_basic(t *testing.T) {
 			{
 				Config: testAccIdentityV3Group_update(groupName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckIdentityV3GroupExists(resourceName, &group),
-					resource.TestCheckResourceAttrPtr(resourceName, "name", &group.Name),
-					resource.TestCheckResourceAttrPtr(resourceName, "description", &group.Description),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", groupName),
+					resource.TestCheckResourceAttr(resourceName, "description", "Some Group"),
 				),
 			},
 		},
 	})
-}
-
-func testAccCheckIdentityV3GroupDestroy(s *terraform.State) error {
-	config := acceptance.TestAccProvider.Meta().(*config.Config)
-	identityClient, err := config.IdentityV3Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_identity_group" {
-			continue
-		}
-
-		_, err := groups.Get(identityClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmtp.Errorf("Group still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckIdentityV3GroupExists(n string, group *groups.Group) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmtp.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("No ID is set")
-		}
-
-		config := acceptance.TestAccProvider.Meta().(*config.Config)
-		identityClient, err := config.IdentityV3Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud identity client: %s", err)
-		}
-
-		found, err := groups.Get(identityClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmtp.Errorf("Group not found")
-		}
-
-		*group = *found
-
-		return nil
-	}
 }
 
 func testAccIdentityV3Group_basic(groupName string) string {
