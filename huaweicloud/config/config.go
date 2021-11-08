@@ -953,3 +953,10 @@ func (c *Config) MlsV1Client(region string) (*golangsdk.ServiceClient, error) {
 func (c *Config) ScmV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("scm", region)
 }
+
+
+//Clients for SMS  author:XXN
+func (c *Config) ServerMigrationServiceV3Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("sms", region)
+}
+

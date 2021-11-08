@@ -685,6 +685,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_rts_software_config_v1":             resourceSoftwareConfigV1(),
 			"huaweicloud_cts_tracker":                        deprecated.ResourceCTSTrackerV1(),
 			"huaweicloud_images_image_v2":                    deprecated.ResourceImagesImageV2(),
+			// xxn
+			"resource_huaweicloud_sms_template":			  ResourceSMSTemplate(),
 		},
 	}
 
