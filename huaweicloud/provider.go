@@ -342,6 +342,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vbs_backup_policy":                    dataSourceVBSBackupPolicyV2(),
 			"huaweicloud_vbs_backup":                           dataSourceVBSBackupV2(),
 			"huaweicloud_vpc":                                  vpc.DataSourceVpcV1(),
+			"huaweicloud_vpcs":                                 vpc.DataSourceVpcs(),
 			"huaweicloud_vpc_bandwidth":                        vpc.DataSourceBandWidth(),
 			"huaweicloud_vpc_eip":                              vpc.DataSourceVpcEip(),
 			"huaweicloud_vpc_ids":                              vpc.DataSourceVpcIdsV1(),
