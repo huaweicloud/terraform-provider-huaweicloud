@@ -298,7 +298,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_maintainwindow":                   dcs.DataSourceDcsMaintainWindow(),
 			"huaweicloud_dcs_product":                          deprecated.DataSourceDcsProductV1(),
 			"huaweicloud_dds_flavors":                          dds.DataSourceDDSFlavorV3(),
-			"huaweicloud_dis_partition":                        DataSourceDisPartitionV2(),
+			"huaweicloud_dis_partitions":                       dis.DataSourceDisPartitions(),
 			"huaweicloud_dms_az":                               DataSourceDmsAZV1(),
 			"huaweicloud_dms_product":                          DataSourceDmsProductV1(),
 			"huaweicloud_dms_maintainwindow":                   DataSourceDmsMaintainWindowV1(),
@@ -394,7 +394,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_flavors_v3":            dds.DataSourceDDSFlavorV3(),
 			"huaweicloud_identity_role_v3":          iam.DataSourceIdentityRoleV3(),
 			"huaweicloud_cdm_flavors_v1":            DataSourceCdmFlavorV1(),
-			"huaweicloud_dis_partition_v2":          DataSourceDisPartitionV2(),
+			"huaweicloud_dis_partition":             dis.DataSourceDisPartitions(),
+			"huaweicloud_dis_partition_v2":          dis.DataSourceDisPartitions(),
 
 			// Deprecated ongoing (without DeprecationMessage), used by other providers
 			"huaweicloud_vpc_route":        vpc.DataSourceVpcRouteV2(),

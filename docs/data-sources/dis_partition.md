@@ -2,17 +2,19 @@
 subcategory: "Data Ingestion Service (DIS)"
 ---
 
-# huaweicloud_dis_partition
+# huaweicloud_dis_partitions
 
-Get all the partitions of a stream This is an alternative to `huaweicloud_dis_partition_v2`
+Use this data source to get all the partitions of a stream.
 
 ## Example Usage
 
 ### list all the partitions of a stream
 
 ```hcl
-data "huaweicloud_dis_partition" "partition" {
-  stream_name = "{{ stream_name }}"
+variable stream_name {}
+
+data "huaweicloud_dis_partitions" "partition" {
+  stream_name = var.stream_name
 }
 ```
 
@@ -21,11 +23,13 @@ data "huaweicloud_dis_partition" "partition" {
 * `region` - (Optional, String) The region in which to obtain the partitions. If omitted, the provider-level region will
   be used.
 
-* `stream_name` - (Required, String) Name of the DIS stream.
+* `stream_name` - (Required, String) Specifies the name of the DIS stream.
 
 ## Attributes Reference
 
-In addition to all arguments above, the following attributes are exported:
+The following attributes are exported:
+
+* `id` - The data source ID.
 
 * `partitions` - The information of stream partitions. Structure is documented below.
 
@@ -37,4 +41,4 @@ The `partitions` block contains:
 
 * `hash_range` - Possible value range of the hash key used by each partition.
 
-* `sequence_number_range` - Sequence number range of each partition..
+* `sequence_number_range` - Sequence number range of each partition.
