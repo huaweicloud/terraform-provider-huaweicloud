@@ -71,10 +71,6 @@ github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d/go.mod h1:6QX/PXZ
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cheggaaa/pb v1.0.27/go.mod h1:pQciLPpbU0oxA0h+VJYYLxO+XeDQb5pZijXscXHm81s=
-github.com/chnsz/golangsdk v0.0.0-20211030022355-e5b519b9f8fa h1:D2GHiHPTxDDBuC2133r12uppPKEQwYqz41xthlOxP/g=
-github.com/chnsz/golangsdk v0.0.0-20211030022355-e5b519b9f8fa/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
-github.com/chnsz/golangsdk v0.0.0-20211103084042-252dae81b0cc h1:PNLFEiwClpgfYFC66TWyptABu/bDZoOoSmwSwc+D8IA=
-github.com/chnsz/golangsdk v0.0.0-20211103084042-252dae81b0cc/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
 github.com/chnsz/golangsdk v0.0.0-20211104073851-76d1b6395a61 h1:6g9ejuErd4ciglOmiwmFtgethjCSdLMkqjzD4YVMbNU=
 github.com/chnsz/golangsdk v0.0.0-20211104073851-76d1b6395a61/go.mod h1:j6UR2TfACtmWBEvYrQqTpk5wy3b2QsEdiLkjMoM47j8=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
