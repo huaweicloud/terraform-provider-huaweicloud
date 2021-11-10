@@ -180,6 +180,9 @@ type JobConfBase struct {
 	TmSlotNum        int    `json:"tm_slot_num"`
 	ResumeMaxNum     int    `json:"resume_max_num"`
 	CheckpointPath   string `json:"checkpoint_path"`
+	Feature          string `json:"feature"`
+	FlinkVersion     string `json:"flink_version"`
+	Image            string `json:"image"`
 }
 
 type ListResp struct {
