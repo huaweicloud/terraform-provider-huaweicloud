@@ -438,8 +438,8 @@ func (c *Config) NewServiceClient(srv, region string) (*golangsdk.ServiceClient,
 }
 
 func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalog ServiceCatalog, region string) (*golangsdk.ServiceClient, error) {
-	if catalog.Name == "" && catalog.Version == "" {
-		return nil, fmt.Errorf("must specify the service name and api version")
+	if catalog.Name == "" {
+		return nil, fmt.Errorf("must specify the service name")
 	}
 
 	// Custom Resource-level region only supports AK/SK authentication.

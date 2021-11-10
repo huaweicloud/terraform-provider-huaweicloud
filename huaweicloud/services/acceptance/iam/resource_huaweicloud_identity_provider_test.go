@@ -42,8 +42,6 @@ func TestAccIdentityProvider_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "protocol", "saml"),
-					resource.TestCheckResourceAttr(resourceName, "conversion_rules.0.local.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "conversion_rules.0.remote.#", "1"),
 				),
 			},
 			{
@@ -51,9 +49,8 @@ func TestAccIdentityProvider_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "status", "disabled"),
-					resource.TestCheckResourceAttr(resourceName, "conversion_rules.0.local.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "conversion_rules.1.remote.0.condition", "any_one_of"),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "saml"),
+					resource.TestCheckResourceAttr(resourceName, "status", "false"),
 				),
 			},
 			{
@@ -86,6 +83,9 @@ func TestAccIdentityProvider_oidc(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "oidc"),
+					resource.TestCheckResourceAttr(resourceName, "access_config.0.access_type", "program_console"),
+					resource.TestCheckResourceAttr(resourceName, "access_config.0.client_id", "client_id_example"),
 				),
 			},
 			{
@@ -93,8 +93,10 @@ func TestAccIdentityProvider_oidc(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "status", "disabled"),
-					resource.TestCheckResourceAttr(resourceName, "scopes.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "oidc"),
+					resource.TestCheckResourceAttr(resourceName, "status", "false"),
+					resource.TestCheckResourceAttr(resourceName, "access_config.0.access_type", "program"),
+					resource.TestCheckResourceAttr(resourceName, "access_config.0.client_id", "client_id_demo"),
 				),
 			},
 		},
@@ -106,16 +108,6 @@ func testAccIdentityProvider_saml(name string) string {
 resource "huaweicloud_identity_provider" "provider_1" {
   name     = "%s"
   protocol = "saml"
-  status   = "enabled"
-
-  conversion_rules {
-    local {
-      username = "federateduser"
-    }
-    remote {
-      attribute = "federatedgroup"
-    }
-  }
 }
 `, name)
 }
@@ -125,33 +117,7 @@ func testAccIdentityProvider_saml_update(name string) string {
 resource "huaweicloud_identity_provider" "provider_1" {
   name     = "%s"
   protocol = "saml"
-  status   = "disabled"
-
-  conversion_rules {
-    local {
-      username = "federateduser"
-    }
-    local {
-      username = "Tom"
-    }
-    remote {
-      attribute = "federatedgroup"
-    }
-    remote {
-      attribute = "Tom"
-    }
-  }
-
-  conversion_rules {
-    local {
-      username = "Jams"
-    }
-    remote {
-      attribute = "username"
-      condition = "any_one_of"
-      value     = ["Tom", "Jerry"]
-    }
-  }
+  status   = false
 }
 `, name)
 }
@@ -161,36 +127,28 @@ func testAccIdentityProvider_oidc(name string) string {
 resource "huaweicloud_identity_provider" "provider_1" {
   name        = "%s"
   protocol    = "oidc"
-  status      = "enabled"
   description = "unit test"
 
-  access_type            = "program_console"
-  provider_url           = "https://accounts.example.com"
-  client_id              = "client_id_example"
-  authorization_endpoint = "https://accounts.example.com/o/oauth2/v2/auth"
-  scopes                 = ["openid"]
-  signing_key            = jsonencode(
-  {
-    keys = [
-      {
-        alg = "RS256"
-        e   = "AQAB"
-        kid = "d05ef20c4512645vv1..."
-        kty = "RSA"
-        n   = "cws_cnjiwsbvweolwn_-vnl..."
-        use = "sig"
-      },
-    ]
-  }
-  )
-
-  conversion_rules {
-    local {
-      username = "federateduser"
+  access_config {
+    access_type            = "program_console"
+    provider_url           = "https://accounts.example.com"
+    client_id              = "client_id_example"
+    authorization_endpoint = "https://accounts.example.com/o/oauth2/v2/auth"
+    scopes                 = ["openid"]
+    signing_key            = jsonencode(
+    {
+      keys = [
+        {
+          alg = "RS256"
+          e   = "AQAB"
+          kid = "d05ef20c4512645vv1..."
+          kty = "RSA"
+          n   = "cws_cnjiwsbvweolwn_-vnl..."
+          use = "sig"
+        },
+      ]
     }
-    remote {
-      attribute = "federatedgroup"
-    }
+    )
   }
 }
 `, name)
@@ -201,53 +159,27 @@ func testAccIdentityProvider_oidc_update(name string) string {
 resource "huaweicloud_identity_provider" "provider_1" {
   name        = "%s"
   protocol    = "oidc"
-  status      = "disabled"
+  status      = false
   description = "unit test"
 
-  access_type            = "program_console"
-  provider_url           = "https://new.accounts.example.com"
-  client_id              = "client_id_example_new"
-  authorization_endpoint = "https://new.accounts.example.com/o/oauth2/v2/auth"
-  scopes                 = ["openid", "email", "aba"]
-  signing_key            = jsonencode(
-  {
-    keys = [
-      {
-        alg = "RS256"
-        e   = "AQAB"
-        kid = "d05ef20c4512645vv1..."
-        kty = "RSA"
-        n   = "cws_cnjiwsbvweolwn_-vnl..."
-        use = "sig"
-      },
-    ]
-  }
-  )
-
-  conversion_rules {
-    local {
-      username = "federateduser"
+  access_config {
+    access_type            = "program"
+    provider_url           = "https://accounts.example.com"
+    client_id              = "client_id_demo"
+    signing_key            = jsonencode(
+    {
+      keys = [
+        {
+          alg = "RS256"
+          e   = "AQAB"
+          kid = "d05ef20c4512645vv1..."
+          kty = "RSA"
+          n   = "cws_cnjiwsbvweolwn_-vnl..."
+          use = "sig"
+        },
+      ]
     }
-    local {
-      username = "Tom"
-    }
-    remote {
-      attribute = "federatedgroup"
-    }
-    remote {
-      attribute = "Tom"
-    }
-  }
-
-  conversion_rules {
-    local {
-      username = "Jams"
-    }
-    remote {
-      attribute = "username"
-      condition = "any_one_of"
-      value     = ["Tom", "Jerry"]
-    }
+    )
   }
 }
 `, name)

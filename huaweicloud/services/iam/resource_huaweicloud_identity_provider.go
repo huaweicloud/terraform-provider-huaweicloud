@@ -2,7 +2,6 @@ package iam
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -13,7 +12,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/oidcconfig"
 	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/protocols"
 	"github.com/chnsz/golangsdk/openstack/identity/federatedauth/providers"
-
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -29,7 +27,8 @@ import (
 const (
 	protocolSAML = "saml"
 	protocolOIDC = "oidc"
-	scopeSpilt   = " "
+
+	scopeSpilt = " "
 )
 
 func ResourceIdentityProvider() *schema.Resource {
@@ -57,108 +56,10 @@ func ResourceIdentityProvider() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{protocolSAML, protocolOIDC}, false),
 			},
-			"conversion_rules": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 10,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"local": {
-							Type:     schema.TypeList,
-							Required: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"username": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"group": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-								},
-							},
-						},
-						"remote": {
-							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 10,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"attribute": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"condition": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringInSlice([]string{"any_one_of", "not_any_of"}, false),
-									},
-									"value": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
 			"status": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "enabled",
-				ValidateFunc: validation.StringInSlice([]string{"enabled", "disabled"}, false),
-			},
-			"sso_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      "virtual_user_sso",
-				ValidateFunc: validation.StringInSlice([]string{"virtual_user_sso", "iam_user_sso"}, false),
-			},
-			"access_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"program", "program_console"}, false),
-			},
-			"provider_url": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeBool,
 				Optional: true,
-			},
-			"client_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"authorization_endpoint": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"scopes": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 10,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"response_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "id_token",
-			},
-			"response_mode": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "form_post",
-				ValidateFunc: validation.StringInSlice([]string{"fragment", "form_post"}, false),
-			},
-			"signing_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
-					return equal
-				},
+				Default:  true,
 			},
 			"metadata": {
 				Type:     schema.TypeString,
@@ -167,6 +68,110 @@ func ResourceIdentityProvider() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"access_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"access_type": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringInSlice([]string{"program", "program_console"}, false),
+						},
+						"provider_url": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"client_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"signing_key": {
+							Type:     schema.TypeString,
+							Required: true,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
+								return equal
+							},
+						},
+						"authorization_endpoint": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"scopes": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 10,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"response_type": {
+							Type: schema.TypeString,
+							//Computed: true,
+							Optional: true,
+							Default:  "id_token",
+						},
+						"response_mode": {
+							Type: schema.TypeString,
+							//Computed:     true,
+							Optional:     true,
+							Default:      "form_post",
+							ValidateFunc: validation.StringInSlice([]string{"fragment", "form_post"}, false),
+						},
+					},
+				},
+			},
+			"conversion_rules": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"local": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"username": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"group": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"remote": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"attribute": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"condition": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"value": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"sso_type": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"login_link": {
 				Type:     schema.TypeString,
@@ -184,8 +189,7 @@ func resourceIdentityProviderCreate(ctx context.Context, d *schema.ResourceData,
 	}
 	// Create a SAML protocol provider.
 	opts := providers.CreateProviderOpts{
-		Enabled:     getEnabledVal(d),
-		SsoType:     d.Get("sso_type").(string),
+		Enabled:     d.Get("status").(bool),
 		Description: d.Get("description").(string),
 	}
 	name := d.Get("name").(string)
@@ -198,25 +202,45 @@ func resourceIdentityProviderCreate(ctx context.Context, d *schema.ResourceData,
 	d.SetId(provider.ID)
 
 	protocol := d.Get("protocol").(string)
-	// Create protocol and mapping
-	err = createMappingAndProtocol(client, d)
-	// Create the provider access type, it only worked on the OIDC protocol.
-	if err == nil && protocol == protocolOIDC {
-		err = createAccessType(conf, d)
-	}
-	// If create mapping or protocol or access type fails, delete the provider.
+	// Create protocol and default mapping
+	err = createProtocol(client, d)
 	if err != nil {
-		logp.Printf("[ERROR] Failed to create mapping or protocol or access type, delete the provider: %s,", err)
-		resourceIdentityProviderDelete(ctx, d, meta)
-		return diag.FromErr(err)
+		logp.Printf("[ERROR] Error in creating provider protocol: %s,", err)
+		return fmtp.DiagErrorf("error in creating provider protocol: %s", err)
 	}
 
-	// Import metadata, metadata only worked on saml protocol provider
+	// Import metadata, metadata only worked on saml protocol providers
 	if protocol == protocolSAML {
 		err = importMetadata(conf, d)
 		if err != nil {
-			resourceIdentityProviderDelete(ctx, d, meta)
-			return diag.FromErr(err)
+			logp.Printf("[ERROR] Error importing matedata into identity provider: %s,", err)
+			return fmtp.DiagErrorf("error importing matedata into identity provider: %s", err)
+		}
+	} else if ac, ok := d.GetOk("access_config"); ok {
+		// Create access config for oidc provider.
+		accessConfigArr := ac.([]interface{})
+		accessConfig := accessConfigArr[0].(map[string]interface{})
+
+		accessType := accessConfig["access_type"].(string)
+		createAccessTypeOpts := oidcconfig.CreateOpts{
+			AccessMode: accessType,
+			IdpURL:     accessConfig["provider_url"].(string),
+			ClientID:   accessConfig["client_id"].(string),
+			SigningKey: accessConfig["signing_key"].(string),
+		}
+
+		if accessType == "program_console" {
+			scopes := utils.ExpandToStringList(accessConfig["scopes"].([]interface{}))
+			createAccessTypeOpts.Scope = strings.Join(scopes, scopeSpilt)
+			createAccessTypeOpts.AuthorizationEndpoint = accessConfig["authorization_endpoint"].(string)
+			createAccessTypeOpts.ResponseType = accessConfig["response_type"].(string)
+			createAccessTypeOpts.ResponseMode = accessConfig["response_mode"].(string)
+		}
+		logp.Printf("[DEBUG] Create access type of provider: %#v", opts)
+
+		_, err = oidcconfig.Create(client, provider.ID, createAccessTypeOpts)
+		if err != nil {
+			return fmtp.DiagErrorf("Error creating the provider access config: %s", err)
 		}
 	}
 
@@ -246,162 +270,57 @@ func importMetadata(conf *config.Config, d *schema.ResourceData) error {
 	return nil
 }
 
-func getEnabledVal(d *schema.ResourceData) bool {
-	return d.Get("status").(string) == "enabled"
-}
-
-func getScopes(d *schema.ResourceData) string {
-	scopes := utils.ExpandToStringList(d.Get("scopes").([]interface{}))
-	str := strings.Join(scopes, scopeSpilt)
-	return str
-}
-
-func createAccessType(conf *config.Config, d *schema.ResourceData) error {
-	// access_type is not required, if access_type is empty do not set it.
-	if _, ok := d.GetOk("access_type"); !ok {
-		return nil
-	}
-
-	client, err := conf.IAMNoVersionClient(conf.GetRegion(d))
-	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud IAM client without version number: %s", err)
-	}
-
-	opts := oidcconfig.CreateOpts{
-		AccessMode:            d.Get("access_type").(string),
-		IdpURL:                d.Get("provider_url").(string),
-		ClientID:              d.Get("client_id").(string),
-		AuthorizationEndpoint: d.Get("authorization_endpoint").(string),
-		Scope:                 getScopes(d),
-		ResponseType:          d.Get("response_type").(string),
-		ResponseMode:          d.Get("response_mode").(string),
-		SigningKey:            d.Get("signing_key").(string),
-	}
-	logp.Printf("[DEBUG] Create access type of provider: %#v", opts)
+// createProtocol create protocol and default mapping
+func createProtocol(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	providerID := d.Get("name").(string)
-	_, err = oidcconfig.Create(client, providerID, opts)
+
+	// Create default mapping
+	defaultConversionRules := getDefaultConversionOpts()
+	conversionRuleID := "mapping_" + providerID
+	_, err := mappings.Create(client, conversionRuleID, *defaultConversionRules)
 	if err != nil {
-		return fmtp.Errorf("failed to create access type: %s", err)
-	}
-	return nil
-}
-
-func buildMappingRules(conversionRules []interface{}) mappings.MappingOption {
-	rules := make([]mappings.MappingRule, 0, len(conversionRules))
-
-	for _, cr := range conversionRules {
-		convRule := cr.(map[string]interface{})
-
-		// build local rules
-		local := convRule["local"].([]interface{})
-		localRules := make([]mappings.LocalRule, 0, len(local))
-		for _, v := range local {
-			lRule := v.(map[string]interface{})
-			r := mappings.LocalRule{
-				User: mappings.LocalRuleVal{
-					Name: lRule["username"].(string),
-				},
-			}
-			group, ok := lRule["group"]
-			if ok && len(group.(string)) > 0 {
-				r.Group = &mappings.LocalRuleVal{
-					Name: group.(string),
-				}
-			}
-			localRules = append(localRules, r)
-		}
-		// build remote rule
-		remote := convRule["remote"].([]interface{})
-		remoteRules := make([]mappings.RemoteRule, 0, len(remote))
-		for _, v := range remote {
-			rRule := v.(map[string]interface{})
-			r := mappings.RemoteRule{
-				Type: rRule["attribute"].(string),
-			}
-			if condition, ok := rRule["condition"]; ok {
-				values := utils.ExpandToStringList(rRule["value"].([]interface{}))
-				if condition.(string) == "any_one_of" {
-					r.AnyOneOf = values
-				} else if condition.(string) == "not_any_of" {
-					r.NotAnyOf = values
-				}
-			}
-			remoteRules = append(remoteRules, r)
-		}
-
-		rule := mappings.MappingRule{
-			Local:  localRules,
-			Remote: remoteRules,
-		}
-		rules = append(rules, rule)
-	}
-	opts := mappings.MappingOption{
-		Rules: rules,
-	}
-	return opts
-}
-
-// createMappingAndProtocol create mapping and protocol
-func createMappingAndProtocol(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	providerID := d.Get("name").(string)
-	mappingID := "mapping_" + providerID
-
-	conversionRules := d.Get("conversion_rules").([]interface{})
-	if len(conversionRules) == 0 {
-		return fmtp.Errorf("conversion_rules is required for identity provider")
+		return fmtp.Errorf("error in creating default conversion rule: %s", err)
 	}
 
-	// Check if the mappingID exists, update if it exists, otherwise create it.
-	r, err := mappings.List(client).AllPages()
-	if err != nil {
-		return fmtp.Errorf("error in querying mapping: %s", err)
-	}
-	mapArr, err := mappings.ExtractMappings(r)
-	mErr := multierror.Append(nil, err)
-	filterData, err := utils.FilterSliceWithField(mapArr, map[string]interface{}{
-		"ID": mappingID,
-	})
-	mErr = multierror.Append(mErr, err)
-	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.Errorf("error in querying mapping: %s", mErr)
-	}
-
-	mappingOpts := buildMappingRules(conversionRules)
-	// Create the mapping if it does not exist, otherwise update it.
-	if len(filterData) == 0 {
-		_, err = mappings.Create(client, mappingID, mappingOpts)
-	} else {
-		_, err = mappings.Update(client, mappingID, mappingOpts)
-	}
-	if err != nil {
-		return fmtp.Errorf("error in creating/updating mapping: %s", err)
-	}
-
+	// Create protocol
 	protocolName := d.Get("protocol").(string)
-	// Create protocol for the provider
-	_, err = protocols.Create(client, providerID, protocolName, mappingID)
+	_, err = protocols.Create(client, providerID, protocolName, conversionRuleID)
 	if err != nil {
 		// If fails to create protocols, then delete the mapping.
-		mErr = multierror.Append(
-			mErr,
+		mErr := multierror.Append(
+			nil,
 			err,
-			mappings.Delete(client, mappingID),
+			mappings.Delete(client, conversionRuleID),
 		)
-		logp.Printf("[ERROR] Failed to create protocol, so delete the mapping that has been created.\n%s", mErr)
-		return fmtp.Errorf("error in creating provider protocol: %s", mErr.Error())
+		logp.Printf("[ERROR] Error creating protocol, and the mapping that has been created. Error: %s", mErr)
+		return fmtp.Errorf("error creating identity provider protocol: %s", mErr.Error())
 	}
 	return nil
 }
 
-// generateLoginLink generate login link base on config.domainID.
-func generateLoginLink(host, domainID, id, protocol string) string {
-	// The domain name is the same as that of the console, it is converted according to the config.Cloud.
-	if host == "myhuaweicloud.com" {
-		host = "huaweicloud.com"
+func getDefaultConversionOpts() *mappings.MappingOption {
+	localRules := []mappings.LocalRule{
+		{
+			User: mappings.LocalRuleVal{
+				Name: "FederationUser",
+			},
+		},
 	}
-	url := fmt.Sprintf("https://auth.%s/authui/federation/websso?domain_id=%s&idp=%s&protocol=%s",
-		host, domainID, id, protocol)
-	return url
+	remoteRules := []mappings.RemoteRule{
+		{
+			Type: "__NAMEID__",
+		},
+	}
+
+	opts := mappings.MappingOption{
+		Rules: []mappings.MappingRule{
+			{
+				Local:  localRules,
+				Remote: remoteRules,
+			},
+		},
+	}
+	return &opts
 }
 
 func resourceIdentityProviderRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -413,117 +332,81 @@ func resourceIdentityProviderRead(_ context.Context, d *schema.ResourceData, met
 
 	provider, err := providers.Get(client, d.Id())
 	if err != nil {
-		logp.Printf("[ERROR] Error in obtaining identity provider: %s", err)
-		return diag.FromErr(err)
+		logp.Printf("[ERROR] Error obtaining identity provider: %s", err)
+		return common.CheckDeletedDiag(d, err, "error obtaining identity provider")
 	}
 
 	// Query the protocol name from HuaweiCloud.
 	protocol := queryProtocolName(client, d)
 	url := generateLoginLink(conf.Cloud, conf.DomainID, provider.ID, protocol)
 
-	status := "disabled"
-	if provider.Enabled {
-		status = "enabled"
-	}
 	mErr := multierror.Append(err,
 		d.Set("name", provider.ID),
 		d.Set("protocol", protocol),
 		d.Set("sso_type", provider.SsoType),
-		d.Set("status", status),
+		d.Set("status", provider.Enabled),
 		d.Set("login_link", url),
-		getAndSetConversionRulesAttrs(client, d),
 		d.Set("description", provider.Description),
-		getAndSetMetadataAttr(client, d),
-		getAndSetAccessTypeAttrs(client, d),
 	)
 
+	// Query and set conversion rules
+	conversionRuleID := "mapping_" + d.Id()
+	conversions, err := mappings.Get(client, conversionRuleID)
+	if err == nil {
+		conversionRules := buildConversionRulesAttr(conversions)
+		err = d.Set("conversion_rules", conversionRules)
+		mErr = multierror.Append(mErr, err)
+	}
+
+	// Query and set metadata of the protocol SAML provider
+	if protocol == protocolSAML {
+		r, err := metadatas.Get(client, d.Id(), protocolSAML)
+		if err == nil {
+			err = d.Set("metadata", r.Data)
+			mErr = multierror.Append(mErr, err)
+		}
+	}
+
+	// Query and set access type of the protocol OIDC provider
+	if protocol == protocolOIDC {
+		accessType, err := oidcconfig.Get(client, d.Id())
+		if err == nil {
+			scopes := strings.Split(accessType.Scope, scopeSpilt)
+			accessTypeConfig := []interface{}{
+				map[string]interface{}{
+					"access_type":            accessType.AccessMode,
+					"provider_url":           accessType.IdpURL,
+					"client_id":              accessType.ClientID,
+					"signing_key":            accessType.SigningKey,
+					"scopes":                 scopes,
+					"response_mode":          accessType.ResponseMode,
+					"authorization_endpoint": accessType.AuthorizationEndpoint,
+					"response_type":          accessType.ResponseType,
+				},
+			}
+
+			mErr = multierror.Append(
+				mErr,
+				d.Set("access_config", accessTypeConfig),
+			)
+		}
+	}
+
 	if err = mErr.ErrorOrNil(); err != nil {
-		logp.Printf("[ERROR] Error in setting identity provider attributes %s: %s", d.Id(), err)
-		return diag.FromErr(err)
+		logp.Printf("[ERROR] Error setting identity provider attributes %s: %s", d.Id(), err)
+		return fmtp.DiagErrorf("error setting identity provider attributes", err)
 	}
 	return nil
 }
 
-func getAndSetMetadataAttr(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	providerID := d.Get("name").(string)
-	r, err := metadatas.Get(client, providerID, protocolSAML)
-	if err != nil {
-		if errors.As(err, &golangsdk.ErrDefault404{}) {
-			return nil
-		}
-		return err
-	}
-
-	return d.Set("metadata", r.Data)
-}
-
-func getAndSetAccessTypeAttrs(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	var mErr *multierror.Error
-	// The access type only work on OIDC protocol.
-	if protocol, ok := d.GetOk("protocol"); ok && protocol == protocolSAML {
-		// Because response_mode and response_type has default values, so set default values for them.
-		mErr = multierror.Append(
-			d.Set("response_mode", "form_post"),
-			d.Set("response_type", "id_token"),
-		)
-		return mErr
-	}
-
-	providerID := d.Get("name").(string)
-	accType, err := oidcconfig.Get(client, providerID)
-	if err != nil {
-		if errors.As(err, &golangsdk.ErrDefault404{}) {
-			return nil
-		}
-		return err
-	}
-
-	scopes := strings.Split(accType.Scope, scopeSpilt)
-	mErr = multierror.Append(
-		d.Set("access_type", accType.AccessMode),
-		d.Set("provider_url", accType.IdpURL),
-		d.Set("client_id", accType.ClientID),
-		d.Set("signing_key", accType.SigningKey),
-		d.Set("scopes", scopes),
-		d.Set("response_mode", accType.ResponseMode),
-		d.Set("authorization_endpoint", accType.AuthorizationEndpoint),
-		d.Set("response_type", accType.ResponseType),
-	)
-
-	return mErr
-}
-
-func queryProtocolName(client *golangsdk.ServiceClient, d *schema.ResourceData) string {
-	arr, err := protocols.List(client, d.Id())
-	if err != nil {
-		return ""
-	}
-	// The SAML protocol provider may not have protocol data,
-	// so the default value is set to SAML.
-	protocolName := protocolSAML
-	if len(arr) > 0 {
-		protocolName = arr[0].ID
-	}
-	return protocolName
-}
-
-func getAndSetConversionRulesAttrs(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	mappingID := "mapping_" + d.Id()
-	mapping, err := mappings.Get(client, mappingID)
-	if err != nil {
-		if errors.As(err, &golangsdk.ErrDefault404{}) {
-			return fmtp.Errorf("The conversion rule is required, but not found, " +
-				"please go to the console to verify the data.")
-		}
-		return fmtp.Errorf("error in querying conversion rules: %s", err)
-	}
-
-	conversionRules := make([]interface{}, 0, len(mapping.Rules))
-	for _, v := range mapping.Rules {
+func buildConversionRulesAttr(conversions *mappings.IdentityMapping) []interface{} {
+	conversionRules := make([]interface{}, 0, len(conversions.Rules))
+	for _, v := range conversions.Rules {
 		localRules := make([]map[string]interface{}, 0, len(v.Local))
 		for _, localRule := range v.Local {
+			username := localRule.User.Name
 			r := map[string]interface{}{
-				"username": localRule.User.Name,
+				"username": username,
 			}
 			if localRule.Group != nil {
 				r["group"] = localRule.Group.Name
@@ -552,9 +435,32 @@ func getAndSetConversionRulesAttrs(client *golangsdk.ServiceClient, d *schema.Re
 		}
 		conversionRules = append(conversionRules, rule)
 	}
+	return conversionRules
+}
 
-	err = d.Set("conversion_rules", conversionRules)
-	return err
+// generateLoginLink generate login link base on config.domainID.
+func generateLoginLink(host, domainID, id, protocol string) string {
+	// The domain name is the same as that of the console, it is converted according to the config.Cloud.
+	if host == "myhuaweicloud.com" {
+		host = "huaweicloud.com"
+	}
+	url := fmt.Sprintf("https://auth.%s/authui/federation/websso?domain_id=%s&idp=%s&protocol=%s",
+		host, domainID, id, protocol)
+	return url
+}
+
+func queryProtocolName(client *golangsdk.ServiceClient, d *schema.ResourceData) string {
+	arr, err := protocols.List(client, d.Id())
+	if err != nil {
+		return ""
+	}
+	// The SAML protocol provider may not have protocol data,
+	// so the default value is set to SAML.
+	protocolName := protocolSAML
+	if len(arr) > 0 {
+		protocolName = arr[0].ID
+	}
+	return protocolName
 }
 
 func resourceIdentityProviderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -566,7 +472,7 @@ func resourceIdentityProviderUpdate(ctx context.Context, d *schema.ResourceData,
 
 	mErr := &multierror.Error{}
 	if d.HasChanges("status", "description") {
-		status := getEnabledVal(d)
+		status := d.Get("status").(bool)
 		description := d.Get("description").(string)
 		opts := providers.UpdateOpts{
 			Enabled:     &status,
@@ -588,23 +494,10 @@ func resourceIdentityProviderUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	if d.HasChange("conversion_rules") {
-		conversionRules := d.Get("conversion_rules").([]interface{})
-		mappingOpts := buildMappingRules(conversionRules)
-		mappingID := "mapping_" + d.Id()
-		_, err = mappings.Update(client, mappingID, mappingOpts)
+	if d.HasChange("access_config") && d.Get("protocol") == protocolOIDC {
+		err = updateAccessConfig(client, d)
 		if err != nil {
-			e := fmtp.Errorf("Failed to update the mapping of provider: %s", err)
-			mErr = multierror.Append(mErr, e)
-		}
-	}
-
-	if d.Get("protocol").(string) == protocolOIDC && d.HasChanges("access_type", "provider_url", "client_id",
-		"authorization_endpoint", "scopes", "response_type", "response_mode", "signing_key") {
-		err = updateAccessType(client, d)
-		if err != nil {
-			e := fmtp.Errorf("Error in updating the access type of provider: %s", err)
-			mErr = multierror.Append(mErr, e)
+			mErr = multierror.Append(mErr, err)
 		}
 	}
 
@@ -615,24 +508,32 @@ func resourceIdentityProviderUpdate(ctx context.Context, d *schema.ResourceData,
 	return resourceIdentityProviderRead(ctx, d, meta)
 }
 
-func updateAccessType(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func updateAccessConfig(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	accessConfigArr := d.Get("access_config").([]interface{})
+	if len(accessConfigArr) == 0 {
+		return fmtp.Errorf("the access_config is required for the OIDC provider.")
+	}
+	accessConfig := accessConfigArr[0].(map[string]interface{})
+
+	accessType := accessConfig["access_type"].(string)
 	opts := oidcconfig.UpdateOpenIDConnectConfigOpts{
-		AccessMode:            d.Get("access_type").(string),
-		IdpURL:                d.Get("provider_url").(string),
-		ClientID:              d.Get("client_id").(string),
-		AuthorizationEndpoint: d.Get("authorization_endpoint").(string),
-		Scope:                 getScopes(d),
-		ResponseType:          d.Get("response_type").(string),
-		ResponseMode:          d.Get("response_mode").(string),
-		SigningKey:            d.Get("signing_key").(string),
+		AccessMode: accessType,
+		IdpURL:     accessConfig["provider_url"].(string),
+		ClientID:   accessConfig["client_id"].(string),
+		SigningKey: accessConfig["signing_key"].(string),
+	}
+
+	if accessType == "program_console" {
+		scopes := utils.ExpandToStringList(accessConfig["scopes"].([]interface{}))
+		opts.Scope = strings.Join(scopes, scopeSpilt)
+		opts.AuthorizationEndpoint = accessConfig["authorization_endpoint"].(string)
+		opts.ResponseType = accessConfig["response_type"].(string)
+		opts.ResponseMode = accessConfig["response_mode"].(string)
 	}
 	logp.Printf("[DEBUG] Update access type of provider: %#v", opts)
-	providerID := d.Get("name").(string)
+	providerID := d.Id()
 	_, err := oidcconfig.Update(client, providerID, opts)
-	if err != nil {
-		return fmtp.Errorf("failed to update access type: %s", err)
-	}
-	return nil
+	return err
 }
 
 func resourceIdentityProviderDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
