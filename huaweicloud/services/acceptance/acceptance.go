@@ -1,6 +1,7 @@
 package acceptance
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
@@ -258,7 +259,12 @@ func (rc *resourceCheck) CheckResourceExists() resource.TestCheckFunc {
 					rc.resourceName, rs.Primary.ID, err)
 			}
 			if rc.resourceObject != nil {
-				rc.resourceObject = r
+				b, err := json.Marshal(r)
+				if err != nil {
+					return fmtp.Errorf("marshaling resource %s %s error: %s ",
+						rc.resourceName, rs.Primary.ID, err)
+				}
+				json.Unmarshal(b, rc.resourceObject)
 			} else {
 				logp.Printf("[WARN] The 'resourceObject' is nil, please set it during initialization.")
 			}
