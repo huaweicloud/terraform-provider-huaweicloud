@@ -1,10 +1,14 @@
-package huaweicloud
+package dds
 
 import (
+	"context"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 
 	"github.com/chnsz/golangsdk/openstack/dds/v3/flavors"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -12,7 +16,7 @@ import (
 
 func DataSourceDDSFlavorV3() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceDDSFlavorV3Read,
+		ReadContext: dataSourceDDSFlavorV3Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -70,26 +74,26 @@ func DataSourceDDSFlavorV3() *schema.Resource {
 	}
 }
 
-func dataSourceDDSFlavorV3Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceDDSFlavorV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	ddsClient, err := config.DdsV3Client(GetRegion(d, config))
+	ddsClient, err := config.DdsV3Client(config.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud DDS client: %s", err)
+		return fmtp.DiagErrorf("Error creating HuaweiCloud DDS client: %s", err)
 	}
 
 	listOpts := flavors.ListOpts{
-		Region:     GetRegion(d, config),
+		Region:     config.GetRegion(d),
 		EngineName: d.Get("engine_name").(string),
 	}
 
 	pages, err := flavors.List(ddsClient, listOpts).AllPages()
 	if err != nil {
-		return fmtp.Errorf("Unable to retrieve flavors: %s", err)
+		return fmtp.DiagErrorf("Unable to retrieve flavors: %s", err)
 	}
 
 	allFlavors, err := flavors.ExtractFlavors(pages)
 	if err != nil {
-		return fmtp.Errorf("Unable to extract flavors: %s", err)
+		return fmtp.DiagErrorf("Unable to extract flavors: %s", err)
 	}
 
 	flavorList := make([]map[string]interface{}, 0)
@@ -113,13 +117,19 @@ func dataSourceDDSFlavorV3Read(d *schema.ResourceData, meta interface{}) error {
 
 	logp.Printf("Extract %d/%d flavors by filters.", len(flavorList), len(allFlavors))
 	if len(flavorList) < 1 {
-		return fmtp.Errorf("Your query returned no results. " +
+		return fmtp.DiagErrorf("Your query returned no results. " +
 			"Please change your search criteria and try again.")
 	}
 
 	d.SetId("dds flavors")
-	d.Set("flavors", flavorList)
-	d.Set("region", GetRegion(d, config))
+	mErr := multierror.Append(
+		d.Set("region", config.GetRegion(d)),
+		d.Set("flavors", flavorList),
+	)
+
+	if err := mErr.ErrorOrNil(); err != nil {
+		return fmtp.DiagErrorf("Error setting dds instance fields: %s", err)
+	}
 
 	return nil
 }

@@ -1,4 +1,4 @@
-package huaweicloud
+package dds
 
 import (
 	"context"
@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -184,7 +185,7 @@ func ResourceDdsInstanceV3() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"tags": tagsSchema(),
+			"tags": common.TagsSchema(),
 			"db_username": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -316,7 +317,7 @@ func DdsInstanceStateRefreshFunc(client *golangsdk.ServiceClient, instanceID str
 
 func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.DdsV3Client(GetRegion(d, config))
+	client, err := config.DdsV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud DDS client: %s ", err)
 	}
@@ -324,7 +325,7 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 	createOpts := instances.CreateOpts{
 		Name:                d.Get("name").(string),
 		DataStore:           resourceDdsDataStore(d),
-		Region:              GetRegion(d, config),
+		Region:              config.GetRegion(d),
 		AvailabilityZone:    d.Get("availability_zone").(string),
 		VpcId:               d.Get("vpc_id").(string),
 		SubnetId:            d.Get("subnet_id").(string),
@@ -333,7 +334,7 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		Mode:                d.Get("mode").(string),
 		Flavor:              resourceDdsFlavors(d),
 		BackupStrategy:      resourceDdsBackupStrategy(d),
-		EnterpriseProjectID: GetEnterpriseProjectID(d, config),
+		EnterpriseProjectID: config.GetEnterpriseProjectID(d),
 	}
 	if d.Get("ssl").(bool) {
 		createOpts.Ssl = "1"
@@ -381,7 +382,7 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 
 func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.DdsV3Client(GetRegion(d, config))
+	client, err := config.DdsV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud DDS client: %s", err)
 	}
@@ -468,7 +469,7 @@ func resourceDdsInstanceV3Read(_ context.Context, d *schema.ResourceData, meta i
 
 func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.DdsV3Client(GetRegion(d, config))
+	client, err := config.DdsV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud DDS client: %s ", err)
 	}
@@ -590,7 +591,7 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 
 func resourceDdsInstanceV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	client, err := config.DdsV3Client(GetRegion(d, config))
+	client, err := config.DdsV3Client(config.GetRegion(d))
 	if err != nil {
 		return fmtp.DiagErrorf("Error creating HuaweiCloud DDS client: %s ", err)
 	}
