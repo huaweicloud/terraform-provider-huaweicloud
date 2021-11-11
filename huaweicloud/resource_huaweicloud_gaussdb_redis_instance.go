@@ -617,14 +617,14 @@ func resourceGaussRedisInstanceV3Update(d *schema.ResourceData, meta interface{}
 			if err != nil {
 				return err
 			}
-			volume_size := 0
+			volumeSize := 0
 			for _, group := range instance.Groups {
 				if volSize, err := strconv.Atoi(group.Volume.Size); err == nil {
-					volume_size = volSize
+					volumeSize = volSize
 					break
 				}
 			}
-			if volume_size != d.Get("volume_size").(int) {
+			if volumeSize != d.Get("volume_size").(int) {
 				return fmtp.Errorf("Error extending volume for instance %s: order failed", d.Id())
 			}
 		}
@@ -634,9 +634,9 @@ func resourceGaussRedisInstanceV3Update(d *schema.ResourceData, meta interface{}
 		old, newnum := d.GetChange("node_num")
 		if newnum.(int) > old.(int) {
 			//Enlarge Nodes
-			expand_size := newnum.(int) - old.(int)
+			expandSize := newnum.(int) - old.(int)
 			enlargeNodeOpts := instances.EnlargeNodeOpts{
-				Num: expand_size,
+				Num: expandSize,
 			}
 			if d.Get("charging_mode") == "prePaid" {
 				enlargeNodeOpts.IsAutoPay = "true"
@@ -687,13 +687,13 @@ func resourceGaussRedisInstanceV3Update(d *schema.ResourceData, meta interface{}
 		}
 		if newnum.(int) < old.(int) {
 			//Reduce Nodes
-			shrink_size := old.(int) - newnum.(int)
+			shrinkSize := old.(int) - newnum.(int)
 			reduceNodeOpts := instances.ReduceNodeOpts{
 				Num: 1,
 			}
 			logp.Printf("[DEBUG] Reduce Node Options: %+v", reduceNodeOpts)
 
-			for i := 0; i < shrink_size; i++ {
+			for i := 0; i < shrinkSize; i++ {
 				result := instances.ReduceNode(client, d.Id(), reduceNodeOpts)
 				if result.Err != nil {
 					return fmtp.Errorf("Error shrinking huaweicloud_gaussdb_redis_instance %s node size: %s", d.Id(), result.Err)

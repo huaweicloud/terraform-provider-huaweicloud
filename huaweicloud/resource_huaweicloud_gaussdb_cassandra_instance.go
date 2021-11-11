@@ -691,14 +691,14 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			if err != nil {
 				return err
 			}
-			volume_size := 0
+			volumeSize := 0
 			for _, group := range instance.Groups {
 				if volSize, err := strconv.Atoi(group.Volume.Size); err == nil {
-					volume_size = volSize
+					volumeSize = volSize
 					break
 				}
 			}
-			if volume_size != d.Get("volume_size").(int) {
+			if volumeSize != d.Get("volume_size").(int) {
 				return fmtp.Errorf("Error extending volume for instance %s: order failed", d.Id())
 			}
 		}
@@ -708,9 +708,9 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		old, newnum := d.GetChange("node_num")
 		if newnum.(int) > old.(int) {
 			//Enlarge Nodes
-			expand_size := newnum.(int) - old.(int)
+			expandSize := newnum.(int) - old.(int)
 			enlargeNodeOpts := instances.EnlargeNodeOpts{
-				Num: expand_size,
+				Num: expandSize,
 			}
 			if d.Get("charging_mode") == "prePaid" {
 				enlargeNodeOpts.IsAutoPay = "true"
@@ -928,8 +928,8 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		var updateOpts backups.UpdateOpts
 		backupRaw := d.Get("backup_strategy").([]interface{})
 		rawMap := backupRaw[0].(map[string]interface{})
-		keep_days := rawMap["keep_days"].(int)
-		updateOpts.KeepDays = &keep_days
+		keepDays := rawMap["keep_days"].(int)
+		updateOpts.KeepDays = &keepDays
 		updateOpts.StartTime = rawMap["start_time"].(string)
 		// Fixed to "1,2,3,4,5,6,7"
 		updateOpts.Period = "1,2,3,4,5,6,7"
