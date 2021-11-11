@@ -34,10 +34,6 @@ func ResourceVpcPeeringConnectionAccepterV2() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"vpc_peering_connection_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -46,6 +42,11 @@ func ResourceVpcPeeringConnectionAccepterV2() *schema.Resource {
 			"accept": {
 				Type:     schema.TypeBool,
 				Optional: true,
+			},
+
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeString,

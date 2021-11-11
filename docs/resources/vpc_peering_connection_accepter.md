@@ -7,10 +7,11 @@ subcategory: "Virtual Private Cloud (VPC)"
 Provides a resource to manage the accepter's side of a VPC Peering Connection. This is an alternative
 to `huaweicloud_vpc_peering_connection_accepter_v2`
 
-When a cross-tenant (requester's tenant differs from the accepter's tenant) VPC Peering Connection is created, a VPC
-Peering Connection resource is automatically created in the accepter's account. The requester can use
-the `huaweicloud_vpc_peering_connection` resource to manage its side of the connection and the accepter can use
-the `huaweicloud_vpc_peering_connection_accepter` resource to "adopt" its side of the connection into management.
+-> **NOTE:** When a cross-tenant (requester's tenant differs from the accepter's tenant) VPC Peering Connection
+  is created, a VPC Peering Connection resource is automatically created in the accepter's account.
+  The requester can use the `huaweicloud_vpc_peering_connection` resource to manage its side of the connection and
+  the accepter can use the `huaweicloud_vpc_peering_connection_accepter` resource to accept its side of the connection
+  into management.
 
 ## Example Usage
 
@@ -67,11 +68,11 @@ The following arguments are supported:
 
 ## Removing huaweicloud_vpc_peering_connection_accepter from your configuration
 
-huaweicloud allows a cross-tenant VPC Peering Connection to be deleted from either the requester's or accepter's side.
+HuaweiCloud allows a cross-tenant VPC Peering Connection to be deleted from either the requester's or accepter's side.
 However, Terraform only allows the VPC Peering Connection to be deleted from the requester's side by removing the
-corresponding `huaweicloud_vpc_peering_connection` resource from your configuration. Removing
-a `huaweicloud_vpc_peering_connection_accepter` resource from your configuration will remove it from your state file and
-management, but will not destroy the VPC Peering Connection.
+corresponding `huaweicloud_vpc_peering_connection` resource from your configuration.
+Removing a `huaweicloud_vpc_peering_connection_accepter` resource from your configuration will remove it from your
+state file and management, but will not destroy the VPC Peering Connection.
 
 ## Attributes Reference
 
