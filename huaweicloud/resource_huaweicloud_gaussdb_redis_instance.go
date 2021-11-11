@@ -678,9 +678,7 @@ func resourceGaussRedisInstanceV3Update(d *schema.ResourceData, meta interface{}
 				}
 				nodeNum := 0
 				for _, group := range instance.Groups {
-					for _, _ = range group.Nodes {
-						nodeNum += 1
-					}
+					nodeNum += len(group.Nodes)
 				}
 				if nodeNum != newnum.(int) {
 					return fmtp.Errorf("Error enlarging node for instance %s: order failed", d.Id())
