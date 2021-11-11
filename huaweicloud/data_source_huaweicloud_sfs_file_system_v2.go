@@ -23,6 +23,15 @@ func DataSourceSFSFileSystemV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -31,23 +40,7 @@ func DataSourceSFSFileSystemV2() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"share_type": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"project_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"host": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -55,19 +48,7 @@ func DataSourceSFSFileSystemV2() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"share_proto": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"volume_type": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"export_location": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -76,13 +57,7 @@ func DataSourceSFSFileSystemV2() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"export_locations": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-			},
-			"access_level": {
+			"export_location": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -90,7 +65,7 @@ func DataSourceSFSFileSystemV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"share_access_id": {
+			"access_level": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -103,6 +78,10 @@ func DataSourceSFSFileSystemV2() *schema.Resource {
 				Computed: true,
 			},
 			"mount_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"share_access_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -153,18 +132,12 @@ func dataSourceSFSFileSystemV2Read(d *schema.ResourceData, meta interface{}) err
 
 	d.Set("availability_zone", share.AvailabilityZone)
 	d.Set("description", share.Description)
-	d.Set("host", share.Host)
-	d.Set("id", share.ID)
 	d.Set("is_public", share.IsPublic)
 	d.Set("name", share.Name)
-	d.Set("project_id", share.ProjectID)
 	d.Set("share_proto", share.ShareProto)
-	d.Set("share_type", share.ShareType)
 	d.Set("size", share.Size)
 	d.Set("status", share.Status)
-	d.Set("volume_type", share.VolumeType)
 	d.Set("export_location", share.ExportLocation)
-	d.Set("export_locations", share.ExportLocations)
 	d.Set("metadata", share.Metadata)
 	d.Set("region", GetRegion(d, config))
 

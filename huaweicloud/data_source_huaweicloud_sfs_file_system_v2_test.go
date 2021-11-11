@@ -13,6 +13,8 @@ import (
 
 func TestAccSFSFileSystemV2DataSource_basic(t *testing.T) {
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "data.huaweicloud_sfs_file_system.share_1"
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -20,10 +22,10 @@ func TestAccSFSFileSystemV2DataSource_basic(t *testing.T) {
 			{
 				Config: testAccSFSFileSystemV2DataSource_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSFSFileSystemV2DataSourceID("data.huaweicloud_sfs_file_system_v2.shares"),
-					resource.TestCheckResourceAttr("data.huaweicloud_sfs_file_system_v2.shares", "name", rName),
-					resource.TestCheckResourceAttr("data.huaweicloud_sfs_file_system_v2.shares", "status", "available"),
-					resource.TestCheckResourceAttr("data.huaweicloud_sfs_file_system_v2.shares", "size", "1"),
+					testAccCheckSFSFileSystemV2DataSourceID(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "available"),
+					resource.TestCheckResourceAttr(resourceName, "size", "10"),
 				),
 			},
 		},
@@ -49,23 +51,22 @@ func testAccSFSFileSystemV2DataSource_basic(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc" "vpc_default" {
   name = "vpc-default"
-  enterprise_project_id = "0"
 }
 
 data "huaweicloud_availability_zones" "myaz" {}
 
-resource "huaweicloud_sfs_file_system_v2" "sfs_1" {
-	share_proto = "NFS"
-	size=1
-	name="%s"
-	availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
-	access_to = data.huaweicloud_vpc.vpc_default.id
-  	access_type="cert"
-  	access_level="rw"
-	description="sfs_c2c_test-file"
+resource "huaweicloud_sfs_file_system" "sfs_1" {
+  share_proto  = "NFS"
+  size         = 10
+  name         = "%s"
+  description  = "sfs_c2c_test-file"
+  access_to    = data.huaweicloud_vpc.vpc_default.id
+  access_level = "rw"
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
 }
-data "huaweicloud_sfs_file_system_v2" "shares" {
-  id = huaweicloud_sfs_file_system_v2.sfs_1.id
+
+data "huaweicloud_sfs_file_system" "share_1" {
+  id = huaweicloud_sfs_file_system.sfs_1.id
 }
 `, rName)
 }
