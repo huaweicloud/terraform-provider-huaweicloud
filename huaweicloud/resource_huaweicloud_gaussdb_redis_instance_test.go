@@ -17,8 +17,8 @@ func TestAccGaussRedisInstance_basic(t *testing.T) {
 	var instance instances.GeminiDBInstance
 
 	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	password := fmt.Sprintf("%s@123", acctest.RandString(5))
-	newPassword := fmt.Sprintf("%sUpdate@123", acctest.RandString(5))
+	password := fmt.Sprintf("Acc%s@123", acctest.RandString(5))
+	newPassword := fmt.Sprintf("Acc%sUpdate@123", acctest.RandString(5))
 	resourceName := "huaweicloud_gaussdb_redis_instance.test"
 
 	resource.ParallelTest(t, resource.TestCase{
