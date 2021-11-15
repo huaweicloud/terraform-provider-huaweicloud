@@ -132,6 +132,8 @@ In addition to all arguments above, the following attributes are exported:
 * `mode` - Indicates the instance mode.
 * `db_user_name` - Indicates the default username.
 * `private_write_ip` - Indicates the private IP address of the DB instance.
+* `configuration_name` - Indicates the configuration name.
+* `dedicated_resource_name` - Indicates the dedicated resource name.
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
 * `proxy_address` - Indicates the address of the proxy.
 * `proxy_port` - Indicates the port of the proxy.
