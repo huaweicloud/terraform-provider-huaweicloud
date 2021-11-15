@@ -644,7 +644,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		if len(configParams) != len(instanceConfigParams) {
 			return fmtp.Errorf("Error updating configuration for instance: %s", d.Id())
 		}
-		for i, _ := range configParams {
+		for i := range configParams {
 			if !configParams[i].ReadOnly && configParams[i] != instanceConfigParams[i] {
 				return fmtp.Errorf("Error updating configuration for instance: %s", d.Id())
 			}
@@ -691,14 +691,14 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 			if err != nil {
 				return err
 			}
-			volume_size := 0
+			volumeSize := 0
 			for _, group := range instance.Groups {
 				if volSize, err := strconv.Atoi(group.Volume.Size); err == nil {
-					volume_size = volSize
+					volumeSize = volSize
 					break
 				}
 			}
-			if volume_size != d.Get("volume_size").(int) {
+			if volumeSize != d.Get("volume_size").(int) {
 				return fmtp.Errorf("Error extending volume for instance %s: order failed", d.Id())
 			}
 		}
@@ -708,9 +708,9 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		old, newnum := d.GetChange("node_num")
 		if newnum.(int) > old.(int) {
 			//Enlarge Nodes
-			expand_size := newnum.(int) - old.(int)
+			expandSize := newnum.(int) - old.(int)
 			enlargeNodeOpts := instances.EnlargeNodeOpts{
-				Num: expand_size,
+				Num: expandSize,
 			}
 			if d.Get("charging_mode") == "prePaid" {
 				enlargeNodeOpts.IsAutoPay = "true"
@@ -752,9 +752,7 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 				}
 				nodeNum := 0
 				for _, group := range instance.Groups {
-					for _, _ = range group.Nodes {
-						nodeNum += 1
-					}
+					nodeNum += len(group.Nodes)
 				}
 				if nodeNum != newnum.(int) {
 					return fmtp.Errorf("Error enlarging node for instance %s: order failed", d.Id())
@@ -763,13 +761,13 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		}
 		if newnum.(int) < old.(int) {
 			//Reduce Nodes
-			shrink_size := old.(int) - newnum.(int)
+			shrinkSize := old.(int) - newnum.(int)
 			reduceNodeOpts := instances.ReduceNodeOpts{
 				Num: 1,
 			}
 			logp.Printf("[DEBUG] Reduce Node Options: %+v", reduceNodeOpts)
 
-			for i := 0; i < shrink_size; i++ {
+			for i := 0; i < shrinkSize; i++ {
 				result := instances.ReduceNode(client, d.Id(), reduceNodeOpts)
 				if result.Err != nil {
 					return fmtp.Errorf("Error shrinking huaweicloud_gaussdb_cassandra_instance %s node size: %s", d.Id(), result.Err)
@@ -930,8 +928,8 @@ func resourceGeminiDBInstanceV3Update(d *schema.ResourceData, meta interface{}) 
 		var updateOpts backups.UpdateOpts
 		backupRaw := d.Get("backup_strategy").([]interface{})
 		rawMap := backupRaw[0].(map[string]interface{})
-		keep_days := rawMap["keep_days"].(int)
-		updateOpts.KeepDays = &keep_days
+		keepDays := rawMap["keep_days"].(int)
+		updateOpts.KeepDays = &keepDays
 		updateOpts.StartTime = rawMap["start_time"].(string)
 		// Fixed to "1,2,3,4,5,6,7"
 		updateOpts.Period = "1,2,3,4,5,6,7"
