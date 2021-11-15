@@ -127,10 +127,10 @@ type ListOpts struct {
 	CloudType           string `q:"cloud_type"`
 	EnterpriseProjectID string `q:"enterprise_project_id"`
 	ID                  string `q:"id"`
-	Limit               string `q:"limit"`
+	Limit               int    `q:"limit"`
 	Name                string `q:"name"`
 	ObjectType          string `q:"object_type"`
-	Offset              string `q:"offset"`
+	Offset              int    `q:"offset"`
 	PolicyID            string `q:"policy_id"`
 	ProtectType         string `q:"protect_type"`
 	ResourceIDs         string `q:"resource_ids"`
