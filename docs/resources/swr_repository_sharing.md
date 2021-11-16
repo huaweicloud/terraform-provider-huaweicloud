@@ -63,3 +63,12 @@ This resource provides the following timeouts configuration options:
 * `create` - Default is 2 minute.
 * `update` - Default is 2 minute.
 * `delete` - Default is 2 minute.
+
+## Import
+
+Repository sharing can be imported using the organization name, repository name and sharing account
+separated by a slash, e.g.:
+
+```
+$ terraform import huaweicloud_swr_repository_sharing.test org-name/repo-name/sharing-account
+```
