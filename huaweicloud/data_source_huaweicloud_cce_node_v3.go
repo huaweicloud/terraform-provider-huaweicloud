@@ -169,21 +169,6 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 
 	Node := refinedNodes[0]
 
-	var v []map[string]interface{}
-	for _, volume := range Node.Spec.DataVolumes {
-
-		mapping := map[string]interface{}{
-			"disk_size":   volume.Size,
-			"volume_type": volume.VolumeType,
-		}
-		v = append(v, mapping)
-	}
-
-	pids := Node.Spec.PublicIP.Ids
-	PublicIDs := make([]string, len(pids))
-	for i, val := range pids {
-		PublicIDs[i] = val
-	}
 	logp.Printf("[DEBUG] Retrieved Nodes using given filter %s: %+v", Node.Metadata.Id, Node)
 	d.SetId(Node.Metadata.Id)
 	d.Set("node_id", Node.Metadata.Id)
