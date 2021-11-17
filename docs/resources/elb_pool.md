@@ -32,11 +32,13 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Human-readable description for the pool.
 
-* `protocol` - (Required, String, ForceNew) The protocol - can either be TCP, UDP or HTTP.
+* `protocol` - (Required, String, ForceNew) The protocol - can either be TCP, UDP, HTTP, HTTPS or QUIC.
 
-  + When the protocol used by the listener is UDP, the protocol of the backend pool must be UDP.
+  + When the protocol used by the listener is UDP, the protocol of the backend pool must be UDP or QUIC.
   + When the protocol used by the listener is TCP, the protocol of the backend pool must be TCP.
-  + When the protocol used by the listener is HTTP or TERMINATED_HTTPS, the protocol of the backend pool must be HTTP.
+  + When the protocol used by the listener is HTTP, the protocol of the backend pool must be HTTP.
+  + When the protocol used by the listener is HTTPS, the protocol of the backend pool must be HTTPS.
+  + When the protocol used by the listener is TERMINATED_HTTPS, the protocol of the backend pool must be HTTP.
 
       Changing this creates a new pool.
 
