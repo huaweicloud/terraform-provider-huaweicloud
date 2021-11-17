@@ -7,15 +7,20 @@
             "attributes": {
               "access_level": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true,
+                "default": "rw"
               },
               "access_to": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "access_type": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true,
+                "default": "cert"
               },
               "id": {
                 "type": "string",
@@ -27,7 +32,8 @@
               },
               "sfs_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "status": {
                 "type": "string",

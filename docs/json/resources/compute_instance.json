@@ -20,20 +20,24 @@
               },
               "agency_name": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "auto_renew": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "availability_zone": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "charging_mode": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "delete_disks_on_termination": {
                 "type": "bool",
@@ -42,7 +46,8 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "flavor_id": {
                 "type": "string",
@@ -61,16 +66,19 @@
               "image_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "image_name": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "key_pair": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "name": {
                 "type": "string",
@@ -78,15 +86,18 @@
               },
               "period": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "period_unit": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "power_action": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "public_ip": {
                 "type": "string",
@@ -104,13 +115,22 @@
                 "optional": true,
                 "computed": true
               },
+              "security_groups": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "schema: Computed",
+                "computed": true
+              },
               "status": {
                 "type": "string",
                 "computed": true
               },
               "stop_before_destroy": {
                 "type": "bool",
-                "optional": true
+                "optional": true,
+                "default": false
               },
               "system_disk_id": {
                 "type": "string",
@@ -124,7 +144,8 @@
               "system_disk_type": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "tags": {
                 "type": [
@@ -135,11 +156,13 @@
               },
               "user_data": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "user_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "volume_attached": {
                 "type": [
@@ -160,42 +183,48 @@
             },
             "block_types": {
               "data_disks": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "size": {
                       "type": "number",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     },
                     "snapshot_id": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "forcenew": true
                     },
                     "type": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     }
                   }
                 },
+                "nesting_mode": "list",
+                "forcenew": true,
                 "max_items": 23
               },
               "network": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "access_network": {
                       "type": "bool",
-                      "optional": true
+                      "optional": true,
+                      "default": false
                     },
                     "fixed_ip_v4": {
                       "type": "string",
                       "optional": true,
-                      "computed": true
+                      "computed": true,
+                      "forcenew": true
                     },
                     "fixed_ip_v6": {
                       "type": "string",
                       "optional": true,
-                      "computed": true
+                      "computed": true,
+                      "forcenew": true
                     },
                     "mac": {
                       "type": "string",
@@ -203,41 +232,49 @@
                     },
                     "port": {
                       "type": "string",
-                      "optional": true,
+                      "description": "schema: Computed",
                       "computed": true
                     },
                     "uuid": {
                       "type": "string",
-                      "required": true
+                      "description": "schema: Required",
+                      "required": true,
+                      "forcenew": true
                     }
                   }
                 },
+                "nesting_mode": "list",
+                "forcenew": true,
                 "min_items": 1,
                 "max_items": 12
               },
               "scheduler_hints": {
-                "nesting_mode": "set",
                 "block": {
                   "attributes": {
                     "deh_id": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "forcenew": true
                     },
                     "fault_domain": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "forcenew": true
                     },
                     "group": {
                       "type": "string",
                       "optional": true,
-                      "computed": true
+                      "computed": true,
+                      "forcenew": true
                     },
                     "tenancy": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "forcenew": true
                     }
                   }
-                }
+                },
+                "nesting_mode": "set"
               }
             }
           },

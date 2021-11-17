@@ -50,7 +50,8 @@
               },
               "server_type": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "service_name": {
                 "type": "string",
@@ -58,7 +59,8 @@
               },
               "service_type": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "default": "interface"
               },
               "status": {
                 "type": "string",
@@ -73,17 +75,18 @@
               },
               "vpc_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               }
             },
             "block_types": {
               "port_mapping": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "protocol": {
                       "type": "string",
-                      "optional": true
+                      "optional": true,
+                      "default": "TCP"
                     },
                     "service_port": {
                       "type": "number",
@@ -95,6 +98,7 @@
                     }
                   }
                 },
+                "nesting_mode": "list",
                 "min_items": 1
               }
             }

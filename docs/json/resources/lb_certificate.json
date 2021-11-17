@@ -39,7 +39,9 @@
               },
               "type": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true,
+                "default": "server"
               },
               "update_time": {
                 "type": "string",

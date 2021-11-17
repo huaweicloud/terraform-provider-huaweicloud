@@ -10,59 +10,72 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "auto_renew": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "availability_zone": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "bandwidth_charge_mode": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "bandwidth_size": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "charging_mode": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "cluster_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "ecs_group_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "ecs_performance_type": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "eip_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "extend_param": {
                 "type": [
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "fixed_ip": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "flavor_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -70,22 +83,30 @@
               },
               "iptype": {
                 "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "keep_ecs": {
+                "type": "bool",
                 "optional": true
               },
               "key_pair": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "labels": {
                 "type": [
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "max_pods": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "name": {
                 "type": "string",
@@ -95,28 +116,34 @@
               "os": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "password": {
                 "type": "string",
                 "optional": true,
+                "forcenew": true,
                 "sensitive": true
               },
               "period": {
                 "type": "number",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "period_unit": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "postinstall": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "preinstall": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "private_ip": {
                 "type": "string",
@@ -124,7 +151,8 @@
               },
               "product_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "public_ip": {
                 "type": "string",
@@ -132,7 +160,8 @@
               },
               "public_key": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "region": {
                 "type": "string",
@@ -141,7 +170,8 @@
               "runtime": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "server_id": {
                 "type": "string",
@@ -149,7 +179,8 @@
               },
               "sharetype": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "status": {
                 "type": "string",
@@ -158,7 +189,8 @@
               "subnet_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "tags": {
                 "type": [
@@ -170,7 +202,6 @@
             },
             "block_types": {
               "data_volumes": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "extend_params": {
@@ -179,26 +210,36 @@
                         "string"
                       ],
                       "optional": true,
-                      "computed": true
+                      "computed": true,
+                      "forcenew": true
                     },
                     "hw_passthrough": {
                       "type": "bool",
-                      "optional": true
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "kms_key_id": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
                     },
                     "size": {
                       "type": "number",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     },
                     "volumetype": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     }
                   }
                 },
+                "nesting_mode": "list",
+                "forcenew": true,
                 "min_items": 1
               },
               "root_volume": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "extend_params": {
@@ -207,43 +248,53 @@
                         "string"
                       ],
                       "optional": true,
-                      "computed": true
+                      "computed": true,
+                      "forcenew": true
                     },
                     "hw_passthrough": {
                       "type": "bool",
-                      "optional": true
+                      "optional": true,
+                      "forcenew": true
                     },
                     "size": {
                       "type": "number",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     },
                     "volumetype": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     }
                   }
                 },
+                "nesting_mode": "list",
+                "forcenew": true,
                 "min_items": 1,
                 "max_items": 1
               },
               "taints": {
-                "nesting_mode": "list",
                 "block": {
                   "attributes": {
                     "effect": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     },
                     "key": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     },
                     "value": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     }
                   }
-                }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
               }
             }
           },

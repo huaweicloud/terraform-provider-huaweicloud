@@ -12,11 +12,13 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "flavor": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -25,7 +27,8 @@
               "loadbalancer_provider": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "name": {
                 "type": "string",
@@ -53,7 +56,8 @@
               "vip_address": {
                 "type": "string",
                 "optional": true,
-                "computed": true
+                "computed": true,
+                "forcenew": true
               },
               "vip_port_id": {
                 "type": "string",
@@ -61,7 +65,8 @@
               },
               "vip_subnet_id": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               }
             }
           },

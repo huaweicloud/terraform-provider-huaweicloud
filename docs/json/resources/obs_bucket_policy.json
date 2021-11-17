@@ -7,7 +7,8 @@
             "attributes": {
               "bucket": {
                 "type": "string",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -19,7 +20,8 @@
               },
               "policy_format": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "default": "obs"
               },
               "region": {
                 "type": "string",
