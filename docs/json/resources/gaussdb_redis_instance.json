@@ -1,0 +1,177 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_redis_instance": {
+          "block": {
+            "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "db_user_name": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "flavor": {
+                "type": "string",
+                "required": true
+              },
+              "force_import": {
+                "type": "bool",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "node_num": {
+                "type": "number",
+                "optional": true,
+                "default": 3
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string",
+                      "private_ip": "string",
+                      "status": "string",
+                      "support_reduce": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "password": {
+                "type": "string",
+                "required": true,
+                "sensitive": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true
+              },
+              "port": {
+                "type": "number",
+                "computed": true
+              },
+              "private_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "volume_size": {
+                "type": "number",
+                "required": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "backup_strategy": {
+                "block": {
+                  "attributes": {
+                    "keep_days": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "datastore": {
+                "block": {
+                  "attributes": {
+                    "engine": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "storage_engine": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
